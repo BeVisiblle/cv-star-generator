@@ -420,9 +420,13 @@ const Profile = () => {
                       {cvData.profilbild && (
                         <div className="w-24 h-24 rounded-full overflow-hidden bg-white/20 flex-shrink-0">
                           <img
-                            src={typeof cvData.profilbild === 'string' ? cvData.profilbild : URL.createObjectURL(cvData.profilbild)}
+                            src={typeof cvData.profilbild === 'string' ? cvData.profilbild : 
+                              (cvData.profilbild instanceof File ? URL.createObjectURL(cvData.profilbild) : '/placeholder.svg')}
                             alt="Profilbild"
                             className="w-full h-full object-cover"
+                            onError={(e) => {
+                              e.currentTarget.src = '/placeholder.svg';
+                            }}
                           />
                         </div>
                       )}
