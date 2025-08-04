@@ -9,6 +9,8 @@ import CVStep2 from './cv-steps/CVStep2';
 import CVStep3 from './cv-steps/CVStep3';
 import CVStep4 from './cv-steps/CVStep4';
 import CVStep5 from './cv-steps/CVStep5';
+import CVStep6 from './cv-steps/CVStep6';
+import CVStep7 from './cv-steps/CVStep7';
 
 const CVGeneratorContent = () => {
   const { currentStep, setCurrentStep } = useCVForm();
@@ -21,6 +23,8 @@ const CVGeneratorContent = () => {
       case 3: return <CVStep3 />;
       case 4: return <CVStep4 />;
       case 5: return <CVStep5 />;
+      case 6: return <CVStep6 />;
+      case 7: return <CVStep7 />;
       default: return <CVStep1 />;
     }
   };
@@ -31,7 +35,7 @@ const CVGeneratorContent = () => {
   };
 
   const handleNext = () => {
-    if (currentStep < 5 && canGoNext()) {
+    if (currentStep < 7 && canGoNext()) {
       setCurrentStep(currentStep + 1);
     }
   };
@@ -66,10 +70,10 @@ const CVGeneratorContent = () => {
             </h1>
             <div className="space-y-2">
               <div className="flex justify-between text-sm text-muted-foreground">
-                <span>Schritt {currentStep} von 5</span>
-                <span>{Math.round((currentStep / 5) * 100)}% abgeschlossen</span>
+                <span>Schritt {currentStep} von 7</span>
+                <span>{Math.round((currentStep / 7) * 100)}% abgeschlossen</span>
               </div>
-              <Progress value={(currentStep / 5) * 100} className="h-2" />
+              <Progress value={(currentStep / 7) * 100} className="h-2" />
             </div>
           </div>
         </div>
@@ -90,12 +94,12 @@ const CVGeneratorContent = () => {
             Zurück
           </Button>
 
-          {currentStep < 5 && (
+          {currentStep < 7 && (
             <Button
               onClick={handleNext}
               disabled={!canGoNext()}
             >
-              Weiter
+              {currentStep === 5 ? 'Weiter zur Vorschau' : 'Weiter'}
               <ArrowRight className="h-4 w-4 ml-2" />
             </Button>
           )}

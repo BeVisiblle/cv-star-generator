@@ -1,197 +1,125 @@
 import React from 'react';
 import { useCVForm } from '@/contexts/CVFormContext';
-import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Label } from '@/components/ui/label';
-import { Separator } from '@/components/ui/separator';
-import { Download, UserPlus } from 'lucide-react';
-import { toast } from '@/hooks/use-toast';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
 const CVStep5 = () => {
   const { formData, updateFormData } = useCVForm();
 
-  const getBrancheTitle = () => {
+  const layouts = [
+    {
+      id: 1,
+      name: 'Modern',
+      description: 'Klares Design mit Farbakzenten für IT und moderne Branchen',
+      preview: '📱',
+      color: 'bg-blue-50 border-blue-200'
+    },
+    {
+      id: 2,
+      name: 'Klassisch',
+      description: 'Traditionelles Layout, perfekt für Handwerk und etablierte Unternehmen',
+      preview: '📄',
+      color: 'bg-gray-50 border-gray-200'
+    },
+    {
+      id: 3,
+      name: 'Kreativ',
+      description: 'Auffälliges Design für kreative Bereiche und junge Unternehmen',
+      preview: '🎨',
+      color: 'bg-purple-50 border-purple-200'
+    },
+    {
+      id: 4,
+      name: 'Minimalistisch',
+      description: 'Reduziertes Design mit Fokus auf Inhalt',
+      preview: '⚪',
+      color: 'bg-green-50 border-green-200'
+    },
+    {
+      id: 5,
+      name: 'Professionell',
+      description: 'Seriöses Layout für Gesundheitswesen und Behörden',
+      preview: '🏢',
+      color: 'bg-slate-50 border-slate-200'
+    }
+  ];
+
+  const getRecommendedLayout = () => {
     switch (formData.branche) {
-      case 'handwerk': return 'Handwerk';
-      case 'it': return 'IT';
-      case 'gesundheit': return 'Gesundheit';
-      default: return '';
+      case 'handwerk': return 2; // Klassisch
+      case 'it': return 1; // Modern
+      case 'gesundheit': return 5; // Professionell
+      default: return 1;
     }
   };
 
-  const getStatusTitle = () => {
-    switch (formData.status) {
-      case 'schueler': return 'Schüler:in';
-      case 'azubi': return 'Azubi';
-      case 'ausgelernt': return 'Ausgelernte Fachkraft';
-      default: return '';
-    }
-  };
-
-  const getLayoutName = () => {
-    const layouts = ['Klassisch', 'Modern', 'Kreativ', 'Technisch', 'Handwerk'];
-    return formData.layout ? layouts[formData.layout - 1] : 'Nicht gewählt';
-  };
-
-  const handleDownloadPDF = () => {
-    toast({
-      title: "PDF wird erstellt",
-      description: "Dein Lebenslauf wird als PDF heruntergeladen.",
-    });
-    // TODO: Implement PDF generation
-  };
-
-  const handleCreateProfile = () => {
-    if (!formData.einwilligung) {
-      toast({
-        title: "Einverständnis erforderlich",
-        description: "Bitte stimme der Speicherung deiner Daten zu, um ein Profil zu erstellen.",
-        variant: "destructive"
-      });
-      return;
-    }
-    
-    toast({
-      title: "Profil wird erstellt",
-      description: "Du wirst zur Profilregistrierung weitergeleitet.",
-    });
-    // TODO: Implement profile creation
-  };
+  const recommendedLayoutId = getRecommendedLayout();
 
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-xl font-semibold mb-2">Zusammenfassung</h2>
-        <p className="text-muted-foreground mb-6">
-          Perfekt! Hier ist eine Übersicht deiner Angaben.
+        <h2 className="text-xl font-semibold mb-2">Wählen Sie Ihr CV-Layout</h2>
+        <p className="text-muted-foreground">
+          Wählen Sie das Layout, das am besten zu Ihrer Branche und Ihrem Stil passt.
         </p>
       </div>
 
-      <Card className="p-6">
-        <h3 className="font-semibold mb-4">Deine CV-Daten</h3>
-        
-        <div className="space-y-3">
-          <div className="flex justify-between">
-            <span className="text-muted-foreground">Branche:</span>
-            <span className="font-medium">{getBrancheTitle()}</span>
-          </div>
-          
-          <div className="flex justify-between">
-            <span className="text-muted-foreground">Status:</span>
-            <span className="font-medium">{getStatusTitle()}</span>
-          </div>
-          
-          <Separator />
-          
-          <div className="flex justify-between">
-            <span className="text-muted-foreground">Name:</span>
-            <span className="font-medium">{formData.vorname} {formData.nachname}</span>
-          </div>
-          
-          <div className="flex justify-between">
-            <span className="text-muted-foreground">Wohnort:</span>
-            <span className="font-medium">{formData.wohnort}</span>
-          </div>
-          
-          {formData.status === 'schueler' && (
-            <>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Schule:</span>
-                <span className="font-medium">{formData.schule}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Abschluss:</span>
-                <span className="font-medium">{formData.geplanter_abschluss} ({formData.abschlussjahr})</span>
-              </div>
-            </>
-          )}
-          
-          {formData.status === 'azubi' && (
-            <>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Ausbildung:</span>
-                <span className="font-medium">{formData.ausbildungsberuf}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Betrieb:</span>
-                <span className="font-medium">{formData.ausbildungsbetrieb}</span>
-              </div>
-            </>
-          )}
-          
-          {formData.status === 'ausgelernt' && (
-            <>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Ausbildung:</span>
-                <span className="font-medium">{formData.ausbildungsberuf} ({formData.abschlussjahr_ausgelernt})</span>
-              </div>
-              {formData.aktueller_beruf && (
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Aktueller Beruf:</span>
-                  <span className="font-medium">{formData.aktueller_beruf}</span>
+      <div className="grid gap-4">
+        {layouts.map((layout) => (
+          <Card
+            key={layout.id}
+            className={`cursor-pointer transition-all hover:shadow-md ${
+              formData.layout === layout.id
+                ? 'ring-2 ring-primary border-primary'
+                : 'hover:border-primary/50'
+            } ${layout.color}`}
+            onClick={() => updateFormData({ layout: layout.id })}
+          >
+            <CardContent className="p-6">
+              <div className="flex items-start gap-4">
+                <div className="text-4xl">{layout.preview}</div>
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-1">
+                    <h3 className="font-semibold">{layout.name}</h3>
+                    {layout.id === recommendedLayoutId && (
+                      <span className="text-xs bg-primary text-primary-foreground px-2 py-1 rounded">
+                        Empfohlen
+                      </span>
+                    )}
+                    {formData.layout === layout.id && (
+                      <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">
+                        Ausgewählt
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-sm text-muted-foreground">{layout.description}</p>
                 </div>
-              )}
-            </>
-          )}
-          
-          <Separator />
-          
-          <div className="flex justify-between">
-            <span className="text-muted-foreground">Layout:</span>
-            <span className="font-medium">{getLayoutName()}</span>
-          </div>
-        </div>
-      </Card>
-
-      <Card className="p-6">
-        <h3 className="font-semibold mb-4">Deine Optionen</h3>
-        
-        <div className="space-y-4">
-          <div className="flex items-center space-x-2">
-            <Checkbox
-              id="einwilligung"
-              checked={formData.einwilligung || false}
-              onCheckedChange={(checked) => updateFormData({ einwilligung: !!checked })}
-            />
-            <Label htmlFor="einwilligung" className="text-sm">
-              Ich möchte ein Profil anlegen und stimme der Speicherung meiner Daten zu
-            </Label>
-          </div>
-          
-          <p className="text-xs text-muted-foreground">
-            Mit einem Profil kannst du von Arbeitgebern gefunden werden und deine Daten 
-            später bearbeiten. Ohne Profil kannst du trotzdem dein PDF herunterladen.
-          </p>
-        </div>
-      </Card>
-
-      <div className="grid md:grid-cols-2 gap-4">
-        <Button
-          onClick={handleDownloadPDF}
-          className="w-full h-12"
-          variant="outline"
-        >
-          <Download className="h-4 w-4 mr-2" />
-          CV als PDF herunterladen
-        </Button>
-        
-        <Button
-          onClick={handleCreateProfile}
-          className="w-full h-12"
-          disabled={!formData.einwilligung}
-        >
-          <UserPlus className="h-4 w-4 mr-2" />
-          Jetzt Profil anlegen
-        </Button>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
       </div>
 
-      <div className="p-4 bg-primary/5 rounded-lg border text-center">
-        <p className="text-sm text-foreground">
-          🎉 <strong>Glückwunsch!</strong> Du hast deinen Lebenslauf erfolgreich erstellt. 
-          Jetzt kannst du ihn herunterladen oder ein Profil anlegen, um von Arbeitgebern gefunden zu werden.
-        </p>
-      </div>
+      {formData.layout && (
+        <Card className="bg-green-50 border-green-200">
+          <CardContent className="p-4">
+            <p className="text-sm text-green-800">
+              ✓ Layout "{layouts.find(l => l.id === formData.layout)?.name}" ausgewählt
+            </p>
+          </CardContent>
+        </Card>
+      )}
+
+      {recommendedLayoutId && (
+        <Card className="bg-blue-50 border-blue-200">
+          <CardContent className="p-4">
+            <p className="text-sm text-blue-800">
+              💡 <strong>Tipp:</strong> Das Layout "{layouts.find(l => l.id === recommendedLayoutId)?.name}" 
+              ist besonders gut für den Bereich {formData.branche === 'handwerk' ? 'Handwerk' : 
+              formData.branche === 'it' ? 'IT' : 'Gesundheitswesen'} geeignet.
+            </p>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 };

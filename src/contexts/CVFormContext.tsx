@@ -1,5 +1,19 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 
+export interface SchulbildungEntry {
+  schule: string;
+  abschluss: string;
+  zeitraum_von: string;
+  zeitraum_bis: string;
+}
+
+export interface BerufserfahrungEntry {
+  firma: string;
+  taetigkeiten: string;
+  zeitraum_von: string;
+  zeitraum_bis: string;
+}
+
 export interface CVFormData {
   // Step 1: Branch & Status
   branche?: 'handwerk' | 'it' | 'gesundheit';
@@ -10,6 +24,7 @@ export interface CVFormData {
   nachname?: string;
   geburtsdatum?: Date;
   wohnort?: string;
+  profilbild?: File | string; // New: Mandatory profile picture
   
   // Schüler specific
   schule?: string;
@@ -31,10 +46,14 @@ export interface CVFormData {
   motivation?: string;
   praktische_erfahrung?: string;
   
-  // Step 4: Layout
+  // Step 4: School & Work Experience
+  schulbildung?: SchulbildungEntry[];
+  berufserfahrung?: BerufserfahrungEntry[];
+  
+  // Step 5: Layout
   layout?: number;
   
-  // Step 5: Consent
+  // Step 7: Consent
   einwilligung?: boolean;
 }
 

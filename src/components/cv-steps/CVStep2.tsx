@@ -1,12 +1,14 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useCVForm } from '@/contexts/CVFormContext';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card } from '@/components/ui/card';
+import { FileUpload } from '@/components/ui/file-upload';
 
 const CVStep2 = () => {
   const { formData, updateFormData } = useCVForm();
+  const [previewUrl, setPreviewUrl] = useState<string>('');
 
   const abschlussOptions = [
     'Hauptschulabschluss',
@@ -25,6 +27,17 @@ const CVStep2 = () => {
     }
   };
 
+  const handleFileSelect = (file: File | null) => {
+    if (file) {
+      const url = URL.createObjectURL(file);
+      setPreviewUrl(url);
+      updateFormData({ profilbild: file });
+    } else {
+      setPreviewUrl('');
+      updateFormData({ profilbild: undefined });
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div>
@@ -36,6 +49,17 @@ const CVStep2 = () => {
 
       <Card className="p-6">
         <div className="space-y-4">
+          {/* Profilbild Upload - Pflicht */}
+          <div className="space-y-2">
+            <Label htmlFor="profilbild">Profilbild *</Label>
+            <FileUpload 
+              onFileSelect={handleFileSelect}
+              previewUrl={previewUrl}
+              accept="image/*"
+              maxSize={5}
+            />
+          </div>
+
           {/* Grunddaten für alle */}
           <div className="grid md:grid-cols-2 gap-4">
             <div>
