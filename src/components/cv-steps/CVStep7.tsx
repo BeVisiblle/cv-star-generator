@@ -8,7 +8,7 @@ import { Separator } from '@/components/ui/separator';
 import { Download, UserPlus } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 
-const CVStep5 = () => {
+const CVStep7 = () => {
   const { formData, updateFormData } = useCVForm();
 
   const getBrancheTitle = () => {
@@ -91,7 +91,7 @@ const CVStep5 = () => {
           
           <div className="flex justify-between">
             <span className="text-muted-foreground">Wohnort:</span>
-            <span className="font-medium">{formData.wohnort}</span>
+            <span className="font-medium">{formData.ort}</span>
           </div>
           
           {formData.status === 'schueler' && (
@@ -196,4 +196,4 @@ const CVStep5 = () => {
   );
 };
 
-export default CVStep5;
+export default CVStep7;

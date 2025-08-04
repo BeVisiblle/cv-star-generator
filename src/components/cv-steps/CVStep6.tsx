@@ -79,7 +79,7 @@ const CVStep6 = () => {
                 <p className="text-lg text-gray-600 mb-2">
                   {getBrancheTitle()} • {getStatusTitle()}
                 </p>
-                <p className="text-sm text-gray-500">{formData.wohnort}</p>
+                <p className="text-sm text-gray-500">{formData.ort}</p>
               </div>
               
               <Badge variant="secondary" className="mt-2">
@@ -97,7 +97,7 @@ const CVStep6 = () => {
                   <strong>Geburtsdatum:</strong> {formData.geburtsdatum?.toLocaleDateString('de-DE') || 'Nicht angegeben'}
                 </div>
                 <div>
-                  <strong>Wohnort:</strong> {formData.wohnort || 'Nicht angegeben'}
+                  <strong>Wohnort:</strong> {formData.ort || 'Nicht angegeben'}
                 </div>
               </div>
             </div>
@@ -110,8 +110,8 @@ const CVStep6 = () => {
                   {formData.schulbildung.map((schule, index) => (
                     <div key={index} className="flex justify-between text-sm">
                       <div>
-                        <strong>{schule.schule}</strong>
-                        <p className="text-gray-600">{schule.abschluss}</p>
+                        <strong>{schule.name}</strong>
+                        <p className="text-gray-600">{schule.schulform}</p>
                       </div>
                       <div className="text-right text-gray-500">
                         {schule.zeitraum_von} - {schule.zeitraum_bis}
@@ -130,8 +130,8 @@ const CVStep6 = () => {
                   {formData.berufserfahrung.map((arbeit, index) => (
                     <div key={index} className="flex justify-between text-sm">
                       <div>
-                        <strong>{arbeit.firma}</strong>
-                        <p className="text-gray-600">{arbeit.taetigkeiten}</p>
+                        <strong>{arbeit.unternehmen}</strong>
+                        <p className="text-gray-600">{arbeit.titel}</p>
                       </div>
                       <div className="text-right text-gray-500">
                         {arbeit.zeitraum_von} - {arbeit.zeitraum_bis}

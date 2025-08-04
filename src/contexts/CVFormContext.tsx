@@ -1,17 +1,21 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 
 export interface SchulbildungEntry {
-  schule: string;
-  abschluss: string;
+  schulform: string;
+  name: string;
+  ort: string;
   zeitraum_von: string;
   zeitraum_bis: string;
+  beschreibung?: string;
 }
 
 export interface BerufserfahrungEntry {
-  firma: string;
-  taetigkeiten: string;
+  titel: string;
+  unternehmen: string;
+  ort: string;
   zeitraum_von: string;
   zeitraum_bis: string;
+  beschreibung?: string;
 }
 
 export interface CVFormData {
@@ -19,12 +23,17 @@ export interface CVFormData {
   branche?: 'handwerk' | 'it' | 'gesundheit';
   status?: 'schueler' | 'azubi' | 'ausgelernt';
   
-  // Step 2: Personal Data
+  // Step 2: Enhanced Personal Data
   vorname?: string;
   nachname?: string;
   geburtsdatum?: Date;
-  wohnort?: string;
-  profilbild?: File | string; // New: Mandatory profile picture
+  strasse?: string;
+  hausnummer?: string;
+  plz?: string;
+  ort?: string;
+  telefon?: string;
+  email?: string;
+  profilbild?: File | string;
   
   // Schüler specific
   schule?: string;
@@ -52,6 +61,9 @@ export interface CVFormData {
   
   // Step 5: Layout
   layout?: number;
+  
+  // AI-generated About Me
+  ueberMich?: string;
   
   // Step 7: Consent
   einwilligung?: boolean;

@@ -92,14 +92,69 @@ const CVStep2 = () => {
                 onChange={(e) => updateFormData({ geburtsdatum: new Date(e.target.value) })}
               />
             </div>
-            <div>
-              <Label htmlFor="wohnort">Wohnort (PLZ + Stadt) *</Label>
-              <Input
-                id="wohnort"
-                value={formData.wohnort || ''}
-                onChange={(e) => updateFormData({ wohnort: e.target.value })}
-                placeholder="12345 Musterstadt"
-              />
+            <div className="space-y-4">
+              <div className="grid md:grid-cols-3 gap-4">
+                <div className="md:col-span-2">
+                  <Label htmlFor="strasse">Straße *</Label>
+                  <Input
+                    id="strasse"
+                    value={formData.strasse || ''}
+                    onChange={(e) => updateFormData({ strasse: e.target.value })}
+                    placeholder="Musterstraße"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="hausnummer">Nr. *</Label>
+                  <Input
+                    id="hausnummer"
+                    value={formData.hausnummer || ''}
+                    onChange={(e) => updateFormData({ hausnummer: e.target.value })}
+                    placeholder="123a"
+                  />
+                </div>
+              </div>
+              
+              <div className="grid md:grid-cols-3 gap-4">
+                <div>
+                  <Label htmlFor="plz">PLZ *</Label>
+                  <Input
+                    id="plz"
+                    value={formData.plz || ''}
+                    onChange={(e) => updateFormData({ plz: e.target.value })}
+                    placeholder="12345"
+                  />
+                </div>
+                <div className="md:col-span-2">
+                  <Label htmlFor="ort">Ort *</Label>
+                  <Input
+                    id="ort"
+                    value={formData.ort || ''}
+                    onChange={(e) => updateFormData({ ort: e.target.value })}
+                    placeholder="Berlin"
+                  />
+                </div>
+              </div>
+              
+              <div>
+                <Label htmlFor="telefon">Telefonnummer (optional)</Label>
+                <Input
+                  id="telefon"
+                  value={formData.telefon || ''}
+                  onChange={(e) => updateFormData({ telefon: e.target.value })}
+                  placeholder="+49 123 456789"
+                />
+              </div>
+              
+              <div>
+                <Label htmlFor="email">E-Mail-Adresse *</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={formData.email || ''}
+                  onChange={(e) => updateFormData({ email: e.target.value })}
+                  placeholder="max.mustermann@email.com"
+                />
+              </div>
             </div>
           </div>
 

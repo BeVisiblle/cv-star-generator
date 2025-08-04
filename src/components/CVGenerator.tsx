@@ -13,7 +13,7 @@ import CVStep6 from './cv-steps/CVStep6';
 import CVStep7 from './cv-steps/CVStep7';
 
 const CVGeneratorContent = () => {
-  const { currentStep, setCurrentStep } = useCVForm();
+  const { currentStep, setCurrentStep, formData } = useCVForm();
   const navigate = useNavigate();
 
   const renderStep = () => {
@@ -21,17 +21,31 @@ const CVGeneratorContent = () => {
       case 1: return <CVStep1 />;
       case 2: return <CVStep2 />;
       case 3: return <CVStep3 />;
-      case 4: return <CVStep4 />;
-      case 5: return <CVStep5 />;
-      case 6: return <CVStep6 />;
-      case 7: return <CVStep7 />;
+        case 4: return <CVStep4 />;
+        case 5: return <CVStep5 />;
+        case 6: return <CVStep6 />;
+        case 7: return <CVStep7 />;
       default: return <CVStep1 />;
     }
   };
 
   const canGoNext = () => {
-    // Add validation logic here based on current step
-    return true;
+    switch (currentStep) {
+      case 1:
+        return formData.branche && formData.status;
+      case 2:
+        return formData.vorname && formData.nachname && formData.geburtsdatum && 
+               formData.strasse && formData.hausnummer && formData.plz && 
+               formData.ort && formData.email && formData.profilbild;
+      case 3:
+        return formData.kenntnisse && formData.motivation;
+      case 4:
+        return formData.schulbildung && formData.schulbildung.length > 0;
+      case 5:
+        return formData.layout;
+      default:
+        return true;
+    }
   };
 
   const handleNext = () => {
