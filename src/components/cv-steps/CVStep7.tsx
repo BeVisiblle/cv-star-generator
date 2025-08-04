@@ -103,16 +103,16 @@ const CVStep7 = () => {
       return;
     }
     
-    // Store CV data in localStorage for registration process
+    // Store CV data in localStorage
     localStorage.setItem('cvFormData', JSON.stringify(formData));
     
     toast({
-      title: "Profil wird erstellt",
-      description: "Du wirst zur Profilregistrierung weitergeleitet.",
+      title: "Profil erstellt",
+      description: "Du wirst zu deinem Profil weitergeleitet.",
     });
     
-    // Redirect to auth page
-    window.location.href = '/auth';
+    // Redirect to profile page
+    window.location.href = '/profile';
   };
 
   return (
