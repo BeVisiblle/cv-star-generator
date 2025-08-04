@@ -4,9 +4,47 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Card } from '@/components/ui/card';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Plus, Trash2 } from 'lucide-react';
+import { SprachEntry } from '@/contexts/CVFormContext';
 
 const CVStep3 = () => {
   const { formData, updateFormData } = useCVForm();
+
+  // Language management
+  const addSprachEntry = () => {
+    const sprachen = formData.sprachen || [];
+    const newSprache: SprachEntry = { sprache: '', niveau: 'A1' };
+    updateFormData({ sprachen: [...sprachen, newSprache] });
+  };
+
+  const updateSprachEntry = (index: number, field: keyof SprachEntry, value: string) => {
+    const sprachen = formData.sprachen || [];
+    const updated = [...sprachen];
+    updated[index] = { ...updated[index], [field]: value };
+    updateFormData({ sprachen: updated });
+  };
+
+  const removeSprachEntry = (index: number) => {
+    const sprachen = formData.sprachen || [];
+    updateFormData({ sprachen: sprachen.filter((_, i) => i !== index) });
+  };
+
+  // Skills management (only for azubi/ausgelernt)
+  const addFaehigkeit = (faehigkeit: string) => {
+    if (!faehigkeit.trim()) return;
+    const faehigkeiten = formData.faehigkeiten || [];
+    if (!faehigkeiten.includes(faehigkeit.trim())) {
+      updateFormData({ faehigkeiten: [...faehigkeiten, faehigkeit.trim()] });
+    }
+  };
+
+  const removeFaehigkeit = (index: number) => {
+    const faehigkeiten = formData.faehigkeiten || [];
+    updateFormData({ faehigkeiten: faehigkeiten.filter((_, i) => i !== index) });
+  };
 
   const getBrancheTitle = () => {
     switch (formData.branche) {
@@ -165,6 +203,8 @@ const CVStep3 = () => {
     }
   };
 
+  const showFaehigkeiten = formData.status === 'azubi' || formData.status === 'ausgelernt';
+
   return (
     <div className="space-y-6">
       <div>
@@ -176,7 +216,127 @@ const CVStep3 = () => {
         </p>
       </div>
 
+      {/* Languages Section */}
       <Card className="p-6">
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="font-semibold text-lg">Sprachen</h3>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={addSprachEntry}
+          >
+            <Plus className="h-4 w-4 mr-2" />
+            Sprache hinzufügen
+          </Button>
+        </div>
+
+        {!formData.sprachen?.length && (
+          <p className="text-muted-foreground text-sm mb-4 p-4 bg-muted/20 rounded">
+            Füge deine Sprachkenntnisse hinzu (z.B. Deutsch, Englisch, etc.)
+          </p>
+        )}
+
+        <div className="space-y-3">
+          {formData.sprachen?.map((sprache, index) => (
+            <div key={index} className="flex gap-4 items-center">
+              <Input
+                placeholder="z.B. Deutsch"
+                value={sprache.sprache}
+                onChange={(e) => updateSprachEntry(index, 'sprache', e.target.value)}
+                className="flex-1"
+              />
+              <Select
+                value={sprache.niveau}
+                onValueChange={(value) => updateSprachEntry(index, 'niveau', value as SprachEntry['niveau'])}
+              >
+                <SelectTrigger className="w-32">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Muttersprache">Muttersprache</SelectItem>
+                  <SelectItem value="C2">C2</SelectItem>
+                  <SelectItem value="C1">C1</SelectItem>
+                  <SelectItem value="B2">B2</SelectItem>
+                  <SelectItem value="B1">B1</SelectItem>
+                  <SelectItem value="A2">A2</SelectItem>
+                  <SelectItem value="A1">A1</SelectItem>
+                </SelectContent>
+              </Select>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={() => removeSprachEntry(index)}
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            </div>
+          ))}
+        </div>
+      </Card>
+
+      {/* Skills Section (only for azubi/ausgelernt) */}
+      {showFaehigkeiten && (
+        <Card className="p-6">
+          <h3 className="font-semibold text-lg mb-4">Fähigkeiten</h3>
+          
+          <div className="space-y-4">
+            <div className="flex gap-2">
+              <Input
+                placeholder="z.B. Teamwork, Problemlösung..."
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    addFaehigkeit(e.currentTarget.value);
+                    e.currentTarget.value = '';
+                  }
+                }}
+              />
+              <Button
+                type="button"
+                variant="outline"
+                onClick={(e) => {
+                  const input = e.currentTarget.parentElement?.querySelector('input');
+                  if (input) {
+                    addFaehigkeit(input.value);
+                    input.value = '';
+                  }
+                }}
+              >
+                <Plus className="h-4 w-4" />
+              </Button>
+            </div>
+
+            {formData.faehigkeiten?.length ? (
+              <div className="flex flex-wrap gap-2">
+                {formData.faehigkeiten.map((faehigkeit, index) => (
+                  <div key={index} className="flex items-center gap-1 bg-primary/10 text-primary px-3 py-1 rounded-full text-sm">
+                    {faehigkeit}
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="h-auto p-0 ml-1"
+                      onClick={() => removeFaehigkeit(index)}
+                    >
+                      <Trash2 className="h-3 w-3" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-muted-foreground text-sm p-4 bg-muted/20 rounded">
+                Füge deine beruflichen Fähigkeiten hinzu. Drücke Enter oder klicke auf + um hinzuzufügen.
+              </p>
+            )}
+          </div>
+        </Card>
+      )}
+
+      {/* Branch-specific questions */}
+      <Card className="p-6">
+        <h3 className="font-semibold text-lg mb-4">Branchenspezifische Fragen</h3>
         <div className="space-y-6">
           {renderQuestionsByBranche()}
         </div>
@@ -184,8 +344,8 @@ const CVStep3 = () => {
 
       <div className="p-4 bg-accent/20 rounded-lg">
         <p className="text-sm text-muted-foreground">
-          💡 <strong>Tipp:</strong> Sei ehrlich und authentisch. Auch ohne viel Erfahrung zeigst du mit deinen Antworten, 
-          dass du motiviert und interessiert bist!
+          💡 <strong>Tipp:</strong> Sei ehrlich und authentisch. Die Angaben zu Motivation und Kenntnissen 
+          werden nur für die automatische Generierung deines "Über mich"-Textes verwendet.
         </p>
       </div>
     </div>

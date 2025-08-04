@@ -18,6 +18,11 @@ export interface BerufserfahrungEntry {
   beschreibung?: string;
 }
 
+export interface SprachEntry {
+  sprache: string;
+  niveau: 'A1' | 'A2' | 'B1' | 'B2' | 'C1' | 'C2' | 'Muttersprache';
+}
+
 export interface CVFormData {
   // Step 1: Branch & Status
   branche?: 'handwerk' | 'it' | 'gesundheit';
@@ -50,10 +55,14 @@ export interface CVFormData {
   abschlussjahr_ausgelernt?: string;
   aktueller_beruf?: string;
   
-  // Step 3: Skills & Motivation
+  // Step 3: Skills & Motivation (internal use for AI generation)
   kenntnisse?: string;
   motivation?: string;
   praktische_erfahrung?: string;
+  
+  // Step 3: Languages & Skills for CV
+  sprachen?: SprachEntry[];
+  faehigkeiten?: string[];
   
   // Step 4: School & Work Experience
   schulbildung?: SchulbildungEntry[];

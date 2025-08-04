@@ -2,9 +2,7 @@ import React from 'react';
 import { useCVForm } from '@/contexts/CVFormContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
+import { ArrowLeft, Phone, Mail, MapPin, Calendar } from 'lucide-react';
 
 const CVStep6 = () => {
   const { formData, setCurrentStep } = useCVForm();
@@ -28,184 +26,232 @@ const CVStep6 = () => {
   };
 
   const getLayoutName = () => {
-    const layouts = ['Modern', 'Klassisch', 'Kreativ', 'Minimalistisch', 'Professionell'];
-    return layouts[formData.layout! - 1] || 'Unbekannt';
+    switch (formData.layout) {
+      case 1: return 'Klassisch';
+      case 2: return 'Modern';
+      case 3: return 'Kreativ';
+      case 4: return 'Minimalistisch';
+      case 5: return 'Professionell';
+      default: return 'Standard';
+    }
   };
 
   const handleBackToLayout = () => {
     setCurrentStep(5);
   };
 
+  const formatDate = (date: Date | undefined) => {
+    if (!date) return '';
+    return new Intl.DateTimeFormat('de-DE').format(new Date(date));
+  };
+
+  const getSprachNiveauBars = (niveau: string) => {
+    const levels = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2', 'Muttersprache'];
+    const currentLevel = niveau === 'Muttersprache' ? 6 : levels.indexOf(niveau);
+    const bars = [];
+    
+    for (let i = 0; i < 6; i++) {
+      bars.push(
+        <div
+          key={i}
+          className={`h-2 w-4 rounded-sm ${
+            i <= currentLevel ? 'bg-primary' : 'bg-muted'
+          }`}
+        />
+      );
+    }
+    return bars;
+  };
+
   return (
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle>Live-Vorschau Ihres Lebenslaufs</CardTitle>
+          <CardTitle>CV-Vorschau</CardTitle>
           <CardDescription>
-            So wird Ihr Lebenslauf aussehen. Prüfen Sie alle Angaben und gehen Sie zurück, 
-            wenn Sie Änderungen vornehmen möchten.
+            Hier siehst du eine Vorschau deines Lebenslaufs im {getLayoutName()}-Layout.
           </CardDescription>
-        </CardHeader>
-        <CardContent>
           <Button
             variant="outline"
             onClick={handleBackToLayout}
-            className="mb-6"
+            className="w-fit"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
             Zurück zur Layout-Auswahl
           </Button>
-
-          {/* CV Preview Layout */}
-          <div className="bg-white border-2 border-gray-200 rounded-lg p-8 shadow-lg max-w-2xl mx-auto">
-            {/* Header with Profile Picture */}
-            <div className="flex items-start gap-6 mb-6">
-              <div className="w-24 h-24 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden flex-shrink-0">
-                {formData.profilbild ? (
-                  <img 
-                    src={typeof formData.profilbild === 'string' ? formData.profilbild : URL.createObjectURL(formData.profilbild)}
-                    alt="Profilbild" 
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <span className="text-gray-400 text-xs">Foto</span>
-                )}
-              </div>
-              
-              <div className="flex-1">
-                <h1 className="text-2xl font-bold text-gray-900 mb-1">
-                  {formData.vorname} {formData.nachname}
-                </h1>
-                <p className="text-lg text-gray-600 mb-2">
-                  {getBrancheTitle()} • {getStatusTitle()}
-                </p>
-                <p className="text-sm text-gray-500">{formData.ort}</p>
-              </div>
-              
-              <Badge variant="secondary" className="mt-2">
-                Layout: {getLayoutName()}
-              </Badge>
-            </div>
-
-            <Separator className="my-6" />
-
-            {/* Contact Information */}
-            <div className="mb-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-3">Kontaktdaten</h2>
-              <div className="space-y-2 text-sm">
-                <div>
-                  <strong>Adresse:</strong> {formData.strasse} {formData.hausnummer}, {formData.plz} {formData.ort}
-                </div>
-                {formData.telefon && (
-                  <div>
-                    <strong>Telefon:</strong> {formData.telefon}
+        </CardHeader>
+        
+        <CardContent>
+          {/* Professional CV Layout */}
+          <div className="max-w-4xl mx-auto bg-white border border-gray-200 shadow-lg">
+            {/* Header Section */}
+            <div className="bg-gradient-to-r from-primary to-primary/80 text-white p-8">
+              <div className="flex items-center gap-6">
+                {formData.profilbild && (
+                  <div className="w-24 h-24 rounded-full overflow-hidden bg-white/20 flex-shrink-0">
+                    <img
+                      src={typeof formData.profilbild === 'string' ? formData.profilbild : URL.createObjectURL(formData.profilbild)}
+                      alt="Profilbild"
+                      className="w-full h-full object-cover"
+                    />
                   </div>
                 )}
-                {formData.email && (
-                  <div>
-                    <strong>E-Mail:</strong> {formData.email}
+                <div className="flex-1">
+                  <h1 className="text-3xl font-bold mb-2">
+                    {formData.vorname} {formData.nachname}
+                  </h1>
+                  <div className="text-lg opacity-90 mb-3">
+                    {getStatusTitle()} - {getBrancheTitle()}
                   </div>
-                )}
-                <div>
-                  <strong>Geburtsdatum:</strong> {formData.geburtsdatum?.toLocaleDateString('de-DE') || 'Nicht angegeben'}
+                  <div className="flex flex-wrap gap-4 text-sm">
+                    {formData.telefon && (
+                      <div className="flex items-center gap-1">
+                        <Phone className="h-4 w-4" />
+                        {formData.telefon}
+                      </div>
+                    )}
+                    {formData.email && (
+                      <div className="flex items-center gap-1">
+                        <Mail className="h-4 w-4" />
+                        {formData.email}
+                      </div>
+                    )}
+                    {(formData.strasse && formData.ort) && (
+                      <div className="flex items-center gap-1">
+                        <MapPin className="h-4 w-4" />
+                        {formData.strasse} {formData.hausnummer}, {formData.plz} {formData.ort}
+                      </div>
+                    )}
+                    {formData.geburtsdatum && (
+                      <div className="flex items-center gap-1">
+                        <Calendar className="h-4 w-4" />
+                        {formatDate(formData.geburtsdatum)}
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
 
-            {/* About Me Section */}
-            {formData.ueberMich && (
-              <div className="mb-6">
-                <h2 className="text-lg font-semibold text-gray-900 mb-3">Über mich</h2>
-                <p className="text-sm text-gray-700 leading-relaxed">
-                  {formData.ueberMich}
-                </p>
-              </div>
-            )}
+            {/* Content Grid */}
+            <div className="grid md:grid-cols-3 gap-8 p-8">
+              {/* Left Column */}
+              <div className="md:col-span-1 space-y-6">
+                {/* Languages */}
+                {formData.sprachen && formData.sprachen.length > 0 && (
+                  <div>
+                    <h3 className="text-lg font-semibold text-primary mb-3 border-b border-primary/20 pb-1">
+                      Sprachen
+                    </h3>
+                    <div className="space-y-3">
+                      {formData.sprachen.map((sprache, index) => (
+                        <div key={index}>
+                          <div className="flex justify-between items-center mb-1">
+                            <span className="font-medium">{sprache.sprache}</span>
+                            <span className="text-sm text-muted-foreground">{sprache.niveau}</span>
+                          </div>
+                          <div className="flex gap-1">
+                            {getSprachNiveauBars(sprache.niveau)}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
-            {/* Education */}
-            {formData.schulbildung && formData.schulbildung.length > 0 && (
-              <div className="mb-6">
-                <h2 className="text-lg font-semibold text-gray-900 mb-3">Schulbildung</h2>
-                 <div className="space-y-4">
-                   {formData.schulbildung.map((schule, index) => (
-                     <div key={index} className="border-l-2 border-gray-200 pl-4">
-                       <div className="flex justify-between items-start mb-1">
-                         <strong className="text-gray-900">{schule.name}</strong>
-                         <span className="text-sm text-gray-500">
-                           {schule.zeitraum_von} - {schule.zeitraum_bis}
-                         </span>
-                       </div>
-                       <p className="text-gray-600 text-sm">{schule.schulform}</p>
-                       {schule.ort && (
-                         <p className="text-gray-500 text-xs mt-1">{schule.ort}</p>
-                       )}
-                       {schule.beschreibung && (
-                         <p className="text-gray-700 text-sm mt-2">{schule.beschreibung}</p>
-                       )}
-                     </div>
-                   ))}
-                 </div>
+                {/* Skills (only for azubi/ausgelernt) */}
+                {(formData.status === 'azubi' || formData.status === 'ausgelernt') && formData.faehigkeiten && formData.faehigkeiten.length > 0 && (
+                  <div>
+                    <h3 className="text-lg font-semibold text-primary mb-3 border-b border-primary/20 pb-1">
+                      Fähigkeiten
+                    </h3>
+                    <div className="flex flex-wrap gap-2">
+                      {formData.faehigkeiten.map((faehigkeit, index) => (
+                        <span
+                          key={index}
+                          className="bg-primary/10 text-primary px-3 py-1 rounded-full text-sm"
+                        >
+                          {faehigkeit}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
-            )}
 
-            {/* Work Experience */}
-            {formData.berufserfahrung && formData.berufserfahrung.length > 0 && (
-              <div className="mb-6">
-                <h2 className="text-lg font-semibold text-gray-900 mb-3">Berufserfahrung</h2>
-                 <div className="space-y-4">
-                   {formData.berufserfahrung.map((arbeit, index) => (
-                     <div key={index} className="border-l-2 border-gray-200 pl-4">
-                       <div className="flex justify-between items-start mb-1">
-                         <strong className="text-gray-900">{arbeit.titel}</strong>
-                         <span className="text-sm text-gray-500">
-                           {arbeit.zeitraum_von} - {arbeit.zeitraum_bis}
-                         </span>
-                       </div>
-                       <p className="text-gray-600 text-sm">{arbeit.unternehmen}</p>
-                       {arbeit.ort && (
-                         <p className="text-gray-500 text-xs mt-1">{arbeit.ort}</p>
-                       )}
-                       {arbeit.beschreibung && (
-                         <p className="text-gray-700 text-sm mt-2">{arbeit.beschreibung}</p>
-                       )}
-                     </div>
-                   ))}
-                 </div>
-              </div>
-            )}
+              {/* Right Column */}
+              <div className="md:col-span-2 space-y-6">
+                {/* About Me */}
+                {formData.ueberMich && (
+                  <div>
+                    <h3 className="text-lg font-semibold text-primary mb-3 border-b border-primary/20 pb-1">
+                      Über mich
+                    </h3>
+                    <p className="text-gray-700 leading-relaxed">
+                      {formData.ueberMich}
+                    </p>
+                  </div>
+                )}
 
-            {/* Skills & Motivation */}
-            {formData.motivation && (
-              <div className="mb-6">
-                <h2 className="text-lg font-semibold text-gray-900 mb-3">Motivation</h2>
-                <p className="text-sm text-gray-700 leading-relaxed">
-                  {formData.motivation}
-                </p>
-              </div>
-            )}
+                {/* Education */}
+                {formData.schulbildung && formData.schulbildung.length > 0 && (
+                  <div>
+                    <h3 className="text-lg font-semibold text-primary mb-3 border-b border-primary/20 pb-1">
+                      Schulbildung
+                    </h3>
+                    <div className="space-y-4">
+                      {formData.schulbildung.map((schule, index) => (
+                        <div key={index} className="border-l-2 border-primary/30 pl-4">
+                          <div className="flex justify-between items-start mb-1">
+                            <h4 className="font-semibold">{schule.schulform}</h4>
+                            <span className="text-sm text-muted-foreground">
+                              {schule.zeitraum_von} - {schule.zeitraum_bis}
+                            </span>
+                          </div>
+                          <div className="text-primary font-medium">{schule.name}</div>
+                          <div className="text-sm text-muted-foreground">{schule.ort}</div>
+                          {schule.beschreibung && (
+                            <p className="text-sm text-gray-600 mt-2">{schule.beschreibung}</p>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
-            {formData.kenntnisse && (
-              <div className="mb-6">
-                <h2 className="text-lg font-semibold text-gray-900 mb-3">Kenntnisse & Fähigkeiten</h2>
-                <p className="text-sm text-gray-700 leading-relaxed">
-                  {formData.kenntnisse}
-                </p>
+                {/* Work Experience */}
+                {formData.berufserfahrung && formData.berufserfahrung.length > 0 && (
+                  <div>
+                    <h3 className="text-lg font-semibold text-primary mb-3 border-b border-primary/20 pb-1">
+                      Praktische Erfahrung
+                    </h3>
+                    <div className="space-y-4">
+                      {formData.berufserfahrung.map((arbeit, index) => (
+                        <div key={index} className="border-l-2 border-primary/30 pl-4">
+                          <div className="flex justify-between items-start mb-1">
+                            <h4 className="font-semibold">{arbeit.titel}</h4>
+                            <span className="text-sm text-muted-foreground">
+                              {arbeit.zeitraum_von} - {arbeit.zeitraum_bis}
+                            </span>
+                          </div>
+                          <div className="text-primary font-medium">{arbeit.unternehmen}</div>
+                          <div className="text-sm text-muted-foreground">{arbeit.ort}</div>
+                          {arbeit.beschreibung && (
+                            <p className="text-sm text-gray-600 mt-2">{arbeit.beschreibung}</p>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
-            )}
-
-            {formData.praktische_erfahrung && (
-              <div>
-                <h2 className="text-lg font-semibold text-gray-900 mb-3">Praktische Erfahrung</h2>
-                <p className="text-sm text-gray-700 leading-relaxed">
-                  {formData.praktische_erfahrung}
-                </p>
-              </div>
-            )}
+            </div>
           </div>
 
-          <div className="text-center mt-6">
+          <div className="mt-6 p-4 bg-muted/20 rounded-lg">
             <p className="text-sm text-muted-foreground">
-              Dies ist eine vereinfachte Vorschau. Das finale PDF wird noch professioneller formatiert.
+              <strong>Hinweis:</strong> Dies ist eine vereinfachte Vorschau. Das finale Layout wird 
+              optimiert und professionell formatiert.
             </p>
           </div>
         </CardContent>
