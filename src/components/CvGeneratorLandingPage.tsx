@@ -73,14 +73,23 @@ export default function CvGeneratorLandingPage() {
       <section className="bg-primary text-primary-foreground py-20 px-6 text-center">
         <h2 className="text-4xl font-bold">Starte jetzt. Und werde gefunden.</h2>
         <p className="mt-4 text-lg">Kein Login. Kein Bewerbungsterror. Nur du & dein Weg.</p>
-        <Button 
-          variant="cta" 
-          size="xl" 
-          className="mt-8"
-          onClick={() => window.location.href = '/cv-generator'}
-        >
-          💥 Jetzt Lebenslauf starten
-        </Button>
+        <div className="flex gap-4 justify-center mt-8">
+          <Button 
+            variant="cta" 
+            size="xl"
+            onClick={() => window.location.href = '/cv-generator'}
+          >
+            💥 Jetzt Lebenslauf starten
+          </Button>
+          <Button 
+            variant="outline" 
+            size="xl"
+            onClick={() => window.location.href = '/auth'}
+            className="bg-white/10 text-white border-white/20 hover:bg-white/20"
+          >
+            🔐 Anmelden / Registrieren
+          </Button>
+        </div>
       </section>
     </div>
   );

@@ -132,7 +132,7 @@ export type Database = {
           rejection_sent: boolean | null
           skills: string[] | null
           status: Database["public"]["Enums"]["application_status"] | null
-          user_id: string | null
+          user_id: string
         }
         Insert: {
           applied_at?: string | null
@@ -149,7 +149,7 @@ export type Database = {
           rejection_sent?: boolean | null
           skills?: string[] | null
           status?: Database["public"]["Enums"]["application_status"] | null
-          user_id?: string | null
+          user_id: string
         }
         Update: {
           applied_at?: string | null
@@ -166,7 +166,7 @@ export type Database = {
           rejection_sent?: boolean | null
           skills?: string[] | null
           status?: Database["public"]["Enums"]["application_status"] | null
-          user_id?: string | null
+          user_id?: string
         }
         Relationships: [
           {
