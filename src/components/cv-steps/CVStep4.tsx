@@ -11,6 +11,53 @@ import { SchulbildungEntry, BerufserfahrungEntry } from '@/contexts/CVFormContex
 const CVStep4 = () => {
   const { formData, updateFormData } = useCVForm();
 
+  // Auto-add entry for Azubi or Ausgelernt status
+  React.useEffect(() => {
+    if (formData.status === 'azubi' && formData.ausbildungsberuf && formData.ausbildungsbetrieb) {
+      const berufserfahrung = formData.berufserfahrung || [];
+      
+      // Check if automatic entry already exists
+      const hasAutoEntry = berufserfahrung.some(entry => 
+        entry.titel === formData.ausbildungsberuf && entry.unternehmen === formData.ausbildungsbetrieb
+      );
+      
+      if (!hasAutoEntry) {
+        const autoEntry: BerufserfahrungEntry = {
+          titel: formData.ausbildungsberuf,
+          unternehmen: formData.ausbildungsbetrieb,
+          ort: formData.ort || '',
+          zeitraum_von: formData.startjahr || '',
+          zeitraum_bis: formData.voraussichtliches_ende || '',
+          beschreibung: `Ausbildung zum ${formData.ausbildungsberuf}`
+        };
+        
+        updateFormData({ berufserfahrung: [autoEntry, ...berufserfahrung] });
+      }
+    }
+    
+    if (formData.status === 'ausgelernt' && formData.aktueller_beruf) {
+      const berufserfahrung = formData.berufserfahrung || [];
+      
+      // Check if automatic entry already exists
+      const hasAutoEntry = berufserfahrung.some(entry => 
+        entry.titel === formData.aktueller_beruf && entry.zeitraum_bis === 'heute'
+      );
+      
+      if (!hasAutoEntry) {
+        const autoEntry: BerufserfahrungEntry = {
+          titel: formData.aktueller_beruf,
+          unternehmen: '', // Will be filled by user
+          ort: formData.ort || '',
+          zeitraum_von: formData.abschlussjahr_ausgelernt || '',
+          zeitraum_bis: 'heute',
+          beschreibung: `Berufstätigkeit als ${formData.aktueller_beruf}`
+        };
+        
+        updateFormData({ berufserfahrung: [autoEntry, ...berufserfahrung] });
+      }
+    }
+  }, [formData.status, formData.ausbildungsberuf, formData.ausbildungsbetrieb, formData.aktueller_beruf]);
+
   const addSchulbildungEntry = () => {
     const newEntry: SchulbildungEntry = {
       schulform: '',
