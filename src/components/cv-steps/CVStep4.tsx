@@ -11,8 +11,36 @@ import { SchulbildungEntry, BerufserfahrungEntry } from '@/contexts/CVFormContex
 const CVStep4 = () => {
   const { formData, updateFormData } = useCVForm();
 
-  // Auto-add entry for Azubi or Ausgelernt status
+  // Auto-add entry for students, apprentices and graduates
   React.useEffect(() => {
+    // Auto-add school entry for students
+    if (formData.status === 'schueler' && formData.schule && formData.geplanter_abschluss) {
+      const schulbildung = formData.schulbildung || [];
+      
+      // Check if automatic entry already exists
+      const hasAutoEntry = schulbildung.some(entry => 
+        entry.name === formData.schule && entry.schulform === formData.geplanter_abschluss
+      );
+      
+      if (!hasAutoEntry) {
+        // Calculate school period (assume 4 years for typical graduation)
+        const abschlussJahr = parseInt(formData.abschlussjahr || new Date().getFullYear().toString());
+        const startJahr = abschlussJahr - 4;
+        
+        const autoEntry: SchulbildungEntry = {
+          schulform: formData.geplanter_abschluss,
+          name: formData.schule,
+          ort: formData.ort || '',
+          zeitraum_von: startJahr.toString(),
+          zeitraum_bis: formData.abschlussjahr || '',
+          beschreibung: `Angestrebter Abschluss: ${formData.geplanter_abschluss}`
+        };
+        
+        updateFormData({ schulbildung: [autoEntry, ...schulbildung] });
+      }
+    }
+    
+    // Auto-add work entry for apprentices
     if (formData.status === 'azubi' && formData.ausbildungsberuf && formData.ausbildungsbetrieb) {
       const berufserfahrung = formData.berufserfahrung || [];
       
@@ -35,6 +63,7 @@ const CVStep4 = () => {
       }
     }
     
+    // Auto-add work entry for graduates
     if (formData.status === 'ausgelernt' && formData.aktueller_beruf) {
       const berufserfahrung = formData.berufserfahrung || [];
       
@@ -56,7 +85,7 @@ const CVStep4 = () => {
         updateFormData({ berufserfahrung: [autoEntry, ...berufserfahrung] });
       }
     }
-  }, [formData.status, formData.ausbildungsberuf, formData.ausbildungsbetrieb, formData.aktueller_beruf]);
+  }, [formData.status, formData.schule, formData.geplanter_abschluss, formData.abschlussjahr, formData.ausbildungsberuf, formData.ausbildungsbetrieb, formData.aktueller_beruf]);
 
   const addSchulbildungEntry = () => {
     const newEntry: SchulbildungEntry = {
