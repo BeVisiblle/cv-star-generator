@@ -177,7 +177,7 @@ const CVStep6 = () => {
             const colors = getBranchenFarben();
             
             return (
-              <div className={styles.container}>
+              <div className={styles.container} data-cv-preview>
                 {/* Header Section */}
                 <div className={styles.header}>
                   <div className="flex items-center gap-6">

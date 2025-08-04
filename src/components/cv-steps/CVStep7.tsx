@@ -1,15 +1,17 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useCVForm } from '@/contexts/CVFormContext';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
-import { Download, UserPlus } from 'lucide-react';
+import { Download, UserPlus, Loader2 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
+import { generatePDF, generateCVFilename } from '@/lib/pdf-generator';
 
 const CVStep7 = () => {
-  const { formData, updateFormData } = useCVForm();
+  const { formData, updateFormData, setCurrentStep } = useCVForm();
+  const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
 
   const getBrancheTitle = () => {
     switch (formData.branche) {
@@ -34,12 +36,61 @@ const CVStep7 = () => {
     return formData.layout ? layouts[formData.layout - 1] : 'Nicht gewählt';
   };
 
-  const handleDownloadPDF = () => {
-    toast({
-      title: "PDF wird erstellt",
-      description: "Dein Lebenslauf wird als PDF heruntergeladen.",
-    });
-    // TODO: Implement PDF generation
+  const handleDownloadPDF = async () => {
+    if (!formData.vorname || !formData.nachname) {
+      toast({
+        title: "Fehler",
+        description: "Vor- und Nachname sind erforderlich für den PDF-Download.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsGeneratingPDF(true);
+    
+    try {
+      // Switch to CV preview step to capture the CV layout
+      const originalStep = 7;
+      setCurrentStep(6);
+      
+      // Wait for the step change to render
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
+      // Find the CV preview element
+      const cvPreviewElement = document.querySelector('[data-cv-preview]') as HTMLElement;
+      
+      if (!cvPreviewElement) {
+        throw new Error('CV Preview nicht gefunden');
+      }
+
+      // Generate filename
+      const filename = generateCVFilename(formData.vorname, formData.nachname);
+      
+      // Generate PDF
+      await generatePDF(cvPreviewElement, {
+        filename,
+        quality: 2,
+        format: 'a4',
+        margin: 10
+      });
+
+      // Switch back to summary step
+      setCurrentStep(originalStep);
+      
+      toast({
+        title: "PDF erfolgreich erstellt",
+        description: `Dein Lebenslauf wurde als ${filename} heruntergeladen.`,
+      });
+    } catch (error) {
+      console.error('PDF generation error:', error);
+      toast({
+        title: "Fehler beim Erstellen der PDF",
+        description: "Es gab ein Problem beim Erstellen deines Lebenslaufs. Bitte versuche es erneut.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsGeneratingPDF(false);
+    }
   };
 
   const handleCreateProfile = () => {
@@ -171,9 +222,14 @@ const CVStep7 = () => {
           onClick={handleDownloadPDF}
           className="w-full h-12"
           variant="outline"
+          disabled={isGeneratingPDF}
         >
-          <Download className="h-4 w-4 mr-2" />
-          CV als PDF herunterladen
+          {isGeneratingPDF ? (
+            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+          ) : (
+            <Download className="h-4 w-4 mr-2" />
+          )}
+          {isGeneratingPDF ? 'PDF wird erstellt...' : 'CV als PDF herunterladen'}
         </Button>
         
         <Button
