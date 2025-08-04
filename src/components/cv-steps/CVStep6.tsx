@@ -89,36 +89,62 @@ const CVStep6 = () => {
 
             <Separator className="my-6" />
 
-            {/* Personal Information */}
+            {/* Contact Information */}
             <div className="mb-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-3">Persönliche Daten</h2>
-              <div className="grid grid-cols-2 gap-4 text-sm">
+              <h2 className="text-lg font-semibold text-gray-900 mb-3">Kontaktdaten</h2>
+              <div className="space-y-2 text-sm">
+                <div>
+                  <strong>Adresse:</strong> {formData.strasse} {formData.hausnummer}, {formData.plz} {formData.ort}
+                </div>
+                {formData.telefon && (
+                  <div>
+                    <strong>Telefon:</strong> {formData.telefon}
+                  </div>
+                )}
+                {formData.email && (
+                  <div>
+                    <strong>E-Mail:</strong> {formData.email}
+                  </div>
+                )}
                 <div>
                   <strong>Geburtsdatum:</strong> {formData.geburtsdatum?.toLocaleDateString('de-DE') || 'Nicht angegeben'}
                 </div>
-                <div>
-                  <strong>Wohnort:</strong> {formData.ort || 'Nicht angegeben'}
-                </div>
               </div>
             </div>
+
+            {/* About Me Section */}
+            {formData.ueberMich && (
+              <div className="mb-6">
+                <h2 className="text-lg font-semibold text-gray-900 mb-3">Über mich</h2>
+                <p className="text-sm text-gray-700 leading-relaxed">
+                  {formData.ueberMich}
+                </p>
+              </div>
+            )}
 
             {/* Education */}
             {formData.schulbildung && formData.schulbildung.length > 0 && (
               <div className="mb-6">
                 <h2 className="text-lg font-semibold text-gray-900 mb-3">Schulbildung</h2>
-                <div className="space-y-2">
-                  {formData.schulbildung.map((schule, index) => (
-                    <div key={index} className="flex justify-between text-sm">
-                      <div>
-                        <strong>{schule.name}</strong>
-                        <p className="text-gray-600">{schule.schulform}</p>
-                      </div>
-                      <div className="text-right text-gray-500">
-                        {schule.zeitraum_von} - {schule.zeitraum_bis}
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                 <div className="space-y-4">
+                   {formData.schulbildung.map((schule, index) => (
+                     <div key={index} className="border-l-2 border-gray-200 pl-4">
+                       <div className="flex justify-between items-start mb-1">
+                         <strong className="text-gray-900">{schule.name}</strong>
+                         <span className="text-sm text-gray-500">
+                           {schule.zeitraum_von} - {schule.zeitraum_bis}
+                         </span>
+                       </div>
+                       <p className="text-gray-600 text-sm">{schule.schulform}</p>
+                       {schule.ort && (
+                         <p className="text-gray-500 text-xs mt-1">{schule.ort}</p>
+                       )}
+                       {schule.beschreibung && (
+                         <p className="text-gray-700 text-sm mt-2">{schule.beschreibung}</p>
+                       )}
+                     </div>
+                   ))}
+                 </div>
               </div>
             )}
 
@@ -126,19 +152,25 @@ const CVStep6 = () => {
             {formData.berufserfahrung && formData.berufserfahrung.length > 0 && (
               <div className="mb-6">
                 <h2 className="text-lg font-semibold text-gray-900 mb-3">Berufserfahrung</h2>
-                <div className="space-y-2">
-                  {formData.berufserfahrung.map((arbeit, index) => (
-                    <div key={index} className="flex justify-between text-sm">
-                      <div>
-                        <strong>{arbeit.unternehmen}</strong>
-                        <p className="text-gray-600">{arbeit.titel}</p>
-                      </div>
-                      <div className="text-right text-gray-500">
-                        {arbeit.zeitraum_von} - {arbeit.zeitraum_bis}
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                 <div className="space-y-4">
+                   {formData.berufserfahrung.map((arbeit, index) => (
+                     <div key={index} className="border-l-2 border-gray-200 pl-4">
+                       <div className="flex justify-between items-start mb-1">
+                         <strong className="text-gray-900">{arbeit.titel}</strong>
+                         <span className="text-sm text-gray-500">
+                           {arbeit.zeitraum_von} - {arbeit.zeitraum_bis}
+                         </span>
+                       </div>
+                       <p className="text-gray-600 text-sm">{arbeit.unternehmen}</p>
+                       {arbeit.ort && (
+                         <p className="text-gray-500 text-xs mt-1">{arbeit.ort}</p>
+                       )}
+                       {arbeit.beschreibung && (
+                         <p className="text-gray-700 text-sm mt-2">{arbeit.beschreibung}</p>
+                       )}
+                     </div>
+                   ))}
+                 </div>
               </div>
             )}
 
