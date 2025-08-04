@@ -14,7 +14,12 @@ export default function CvGeneratorLandingPage() {
         <p className="mt-4 text-lg md:text-xl max-w-xl mx-auto text-muted-foreground">
           In 5 Minuten zum perfekten Azubi-CV – für Handwerk, IT oder Gesundheit. Kein Word. Kein Stress.
         </p>
-        <Button variant="hero" size="xl" className="mt-8">
+        <Button 
+          variant="hero" 
+          size="xl" 
+          className="mt-8"
+          onClick={() => window.location.href = '/cv-generator'}
+        >
           🎯 Jetzt Lebenslauf erstellen
         </Button>
       </section>
@@ -68,7 +73,12 @@ export default function CvGeneratorLandingPage() {
       <section className="bg-primary text-primary-foreground py-20 px-6 text-center">
         <h2 className="text-4xl font-bold">Starte jetzt. Und werde gefunden.</h2>
         <p className="mt-4 text-lg">Kein Login. Kein Bewerbungsterror. Nur du & dein Weg.</p>
-        <Button variant="cta" size="xl" className="mt-8">
+        <Button 
+          variant="cta" 
+          size="xl" 
+          className="mt-8"
+          onClick={() => window.location.href = '/cv-generator'}
+        >
           💥 Jetzt Lebenslauf starten
         </Button>
       </section>
