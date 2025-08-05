@@ -160,18 +160,18 @@ const Dashboard = () => {
 
         <Card>
           <CardHeader>
-            <CardTitle>Marketplace erkunden</CardTitle>
+            <CardTitle>Community beitreten</CardTitle>
             <CardDescription>
-              Entdecke andere Profile und lass dich inspirieren
+              Tausche dich mit anderen Azubis aus und stelle Fragen
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <p className="text-sm text-muted-foreground">
-              Schaue dir andere Azubi-Profile an und sehe, wie Unternehmen dein Profil sehen würden.
+              Vernetze dich mit anderen Azubis, teile Erfahrungen und hole dir Rat.
             </p>
             <div className="flex space-x-2">
               <Button onClick={() => navigate('/marketplace')} className="flex-1">
-                Marketplace besuchen
+                Community besuchen
               </Button>
               <Button 
                 variant="outline" 

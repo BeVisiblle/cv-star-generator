@@ -39,7 +39,7 @@ const navigationItems = [
     icon: User,
   },
   {
-    title: "Marketplace",
+    title: "Community",
     url: "/marketplace",
     icon: Users,
   },

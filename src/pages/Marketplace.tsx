@@ -1,50 +1,59 @@
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Search, MapPin, Users } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
+import { Heart, MessageCircle, Share2, Send, Users, TrendingUp } from "lucide-react";
+import { useState } from "react";
 
-const Marketplace = () => {
-  // Placeholder data - will be replaced with real data later
-  const placeholderProfiles = [
+const Community = () => {
+  const [newPost, setNewPost] = useState("");
+
+  // Placeholder posts data
+  const placeholderPosts = [
     {
       id: 1,
-      firstName: "Anna",
-      status: "Schülerin",
-      berufswunsch: "IT-Systemelektronikerin",
-      location: "Frankfurt am Main, 60311",
-      skills: ["HTML/CSS", "Teamarbeit", "Zuverlässigkeit"],
-      aboutMe: "Ich interessiere mich sehr für Technik und möchte gerne eine Ausbildung im IT-Bereich beginnen..."
+      author: {
+        name: "Anna",
+        status: "Schülerin",
+        avatar: "A",
+        location: "Frankfurt am Main"
+      },
+      content: "Hey Leute! Ich starte bald meine Ausbildung zur IT-Systemelektronikerin. Hat jemand Tipps für den ersten Tag? 😊",
+      timestamp: "vor 2 Stunden",
+      likes: 12,
+      comments: 5,
+      isLiked: false
     },
     {
       id: 2,
-      firstName: "Max",
-      status: "Azubi",
-      berufswunsch: "Kfz-Mechatroniker",
-      location: "München, 80331",
-      skills: ["Handwerk", "Problemlösung", "Mechanik"],
-      aboutMe: "Als angehender Kfz-Mechatroniker bringe ich Leidenschaft für Autos und technisches Verständnis mit..."
+      author: {
+        name: "Max",
+        status: "Azubi (2. Jahr)",
+        avatar: "M",
+        location: "München"
+      },
+      content: "Heute war ein super Tag in der Werkstatt! Endlich den ersten Motor komplett zerlegt und wieder zusammengebaut. Das Gefühl ist unbeschreiblich! 🔧⚙️",
+      timestamp: "vor 4 Stunden",
+      likes: 25,
+      comments: 8,
+      isLiked: true
     },
     {
       id: 3,
-      firstName: "Lisa",
-      status: "Schülerin",
-      berufswunsch: "Medizinische Fachangestellte",
-      location: "Hamburg, 20095",
-      skills: ["Empathie", "Organisation", "Kommunikation"],
-      aboutMe: "Ich möchte Menschen helfen und interessiere mich für den medizinischen Bereich. Mein Ziel ist es..."
-    },
-    {
-      id: 4,
-      firstName: "Tom",
-      status: "Geselle",
-      berufswunsch: "Elektrotechniker",
-      location: "Berlin, 10115",
-      skills: ["Elektrotechnik", "Präzision", "Sicherheit"],
-      aboutMe: "Nach meiner Ausbildung zum Elektroniker möchte ich mich weiterbilden und neue Herausforderungen..."
-    },
-    // Add more placeholder profiles to test pagination
+      author: {
+        name: "Lisa",
+        status: "Schülerin",
+        avatar: "L",
+        location: "Hamburg"
+      },
+      content: "Frage an alle MFA-Azubis: Wie habt ihr euch auf das Vorstellungsgespräch vorbereitet? Ich bin total nervös! 😰",
+      timestamp: "vor 6 Stunden",
+      likes: 8,
+      comments: 12,
+      isLiked: false
+    }
   ];
 
   return (
@@ -53,104 +62,121 @@ const Marketplace = () => {
       <div className="space-y-4">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Marketplace</h1>
+            <h1 className="text-3xl font-bold tracking-tight">Community</h1>
             <p className="text-muted-foreground">
-              Entdecke Azubi-Profile und finde Inspiration für deine eigene Bewerbung
+              Tausche dich mit anderen Azubis aus, stelle Fragen und teile deine Erfahrungen
             </p>
           </div>
-          <Badge variant="outline" className="flex items-center gap-2">
-            <Users className="h-4 w-4" />
-            {placeholderProfiles.length} Profile
-          </Badge>
-        </div>
-
-        {/* Search and Filters */}
-        <div className="flex flex-col sm:flex-row gap-4">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Suche nach Name, Beruf oder Ort..."
-              className="pl-10"
-            />
+          <div className="flex items-center gap-4">
+            <Badge variant="outline" className="flex items-center gap-2">
+              <Users className="h-4 w-4" />
+              1,234 Mitglieder
+            </Badge>
+            <Badge variant="outline" className="flex items-center gap-2">
+              <TrendingUp className="h-4 w-4" />
+              42 aktiv heute
+            </Badge>
           </div>
-          <Button variant="outline">
-            Filter
-          </Button>
         </div>
       </div>
 
-      {/* Profile Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {placeholderProfiles.map((profile) => (
-          <Card key={profile.id} className="hover:shadow-lg transition-shadow cursor-pointer">
+      {/* Create Post */}
+      <Card>
+        <CardContent className="p-6">
+          <div className="space-y-4">
+            <div className="flex items-start space-x-4">
+              <Avatar className="h-10 w-10">
+                <AvatarFallback>Du</AvatarFallback>
+              </Avatar>
+              <div className="flex-1 space-y-3">
+                <Textarea
+                  placeholder="Was beschäftigt dich heute? Teile deine Gedanken, Fragen oder Erfahrungen..."
+                  value={newPost}
+                  onChange={(e) => setNewPost(e.target.value)}
+                  className="min-h-[100px] resize-none"
+                />
+                <div className="flex justify-between items-center">
+                  <div className="text-sm text-muted-foreground">
+                    {newPost.length}/500 Zeichen
+                  </div>
+                  <Button 
+                    disabled={!newPost.trim()}
+                    className="flex items-center gap-2"
+                  >
+                    <Send className="h-4 w-4" />
+                    Beitrag veröffentlichen
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Posts Feed */}
+      <div className="space-y-6">
+        {placeholderPosts.map((post) => (
+          <Card key={post.id} className="hover:shadow-md transition-shadow">
             <CardContent className="p-6">
               <div className="space-y-4">
-                {/* Profile Header */}
-                <div className="flex items-center space-x-3">
-                  <Avatar className="h-12 w-12 bg-muted">
-                    <AvatarFallback>
-                      {profile.firstName.charAt(0)}
-                    </AvatarFallback>
+                {/* Post Header */}
+                <div className="flex items-start space-x-3">
+                  <Avatar className="h-12 w-12">
+                    <AvatarFallback>{post.author.avatar}</AvatarFallback>
                   </Avatar>
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold truncate">{profile.firstName}</h3>
-                    <Badge variant="secondary" className="text-xs">
-                      {profile.status}
-                    </Badge>
-                  </div>
-                </div>
-
-                {/* Career Goal */}
-                <div className="space-y-1">
-                  <p className="font-medium text-sm">{profile.berufswunsch}</p>
-                  <div className="flex items-center text-xs text-muted-foreground">
-                    <MapPin className="h-3 w-3 mr-1" />
-                    {profile.location}
-                  </div>
-                </div>
-
-                {/* Skills */}
-                <div className="space-y-2">
-                  <div className="flex flex-wrap gap-1">
-                    {profile.skills.slice(0, 3).map((skill, index) => (
-                      <Badge key={index} variant="outline" className="text-xs">
-                        {skill}
+                    <div className="flex items-center gap-2">
+                      <h3 className="font-semibold">{post.author.name}</h3>
+                      <Badge variant="secondary" className="text-xs">
+                        {post.author.status}
                       </Badge>
-                    ))}
+                    </div>
+                    <div className="text-sm text-muted-foreground">
+                      {post.author.location} • {post.timestamp}
+                    </div>
                   </div>
                 </div>
 
-                {/* About Me Preview */}
-                <p className="text-sm text-muted-foreground line-clamp-3">
-                  {profile.aboutMe.substring(0, 100)}...
-                </p>
+                {/* Post Content */}
+                <div className="text-sm leading-relaxed">
+                  {post.content}
+                </div>
 
-                {/* Action Button */}
-                <Button variant="outline" size="sm" className="w-full">
-                  Profil ansehen
-                </Button>
+                {/* Post Actions */}
+                <div className="flex items-center justify-between pt-2 border-t">
+                  <div className="flex items-center space-x-4">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className={`flex items-center gap-2 ${post.isLiked ? 'text-red-500' : ''}`}
+                    >
+                      <Heart className={`h-4 w-4 ${post.isLiked ? 'fill-current' : ''}`} />
+                      {post.likes}
+                    </Button>
+                    <Button variant="ghost" size="sm" className="flex items-center gap-2">
+                      <MessageCircle className="h-4 w-4" />
+                      {post.comments}
+                    </Button>
+                    <Button variant="ghost" size="sm" className="flex items-center gap-2">
+                      <Share2 className="h-4 w-4" />
+                      Teilen
+                    </Button>
+                  </div>
+                </div>
               </div>
             </CardContent>
           </Card>
         ))}
       </div>
 
-      {/* Pagination */}
+      {/* Load More */}
       <div className="flex justify-center">
-        <div className="flex items-center space-x-2">
-          <Button variant="outline" size="sm" disabled>
-            Zurück
-          </Button>
-          <span className="text-sm text-muted-foreground">
-            Seite 1 von 1
-          </span>
-          <Button variant="outline" size="sm" disabled>
-            Weiter
-          </Button>
-        </div>
+        <Button variant="outline">
+          Weitere Beiträge laden
+        </Button>
       </div>
     </div>
   );
 };
 
-export default Marketplace;
+export default Community;
