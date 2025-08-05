@@ -94,48 +94,13 @@ export const PLZOrtSelector = ({
     <div className={`grid grid-cols-3 gap-4 ${className}`}>
       <div>
         <Label htmlFor="plz">{plzLabel}{required && ' *'}</Label>
-        <Popover open={open} onOpenChange={setOpen}>
-          <PopoverTrigger asChild>
-            <Button
-              variant="outline"
-              role="combobox"
-              aria-expanded={open}
-              className="w-full justify-between"
-            >
-              {plz || "PLZ wählen..."}
-              <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-full p-0">
-            <Command>
-              <CommandInput 
-                placeholder="PLZ eingeben..." 
-                value={searchValue}
-                onValueChange={setSearchValue}
-              />
-              <CommandList>
-                <CommandEmpty>Keine PLZ gefunden.</CommandEmpty>
-                <CommandGroup>
-                  {filteredPostalCodes.map((postal) => (
-                    <CommandItem
-                      key={postal.id}
-                      value={postal.plz}
-                      onSelect={() => handlePLZSelect(postal.plz)}
-                    >
-                      <Check
-                        className={cn(
-                          "mr-2 h-4 w-4",
-                          plz === postal.plz ? "opacity-100" : "opacity-0"
-                        )}
-                      />
-                      {postal.plz} - {postal.ort}
-                    </CommandItem>
-                  ))}
-                </CommandGroup>
-              </CommandList>
-            </Command>
-          </PopoverContent>
-        </Popover>
+        <Input
+          id="plz"
+          value={plz}
+          onChange={(e) => onPLZChange(e.target.value, ort)}
+          placeholder="PLZ eingeben"
+          maxLength={5}
+        />
       </div>
       <div className="col-span-2">
         <Label htmlFor="ort">{ortLabel}{required && ' *'}</Label>
