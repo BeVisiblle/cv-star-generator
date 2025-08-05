@@ -1,7 +1,9 @@
-import CvGeneratorLandingPage from "@/components/CvGeneratorLandingPage";
+import React from 'react';
+import CVGenerator from '@/components/CVGenerator';
 
 const Index = () => {
-  return <CvGeneratorLandingPage />;
+  // For now, directly show the CV generator with the integrated dropdowns
+  return <CVGenerator />;
 };
 
 export default Index;

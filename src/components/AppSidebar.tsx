@@ -148,12 +148,14 @@ export function AppSidebar() {
               <Avatar className="h-8 w-8">
                 <AvatarImage src={profile?.avatar_url} />
                 <AvatarFallback>
-                  {profile?.full_name?.split(' ').map(n => n[0]).join('') || 'U'}
+                  {profile?.vorname && profile?.nachname ? 
+                    `${profile.vorname[0]}${profile.nachname[0]}` : 'U'}
                 </AvatarFallback>
               </Avatar>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-sidebar-accent-foreground truncate">
-                  {profile?.full_name || 'Unbekannter Nutzer'}
+                  {profile?.vorname && profile?.nachname ? 
+                    `${profile.vorname} ${profile.nachname}` : 'Unbekannter Nutzer'}
                 </p>
                 <p className="text-xs text-sidebar-foreground/60 truncate">
                   {profile?.email || ''}
@@ -177,7 +179,8 @@ export function AppSidebar() {
             <Avatar className="h-8 w-8 mx-auto">
               <AvatarImage src={profile?.avatar_url} />
               <AvatarFallback>
-                {profile?.full_name?.split(' ').map(n => n[0]).join('') || 'U'}
+                {profile?.vorname && profile?.nachname ? 
+                  `${profile.vorname[0]}${profile.nachname[0]}` : 'U'}
               </AvatarFallback>
             </Avatar>
             <Button

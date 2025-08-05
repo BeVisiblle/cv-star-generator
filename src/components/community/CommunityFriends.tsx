@@ -22,7 +22,7 @@ export const CommunityFriends = () => {
       if (!user.user) return [];
 
       const { data, error } = await supabase
-        .from("connections")
+        .from("follows")
         .select("*")
         .eq("follower_id", user.user.id);
 
@@ -34,7 +34,7 @@ export const CommunityFriends = () => {
 
       const { data: profiles, error: profileError } = await supabase
         .from("profiles")
-        .select("id, full_name, avatar_url, ausbildungsberuf, location")
+        .select("id, vorname, nachname, avatar_url, ausbildungsberuf, ort")
         .in("id", connectionIds);
 
       if (profileError) throw profileError;
@@ -60,9 +60,9 @@ export const CommunityFriends = () => {
 
       const { data, error } = await supabase
         .from("profiles")
-        .select("id, full_name, avatar_url, ausbildungsberuf, location")
+        .select("id, vorname, nachname, avatar_url, ausbildungsberuf, ort")
         .neq("id", user.user.id)
-        .or(`full_name.ilike.%${searchQuery}%,ausbildungsberuf.ilike.%${searchQuery}%`)
+        .or(`vorname.ilike.%${searchQuery}%,nachname.ilike.%${searchQuery}%,ausbildungsberuf.ilike.%${searchQuery}%`)
         .limit(10);
 
       if (error) throw error;
@@ -77,7 +77,7 @@ export const CommunityFriends = () => {
       if (!user.user) throw new Error("Not authenticated");
 
       const { error } = await supabase
-        .from("connections")
+        .from("follows")
         .insert({
           follower_id: user.user.id,
           following_id: targetUserId,
@@ -97,7 +97,7 @@ export const CommunityFriends = () => {
   const unfollowMutation = useMutation({
     mutationFn: async (connectionId: string) => {
       const { error } = await supabase
-        .from("connections")
+        .from("follows")
         .delete()
         .eq("id", connectionId);
 
@@ -144,17 +144,23 @@ export const CommunityFriends = () => {
                   <div className="flex items-center space-x-3">
                     <Avatar className="h-10 w-10">
                       <AvatarImage src={user.avatar_url} />
-                      <AvatarFallback>{user.full_name?.[0] || "U"}</AvatarFallback>
+                      <AvatarFallback>
+                        {user.vorname && user.nachname ? 
+                          `${user.vorname[0]}${user.nachname[0]}` : 'U'}
+                      </AvatarFallback>
                     </Avatar>
                     <div>
-                      <div className="font-medium">{user.full_name}</div>
+                      <div className="font-medium">
+                        {user.vorname && user.nachname ? 
+                          `${user.vorname} ${user.nachname}` : 'Unbekannter Nutzer'}
+                      </div>
                       <div className="text-sm text-muted-foreground">
                         {user.ausbildungsberuf && (
                           <Badge variant="outline" className="mr-2">
                             {user.ausbildungsberuf}
                           </Badge>
                         )}
-                        {user.location}
+                        {user.ort}
                       </div>
                     </div>
                   </div>
@@ -207,12 +213,14 @@ export const CommunityFriends = () => {
                     <Avatar className="h-10 w-10">
                       <AvatarImage src={connection.following?.avatar_url} />
                       <AvatarFallback>
-                        {connection.following?.full_name?.[0] || "U"}
+                        {connection.following?.vorname && connection.following?.nachname ? 
+                          `${connection.following.vorname[0]}${connection.following.nachname[0]}` : 'U'}
                       </AvatarFallback>
                     </Avatar>
                     <div>
                       <div className="font-medium">
-                        {connection.following?.full_name || "Unbekannter Nutzer"}
+                        {connection.following?.vorname && connection.following?.nachname ? 
+                          `${connection.following.vorname} ${connection.following.nachname}` : 'Unbekannter Nutzer'}
                       </div>
                       <div className="text-sm text-muted-foreground">
                         {connection.following?.ausbildungsberuf && (
@@ -220,7 +228,7 @@ export const CommunityFriends = () => {
                             {connection.following.ausbildungsberuf}
                           </Badge>
                         )}
-                        {connection.following?.location}
+                        {connection.following?.ort}
                       </div>
                     </div>
                   </div>

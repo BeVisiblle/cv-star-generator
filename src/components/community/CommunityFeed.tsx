@@ -1,21 +1,18 @@
-import { useState, useEffect } from "react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
-import { CreatePost } from "./CreatePost";
-import { PostCard } from "./PostCard";
-import { Button } from "@/components/ui/button";
-import { RefreshCw } from "lucide-react";
+import React from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
+import { Card } from '@/components/ui/card';
+import PostCard from './PostCard';
+import { Loader2 } from 'lucide-react';
 
-export const CommunityFeed = () => {
-  const queryClient = useQueryClient();
-
-  const { data: posts, isLoading, refetch } = useQuery({
-    queryKey: ["community-posts"],
+export default function CommunityFeed() {
+  const { data: posts, isLoading, error } = useQuery({
+    queryKey: ['community-posts'],
     queryFn: async () => {
       const { data: posts, error } = await supabase
-        .from("posts")
-        .select("*")
-        .order("created_at", { ascending: false });
+        .from('posts')
+        .select('*')
+        .order('created_at', { ascending: false });
 
       if (error) throw error;
 
@@ -25,7 +22,7 @@ export const CommunityFeed = () => {
 
       const { data: profiles, error: profileError } = await supabase
         .from("profiles")
-        .select("id, full_name, avatar_url, ausbildungsberuf")
+        .select("id, vorname, nachname, avatar_url, ausbildungsberuf")
         .in("id", userIds);
 
       if (profileError) throw profileError;
@@ -40,64 +37,61 @@ export const CommunityFeed = () => {
     },
   });
 
-  // Set up real-time subscription for posts
-  useEffect(() => {
-    const channel = supabase
-      .channel('posts_changes')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'posts'
-        },
-        (payload) => {
-          console.log('Post change received:', payload);
-          queryClient.invalidateQueries({ queryKey: ["community-posts"] });
-        }
-      )
-      .subscribe();
+  // Temporarily disable real-time subscription due to database schema issues
+  // useEffect(() => {
+  //   const channel = supabase
+  //     .channel('posts_changes')
+  //     .on(
+  //       'postgres_changes',
+  //       {
+  //         event: '*',
+  //         schema: 'public',
+  //         table: 'posts',
+  //       },
+  //       () => {
+  //         queryClient.invalidateQueries({ queryKey: ['community-posts'] });
+  //       }
+  //     )
+  //     .subscribe();
 
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [queryClient]);
+  //   return () => {
+  //     channel.unsubscribe();
+  //   };
+  // }, [queryClient]);
 
   if (isLoading) {
     return (
-      <div className="space-y-6">
-        <CreatePost />
-        <div className="text-center py-8">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
-        </div>
+      <div className="flex items-center justify-center p-8">
+        <Loader2 className="h-8 w-8 animate-spin" />
       </div>
     );
   }
 
-  return (
-    <div className="space-y-6">
-      <CreatePost />
-      
-      <div className="flex justify-between items-center">
-        <h2 className="text-lg font-semibold">Neueste Beiträge</h2>
-        <Button variant="outline" size="sm" onClick={() => refetch()}>
-          <RefreshCw className="h-4 w-4 mr-2" />
-          Aktualisieren
-        </Button>
-      </div>
+  if (error) {
+    return (
+      <Card className="p-6">
+        <p className="text-center text-muted-foreground">
+          Fehler beim Laden der Beiträge. Bitte versuche es später erneut.
+        </p>
+      </Card>
+    );
+  }
 
-      <div className="space-y-6">
-        {posts && posts.length > 0 ? (
-          posts.map((post) => (
-            <PostCard key={post.id} post={post} />
-          ))
-        ) : (
-          <div className="text-center py-8 text-muted-foreground">
-            <p>Noch keine Beiträge vorhanden.</p>
-            <p className="text-sm">Sei der erste und teile etwas mit der Community!</p>
-          </div>
-        )}
-      </div>
+  if (!posts || posts.length === 0) {
+    return (
+      <Card className="p-6">
+        <p className="text-center text-muted-foreground">
+          Noch keine Beiträge vorhanden. Sei der erste, der etwas teilt!
+        </p>
+      </Card>
+    );
+  }
+
+  return (
+    <div className="space-y-4">
+      {posts.map((post) => (
+        <PostCard key={post.id} post={post} />
+      ))}
     </div>
   );
-};
+}
