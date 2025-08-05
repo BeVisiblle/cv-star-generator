@@ -12,6 +12,7 @@ interface PLZOrtSelectorProps {
   plz: string;
   ort: string;
   onPLZChange: (plz: string, ort: string) => void;
+  onOrtChange: (ort: string) => void;
   required?: boolean;
   plzLabel?: string;
   ortLabel?: string;
@@ -22,6 +23,7 @@ export const PLZOrtSelector = ({
   plz,
   ort,
   onPLZChange,
+  onOrtChange,
   required = false,
   plzLabel = 'PLZ',
   ortLabel = 'Ort',
@@ -107,9 +109,8 @@ export const PLZOrtSelector = ({
         <Input
           id="ort"
           value={ort}
-          readOnly
-          placeholder="Ort wird automatisch gesetzt"
-          className="bg-muted"
+          onChange={(e) => onOrtChange(e.target.value)}
+          placeholder="Ort eingeben"
         />
       </div>
     </div>
