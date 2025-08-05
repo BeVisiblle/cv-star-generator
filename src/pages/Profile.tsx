@@ -3,7 +3,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { ArrowLeft, Download, User, UserPlus, Phone, Mail, MapPin, Calendar } from "lucide-react";
+import { Progress } from "@/components/ui/progress";
+import { ArrowLeft, Download, User, UserPlus, Phone, Mail, MapPin, Calendar, Camera, Upload, FileText, Award, Building, GraduationCap, Briefcase, Languages, Star, Eye, Users, MessageCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { CVFormData } from "@/contexts/CVFormContext";
 import { toast } from "@/hooks/use-toast";
@@ -203,7 +204,7 @@ const Profile = () => {
 
   if (!cvData) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-secondary/5 flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <Card className="w-96">
           <CardContent className="p-6 text-center">
             <p>CV-Daten werden geladen...</p>
@@ -213,207 +214,357 @@ const Profile = () => {
     );
   }
 
+  const getLanguageProgress = (niveau: string) => {
+    const levels = { 'A1': 17, 'A2': 33, 'B1': 50, 'B2': 67, 'C1': 83, 'C2': 100, 'Muttersprache': 100 };
+    return levels[niveau as keyof typeof levels] || 0;
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-secondary/5">
-      <div className="container mx-auto px-4 py-8">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center gap-4">
-            <Button 
-              variant="outline" 
-              size="sm"
-              onClick={() => navigate('/')}
-              className="gap-2"
-            >
-              <ArrowLeft className="h-4 w-4" />
-              Zurück zur Startseite
-            </Button>
-            <div>
-              <h1 className="text-3xl font-bold">Mein Profil</h1>
-              <p className="text-muted-foreground">Temporär gespeichert</p>
+    <div className="min-h-screen bg-background">
+      {/* LinkedIn-style Cover & Profile Header */}
+      <div className="relative">
+        {/* Cover Image */}
+        <div className="h-48 md:h-64 bg-gradient-to-r from-primary via-primary/90 to-secondary relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-black/20 to-transparent" />
+          <Button
+            variant="ghost"
+            size="sm"
+            className="absolute top-4 right-4 text-white hover:bg-white/20"
+          >
+            <Camera className="h-4 w-4 mr-2" />
+            Cover bearbeiten
+          </Button>
+        </div>
+
+        {/* Profile Section */}
+        <div className="container mx-auto px-4">
+          <div className="relative -mt-20 md:-mt-24 pb-6">
+            <div className="flex flex-col md:flex-row md:items-end gap-6">
+              {/* Profile Picture */}
+              <div className="relative">
+                <div className="w-32 h-32 md:w-40 md:h-40 rounded-full border-4 border-background bg-background overflow-hidden shadow-lg">
+                  {cvData.profilbild ? (
+                    <img
+                      src={typeof cvData.profilbild === 'string' ? cvData.profilbild : 
+                        (cvData.profilbild instanceof File ? URL.createObjectURL(cvData.profilbild) : '/placeholder.svg')}
+                      alt="Profilbild"
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        e.currentTarget.src = '/placeholder.svg';
+                      }}
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-muted flex items-center justify-center">
+                      <User className="h-16 w-16 text-muted-foreground" />
+                    </div>
+                  )}
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="absolute bottom-2 right-2 rounded-full w-8 h-8 p-0"
+                >
+                  <Camera className="h-4 w-4" />
+                </Button>
+              </div>
+
+              {/* Profile Info */}
+              <div className="flex-1 space-y-2">
+                <div>
+                  <h1 className="text-2xl md:text-4xl font-bold text-foreground">
+                    {cvData.vorname} {cvData.nachname}
+                  </h1>
+                  <p className="text-lg md:text-xl text-muted-foreground font-medium">
+                    {getStatusTitle(cvData.status)} • {getBrancheTitle(cvData.branche)}
+                  </p>
+                  <div className="flex items-center gap-4 text-sm text-muted-foreground mt-2">
+                    <span className="flex items-center gap-1">
+                      <MapPin className="h-4 w-4" />
+                      {cvData.ort}
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <Users className="h-4 w-4" />
+                      Verfügbar
+                    </span>
+                  </div>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex flex-wrap gap-3 pt-4">
+                  <Button className="bg-primary hover:bg-primary/90">
+                    <MessageCircle className="h-4 w-4 mr-2" />
+                    Kontakt aufnehmen
+                  </Button>
+                  <Button variant="outline">
+                    <UserPlus className="h-4 w-4 mr-2" />
+                    Vernetzen
+                  </Button>
+                  <Button variant="outline" onClick={handleCreateAccount}>
+                    <User className="h-4 w-4 mr-2" />
+                    Account erstellen
+                  </Button>
+                  <Button 
+                    variant="ghost" 
+                    size="sm"
+                    onClick={() => navigate('/')}
+                    className="ml-auto"
+                  >
+                    <ArrowLeft className="h-4 w-4 mr-2" />
+                    Zurück
+                  </Button>
+                </div>
+              </div>
             </div>
           </div>
-          <div className="flex gap-2">
-            <Button 
-              onClick={handleDownloadPDF}
-              disabled={isGeneratingPDF}
-              className="gap-2"
-            >
-              <Download className="h-4 w-4" />
-              {isGeneratingPDF ? 'Erstelle PDF...' : 'PDF herunterladen'}
-            </Button>
-            <Button 
-              variant="outline"
-              onClick={handleCreateAccount}
-              className="gap-2"
-            >
-              <UserPlus className="h-4 w-4" />
-              Account erstellen
-            </Button>
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <div className="container mx-auto px-4 py-6">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          {/* Left Sidebar */}
+          <div className="lg:col-span-1 space-y-4">
+            {/* Profile Stats */}
+            <Card>
+              <CardContent className="p-4">
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">Profilaufrufe</span>
+                    <span className="font-semibold flex items-center gap-1">
+                      <Eye className="h-4 w-4" />
+                      127
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">Verbindungen</span>
+                    <span className="font-semibold flex items-center gap-1">
+                      <Users className="h-4 w-4" />
+                      45
+                    </span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Quick Contact */}
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base">Kontaktinformationen</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {cvData.email && (
+                  <div className="flex items-center gap-3">
+                    <Mail className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-sm">{cvData.email}</span>
+                  </div>
+                )}
+                {cvData.telefon && (
+                  <div className="flex items-center gap-3">
+                    <Phone className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-sm">{cvData.telefon}</span>
+                  </div>
+                )}
+                <div className="flex items-center gap-3">
+                  <MapPin className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-sm">{cvData.strasse} {cvData.hausnummer}, {cvData.plz} {cvData.ort}</span>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Languages Card */}
+            {cvData.sprachen && cvData.sprachen.length > 0 && (
+              <Card>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-base flex items-center gap-2">
+                    <Languages className="h-4 w-4" />
+                    Sprachen
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {cvData.sprachen.map((sprache, index) => (
+                    <div key={index} className="space-y-2">
+                      <div className="flex justify-between text-sm">
+                        <span className="font-medium">{sprache.sprache}</span>
+                        <span className="text-muted-foreground">{sprache.niveau}</span>
+                      </div>
+                      <Progress value={getLanguageProgress(sprache.niveau)} className="h-2" />
+                    </div>
+                  ))}
+                </CardContent>
+              </Card>
+            )}
+          </div>
+
+          {/* Main Content Column */}
+          <div className="lg:col-span-2 space-y-6">
+            {/* About Section */}
+            {cvData.ueberMich && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <User className="h-5 w-5" />
+                    Info
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm leading-relaxed whitespace-pre-wrap">{cvData.ueberMich}</p>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Experience Section */}
+            {cvData.berufserfahrung && cvData.berufserfahrung.length > 0 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Briefcase className="h-5 w-5" />
+                    Berufserfahrung
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  {cvData.berufserfahrung.map((job, index) => (
+                    <div key={index} className="flex gap-4">
+                      <div className="w-12 h-12 bg-muted rounded-lg flex items-center justify-center flex-shrink-0">
+                        <Building className="h-6 w-6 text-muted-foreground" />
+                      </div>
+                      <div className="flex-1">
+                        <h4 className="font-semibold text-lg">{job.titel}</h4>
+                        <p className="text-muted-foreground font-medium">{job.unternehmen}</p>
+                        <p className="text-sm text-muted-foreground">{job.zeitraum_von} - {job.zeitraum_bis} • {job.ort}</p>
+                        {job.beschreibung && (
+                          <p className="text-sm mt-2 text-muted-foreground leading-relaxed">{job.beschreibung}</p>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Education Section */}
+            {cvData.schulbildung && cvData.schulbildung.length > 0 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <GraduationCap className="h-5 w-5" />
+                    Bildungsweg
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  {cvData.schulbildung.map((schule, index) => (
+                    <div key={index} className="flex gap-4">
+                      <div className="w-12 h-12 bg-muted rounded-lg flex items-center justify-center flex-shrink-0">
+                        <GraduationCap className="h-6 w-6 text-muted-foreground" />
+                      </div>
+                      <div className="flex-1">
+                        <h4 className="font-semibold text-lg">{schule.schulform}</h4>
+                        <p className="text-muted-foreground font-medium">{schule.name}</p>
+                        <p className="text-sm text-muted-foreground">{schule.zeitraum_von} - {schule.zeitraum_bis} • {schule.ort}</p>
+                        {schule.beschreibung && (
+                          <p className="text-sm mt-2 text-muted-foreground leading-relaxed">{schule.beschreibung}</p>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Skills Section */}
+            {cvData.faehigkeiten && cvData.faehigkeiten.length > 0 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Star className="h-5 w-5" />
+                    Kenntnisse & Fähigkeiten
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex flex-wrap gap-2">
+                    {cvData.faehigkeiten.map((skill, index) => (
+                      <Badge key={index} variant="secondary" className="text-sm px-3 py-1">
+                        {skill}
+                      </Badge>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+          </div>
+
+          {/* Right Sidebar */}
+          <div className="lg:col-span-1 space-y-4">
+            {/* CV Download & Documents */}
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base">Dokumente</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <Button 
+                  onClick={handleDownloadPDF}
+                  disabled={isGeneratingPDF}
+                  className="w-full"
+                  size="sm"
+                >
+                  <Download className="h-4 w-4 mr-2" />
+                  {isGeneratingPDF ? 'Erstelle...' : 'CV herunterladen'}
+                </Button>
+                <Button variant="outline" className="w-full" size="sm">
+                  <Upload className="h-4 w-4 mr-2" />
+                  Zeugnisse hochladen
+                </Button>
+                <Button variant="outline" className="w-full" size="sm">
+                  <FileText className="h-4 w-4 mr-2" />
+                  Zertifikate hochladen
+                </Button>
+              </CardContent>
+            </Card>
+
+            {/* Status Badge */}
+            <Card>
+              <CardContent className="p-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+                  <div>
+                    <p className="text-sm font-medium">Verfügbar für Anfragen</p>
+                    <p className="text-xs text-muted-foreground">Antwortet normalerweise innerhalb von 24h</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Activity Card */}
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base">Aktivität</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3 text-sm">
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-primary rounded-full"></div>
+                  <span className="text-muted-foreground">Profil aktualisiert vor 2 Tagen</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-primary rounded-full"></div>
+                  <span className="text-muted-foreground">CV heruntergeladen vor 1 Woche</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-primary rounded-full"></div>
+                  <span className="text-muted-foreground">Neue Verbindung vor 2 Wochen</span>
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Personal Information */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <User className="h-5 w-5" />
-                Persönliche Daten
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">Name</p>
-                  <p>{cvData.vorname} {cvData.nachname}</p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">E-Mail</p>
-                  <p>{cvData.email}</p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">Telefon</p>
-                  <p>{cvData.telefon}</p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">Geburtsdatum</p>
-                  <p>{cvData.geburtsdatum ? new Date(cvData.geburtsdatum).toLocaleDateString('de-DE') : 'Nicht angegeben'}</p>
-                </div>
-              </div>
-              
-              <Separator />
-              
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">Adresse</p>
-                <p>{cvData.strasse} {cvData.hausnummer}</p>
-                <p>{cvData.plz} {cvData.ort}</p>
-              </div>
-              
-              <Separator />
-              
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">Branche</p>
-                  <Badge variant="secondary">{getBrancheTitle(cvData.branche)}</Badge>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">Status</p>
-                  <Badge variant="secondary">{getStatusTitle(cvData.status)}</Badge>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* About Me */}
-          {cvData.ueberMich && (
-            <Card>
-              <CardHeader>
-                <CardTitle>Über mich</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm leading-relaxed">{cvData.ueberMich}</p>
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Languages */}
-          {cvData.sprachen && cvData.sprachen.length > 0 && (
-            <Card>
-              <CardHeader>
-                <CardTitle>Sprachen</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-2 gap-2">
-                  {cvData.sprachen.map((sprache, index) => (
-                    <div key={index} className="flex justify-between items-center">
-                      <span>{sprache.sprache}</span>
-                      <Badge variant="outline">{sprache.niveau}</Badge>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Skills */}
-          {cvData.faehigkeiten && cvData.faehigkeiten.length > 0 && (
-            <Card>
-              <CardHeader>
-                <CardTitle>Fähigkeiten</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="flex flex-wrap gap-2">
-                  {cvData.faehigkeiten.map((skill, index) => (
-                    <Badge key={index} variant="secondary">{skill}</Badge>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Education */}
-          {cvData.schulbildung && cvData.schulbildung.length > 0 && (
-            <Card className="lg:col-span-2">
-              <CardHeader>
-                <CardTitle>Schulbildung</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {cvData.schulbildung.map((schule, index) => (
-                    <div key={index} className="border-l-2 border-primary/20 pl-4">
-                      <h4 className="font-semibold">{schule.schulform}</h4>
-                      <p className="text-sm text-muted-foreground">{schule.name}, {schule.ort}</p>
-                      <p className="text-sm text-muted-foreground">{schule.zeitraum_von} - {schule.zeitraum_bis}</p>
-                      {schule.beschreibung && (
-                        <p className="text-sm mt-2">{schule.beschreibung}</p>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Work Experience */}
-          {cvData.berufserfahrung && cvData.berufserfahrung.length > 0 && (
-            <Card className="lg:col-span-2">
-              <CardHeader>
-                <CardTitle>Berufserfahrung</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {cvData.berufserfahrung.map((job, index) => (
-                    <div key={index} className="border-l-2 border-primary/20 pl-4">
-                      <h4 className="font-semibold">{job.titel}</h4>
-                      <p className="text-sm text-muted-foreground">{job.unternehmen}, {job.ort}</p>
-                      <p className="text-sm text-muted-foreground">{job.zeitraum_von} - {job.zeitraum_bis}</p>
-                      {job.beschreibung && (
-                        <p className="text-sm mt-2">{job.beschreibung}</p>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          )}
-        </div>
-
-        {/* CV Preview for PDF Generation */}
-        <Card className="mt-8">
-          <CardHeader>
-            <CardTitle>CV-Vorschau</CardTitle>
-            <CardDescription>
-              Ihre Lebenslauf-Daten im gewählten Layout
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
+        {/* CV Preview for PDF Generation - Hidden */}
+        <div className="hidden">
+          <div data-cv-preview>
             {(() => {
               const styles = getLayoutStyles();
               const colors = getBranchenFarben();
               
               return (
-                <div className={styles.container} data-cv-preview>
+                <div className={styles.container}>
                   {/* Header Section */}
                   <div className={styles.header}>
                     <div className="flex items-center gap-6">
@@ -626,30 +777,8 @@ const Profile = () => {
                 </div>
               );
             })()}
-          </CardContent>
-        </Card>
-
-        {/* Action Section */}
-        <Card className="mt-8">
-          <CardContent className="p-6">
-            <div className="text-center space-y-4">
-              <h3 className="text-lg font-semibold">Dein Profil ist bereit!</h3>
-              <p className="text-muted-foreground">
-                Deine CV-Daten sind temporär gespeichert. Erstelle einen Account, um sie dauerhaft zu sichern.
-              </p>
-              <div className="flex justify-center gap-4">
-                <Button onClick={handleDownloadPDF} disabled={isGeneratingPDF}>
-                  <Download className="h-4 w-4 mr-2" />
-                  {isGeneratingPDF ? 'Erstelle PDF...' : 'PDF herunterladen'}
-                </Button>
-                <Button variant="outline" onClick={handleCreateAccount}>
-                  <UserPlus className="h-4 w-4 mr-2" />
-                  Account erstellen
-                </Button>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </div>
     </div>
   );
