@@ -10,14 +10,16 @@ const LiveCareerLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) => 
     const currentLevel = niveau === 'Muttersprache' ? 6 : levels.indexOf(niveau);
     
     return (
-      <div className="mb-3 page-break-inside-avoid">
-        <div className="flex justify-between items-center mb-1">
+      <div className="mb-3">
+        <div className="mb-0.5">
           <span className="font-medium text-gray-900" style={{ fontSize: '9pt' }}>{sprache}</span>
+        </div>
+        <div className="mb-1">
           <span className="text-gray-600" style={{ fontSize: '8pt' }}>{niveau}</span>
         </div>
         <div className="w-full bg-gray-200 rounded-full" style={{ height: '4px' }}>
           <div 
-            className="rounded-full transition-all duration-300"
+            className="rounded-full"
             style={{ 
               height: '4px',
               width: `${((currentLevel + 1) / 6) * 100}%`,
@@ -66,58 +68,30 @@ const LiveCareerLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) => 
               {getStatusTitle(data.status)} - {getBrancheTitle(data.branche)}
             </h2>
             
-            {/* Contact Information - Perfect Icon Alignment */}
-            <div className="grid grid-cols-2 gap-x-6 gap-y-2 text-xs text-gray-600" style={{ fontSize: '9pt', lineHeight: '1.4' }}>
+            {/* Contact Information */}
+            <div className="grid grid-cols-2 gap-x-6 gap-y-1 text-xs text-gray-600" style={{ fontSize: '9pt' }}>
               {(data.strasse && data.ort) && (
-                <div className="flex items-center gap-3">
-                  <MapPin 
-                    className="flex-shrink-0" 
-                    style={{ 
-                      width: '14px', 
-                      height: '14px',
-                      color: '#f97316' // Orange color
-                    }} 
-                  />
-                  <span className="leading-none">{data.strasse} {data.hausnummer}, {data.plz} {data.ort}</span>
+                <div className="flex items-start gap-1.5">
+                  <MapPin className="h-3 w-3 flex-shrink-0 mt-0.5" />
+                  <span>{data.strasse} {data.hausnummer}, {data.plz} {data.ort}</span>
                 </div>
               )}
               {data.telefon && (
-                <div className="flex items-center gap-3">
-                  <Phone 
-                    className="flex-shrink-0" 
-                    style={{ 
-                      width: '14px', 
-                      height: '14px',
-                      color: '#f97316' // Orange color
-                    }} 
-                  />
-                  <span className="leading-none">{data.telefon}</span>
+                <div className="flex items-start gap-1.5">
+                  <Phone className="h-3 w-3 flex-shrink-0 mt-0.5" />
+                  <span>{data.telefon}</span>
                 </div>
               )}
               {data.email && (
-                <div className="flex items-center gap-3">
-                  <Mail 
-                    className="flex-shrink-0" 
-                    style={{ 
-                      width: '14px', 
-                      height: '14px',
-                      color: '#f97316' // Orange color
-                    }} 
-                  />
-                  <span className="leading-none">{data.email}</span>
+                <div className="flex items-start gap-1.5">
+                  <Mail className="h-3 w-3 flex-shrink-0 mt-0.5" />
+                  <span>{data.email}</span>
                 </div>
               )}
               {data.geburtsdatum && (
-                <div className="flex items-center gap-3">
-                  <Calendar 
-                    className="flex-shrink-0" 
-                    style={{ 
-                      width: '14px', 
-                      height: '14px',
-                      color: '#f97316' // Orange color
-                    }} 
-                  />
-                  <span className="leading-none">{formatDate(data.geburtsdatum)}</span>
+                <div className="flex items-start gap-1.5">
+                  <Calendar className="h-3 w-3 flex-shrink-0 mt-0.5" />
+                  <span>{formatDate(data.geburtsdatum)}</span>
                 </div>
               )}
             </div>
@@ -125,17 +99,17 @@ const LiveCareerLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) => 
         </div>
       </div>
 
-      {/* Main Content - Optimized Section Order with Dynamic Page Breaks */}
+      {/* Main Content - PDF A4 optimized grid */}
       <div className="grid grid-cols-12 gap-6">
         
         {/* Left Column - 35% */}
-        <div className="col-span-4 space-y-6">
+        <div className="col-span-4 space-y-5">
           
-          {/* About Me - First priority */}
+          {/* About Me */}
           {data.ueberMich && (
-            <div className="page-break-inside-avoid">
+            <div>
               <h3 
-                className="font-bold uppercase tracking-wide mb-3 border-b border-gray-200 pb-1"
+                className="font-bold uppercase tracking-wide mb-2"
                 style={{ 
                   color: `hsl(${colors.primary})`,
                   fontSize: '11pt'
@@ -143,17 +117,17 @@ const LiveCareerLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) => 
               >
                 Über mich
               </h3>
-              <p className="text-gray-700" style={{ fontSize: '9pt', lineHeight: '1.5' }}>
+              <p className="text-gray-700" style={{ fontSize: '9pt', lineHeight: '1.4' }}>
                 {data.ueberMich}
               </p>
             </div>
           )}
 
-          {/* Skills - Enhanced with multi-column support for long lists */}
+          {/* Skills */}
           {(data.status === 'azubi' || data.status === 'ausgelernt') && data.faehigkeiten && data.faehigkeiten.length > 0 && (
-            <div className="page-break-inside-avoid">
+            <div>
               <h3 
-                className="font-bold uppercase tracking-wide mb-3 border-b border-gray-200 pb-1"
+                className="font-bold uppercase tracking-wide mb-2"
                 style={{ 
                   color: `hsl(${colors.primary})`,
                   fontSize: '11pt'
@@ -161,10 +135,10 @@ const LiveCareerLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) => 
               >
                 Kompetenzen
               </h3>
-              <div className={`space-y-2 ${data.faehigkeiten.length > 8 ? 'columns-2 gap-3' : ''}`}>
+              <div className="space-y-1">
                 {data.faehigkeiten.map((skill, index) => (
-                  <div key={index} className="text-gray-700 flex items-start break-inside-avoid mb-2" style={{ fontSize: '9pt' }}>
-                    <span className="mr-3 mt-1.5 w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: `hsl(${colors.primary})` }} />
+                  <div key={index} className="text-gray-700 flex items-start" style={{ fontSize: '9pt' }}>
+                    <span className="mr-2 mt-1 w-1 h-1 rounded-full flex-shrink-0" style={{ background: `hsl(${colors.primary})` }} />
                     <span>{skill}</span>
                   </div>
                 ))}
@@ -172,11 +146,11 @@ const LiveCareerLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) => 
             </div>
           )}
 
-          {/* Languages - Enhanced with multi-column support */}
+          {/* Languages */}
           {data.sprachen && data.sprachen.length > 0 && (
-            <div className="page-break-inside-avoid">
+            <div>
               <h3 
-                className="font-bold uppercase tracking-wide mb-3 border-b border-gray-200 pb-1"
+                className="font-bold uppercase tracking-wide mb-2"
                 style={{ 
                   color: `hsl(${colors.primary})`,
                   fontSize: '11pt'
@@ -184,7 +158,7 @@ const LiveCareerLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) => 
               >
                 Sprachen
               </h3>
-              <div className={`${data.sprachen.length > 6 ? 'columns-2 gap-4' : 'space-y-1'}`}>
+              <div className="space-y-3">
                 {data.sprachen.map((sprache, index) => (
                   <LanguageProgressBar 
                     key={index} 
@@ -197,93 +171,86 @@ const LiveCareerLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) => 
           )}
         </div>
 
-        {/* Right Column - 65% - Correct Order: Education first, then Experience */}
-        <div className="col-span-8 space-y-6">
+        {/* Right Column - 65% */}
+        <div className="col-span-8 space-y-5">
           
-          {/* Education - First priority as per requirements */}
-          {data.schulbildung && data.schulbildung.length > 0 && (
+          {/* Work Experience */}
+          {data.berufserfahrung && data.berufserfahrung.length > 0 && (
             <div className="page-break-inside-avoid">
               <h3 
-                className="font-bold mb-4 border-b border-gray-200 pb-2"
+                className="font-bold uppercase tracking-wide mb-3"
                 style={{ 
-                  fontSize: '14pt',
-                  color: '#000'
+                  color: `hsl(${colors.primary})`,
+                  fontSize: '11pt'
                 }}
               >
-                Schulbildung
+                Berufserfahrung
               </h3>
-              <div className="space-y-5">
-                {data.schulbildung.map((school, index) => (
-                  <div key={index} className="relative page-break-inside-avoid">
-                    <div className="flex justify-between items-start gap-4">
+              <div className="space-y-4">
+                {data.berufserfahrung.map((job, index) => (
+                  <div key={index}>
+                    <div className="flex justify-between items-start mb-1">
                       <div className="flex-1">
-                        <h4 className="font-bold text-black mb-1" style={{ fontSize: '12pt' }}>{school.schulform}</h4>
-                        <p className="font-medium text-black" style={{ fontSize: '10pt' }}>
-                          {school.name}
+                        <h4 className="font-semibold text-gray-900" style={{ fontSize: '10pt' }}>{job.titel}</h4>
+                        <p className="font-medium" style={{ color: `hsl(${colors.primary})`, fontSize: '9pt' }}>
+                          {job.unternehmen}
                         </p>
-                        <p className="text-gray-500" style={{ fontSize: '10pt' }}>{school.ort}</p>
-                        {school.beschreibung && (
-                          <div className="mt-2">
-                            <p className="text-gray-600" style={{ fontSize: '10pt', lineHeight: '1.5' }}>{school.beschreibung}</p>
-                          </div>
-                        )}
+                        <p className="text-gray-600" style={{ fontSize: '9pt' }}>{job.ort}</p>
                       </div>
-                      <div 
-                        className="px-3 py-1 rounded-full text-white font-medium flex-shrink-0 shadow-sm"
-                        style={{ 
-                          fontSize: '9pt',
-                          background: '#f97316' // Direct orange color for consistency
-                        }}
-                      >
-                        {school.zeitraum_von} - {school.zeitraum_bis}
+                      <div className="text-gray-500 font-medium ml-4" style={{ fontSize: '9pt' }}>
+                        {job.zeitraum_von} - {job.zeitraum_bis}
                       </div>
                     </div>
+                    {job.beschreibung && (
+                      <div className="mt-2">
+                        <ul className="text-gray-700 space-y-0.5" style={{ fontSize: '9pt' }}>
+                          {job.beschreibung.split('\n').filter(line => line.trim()).map((line, i) => (
+                            <li key={i} className="flex items-start">
+                              <span className="mr-2 mt-1 w-1 h-1 rounded-full bg-gray-400 flex-shrink-0" />
+                              <span>{line.trim()}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
             </div>
           )}
 
-          {/* Work Experience - Second priority */}
-          {data.berufserfahrung && data.berufserfahrung.length > 0 && (
+          {/* Education */}
+          {data.schulbildung && data.schulbildung.length > 0 && (
             <div className="page-break-inside-avoid">
               <h3 
-                className="font-bold mb-4 border-b border-gray-200 pb-2"
+                className="font-bold uppercase tracking-wide mb-3"
                 style={{ 
-                  fontSize: '14pt',
-                  color: '#000'
+                  color: `hsl(${colors.primary})`,
+                  fontSize: '11pt'
                 }}
               >
-                Praktische Erfahrung
+                Ausbildung
               </h3>
-              <div className="space-y-5">
-                {data.berufserfahrung.map((job, index) => (
-                  <div key={index} className="relative page-break-inside-avoid">
-                    <div className="flex justify-between items-start gap-4">
+              <div className="space-y-4">
+                {data.schulbildung.map((school, index) => (
+                  <div key={index}>
+                    <div className="flex justify-between items-start mb-1">
                       <div className="flex-1">
-                        <h4 className="font-bold text-black mb-1" style={{ fontSize: '12pt' }}>{job.titel}</h4>
-                        <p className="font-medium text-black" style={{ fontSize: '10pt' }}>
-                          {job.unternehmen}
+                        <h4 className="font-semibold text-gray-900" style={{ fontSize: '10pt' }}>{school.schulform}</h4>
+                        <p className="font-medium" style={{ color: `hsl(${colors.primary})`, fontSize: '9pt' }}>
+                          {school.name}
                         </p>
-                        <p className="text-gray-500" style={{ fontSize: '10pt' }}>{job.ort}</p>
-                        {job.beschreibung && (
-                          <div className="mt-2">
-                            <p className="text-gray-600" style={{ fontSize: '10pt', lineHeight: '1.5' }}>
-                              {job.beschreibung}
-                            </p>
-                          </div>
-                        )}
+                        <p className="text-gray-600" style={{ fontSize: '9pt' }}>{school.ort}</p>
                       </div>
-                      <div 
-                        className="px-3 py-1 rounded-full text-white font-medium flex-shrink-0 shadow-sm"
-                        style={{ 
-                          fontSize: '9pt',
-                          background: '#f97316' // Direct orange color for consistency
-                        }}
-                      >
-                        {job.zeitraum_von} - {job.zeitraum_bis}
+                      <div className="text-gray-500 font-medium ml-4" style={{ fontSize: '9pt' }}>
+                        {school.zeitraum_von} - {school.zeitraum_bis}
                       </div>
                     </div>
+                    {school.beschreibung && (
+                      <div className="mt-2">
+                        <p className="text-gray-700" style={{ fontSize: '9pt' }}>{school.beschreibung}</p>
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>

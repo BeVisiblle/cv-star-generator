@@ -1,5 +1,6 @@
 import React from 'react';
 import { Phone, Mail, MapPin, Calendar } from 'lucide-react';
+
 export interface CVData {
   vorname?: string;
   nachname?: string;
@@ -36,201 +37,191 @@ export interface CVData {
   }>;
   faehigkeiten?: string[];
 }
+
 export interface CVLayoutProps {
   data: CVData;
   className?: string;
 }
+
 export const formatDate = (date: Date | undefined) => {
   if (!date) return '';
   return new Intl.DateTimeFormat('de-DE').format(new Date(date));
 };
+
 export const getBrancheTitle = (branche?: string) => {
   switch (branche) {
-    case 'handwerk':
-      return 'Handwerk';
-    case 'it':
-      return 'IT';
-    case 'gesundheit':
-      return 'Gesundheit';
-    case 'buero':
-      return 'Büro & Verwaltung';
-    case 'verkauf':
-      return 'Verkauf & Handel';
-    case 'gastronomie':
-      return 'Gastronomie & Service';
-    case 'bau':
-      return 'Bau & Architektur';
-    default:
-      return '';
+    case 'handwerk': return 'Handwerk';
+    case 'it': return 'IT';
+    case 'gesundheit': return 'Gesundheit';
+    case 'buero': return 'Büro & Verwaltung';
+    case 'verkauf': return 'Verkauf & Handel';
+    case 'gastronomie': return 'Gastronomie & Service';
+    case 'bau': return 'Bau & Architektur';
+    default: return '';
   }
 };
+
 export const getStatusTitle = (status?: string) => {
   switch (status) {
-    case 'schueler':
-      return 'Schüler/in';
-    case 'azubi':
-      return 'Auszubildende/r';
-    case 'ausgelernt':
-      return 'Ausgelernte/r';
-    default:
-      return '';
+    case 'schueler': return 'Schüler/in';
+    case 'azubi': return 'Auszubildende/r';
+    case 'ausgelernt': return 'Ausgelernte/r';
+    default: return '';
   }
 };
+
 export const getBrancheColors = (branche?: string) => {
   switch (branche) {
     case 'handwerk':
       return {
-        primary: '25 95% 53%',
-        // Orange HSL
-        secondary: '25 100% 97%',
-        // Light orange
-        accent: '25 100% 45%',
-        // Darker orange
+        primary: '25 95% 53%', // Orange HSL
+        secondary: '25 100% 97%', // Light orange
+        accent: '25 100% 45%', // Darker orange
         text: '25 95% 45%'
       };
     case 'it':
       return {
-        primary: '217 91% 60%',
-        // Blue HSL  
-        secondary: '217 100% 97%',
-        // Light blue
-        accent: '217 91% 50%',
-        // Darker blue
+        primary: '217 91% 60%', // Blue HSL  
+        secondary: '217 100% 97%', // Light blue
+        accent: '217 91% 50%', // Darker blue
         text: '217 91% 50%'
       };
     case 'gesundheit':
       return {
-        primary: '142 71% 45%',
-        // Green HSL
-        secondary: '142 100% 97%',
-        // Light green
-        accent: '142 71% 35%',
-        // Darker green
+        primary: '142 71% 45%', // Green HSL
+        secondary: '142 100% 97%', // Light green
+        accent: '142 71% 35%', // Darker green
         text: '142 71% 35%'
       };
     case 'buero':
       return {
-        primary: '240 100% 60%',
-        // Purple HSL
-        secondary: '240 100% 97%',
-        // Light purple
-        accent: '240 100% 50%',
-        // Darker purple
+        primary: '240 100% 60%', // Purple HSL
+        secondary: '240 100% 97%', // Light purple
+        accent: '240 100% 50%', // Darker purple
         text: '240 100% 50%'
       };
     case 'verkauf':
       return {
-        primary: '348 83% 47%',
-        // Red HSL
-        secondary: '348 100% 97%',
-        // Light red
-        accent: '348 83% 37%',
-        // Darker red
+        primary: '348 83% 47%', // Red HSL
+        secondary: '348 100% 97%', // Light red
+        accent: '348 83% 37%', // Darker red
         text: '348 83% 37%'
       };
     case 'gastronomie':
       return {
-        primary: '45 93% 47%',
-        // Yellow HSL
-        secondary: '45 100% 97%',
-        // Light yellow
-        accent: '45 93% 37%',
-        // Darker yellow
+        primary: '45 93% 47%', // Yellow HSL
+        secondary: '45 100% 97%', // Light yellow
+        accent: '45 93% 37%', // Darker yellow
         text: '45 93% 37%'
       };
     case 'bau':
       return {
-        primary: '30 81% 47%',
-        // Brown HSL
-        secondary: '30 100% 97%',
-        // Light brown
-        accent: '30 81% 37%',
-        // Darker brown
+        primary: '30 81% 47%', // Brown HSL
+        secondary: '30 100% 97%', // Light brown
+        accent: '30 81% 37%', // Darker brown
         text: '30 81% 37%'
       };
     default:
       return {
-        primary: '220 13% 13%',
-        // Default primary
+        primary: '220 13% 13%', // Default primary
         secondary: '220 13% 95%',
         accent: '220 13% 20%',
         text: '220 13% 20%'
       };
   }
 };
-export const LanguageBars: React.FC<{
-  niveau: string;
-  branche?: string;
-}> = ({
-  niveau,
-  branche
-}) => {
+
+export const LanguageBars: React.FC<{ niveau: string; branche?: string }> = ({ niveau, branche }) => {
   const levels = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2', 'Muttersprache'];
   const currentLevel = niveau === 'Muttersprache' ? 6 : levels.indexOf(niveau);
   const colors = getBrancheColors(branche);
-  return <div className="flex gap-1 bg-gray-50">
-      {Array.from({
-      length: 6
-    }, (_, i) => <div key={i} className={`h-2 w-4 rounded-sm transition-colors ${i <= currentLevel ? `bg-[hsl(${colors.primary})]` : 'bg-muted'}`} />)}
-    </div>;
+  
+  return (
+    <div className="flex gap-1">
+      {Array.from({ length: 6 }, (_, i) => (
+        <div
+          key={i}
+          className={`h-2 w-4 rounded-sm transition-colors ${
+            i <= currentLevel 
+              ? `bg-[hsl(${colors.primary})]` 
+              : 'bg-muted'
+          }`}
+        />
+      ))}
+    </div>
+  );
 };
-export const ContactInfo: React.FC<{
-  data: CVData;
-  isLight?: boolean;
-}> = ({
-  data,
-  isLight = false
-}) => {
+
+export const ContactInfo: React.FC<{ data: CVData; isLight?: boolean }> = ({ data, isLight = false }) => {
   const textColor = isLight ? 'text-white/90' : 'text-muted-foreground';
-  return <div className={`flex flex-wrap gap-4 text-sm ${textColor}`}>
-      {data.telefon && <div className="flex items-center gap-1">
+  
+  return (
+    <div className={`flex flex-wrap gap-4 text-sm ${textColor}`}>
+      {data.telefon && (
+        <div className="flex items-center gap-1">
           <Phone className="h-4 w-4" />
           {data.telefon}
-        </div>}
-      {data.email && <div className="flex items-center gap-1">
+        </div>
+      )}
+      {data.email && (
+        <div className="flex items-center gap-1">
           <Mail className="h-4 w-4" />
           {data.email}
-        </div>}
-      {data.strasse && data.ort && <div className="flex items-center gap-1">
+        </div>
+      )}
+      {(data.strasse && data.ort) && (
+        <div className="flex items-center gap-1">
           <MapPin className="h-4 w-4" />
           {data.strasse} {data.hausnummer}, {data.plz} {data.ort}
-        </div>}
-      {data.geburtsdatum && <div className="flex items-center gap-1">
+        </div>
+      )}
+      {data.geburtsdatum && (
+        <div className="flex items-center gap-1">
           <Calendar className="h-4 w-4" />
           {formatDate(data.geburtsdatum)}
-        </div>}
-    </div>;
+        </div>
+      )}
+    </div>
+  );
 };
-export const ProfileImage: React.FC<{
-  profilbild?: File | string;
+
+export const ProfileImage: React.FC<{ 
+  profilbild?: File | string; 
   size?: 'sm' | 'md' | 'lg';
   className?: string;
-}> = ({
-  profilbild,
-  size = 'md',
-  className = ''
-}) => {
+}> = ({ profilbild, size = 'md', className = '' }) => {
   const sizeClasses = {
     sm: 'w-16 h-16',
-    md: 'w-24 h-24',
+    md: 'w-24 h-24', 
     lg: 'w-32 h-32'
   };
+  
   if (!profilbild) return null;
-  return <div className={`${sizeClasses[size]} rounded-full overflow-hidden bg-muted flex-shrink-0 ${className}`}>
-      <img src={typeof profilbild === 'string' ? profilbild : URL.createObjectURL(profilbild)} alt="Profilbild" className="w-full h-full object-cover" />
-    </div>;
+  
+  return (
+    <div className={`${sizeClasses[size]} rounded-full overflow-hidden bg-muted flex-shrink-0 ${className}`}>
+      <img
+        src={typeof profilbild === 'string' ? profilbild : URL.createObjectURL(profilbild)}
+        alt="Profilbild"
+        className="w-full h-full object-cover"
+      />
+    </div>
+  );
 };
-export const SkillTags: React.FC<{
-  skills: string[];
-  branche?: string;
-}> = ({
-  skills,
-  branche
-}) => {
+
+export const SkillTags: React.FC<{ skills: string[]; branche?: string }> = ({ skills, branche }) => {
   const colors = getBrancheColors(branche);
-  return <div className="flex flex-wrap gap-2">
-      {skills.map((skill, index) => <span key={index} className={`bg-[hsl(${colors.secondary})] text-[hsl(${colors.text})] px-3 py-1 rounded-full text-sm font-medium`}>
+  
+  return (
+    <div className="flex flex-wrap gap-2">
+      {skills.map((skill, index) => (
+        <span
+          key={index}
+          className={`bg-[hsl(${colors.secondary})] text-[hsl(${colors.text})] px-3 py-1 rounded-full text-sm font-medium`}
+        >
           {skill}
-        </span>)}
-    </div>;
+        </span>
+      ))}
+    </div>
+  );
 };

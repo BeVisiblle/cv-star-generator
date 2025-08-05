@@ -14,40 +14,13 @@ export const generatePDF = async (
 ): Promise<void> => {
   const {
     filename = 'CV.pdf',
-    quality = 2.5, // Enhanced quality for crisp text
+    quality = 2,
     format = 'a4',
     margin = 10
   } = options;
 
   try {
-    // Enhanced CSS injection for print optimization
-    const style = document.createElement('style');
-    style.textContent = `
-      @media print {
-        .page-break-inside-avoid { 
-          break-inside: avoid !important; 
-          page-break-inside: avoid !important;
-        }
-        .page-break-before { 
-          break-before: page !important; 
-          page-break-before: always !important;
-        }
-        .page-break-after { 
-          break-after: page !important; 
-          page-break-after: always !important;
-        }
-        .columns-2 {
-          column-count: 2 !important;
-          column-gap: 1rem !important;
-        }
-        .break-inside-avoid {
-          break-inside: avoid !important;
-        }
-      }
-    `;
-    document.head.appendChild(style);
-
-    // Enhanced html2canvas configuration for professional PDF quality
+    // Configure html2canvas options for better quality
     const canvas = await html2canvas(element, {
       scale: quality,
       useCORS: true,
@@ -56,77 +29,51 @@ export const generatePDF = async (
       logging: false,
       width: element.scrollWidth,
       height: element.scrollHeight,
-      imageTimeout: 15000, // Longer timeout for complex layouts
-      removeContainer: true,
-      foreignObjectRendering: false, // Better compatibility
-      scrollX: 0,
-      scrollY: 0,
-      windowWidth: element.scrollWidth,
-      windowHeight: element.scrollHeight
     });
 
-    // Remove injected styles
-    document.head.removeChild(style);
-
-    // Optimized PDF dimensions for A4 format
-    const imgWidth = format === 'a4' ? 190 : 200; // 190mm for A4 with margins
-    const pageHeight = format === 'a4' ? 277 : 250; // 277mm for A4 content area
+    // PDF dimensions (A4: 210 x 297 mm)
+    const imgWidth = format === 'a4' ? 190 : 200; // Accounting for margins
+    const pageHeight = format === 'a4' ? 287 : 260; // Accounting for margins
     const imgHeight = (canvas.height * imgWidth) / canvas.width;
     
     const pdf = new jsPDF({
-      orientation: 'portrait',
+      orientation: imgHeight > pageHeight ? 'portrait' : 'portrait',
       unit: 'mm',
       format: format,
-      compress: true // Enable compression for smaller file size
     });
 
-    const imgData = canvas.toDataURL('image/jpeg', 0.98); // JPEG for better compression
+    const imgData = canvas.toDataURL('image/png', 1.0);
     
-    // Smart page break logic for CV content
+    // If content fits on one page
     if (imgHeight <= pageHeight) {
-      // Single page - center content if needed
-      const yOffset = imgHeight < pageHeight ? (pageHeight - imgHeight) / 4 : 0;
-      pdf.addImage(imgData, 'JPEG', margin, margin + yOffset, imgWidth, imgHeight);
+      pdf.addImage(imgData, 'PNG', margin, margin, imgWidth, imgHeight);
     } else {
-      // Multi-page handling with intelligent breaks
-      const maxPages = 2; // Limit to 2 pages as per requirements
-      const pageCount = Math.min(Math.ceil(imgHeight / pageHeight), maxPages);
+      // Handle multi-page PDFs
+      let remainingHeight = imgHeight;
+      let position = 0;
       
-      for (let pageIndex = 0; pageIndex < pageCount; pageIndex++) {
-        if (pageIndex > 0) {
+      while (remainingHeight > 0) {
+        if (position > 0) {
           pdf.addPage();
         }
         
-        const yPosition = -pageIndex * pageHeight;
-        const remainingHeight = imgHeight - (pageIndex * pageHeight);
-        const currentPageContentHeight = Math.min(pageHeight, remainingHeight);
+        const currentPageHeight = Math.min(pageHeight, remainingHeight);
         
-        // Add page content with proper positioning
         pdf.addImage(
           imgData,
-          'JPEG',
+          'PNG',
           margin,
-          margin + yPosition,
+          margin - position,
           imgWidth,
           imgHeight
         );
         
-        // Add subtle page separator for multi-page CVs
-        if (pageIndex < pageCount - 1) {
-          pdf.setDrawColor(200, 200, 200);
-          pdf.setLineWidth(0.1);
-        }
+        remainingHeight -= pageHeight;
+        position += pageHeight;
       }
     }
 
-    // Save with enhanced metadata
-    pdf.setProperties({
-      title: `CV - ${filename.replace('.pdf', '')}`,
-      subject: 'Curriculum Vitae',
-      author: 'CV Generator',
-      creator: 'LiveCareer Layout'
-    });
-
+    // Save the PDF
     pdf.save(filename);
   } catch (error) {
     console.error('Error generating PDF:', error);
