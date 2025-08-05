@@ -1,0 +1,196 @@
+import { useState } from "react";
+import { NavLink, useLocation } from "react-router-dom";
+import {
+  LayoutDashboard,
+  User,
+  Users,
+  Settings,
+  FileText,
+  LogOut,
+  ChevronRight
+} from "lucide-react";
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarHeader,
+  SidebarFooter,
+  useSidebar,
+} from "@/components/ui/sidebar";
+import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { supabase } from "@/integrations/supabase/client";
+import { useQuery } from "@tanstack/react-query";
+
+const navigationItems = [
+  {
+    title: "Dashboard",
+    url: "/dashboard",
+    icon: LayoutDashboard,
+  },
+  {
+    title: "Mein Profil",
+    url: "/profile",
+    icon: User,
+  },
+  {
+    title: "Marketplace",
+    url: "/marketplace",
+    icon: Users,
+  },
+  {
+    title: "CV Generator",
+    url: "/cv-generator",
+    icon: FileText,
+  },
+  {
+    title: "Einstellungen",
+    url: "/settings",
+    icon: Settings,
+  },
+];
+
+export function AppSidebar() {
+  const { state } = useSidebar();
+  const collapsed = state === "collapsed";
+  const location = useLocation();
+  const currentPath = location.pathname;
+
+  const { data: profile } = useQuery({
+    queryKey: ['profile'],
+    queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return null;
+      
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', user.id)
+        .single();
+      
+      if (error) throw error;
+      return data;
+    }
+  });
+
+  const isActive = (path: string) => currentPath === path;
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    window.location.href = '/auth';
+  };
+
+  return (
+    <Sidebar className={collapsed ? "w-14" : "w-60"} collapsible="icon">
+      <SidebarHeader className={`p-4 ${collapsed ? 'px-2' : ''}`}>
+        {!collapsed ? (
+          <div className="flex items-center space-x-2">
+            <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
+              <span className="text-primary-foreground font-bold text-sm">AM</span>
+            </div>
+            <div>
+              <h2 className="text-lg font-semibold">Azubi Marketplace</h2>
+            </div>
+          </div>
+        ) : (
+          <div className="flex justify-center">
+            <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
+              <span className="text-primary-foreground font-bold text-sm">AM</span>
+            </div>
+          </div>
+        )}
+      </SidebarHeader>
+
+      <SidebarContent>
+        <SidebarGroup>
+          <SidebarGroupLabel className={collapsed ? "sr-only" : ""}>
+            Navigation
+          </SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {navigationItems.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton asChild>
+                    <NavLink
+                      to={item.url}
+                      className={({ isActive }) =>
+                        `flex items-center gap-3 rounded-lg px-3 py-2 transition-all ${
+                          isActive
+                            ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                            : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                        }`
+                      }
+                    >
+                      <item.icon className="h-4 w-4" />
+                      {!collapsed && <span>{item.title}</span>}
+                      {!collapsed && isActive(item.url) && (
+                        <ChevronRight className="ml-auto h-4 w-4" />
+                      )}
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+      </SidebarContent>
+
+      <SidebarFooter className={`p-4 ${collapsed ? 'px-2' : ''}`}>
+        {!collapsed ? (
+          <div className="space-y-3">
+            {/* User Profile Info */}
+            <div className="flex items-center space-x-3 p-2 rounded-lg bg-sidebar-accent">
+              <Avatar className="h-8 w-8">
+                <AvatarImage src={profile?.avatar_url} />
+                <AvatarFallback>
+                  {profile?.full_name?.split(' ').map(n => n[0]).join('') || 'U'}
+                </AvatarFallback>
+              </Avatar>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-sidebar-accent-foreground truncate">
+                  {profile?.full_name || 'Unbekannter Nutzer'}
+                </p>
+                <p className="text-xs text-sidebar-foreground/60 truncate">
+                  {profile?.email || ''}
+                </p>
+              </div>
+            </div>
+
+            {/* Sign Out Button */}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleSignOut}
+              className="w-full justify-start text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+            >
+              <LogOut className="h-4 w-4 mr-2" />
+              Abmelden
+            </Button>
+          </div>
+        ) : (
+          <div className="space-y-2">
+            <Avatar className="h-8 w-8 mx-auto">
+              <AvatarImage src={profile?.avatar_url} />
+              <AvatarFallback>
+                {profile?.full_name?.split(' ').map(n => n[0]).join('') || 'U'}
+              </AvatarFallback>
+            </Avatar>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleSignOut}
+              className="w-full p-2 justify-center"
+            >
+              <LogOut className="h-4 w-4" />
+            </Button>
+          </div>
+        )}
+      </SidebarFooter>
+    </Sidebar>
+  );
+}
