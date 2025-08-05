@@ -762,105 +762,189 @@ export type Database = {
       profiles: {
         Row: {
           about_me: string | null
+          abschlussjahr: string | null
+          abschlussjahr_ausgelernt: string | null
+          account_created: boolean | null
+          aktueller_beruf: string | null
           ausbildung_ende: string | null
           ausbildung_start: string | null
           ausbildungsberuf: string | null
+          ausbildungsbetrieb: string | null
           ausbildungsjahr: number | null
           avatar_url: string | null
+          berufserfahrung: Json | null
+          branche: string | null
           certifications: Json | null
           city: string | null
           created_at: string
           cv_url: string | null
           dsgvo_consent_at: string | null
           education: string | null
+          einwilligung: boolean | null
           email: string | null
+          faehigkeiten: string[] | null
           full_name: string | null
+          geburtsdatum: string | null
+          geplanter_abschluss: string | null
+          hausnummer: string | null
           id: string
           industry: Database["public"]["Enums"]["industry_type"] | null
           industry_interest: string | null
           language_skills: Json | null
+          layout_id: number | null
           location: string | null
+          nachname: string | null
           occupation: string | null
           phone: string | null
+          plz: string | null
           postal_code: string | null
           preparation_level:
             | Database["public"]["Enums"]["preparation_level"]
             | null
+          profilbild_url: string | null
+          profile_complete: boolean | null
+          profile_published: boolean | null
           profile_views: number | null
           school_id: string | null
+          schulbildung: Json | null
+          schule: string | null
           skills: string[] | null
+          sprachen: Json | null
+          startjahr: string | null
           state_id: number | null
+          status: string | null
+          strasse: string | null
+          telefon: string | null
+          ueber_mich: string | null
           updated_at: string
           user_type: string | null
           username: string | null
+          voraussichtliches_ende: string | null
+          vorname: string | null
         }
         Insert: {
           about_me?: string | null
+          abschlussjahr?: string | null
+          abschlussjahr_ausgelernt?: string | null
+          account_created?: boolean | null
+          aktueller_beruf?: string | null
           ausbildung_ende?: string | null
           ausbildung_start?: string | null
           ausbildungsberuf?: string | null
+          ausbildungsbetrieb?: string | null
           ausbildungsjahr?: number | null
           avatar_url?: string | null
+          berufserfahrung?: Json | null
+          branche?: string | null
           certifications?: Json | null
           city?: string | null
           created_at?: string
           cv_url?: string | null
           dsgvo_consent_at?: string | null
           education?: string | null
+          einwilligung?: boolean | null
           email?: string | null
+          faehigkeiten?: string[] | null
           full_name?: string | null
+          geburtsdatum?: string | null
+          geplanter_abschluss?: string | null
+          hausnummer?: string | null
           id: string
           industry?: Database["public"]["Enums"]["industry_type"] | null
           industry_interest?: string | null
           language_skills?: Json | null
+          layout_id?: number | null
           location?: string | null
+          nachname?: string | null
           occupation?: string | null
           phone?: string | null
+          plz?: string | null
           postal_code?: string | null
           preparation_level?:
             | Database["public"]["Enums"]["preparation_level"]
             | null
+          profilbild_url?: string | null
+          profile_complete?: boolean | null
+          profile_published?: boolean | null
           profile_views?: number | null
           school_id?: string | null
+          schulbildung?: Json | null
+          schule?: string | null
           skills?: string[] | null
+          sprachen?: Json | null
+          startjahr?: string | null
           state_id?: number | null
+          status?: string | null
+          strasse?: string | null
+          telefon?: string | null
+          ueber_mich?: string | null
           updated_at?: string
           user_type?: string | null
           username?: string | null
+          voraussichtliches_ende?: string | null
+          vorname?: string | null
         }
         Update: {
           about_me?: string | null
+          abschlussjahr?: string | null
+          abschlussjahr_ausgelernt?: string | null
+          account_created?: boolean | null
+          aktueller_beruf?: string | null
           ausbildung_ende?: string | null
           ausbildung_start?: string | null
           ausbildungsberuf?: string | null
+          ausbildungsbetrieb?: string | null
           ausbildungsjahr?: number | null
           avatar_url?: string | null
+          berufserfahrung?: Json | null
+          branche?: string | null
           certifications?: Json | null
           city?: string | null
           created_at?: string
           cv_url?: string | null
           dsgvo_consent_at?: string | null
           education?: string | null
+          einwilligung?: boolean | null
           email?: string | null
+          faehigkeiten?: string[] | null
           full_name?: string | null
+          geburtsdatum?: string | null
+          geplanter_abschluss?: string | null
+          hausnummer?: string | null
           id?: string
           industry?: Database["public"]["Enums"]["industry_type"] | null
           industry_interest?: string | null
           language_skills?: Json | null
+          layout_id?: number | null
           location?: string | null
+          nachname?: string | null
           occupation?: string | null
           phone?: string | null
+          plz?: string | null
           postal_code?: string | null
           preparation_level?:
             | Database["public"]["Enums"]["preparation_level"]
             | null
+          profilbild_url?: string | null
+          profile_complete?: boolean | null
+          profile_published?: boolean | null
           profile_views?: number | null
           school_id?: string | null
+          schulbildung?: Json | null
+          schule?: string | null
           skills?: string[] | null
+          sprachen?: Json | null
+          startjahr?: string | null
           state_id?: number | null
+          status?: string | null
+          strasse?: string | null
+          telefon?: string | null
+          ueber_mich?: string | null
           updated_at?: string
           user_type?: string | null
           username?: string | null
+          voraussichtliches_ende?: string | null
+          vorname?: string | null
         }
         Relationships: [
           {
