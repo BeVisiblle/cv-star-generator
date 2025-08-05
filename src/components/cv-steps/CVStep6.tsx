@@ -10,6 +10,7 @@ import ClassicLayout from '@/components/cv-layouts/ClassicLayout';
 import CreativeLayout from '@/components/cv-layouts/CreativeLayout';
 import MinimalLayout from '@/components/cv-layouts/MinimalLayout';
 import ProfessionalLayout from '@/components/cv-layouts/ProfessionalLayout';
+import LiveCareerLayout from '@/components/cv-layouts/LiveCareerLayout';
 
 const CVStep6 = () => {
   const { formData, setCurrentStep } = useCVForm();
@@ -51,12 +52,12 @@ const CVStep6 = () => {
     const layoutProps = { data: formData };
     
     switch (formData.layout) {
-      case 1: return <ModernLayout {...layoutProps} />;
+      case 1: return <LiveCareerLayout {...layoutProps} />;
       case 2: return <ClassicLayout {...layoutProps} />;
       case 3: return <CreativeLayout {...layoutProps} />;
       case 4: return <MinimalLayout {...layoutProps} />;
       case 5: return <ProfessionalLayout {...layoutProps} />;
-      default: return <ModernLayout {...layoutProps} />;
+      default: return <LiveCareerLayout {...layoutProps} />;
     }
   };
 
