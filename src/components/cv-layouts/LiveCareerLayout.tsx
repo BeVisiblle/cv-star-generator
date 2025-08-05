@@ -10,18 +10,18 @@ const LiveCareerLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) => 
     const currentLevel = niveau === 'Muttersprache' ? 6 : levels.indexOf(niveau);
     
     return (
-      <div className="mb-3">
-        <div className="mb-0.5">
+      <div className="mb-4">
+        <div className="mb-1">
           <span className="font-medium text-gray-900" style={{ fontSize: '9pt' }}>{sprache}</span>
         </div>
-        <div className="mb-1">
+        <div className="mb-2">
           <span className="text-gray-600" style={{ fontSize: '8pt' }}>{niveau}</span>
         </div>
-        <div className="w-full bg-gray-200 rounded-full" style={{ height: '4px' }}>
+        <div className="w-full bg-gray-200 rounded-full" style={{ height: '3px' }}>
           <div 
             className="rounded-full"
             style={{ 
-              height: '4px',
+              height: '3px',
               width: `${((currentLevel + 1) / 6) * 100}%`,
               background: `hsl(${colors.primary})`
             }}
@@ -127,7 +127,7 @@ const LiveCareerLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) => 
           {(data.status === 'azubi' || data.status === 'ausgelernt') && data.faehigkeiten && data.faehigkeiten.length > 0 && (
             <div>
               <h3 
-                className="font-bold uppercase tracking-wide mb-2"
+                className="font-bold uppercase tracking-wide mb-3"
                 style={{ 
                   color: `hsl(${colors.primary})`,
                   fontSize: '11pt'
@@ -135,10 +135,10 @@ const LiveCareerLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) => 
               >
                 Kompetenzen
               </h3>
-              <div className="space-y-1">
+              <div className="space-y-2">
                 {data.faehigkeiten.map((skill, index) => (
                   <div key={index} className="text-gray-700 flex items-start" style={{ fontSize: '9pt' }}>
-                    <span className="mr-2 mt-1 w-1 h-1 rounded-full flex-shrink-0" style={{ background: `hsl(${colors.primary})` }} />
+                    <span className="mr-3 mt-1.5 w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: `hsl(${colors.primary})` }} />
                     <span>{skill}</span>
                   </div>
                 ))}
@@ -150,7 +150,7 @@ const LiveCareerLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) => 
           {data.sprachen && data.sprachen.length > 0 && (
             <div>
               <h3 
-                className="font-bold uppercase tracking-wide mb-2"
+                className="font-bold uppercase tracking-wide mb-3"
                 style={{ 
                   color: `hsl(${colors.primary})`,
                   fontSize: '11pt'
@@ -158,7 +158,7 @@ const LiveCareerLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) => 
               >
                 Sprachen
               </h3>
-              <div className="space-y-3">
+              <div className="space-y-1">
                 {data.sprachen.map((sprache, index) => (
                   <LanguageProgressBar 
                     key={index} 
