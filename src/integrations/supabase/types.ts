@@ -14,7 +14,287 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      follows: {
+        Row: {
+          created_at: string | null
+          follower_id: string
+          following_id: string
+          id: string
+        }
+        Insert: {
+          created_at?: string | null
+          follower_id: string
+          following_id: string
+          id?: string
+        }
+        Update: {
+          created_at?: string | null
+          follower_id?: string
+          following_id?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "follows_follower_id_fkey"
+            columns: ["follower_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "follows_following_id_fkey"
+            columns: ["following_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      languages: {
+        Row: {
+          code: string | null
+          created_at: string | null
+          id: string
+          name: string
+        }
+        Insert: {
+          code?: string | null
+          created_at?: string | null
+          id?: string
+          name: string
+        }
+        Update: {
+          code?: string | null
+          created_at?: string | null
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
+      postal_codes: {
+        Row: {
+          bundesland: string | null
+          created_at: string | null
+          id: string
+          ort: string
+          plz: string
+        }
+        Insert: {
+          bundesland?: string | null
+          created_at?: string | null
+          id?: string
+          ort: string
+          plz: string
+        }
+        Update: {
+          bundesland?: string | null
+          created_at?: string | null
+          id?: string
+          ort?: string
+          plz?: string
+        }
+        Relationships: []
+      }
+      posts: {
+        Row: {
+          content: string
+          created_at: string | null
+          id: string
+          image_url: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string | null
+          id?: string
+          image_url?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string | null
+          id?: string
+          image_url?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "posts_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          abschlussjahr: string | null
+          abschlussjahr_ausgelernt: string | null
+          account_created: boolean | null
+          aktueller_beruf: string | null
+          ausbildungsberuf: string | null
+          ausbildungsbetrieb: string | null
+          avatar_url: string | null
+          berufserfahrung: Json | null
+          branche: string | null
+          created_at: string | null
+          einwilligung: boolean | null
+          email: string | null
+          faehigkeiten: Json | null
+          geburtsdatum: string | null
+          geplanter_abschluss: string | null
+          hausnummer: string | null
+          id: string
+          kenntnisse: string | null
+          layout: number | null
+          motivation: string | null
+          nachname: string | null
+          ort: string | null
+          plz: string | null
+          praktische_erfahrung: string | null
+          profile_complete: boolean | null
+          profile_published: boolean | null
+          schulbildung: Json | null
+          schule: string | null
+          sprachen: Json | null
+          startjahr: string | null
+          status: string | null
+          strasse: string | null
+          telefon: string | null
+          uebermich: string | null
+          updated_at: string | null
+          voraussichtliches_ende: string | null
+          vorname: string | null
+        }
+        Insert: {
+          abschlussjahr?: string | null
+          abschlussjahr_ausgelernt?: string | null
+          account_created?: boolean | null
+          aktueller_beruf?: string | null
+          ausbildungsberuf?: string | null
+          ausbildungsbetrieb?: string | null
+          avatar_url?: string | null
+          berufserfahrung?: Json | null
+          branche?: string | null
+          created_at?: string | null
+          einwilligung?: boolean | null
+          email?: string | null
+          faehigkeiten?: Json | null
+          geburtsdatum?: string | null
+          geplanter_abschluss?: string | null
+          hausnummer?: string | null
+          id: string
+          kenntnisse?: string | null
+          layout?: number | null
+          motivation?: string | null
+          nachname?: string | null
+          ort?: string | null
+          plz?: string | null
+          praktische_erfahrung?: string | null
+          profile_complete?: boolean | null
+          profile_published?: boolean | null
+          schulbildung?: Json | null
+          schule?: string | null
+          sprachen?: Json | null
+          startjahr?: string | null
+          status?: string | null
+          strasse?: string | null
+          telefon?: string | null
+          uebermich?: string | null
+          updated_at?: string | null
+          voraussichtliches_ende?: string | null
+          vorname?: string | null
+        }
+        Update: {
+          abschlussjahr?: string | null
+          abschlussjahr_ausgelernt?: string | null
+          account_created?: boolean | null
+          aktueller_beruf?: string | null
+          ausbildungsberuf?: string | null
+          ausbildungsbetrieb?: string | null
+          avatar_url?: string | null
+          berufserfahrung?: Json | null
+          branche?: string | null
+          created_at?: string | null
+          einwilligung?: boolean | null
+          email?: string | null
+          faehigkeiten?: Json | null
+          geburtsdatum?: string | null
+          geplanter_abschluss?: string | null
+          hausnummer?: string | null
+          id?: string
+          kenntnisse?: string | null
+          layout?: number | null
+          motivation?: string | null
+          nachname?: string | null
+          ort?: string | null
+          plz?: string | null
+          praktische_erfahrung?: string | null
+          profile_complete?: boolean | null
+          profile_published?: boolean | null
+          schulbildung?: Json | null
+          schule?: string | null
+          sprachen?: Json | null
+          startjahr?: string | null
+          status?: string | null
+          strasse?: string | null
+          telefon?: string | null
+          uebermich?: string | null
+          updated_at?: string | null
+          voraussichtliches_ende?: string | null
+          vorname?: string | null
+        }
+        Relationships: []
+      }
+      school_types: {
+        Row: {
+          category: string | null
+          created_at: string | null
+          id: string
+          name: string
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string | null
+          id?: string
+          name: string
+        }
+        Update: {
+          category?: string | null
+          created_at?: string | null
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
+      skills: {
+        Row: {
+          branch: string | null
+          category: string | null
+          created_at: string | null
+          id: string
+          name: string
+        }
+        Insert: {
+          branch?: string | null
+          category?: string | null
+          created_at?: string | null
+          id?: string
+          name: string
+        }
+        Update: {
+          branch?: string | null
+          category?: string | null
+          created_at?: string | null
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
