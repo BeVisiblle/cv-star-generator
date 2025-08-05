@@ -1,9 +1,12 @@
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { usePostalCodes } from '@/hooks/usePostalCodes';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Check, ChevronsUpDown } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { cn } from '@/lib/utils';
 
 interface PLZOrtSelectorProps {
   plz: string;
@@ -25,11 +28,23 @@ export const PLZOrtSelector = ({
   className = ''
 }: PLZOrtSelectorProps) => {
   const { postalCodes, loading, error, findLocationByPLZ } = usePostalCodes();
+  const [open, setOpen] = useState(false);
+  const [searchValue, setSearchValue] = useState('');
 
-  const handlePLZChange = (selectedPLZ: string) => {
+  const filteredPostalCodes = useMemo(() => {
+    if (!searchValue) return postalCodes.slice(0, 100); // Limit to first 100 for performance
+    return postalCodes.filter(postal => 
+      postal.plz.startsWith(searchValue) || 
+      postal.ort.toLowerCase().includes(searchValue.toLowerCase())
+    ).slice(0, 50); // Limit filtered results
+  }, [postalCodes, searchValue]);
+
+  const handlePLZSelect = (selectedPLZ: string) => {
     const location = findLocationByPLZ(selectedPLZ);
     if (location) {
       onPLZChange(selectedPLZ, location.ort);
+      setOpen(false);
+      setSearchValue('');
     }
   };
 
@@ -79,18 +94,48 @@ export const PLZOrtSelector = ({
     <div className={`grid grid-cols-3 gap-4 ${className}`}>
       <div>
         <Label htmlFor="plz">{plzLabel}{required && ' *'}</Label>
-        <Select value={plz} onValueChange={handlePLZChange}>
-          <SelectTrigger>
-            <SelectValue placeholder="PLZ wählen" />
-          </SelectTrigger>
-          <SelectContent>
-            {postalCodes.map((postal) => (
-              <SelectItem key={postal.id} value={postal.plz}>
-                {postal.plz}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <Popover open={open} onOpenChange={setOpen}>
+          <PopoverTrigger asChild>
+            <Button
+              variant="outline"
+              role="combobox"
+              aria-expanded={open}
+              className="w-full justify-between"
+            >
+              {plz || "PLZ wählen..."}
+              <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-full p-0">
+            <Command>
+              <CommandInput 
+                placeholder="PLZ eingeben..." 
+                value={searchValue}
+                onValueChange={setSearchValue}
+              />
+              <CommandList>
+                <CommandEmpty>Keine PLZ gefunden.</CommandEmpty>
+                <CommandGroup>
+                  {filteredPostalCodes.map((postal) => (
+                    <CommandItem
+                      key={postal.id}
+                      value={postal.plz}
+                      onSelect={() => handlePLZSelect(postal.plz)}
+                    >
+                      <Check
+                        className={cn(
+                          "mr-2 h-4 w-4",
+                          plz === postal.plz ? "opacity-100" : "opacity-0"
+                        )}
+                      />
+                      {postal.plz} - {postal.ort}
+                    </CommandItem>
+                  ))}
+                </CommandGroup>
+              </CommandList>
+            </Command>
+          </PopoverContent>
+        </Popover>
       </div>
       <div className="col-span-2">
         <Label htmlFor="ort">{ortLabel}{required && ' *'}</Label>
