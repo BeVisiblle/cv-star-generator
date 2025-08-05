@@ -1,68 +1,59 @@
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { useState, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Textarea } from "@/components/ui/textarea";
-import { Heart, MessageCircle, Share2, Send, Users, TrendingUp } from "lucide-react";
-import { useState } from "react";
+import { CommunityFeed } from "@/components/community/CommunityFeed";
+import { CommunityFriends } from "@/components/community/CommunityFriends";
+import { Users, TrendingUp } from "lucide-react";
 
 const Community = () => {
-  const [newPost, setNewPost] = useState("");
+  const [greeting, setGreeting] = useState("");
 
-  // Placeholder posts data
-  const placeholderPosts = [
-    {
-      id: 1,
-      author: {
-        name: "Anna",
-        status: "Schülerin",
-        avatar: "A",
-        location: "Frankfurt am Main"
-      },
-      content: "Hey Leute! Ich starte bald meine Ausbildung zur IT-Systemelektronikerin. Hat jemand Tipps für den ersten Tag? 😊",
-      timestamp: "vor 2 Stunden",
-      likes: 12,
-      comments: 5,
-      isLiked: false
+  // Get current user profile for greeting
+  const { data: profile } = useQuery({
+    queryKey: ["user-profile"],
+    queryFn: async () => {
+      const { data: user } = await supabase.auth.getUser();
+      if (!user.user) return null;
+
+      const { data } = await supabase
+        .from("profiles")
+        .select("full_name")
+        .eq("id", user.user.id)
+        .single();
+
+      return data;
     },
-    {
-      id: 2,
-      author: {
-        name: "Max",
-        status: "Azubi (2. Jahr)",
-        avatar: "M",
-        location: "München"
-      },
-      content: "Heute war ein super Tag in der Werkstatt! Endlich den ersten Motor komplett zerlegt und wieder zusammengebaut. Das Gefühl ist unbeschreiblich! 🔧⚙️",
-      timestamp: "vor 4 Stunden",
-      likes: 25,
-      comments: 8,
-      isLiked: true
-    },
-    {
-      id: 3,
-      author: {
-        name: "Lisa",
-        status: "Schülerin",
-        avatar: "L",
-        location: "Hamburg"
-      },
-      content: "Frage an alle MFA-Azubis: Wie habt ihr euch auf das Vorstellungsgespräch vorbereitet? Ich bin total nervös! 😰",
-      timestamp: "vor 6 Stunden",
-      likes: 8,
-      comments: 12,
-      isLiked: false
-    }
-  ];
+  });
+
+  useEffect(() => {
+    const updateGreeting = () => {
+      const hour = new Date().getHours();
+      const firstName = profile?.full_name?.split(" ")[0] || "";
+      
+      if (hour >= 6 && hour < 12) {
+        setGreeting(`Guten Morgen${firstName ? `, ${firstName}` : ""}!`);
+      } else if (hour >= 12 && hour < 18) {
+        setGreeting(`Guten Tag${firstName ? `, ${firstName}` : ""}!`);
+      } else {
+        setGreeting(`Guten Abend${firstName ? `, ${firstName}` : ""}!`);
+      }
+    };
+
+    updateGreeting();
+    const interval = setInterval(updateGreeting, 60000); // Update every minute
+
+    return () => clearInterval(interval);
+  }, [profile]);
 
   return (
     <div className="space-y-6">
-      {/* Header */}
+      {/* Header with Time-based Greeting */}
       <div className="space-y-4">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Community</h1>
+            <h1 className="text-3xl font-bold tracking-tight">{greeting}</h1>
             <p className="text-muted-foreground">
               Tausche dich mit anderen Azubis aus, stelle Fragen und teile deine Erfahrungen
             </p>
@@ -80,101 +71,21 @@ const Community = () => {
         </div>
       </div>
 
-      {/* Create Post */}
-      <Card>
-        <CardContent className="p-6">
-          <div className="space-y-4">
-            <div className="flex items-start space-x-4">
-              <Avatar className="h-10 w-10">
-                <AvatarFallback>Du</AvatarFallback>
-              </Avatar>
-              <div className="flex-1 space-y-3">
-                <Textarea
-                  placeholder="Was beschäftigt dich heute? Teile deine Gedanken, Fragen oder Erfahrungen..."
-                  value={newPost}
-                  onChange={(e) => setNewPost(e.target.value)}
-                  className="min-h-[100px] resize-none"
-                />
-                <div className="flex justify-between items-center">
-                  <div className="text-sm text-muted-foreground">
-                    {newPost.length}/500 Zeichen
-                  </div>
-                  <Button 
-                    disabled={!newPost.trim()}
-                    className="flex items-center gap-2"
-                  >
-                    <Send className="h-4 w-4" />
-                    Beitrag veröffentlichen
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Posts Feed */}
-      <div className="space-y-6">
-        {placeholderPosts.map((post) => (
-          <Card key={post.id} className="hover:shadow-md transition-shadow">
-            <CardContent className="p-6">
-              <div className="space-y-4">
-                {/* Post Header */}
-                <div className="flex items-start space-x-3">
-                  <Avatar className="h-12 w-12">
-                    <AvatarFallback>{post.author.avatar}</AvatarFallback>
-                  </Avatar>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <h3 className="font-semibold">{post.author.name}</h3>
-                      <Badge variant="secondary" className="text-xs">
-                        {post.author.status}
-                      </Badge>
-                    </div>
-                    <div className="text-sm text-muted-foreground">
-                      {post.author.location} • {post.timestamp}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Post Content */}
-                <div className="text-sm leading-relaxed">
-                  {post.content}
-                </div>
-
-                {/* Post Actions */}
-                <div className="flex items-center justify-between pt-2 border-t">
-                  <div className="flex items-center space-x-4">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className={`flex items-center gap-2 ${post.isLiked ? 'text-red-500' : ''}`}
-                    >
-                      <Heart className={`h-4 w-4 ${post.isLiked ? 'fill-current' : ''}`} />
-                      {post.likes}
-                    </Button>
-                    <Button variant="ghost" size="sm" className="flex items-center gap-2">
-                      <MessageCircle className="h-4 w-4" />
-                      {post.comments}
-                    </Button>
-                    <Button variant="ghost" size="sm" className="flex items-center gap-2">
-                      <Share2 className="h-4 w-4" />
-                      Teilen
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-
-      {/* Load More */}
-      <div className="flex justify-center">
-        <Button variant="outline">
-          Weitere Beiträge laden
-        </Button>
-      </div>
+      {/* Tabs for Feed and Friends */}
+      <Tabs defaultValue="feed" className="w-full">
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="feed">Feed</TabsTrigger>
+          <TabsTrigger value="friends">Freunde</TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="feed" className="space-y-6 mt-6">
+          <CommunityFeed />
+        </TabsContent>
+        
+        <TabsContent value="friends" className="space-y-6 mt-6">
+          <CommunityFriends />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };
