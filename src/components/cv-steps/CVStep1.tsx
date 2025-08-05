@@ -9,7 +9,11 @@ const CVStep1 = () => {
   const branches = [
     { key: 'handwerk', emoji: '👷', title: 'Handwerk', desc: 'Bau, Elektro, Sanitär, KFZ und mehr' },
     { key: 'it', emoji: '💻', title: 'IT', desc: 'Programmierung, Support, Systemadministration' },
-    { key: 'gesundheit', emoji: '🩺', title: 'Gesundheit', desc: 'Pflege, Therapie, medizinische Assistenz' }
+    { key: 'gesundheit', emoji: '🩺', title: 'Gesundheit', desc: 'Pflege, Therapie, medizinische Assistenz' },
+    { key: 'buero', emoji: '📊', title: 'Büro & Verwaltung', desc: 'Organisation, Kommunikation, Administration' },
+    { key: 'verkauf', emoji: '🛍️', title: 'Verkauf & Handel', desc: 'Beratung, Kundenservice, Einzelhandel' },
+    { key: 'gastronomie', emoji: '🍽️', title: 'Gastronomie', desc: 'Service, Küche, Hotellerie' },
+    { key: 'bau', emoji: '🏗️', title: 'Bau & Architektur', desc: 'Konstruktion, Planung, Ausführung' }
   ] as const;
 
   const statuses = [
@@ -26,7 +30,7 @@ const CVStep1 = () => {
           In welchem Bereich möchtest du arbeiten?
         </p>
         
-        <div className="grid md:grid-cols-3 gap-4">
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
           {branches.map((branch) => (
             <Card 
               key={branch.key}

@@ -10,6 +10,8 @@ interface SkillSelectorProps {
   selectedSkills: string[];
   onSkillsChange: (skills: string[]) => void;
   branch?: string;
+  statusLevel?: string;
+  maxSkills?: number;
   label?: string;
   placeholder?: string;
   className?: string;
@@ -19,15 +21,18 @@ export const SkillSelector = ({
   selectedSkills,
   onSkillsChange,
   branch,
+  statusLevel,
+  maxSkills = 5,
   label = 'Fähigkeiten',
   placeholder = 'Fähigkeit auswählen...',
   className = ''
 }: SkillSelectorProps) => {
-  const { skills, loading, error } = useSkills(branch);
+  const { skills, loading, error } = useSkills(branch, statusLevel);
   const [customSkill, setCustomSkill] = useState('');
 
   const addSkill = (skillName: string) => {
     if (!skillName.trim()) return;
+    if (selectedSkills.length >= maxSkills) return;
     if (!selectedSkills.includes(skillName.trim())) {
       onSkillsChange([...selectedSkills, skillName.trim()]);
     }
@@ -55,14 +60,19 @@ export const SkillSelector = ({
 
   return (
     <div className={className}>
-      <Label>{label}</Label>
+      <div className="flex justify-between items-center mb-2">
+        <Label>{label}</Label>
+        <span className="text-sm text-muted-foreground">
+          {selectedSkills.length}/{maxSkills} ausgewählt
+        </span>
+      </div>
       
       <div className="space-y-4">
         {/* Predefined Skills Dropdown */}
         {!error && skills.length > 0 && (
-          <Select onValueChange={(value) => addSkill(value)}>
+          <Select onValueChange={(value) => addSkill(value)} disabled={selectedSkills.length >= maxSkills}>
             <SelectTrigger>
-              <SelectValue placeholder={placeholder} />
+              <SelectValue placeholder={selectedSkills.length >= maxSkills ? "Maximum erreicht" : placeholder} />
             </SelectTrigger>
             <SelectContent>
               {skills
@@ -82,6 +92,7 @@ export const SkillSelector = ({
             placeholder="Eigene Fähigkeit eingeben..."
             value={customSkill}
             onChange={(e) => setCustomSkill(e.target.value)}
+            disabled={selectedSkills.length >= maxSkills}
             onKeyDown={(e) => {
               if (e.key === 'Enter') {
                 e.preventDefault();
@@ -93,7 +104,7 @@ export const SkillSelector = ({
             type="button"
             variant="outline"
             onClick={addCustomSkill}
-            disabled={!customSkill.trim()}
+            disabled={!customSkill.trim() || selectedSkills.length >= maxSkills}
           >
             <Plus className="h-4 w-4" />
           </Button>

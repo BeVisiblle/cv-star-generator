@@ -15,7 +15,11 @@ const CVStep3 = () => {
     switch (formData.branche) {
       case 'handwerk': return 'Handwerk';
       case 'it': return 'IT';
-      case 'gesundheit': return 'Gesundheit';
+      case 'gesundheit': return 'Gesundheit & Pflege';
+      case 'buero': return 'Büro & Verwaltung';
+      case 'verkauf': return 'Verkauf & Handel';
+      case 'gastronomie': return 'Gastronomie & Service';
+      case 'bau': return 'Bau & Architektur';
       default: return '';
     }
   };
@@ -159,11 +163,175 @@ const CVStep3 = () => {
     </>
   );
 
+  const renderBueroQuestions = () => (
+    <>
+      <div>
+        <Label htmlFor="organisationstaelent">Was fällt dir bei Organisation und Ordnung besonders leicht? *</Label>
+        <Textarea
+          id="organisationstaelent"
+          value={formData.kenntnisse || ''}
+          onChange={(e) => updateFormData({ kenntnisse: e.target.value })}
+          placeholder="z.B. Ich kann gut planen, halte Termine ein, arbeite strukturiert..."
+          className="mt-2"
+          rows={4}
+        />
+      </div>
+
+      <div>
+        <Label htmlFor="motivation_buero">Warum möchtest du im Büro arbeiten? *</Label>
+        <Textarea
+          id="motivation_buero"
+          value={formData.motivation || ''}
+          onChange={(e) => updateFormData({ motivation: e.target.value })}
+          placeholder="z.B. Ich arbeite gerne am Computer und mag strukturierte Aufgaben..."
+          className="mt-2"
+          rows={4}
+        />
+      </div>
+
+      <div>
+        <Label htmlFor="computer_erfahrung">Welche Erfahrungen hast du mit Computern? *</Label>
+        <Textarea
+          id="computer_erfahrung"
+          value={formData.praktische_erfahrung || ''}
+          onChange={(e) => updateFormData({ praktische_erfahrung: e.target.value })}
+          placeholder="z.B. Ich kann gut mit Word und Excel umgehen, nutze das Internet sicher..."
+          className="mt-2"
+          rows={4}
+        />
+      </div>
+    </>
+  );
+
+  const renderVerkaufQuestions = () => (
+    <>
+      <div>
+        <Label htmlFor="kundenorientierung">Wie gehst du auf Menschen zu? *</Label>
+        <Textarea
+          id="kundenorientierung"
+          value={formData.kenntnisse || ''}
+          onChange={(e) => updateFormData({ kenntnisse: e.target.value })}
+          placeholder="z.B. Ich bin freundlich, höre zu und kann gut erklären..."
+          className="mt-2"
+          rows={4}
+        />
+      </div>
+
+      <div>
+        <Label htmlFor="motivation_verkauf">Warum möchtest du im Verkauf arbeiten? *</Label>
+        <Textarea
+          id="motivation_verkauf"
+          value={formData.motivation || ''}
+          onChange={(e) => updateFormData({ motivation: e.target.value })}
+          placeholder="z.B. Ich helfe gerne Menschen bei Entscheidungen und arbeite gerne im Team..."
+          className="mt-2"
+          rows={4}
+        />
+      </div>
+
+      <div>
+        <Label htmlFor="verkaufserfahrung">Hast du schon mal etwas verkauft oder beraten? *</Label>
+        <Textarea
+          id="verkaufserfahrung"
+          value={formData.praktische_erfahrung || ''}
+          onChange={(e) => updateFormData({ praktische_erfahrung: e.target.value })}
+          placeholder="z.B. Ich habe schon mal auf einem Flohmarkt verkauft, Freunden bei Kaufentscheidungen geholfen..."
+          className="mt-2"
+          rows={4}
+        />
+      </div>
+    </>
+  );
+
+  const renderGastronomieQuestions = () => (
+    <>
+      <div>
+        <Label htmlFor="serviceerfahrung">Was macht dir beim Service und der Gästebetreuung Spaß? *</Label>
+        <Textarea
+          id="serviceerfahrung"
+          value={formData.kenntnisse || ''}
+          onChange={(e) => updateFormData({ kenntnisse: e.target.value })}
+          placeholder="z.B. Ich sorge gerne dafür, dass sich Menschen wohlfühlen, arbeite gerne schnell..."
+          className="mt-2"
+          rows={4}
+        />
+      </div>
+
+      <div>
+        <Label htmlFor="motivation_gastronomie">Warum möchtest du in der Gastronomie arbeiten? *</Label>
+        <Textarea
+          id="motivation_gastronomie"
+          value={formData.motivation || ''}
+          onChange={(e) => updateFormData({ motivation: e.target.value })}
+          placeholder="z.B. Ich arbeite gerne mit Menschen und mag das lebendige Umfeld..."
+          className="mt-2"
+          rows={4}
+        />
+      </div>
+
+      <div>
+        <Label htmlFor="teamarbeit_stress">Wie gehst du mit Stress und Teamarbeit um? *</Label>
+        <Textarea
+          id="teamarbeit_stress"
+          value={formData.praktische_erfahrung || ''}
+          onChange={(e) => updateFormData({ praktische_erfahrung: e.target.value })}
+          placeholder="z.B. Ich behalte auch unter Zeitdruck den Überblick, helfe gerne im Team..."
+          className="mt-2"
+          rows={4}
+        />
+      </div>
+    </>
+  );
+
+  const renderBauQuestions = () => (
+    <>
+      <div>
+        <Label htmlFor="koerperliche_arbeit">Wie stehst du zu körperlicher Arbeit? *</Label>
+        <Textarea
+          id="koerperliche_arbeit"
+          value={formData.kenntnisse || ''}
+          onChange={(e) => updateFormData({ kenntnisse: e.target.value })}
+          placeholder="z.B. Ich bin körperlich fit, arbeite gerne draußen, packe gerne mit an..."
+          className="mt-2"
+          rows={4}
+        />
+      </div>
+
+      <div>
+        <Label htmlFor="motivation_bau">Warum möchtest du im Baubereich arbeiten? *</Label>
+        <Textarea
+          id="motivation_bau"
+          value={formData.motivation || ''}
+          onChange={(e) => updateFormData({ motivation: e.target.value })}
+          placeholder="z.B. Ich baue gerne etwas auf, sehe gerne konkrete Ergebnisse meiner Arbeit..."
+          className="mt-2"
+          rows={4}
+        />
+      </div>
+
+      <div>
+        <Label htmlFor="handwerkliche_erfahrung_bau">Hast du schon mal gebaut oder auf einer Baustelle gearbeitet? *</Label>
+        <Textarea
+          id="handwerkliche_erfahrung_bau"
+          value={formData.praktische_erfahrung || ''}
+          onChange={(e) => updateFormData({ praktische_erfahrung: e.target.value })}
+          placeholder="z.B. Ich habe beim Familienhausbau geholfen, schon mal renoviert..."
+          className="mt-2"
+          rows={4}
+        />
+      </div>
+    </>
+  );
+
   const renderQuestionsByBranche = () => {
     switch (formData.branche) {
       case 'handwerk': return renderHandwerkQuestions();
       case 'it': return renderITQuestions();
       case 'gesundheit': return renderGesundheitQuestions();
+      case 'buero': return renderBueroQuestions();
+      case 'verkauf': return renderVerkaufQuestions();
+      case 'gastronomie': return renderGastronomieQuestions();
+      case 'bau': return renderBauQuestions();
       default: return null;
     }
   };
@@ -186,6 +354,7 @@ const CVStep3 = () => {
         <LanguageSelector
           languages={formData.sprachen || []}
           onLanguagesChange={(languages) => updateFormData({ sprachen: languages })}
+          maxLanguages={formData.status === 'schueler' ? 3 : 10}
           label="Sprachen"
         />
       </Card>
@@ -197,7 +366,9 @@ const CVStep3 = () => {
             selectedSkills={formData.faehigkeiten || []}
             onSkillsChange={(skills) => updateFormData({ faehigkeiten: skills })}
             branch={formData.branche}
-            label="Fähigkeiten"
+            statusLevel={formData.status}
+            maxSkills={5}
+            label="Fähigkeiten (max. 5)"
           />
         </Card>
       )}

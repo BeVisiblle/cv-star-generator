@@ -10,6 +10,7 @@ import { SprachEntry } from '@/contexts/CVFormContext';
 interface LanguageSelectorProps {
   languages: SprachEntry[];
   onLanguagesChange: (languages: SprachEntry[]) => void;
+  maxLanguages?: number;
   label?: string;
   className?: string;
 }
@@ -17,12 +18,14 @@ interface LanguageSelectorProps {
 export const LanguageSelector = ({
   languages,
   onLanguagesChange,
+  maxLanguages = 10,
   label = 'Sprachen',
   className = ''
 }: LanguageSelectorProps) => {
   const { languages: availableLanguages, loading, error } = useLanguages();
 
   const addLanguage = () => {
+    if (languages.length >= maxLanguages) return;
     const newLanguage: SprachEntry = { sprache: '', niveau: 'A1' };
     onLanguagesChange([...languages, newLanguage]);
   };
@@ -51,12 +54,18 @@ export const LanguageSelector = ({
   return (
     <div className={className}>
       <div className="flex justify-between items-center mb-4">
-        <Label>{label}</Label>
+        <div className="flex items-center gap-4">
+          <Label>{label}</Label>
+          <span className="text-sm text-muted-foreground">
+            {languages.length}/{maxLanguages} Sprachen
+          </span>
+        </div>
         <Button
           type="button"
           variant="outline"
           size="sm"
           onClick={addLanguage}
+          disabled={languages.length >= maxLanguages}
         >
           <Plus className="h-4 w-4 mr-2" />
           Sprache hinzufügen

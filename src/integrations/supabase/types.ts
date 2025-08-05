@@ -278,6 +278,7 @@ export type Database = {
           created_at: string | null
           id: string
           name: string
+          status_level: string | null
         }
         Insert: {
           branch?: string | null
@@ -285,6 +286,7 @@ export type Database = {
           created_at?: string | null
           id?: string
           name: string
+          status_level?: string | null
         }
         Update: {
           branch?: string | null
@@ -292,6 +294,7 @@ export type Database = {
           created_at?: string | null
           id?: string
           name?: string
+          status_level?: string | null
         }
         Relationships: []
       }

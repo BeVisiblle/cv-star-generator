@@ -6,9 +6,10 @@ interface Skill {
   name: string;
   category: string;
   branch: string;
+  status_level?: string;
 }
 
-export const useSkills = (branch?: string) => {
+export const useSkills = (branch?: string, statusLevel?: string) => {
   const [skills, setSkills] = useState<Skill[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -19,11 +20,12 @@ export const useSkills = (branch?: string) => {
         setLoading(true);
         let query = supabase
           .from('skills')
-          .select('id, name, category, branch')
+          .select('id, name, category, branch, status_level')
           .order('name');
 
         if (branch) {
-          query = query.eq('branch', branch);
+          // Include skills for the specific branch and universal skills
+          query = query.in('branch', [branch, 'universal']);
         }
 
         const { data, error } = await query;
@@ -31,7 +33,17 @@ export const useSkills = (branch?: string) => {
         if (error) {
           setError(error.message);
         } else {
-          setSkills(data || []);
+          let filteredSkills = data || [];
+          
+          // Filter by status level if provided
+          if (statusLevel) {
+            filteredSkills = filteredSkills.filter(skill => 
+              skill.status_level === 'all' || 
+              skill.status_level === statusLevel
+            );
+          }
+          
+          setSkills(filteredSkills);
         }
       } catch (err) {
         setError('Failed to fetch skills');
@@ -41,7 +53,7 @@ export const useSkills = (branch?: string) => {
     };
 
     fetchSkills();
-  }, [branch]);
+  }, [branch, statusLevel]);
 
   return {
     skills,

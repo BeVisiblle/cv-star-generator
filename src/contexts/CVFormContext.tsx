@@ -27,7 +27,7 @@ export interface SprachEntry {
 
 export interface CVFormData {
   // Step 1: Branch & Status
-  branche?: 'handwerk' | 'it' | 'gesundheit';
+  branche?: 'handwerk' | 'it' | 'gesundheit' | 'buero' | 'verkauf' | 'gastronomie' | 'bau';
   status?: 'schueler' | 'azubi' | 'ausgelernt';
   
   // Step 2: Enhanced Personal Data
