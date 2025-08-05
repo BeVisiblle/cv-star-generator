@@ -176,7 +176,7 @@ const LiveCareerLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) => 
           
           {/* Work Experience */}
           {data.berufserfahrung && data.berufserfahrung.length > 0 && (
-            <div>
+            <div className="page-break-inside-avoid">
               <h3 
                 className="font-bold uppercase tracking-wide mb-3"
                 style={{ 
@@ -221,7 +221,7 @@ const LiveCareerLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) => 
 
           {/* Education */}
           {data.schulbildung && data.schulbildung.length > 0 && (
-            <div>
+            <div className="page-break-inside-avoid">
               <h3 
                 className="font-bold uppercase tracking-wide mb-3"
                 style={{ 
