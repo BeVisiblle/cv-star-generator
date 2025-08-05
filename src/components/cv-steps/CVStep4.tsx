@@ -246,6 +246,7 @@ const CVStep4 = () => {
                       updateSchulbildungEntry(index, 'plz', plz);
                       updateSchulbildungEntry(index, 'ort', ort);
                     }}
+                    onOrtChange={(ort) => updateSchulbildungEntry(index, 'ort', ort)}
                     required={true}
                     plzLabel="PLZ"
                     ortLabel="Ort"
@@ -350,6 +351,7 @@ const CVStep4 = () => {
                       updateBerufserfahrungEntry(index, 'plz', plz);
                       updateBerufserfahrungEntry(index, 'ort', ort);
                     }}
+                    onOrtChange={(ort) => updateBerufserfahrungEntry(index, 'ort', ort)}
                     required={true}
                     plzLabel="PLZ"
                     ortLabel="Ort"

@@ -119,6 +119,7 @@ const CVStep2 = () => {
                 plz={formData.plz || ''}
                 ort={formData.ort || ''}
                 onPLZChange={(plz, ort) => updateFormData({ plz, ort })}
+                onOrtChange={(ort) => updateFormData({ ort })}
                 required={true}
                 plzLabel="PLZ"
                 ortLabel="Ort"
