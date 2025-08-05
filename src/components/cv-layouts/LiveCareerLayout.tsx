@@ -1,6 +1,6 @@
 import React from 'react';
 import { CVLayoutProps, getBrancheColors, getBrancheTitle, getStatusTitle, formatDate } from './CVLayoutBase';
-import { Phone, Mail, MapPin, Calendar, Globe } from 'lucide-react';
+import { Phone, Mail, MapPin, Calendar } from 'lucide-react';
 
 const LiveCareerLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) => {
   const colors = getBrancheColors(data.branche);
@@ -10,14 +10,16 @@ const LiveCareerLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) => 
     const currentLevel = niveau === 'Muttersprache' ? 6 : levels.indexOf(niveau);
     
     return (
-      <div className="mb-3">
-        <div className="flex justify-between items-center mb-1">
+      <div className="mb-4">
+        <div className="mb-1">
           <span className="text-sm font-medium text-gray-900">{sprache}</span>
+        </div>
+        <div className="mb-1">
           <span className="text-xs text-gray-600">{niveau}</span>
         </div>
-        <div className="w-full bg-gray-200 rounded-full h-1.5">
+        <div className="w-full bg-gray-200 rounded-full h-2">
           <div 
-            className="h-1.5 rounded-full transition-all"
+            className="h-2 rounded-full"
             style={{ 
               width: `${((currentLevel + 1) / 6) * 100}%`,
               background: `hsl(${colors.primary})`
@@ -29,36 +31,36 @@ const LiveCareerLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) => 
   };
 
   return (
-    <div className={`max-w-4xl mx-auto bg-white ${className}`} data-cv-preview>
-      {/* Header Section - Clean, no background boxes */}
-      <div className="w-full py-6 border-b border-gray-300">
-        <div className="px-6">
+    <div className={`w-full bg-white ${className}`} data-cv-preview>
+      {/* Header Section - Clean flat design */}
+      <div className="w-full py-8">
+        <div className="max-w-4xl mx-auto px-6">
           <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
             {/* Profile Image */}
             {data.profilbild && (
-              <div className="w-20 h-20 md:w-24 md:h-24 flex-shrink-0">
+              <div className="w-24 h-24 md:w-28 md:h-28 flex-shrink-0">
                 <img
                   src={typeof data.profilbild === 'string' ? data.profilbild : URL.createObjectURL(data.profilbild)}
                   alt="Profilbild"
-                  className="w-full h-full object-cover rounded"
+                  className="w-full h-full object-cover rounded-lg"
                 />
               </div>
             )}
             
             {/* Name and Title */}
             <div className="flex-1">
-              <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-1">
+              <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
                 {data.vorname} {data.nachname}
               </h1>
               <h2 
-                className="text-base md:text-lg font-medium mb-3"
+                className="text-lg md:text-xl font-medium mb-4"
                 style={{ color: `hsl(${colors.primary})` }}
               >
                 {getStatusTitle(data.status)} - {getBrancheTitle(data.branche)}
               </h2>
               
               {/* Contact Information */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm text-gray-600">
+              <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm text-gray-600">
                 {(data.strasse && data.ort) && (
                   <div className="flex items-center gap-2">
                     <MapPin className="h-4 w-4 flex-shrink-0" />
@@ -89,164 +91,151 @@ const LiveCareerLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) => 
         </div>
       </div>
 
-      {/* Main Content - Clean two-column layout */}
-      <div className="px-6 py-6">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-          
-          {/* Left Column - Sidebar (35%) - NO BOXES */}
-          <div className="lg:col-span-4 space-y-6">
+      {/* Main Content - Clean flat layout */}
+      <div className="w-full">
+        <div className="max-w-4xl mx-auto px-6 py-6">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
             
-            {/* About Me */}
-            {data.ueberMich && (
-              <div>
-                <h3 
-                  className="text-base font-bold uppercase tracking-wide mb-3 pb-1 border-b"
-                  style={{ 
-                    color: `hsl(${colors.primary})`,
-                    borderColor: `hsl(${colors.primary})`
-                  }}
-                >
-                  Über mich
-                </h3>
-                <p className="text-gray-700 text-sm leading-relaxed">
-                  {data.ueberMich}
-                </p>
-              </div>
-            )}
-
-            {/* Skills - Simple list, NO BOXES */}
-            {(data.status === 'azubi' || data.status === 'ausgelernt') && data.faehigkeiten && data.faehigkeiten.length > 0 && (
-              <div>
-                <h3 
-                  className="text-base font-bold uppercase tracking-wide mb-3 pb-1 border-b"
-                  style={{ 
-                    color: `hsl(${colors.primary})`,
-                    borderColor: `hsl(${colors.primary})`
-                  }}
-                >
-                  Kompetenzen
-                </h3>
-                <div className="space-y-1">{/* Reduced spacing */}
-                  {data.faehigkeiten.map((skill, index) => (
-                    <div key={index} className="text-sm text-gray-700 flex items-start">
-                      <span className="mr-2 mt-1.5 w-1 h-1 rounded-full flex-shrink-0" style={{ background: `hsl(${colors.primary})` }} />
-                      <span>{skill}</span>
-                    </div>
-                  ))}
+            {/* Left Column - Sidebar (35%) */}
+            <div className="lg:col-span-4 space-y-8">
+              
+              {/* About Me */}
+              {data.ueberMich && (
+                <div>
+                  <h3 
+                    className="text-lg font-bold uppercase tracking-wide mb-4"
+                    style={{ color: `hsl(${colors.primary})` }}
+                  >
+                    Über mich
+                  </h3>
+                  <p className="text-gray-700 text-sm leading-relaxed">
+                    {data.ueberMich}
+                  </p>
                 </div>
-              </div>
-            )}
+              )}
 
-            {/* Languages - Fixed spacing and NO overlap */}
-            {data.sprachen && data.sprachen.length > 0 && (
-              <div>
-                <h3 
-                  className="text-base font-bold uppercase tracking-wide mb-3 pb-1 border-b"
-                  style={{ 
-                    color: `hsl(${colors.primary})`,
-                    borderColor: `hsl(${colors.primary})`
-                  }}
-                >
-                  Sprachen
-                </h3>
-                <div className="space-y-2">
-                  {data.sprachen.map((sprache, index) => (
-                    <LanguageProgressBar 
-                      key={index} 
-                      niveau={sprache.niveau} 
-                      sprache={sprache.sprache}
-                    />
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Right Column - Main Content (65%) */}
-          <div className="lg:col-span-8 space-y-6">
-            
-            {/* Work Experience */}
-            {data.berufserfahrung && data.berufserfahrung.length > 0 && (
-              <div>
-                <h3 
-                  className="text-lg font-bold uppercase tracking-wide mb-4 pb-1 border-b"
-                  style={{ 
-                    color: `hsl(${colors.primary})`,
-                    borderColor: `hsl(${colors.primary})`
-                  }}
-                >
-                  Berufserfahrung
-                </h3>
-                <div className="space-y-4">{/* Reduced spacing */}
-                  {data.berufserfahrung.map((job, index) => (
-                    <div key={index} className="relative">
-                      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-2">
-                        <div>
-                          <h4 className="text-base font-semibold text-gray-900">{job.titel}</h4>
-                          <p className="text-sm font-medium" style={{ color: `hsl(${colors.primary})` }}>
-                            {job.unternehmen}
-                          </p>
-                          <p className="text-sm text-gray-600">{job.ort}</p>
-                        </div>
-                        <div className="text-sm text-gray-500 font-medium mt-1 sm:mt-0">
-                          {job.zeitraum_von} - {job.zeitraum_bis}
-                        </div>
+              {/* Skills - Simple clean list */}
+              {(data.status === 'azubi' || data.status === 'ausgelernt') && data.faehigkeiten && data.faehigkeiten.length > 0 && (
+                <div>
+                  <h3 
+                    className="text-lg font-bold uppercase tracking-wide mb-4"
+                    style={{ color: `hsl(${colors.primary})` }}
+                  >
+                    Kompetenzen
+                  </h3>
+                  <div className="space-y-2">
+                    {data.faehigkeiten.map((skill, index) => (
+                      <div key={index} className="text-sm text-gray-700 flex items-start">
+                        <span className="mr-3 mt-1.5 w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: `hsl(${colors.primary})` }} />
+                        <span>{skill}</span>
                       </div>
-                      {job.beschreibung && (
-                        <div className="mt-3">
-                          <ul className="text-sm text-gray-700 space-y-1">
-                            {job.beschreibung.split('\n').filter(line => line.trim()).map((line, i) => (
-                              <li key={i} className="flex items-start">
-                                <span className="mr-2 mt-1.5 w-1 h-1 rounded-full bg-gray-400 flex-shrink-0" />
-                                <span>{line.trim()}</span>
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      )}
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
 
-            {/* Education */}
-            {data.schulbildung && data.schulbildung.length > 0 && (
-              <div>
-                <h3 
-                  className="text-lg font-bold uppercase tracking-wide mb-4 pb-1 border-b"
-                  style={{ 
-                    color: `hsl(${colors.primary})`,
-                    borderColor: `hsl(${colors.primary})`
-                  }}
-                >
-                  Ausbildung
-                </h3>
-                <div className="space-y-4">{/* Reduced spacing */}
-                  {data.schulbildung.map((school, index) => (
-                    <div key={index} className="relative">
-                      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-2">
-                        <div>
-                          <h4 className="text-base font-semibold text-gray-900">{school.schulform}</h4>
-                          <p className="text-sm font-medium" style={{ color: `hsl(${colors.primary})` }}>
-                            {school.name}
-                          </p>
-                          <p className="text-sm text-gray-600">{school.ort}</p>
-                        </div>
-                        <div className="text-sm text-gray-500 font-medium mt-1 sm:mt-0">
-                          {school.zeitraum_von} - {school.zeitraum_bis}
-                        </div>
-                      </div>
-                      {school.beschreibung && (
-                        <div className="mt-3">
-                          <p className="text-sm text-gray-700">{school.beschreibung}</p>
-                        </div>
-                      )}
-                    </div>
-                  ))}
+              {/* Languages - Proper spacing, no overlap */}
+              {data.sprachen && data.sprachen.length > 0 && (
+                <div>
+                  <h3 
+                    className="text-lg font-bold uppercase tracking-wide mb-4"
+                    style={{ color: `hsl(${colors.primary})` }}
+                  >
+                    Sprachen
+                  </h3>
+                  <div className="space-y-4">
+                    {data.sprachen.map((sprache, index) => (
+                      <LanguageProgressBar 
+                        key={index} 
+                        niveau={sprache.niveau} 
+                        sprache={sprache.sprache}
+                      />
+                    ))}
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
+            </div>
+
+            {/* Right Column - Main Content (65%) */}
+            <div className="lg:col-span-8 space-y-8">
+              
+              {/* Work Experience */}
+              {data.berufserfahrung && data.berufserfahrung.length > 0 && (
+                <div>
+                  <h3 
+                    className="text-lg font-bold uppercase tracking-wide mb-6"
+                    style={{ color: `hsl(${colors.primary})` }}
+                  >
+                    Berufserfahrung
+                  </h3>
+                  <div className="space-y-6">
+                    {data.berufserfahrung.map((job, index) => (
+                      <div key={index}>
+                        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-3">
+                          <div>
+                            <h4 className="text-base font-semibold text-gray-900">{job.titel}</h4>
+                            <p className="text-sm font-medium" style={{ color: `hsl(${colors.primary})` }}>
+                              {job.unternehmen}
+                            </p>
+                            <p className="text-sm text-gray-600">{job.ort}</p>
+                          </div>
+                          <div className="text-sm text-gray-500 font-medium mt-2 sm:mt-0">
+                            {job.zeitraum_von} - {job.zeitraum_bis}
+                          </div>
+                        </div>
+                        {job.beschreibung && (
+                          <div className="mt-3">
+                            <ul className="text-sm text-gray-700 space-y-1">
+                              {job.beschreibung.split('\n').filter(line => line.trim()).map((line, i) => (
+                                <li key={i} className="flex items-start">
+                                  <span className="mr-3 mt-1.5 w-1.5 h-1.5 rounded-full bg-gray-400 flex-shrink-0" />
+                                  <span>{line.trim()}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Education */}
+              {data.schulbildung && data.schulbildung.length > 0 && (
+                <div>
+                  <h3 
+                    className="text-lg font-bold uppercase tracking-wide mb-6"
+                    style={{ color: `hsl(${colors.primary})` }}
+                  >
+                    Ausbildung
+                  </h3>
+                  <div className="space-y-6">
+                    {data.schulbildung.map((school, index) => (
+                      <div key={index}>
+                        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-3">
+                          <div>
+                            <h4 className="text-base font-semibold text-gray-900">{school.schulform}</h4>
+                            <p className="text-sm font-medium" style={{ color: `hsl(${colors.primary})` }}>
+                              {school.name}
+                            </p>
+                            <p className="text-sm text-gray-600">{school.ort}</p>
+                          </div>
+                          <div className="text-sm text-gray-500 font-medium mt-2 sm:mt-0">
+                            {school.zeitraum_von} - {school.zeitraum_bis}
+                          </div>
+                        </div>
+                        {school.beschreibung && (
+                          <div className="mt-3">
+                            <p className="text-sm text-gray-700">{school.beschreibung}</p>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
