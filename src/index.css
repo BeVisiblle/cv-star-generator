@@ -110,10 +110,20 @@ All colors MUST be HSL.
   .page-break-inside-avoid {
     page-break-inside: avoid;
     break-inside: avoid;
+    -webkit-column-break-inside: avoid;
+    -moz-column-break-inside: avoid;
+    column-break-inside: avoid;
+    display: block;
   }
 
   .page-break-before {
     page-break-before: always;
     break-before: page;
+  }
+
+  /* Additional PDF optimization for sections */
+  .page-break-inside-avoid h3 {
+    page-break-after: avoid;
+    break-after: avoid;
   }
 }
