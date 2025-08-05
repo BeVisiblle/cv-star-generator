@@ -238,10 +238,11 @@ const Profile = () => {
 
         {/* Profile Section */}
         <div className="container mx-auto px-4">
-          <div className="relative -mt-20 md:-mt-24 pb-6">
-            <div className="flex flex-col md:flex-row md:items-end gap-6">
+          {/* White background for profile info */}
+          <div className="bg-background relative -mt-16 md:-mt-20 rounded-t-lg pb-6">
+            <div className="flex flex-col md:flex-row md:items-start gap-6 pt-6 px-6">
               {/* Profile Picture */}
-              <div className="relative">
+              <div className="relative -mt-16 md:-mt-20">
                 <div className="w-32 h-32 md:w-40 md:h-40 rounded-full border-4 border-background bg-background overflow-hidden shadow-lg">
                   {cvData.profilbild ? (
                     <img
@@ -269,15 +270,15 @@ const Profile = () => {
               </div>
 
               {/* Profile Info */}
-              <div className="flex-1 space-y-2">
+              <div className="flex-1 space-y-3 pt-2">
                 <div>
-                  <h1 className="text-2xl md:text-4xl font-bold text-foreground">
+                  <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-1">
                     {cvData.vorname} {cvData.nachname}
                   </h1>
-                  <p className="text-lg md:text-xl text-muted-foreground font-medium">
+                  <p className="text-lg md:text-xl text-muted-foreground font-medium mb-2">
                     {getStatusTitle(cvData.status)} • {getBrancheTitle(cvData.branche)}
                   </p>
-                  <div className="flex items-center gap-4 text-sm text-muted-foreground mt-2">
+                  <div className="flex items-center gap-4 text-sm text-muted-foreground">
                     <span className="flex items-center gap-1">
                       <MapPin className="h-4 w-4" />
                       {cvData.ort}
@@ -289,19 +290,11 @@ const Profile = () => {
                   </div>
                 </div>
 
-                {/* Action Buttons */}
+                {/* Action Buttons - Own Profile */}
                 <div className="flex flex-wrap gap-3 pt-4">
-                  <Button className="bg-primary hover:bg-primary/90">
-                    <MessageCircle className="h-4 w-4 mr-2" />
-                    Kontakt aufnehmen
-                  </Button>
                   <Button variant="outline">
-                    <UserPlus className="h-4 w-4 mr-2" />
-                    Vernetzen
-                  </Button>
-                  <Button variant="outline" onClick={handleCreateAccount}>
                     <User className="h-4 w-4 mr-2" />
-                    Account erstellen
+                    Profil bearbeiten
                   </Button>
                   <Button 
                     variant="ghost" 
