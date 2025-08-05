@@ -97,7 +97,7 @@ export const PLZOrtSelector = ({
         <Input
           id="plz"
           value={plz}
-          onChange={(e) => onPLZChange(e.target.value, ort)}
+          onChange={(e) => onPLZChange(e.target.value, '')}
           placeholder="PLZ eingeben"
           maxLength={5}
         />
