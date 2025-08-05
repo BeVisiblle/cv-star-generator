@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Plus, Trash2 } from 'lucide-react';
 import { SchulbildungEntry, BerufserfahrungEntry } from '@/contexts/CVFormContext';
+import { PLZOrtSelector } from '@/components/shared/PLZOrtSelector';
 
 const CVStep4 = () => {
   const { formData, updateFormData } = useCVForm();
@@ -237,13 +238,18 @@ const CVStep4 = () => {
                     onChange={(e) => updateSchulbildungEntry(index, 'name', e.target.value)}
                   />
                 </div>
-                <div>
-                  <Label htmlFor={`schulort-${index}`}>Ort *</Label>
-                  <Input
-                    id={`schulort-${index}`}
-                    placeholder="z.B. Berlin"
-                    value={schule.ort}
-                    onChange={(e) => updateSchulbildungEntry(index, 'ort', e.target.value)}
+                <div className="col-span-2">
+                  <PLZOrtSelector
+                    plz={schule.plz || ''}
+                    ort={schule.ort}
+                    onPLZChange={(plz, ort) => {
+                      updateSchulbildungEntry(index, 'plz', plz);
+                      updateSchulbildungEntry(index, 'ort', ort);
+                    }}
+                    required={true}
+                    plzLabel="PLZ"
+                    ortLabel="Ort"
+                    className=""
                   />
                 </div>
                 <div className="grid grid-cols-2 gap-2">
@@ -336,13 +342,18 @@ const CVStep4 = () => {
                     onChange={(e) => updateBerufserfahrungEntry(index, 'unternehmen', e.target.value)}
                   />
                 </div>
-                <div>
-                  <Label htmlFor={`arbeitort-${index}`}>Ort *</Label>
-                  <Input
-                    id={`arbeitort-${index}`}
-                    placeholder="z.B. München"
-                    value={arbeit.ort}
-                    onChange={(e) => updateBerufserfahrungEntry(index, 'ort', e.target.value)}
+                <div className="col-span-2">
+                  <PLZOrtSelector
+                    plz={arbeit.plz || ''}
+                    ort={arbeit.ort}
+                    onPLZChange={(plz, ort) => {
+                      updateBerufserfahrungEntry(index, 'plz', plz);
+                      updateBerufserfahrungEntry(index, 'ort', ort);
+                    }}
+                    required={true}
+                    plzLabel="PLZ"
+                    ortLabel="Ort"
+                    className=""
                   />
                 </div>
                 <div className="grid grid-cols-2 gap-2">

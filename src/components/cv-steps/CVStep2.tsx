@@ -5,6 +5,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card } from '@/components/ui/card';
 import { FileUpload } from '@/components/ui/file-upload';
+import { PLZOrtSelector } from '@/components/shared/PLZOrtSelector';
 
 const CVStep2 = () => {
   const { formData, updateFormData } = useCVForm();
@@ -114,26 +115,14 @@ const CVStep2 = () => {
                 </div>
               </div>
               
-              <div className="grid md:grid-cols-3 gap-4">
-                <div>
-                  <Label htmlFor="plz">PLZ *</Label>
-                  <Input
-                    id="plz"
-                    value={formData.plz || ''}
-                    onChange={(e) => updateFormData({ plz: e.target.value })}
-                    placeholder="12345"
-                  />
-                </div>
-                <div className="md:col-span-2">
-                  <Label htmlFor="ort">Ort *</Label>
-                  <Input
-                    id="ort"
-                    value={formData.ort || ''}
-                    onChange={(e) => updateFormData({ ort: e.target.value })}
-                    placeholder="Berlin"
-                  />
-                </div>
-              </div>
+              <PLZOrtSelector
+                plz={formData.plz || ''}
+                ort={formData.ort || ''}
+                onPLZChange={(plz, ort) => updateFormData({ plz, ort })}
+                required={true}
+                plzLabel="PLZ"
+                ortLabel="Ort"
+              />
               
               <div>
                 <Label htmlFor="telefon">Telefonnummer (optional)</Label>

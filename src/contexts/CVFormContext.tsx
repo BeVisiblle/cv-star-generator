@@ -4,6 +4,7 @@ export interface SchulbildungEntry {
   schulform: string;
   name: string;
   ort: string;
+  plz?: string;
   zeitraum_von: string;
   zeitraum_bis: string;
   beschreibung?: string;
@@ -13,6 +14,7 @@ export interface BerufserfahrungEntry {
   titel: string;
   unternehmen: string;
   ort: string;
+  plz?: string;
   zeitraum_von: string;
   zeitraum_bis: string;
   beschreibung?: string;
