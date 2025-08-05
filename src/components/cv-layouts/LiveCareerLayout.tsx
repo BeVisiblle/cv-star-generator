@@ -186,28 +186,34 @@ const LiveCareerLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) => 
               >
                 Praktische Erfahrung
               </h3>
-              <div className="border-l-4 border-gray-300 pl-4 space-y-4">
+              <div className="space-y-6">
                 {data.berufserfahrung.map((job, index) => (
-                  <div key={index}>
-                    <div className="flex justify-between items-start mb-1">
+                  <div key={index} className="relative">
+                    <div className="flex justify-between items-start gap-4">
                       <div className="flex-1">
-                        <h4 className="font-bold text-black" style={{ fontSize: '12pt' }}>{job.titel}</h4>
+                        <h4 className="font-bold text-black mb-1" style={{ fontSize: '12pt' }}>{job.titel}</h4>
                         <p className="font-medium text-black" style={{ fontSize: '10pt' }}>
                           {job.unternehmen}
                         </p>
                         <p className="text-gray-500" style={{ fontSize: '10pt' }}>{job.ort}</p>
+                        {job.beschreibung && (
+                          <div className="mt-2">
+                            <p className="text-gray-600" style={{ fontSize: '10pt' }}>
+                              {job.beschreibung}
+                            </p>
+                          </div>
+                        )}
                       </div>
-                      <div className="text-gray-500 font-medium ml-4" style={{ fontSize: '10pt' }}>
+                      <div 
+                        className="px-3 py-1 rounded-full text-white font-medium flex-shrink-0"
+                        style={{ 
+                          fontSize: '9pt',
+                          background: `hsl(${colors.primary})`
+                        }}
+                      >
                         {job.zeitraum_von} - {job.zeitraum_bis}
                       </div>
                     </div>
-                    {job.beschreibung && (
-                      <div className="mt-2">
-                        <p className="text-gray-600" style={{ fontSize: '10pt' }}>
-                          {job.beschreibung}
-                        </p>
-                      </div>
-                    )}
                   </div>
                 ))}
               </div>
@@ -226,26 +232,32 @@ const LiveCareerLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) => 
               >
                 Schulbildung
               </h3>
-              <div className="border-l-4 border-gray-300 pl-4 space-y-4">
+              <div className="space-y-6">
                 {data.schulbildung.map((school, index) => (
-                  <div key={index}>
-                    <div className="flex justify-between items-start mb-1">
+                  <div key={index} className="relative">
+                    <div className="flex justify-between items-start gap-4">
                       <div className="flex-1">
-                        <h4 className="font-bold text-black" style={{ fontSize: '12pt' }}>{school.schulform}</h4>
+                        <h4 className="font-bold text-black mb-1" style={{ fontSize: '12pt' }}>{school.schulform}</h4>
                         <p className="font-medium text-black" style={{ fontSize: '10pt' }}>
                           {school.name}
                         </p>
                         <p className="text-gray-500" style={{ fontSize: '10pt' }}>{school.ort}</p>
+                        {school.beschreibung && (
+                          <div className="mt-2">
+                            <p className="text-gray-600" style={{ fontSize: '10pt' }}>{school.beschreibung}</p>
+                          </div>
+                        )}
                       </div>
-                      <div className="text-gray-500 font-medium ml-4" style={{ fontSize: '10pt' }}>
+                      <div 
+                        className="px-3 py-1 rounded-full text-white font-medium flex-shrink-0"
+                        style={{ 
+                          fontSize: '9pt',
+                          background: `hsl(${colors.primary})`
+                        }}
+                      >
                         {school.zeitraum_von} - {school.zeitraum_bis}
                       </div>
                     </div>
-                    {school.beschreibung && (
-                      <div className="mt-2">
-                        <p className="text-gray-600" style={{ fontSize: '10pt' }}>{school.beschreibung}</p>
-                      </div>
-                    )}
                   </div>
                 ))}
               </div>
