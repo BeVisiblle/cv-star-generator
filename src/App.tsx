@@ -30,10 +30,10 @@ const App = () => (
               <Route path="/auth" element={<Auth />} />
               <Route path="/cv-generator" element={<CVGenerator />} />
               <Route path="/cv-layout-selector" element={<CVGenerator />} />
-              <Route path="/profile" element={<Profile />} />
               
               {/* Authenticated Routes with Sidebar */}
               <Route path="/" element={<AuthenticatedLayout />}>
+                <Route path="profile" element={<Profile />} />
                 <Route path="dashboard" element={<Dashboard />} />
                 <Route path="marketplace" element={<Marketplace />} />
                 <Route path="settings" element={<Settings />} />

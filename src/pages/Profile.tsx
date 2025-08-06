@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Edit, Save, X, Loader2 } from 'lucide-react';
+import { Edit3, Check, Clock, X, Loader2 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { LinkedInProfileHeader } from '@/components/linkedin/LinkedInProfileHeader';
@@ -140,107 +140,101 @@ const Profile = () => {
   };
 
   return (
-    <div className="min-h-screen bg-muted/20">
-      {/* Fixed Header */}
-      <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-sm border-b">
-        <div className="container mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold">
-                {profile.vorname} {profile.nachname}
-              </h1>
-              <p className="text-muted-foreground text-sm">
-                LinkedIn-Style Professional Profile
-              </p>
-            </div>
-            
+    <div className="p-6">
+      {/* Profile Actions Header */}
+      <div className="mb-6 flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold">
+            {profile.vorname} {profile.nachname}
+          </h1>
+          <p className="text-muted-foreground text-sm">
+            LinkedIn-Style Professional Profile
+          </p>
+        </div>
+        
+        <div className="flex gap-2">
+          {!profile.profile_published && (
+            <Button 
+              variant="outline" 
+              onClick={() => setShowPreview(true)}
+              size="sm"
+            >
+              Vorschau
+            </Button>
+          )}
+          
+          {isEditing ? (
             <div className="flex gap-2">
-              {!profile.profile_published && (
-                <Button 
-                  variant="outline" 
-                  onClick={() => setShowPreview(true)}
-                  size="sm"
-                >
-                  Vorschau
-                </Button>
-              )}
-              
-              {isEditing ? (
-                <div className="flex gap-2">
-                  <Button 
-                    variant="outline" 
-                    onClick={() => setIsEditing(false)}
-                    disabled={isSaving}
-                    size="sm"
-                  >
-                    <X className="h-4 w-4 mr-2" />
-                    Abbrechen
-                  </Button>
-                  <Button onClick={handleSave} disabled={isSaving} size="sm">
-                    {isSaving ? (
-                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    ) : (
-                      <Save className="h-4 w-4 mr-2" />
-                    )}
-                    {isSaving ? 'Speichern...' : 'Speichern'}
-                  </Button>
-                </div>
-              ) : (
-                <Button onClick={() => setIsEditing(true)} size="sm">
-                  <Edit className="h-4 w-4 mr-2" />
-                  Bearbeiten
-                </Button>
-              )}
+              <Button 
+                variant="outline" 
+                onClick={() => setIsEditing(false)}
+                disabled={isSaving}
+                size="sm"
+              >
+                <X className="h-4 w-4 mr-2" />
+                Abbrechen
+              </Button>
+              <Button onClick={handleSave} disabled={isSaving} size="sm">
+                {isSaving ? (
+                  <Clock className="h-4 w-4 mr-2 animate-spin" />
+                ) : (
+                  <Check className="h-4 w-4 mr-2" />
+                )}
+                Speichern
+              </Button>
             </div>
-          </div>
+          ) : (
+            <Button onClick={() => setIsEditing(true)} size="sm">
+              <Edit3 className="h-4 w-4 mr-2" />
+              Bearbeiten
+            </Button>
+          )}
         </div>
       </div>
 
-      {/* 2-Column Layout */}
-      <div className="container mx-auto px-6 py-6">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          {/* Main Content Area */}
-          <main className="lg:col-span-8 space-y-6">
-            {/* Profile Header with Cover Photo */}
-            <LinkedInProfileHeader
+      {/* Main Content */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        {/* Main Content Area */}
+        <main className="lg:col-span-8 space-y-6">
+          {/* Profile Header with Cover Photo */}
+          <LinkedInProfileHeader
+            profile={profile}
+            isEditing={isEditing}
+            onProfileUpdate={handleProfileUpdate}
+          />
+
+          {/* About Section */}
+          <LinkedInProfileMain
+            profile={profile}
+            isEditing={isEditing}
+            onProfileUpdate={handleProfileUpdate}
+          />
+
+          {/* Experience Section */}
+          <LinkedInProfileExperience
+            experiences={profile?.berufserfahrung || []}
+            isEditing={isEditing}
+            onExperiencesUpdate={handleExperiencesUpdate}
+          />
+
+          {/* Education Section */}
+          <LinkedInProfileEducation
+            education={profile?.schulbildung || []}
+            isEditing={isEditing}
+            onEducationUpdate={handleEducationUpdate}
+          />
+        </main>
+
+        {/* Right Sidebar */}
+        <aside className="lg:col-span-4">
+          <div className="sticky top-24">
+            <LinkedInProfileSidebar
               profile={profile}
               isEditing={isEditing}
               onProfileUpdate={handleProfileUpdate}
             />
-
-            {/* About Section */}
-            <LinkedInProfileMain
-              profile={profile}
-              isEditing={isEditing}
-              onProfileUpdate={handleProfileUpdate}
-            />
-
-            {/* Experience Section */}
-            <LinkedInProfileExperience
-              experiences={profile?.berufserfahrung || []}
-              isEditing={isEditing}
-              onExperiencesUpdate={handleExperiencesUpdate}
-            />
-
-            {/* Education Section */}
-            <LinkedInProfileEducation
-              education={profile?.schulbildung || []}
-              isEditing={isEditing}
-              onEducationUpdate={handleEducationUpdate}
-            />
-          </main>
-
-          {/* Right Sidebar */}
-          <aside className="lg:col-span-4">
-            <div className="sticky top-24" data-sidebar>
-              <LinkedInProfileSidebar
-                profile={profile}
-                isEditing={isEditing}
-                onProfileUpdate={handleProfileUpdate}
-              />
-            </div>
-          </aside>
-        </div>
+          </div>
+        </aside>
       </div>
 
       {/* Preview Modal */}
