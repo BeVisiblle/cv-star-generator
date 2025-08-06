@@ -1,14 +1,21 @@
 import React, { useState } from 'react';
-import { Download, Edit3, Upload, Plus, Trash2, Clock } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
+import { Download, Edit3, Upload, X, Clock, FileText, Eye } from 'lucide-react';
+import { toast } from '@/hooks/use-toast';
 import { LanguageSelector } from '@/components/shared/LanguageSelector';
 import { SkillSelector } from '@/components/shared/SkillSelector';
 import { useNavigate } from 'react-router-dom';
-import { generatePDF } from '@/lib/pdf-generator';
-import { toast } from '@/hooks/use-toast';
+
+// Import CV layout components
+import ModernLayout from '@/components/cv-layouts/ModernLayout';
+import ClassicLayout from '@/components/cv-layouts/ClassicLayout';
+import CreativeLayout from '@/components/cv-layouts/CreativeLayout';
+import MinimalLayout from '@/components/cv-layouts/MinimalLayout';
+import ProfessionalLayout from '@/components/cv-layouts/ProfessionalLayout';
+import LiveCareerLayout from '@/components/cv-layouts/LiveCareerLayout';
 
 interface LinkedInProfileSidebarProps {
   profile: any;
@@ -16,14 +23,11 @@ interface LinkedInProfileSidebarProps {
   onProfileUpdate: (updates: any) => void;
 }
 
-export const LinkedInProfileSidebar: React.FC<LinkedInProfileSidebarProps> = ({
-  profile,
-  isEditing,
-  onProfileUpdate
-}) => {
-  const navigate = useNavigate();
+export const LinkedInProfileSidebar: React.FC<LinkedInProfileSidebarProps> = ({ profile, isEditing, onProfileUpdate }) => {
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
+  const [showCVPreview, setShowCVPreview] = useState(false);
+  const navigate = useNavigate();
 
   const handleDownloadCV = async () => {
     if (!profile?.vorname || !profile?.nachname) {
@@ -78,59 +82,59 @@ export const LinkedInProfileSidebar: React.FC<LinkedInProfileSidebarProps> = ({
             <h2 style="font-size: 18px; margin: 20px 0 10px 0; color: #000; border-bottom: 1px solid #ccc;">Berufserfahrung</h2>
             ${profile.berufserfahrung.map((exp: any) => `
               <div style="margin-bottom: 15px;">
-                <h3 style="font-size: 16px; margin: 0 0 5px 0;">${exp.titel} - ${exp.unternehmen}</h3>
-                <p style="margin: 0 0 5px 0; color: #666;">${exp.zeitraum_von} - ${exp.zeitraum_bis}</p>
-                ${exp.beschreibung ? `<p style="margin: 0;">${exp.beschreibung}</p>` : ''}
+                <h3 style="font-size: 16px; margin-bottom: 5px; color: #000;">${exp.titel} - ${exp.unternehmen}</h3>
+                <p style="margin-bottom: 5px; color: #666;">${exp.zeitraum_von} - ${exp.zeitraum_bis} | ${exp.ort}</p>
+                ${exp.beschreibung ? `<p style="margin-bottom: 10px;">${exp.beschreibung}</p>` : ''}
               </div>
             `).join('')}
           ` : ''}
           
           ${profile.schulbildung && profile.schulbildung.length > 0 ? `
-            <h2 style="font-size: 18px; margin: 20px 0 10px 0; color: #000; border-bottom: 1px solid #ccc;">Bildung</h2>
+            <h2 style="font-size: 18px; margin: 20px 0 10px 0; color: #000; border-bottom: 1px solid #ccc;">Schulbildung</h2>
             ${profile.schulbildung.map((edu: any) => `
               <div style="margin-bottom: 15px;">
-                <h3 style="font-size: 16px; margin: 0 0 5px 0;">${edu.name}</h3>
-                <p style="margin: 0 0 5px 0; color: #666;">${edu.zeitraum_von} - ${edu.zeitraum_bis}</p>
-                ${edu.beschreibung ? `<p style="margin: 0;">${edu.beschreibung}</p>` : ''}
+                <h3 style="font-size: 16px; margin-bottom: 5px; color: #000;">${edu.schulform} - ${edu.name}</h3>
+                <p style="margin-bottom: 5px; color: #666;">${edu.zeitraum_von} - ${edu.zeitraum_bis} | ${edu.ort}</p>
+                ${edu.beschreibung ? `<p style="margin-bottom: 10px;">${edu.beschreibung}</p>` : ''}
               </div>
             `).join('')}
-          ` : ''}
-          
-          ${profile.faehigkeiten && profile.faehigkeiten.length > 0 ? `
-            <h2 style="font-size: 18px; margin: 20px 0 10px 0; color: #000; border-bottom: 1px solid #ccc;">Fähigkeiten</h2>
-            <p>${profile.faehigkeiten.join(', ')}</p>
-          ` : ''}
-          
-          ${profile.sprachen && profile.sprachen.length > 0 ? `
-            <h2 style="font-size: 18px; margin: 20px 0 10px 0; color: #000; border-bottom: 1px solid #ccc;">Sprachen</h2>
-            <p>${profile.sprachen.map((lang: any) => `${lang.sprache} (${lang.niveau})`).join(', ')}</p>
           ` : ''}
         </div>
       `;
       
       document.body.appendChild(cvElement);
       
-      const { generateCVFilename } = await import('@/lib/pdf-generator');
-      const filename = generateCVFilename(profile.vorname, profile.nachname);
+      // Generate PDF using html2canvas and jsPDF
+      const html2canvas = (await import('html2canvas')).default;
+      const jsPDF = (await import('jspdf')).jsPDF;
       
-      await generatePDF(cvElement, {
-        filename,
-        quality: 2,
-        format: 'a4',
-        margin: 10
+      const canvas = await html2canvas(cvElement, {
+        scale: 2,
+        logging: false,
+        useCORS: true,
+        allowTaint: true
       });
+      
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+      
+      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+      pdf.save(`CV_${profile.vorname}_${profile.nachname}_${formatDate(new Date().toISOString())}.pdf`);
       
       document.body.removeChild(cvElement);
       
       toast({
-        title: "CV erfolgreich erstellt",
-        description: `Dein Lebenslauf wurde als ${filename} heruntergeladen.`,
+        title: "CV erfolgreich heruntergeladen",
+        description: "Dein Lebenslauf wurde als PDF gespeichert.",
       });
     } catch (error) {
       console.error('PDF generation error:', error);
       toast({
         title: "Fehler beim Erstellen der PDF",
-        description: "Es gab ein Problem beim Erstellen deines Lebenslaufs.",
+        description: "Es gab ein Problem beim Generieren der PDF-Datei.",
         variant: "destructive"
       });
     } finally {
@@ -149,12 +153,12 @@ export const LinkedInProfileSidebar: React.FC<LinkedInProfileSidebarProps> = ({
     navigate('/cv-generator');
   };
 
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(event.target.files || []);
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
     setUploadedFiles(prev => [...prev, ...files]);
     toast({
-      title: "Feature in Entwicklung",
-      description: "Dokument-Upload wird bald verfügbar sein."
+      title: "Dateien hochgeladen",
+      description: `${files.length} Datei(en) wurden erfolgreich hinzugefügt.`,
     });
   };
 
@@ -167,23 +171,109 @@ export const LinkedInProfileSidebar: React.FC<LinkedInProfileSidebarProps> = ({
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('de-DE', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric'
-    });
+    return new Date(dateString).toLocaleDateString('de-DE');
+  };
+
+  // Convert profile data to CV layout format
+  const cvData = {
+    vorname: profile?.vorname,
+    nachname: profile?.nachname,
+    telefon: profile?.telefon,
+    email: profile?.email,
+    strasse: profile?.strasse,
+    hausnummer: profile?.hausnummer,
+    plz: profile?.plz,
+    ort: profile?.ort,
+    geburtsdatum: profile?.geburtsdatum ? new Date(profile.geburtsdatum) : undefined,
+    profilbild: profile?.avatar_url,
+    status: profile?.status,
+    branche: profile?.branche,
+    ueberMich: profile?.uebermich || profile?.bio,
+    schulbildung: profile?.schulbildung || [],
+    berufserfahrung: profile?.berufserfahrung || [],
+    sprachen: profile?.sprachen || [],
+    faehigkeiten: profile?.faehigkeiten || []
+  };
+
+  const renderCVLayout = () => {
+    const layout = profile?.layout || 1;
+    const commonProps = { data: cvData, className: "scale-[0.25] origin-top-left w-[400%] h-[400%] pointer-events-none" };
+
+    switch (layout) {
+      case 1:
+        return <ModernLayout {...commonProps} />;
+      case 2:
+        return <ClassicLayout {...commonProps} />;
+      case 3:
+        return <CreativeLayout {...commonProps} />;
+      case 4:
+        return <MinimalLayout {...commonProps} />;
+      case 5:
+        return <ProfessionalLayout {...commonProps} />;
+      case 6:
+        return <LiveCareerLayout {...commonProps} />;
+      default:
+        return <ModernLayout {...commonProps} />;
+    }
+  };
+
+  const getLayoutName = () => {
+    const layout = profile?.layout || 1;
+    switch (layout) {
+      case 1: return 'Modern';
+      case 2: return 'Classic';
+      case 3: return 'Creative';
+      case 4: return 'Minimal';
+      case 5: return 'Professional';
+      case 6: return 'LiveCareer';
+      default: return 'Modern';
+    }
   };
 
   return (
-    <div className="space-y-4">
-      {/* CV Actions */}
+    <div className="space-y-6">
+      {/* Mein Lebenslauf */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg font-semibold flex items-center gap-2">
+          <CardTitle className="text-lg font-semibold flex items-center justify-between">
             Mein Lebenslauf
+            <div className="flex gap-1">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowCVPreview(!showCVPreview)}
+                className="h-8 w-8 p-0"
+              >
+                <Eye className="h-4 w-4" />
+              </Button>
+            </div>
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
+          {showCVPreview && profile?.vorname && profile?.nachname ? (
+            <div className="border rounded-lg overflow-hidden bg-white">
+              <div className="bg-muted px-3 py-2 text-sm font-medium flex justify-between items-center">
+                <span>Vorschau: {getLayoutName()}</span>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowCVPreview(false)}
+                  className="h-6 w-6 p-0"
+                >
+                  <X className="h-3 w-3" />
+                </Button>
+              </div>
+              <div className="h-48 overflow-hidden relative">
+                {renderCVLayout()}
+              </div>
+            </div>
+          ) : showCVPreview && (!profile?.vorname || !profile?.nachname) ? (
+            <div className="border rounded-lg p-4 text-center text-muted-foreground">
+              <FileText className="h-8 w-8 mx-auto mb-2" />
+              <p className="text-sm">Vervollständigen Sie Ihr Profil für eine CV-Vorschau</p>
+            </div>
+          ) : null}
+          
           <Button 
             onClick={handleDownloadCV}
             disabled={isGeneratingPDF}
@@ -248,7 +338,7 @@ export const LinkedInProfileSidebar: React.FC<LinkedInProfileSidebarProps> = ({
                     onClick={() => setUploadedFiles(prev => prev.filter((_, i) => i !== index))}
                     className="h-6 w-6 p-0"
                   >
-                    <Trash2 className="h-3 w-3" />
+                    <X className="h-3 w-3" />
                   </Button>
                 </div>
               ))}
@@ -257,7 +347,7 @@ export const LinkedInProfileSidebar: React.FC<LinkedInProfileSidebarProps> = ({
         </CardContent>
       </Card>
 
-      {/* Languages - Only editable in editing mode */}
+      {/* Languages */}
       <Card>
         <CardHeader>
           <CardTitle className="text-lg font-semibold">Sprachen</CardTitle>
@@ -267,26 +357,25 @@ export const LinkedInProfileSidebar: React.FC<LinkedInProfileSidebarProps> = ({
             <LanguageSelector
               languages={profile?.sprachen || []}
               onLanguagesChange={handleLanguagesChange}
-              maxLanguages={5}
             />
           ) : (
             <div className="space-y-2">
               {profile?.sprachen && profile.sprachen.length > 0 ? (
                 profile.sprachen.map((lang: any, index: number) => (
-                  <div key={index} className="flex justify-between items-center py-1">
-                    <span className="text-sm">{lang.sprache}</span>
-                    <Badge variant="outline" className="text-xs">{lang.niveau}</Badge>
+                  <div key={index} className="flex justify-between items-center">
+                    <span className="font-medium">{lang.sprache}</span>
+                    <Badge variant="secondary">{lang.niveau}</Badge>
                   </div>
                 ))
               ) : (
-                <p className="text-sm text-muted-foreground">Keine Sprachen hinzugefügt</p>
+                <p className="text-muted-foreground text-sm">Keine Sprachen hinzugefügt</p>
               )}
             </div>
           )}
         </CardContent>
       </Card>
 
-      {/* Skills - Only editable in editing mode */}
+      {/* Skills */}
       <Card>
         <CardHeader>
           <CardTitle className="text-lg font-semibold">Fähigkeiten</CardTitle>
@@ -298,46 +387,49 @@ export const LinkedInProfileSidebar: React.FC<LinkedInProfileSidebarProps> = ({
               onSkillsChange={handleSkillsChange}
               branch={profile?.branche}
               statusLevel={profile?.status}
-              maxSkills={10}
             />
           ) : (
-            <div className="space-y-2">
+            <div className="flex flex-wrap gap-2">
               {profile?.faehigkeiten && profile.faehigkeiten.length > 0 ? (
-                <div className="flex flex-wrap gap-2">
-                  {profile.faehigkeiten.map((skill: string, index: number) => (
-                    <Badge key={index} variant="secondary" className="text-xs">
-                      {skill}
-                    </Badge>
-                  ))}
-                </div>
+                profile.faehigkeiten.map((skill: string, index: number) => (
+                  <Badge key={index} variant="secondary">
+                    {skill}
+                  </Badge>
+                ))
               ) : (
-                <p className="text-sm text-muted-foreground">Keine Fähigkeiten hinzugefügt</p>
+                <p className="text-muted-foreground text-sm">Keine Fähigkeiten hinzugefügt</p>
               )}
             </div>
           )}
         </CardContent>
       </Card>
 
-      {/* Profile Stats (Future Feature) */}
+      {/* Profile Stats */}
       <Card>
         <CardHeader>
           <CardTitle className="text-lg font-semibold">Profil-Statistiken</CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="space-y-3 text-sm">
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Profilaufrufe</span>
-              <span className="font-medium">Coming soon</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">CV Downloads</span>
-              <span className="font-medium">Coming soon</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Kontakte</span>
-              <span className="font-medium">Coming soon</span>
-            </div>
+        <CardContent className="space-y-3">
+          <div className="flex justify-between text-sm">
+            <span>Profil vollständig:</span>
+            <span className={profile?.profile_complete ? "text-green-600" : "text-orange-500"}>
+              {profile?.profile_complete ? "Ja" : "Nein"}
+            </span>
           </div>
+          <div className="flex justify-between text-sm">
+            <span>Öffentlich sichtbar:</span>
+            <span className={profile?.profile_published ? "text-green-600" : "text-orange-500"}>
+              {profile?.profile_published ? "Ja" : "Nein"}
+            </span>
+          </div>
+          {profile?.created_at && (
+            <div className="flex justify-between text-sm">
+              <span>Erstellt am:</span>
+              <span className="text-muted-foreground">
+                {formatDate(profile.created_at)}
+              </span>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>
