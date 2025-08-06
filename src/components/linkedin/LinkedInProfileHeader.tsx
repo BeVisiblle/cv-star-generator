@@ -118,6 +118,39 @@ export const LinkedInProfileHeader: React.FC<LinkedInProfileHeaderProps> = ({
     onProfileUpdate({ headline });
   };
 
+  const getStatusDescription = (profile: any) => {
+    if (!profile.status) return '';
+    
+    const currentYear = new Date().getFullYear();
+    
+    switch (profile.status) {
+      case 'schueler':
+        const schoolName = profile.schulbildung?.[0]?.institution || 'Schule';
+        const graduationYear = profile.schulbildung?.[0]?.bis ? 
+          new Date(profile.schulbildung[0].bis).getFullYear() : currentYear + 1;
+        return `Abitur an der ${schoolName}, Abschluss voraussichtlich ${graduationYear}`;
+      
+      case 'azubi':
+        const currentJob = profile.berufserfahrung?.find((job: any) => !job.bis || new Date(job.bis) > new Date());
+        if (currentJob) {
+          const endDate = currentJob.bis ? new Date(currentJob.bis).getFullYear() : currentYear + 2;
+          return `Auszubildender für ${currentJob.position} bei ${currentJob.unternehmen} bis ${endDate}`;
+        }
+        return 'Auszubildender im Handwerk';
+      
+      case 'ausgelernt':
+        const currentEmployment = profile.berufserfahrung?.find((job: any) => !job.bis || new Date(job.bis) > new Date());
+        if (currentEmployment) {
+          const startYear = new Date(currentEmployment.von).getFullYear();
+          return `Angestellter im Bereich ${currentEmployment.position} bei ${currentEmployment.unternehmen} seit ${startYear}`;
+        }
+        return 'Angestellter im Handwerk';
+      
+      default:
+        return '';
+    }
+  };
+
   return (
     <div className="relative bg-card rounded-xl overflow-hidden shadow-sm border">
       {/* Cover Photo */}
@@ -193,6 +226,13 @@ export const LinkedInProfileHeader: React.FC<LinkedInProfileHeaderProps> = ({
           <h1 className="text-3xl font-bold text-foreground">
             {profile?.vorname} {profile?.nachname}
           </h1>
+          
+          {/* Professional Status */}
+          {profile?.status && (
+            <p className="text-lg font-medium text-primary">
+              {getStatusDescription(profile)}
+            </p>
+          )}
           
           {isEditing ? (
             <div className="flex items-center gap-2">

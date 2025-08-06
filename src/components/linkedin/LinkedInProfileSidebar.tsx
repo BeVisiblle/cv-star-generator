@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Download, Edit3, Upload, X, Clock, FileText, Eye } from 'lucide-react';
+import { Download, Edit3, Upload, X, Clock, FileText, Eye, Mail, Phone } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { LanguageSelector } from '@/components/shared/LanguageSelector';
 import { SkillSelector } from '@/components/shared/SkillSelector';
@@ -55,8 +55,8 @@ export const LinkedInProfileSidebar: React.FC<LinkedInProfileSidebarProps> = ({ 
         return;
       }
 
-      // Convert profile data to CVFormData format for layout rendering
-      const formData = {
+      // Convert profile data to CV format
+      const cvData = {
         branche: profile.branche || '',
         status: profile.status || '',
         vorname: profile.vorname || '',
@@ -73,47 +73,59 @@ export const LinkedInProfileSidebar: React.FC<LinkedInProfileSidebarProps> = ({ 
         berufserfahrung: profile.berufserfahrung || [],
         sprachen: profile.sprachen || [],
         faehigkeiten: profile.faehigkeiten || [],
-        layout: profile.layout || 1,
         profilbild: profile.avatar_url || ''
       };
 
-      // Save formData to localStorage temporarily (like CV generator does)
-      const originalCVData = localStorage.getItem('cvFormData');
-      localStorage.setItem('cvFormData', JSON.stringify(formData));
-      
-      // Import CV context and Step6 to render the CV properly
-      const { CVFormProvider } = await import('@/contexts/CVFormContext');
-      const CVStep6 = (await import('@/components/cv-steps/CVStep6')).default;
-      const React = await import('react');
-      const ReactDOM = await import('react-dom/client');
-      
-      // Create temporary container
+      // Create temporary container for CV rendering
       const tempContainer = document.createElement('div');
       tempContainer.style.position = 'absolute';
       tempContainer.style.left = '-9999px';
       tempContainer.style.top = '0';
-      tempContainer.style.width = '100vw';
-      tempContainer.style.height = '100vh';
       tempContainer.style.backgroundColor = 'white';
       document.body.appendChild(tempContainer);
+
+      // Import and render the correct CV layout
+      let LayoutComponent;
+      const layoutId = profile.layout || 1;
       
-      // Create a React root and render CVStep6 with context
+      switch (layoutId) {
+        case 1:
+          LayoutComponent = LiveCareerLayout;
+          break;
+        case 2:
+          LayoutComponent = ClassicLayout;
+          break;
+        case 3:
+          LayoutComponent = CreativeLayout;
+          break;
+        case 4:
+          LayoutComponent = MinimalLayout;
+          break;
+        case 5:
+          LayoutComponent = ProfessionalLayout;
+          break;
+        case 6:
+          LayoutComponent = ModernLayout;
+          break;
+        default:
+          LayoutComponent = LiveCareerLayout;
+      }
+
+      // Create and render CV element
+      const React = await import('react');
+      const ReactDOM = await import('react-dom/client');
+      
+      const cvElement = React.createElement(LayoutComponent, { data: cvData });
       const root = ReactDOM.createRoot(tempContainer);
+      root.render(cvElement);
+
+      // Wait for rendering
+      await new Promise(resolve => setTimeout(resolve, 1000));
       
-      await new Promise<void>((resolve) => {
-        root.render(
-          React.createElement(CVFormProvider, null,
-            React.createElement(CVStep6)
-          )
-        );
-        setTimeout(resolve, 500); // Wait longer for full rendering
-      });
-      
-      // Find the CV preview element (same as CVStep7)
+      // Find the CV preview element
       const cvPreviewElement = tempContainer.querySelector('[data-cv-preview]') as HTMLElement;
-      
       if (!cvPreviewElement) {
-        throw new Error('CV Preview nicht gefunden');
+        throw new Error('CV preview element not found');
       }
 
       // Generate filename and PDF using same functions as CVStep7
@@ -192,13 +204,6 @@ export const LinkedInProfileSidebar: React.FC<LinkedInProfileSidebarProps> = ({ 
       // Clean up
       root.unmount();
       document.body.removeChild(tempContainer);
-      
-      // Restore original localStorage
-      if (originalCVData) {
-        localStorage.setItem('cvFormData', originalCVData);
-      } else {
-        localStorage.removeItem('cvFormData');
-      }
       
       // Download the PDF
       window.open(url, '_blank');
@@ -440,6 +445,25 @@ export const LinkedInProfileSidebar: React.FC<LinkedInProfileSidebarProps> = ({ 
               ))}
             </div>
           )}
+        </CardContent>
+      </Card>
+
+      {/* Contact Information */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg font-semibold">Kontaktdaten</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
+              <Mail className="h-4 w-4 text-muted-foreground" />
+              <span className="text-sm">{profile?.email || 'Keine E-Mail-Adresse'}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Phone className="h-4 w-4 text-muted-foreground" />
+              <span className="text-sm">{profile?.telefon || 'Keine Telefonnummer'}</span>
+            </div>
+          </div>
         </CardContent>
       </Card>
 
