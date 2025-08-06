@@ -75,6 +75,11 @@ export const ProfileCreationModal = ({
   };
 
   const handleCreateProfile = async () => {
+    console.log('ProfileCreationModal: handleCreateProfile called');
+    console.log('ProfileCreationModal: Form data received:', formData);
+    console.log('ProfileCreationModal: Email:', email);
+    console.log('ProfileCreationModal: Password length:', password?.length || 0);
+
     if (!email || !password) {
       toast({
         title: "Fehler",
