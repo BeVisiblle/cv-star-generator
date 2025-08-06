@@ -8,7 +8,7 @@ const CVStep1 = () => {
 
   const branches = [
     { key: 'handwerk', emoji: '👷', title: 'Handwerk', desc: 'Bau, Elektro, Sanitär, KFZ und mehr' },
-    { key: 'it', emoji: '💻', title: 'IT', desc: 'Programmierung, Support, Systemadministration' },
+    { key: 'it', emoji: '💻', title: 'IT', desc: 'Programmierung, Support, Systemadmin' },
     { key: 'gesundheit', emoji: '🩺', title: 'Gesundheit', desc: 'Pflege, Therapie, medizinische Assistenz' },
     { key: 'buero', emoji: '📊', title: 'Büro & Verwaltung', desc: 'Organisation, Kommunikation, Administration' },
     { key: 'verkauf', emoji: '🛍️', title: 'Verkauf & Handel', desc: 'Beratung, Kundenservice, Einzelhandel' },
