@@ -4,7 +4,7 @@ import { Outlet, Navigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 
 export function AuthenticatedLayout() {
-  const { profile, isLoading } = useAuth();
+  const { profile, isLoading, user } = useAuth();
 
   // Show loading state
   if (isLoading) {
@@ -15,12 +15,17 @@ export function AuthenticatedLayout() {
     );
   }
 
-  // Redirect to profile if not published yet
+  // Redirect to auth if not authenticated
+  if (!user) {
+    return <Navigate to="/auth" replace />;
+  }
+
+  // Redirect to profile if profile exists but not published yet
   if (profile && !profile.profile_published) {
     return <Navigate to="/profile" replace />;
   }
 
-  // Redirect to CV generator if no profile
+  // Redirect to CV generator if no profile at all
   if (!profile) {
     return <Navigate to="/cv-generator" replace />;
   }

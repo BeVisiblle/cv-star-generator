@@ -7,13 +7,15 @@ interface AuthContextType {
   session: Session | null;
   isLoading: boolean;
   profile: any | null;
+  refetchProfile: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType>({
   user: null,
   session: null,
   isLoading: true,
-  profile: null
+  profile: null,
+  refetchProfile: async () => {}
 });
 
 export const useAuth = () => {
@@ -75,13 +77,23 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         .from('profiles')
         .select('*')
         .eq('id', userId)
-        .single();
+        .maybeSingle();
 
-      if (profile && !error) {
+      if (error) {
+        console.error('Error loading profile:', error);
+        setProfile(null);
+      } else {
         setProfile(profile);
       }
     } catch (error) {
       console.error('Error loading profile:', error);
+      setProfile(null);
+    }
+  };
+
+  const refetchProfile = async () => {
+    if (user?.id) {
+      await loadProfile(user.id);
     }
   };
 
@@ -90,7 +102,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       user,
       session,
       isLoading,
-      profile
+      profile,
+      refetchProfile
     }}>
       {children}
     </AuthContext.Provider>
