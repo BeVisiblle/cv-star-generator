@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { usePostalCodes } from '@/hooks/usePostalCodes';
@@ -40,6 +40,16 @@ export const PLZOrtSelector = ({
       postal.ort.toLowerCase().includes(searchValue.toLowerCase())
     ).slice(0, 50); // Limit filtered results
   }, [postalCodes, searchValue]);
+
+  // Auto-lookup PLZ when typed
+  useEffect(() => {
+    if (plz && plz.length === 5) {
+      const location = findLocationByPLZ(plz);
+      if (location && location.ort !== ort) {
+        onPLZChange(plz, location.ort);
+      }
+    }
+  }, [plz, findLocationByPLZ, ort, onPLZChange]);
 
   const handlePLZSelect = (selectedPLZ: string) => {
     const location = findLocationByPLZ(selectedPLZ);
@@ -96,11 +106,53 @@ export const PLZOrtSelector = ({
     <div className={`grid grid-cols-3 gap-4 ${className}`}>
       <div>
         <Label htmlFor="plz">{plzLabel}{required && ' *'}</Label>
+        <Popover open={open} onOpenChange={setOpen}>
+          <PopoverTrigger asChild>
+            <Button
+              variant="outline"
+              role="combobox"
+              aria-expanded={open}
+              className="w-full justify-between"
+            >
+              {plz || "PLZ wählen..."}
+              <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-[200px] p-0" align="start">
+            <Command>
+              <CommandInput 
+                placeholder="PLZ suchen..." 
+                value={searchValue}
+                onValueChange={setSearchValue}
+              />
+              <CommandList>
+                <CommandEmpty>Keine PLZ gefunden.</CommandEmpty>
+                <CommandGroup>
+                  {filteredPostalCodes.map((postal) => (
+                    <CommandItem
+                      key={postal.id}
+                      value={postal.plz}
+                      onSelect={() => handlePLZSelect(postal.plz)}
+                    >
+                      <Check
+                        className={cn(
+                          "mr-2 h-4 w-4",
+                          plz === postal.plz ? "opacity-100" : "opacity-0"
+                        )}
+                      />
+                      {postal.plz} - {postal.ort}
+                    </CommandItem>
+                  ))}
+                </CommandGroup>
+              </CommandList>
+            </Command>
+          </PopoverContent>
+        </Popover>
         <Input
-          id="plz"
+          className="mt-2"
           value={plz}
-          onChange={(e) => onPLZChange(e.target.value, '')}
-          placeholder="PLZ eingeben"
+          onChange={(e) => onPLZChange(e.target.value, ort)}
+          placeholder="Oder PLZ direkt eingeben"
           maxLength={5}
         />
       </div>
@@ -111,6 +163,7 @@ export const PLZOrtSelector = ({
           value={ort}
           onChange={(e) => onOrtChange(e.target.value)}
           placeholder="Ort eingeben"
+          readOnly={plz && plz.length === 5 && findLocationByPLZ(plz) !== undefined}
         />
       </div>
     </div>

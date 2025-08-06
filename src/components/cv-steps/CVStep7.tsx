@@ -8,13 +8,12 @@ import { Separator } from '@/components/ui/separator';
 import { Download, UserPlus, Loader2 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { generatePDF, generateCVFilename } from '@/lib/pdf-generator';
-import { supabase } from '@/integrations/supabase/client';
-import { useNavigate } from 'react-router-dom';
+import { ProfileCreationModal } from '@/components/shared/ProfileCreationModal';
 
 const CVStep7 = () => {
   const { formData, updateFormData, setCurrentStep } = useCVForm();
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
-  const navigate = useNavigate();
+  const [showProfileModal, setShowProfileModal] = useState(false);
 
   const getBrancheTitle = () => {
     switch (formData.branche) {
@@ -96,7 +95,7 @@ const CVStep7 = () => {
     }
   };
 
-  const handleCreateProfile = async () => {
+  const handleCreateProfile = () => {
     if (!formData.einwilligung) {
       toast({
         title: "Einverständnis erforderlich",
@@ -106,101 +105,16 @@ const CVStep7 = () => {
       return;
     }
 
-    try {
-      // Generate email and password from CV data
-      const email = formData.email || `${formData.vorname?.toLowerCase()}.${formData.nachname?.toLowerCase()}@example.com`;
-      const password = `${formData.vorname}${formData.geburtsdatum?.getFullYear() || '2024'}!`;
-
-      // Create Supabase account
-      const { data: authData, error: authError } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          emailRedirectTo: `${window.location.origin}/profile`
-        }
-      });
-
-      if (authError) {
-        console.error('Auth error:', authError);
-        toast({
-          title: "Fehler beim Account erstellen",
-          description: authError.message,
-          variant: "destructive"
-        });
-        return;
-      }
-
-      if (authData.user) {
-        // Create profile with CV data
-        const profileData = {
-          id: authData.user.id,
-          email: email,
-          vorname: formData.vorname,
-          nachname: formData.nachname,
-          full_name: `${formData.vorname} ${formData.nachname}`,
-          geburtsdatum: formData.geburtsdatum?.toISOString().split('T')[0],
-          strasse: formData.strasse,
-          hausnummer: formData.hausnummer,
-          plz: formData.plz,
-          city: formData.ort,
-          telefon: formData.telefon,
-          profilbild_url: typeof formData.profilbild === 'string' ? formData.profilbild : null,
-          branche: formData.branche,
-          status: formData.status,
-          schule: formData.schule,
-          geplanter_abschluss: formData.geplanter_abschluss,
-          abschlussjahr: formData.abschlussjahr,
-          ausbildungsberuf: formData.ausbildungsberuf,
-          ausbildungsbetrieb: formData.ausbildungsbetrieb,
-          startjahr: formData.startjahr,
-          voraussichtliches_ende: formData.voraussichtliches_ende,
-          abschlussjahr_ausgelernt: formData.abschlussjahr_ausgelernt,
-          aktueller_beruf: formData.aktueller_beruf,
-          sprachen: JSON.stringify(formData.sprachen || []),
-          faehigkeiten: formData.faehigkeiten || [],
-          schulbildung: JSON.stringify(formData.schulbildung || []),
-          berufserfahrung: JSON.stringify(formData.berufserfahrung || []),
-          layout_id: formData.layout,
-          ueber_mich: formData.ueberMich,
-          einwilligung: formData.einwilligung,
-          profile_complete: true,
-          profile_published: false,
-          account_created: true
-        };
-
-        const { error: profileError } = await supabase
-          .from('profiles')
-          .insert(profileData);
-
-        if (profileError) {
-          console.error('Profile error:', profileError);
-          toast({
-            title: "Fehler beim Profil erstellen",
-            description: profileError.message,
-            variant: "destructive"
-          });
-          return;
-        }
-
-        toast({
-          title: "Profil erfolgreich erstellt!",
-          description: "Sie werden automatisch eingeloggt.",
-        });
-        
-        // Store CV data temporarily for profile page
-        localStorage.setItem('cvData', JSON.stringify(formData));
-        
-        // Navigate to profile
-        navigate('/profile');
-      }
-    } catch (error) {
-      console.error('Unexpected error:', error);
+    if (!formData.email) {
       toast({
-        title: "Unerwarteter Fehler",
-        description: "Ein unerwarteter Fehler ist aufgetreten.",
+        title: "E-Mail-Adresse fehlt",
+        description: "Bitte geben Sie in Schritt 2 eine E-Mail-Adresse ein.",
         variant: "destructive"
       });
+      return;
     }
+
+    setShowProfileModal(true);
   };
 
   return (
@@ -341,6 +255,13 @@ const CVStep7 = () => {
           Jetzt kannst du ihn herunterladen oder ein Profil anlegen, um von Arbeitgebern gefunden zu werden.
         </p>
       </div>
+
+      <ProfileCreationModal
+        isOpen={showProfileModal}
+        onClose={() => setShowProfileModal(false)}
+        prefilledEmail={formData.email || ''}
+        formData={formData}
+      />
     </div>
   );
 };
