@@ -119,46 +119,60 @@ export const ProfileCreationModal = ({
         console.log('Sign out failed:', err);
       }
 
-      // Try to sign in with the credentials to get an active session
-      const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+      // First try to create the account
+      const { data: authData, error: authError } = await supabase.auth.signUp({
         email,
         password
       });
 
-      if (signInError) {
-        // If sign in fails, try signup
-        const { data: authData, error: authError } = await supabase.auth.signUp({
-          email,
-          password
-        });
-
-        if (authError) {
-          console.error('Auth error:', authError);
+      if (authError) {
+        console.error('Signup error:', authError);
+        
+        // Handle rate limiting specifically
+        if (authError.message.includes('For security purposes') || authError.message.includes('rate')) {
+          const match = authError.message.match(/(\d+)\s*seconds?/);
+          const seconds = match ? parseInt(match[1]) : 60;
+          setRateLimitSeconds(seconds);
           
-          // Handle rate limiting specifically
-          if (authError.message.includes('For security purposes') || authError.message.includes('rate')) {
-            const match = authError.message.match(/(\d+)\s*seconds?/);
-            const seconds = match ? parseInt(match[1]) : 60;
-            setRateLimitSeconds(seconds);
-            
+          toast({
+            title: "Zu viele Versuche",
+            description: `Bitte warten Sie ${seconds} Sekunden und versuchen Sie es erneut.`,
+            variant: "destructive"
+          });
+          return;
+        }
+
+        // If user already exists, try to sign in
+        if (authError.message.includes('User already registered')) {
+          console.log('User exists, trying to sign in...');
+          const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+            email,
+            password
+          });
+
+          if (signInError) {
+            console.error('Sign in error:', signInError);
             toast({
-              title: "Zu viele Versuche",
-              description: `Bitte warten Sie ${seconds} Sekunden und versuchen Sie es erneut.`,
+              title: "Anmeldung fehlgeschlagen",
+              description: "E-Mail oder Passwort ist falsch, oder der Account ist noch nicht bestätigt.",
               variant: "destructive"
             });
             return;
           }
 
-          // Handle user already registered
-          if (authError.message.includes('User already registered')) {
+          if (signInData.user) {
+            console.log('User signed in successfully:', signInData.user.id);
+            // Continue with existing user
+            var user = signInData.user;
+          } else {
             toast({
-              title: "Account bereits vorhanden",
-              description: "Ein Account mit dieser E-Mail-Adresse existiert bereits. Versuchen Sie sich anzumelden.",
+              title: "Anmeldung fehlgeschlagen",
+              description: "Bitte versuchen Sie es erneut.",
               variant: "destructive"
             });
             return;
           }
-
+        } else {
           // Handle other auth errors
           toast({
             title: "Fehler beim Account erstellen",
@@ -167,32 +181,27 @@ export const ProfileCreationModal = ({
           });
           return;
         }
-
-        // Show message about email confirmation
-        if (authData.user && !authData.session) {
+      } else {
+        // New user created successfully
+        if (authData.user) {
+          console.log('New user created:', authData.user.id);
+          var user = authData.user;
+          
+          // If user is not confirmed, show message but continue
+          if (!authData.session) {
+            console.log('User created but not confirmed, continuing...');
+          }
+        } else {
           toast({
-            title: "Bestätigung erforderlich",
-            description: "Bitte bestätigen Sie Ihre E-Mail-Adresse, um Ihr Profil zu aktivieren.",
-            variant: "default"
+            title: "Fehler",
+            description: "Account konnte nicht erstellt werden.",
+            variant: "destructive"
           });
-          onClose();
           return;
         }
       }
 
-      // Use the signed-in user data
-      const user = signInData?.user || signInError?.message?.includes('Invalid') ? null : signInData?.user;
-      
-      if (!user) {
-        toast({
-          title: "Anmeldung fehlgeschlagen",
-          description: "Bitte überprüfen Sie Ihre Anmeldedaten.",
-          variant: "destructive"
-        });
-        return;
-      }
-
-      console.log('User signed in:', user.id);
+      console.log('Processing user:', user.id);
         
         // Now we have an authenticated user, create/update profile
         console.log('Creating/updating profile for authenticated user:', user.id);
