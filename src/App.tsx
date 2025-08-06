@@ -8,6 +8,10 @@ import { AuthProvider } from "@/hooks/useAuth";
 import { CVFormProvider } from "@/contexts/CVFormContext";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
+import Blog from "./pages/Blog";
+import Unternehmen from "./pages/Unternehmen";
+import Datenschutz from "./pages/Datenschutz";
+import Impressum from "./pages/Impressum";
 import CVGenerator from "./components/CVGenerator";
 import Auth from "./pages/Auth";
 import Profile from "./pages/Profile";
@@ -30,6 +34,10 @@ const App = () => (
               <Route path="/auth" element={<Auth />} />
               <Route path="/cv-generator" element={<CVGenerator />} />
               <Route path="/cv-layout-selector" element={<CVGenerator />} />
+              <Route path="/blog" element={<Blog />} />
+              <Route path="/unternehmen" element={<Unternehmen />} />
+              <Route path="/datenschutz" element={<Datenschutz />} />
+              <Route path="/impressum" element={<Impressum />} />
               
               {/* Authenticated Routes with Sidebar */}
               <Route element={<AuthenticatedLayout />}>
