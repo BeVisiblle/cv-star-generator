@@ -165,11 +165,15 @@ export const ProfileCreationModal = ({
       }
 
       if (authData.user) {
+        console.log('User created:', authData.user.id);
+        console.log('Form data:', formData);
+        
         // Wait for auth session to be established
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        await new Promise(resolve => setTimeout(resolve, 2000));
         
         // Update the existing profile created by trigger instead of inserting
         const profileData = {
+          email: email,
           vorname: formData.vorname,
           nachname: formData.nachname,
           geburtsdatum: formData.geburtsdatum?.toISOString().split('T')[0],
@@ -194,7 +198,7 @@ export const ProfileCreationModal = ({
           faehigkeiten: formData.faehigkeiten || [],
           schulbildung: formData.schulbildung || [],
           berufserfahrung: formData.berufserfahrung || [],
-          layout: formData.layout,
+          layout: formData.layout || 1,
           uebermich: formData.ueberMich,
           kenntnisse: formData.kenntnisse,
           motivation: formData.motivation,
@@ -205,11 +209,17 @@ export const ProfileCreationModal = ({
           updated_at: new Date().toISOString()
         };
 
+        console.log('Updating profile with data:', profileData);
+
         // Update existing profile instead of insert
-        const { error: profileError } = await supabase
+        const { data: updatedProfile, error: profileError } = await supabase
           .from('profiles')
           .update(profileData)
-          .eq('id', authData.user.id);
+          .eq('id', authData.user.id)
+          .select()
+          .single();
+
+        console.log('Profile update result:', updatedProfile, 'Error:', profileError);
 
         if (profileError) {
           console.error('Profile update error:', profileError);

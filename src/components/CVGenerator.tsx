@@ -38,6 +38,7 @@ const CVGeneratorContent = () => {
                formData.strasse && formData.hausnummer && formData.plz && 
                formData.ort && formData.email && formData.profilbild;
       case 3:
+        // Fähigkeiten sind nicht mehr mandatory für alle - nur Motivation und Kenntnisse
         return formData.kenntnisse && formData.motivation;
       case 4:
         return formData.schulbildung && formData.schulbildung.length > 0;
