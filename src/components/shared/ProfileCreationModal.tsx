@@ -166,15 +166,38 @@ export const ProfileCreationModal = ({
 
       if (authData.user) {
         console.log('User created:', authData.user.id);
-        console.log('Form data:', formData);
         
-        // Set the session immediately to ensure authentication
-        if (authData.session) {
-          await supabase.auth.setSession(authData.session);
+        // Wait for trigger to create basic profile
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        
+        // Check if profile was created by trigger
+        const { data: profileCheck } = await supabase
+          .from('profiles')
+          .select('id')
+          .eq('id', authData.user.id)
+          .maybeSingle();
+          
+        if (!profileCheck) {
+          console.log('Profile not created by trigger, creating manually');
+          // Create basic profile manually if trigger failed
+          const { error: insertError } = await supabase
+            .from('profiles')
+            .insert({
+              id: authData.user.id,
+              email: email,
+              account_created: true
+            });
+            
+          if (insertError) {
+            console.error('Manual profile creation failed:', insertError);
+            toast({
+              title: "Fehler beim Profil erstellen",
+              description: "Das Profil konnte nicht erstellt werden. Bitte versuchen Sie es erneut.",
+              variant: "destructive"
+            });
+            return;
+          }
         }
-        
-        // Wait longer for auth session to be established and trigger to execute
-        await new Promise(resolve => setTimeout(resolve, 3000));
         
         // Handle file uploads first
         let avatarUrl = typeof formData.profilbild === 'string' ? formData.profilbild : null;
@@ -238,6 +261,7 @@ export const ProfileCreationModal = ({
           }
         };
 
+        
         // Generate AI-powered bio from form data
         const bioText = [
           formData.ueberMich,
@@ -246,7 +270,7 @@ export const ProfileCreationModal = ({
           formData.praktische_erfahrung && `Praktische Erfahrung: ${formData.praktische_erfahrung}`
         ].filter(Boolean).join('\n\n');
         
-        // Update the existing profile created by trigger instead of inserting
+        // Prepare profile update data
         const profileData = {
           email: email,
           vorname: formData.vorname,
@@ -295,52 +319,7 @@ export const ProfileCreationModal = ({
 
         console.log('Updating profile with data:', profileData);
 
-        // First check if profile exists, if not create it
-        const { data: existingProfile } = await supabase
-          .from('profiles')
-          .select('id')
-          .eq('id', authData.user.id)
-          .maybeSingle();
-
-        if (!existingProfile) {
-          console.log('No profile found, creating new one');
-          // Wait for trigger first
-          await new Promise(resolve => setTimeout(resolve, 2000));
-          
-          // Check again after waiting
-          const { data: existingProfileAfterWait } = await supabase
-            .from('profiles')
-            .select('id')
-            .eq('id', authData.user.id)
-            .maybeSingle();
-            
-          if (!existingProfileAfterWait) {
-            // Create profile manually if trigger failed
-            const { data: newProfile, error: insertError } = await supabase
-              .from('profiles')
-              .insert({
-                id: authData.user.id,
-                email: email,
-                account_created: true
-              })
-              .select()
-              .single();
-
-            if (insertError) {
-              console.error('Profile creation error:', insertError);
-              toast({
-                title: "Fehler beim Profil erstellen",
-                description: insertError.message,
-                variant: "destructive"
-              });
-              return;
-            }
-            console.log('Profile created manually:', newProfile);
-          }
-        }
-        
-        // Now update the profile with all data
-        console.log('Updating profile with data:', profileData);
+        // Update the profile with all the CV data
         const { data: updatedProfile, error: profileError } = await supabase
           .from('profiles')
           .update(profileData)
@@ -357,7 +336,8 @@ export const ProfileCreationModal = ({
           });
           return;
         }
-        console.log('Profile updated:', updatedProfile);
+
+        console.log('Profile updated successfully:', updatedProfile);
 
         toast({
           title: "Profil erfolgreich erstellt!",
