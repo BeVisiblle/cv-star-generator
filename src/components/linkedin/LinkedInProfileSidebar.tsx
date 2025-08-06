@@ -321,7 +321,7 @@ export const LinkedInProfileSidebar: React.FC<LinkedInProfileSidebarProps> = ({ 
           </Button>
           
           {profile?.updated_at && (
-            <div className="flex items-center gap-2 text-xs text-muted-foreground justify-end">
+            <div className="flex items-center gap-2 text-xs text-muted-foreground justify-start">
               <Clock className="h-3 w-3" />
               zuletzt aktualisiert: {formatDate(profile.updated_at)}
             </div>
