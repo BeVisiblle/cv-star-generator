@@ -32,11 +32,11 @@ const App = () => (
               <Route path="/cv-layout-selector" element={<CVGenerator />} />
               
               {/* Authenticated Routes with Sidebar */}
-              <Route path="/" element={<AuthenticatedLayout />}>
-                <Route path="profile" element={<Profile />} />
-                <Route path="dashboard" element={<Dashboard />} />
-                <Route path="marketplace" element={<Marketplace />} />
-                <Route path="settings" element={<Settings />} />
+              <Route element={<AuthenticatedLayout />}>
+                <Route path="/profile" element={<Profile />} />
+                <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/marketplace" element={<Marketplace />} />
+                <Route path="/settings" element={<Settings />} />
               </Route>
               
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
