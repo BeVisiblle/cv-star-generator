@@ -290,24 +290,57 @@ export const ProfileCreationModal = ({
 
         console.log('Updating profile with data:', profileData);
 
-        // Update existing profile instead of insert
-        const { data: updatedProfile, error: profileError } = await supabase
+        // First check if profile exists, if not create it
+        const { data: existingProfile } = await supabase
           .from('profiles')
-          .update(profileData)
+          .select('id')
           .eq('id', authData.user.id)
-          .select()
-          .single();
+          .maybeSingle();
 
-        console.log('Profile update result:', updatedProfile, 'Error:', profileError);
+        if (!existingProfile) {
+          console.log('No profile found, creating new one');
+          // Create profile if it doesn't exist (trigger didn't work)
+          const { data: newProfile, error: insertError } = await supabase
+            .from('profiles')
+            .insert({
+              id: authData.user.id,
+              email: email,
+              account_created: true,
+              ...profileData
+            })
+            .select()
+            .single();
 
-        if (profileError) {
-          console.error('Profile update error:', profileError);
-          toast({
-            title: "Fehler beim Profil aktualisieren",
-            description: profileError.message,
-            variant: "destructive"
-          });
-          return;
+          if (insertError) {
+            console.error('Profile creation error:', insertError);
+            toast({
+              title: "Fehler beim Profil erstellen",
+              description: insertError.message,
+              variant: "destructive"
+            });
+            return;
+          }
+          console.log('Profile created:', newProfile);
+        } else {
+          console.log('Profile exists, updating');
+          // Update existing profile
+          const { data: updatedProfile, error: profileError } = await supabase
+            .from('profiles')
+            .update(profileData)
+            .eq('id', authData.user.id)
+            .select()
+            .single();
+
+          if (profileError) {
+            console.error('Profile update error:', profileError);
+            toast({
+              title: "Fehler beim Profil aktualisieren",
+              description: profileError.message,
+              variant: "destructive"
+            });
+            return;
+          }
+          console.log('Profile updated:', updatedProfile);
         }
 
         toast({
