@@ -384,8 +384,9 @@ export const ProfileCreationModal = ({
           variant: "default"
         });
         
-        // Store CV data temporarily for profile page
-        localStorage.setItem('cvData', JSON.stringify(formData));
+        // Clear CV form data from localStorage since it's now in the profile
+        localStorage.removeItem('cvFormData');
+        localStorage.removeItem('cvLayoutEditMode');
         
         // Force page reload to refresh auth state and profile data
         onClose();
