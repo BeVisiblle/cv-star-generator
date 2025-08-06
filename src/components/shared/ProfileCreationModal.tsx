@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Loader2, UserPlus, Eye, EyeOff } from 'lucide-react';
+import { Loader2, UserPlus, Eye, EyeOff, Clock } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
@@ -25,7 +25,47 @@ export const ProfileCreationModal = ({
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
+  const [rateLimitSeconds, setRateLimitSeconds] = useState(0);
   const navigate = useNavigate();
+
+  // Auth state cleanup utility
+  const cleanupAuthState = () => {
+    try {
+      // Remove all Supabase auth keys from localStorage
+      Object.keys(localStorage).forEach((key) => {
+        if (key.startsWith('supabase.auth.') || key.includes('sb-')) {
+          localStorage.removeItem(key);
+        }
+      });
+      // Remove from sessionStorage if in use
+      Object.keys(sessionStorage || {}).forEach((key) => {
+        if (key.startsWith('supabase.auth.') || key.includes('sb-')) {
+          sessionStorage.removeItem(key);
+        }
+      });
+    } catch (error) {
+      console.log('Error cleaning auth state:', error);
+    }
+  };
+
+  // Email validation utility
+  const validateEmail = (email: string) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return "Bitte geben Sie eine gültige E-Mail-Adresse ein";
+    }
+    return null;
+  };
+
+  // Rate limit countdown effect
+  useEffect(() => {
+    if (rateLimitSeconds > 0) {
+      const timer = setTimeout(() => {
+        setRateLimitSeconds(prev => prev - 1);
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [rateLimitSeconds]);
 
   const validatePassword = (password: string) => {
     if (password.length < 8) return "Passwort muss mindestens 8 Zeichen haben";
@@ -44,6 +84,17 @@ export const ProfileCreationModal = ({
       return;
     }
 
+    // Client-side email validation
+    const emailError = validateEmail(email);
+    if (emailError) {
+      toast({
+        title: "E-Mail ungültig",
+        description: emailError,
+        variant: "destructive"
+      });
+      return;
+    }
+
     const passwordError = validatePassword(password);
     if (passwordError) {
       toast({
@@ -57,6 +108,17 @@ export const ProfileCreationModal = ({
     setIsCreating(true);
 
     try {
+      // Clean up auth state before new signup
+      cleanupAuthState();
+      
+      // Attempt global sign out first
+      try {
+        await supabase.auth.signOut({ scope: 'global' });
+      } catch (err) {
+        // Continue even if this fails
+        console.log('Sign out failed:', err);
+      }
+
       // Create Supabase account
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email,
@@ -68,6 +130,32 @@ export const ProfileCreationModal = ({
 
       if (authError) {
         console.error('Auth error:', authError);
+        
+        // Handle rate limiting specifically
+        if (authError.message.includes('For security purposes') || authError.message.includes('rate')) {
+          const match = authError.message.match(/(\d+)\s*seconds?/);
+          const seconds = match ? parseInt(match[1]) : 60;
+          setRateLimitSeconds(seconds);
+          
+          toast({
+            title: "Zu viele Versuche",
+            description: `Bitte warten Sie ${seconds} Sekunden und versuchen Sie es erneut.`,
+            variant: "destructive"
+          });
+          return;
+        }
+
+        // Handle user already registered
+        if (authError.message.includes('User already registered')) {
+          toast({
+            title: "Account bereits vorhanden",
+            description: "Ein Account mit dieser E-Mail-Adresse existiert bereits. Versuchen Sie sich anzumelden.",
+            variant: "destructive"
+          });
+          return;
+        }
+
+        // Handle other auth errors
         toast({
           title: "Fehler beim Account erstellen",
           description: authError.message,
@@ -206,21 +294,32 @@ export const ProfileCreationModal = ({
             </p>
           </div>
           
+          {rateLimitSeconds > 0 && (
+            <div className="bg-orange-50 border border-orange-200 rounded-lg p-3 text-center">
+              <Clock className="h-4 w-4 inline mr-2 text-orange-600" />
+              <span className="text-sm text-orange-700">
+                Bitte warten Sie noch {rateLimitSeconds} Sekunden
+              </span>
+            </div>
+          )}
+          
           <div className="flex gap-3 pt-4">
             <Button variant="outline" onClick={onClose} className="flex-1">
               Abbrechen
             </Button>
             <Button 
               onClick={handleCreateProfile} 
-              disabled={isCreating}
+              disabled={isCreating || rateLimitSeconds > 0}
               className="flex-1"
             >
               {isCreating ? (
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              ) : rateLimitSeconds > 0 ? (
+                <Clock className="h-4 w-4 mr-2" />
               ) : (
                 <UserPlus className="h-4 w-4 mr-2" />
               )}
-              {isCreating ? 'Erstelle...' : 'Profil erstellen'}
+              {isCreating ? 'Erstelle...' : rateLimitSeconds > 0 ? 'Warten...' : 'Profil erstellen'}
             </Button>
           </div>
         </div>
