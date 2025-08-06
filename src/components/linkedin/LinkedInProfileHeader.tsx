@@ -30,35 +30,32 @@ export const LinkedInProfileHeader: React.FC<LinkedInProfileHeaderProps> = ({
 
     setIsUploadingCover(true);
     try {
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${profile.id}/cover.${fileExt}`;
-
-      // Upload to Supabase storage
-      const { error: uploadError } = await supabase.storage
-        .from('documents')
-        .upload(fileName, file, { upsert: true });
-
-      if (uploadError) throw uploadError;
-
-      // Get public URL
-      const { data } = supabase.storage
-        .from('documents')
-        .getPublicUrl(fileName);
-
-      // Update profile with cover URL
-      onProfileUpdate({ cover_url: data.publicUrl });
-
-      toast({
-        title: "Titelbild hochgeladen",
-        description: "Ihr Titelbild wurde erfolgreich aktualisiert."
-      });
+      // For now, just store as base64 or implement proper storage bucket
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const result = e.target?.result as string;
+        onProfileUpdate({ cover_url: result });
+        toast({
+          title: "Titelbild hochgeladen",
+          description: "Ihr Titelbild wurde erfolgreich aktualisiert."
+        });
+        setIsUploadingCover(false);
+      };
+      reader.onerror = () => {
+        toast({
+          title: "Upload fehlgeschlagen",
+          description: "Das Titelbild konnte nicht hochgeladen werden.",
+          variant: "destructive"
+        });
+        setIsUploadingCover(false);
+      };
+      reader.readAsDataURL(file);
     } catch (error) {
       toast({
         title: "Upload fehlgeschlagen",
         description: "Das Titelbild konnte nicht hochgeladen werden.",
         variant: "destructive"
       });
-    } finally {
       setIsUploadingCover(false);
     }
   };
@@ -69,35 +66,32 @@ export const LinkedInProfileHeader: React.FC<LinkedInProfileHeaderProps> = ({
 
     setIsUploadingAvatar(true);
     try {
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${profile.id}/avatar.${fileExt}`;
-
-      // Upload to Supabase storage
-      const { error: uploadError } = await supabase.storage
-        .from('documents')
-        .upload(fileName, file, { upsert: true });
-
-      if (uploadError) throw uploadError;
-
-      // Get public URL
-      const { data } = supabase.storage
-        .from('documents')
-        .getPublicUrl(fileName);
-
-      // Update profile with avatar URL
-      onProfileUpdate({ avatar_url: data.publicUrl });
-
-      toast({
-        title: "Profilbild hochgeladen",
-        description: "Ihr Profilbild wurde erfolgreich aktualisiert."
-      });
+      // For now, just store as base64 - similar to how CVStep2 handles it
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const result = e.target?.result as string;
+        onProfileUpdate({ avatar_url: result });
+        toast({
+          title: "Profilbild hochgeladen",  
+          description: "Ihr Profilbild wurde erfolgreich aktualisiert."
+        });
+        setIsUploadingAvatar(false);
+      };
+      reader.onerror = () => {
+        toast({
+          title: "Upload fehlgeschlagen",
+          description: "Das Profilbild konnte nicht hochgeladen werden.",
+          variant: "destructive"
+        });
+        setIsUploadingAvatar(false);
+      };
+      reader.readAsDataURL(file);
     } catch (error) {
       toast({
-        title: "Upload fehlgeschlagen",
+        title: "Upload fehlgeschlagen", 
         description: "Das Profilbild konnte nicht hochgeladen werden.",
         variant: "destructive"
       });
-    } finally {
       setIsUploadingAvatar(false);
     }
   };

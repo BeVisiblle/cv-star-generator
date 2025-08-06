@@ -28,12 +28,70 @@ export const LinkedInProfileSidebar: React.FC<LinkedInProfileSidebarProps> = ({
   const handleDownloadCV = async () => {
     setIsGeneratingPDF(true);
     try {
-      await generatePDF(profile);
+      // Create a CV element based on profile data
+      const cvData = {
+        ...profile,
+        profilbild: profile.avatar_url // Use avatar_url for CV generation
+      };
+      
+      // We need to create a hidden div with CV layout and generate PDF from it
+      const cvElement = document.createElement('div');
+      cvElement.style.position = 'absolute';
+      cvElement.style.left = '-9999px';
+      cvElement.style.width = '210mm';
+      cvElement.style.minHeight = '297mm';
+      cvElement.style.backgroundColor = 'white';
+      cvElement.style.padding = '20mm';
+      
+      // Simple CV HTML structure
+      cvElement.innerHTML = `
+        <div style="font-family: Arial, sans-serif; color: black;">
+          <h1 style="margin: 0 0 10px 0; font-size: 24px;">${profile.vorname || ''} ${profile.nachname || ''}</h1>
+          <div style="margin-bottom: 20px;">
+            <p style="margin: 5px 0;"><strong>E-Mail:</strong> ${profile.email || ''}</p>
+            <p style="margin: 5px 0;"><strong>Telefon:</strong> ${profile.telefon || ''}</p>
+            <p style="margin: 5px 0;"><strong>Adresse:</strong> ${profile.strasse || ''} ${profile.hausnummer || ''}, ${profile.plz || ''} ${profile.ort || ''}</p>
+          </div>
+          ${profile.uebermich ? `<div style="margin-bottom: 20px;"><h2 style="font-size: 18px; margin-bottom: 10px;">Über mich</h2><p>${profile.uebermich}</p></div>` : ''}
+          ${profile.berufserfahrung && profile.berufserfahrung.length > 0 ? `
+            <div style="margin-bottom: 20px;">
+              <h2 style="font-size: 18px; margin-bottom: 10px;">Berufserfahrung</h2>
+              ${profile.berufserfahrung.map((exp: any) => `
+                <div style="margin-bottom: 15px;">
+                  <h3 style="font-size: 14px; margin: 0;">${exp.titel}</h3>
+                  <p style="margin: 2px 0; font-weight: bold;">${exp.unternehmen}</p>
+                  <p style="margin: 2px 0; font-size: 12px; color: #666;">${exp.zeitraum_von} - ${exp.zeitraum_bis || 'Heute'}</p>
+                  ${exp.beschreibung ? `<p style="margin: 5px 0; font-size: 12px;">${exp.beschreibung}</p>` : ''}
+                </div>
+              `).join('')}
+            </div>
+          ` : ''}
+          ${profile.faehigkeiten && profile.faehigkeiten.length > 0 ? `
+            <div style="margin-bottom: 20px;">
+              <h2 style="font-size: 18px; margin-bottom: 10px;">Fähigkeiten</h2>
+              <p>${profile.faehigkeiten.join(', ')}</p>
+            </div>
+          ` : ''}
+        </div>
+      `;
+      
+      document.body.appendChild(cvElement);
+      
+      // Generate PDF
+      const { generatePDF, generateCVFilename } = await import('@/lib/pdf-generator');
+      const filename = generateCVFilename(profile.vorname || 'User', profile.nachname || 'CV');
+      
+      await generatePDF(cvElement, { filename });
+      
+      // Clean up
+      document.body.removeChild(cvElement);
+      
       toast({
         title: "CV heruntergeladen",
         description: "Ihr Lebenslauf wurde erfolgreich generiert."
       });
     } catch (error) {
+      console.error('PDF generation error:', error);
       toast({
         title: "Fehler beim Download",
         description: "Der CV konnte nicht generiert werden.",
