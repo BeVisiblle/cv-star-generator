@@ -119,12 +119,15 @@ export const ProfileCreationModal = ({
         console.log('Sign out failed:', err);
       }
 
-      // Create Supabase account
+      // Create Supabase account without email confirmation
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email,
         password,
         options: {
-          emailRedirectTo: `${window.location.origin}/profile`
+          emailRedirectTo: `${window.location.origin}/profile`,
+          data: {
+            email_confirm: false
+          }
         }
       });
 
