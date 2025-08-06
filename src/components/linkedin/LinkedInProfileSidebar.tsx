@@ -29,6 +29,37 @@ export const LinkedInProfileSidebar: React.FC<LinkedInProfileSidebarProps> = ({ 
   const [showCVPreview, setShowCVPreview] = useState(false);
   const navigate = useNavigate();
 
+  const renderCVForPDF = (): HTMLElement => {
+    // Create temporary container for PDF generation
+    const container = document.createElement('div');
+    container.style.position = 'absolute';
+    container.style.left = '-9999px';
+    container.style.top = '0';
+    container.style.width = '210mm'; // A4 width
+    container.style.minHeight = '297mm'; // A4 height
+    container.style.backgroundColor = 'white';
+    container.style.fontFamily = 'Arial, sans-serif';
+    container.style.fontSize = '14px';
+    container.style.lineHeight = '1.4';
+    container.style.color = '#000000';
+    document.body.appendChild(container);
+
+    // Create React root and render CV layout
+    const root = document.createElement('div');
+    container.appendChild(root);
+
+    // Render the CV layout directly using React
+    import('react-dom/client').then(({ createRoot }) => {
+      import('react').then((React) => {
+        const reactRoot = createRoot(root);
+        const CVComponent = renderCVLayout();
+        reactRoot.render(React.createElement('div', { style: { padding: '20mm' } }, CVComponent));
+      });
+    });
+
+    return container;
+  };
+
   const handleDownloadCV = async () => {
     try {
       setIsGeneratingPDF(true);
@@ -44,21 +75,72 @@ export const LinkedInProfileSidebar: React.FC<LinkedInProfileSidebarProps> = ({ 
         return;
       }
 
-      // Generate CV from profile data using the selected layout
-      const cvElement = document.querySelector('[data-cv-preview]') as HTMLElement;
-      if (!cvElement) {
+      // Check if we have enough data to generate a CV
+      if (!profile.vorname || !profile.nachname) {
         toast({
-          title: "Fehler",
-          description: "CV-Vorschau nicht gefunden. Bitte aktivieren Sie die Vorschau.",
+          title: "Unvollständiges Profil",
+          description: "Bitte vervollständigen Sie Ihr Profil, bevor Sie einen CV generieren.",
           variant: "destructive"
         });
         return;
+      }
+
+      // Try to find existing CV preview element first
+      let cvElement = document.querySelector('[data-cv-preview]') as HTMLElement;
+      let temporaryElement = false;
+
+      // If no preview element found or it's too small, create a temporary one
+      if (!cvElement || cvElement.offsetWidth < 200) {
+        // Create temporary full-size CV element for PDF generation
+        cvElement = document.createElement('div');
+        cvElement.style.position = 'absolute';
+        cvElement.style.left = '-9999px';
+        cvElement.style.top = '0';
+        cvElement.style.width = '210mm'; // A4 width
+        cvElement.style.minHeight = '297mm'; // A4 height
+        cvElement.style.backgroundColor = 'white';
+        cvElement.style.padding = '20mm';
+        cvElement.style.boxSizing = 'border-box';
+        
+        // Render the CV layout into the temporary element
+        cvElement.innerHTML = '';
+        const cvLayoutElement = document.createElement('div');
+        
+        // Get the CV layout component as HTML string
+        const layoutComponent = renderCVLayout();
+        if (layoutComponent) {
+          // Create a temporary React container to render the component
+          const tempContainer = document.createElement('div');
+          document.body.appendChild(tempContainer);
+          
+          // Use ReactDOM to render the component to get HTML
+          const React = await import('react');
+          const ReactDOM = await import('react-dom/client');
+          const root = ReactDOM.createRoot(tempContainer);
+          
+          await new Promise<void>((resolve) => {
+            root.render(React.createElement('div', {}, layoutComponent));
+            setTimeout(() => {
+              cvElement.innerHTML = tempContainer.innerHTML;
+              document.body.removeChild(tempContainer);
+              resolve();
+            }, 100);
+          });
+        }
+        
+        document.body.appendChild(cvElement);
+        temporaryElement = true;
       }
 
       // Import PDF generator
       const { generatePDF, generateCVFilename } = await import('@/lib/pdf-generator');
       const filename = generateCVFilename(profile.vorname || 'Unknown', profile.nachname || 'User');
       await generatePDF(cvElement, { filename });
+      
+      // Clean up temporary element
+      if (temporaryElement && cvElement.parentNode) {
+        document.body.removeChild(cvElement);
+      }
       
       toast({
         title: "CV erfolgreich heruntergeladen",
