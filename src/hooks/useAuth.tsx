@@ -50,9 +50,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           }, 0);
         } else {
           setProfile(null);
+          setIsLoading(false);
         }
-        
-        setIsLoading(false);
       }
     );
 
@@ -63,19 +62,18 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       
       if (session?.user) {
         loadProfile(session.user.id);
+      } else {
+        setIsLoading(false);
       }
-      
-      setIsLoading(false);
     });
 
     return () => subscription.unsubscribe();
   }, []);
 
   const loadProfile = async (userId: string) => {
+    setIsLoading(true);
     try {
       console.log('Loading profile for user:', userId);
-      console.log('Current auth session:', session?.user?.id);
-      console.log('Auth UID:', await supabase.auth.getUser());
       
       const { data: profile, error } = await supabase
         .from('profiles')
@@ -96,6 +94,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     } catch (error) {
       console.error('Unexpected error loading profile:', error);
       setProfile(null);
+    } finally {
+      setIsLoading(false);
     }
   };
 
