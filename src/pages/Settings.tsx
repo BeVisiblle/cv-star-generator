@@ -1,11 +1,75 @@
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Eye, Shield, Bell, Trash2 } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 const Settings = () => {
+  const { profile, refetchProfile } = useAuth();
+  const { toast } = useToast();
+  const [settings, setSettings] = useState({
+    profile_published: false,
+    show_contact: true,
+    show_documents: true,
+    profile_analytics: true,
+    profile_views: true,
+    weekly_summary: true,
+    marketplace_updates: false,
+    regional_visibility: true,
+    visibility_industry: [] as string[]
+  });
+
+  useEffect(() => {
+    if (profile) {
+      setSettings(prev => ({
+        ...prev,
+        profile_published: profile.profile_published || false,
+        visibility_industry: profile.visibility_industry || []
+      }));
+    }
+  }, [profile]);
+
+  const updateSetting = async (key: string, value: any) => {
+    if (!profile) return;
+
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ [key]: value })
+        .eq('id', profile.id);
+
+      if (error) throw error;
+
+      setSettings(prev => ({ ...prev, [key]: value }));
+      refetchProfile();
+      
+      toast({
+        title: "Einstellung gespeichert",
+        description: "Deine Änderung wurde erfolgreich übernommen."
+      });
+    } catch (error) {
+      console.error('Error updating setting:', error);
+      toast({
+        title: "Fehler",
+        description: "Die Einstellung konnte nicht gespeichert werden.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const toggleIndustryVisibility = (industry: string) => {
+    const currentIndustries = settings.visibility_industry;
+    const newIndustries = currentIndustries.includes(industry)
+      ? currentIndustries.filter(i => i !== industry)
+      : [...currentIndustries, industry];
+    
+    updateSetting('visibility_industry', newIndustries);
+  };
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -36,7 +100,11 @@ const Settings = () => {
                   Dein Profil im Marketplace für Unternehmen sichtbar machen
                 </p>
               </div>
-              <Switch id="publish-profile" />
+              <Switch 
+                id="publish-profile" 
+                checked={settings.profile_published}
+                onCheckedChange={(checked) => updateSetting('profile_published', checked)}
+              />
             </div>
 
             <Separator />
@@ -48,7 +116,11 @@ const Settings = () => {
                   <Label htmlFor={`branch-${branch}`} className="text-sm">
                     {branch}
                   </Label>
-                  <Switch id={`branch-${branch}`} defaultChecked />
+                  <Switch 
+                    id={`branch-${branch}`} 
+                    checked={settings.visibility_industry.includes(branch)}
+                    onCheckedChange={() => toggleIndustryVisibility(branch)}
+                  />
                 </div>
               ))}
             </div>
@@ -60,7 +132,11 @@ const Settings = () => {
               <p className="text-sm text-muted-foreground">
                 Nur für Unternehmen in deiner Region sichtbar
               </p>
-              <Switch id="regional-visibility" defaultChecked />
+              <Switch 
+                id="regional-visibility" 
+                checked={settings.regional_visibility}
+                onCheckedChange={(checked) => setSettings(prev => ({ ...prev, regional_visibility: checked }))}
+              />
             </div>
           </CardContent>
         </Card>
