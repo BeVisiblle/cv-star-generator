@@ -76,63 +76,101 @@ export const LinkedInProfileSidebar: React.FC<LinkedInProfileSidebarProps> = ({ 
         layout: profile.layout || 1,
         profilbild: profile.avatar_url || ''
       };
+
+      // Save formData to localStorage temporarily (like CV generator does)
+      const originalCVData = localStorage.getItem('cvFormData');
+      localStorage.setItem('cvFormData', JSON.stringify(formData));
       
-      // Create temporary container for CV rendering (same approach as CVStep6)
+      // Import CV context and Step6 to render the CV properly
+      const { CVFormProvider } = await import('@/contexts/CVFormContext');
+      const CVStep6 = (await import('@/components/cv-steps/CVStep6')).default;
+      const React = await import('react');
+      const ReactDOM = await import('react-dom/client');
+      
+      // Create temporary container
       const tempContainer = document.createElement('div');
       tempContainer.style.position = 'absolute';
       tempContainer.style.left = '-9999px';
       tempContainer.style.top = '0';
-      tempContainer.style.width = '210mm'; // A4 width
-      tempContainer.style.minHeight = '297mm'; // A4 height
+      tempContainer.style.width = '100vw';
+      tempContainer.style.height = '100vh';
       tempContainer.style.backgroundColor = 'white';
-      tempContainer.style.color = 'black';
-      tempContainer.setAttribute('data-cv-preview', 'true');
       document.body.appendChild(tempContainer);
-
-      // Import React and ReactDOM
-      const React = await import('react');
-      const ReactDOM = await import('react-dom/client');
       
-      // Import the correct CV layout component
-      let LayoutComponent;
-      switch (formData.layout) {
-        case 1:
-          LayoutComponent = (await import('@/components/cv-layouts/LiveCareerLayout')).default;
-          break;
-        case 2:
-          LayoutComponent = (await import('@/components/cv-layouts/ClassicLayout')).default;
-          break;
-        case 3:
-          LayoutComponent = (await import('@/components/cv-layouts/CreativeLayout')).default;
-          break;
-        case 4:
-          LayoutComponent = (await import('@/components/cv-layouts/MinimalLayout')).default;
-          break;
-        case 5:
-          LayoutComponent = (await import('@/components/cv-layouts/ProfessionalLayout')).default;
-          break;
-        case 6:
-          LayoutComponent = (await import('@/components/cv-layouts/LiveCareerLayout')).default;
-          break;
-        default:
-          LayoutComponent = (await import('@/components/cv-layouts/LiveCareerLayout')).default;
-      }
-      
-      // Create a React root and render the CV layout
+      // Create a React root and render CVStep6 with context
       const root = ReactDOM.createRoot(tempContainer);
       
       await new Promise<void>((resolve) => {
-        root.render(React.createElement(LayoutComponent, { data: formData }));
-        setTimeout(resolve, 300); // Wait for rendering
+        root.render(
+          React.createElement(CVFormProvider, null,
+            React.createElement(CVStep6)
+          )
+        );
+        setTimeout(resolve, 500); // Wait longer for full rendering
       });
+      
+      // Find the CV preview element (same as CVStep7)
+      const cvPreviewElement = tempContainer.querySelector('[data-cv-preview]') as HTMLElement;
+      
+      if (!cvPreviewElement) {
+        throw new Error('CV Preview nicht gefunden');
+      }
 
-      // Import PDF generation functions
-      const { generateCVFilename } = await import('@/lib/pdf-generator');
+      // Generate filename and PDF using same functions as CVStep7
+      const { generatePDF, generateCVFilename } = await import('@/lib/pdf-generator');
       const filename = generateCVFilename(profile.vorname, profile.nachname);
       
-      // Generate PDF using Supabase storage function
-      const { generateCVFromHTML } = await import('@/lib/supabase-storage');
-      const pdfFile = await generateCVFromHTML(tempContainer, filename);
+      // Create a blob URL for the PDF
+      let pdfBlob: Blob;
+      
+      // Temporarily create PDF and convert to blob
+      const canvas = await (await import('html2canvas')).default(cvPreviewElement, {
+        scale: 2,
+        useCORS: true,
+        allowTaint: true,
+        backgroundColor: '#ffffff',
+      });
+
+      const jsPDF = (await import('jspdf')).default;
+      const imgWidth = 190;
+      const pageHeight = 287;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4',
+      });
+
+      const imgData = canvas.toDataURL('image/png', 1.0);
+      
+      if (imgHeight <= pageHeight) {
+        pdf.addImage(imgData, 'PNG', 10, 10, imgWidth, imgHeight);
+      } else {
+        let remainingHeight = imgHeight;
+        let position = 0;
+        
+        while (remainingHeight > 0) {
+          if (position > 0) {
+            pdf.addPage();
+          }
+          
+          pdf.addImage(
+            imgData,
+            'PNG',
+            10,
+            10 - position,
+            imgWidth,
+            imgHeight
+          );
+          
+          remainingHeight -= pageHeight;
+          position += pageHeight;
+        }
+      }
+
+      pdfBlob = pdf.output('blob');
+      const pdfFile = new File([pdfBlob], filename, { type: 'application/pdf' });
       
       // Upload PDF to Supabase storage
       const { uploadCV } = await import('@/lib/supabase-storage');
@@ -154,6 +192,13 @@ export const LinkedInProfileSidebar: React.FC<LinkedInProfileSidebarProps> = ({ 
       // Clean up
       root.unmount();
       document.body.removeChild(tempContainer);
+      
+      // Restore original localStorage
+      if (originalCVData) {
+        localStorage.setItem('cvFormData', originalCVData);
+      } else {
+        localStorage.removeItem('cvFormData');
+      }
       
       // Download the PDF
       window.open(url, '_blank');
