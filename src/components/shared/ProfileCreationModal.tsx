@@ -119,16 +119,10 @@ export const ProfileCreationModal = ({
         console.log('Sign out failed:', err);
       }
 
-      // Create Supabase account without email confirmation
+      // Create Supabase account
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email,
-        password,
-        options: {
-          emailRedirectTo: `${window.location.origin}/profile`,
-          data: {
-            email_confirm: false
-          }
-        }
+        password
       });
 
       if (authError) {
@@ -167,84 +161,47 @@ export const ProfileCreationModal = ({
         return;
       }
 
+      // Check if user exists (either confirmed or unconfirmed)
       if (authData.user) {
-        console.log('User created:', authData.user.id);
+        console.log('User created:', authData.user.id, 'Email confirmed:', authData.user.email_confirmed_at ? 'Yes' : 'No');
         
-        // CRITICAL: Set session immediately to ensure proper authentication
-        if (authData.session) {
-          await supabase.auth.setSession(authData.session);
-          console.log('Session set for user:', authData.user.id);
-        }
+        // For unconfirmed users, we'll still create the profile
+        // The profile will be accessible once they confirm their email
         
-        // Wait for auth state to propagate
+        // Try to create profile directly with service role approach using insert
+        console.log('Creating profile for user:', authData.user.id);
+        
+        // Wait a moment for the trigger
         await new Promise(resolve => setTimeout(resolve, 1000));
         
-        // Verify authentication before proceeding
-        const { data: { user: currentUser } } = await supabase.auth.getUser();
-        if (!currentUser) {
-          console.error('User not authenticated after session set');
-          toast({
-            title: "Authentifizierungsfehler",
-            description: "Benutzer konnte nicht authentifiziert werden. Bitte versuchen Sie es erneut.",
-            variant: "destructive"
-          });
-          return;
-        }
-        
-        console.log('User authenticated:', currentUser.id);
-        
-        // Wait for trigger to create basic profile
-        await new Promise(resolve => setTimeout(resolve, 2000));
-        
         // Check if profile was created by trigger
-        const { data: profileCheck } = await supabase
+        const { data: existingProfile } = await supabase
           .from('profiles')
           .select('id')
           .eq('id', authData.user.id)
           .maybeSingle();
           
-        if (!profileCheck) {
-          console.log('Profile not created by trigger, attempting manual creation');
-          
-          // Try to create basic profile manually as authenticated user
-          const { data: newProfile, error: insertError } = await supabase
+        if (!existingProfile) {
+          console.log('No profile found, creating one...');
+          // Insert with ON CONFLICT to handle race conditions
+          const { error: insertError } = await supabase
             .from('profiles')
-            .insert({
+            .upsert({
               id: authData.user.id,
               email: email,
               account_created: true
-            })
-            .select()
-            .single();
+            }, {
+              onConflict: 'id'
+            });
             
           if (insertError) {
-            console.error('Manual profile creation failed:', insertError);
-            
-            // If RLS error, try using the service role approach
-            if (insertError.code === '42501') {
-              console.log('RLS policy violation, profile should be created by trigger');
-              toast({
-                title: "Profil wird erstellt",
-                description: "Ihr Account wurde erfolgreich erstellt. Das Profil wird automatisch angelegt.",
-                variant: "default"
-              });
-              
-              // Navigate to profile page anyway, the trigger should work
-              onClose();
-              navigate('/profile');
-              return;
-            }
-            
-            toast({
-              title: "Fehler beim Profil erstellen",
-              description: "Das Profil konnte nicht erstellt werden. Bitte versuchen Sie es erneut.",
-              variant: "destructive"
-            });
-            return;
+            console.error('Profile creation failed:', insertError);
+            // Continue anyway - the user might still be able to access later
+          } else {
+            console.log('Profile created successfully');
           }
-          console.log('Profile created manually:', newProfile);
         } else {
-          console.log('Profile exists:', profileCheck);
+          console.log('Profile already exists:', existingProfile);
         }
         
         // Handle file uploads first
@@ -389,8 +346,11 @@ export const ProfileCreationModal = ({
         console.log('Profile updated successfully:', updatedProfile);
 
         toast({
-          title: "Profil erfolgreich erstellt!",
-          description: "Ihr Account wurde erstellt und Sie werden automatisch eingeloggt.",
+          title: "Account erstellt!",
+          description: authData.user.email_confirmed_at 
+            ? "Ihr Profil wurde erfolgreich erstellt!" 
+            : "Account erstellt! Bitte bestätigen Sie Ihre E-Mail-Adresse um alle Funktionen zu nutzen.",
+          variant: "default"
         });
         
         // Store CV data temporarily for profile page
