@@ -1,9 +1,9 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { CVFormProvider, useCVForm } from '@/contexts/CVFormContext';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
 import CVStep1 from './cv-steps/CVStep1';
 import CVStep2 from './cv-steps/CVStep2';
 import CVStep3 from './cv-steps/CVStep3';
@@ -106,8 +106,33 @@ const CVGeneratorContent = () => {
             className="mb-4"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
-            Zurück zur Startseite
+            Zu meinem Profil
           </Button>
+          
+          {/* Quick Navigation für eingeloggte User */}
+          <div className="mb-4 flex gap-2">
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => navigate('/profile')}
+            >
+              Profil
+            </Button>
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => navigate('/dashboard')}
+            >
+              Dashboard
+            </Button>
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => navigate('/marketplace')}
+            >
+              Community
+            </Button>
+          </div>
           
           <div className="space-y-4">
             <h1 className="text-2xl font-bold text-foreground">
