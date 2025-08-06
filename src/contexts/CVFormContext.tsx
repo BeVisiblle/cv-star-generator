@@ -125,17 +125,18 @@ export const CVFormProvider = ({ children }: { children: ReactNode }) => {
     return localStorage.getItem('cvLayoutEditMode') === 'true';
   });
 
-  // Only clear CV data if user is not creating a new profile
+  // Load form data from localStorage on initial load
   useEffect(() => {
-    // Don't clear data if we're in the middle of profile creation
-    const isProfileCreation = window.location.pathname === '/profile' || 
-                              localStorage.getItem('creating-profile') === 'true';
-    
-    if (!isProfileCreation) {
-      localStorage.removeItem('cvFormData');
-      console.log('CV Generator: Cleared previous session data');
-    } else {
-      console.log('CV Generator: Preserving data for profile creation');
+    const savedData = localStorage.getItem('cvFormData');
+    if (savedData) {
+      try {
+        const parsedData = JSON.parse(savedData);
+        console.log('CV Generator: Loading saved CV data from localStorage:', parsedData);
+        setFormData(parsedData);
+      } catch (error) {
+        console.error('CV Generator: Error parsing saved CV data:', error);
+        localStorage.removeItem('cvFormData');
+      }
     }
   }, []);
 
@@ -175,6 +176,9 @@ export const CVFormProvider = ({ children }: { children: ReactNode }) => {
   const updateFormData = (data: Partial<CVFormData>) => {
     const newFormData = { ...formData, ...data };
     setFormData(newFormData);
+    
+    // Save to localStorage immediately
+    localStorage.setItem('cvFormData', JSON.stringify(newFormData));
     
     // Auto-sync to profile when user is logged in and auto-sync is enabled
     if (user?.id && autoSyncEnabled && Object.keys(newFormData).length > 1) {
