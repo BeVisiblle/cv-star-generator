@@ -341,7 +341,11 @@ export const ProfileCreationModal = ({
           email: email,
           vorname: formData.vorname,
           nachname: formData.nachname,
-          geburtsdatum: formData.geburtsdatum?.toISOString().split('T')[0],
+              geburtsdatum: formData.geburtsdatum ? 
+                (formData.geburtsdatum instanceof Date ? 
+                  formData.geburtsdatum.toISOString().split('T')[0] : 
+                  formData.geburtsdatum
+                ) : null,
           strasse: formData.strasse,
           hausnummer: formData.hausnummer,
           plz: formData.plz,
