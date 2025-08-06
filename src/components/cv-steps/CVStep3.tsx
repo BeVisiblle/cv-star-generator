@@ -1,14 +1,19 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useCVForm } from '@/contexts/CVFormContext';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Card } from '@/components/ui/card';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Button } from '@/components/ui/button';
 import { LanguageSelector } from '@/components/shared/LanguageSelector';
 import { SkillSelector } from '@/components/shared/SkillSelector';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
+import { Sparkles, Loader2 } from 'lucide-react';
 
 const CVStep3 = () => {
   const { formData, updateFormData } = useCVForm();
+  const [isGenerating, setIsGenerating] = useState(false);
 
 
   const getBrancheTitle = () => {
@@ -338,6 +343,34 @@ const CVStep3 = () => {
 
   const showFaehigkeiten = formData.status === 'azubi' || formData.status === 'ausgelernt';
 
+  const handleGenerateAboutMe = async () => {
+    if (!formData.motivation && !formData.kenntnisse) {
+      toast.error('Bitte beantworte zuerst mindestens eine der branchenspezifischen Fragen.');
+      return;
+    }
+
+    setIsGenerating(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('generate-cv-summary', {
+        body: { cvData: formData }
+      });
+
+      if (error) throw error;
+
+      if (data.success) {
+        updateFormData({ ueberMich: data.summary });
+        toast.success('Dein "Über mich"-Text wurde erfolgreich generiert!');
+      } else {
+        throw new Error(data.error || 'Unbekannter Fehler');
+      }
+    } catch (error) {
+      console.error('Error generating CV summary:', error);
+      toast.error('Fehler beim Generieren des Textes. Bitte versuche es später erneut.');
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div>
@@ -381,10 +414,72 @@ const CVStep3 = () => {
         </div>
       </Card>
 
+      {/* Generated About Me Section */}
+      {formData.ueberMich && (
+        <Card className="p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-semibold text-lg">Dein "Über mich"-Text</h3>
+            <Button
+              onClick={handleGenerateAboutMe}
+              disabled={isGenerating}
+              variant="outline"
+              size="sm"
+            >
+              {isGenerating ? (
+                <Loader2 className="h-4 w-4 animate-spin mr-2" />
+              ) : (
+                <Sparkles className="h-4 w-4 mr-2" />
+              )}
+              Neu generieren
+            </Button>
+          </div>
+          <Textarea
+            value={formData.ueberMich}
+            onChange={(e) => updateFormData({ ueberMich: e.target.value })}
+            rows={4}
+            className="mb-2"
+          />
+          <p className="text-xs text-muted-foreground">
+            Du kannst den Text hier noch anpassen oder komplett neu schreiben.
+          </p>
+        </Card>
+      )}
+
+      {/* Auto-generate Button */}
+      {!formData.ueberMich && (formData.motivation || formData.kenntnisse) && (
+        <Card className="p-6">
+          <div className="text-center">
+            <Sparkles className="h-12 w-12 mx-auto mb-4 text-primary" />
+            <h3 className="font-semibold text-lg mb-2">Über mich-Text automatisch erstellen</h3>
+            <p className="text-muted-foreground mb-4">
+              Lass KI einen personalisierten "Über mich"-Text für deinen Lebenslauf erstellen, 
+              basierend auf deinen Angaben oben.
+            </p>
+            <Button
+              onClick={handleGenerateAboutMe}
+              disabled={isGenerating}
+              size="lg"
+            >
+              {isGenerating ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                  Erstelle Text...
+                </>
+              ) : (
+                <>
+                  <Sparkles className="h-4 w-4 mr-2" />
+                  Über mich-Text generieren
+                </>
+              )}
+            </Button>
+          </div>
+        </Card>
+      )}
+
       <div className="p-4 bg-accent/20 rounded-lg">
         <p className="text-sm text-muted-foreground">
           💡 <strong>Tipp:</strong> Sei ehrlich und authentisch. Die Angaben zu Motivation und Kenntnissen 
-          werden nur für die automatische Generierung deines "Über mich"-Textes verwendet.
+          werden für die automatische Generierung deines "Über mich"-Textes verwendet.
         </p>
       </div>
     </div>
