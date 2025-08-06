@@ -5,12 +5,28 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Plus, Trash2 } from 'lucide-react';
 import { SchulbildungEntry, BerufserfahrungEntry } from '@/contexts/CVFormContext';
 import { PLZOrtSelector } from '@/components/shared/PLZOrtSelector';
 
 const CVStep4 = () => {
   const { formData, updateFormData } = useCVForm();
+
+  const schulformOptions = [
+    'Grundschule',
+    'Hauptschule',
+    'Realschule', 
+    'Gymnasium',
+    'Gesamtschule',
+    'Förderschule',
+    'Berufsschule',
+    'Berufsfachschule',
+    'Fachoberschule',
+    'Berufsoberschule',
+    'Hochschule/Universität',
+    'Andere'
+  ];
 
   // Auto-add entry for students, apprentices and graduates
   React.useEffect(() => {
@@ -222,12 +238,21 @@ const CVStep4 = () => {
               <div className="grid md:grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor={`schulform-${index}`}>Schulform/Titel *</Label>
-                  <Input
-                    id={`schulform-${index}`}
-                    placeholder="z.B. Realschule, Gymnasium"
-                    value={schule.schulform}
-                    onChange={(e) => updateSchulbildungEntry(index, 'schulform', e.target.value)}
-                  />
+                  <Select 
+                    value={schule.schulform || ''} 
+                    onValueChange={(value) => updateSchulbildungEntry(index, 'schulform', value)}
+                  >
+                    <SelectTrigger className="bg-background">
+                      <SelectValue placeholder="Schulform wählen" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-background border shadow-lg z-50">
+                      {schulformOptions.map((option) => (
+                        <SelectItem key={option} value={option} className="hover:bg-muted">
+                          {option}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div>
                   <Label htmlFor={`schulname-${index}`}>Name der Schule *</Label>
