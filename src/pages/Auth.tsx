@@ -220,28 +220,50 @@ const Auth = () => {
       }
 
       if (data.user) {
-        // Create basic profile
-        const { error: profileError } = await supabase
+        // Check if profile already exists, if not create one
+        const { data: existingProfile } = await supabase
           .from('profiles')
-          .insert({
-            id: data.user.id,
-            email: email,
-            account_created: true,
-            profile_complete: false,
-            profile_published: false
-          });
+          .select('id')
+          .eq('id', data.user.id)
+          .maybeSingle();
 
-        if (profileError) {
-          console.error('Profile creation error:', profileError);
+        if (!existingProfile) {
+          const { error: profileError } = await supabase
+            .from('profiles')
+            .insert({
+              id: data.user.id,
+              email: email,
+              account_created: true,
+              profile_complete: false,
+              profile_published: false
+            });
+
+          if (profileError) {
+            console.error('Profile creation error:', profileError);
+            toast({
+              title: "Profil-Erstellung fehlgeschlagen",
+              description: "Es gab einen Fehler beim Erstellen Ihres Profils.",
+              variant: "destructive"
+            });
+            return;
+          }
         }
 
-        toast({
-          title: "Registrierung erfolgreich",
-          description: "Ihr Account wurde erstellt. Sie werden weitergeleitet...",
-        });
-        
-        // Force page reload for clean state
-        window.location.href = '/profile';
+        // Success message for registration
+        if (data.user.email_confirmed_at) {
+          // User is immediately confirmed
+          toast({
+            title: "Registrierung erfolgreich",
+            description: "Ihr Account wurde erstellt. Sie werden weitergeleitet...",
+          });
+          window.location.href = '/profile';
+        } else {
+          // User needs to confirm email
+          toast({
+            title: "Registrierung erfolgreich",
+            description: "Bitte überprüfen Sie Ihre E-Mails und bestätigen Sie Ihre E-Mail-Adresse.",
+          });
+        }
       }
     } catch (error) {
       console.error('Signup error:', error);
@@ -277,16 +299,16 @@ const Auth = () => {
             Zurück zur Startseite
           </Button>
           
-          <h1 className="text-3xl font-bold">Willkommen zurück</h1>
+          <h1 className="text-3xl font-bold">Anmelden oder Registrieren</h1>
           <p className="text-muted-foreground">
-            Melden Sie sich an oder erstellen Sie ein neues Konto
+            Erstellen Sie ein kostenloses Konto oder melden Sie sich an
           </p>
         </div>
 
         {/* Auth Forms */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-center">Anmeldung</CardTitle>
+            <CardTitle className="text-center">Anmeldung & Registrierung</CardTitle>
           </CardHeader>
           <CardContent>
             <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
