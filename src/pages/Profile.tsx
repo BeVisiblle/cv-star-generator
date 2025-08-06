@@ -11,6 +11,8 @@ import { LinkedInProfileMain } from '@/components/linkedin/LinkedInProfileMain';
 import { LinkedInProfileSidebar } from '@/components/linkedin/LinkedInProfileSidebar';
 import { LinkedInProfileExperience } from '@/components/linkedin/LinkedInProfileExperience';
 import { LinkedInProfileEducation } from '@/components/linkedin/LinkedInProfileEducation';
+import { LinkedInProfileActivity } from '@/components/linkedin/LinkedInProfileActivity';
+
 import { ProfilePreviewModal } from '@/components/ProfilePreviewModal';
 
 const Profile = () => {
@@ -223,6 +225,9 @@ const Profile = () => {
             isEditing={isEditing}
             onEducationUpdate={handleEducationUpdate}
           />
+
+          {/* Activity Section */}
+          <LinkedInProfileActivity profile={profile} />
         </main>
 
         {/* Right Sidebar */}
