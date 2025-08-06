@@ -362,6 +362,7 @@ export const ProfileCreationModal = ({
           updated_at: new Date().toISOString()
         };
 
+        console.log('Form data received:', formData);
         console.log('Updating profile with data:', profileData);
 
         // Update the profile with all the CV data
