@@ -8,6 +8,7 @@ import { toast } from '@/hooks/use-toast';
 import { LanguageSelector } from '@/components/shared/LanguageSelector';
 import { SkillSelector } from '@/components/shared/SkillSelector';
 import { useNavigate } from 'react-router-dom';
+import { supabase } from '@/integrations/supabase/client';
 
 // Import CV layout components
 import ModernLayout from '@/components/cv-layouts/ModernLayout';
@@ -28,37 +29,6 @@ export const LinkedInProfileSidebar: React.FC<LinkedInProfileSidebarProps> = ({ 
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
   const [showCVPreview, setShowCVPreview] = useState(false);
   const navigate = useNavigate();
-
-  const renderCVForPDF = (): HTMLElement => {
-    // Create temporary container for PDF generation
-    const container = document.createElement('div');
-    container.style.position = 'absolute';
-    container.style.left = '-9999px';
-    container.style.top = '0';
-    container.style.width = '210mm'; // A4 width
-    container.style.minHeight = '297mm'; // A4 height
-    container.style.backgroundColor = 'white';
-    container.style.fontFamily = 'Arial, sans-serif';
-    container.style.fontSize = '14px';
-    container.style.lineHeight = '1.4';
-    container.style.color = '#000000';
-    document.body.appendChild(container);
-
-    // Create React root and render CV layout
-    const root = document.createElement('div');
-    container.appendChild(root);
-
-    // Render the CV layout directly using React
-    import('react-dom/client').then(({ createRoot }) => {
-      import('react').then((React) => {
-        const reactRoot = createRoot(root);
-        const CVComponent = renderCVLayout();
-        reactRoot.render(React.createElement('div', { style: { padding: '20mm' } }, CVComponent));
-      });
-    });
-
-    return container;
-  };
 
   const handleDownloadCV = async () => {
     try {
@@ -132,25 +102,48 @@ export const LinkedInProfileSidebar: React.FC<LinkedInProfileSidebarProps> = ({ 
         temporaryElement = true;
       }
 
-      // Import PDF generator
-      const { generatePDF, generateCVFilename } = await import('@/lib/pdf-generator');
+      // Generate PDF as File object instead of downloading directly
+      const { generateCVFromHTML } = await import('@/lib/supabase-storage');
+      const { generateCVFilename } = await import('@/lib/pdf-generator');
       const filename = generateCVFilename(profile.vorname || 'Unknown', profile.nachname || 'User');
-      await generatePDF(cvElement, { filename });
+      
+      // Generate PDF file
+      const pdfFile = await generateCVFromHTML(cvElement, filename);
+      
+      // Upload PDF to Supabase storage
+      const { uploadCV } = await import('@/lib/supabase-storage');
+      const { url } = await uploadCV(pdfFile);
+      
+      // Save CV URL to profile
+      const { data, error } = await supabase
+        .from('profiles')
+        .update({ cv_url: url })
+        .eq('id', profile.id);
+
+      if (error) {
+        throw error;
+      }
+
+      // Update local profile state
+      onProfileUpdate({ cv_url: url });
       
       // Clean up temporary element
       if (temporaryElement && cvElement.parentNode) {
         document.body.removeChild(cvElement);
       }
       
+      // Download the PDF
+      window.open(url, '_blank');
+      
       toast({
-        title: "CV erfolgreich heruntergeladen",
-        description: "Dein Lebenslauf wurde als PDF gespeichert.",
+        title: "CV erfolgreich generiert",
+        description: "Dein Lebenslauf wurde als PDF gespeichert und kann jetzt heruntergeladen werden.",
       });
     } catch (error) {
-      console.error('Error downloading CV:', error);
+      console.error('Error generating CV:', error);
       toast({
-        title: "Fehler beim Herunterladen des CVs",
-        description: "Es gab ein Problem beim Generieren der PDF-Datei.",
+        title: "Fehler beim Generieren des CVs",
+        description: "Es gab ein Problem beim Erstellen der PDF-Datei.",
         variant: "destructive"
       });
     } finally {
