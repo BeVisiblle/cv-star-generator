@@ -165,10 +165,11 @@ export const ProfileCreationModal = ({
       }
 
       if (authData.user) {
-        // Create profile with CV data
+        // Wait for auth session to be established
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        // Update the existing profile created by trigger instead of inserting
         const profileData = {
-          id: authData.user.id,
-          email: email,
           vorname: formData.vorname,
           nachname: formData.nachname,
           geburtsdatum: formData.geburtsdatum?.toISOString().split('T')[0],
@@ -201,17 +202,19 @@ export const ProfileCreationModal = ({
           einwilligung: formData.einwilligung,
           profile_complete: true,
           profile_published: false,
-          account_created: true
+          updated_at: new Date().toISOString()
         };
 
+        // Update existing profile instead of insert
         const { error: profileError } = await supabase
           .from('profiles')
-          .insert(profileData);
+          .update(profileData)
+          .eq('id', authData.user.id);
 
         if (profileError) {
-          console.error('Profile error:', profileError);
+          console.error('Profile update error:', profileError);
           toast({
-            title: "Fehler beim Profil erstellen",
+            title: "Fehler beim Profil aktualisieren",
             description: profileError.message,
             variant: "destructive"
           });
