@@ -89,7 +89,7 @@ const CVStep2 = () => {
               <Input
                 id="geburtsdatum"
                 type="date"
-                value={formData.geburtsdatum?.toISOString().split('T')[0] || ''}
+                value={formData.geburtsdatum instanceof Date ? formData.geburtsdatum.toISOString().split('T')[0] : formData.geburtsdatum || ''}
                 onChange={(e) => updateFormData({ geburtsdatum: new Date(e.target.value) })}
               />
             </div>
