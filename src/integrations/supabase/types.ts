@@ -140,14 +140,20 @@ export type Database = {
           ausbildungsbetrieb: string | null
           avatar_url: string | null
           berufserfahrung: Json | null
+          bio: string | null
           branche: string | null
+          cover_image_url: string | null
           created_at: string | null
+          cv_url: string | null
           einwilligung: boolean | null
           email: string | null
           faehigkeiten: Json | null
           geburtsdatum: string | null
           geplanter_abschluss: string | null
+          has_drivers_license: boolean | null
+          has_own_vehicle: boolean | null
           hausnummer: string | null
+          headline: string | null
           id: string
           kenntnisse: string | null
           layout: number | null
@@ -164,9 +170,12 @@ export type Database = {
           startjahr: string | null
           status: string | null
           strasse: string | null
+          target_year: string | null
           telefon: string | null
           uebermich: string | null
           updated_at: string | null
+          visibility_industry: Json | null
+          visibility_region: Json | null
           voraussichtliches_ende: string | null
           vorname: string | null
         }
@@ -179,14 +188,20 @@ export type Database = {
           ausbildungsbetrieb?: string | null
           avatar_url?: string | null
           berufserfahrung?: Json | null
+          bio?: string | null
           branche?: string | null
+          cover_image_url?: string | null
           created_at?: string | null
+          cv_url?: string | null
           einwilligung?: boolean | null
           email?: string | null
           faehigkeiten?: Json | null
           geburtsdatum?: string | null
           geplanter_abschluss?: string | null
+          has_drivers_license?: boolean | null
+          has_own_vehicle?: boolean | null
           hausnummer?: string | null
+          headline?: string | null
           id: string
           kenntnisse?: string | null
           layout?: number | null
@@ -203,9 +218,12 @@ export type Database = {
           startjahr?: string | null
           status?: string | null
           strasse?: string | null
+          target_year?: string | null
           telefon?: string | null
           uebermich?: string | null
           updated_at?: string | null
+          visibility_industry?: Json | null
+          visibility_region?: Json | null
           voraussichtliches_ende?: string | null
           vorname?: string | null
         }
@@ -218,14 +236,20 @@ export type Database = {
           ausbildungsbetrieb?: string | null
           avatar_url?: string | null
           berufserfahrung?: Json | null
+          bio?: string | null
           branche?: string | null
+          cover_image_url?: string | null
           created_at?: string | null
+          cv_url?: string | null
           einwilligung?: boolean | null
           email?: string | null
           faehigkeiten?: Json | null
           geburtsdatum?: string | null
           geplanter_abschluss?: string | null
+          has_drivers_license?: boolean | null
+          has_own_vehicle?: boolean | null
           hausnummer?: string | null
+          headline?: string | null
           id?: string
           kenntnisse?: string | null
           layout?: number | null
@@ -242,9 +266,12 @@ export type Database = {
           startjahr?: string | null
           status?: string | null
           strasse?: string | null
+          target_year?: string | null
           telefon?: string | null
           uebermich?: string | null
           updated_at?: string | null
+          visibility_industry?: Json | null
+          visibility_region?: Json | null
           voraussichtliches_ende?: string | null
           vorname?: string | null
         }

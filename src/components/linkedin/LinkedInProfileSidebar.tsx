@@ -26,15 +26,34 @@ export const LinkedInProfileSidebar: React.FC<LinkedInProfileSidebarProps> = ({
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
 
   const handleDownloadCV = async () => {
+    if (!profile?.vorname || !profile?.nachname) {
+      toast({
+        title: "Fehler",
+        description: "Vor- und Nachname sind im Profil erforderlich.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     setIsGeneratingPDF(true);
     try {
-      // Create a CV element based on profile data
-      const cvData = {
-        ...profile,
-        profilbild: profile.avatar_url // Use avatar_url for CV generation
-      };
-      
-      // We need to create a hidden div with CV layout and generate PDF from it
+      // Check if CV URL exists in profile, if yes, download directly
+      if (profile.cv_url) {
+        const link = document.createElement('a');
+        link.href = profile.cv_url;
+        link.download = `CV_${profile.vorname}_${profile.nachname}_${formatDate(new Date().toISOString())}.pdf`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        toast({
+          title: "CV erfolgreich heruntergeladen",
+          description: "Dein gespeicherter Lebenslauf wurde heruntergeladen.",
+        });
+        return;
+      }
+
+      // Generate CV dynamically if no saved CV exists
       const cvElement = document.createElement('div');
       cvElement.style.position = 'absolute';
       cvElement.style.left = '-9999px';
@@ -42,59 +61,76 @@ export const LinkedInProfileSidebar: React.FC<LinkedInProfileSidebarProps> = ({
       cvElement.style.minHeight = '297mm';
       cvElement.style.backgroundColor = 'white';
       cvElement.style.padding = '20mm';
+      cvElement.style.fontFamily = 'Arial, sans-serif';
       
-      // Simple CV HTML structure
+      // Generate CV content based on profile
       cvElement.innerHTML = `
-        <div style="font-family: Arial, sans-serif; color: black;">
-          <h1 style="margin: 0 0 10px 0; font-size: 24px;">${profile.vorname || ''} ${profile.nachname || ''}</h1>
-          <div style="margin-bottom: 20px;">
-            <p style="margin: 5px 0;"><strong>E-Mail:</strong> ${profile.email || ''}</p>
-            <p style="margin: 5px 0;"><strong>Telefon:</strong> ${profile.telefon || ''}</p>
-            <p style="margin: 5px 0;"><strong>Adresse:</strong> ${profile.strasse || ''} ${profile.hausnummer || ''}, ${profile.plz || ''} ${profile.ort || ''}</p>
-          </div>
-          ${profile.uebermich ? `<div style="margin-bottom: 20px;"><h2 style="font-size: 18px; margin-bottom: 10px;">Über mich</h2><p>${profile.uebermich}</p></div>` : ''}
-          ${profile.berufserfahrung && profile.berufserfahrung.length > 0 ? `
-            <div style="margin-bottom: 20px;">
-              <h2 style="font-size: 18px; margin-bottom: 10px;">Berufserfahrung</h2>
-              ${profile.berufserfahrung.map((exp: any) => `
-                <div style="margin-bottom: 15px;">
-                  <h3 style="font-size: 14px; margin: 0;">${exp.titel}</h3>
-                  <p style="margin: 2px 0; font-weight: bold;">${exp.unternehmen}</p>
-                  <p style="margin: 2px 0; font-size: 12px; color: #666;">${exp.zeitraum_von} - ${exp.zeitraum_bis || 'Heute'}</p>
-                  ${exp.beschreibung ? `<p style="margin: 5px 0; font-size: 12px;">${exp.beschreibung}</p>` : ''}
-                </div>
-              `).join('')}
-            </div>
+        <div style="font-size: 14px; line-height: 1.4; color: #333;">
+          <h1 style="font-size: 24px; margin-bottom: 10px; color: #000;">${profile.vorname} ${profile.nachname}</h1>
+          <p style="margin-bottom: 20px; color: #666;">${profile.email} | ${profile.telefon} | ${profile.ort}</p>
+          
+          ${profile.bio ? `
+            <h2 style="font-size: 18px; margin: 20px 0 10px 0; color: #000; border-bottom: 1px solid #ccc;">Über mich</h2>
+            <p style="margin-bottom: 20px;">${profile.bio}</p>
           ` : ''}
+          
+          ${profile.berufserfahrung && profile.berufserfahrung.length > 0 ? `
+            <h2 style="font-size: 18px; margin: 20px 0 10px 0; color: #000; border-bottom: 1px solid #ccc;">Berufserfahrung</h2>
+            ${profile.berufserfahrung.map((exp: any) => `
+              <div style="margin-bottom: 15px;">
+                <h3 style="font-size: 16px; margin: 0 0 5px 0;">${exp.titel} - ${exp.unternehmen}</h3>
+                <p style="margin: 0 0 5px 0; color: #666;">${exp.zeitraum_von} - ${exp.zeitraum_bis}</p>
+                ${exp.beschreibung ? `<p style="margin: 0;">${exp.beschreibung}</p>` : ''}
+              </div>
+            `).join('')}
+          ` : ''}
+          
+          ${profile.schulbildung && profile.schulbildung.length > 0 ? `
+            <h2 style="font-size: 18px; margin: 20px 0 10px 0; color: #000; border-bottom: 1px solid #ccc;">Bildung</h2>
+            ${profile.schulbildung.map((edu: any) => `
+              <div style="margin-bottom: 15px;">
+                <h3 style="font-size: 16px; margin: 0 0 5px 0;">${edu.name}</h3>
+                <p style="margin: 0 0 5px 0; color: #666;">${edu.zeitraum_von} - ${edu.zeitraum_bis}</p>
+                ${edu.beschreibung ? `<p style="margin: 0;">${edu.beschreibung}</p>` : ''}
+              </div>
+            `).join('')}
+          ` : ''}
+          
           ${profile.faehigkeiten && profile.faehigkeiten.length > 0 ? `
-            <div style="margin-bottom: 20px;">
-              <h2 style="font-size: 18px; margin-bottom: 10px;">Fähigkeiten</h2>
-              <p>${profile.faehigkeiten.join(', ')}</p>
-            </div>
+            <h2 style="font-size: 18px; margin: 20px 0 10px 0; color: #000; border-bottom: 1px solid #ccc;">Fähigkeiten</h2>
+            <p>${profile.faehigkeiten.join(', ')}</p>
+          ` : ''}
+          
+          ${profile.sprachen && profile.sprachen.length > 0 ? `
+            <h2 style="font-size: 18px; margin: 20px 0 10px 0; color: #000; border-bottom: 1px solid #ccc;">Sprachen</h2>
+            <p>${profile.sprachen.map((lang: any) => `${lang.sprache} (${lang.niveau})`).join(', ')}</p>
           ` : ''}
         </div>
       `;
       
       document.body.appendChild(cvElement);
       
-      // Generate PDF
-      const { generatePDF, generateCVFilename } = await import('@/lib/pdf-generator');
-      const filename = generateCVFilename(profile.vorname || 'User', profile.nachname || 'CV');
+      const { generateCVFilename } = await import('@/lib/pdf-generator');
+      const filename = generateCVFilename(profile.vorname, profile.nachname);
       
-      await generatePDF(cvElement, { filename });
+      await generatePDF(cvElement, {
+        filename,
+        quality: 2,
+        format: 'a4',
+        margin: 10
+      });
       
-      // Clean up
       document.body.removeChild(cvElement);
       
       toast({
-        title: "CV heruntergeladen",
-        description: "Ihr Lebenslauf wurde erfolgreich generiert."
+        title: "CV erfolgreich erstellt",
+        description: `Dein Lebenslauf wurde als ${filename} heruntergeladen.`,
       });
     } catch (error) {
       console.error('PDF generation error:', error);
       toast({
-        title: "Fehler beim Download",
-        description: "Der CV konnte nicht generiert werden.",
+        title: "Fehler beim Erstellen der PDF",
+        description: "Es gab ein Problem beim Erstellen deines Lebenslaufs.",
         variant: "destructive"
       });
     } finally {

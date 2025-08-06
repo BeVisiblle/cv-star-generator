@@ -171,6 +171,76 @@ export const ProfileCreationModal = ({
         // Wait for auth session to be established
         await new Promise(resolve => setTimeout(resolve, 2000));
         
+        // Handle file uploads first
+        let avatarUrl = typeof formData.profilbild === 'string' ? formData.profilbild : null;
+        let coverImageUrl = typeof formData.cover_image === 'string' ? formData.cover_image : null;
+        let cvUrl = null;
+
+        try {
+          // Upload profile image if it's a File
+          if (formData.profilbild instanceof File) {
+            const { uploadProfileImage } = await import('@/lib/supabase-storage');
+            const uploadResult = await uploadProfileImage(formData.profilbild);
+            avatarUrl = uploadResult.url;
+          }
+
+          // Upload cover image if it's a File  
+          if (formData.cover_image instanceof File) {
+            const { uploadCoverImage } = await import('@/lib/supabase-storage');
+            const uploadResult = await uploadCoverImage(formData.cover_image);
+            coverImageUrl = uploadResult.url;
+          }
+
+          // Generate and upload CV PDF
+          if (formData.vorname && formData.nachname) {
+            const { generateCVFilename } = await import('@/lib/pdf-generator');
+            const { generateCVFromHTML, uploadCV } = await import('@/lib/supabase-storage');
+            
+            // Find CV preview element
+            const cvElement = document.querySelector('[data-cv-preview]') as HTMLElement;
+            if (cvElement) {
+              const filename = generateCVFilename(formData.vorname, formData.nachname);
+              const cvFile = await generateCVFromHTML(cvElement, filename);
+              const uploadResult = await uploadCV(cvFile);
+              cvUrl = uploadResult.url;
+            }
+          }
+        } catch (uploadError) {
+          console.warn('File upload error:', uploadError);
+          // Continue with profile creation even if uploads fail
+        }
+
+        // Helper functions for profile data
+        const getBrancheTitle = () => {
+          switch (formData.branche) {
+            case 'handwerk': return 'Handwerk';
+            case 'it': return 'IT';
+            case 'gesundheit': return 'Gesundheit';
+            case 'buero': return 'Büro';
+            case 'verkauf': return 'Verkauf';
+            case 'gastronomie': return 'Gastronomie';
+            case 'bau': return 'Bau';
+            default: return '';
+          }
+        };
+
+        const getStatusTitle = () => {
+          switch (formData.status) {
+            case 'schueler': return 'Schüler:in';
+            case 'azubi': return 'Azubi';
+            case 'ausgelernt': return 'Ausgelernte Fachkraft';
+            default: return '';
+          }
+        };
+
+        // Generate AI-powered bio from form data
+        const bioText = [
+          formData.ueberMich,
+          formData.kenntnisse && `Kenntnisse: ${formData.kenntnisse}`,
+          formData.motivation && `Motivation: ${formData.motivation}`,
+          formData.praktische_erfahrung && `Praktische Erfahrung: ${formData.praktische_erfahrung}`
+        ].filter(Boolean).join('\n\n');
+        
         // Update the existing profile created by trigger instead of inserting
         const profileData = {
           email: email,
@@ -182,7 +252,11 @@ export const ProfileCreationModal = ({
           plz: formData.plz,
           ort: formData.ort,
           telefon: formData.telefon,
-          avatar_url: typeof formData.profilbild === 'string' ? formData.profilbild : null,
+          avatar_url: avatarUrl,
+          cover_image_url: coverImageUrl,
+          cv_url: cvUrl,
+          headline: formData.headline || `${getStatusTitle()} ${formData.branche ? `in ${getBrancheTitle()}` : ''}`,
+          bio: bioText || formData.ueberMich,
           branche: formData.branche,
           status: formData.status,
           schule: formData.schule,
@@ -203,6 +277,11 @@ export const ProfileCreationModal = ({
           kenntnisse: formData.kenntnisse,
           motivation: formData.motivation,
           praktische_erfahrung: formData.praktische_erfahrung,
+          has_drivers_license: formData.has_drivers_license || false,
+          has_own_vehicle: formData.has_own_vehicle || false,
+          target_year: formData.target_year,
+          visibility_industry: formData.visibility_industry || [],
+          visibility_region: formData.visibility_region || [],
           einwilligung: formData.einwilligung,
           profile_complete: true,
           profile_published: false,

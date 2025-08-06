@@ -26,47 +26,79 @@ export const LinkedInProfileHeader: React.FC<LinkedInProfileHeaderProps> = ({
 
   const handleCoverUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (!file || !profile?.id) return;
+    if (!file) return;
 
     setIsUploadingCover(true);
     try {
-      // For now, just store as base64 or implement proper storage bucket
+      // Upload to Supabase Storage and update profile
+      const { uploadCoverImage } = await import('@/lib/supabase-storage');
+      
+      const uploadResult = await uploadCoverImage(file);
+      
+      // Update profile in database
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { error } = await supabase
+          .from('profiles')
+          .update({ cover_image_url: uploadResult.url })
+          .eq('id', user.id);
+          
+        if (!error) {
+          onProfileUpdate({ cover_image_url: uploadResult.url });
+          toast({
+            title: "Titelbild hochgeladen",
+            description: "Ihr Titelbild wurde erfolgreich aktualisiert."
+          });
+        }
+      }
+    } catch (error) {
+      console.error('Error uploading cover:', error);
+      // Fallback to base64 if Supabase upload fails
       const reader = new FileReader();
       reader.onload = (e) => {
         const result = e.target?.result as string;
-        onProfileUpdate({ cover_url: result });
+        onProfileUpdate({ cover_image_url: result });
         toast({
           title: "Titelbild hochgeladen",
           description: "Ihr Titelbild wurde erfolgreich aktualisiert."
         });
-        setIsUploadingCover(false);
-      };
-      reader.onerror = () => {
-        toast({
-          title: "Upload fehlgeschlagen",
-          description: "Das Titelbild konnte nicht hochgeladen werden.",
-          variant: "destructive"
-        });
-        setIsUploadingCover(false);
       };
       reader.readAsDataURL(file);
-    } catch (error) {
-      toast({
-        title: "Upload fehlgeschlagen",
-        description: "Das Titelbild konnte nicht hochgeladen werden.",
-        variant: "destructive"
-      });
+    } finally {
       setIsUploadingCover(false);
     }
   };
 
   const handleAvatarUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (!file || !profile?.id) return;
+    if (!file) return;
 
     setIsUploadingAvatar(true);
     try {
-      // For now, just store as base64 - similar to how CVStep2 handles it
+      // Upload to Supabase Storage and update profile
+      const { uploadProfileImage } = await import('@/lib/supabase-storage');
+      
+      const uploadResult = await uploadProfileImage(file);
+      
+      // Update profile in database
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { error } = await supabase
+          .from('profiles')
+          .update({ avatar_url: uploadResult.url })
+          .eq('id', user.id);
+          
+        if (!error) {
+          onProfileUpdate({ avatar_url: uploadResult.url });
+          toast({
+            title: "Profilbild hochgeladen",  
+            description: "Ihr Profilbild wurde erfolgreich aktualisiert."
+          });
+        }
+      }
+    } catch (error) {
+      console.error('Error uploading avatar:', error);
+      // Fallback to base64 if Supabase upload fails
       const reader = new FileReader();
       reader.onload = (e) => {
         const result = e.target?.result as string;
@@ -75,23 +107,9 @@ export const LinkedInProfileHeader: React.FC<LinkedInProfileHeaderProps> = ({
           title: "Profilbild hochgeladen",  
           description: "Ihr Profilbild wurde erfolgreich aktualisiert."
         });
-        setIsUploadingAvatar(false);
-      };
-      reader.onerror = () => {
-        toast({
-          title: "Upload fehlgeschlagen",
-          description: "Das Profilbild konnte nicht hochgeladen werden.",
-          variant: "destructive"
-        });
-        setIsUploadingAvatar(false);
       };
       reader.readAsDataURL(file);
-    } catch (error) {
-      toast({
-        title: "Upload fehlgeschlagen", 
-        description: "Das Profilbild konnte nicht hochgeladen werden.",
-        variant: "destructive"
-      });
+    } finally {
       setIsUploadingAvatar(false);
     }
   };
@@ -104,9 +122,9 @@ export const LinkedInProfileHeader: React.FC<LinkedInProfileHeaderProps> = ({
     <div className="relative bg-card rounded-xl overflow-hidden shadow-sm border">
       {/* Cover Photo */}
       <div className="relative h-48 bg-gradient-to-r from-primary/20 to-accent/30">
-        {profile?.cover_url ? (
+        {profile?.cover_image_url ? (
           <img 
-            src={profile.cover_url} 
+            src={profile.cover_image_url} 
             alt="Cover" 
             className="w-full h-full object-cover"
           />

@@ -42,6 +42,16 @@ export interface CVFormData {
   email?: string;
   profilbild?: File | string;
   
+  // Extended fields for enhanced profile
+  has_drivers_license?: boolean;
+  has_own_vehicle?: boolean;
+  target_year?: string;
+  visibility_industry?: string[];
+  visibility_region?: string[];
+  cover_image?: File | string;
+  headline?: string;
+  bio?: string;
+  
   // Schüler specific
   schule?: string;
   geplanter_abschluss?: string;
