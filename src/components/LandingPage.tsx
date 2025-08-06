@@ -119,10 +119,10 @@ export default function LandingPage() {
                   <Button 
                     size="lg" 
                     className="text-lg px-8 py-6 shadow-lg hover:shadow-xl transition-all"
-                    onClick={() => navigate('/auth')}
+                    onClick={() => navigate('/cv-generator')}
                   >
-                    <UserPlus className="mr-2 h-5 w-5" />
-                    Jetzt kostenlos registrieren
+                    <Zap className="mr-2 h-5 w-5" />
+                    Jetzt CV erstellen - Kostenlos
                   </Button>
                   <Button 
                     variant="outline" 
@@ -238,9 +238,9 @@ export default function LandingPage() {
                         variant="outline" 
                         size="sm" 
                         className="w-full group-hover:bg-primary group-hover:text-primary-foreground transition-colors"
-                        onClick={() => navigate('/auth')}
+                        onClick={() => navigate('/cv-generator')}
                       >
-                        Registrieren für {branch.title.split(' ')[0]}
+                        CV für {branch.title.split(' ')[0]} erstellen
                         <ArrowRight className="ml-2 h-4 w-4" />
                       </Button>
                     </div>
@@ -376,10 +376,10 @@ export default function LandingPage() {
                 size="lg" 
                 variant="secondary"
                 className="text-lg px-8 py-6 shadow-lg hover:shadow-xl transition-all"
-                onClick={() => navigate('/auth')}
+                onClick={() => navigate('/cv-generator')}
               >
-                <UserPlus className="mr-2 h-5 w-5" />
-                Jetzt kostenlos registrieren
+                <Download className="mr-2 h-5 w-5" />
+                Jetzt kostenlosen CV erstellen
               </Button>
               <Button 
                 size="lg" 
@@ -393,7 +393,7 @@ export default function LandingPage() {
             </div>
 
             <p className="text-sm mt-6 opacity-75">
-              ✓ Kostenlos ✓ E-Mail-Adresse muss gültig und eindeutig sein ✓ Sofort nutzbar ✓ DSGVO-konform
+              ✓ Kostenlos ✓ Ohne Anmeldung starten ✓ Registrierung am Ende ✓ DSGVO-konform
             </p>
           </div>
         </section>
@@ -463,9 +463,9 @@ export default function LandingPage() {
             <div>
               <h4 className="font-semibold mb-4">Für Schüler</h4>
               <ul className="space-y-2 text-sm">
-                <li><Button variant="link" className="h-auto p-0" onClick={() => navigate('/example-profile')}>Beispielprofil ansehen</Button></li>
+                <li><Button variant="link" className="h-auto p-0" onClick={() => navigate('/cv-generator')}>CV Generator</Button></li>
                 <li><Button variant="link" className="h-auto p-0" onClick={() => navigate('/blog')}>Bewerbungstipps</Button></li>
-                <li><Button variant="link" className="h-auto p-0" onClick={() => navigate('/auth')}>Kostenlos registrieren</Button></li>
+                <li><Button variant="link" className="h-auto p-0" onClick={() => navigate('/example-profile')}>Beispielprofil ansehen</Button></li>
               </ul>
             </div>
             

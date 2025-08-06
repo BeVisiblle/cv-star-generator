@@ -40,17 +40,11 @@ const App = () => (
               <Route path="/datenschutz" element={<Datenschutz />} />
               <Route path="/impressum" element={<Impressum />} />
               
+              {/* CV Generator - Open for everyone, registration at the end */}
+              <Route path="/cv-generator" element={<CVGenerator />} />
+              <Route path="/cv-layout-selector" element={<CVGenerator />} />
+              
               {/* Protected Routes - Require Authentication */}
-              <Route path="/cv-generator" element={
-                <ProtectedRoute>
-                  <CVGenerator />
-                </ProtectedRoute>
-              } />
-              <Route path="/cv-layout-selector" element={
-                <ProtectedRoute>
-                  <CVGenerator />
-                </ProtectedRoute>
-              } />
               
               {/* Authenticated Routes with Sidebar */}
               <Route element={<AuthenticatedLayout />}>

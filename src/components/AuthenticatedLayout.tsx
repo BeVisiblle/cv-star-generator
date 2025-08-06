@@ -20,15 +20,12 @@ export function AuthenticatedLayout() {
     return <Navigate to="/auth" replace />;
   }
 
-  // Redirect to profile if profile exists but not published yet  
-  if (profile && !profile.profile_published) {
+  // Only redirect users with complete profiles that are not published yet
+  if (profile && !profile.profile_published && profile.profile_complete) {
     return <Navigate to="/profile" replace />;
   }
 
-  // Redirect to profile for users with incomplete profiles
-  if (!profile || !profile.profile_complete) {
-    return <Navigate to="/profile" replace />;
-  }
+  // For users without profiles, let them stay where they are (they might be in CV generator)
 
   return (
     <SidebarProvider defaultOpen={true}>
