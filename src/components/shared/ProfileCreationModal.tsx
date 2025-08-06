@@ -119,87 +119,111 @@ export const ProfileCreationModal = ({
         console.log('Sign out failed:', err);
       }
 
-      // Create Supabase account
-      const { data: authData, error: authError } = await supabase.auth.signUp({
+      // Try to sign in with the credentials to get an active session
+      const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
         email,
         password
       });
 
-      if (authError) {
-        console.error('Auth error:', authError);
-        
-        // Handle rate limiting specifically
-        if (authError.message.includes('For security purposes') || authError.message.includes('rate')) {
-          const match = authError.message.match(/(\d+)\s*seconds?/);
-          const seconds = match ? parseInt(match[1]) : 60;
-          setRateLimitSeconds(seconds);
+      if (signInError) {
+        // If sign in fails, try signup
+        const { data: authData, error: authError } = await supabase.auth.signUp({
+          email,
+          password
+        });
+
+        if (authError) {
+          console.error('Auth error:', authError);
           
+          // Handle rate limiting specifically
+          if (authError.message.includes('For security purposes') || authError.message.includes('rate')) {
+            const match = authError.message.match(/(\d+)\s*seconds?/);
+            const seconds = match ? parseInt(match[1]) : 60;
+            setRateLimitSeconds(seconds);
+            
+            toast({
+              title: "Zu viele Versuche",
+              description: `Bitte warten Sie ${seconds} Sekunden und versuchen Sie es erneut.`,
+              variant: "destructive"
+            });
+            return;
+          }
+
+          // Handle user already registered
+          if (authError.message.includes('User already registered')) {
+            toast({
+              title: "Account bereits vorhanden",
+              description: "Ein Account mit dieser E-Mail-Adresse existiert bereits. Versuchen Sie sich anzumelden.",
+              variant: "destructive"
+            });
+            return;
+          }
+
+          // Handle other auth errors
           toast({
-            title: "Zu viele Versuche",
-            description: `Bitte warten Sie ${seconds} Sekunden und versuchen Sie es erneut.`,
+            title: "Fehler beim Account erstellen",
+            description: authError.message,
             variant: "destructive"
           });
           return;
         }
 
-        // Handle user already registered
-        if (authError.message.includes('User already registered')) {
+        // Show message about email confirmation
+        if (authData.user && !authData.session) {
           toast({
-            title: "Account bereits vorhanden",
-            description: "Ein Account mit dieser E-Mail-Adresse existiert bereits. Versuchen Sie sich anzumelden.",
-            variant: "destructive"
+            title: "Bestätigung erforderlich",
+            description: "Bitte bestätigen Sie Ihre E-Mail-Adresse, um Ihr Profil zu aktivieren.",
+            variant: "default"
           });
+          onClose();
           return;
         }
+      }
 
-        // Handle other auth errors
+      // Use the signed-in user data
+      const user = signInData?.user || signInError?.message?.includes('Invalid') ? null : signInData?.user;
+      
+      if (!user) {
         toast({
-          title: "Fehler beim Account erstellen",
-          description: authError.message,
+          title: "Anmeldung fehlgeschlagen",
+          description: "Bitte überprüfen Sie Ihre Anmeldedaten.",
           variant: "destructive"
         });
         return;
       }
 
-      // Check if user exists (either confirmed or unconfirmed)
-      if (authData.user) {
-        console.log('User created:', authData.user.id, 'Email confirmed:', authData.user.email_confirmed_at ? 'Yes' : 'No');
+      console.log('User signed in:', user.id);
         
-        // For unconfirmed users, we'll still create the profile
-        // The profile will be accessible once they confirm their email
+        // Now we have an authenticated user, create/update profile
+        console.log('Creating/updating profile for authenticated user:', user.id);
         
-        // Try to create profile directly with service role approach using insert
-        console.log('Creating profile for user:', authData.user.id);
-        
-        // Wait a moment for the trigger
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        
-        // Check if profile was created by trigger
+        // Check if profile exists
         const { data: existingProfile } = await supabase
           .from('profiles')
           .select('id')
-          .eq('id', authData.user.id)
+          .eq('id', user.id)
           .maybeSingle();
           
         if (!existingProfile) {
-          console.log('No profile found, creating one...');
-          // Insert with ON CONFLICT to handle race conditions
+          console.log('Creating new profile...');
           const { error: insertError } = await supabase
             .from('profiles')
-            .upsert({
-              id: authData.user.id,
+            .insert({
+              id: user.id,
               email: email,
               account_created: true
-            }, {
-              onConflict: 'id'
             });
             
           if (insertError) {
             console.error('Profile creation failed:', insertError);
-            // Continue anyway - the user might still be able to access later
-          } else {
-            console.log('Profile created successfully');
+            toast({
+              title: "Fehler beim Profil erstellen",
+              description: "Das Profil konnte nicht erstellt werden. Bitte versuchen Sie es erneut.",
+              variant: "destructive"
+            });
+            return;
           }
+          console.log('Profile created successfully');
         } else {
           console.log('Profile already exists:', existingProfile);
         }
@@ -329,7 +353,7 @@ export const ProfileCreationModal = ({
         const { data: updatedProfile, error: profileError } = await supabase
           .from('profiles')
           .update(profileData)
-          .eq('id', authData.user.id)
+          .eq('id', user.id)
           .select()
           .single();
 
@@ -347,9 +371,7 @@ export const ProfileCreationModal = ({
 
         toast({
           title: "Account erstellt!",
-          description: authData.user.email_confirmed_at 
-            ? "Ihr Profil wurde erfolgreich erstellt!" 
-            : "Account erstellt! Bitte bestätigen Sie Ihre E-Mail-Adresse um alle Funktionen zu nutzen.",
+          description: "Ihr Profil wurde erfolgreich erstellt!",
           variant: "default"
         });
         
@@ -359,7 +381,6 @@ export const ProfileCreationModal = ({
         // Close modal and navigate to profile
         onClose();
         navigate('/profile');
-      }
     } catch (error) {
       console.error('Unexpected error:', error);
       toast({
