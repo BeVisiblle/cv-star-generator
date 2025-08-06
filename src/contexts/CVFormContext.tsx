@@ -155,7 +155,18 @@ export const CVFormProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const updateFormData = (data: Partial<CVFormData>) => {
-    setFormData(prev => ({ ...prev, ...data }));
+    const newFormData = { ...formData, ...data };
+    setFormData(newFormData);
+    
+    // Auto-sync to profile when user is logged in
+    if (user?.id) {
+      // Debounce the sync operation
+      const timeoutId = setTimeout(() => {
+        syncToProfile();
+      }, 1000);
+      
+      return () => clearTimeout(timeoutId);
+    }
   };
 
   const resetForm = () => {
