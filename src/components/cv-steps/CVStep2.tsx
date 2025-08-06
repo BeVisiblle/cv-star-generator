@@ -115,15 +115,26 @@ const CVStep2 = () => {
                 </div>
               </div>
               
-              <PLZOrtSelector
-                plz={formData.plz || ''}
-                ort={formData.ort || ''}
-                onPLZChange={(plz, ort) => updateFormData({ plz, ort })}
-                onOrtChange={(ort) => updateFormData({ ort })}
-                required={true}
-                plzLabel="PLZ"
-                ortLabel="Ort"
-              />
+              <div className="grid grid-cols-3 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="plz">PLZ</Label>
+                  <Input
+                    id="plz"
+                    value={formData.plz || ''}
+                    onChange={(e) => updateFormData({ plz: e.target.value })}
+                    placeholder="12345"
+                  />
+                </div>
+                <div className="space-y-2 col-span-2">
+                  <Label htmlFor="ort">Ort</Label>
+                  <Input
+                    id="ort"
+                    value={formData.ort || ''}
+                    onChange={(e) => updateFormData({ ort: e.target.value })}
+                    placeholder="Berlin"
+                  />
+                </div>
+              </div>
               
               <div>
                 <Label htmlFor="telefon">Telefonnummer (optional)</Label>
