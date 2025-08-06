@@ -34,6 +34,17 @@ export const LinkedInProfileSidebar: React.FC<LinkedInProfileSidebarProps> = ({ 
     try {
       setIsGeneratingPDF(true);
       
+      // Check if CV already exists
+      if (profile.cv_url) {
+        // Download existing CV
+        window.open(profile.cv_url, '_blank');
+        toast({
+          title: "CV wird heruntergeladen...",
+          description: "Dein gespeicherter Lebenslauf wurde heruntergeladen.",
+        });
+        return;
+      }
+
       // Check if we have enough data to generate a CV
       if (!profile.vorname || !profile.nachname) {
         toast({
@@ -91,25 +102,48 @@ export const LinkedInProfileSidebar: React.FC<LinkedInProfileSidebarProps> = ({ 
         temporaryElement = true;
       }
 
-      // Import PDF generator
-      const { generatePDF, generateCVFilename } = await import('@/lib/pdf-generator');
+      // Generate PDF as File object and upload to Supabase
+      const { generateCVFromHTML } = await import('@/lib/supabase-storage');
+      const { generateCVFilename } = await import('@/lib/pdf-generator');
       const filename = generateCVFilename(profile.vorname || 'Unknown', profile.nachname || 'User');
-      await generatePDF(cvElement, { filename });
+      
+      // Generate PDF file
+      const pdfFile = await generateCVFromHTML(cvElement, filename);
+      
+      // Upload PDF to Supabase storage
+      const { uploadCV } = await import('@/lib/supabase-storage');
+      const { url } = await uploadCV(pdfFile);
+      
+      // Save CV URL to profile
+      const { data, error } = await supabase
+        .from('profiles')
+        .update({ cv_url: url })
+        .eq('id', profile.id);
+
+      if (error) {
+        throw error;
+      }
+
+      // Update local profile state
+      onProfileUpdate({ cv_url: url });
       
       // Clean up temporary element
       if (temporaryElement && cvElement.parentNode) {
         document.body.removeChild(cvElement);
       }
       
+      // Download the PDF
+      window.open(url, '_blank');
+      
       toast({
-        title: "CV erfolgreich heruntergeladen",
-        description: "Dein Lebenslauf wurde als PDF gespeichert.",
+        title: "CV erfolgreich generiert",
+        description: "Dein Lebenslauf wurde gespeichert und kann von Unternehmen heruntergeladen werden.",
       });
     } catch (error) {
-      console.error('Error downloading CV:', error);
+      console.error('Error generating CV:', error);
       toast({
-        title: "Fehler beim Herunterladen des CVs",
-        description: "Es gab ein Problem beim Generieren der PDF-Datei.",
+        title: "Fehler beim Generieren des CVs",
+        description: "Es gab ein Problem beim Erstellen der PDF-Datei.",
         variant: "destructive"
       });
     } finally {
