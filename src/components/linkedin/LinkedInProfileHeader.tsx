@@ -30,15 +30,32 @@ export const LinkedInProfileHeader: React.FC<LinkedInProfileHeaderProps> = ({
 
     setIsUploadingCover(true);
     try {
-      // Upload to Supabase storage (implement this when storage is needed)
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${profile.id}/cover.${fileExt}`;
+
+      // Upload to Supabase storage
+      const { error: uploadError } = await supabase.storage
+        .from('documents')
+        .upload(fileName, file, { upsert: true });
+
+      if (uploadError) throw uploadError;
+
+      // Get public URL
+      const { data } = supabase.storage
+        .from('documents')
+        .getPublicUrl(fileName);
+
+      // Update profile with cover URL
+      onProfileUpdate({ cover_url: data.publicUrl });
+
       toast({
-        title: "Feature coming soon",
-        description: "Cover photo upload will be available soon."
+        title: "Titelbild hochgeladen",
+        description: "Ihr Titelbild wurde erfolgreich aktualisiert."
       });
     } catch (error) {
       toast({
-        title: "Upload failed",
-        description: "Failed to upload cover photo.",
+        title: "Upload fehlgeschlagen",
+        description: "Das Titelbild konnte nicht hochgeladen werden.",
         variant: "destructive"
       });
     } finally {
@@ -52,15 +69,32 @@ export const LinkedInProfileHeader: React.FC<LinkedInProfileHeaderProps> = ({
 
     setIsUploadingAvatar(true);
     try {
-      // Upload to Supabase storage (implement this when storage is needed)
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${profile.id}/avatar.${fileExt}`;
+
+      // Upload to Supabase storage
+      const { error: uploadError } = await supabase.storage
+        .from('documents')
+        .upload(fileName, file, { upsert: true });
+
+      if (uploadError) throw uploadError;
+
+      // Get public URL
+      const { data } = supabase.storage
+        .from('documents')
+        .getPublicUrl(fileName);
+
+      // Update profile with avatar URL
+      onProfileUpdate({ avatar_url: data.publicUrl });
+
       toast({
-        title: "Feature coming soon",
-        description: "Profile photo upload will be available soon."
+        title: "Profilbild hochgeladen",
+        description: "Ihr Profilbild wurde erfolgreich aktualisiert."
       });
     } catch (error) {
       toast({
-        title: "Upload failed",
-        description: "Failed to upload profile photo.",
+        title: "Upload fehlgeschlagen",
+        description: "Das Profilbild konnte nicht hochgeladen werden.",
         variant: "destructive"
       });
     } finally {

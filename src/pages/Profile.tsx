@@ -196,38 +196,11 @@ const Profile = () => {
         </div>
       </div>
 
-      {/* LinkedIn-Style 3-Column Layout */}
+      {/* 2-Column Layout */}
       <div className="container mx-auto px-6 py-6">
-        <div className="grid grid-cols-12 gap-6">
-          {/* Left Navigation - Hidden on mobile */}
-          <aside className="col-span-2 hidden lg:block">
-            <div className="sticky top-24 space-y-4">
-              {/* Quick Navigation */}
-              <div className="bg-card rounded-xl p-4 shadow-sm border">
-                <h3 className="font-semibold mb-3">Navigation</h3>
-                <nav className="space-y-2">
-                  <button className="w-full text-left px-3 py-2 rounded-lg bg-primary/10 text-primary text-sm font-medium">
-                    Profil
-                  </button>
-                  <button 
-                    className="w-full text-left px-3 py-2 rounded-lg hover:bg-muted text-sm text-muted-foreground"
-                    onClick={() => navigate('/dashboard')}
-                  >
-                    Dashboard
-                  </button>
-                  <button 
-                    className="w-full text-left px-3 py-2 rounded-lg hover:bg-muted text-sm text-muted-foreground"
-                    onClick={() => navigate('/cv-generator')}
-                  >
-                    CV Generator
-                  </button>
-                </nav>
-              </div>
-            </div>
-          </aside>
-
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           {/* Main Content Area */}
-          <main className="col-span-12 lg:col-span-7 space-y-6">
+          <main className="lg:col-span-8 space-y-6">
             {/* Profile Header with Cover Photo */}
             <LinkedInProfileHeader
               profile={profile}
@@ -258,7 +231,7 @@ const Profile = () => {
           </main>
 
           {/* Right Sidebar */}
-          <aside className="col-span-12 lg:col-span-3">
+          <aside className="lg:col-span-4">
             <div className="sticky top-24">
               <LinkedInProfileSidebar
                 profile={profile}

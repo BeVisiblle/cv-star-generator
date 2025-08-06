@@ -156,33 +156,64 @@ export const LinkedInProfileSidebar: React.FC<LinkedInProfileSidebarProps> = ({
         </CardContent>
       </Card>
 
-      {/* Languages */}
+      {/* Languages - Only editable in editing mode */}
       <Card>
         <CardHeader>
           <CardTitle className="text-lg font-semibold">Sprachen</CardTitle>
         </CardHeader>
         <CardContent>
-          <LanguageSelector
-            languages={profile?.sprachen || []}
-            onLanguagesChange={handleLanguagesChange}
-            maxLanguages={5}
-          />
+          {isEditing ? (
+            <LanguageSelector
+              languages={profile?.sprachen || []}
+              onLanguagesChange={handleLanguagesChange}
+              maxLanguages={5}
+            />
+          ) : (
+            <div className="space-y-2">
+              {profile?.sprachen && profile.sprachen.length > 0 ? (
+                profile.sprachen.map((lang: any, index: number) => (
+                  <div key={index} className="flex justify-between items-center py-1">
+                    <span className="text-sm">{lang.sprache}</span>
+                    <Badge variant="outline" className="text-xs">{lang.niveau}</Badge>
+                  </div>
+                ))
+              ) : (
+                <p className="text-sm text-muted-foreground">Keine Sprachen hinzugefügt</p>
+              )}
+            </div>
+          )}
         </CardContent>
       </Card>
 
-      {/* Skills */}
+      {/* Skills - Only editable in editing mode */}
       <Card>
         <CardHeader>
           <CardTitle className="text-lg font-semibold">Fähigkeiten</CardTitle>
         </CardHeader>
         <CardContent>
-          <SkillSelector
-            selectedSkills={profile?.faehigkeiten || []}
-            onSkillsChange={handleSkillsChange}
-            branch={profile?.branche}
-            statusLevel={profile?.status}
-            maxSkills={10}
-          />
+          {isEditing ? (
+            <SkillSelector
+              selectedSkills={profile?.faehigkeiten || []}
+              onSkillsChange={handleSkillsChange}
+              branch={profile?.branche}
+              statusLevel={profile?.status}
+              maxSkills={10}
+            />
+          ) : (
+            <div className="space-y-2">
+              {profile?.faehigkeiten && profile.faehigkeiten.length > 0 ? (
+                <div className="flex flex-wrap gap-2">
+                  {profile.faehigkeiten.map((skill: string, index: number) => (
+                    <Badge key={index} variant="secondary" className="text-xs">
+                      {skill}
+                    </Badge>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-sm text-muted-foreground">Keine Fähigkeiten hinzugefügt</p>
+              )}
+            </div>
+          )}
         </CardContent>
       </Card>
 
