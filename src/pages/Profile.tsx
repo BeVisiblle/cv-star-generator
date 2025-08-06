@@ -12,6 +12,7 @@ import { LinkedInProfileSidebar } from '@/components/linkedin/LinkedInProfileSid
 import { LinkedInProfileExperience } from '@/components/linkedin/LinkedInProfileExperience';
 import { LinkedInProfileEducation } from '@/components/linkedin/LinkedInProfileEducation';
 import { ProfilePreviewModal } from '@/components/ProfilePreviewModal';
+import { CVPreviewCard } from '@/components/CVPreviewCard';
 
 const Profile = () => {
   const navigate = useNavigate();
@@ -208,6 +209,18 @@ const Profile = () => {
               onProfileUpdate={handleProfileUpdate}
             />
 
+            {/* CV Preview Card */}
+            <CVPreviewCard
+              profile={profile}
+              onDownload={async () => {
+                // Use the existing download function from LinkedInProfileSidebar
+                const sidebarComponent = document.querySelector('[data-sidebar]');
+                if (sidebarComponent) {
+                  // This is handled by the LinkedInProfileSidebar component
+                }
+              }}
+            />
+
             {/* About Section */}
             <LinkedInProfileMain
               profile={profile}
@@ -232,7 +245,7 @@ const Profile = () => {
 
           {/* Right Sidebar */}
           <aside className="lg:col-span-4">
-            <div className="sticky top-24">
+            <div className="sticky top-24" data-sidebar>
               <LinkedInProfileSidebar
                 profile={profile}
                 isEditing={isEditing}

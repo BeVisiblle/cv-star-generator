@@ -139,6 +139,13 @@ export const LinkedInProfileSidebar: React.FC<LinkedInProfileSidebarProps> = ({
   };
 
   const handleEditCV = () => {
+    // Store current profile data for CV generator
+    const cvEditData = {
+      ...profile,
+      // Ensure dates are properly formatted
+      geburtsdatum: profile?.geburtsdatum ? new Date(profile.geburtsdatum).toISOString() : undefined
+    };
+    localStorage.setItem('cvEditData', JSON.stringify(cvEditData));
     navigate('/cv-generator');
   };
 
