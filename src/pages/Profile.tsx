@@ -52,6 +52,8 @@ const Profile = () => {
           sprachen: profile.sprachen,
           berufserfahrung: profile.berufserfahrung,
           schulbildung: profile.schulbildung,
+          avatar_url: profile.avatar_url,
+          cover_image_url: profile.cover_image_url,
           updated_at: new Date().toISOString()
         })
         .eq('id', profile.id);
