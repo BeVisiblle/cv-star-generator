@@ -48,67 +48,91 @@ export const LinkedInProfileSidebar: React.FC<LinkedInProfileSidebarProps> = ({ 
       // Check if we have enough data to generate a CV
       if (!profile.vorname || !profile.nachname) {
         toast({
-          title: "Unvollständiges Profil",
-          description: "Bitte vervollständigen Sie Ihr Profil, bevor Sie einen CV generieren.",
+          title: "Fehlende Daten",
+          description: "Vor- und Nachname sind für die CV-Generierung erforderlich.",
           variant: "destructive"
         });
         return;
       }
 
-      // Try to find existing CV preview element first
-      let cvElement = document.querySelector('[data-cv-preview]') as HTMLElement;
-      let temporaryElement = false;
-
-      // If no preview element found or it's too small, create a temporary one
-      if (!cvElement || cvElement.offsetWidth < 200) {
-        // Create temporary full-size CV element for PDF generation
-        cvElement = document.createElement('div');
-        cvElement.style.position = 'absolute';
-        cvElement.style.left = '-9999px';
-        cvElement.style.top = '0';
-        cvElement.style.width = '210mm'; // A4 width
-        cvElement.style.minHeight = '297mm'; // A4 height
-        cvElement.style.backgroundColor = 'white';
-        cvElement.style.padding = '20mm';
-        cvElement.style.boxSizing = 'border-box';
-        
-        // Render the CV layout into the temporary element
-        cvElement.innerHTML = '';
-        const cvLayoutElement = document.createElement('div');
-        
-        // Get the CV layout component as HTML string
-        const layoutComponent = renderCVLayout();
-        if (layoutComponent) {
-          // Create a temporary React container to render the component
-          const tempContainer = document.createElement('div');
-          document.body.appendChild(tempContainer);
-          
-          // Use ReactDOM to render the component to get HTML
-          const React = await import('react');
-          const ReactDOM = await import('react-dom/client');
-          const root = ReactDOM.createRoot(tempContainer);
-          
-          await new Promise<void>((resolve) => {
-            root.render(React.createElement('div', {}, layoutComponent));
-            setTimeout(() => {
-              cvElement.innerHTML = tempContainer.innerHTML;
-              document.body.removeChild(tempContainer);
-              resolve();
-            }, 100);
-          });
-        }
-        
-        document.body.appendChild(cvElement);
-        temporaryElement = true;
-      }
-
-      // Generate PDF as File object and upload to Supabase
-      const { generateCVFromHTML } = await import('@/lib/supabase-storage');
-      const { generateCVFilename } = await import('@/lib/pdf-generator');
-      const filename = generateCVFilename(profile.vorname || 'Unknown', profile.nachname || 'User');
+      // Convert profile data to CVFormData format for layout rendering
+      const formData = {
+        branche: profile.branche || '',
+        status: profile.status || '',
+        vorname: profile.vorname || '',
+        nachname: profile.nachname || '',
+        geburtsdatum: profile.geburtsdatum || '',
+        strasse: profile.strasse || '',
+        hausnummer: profile.hausnummer || '',
+        plz: profile.plz || '',
+        ort: profile.ort || '',
+        telefon: profile.telefon || '',
+        email: profile.email || '',
+        ueber_mich: profile.uebermich || profile.bio || '',
+        schulbildung: profile.schulbildung || [],
+        berufserfahrung: profile.berufserfahrung || [],
+        sprachen: profile.sprachen || [],
+        faehigkeiten: profile.faehigkeiten || [],
+        layout: profile.layout || 1,
+        profilbild: profile.avatar_url || ''
+      };
       
-      // Generate PDF file
-      const pdfFile = await generateCVFromHTML(cvElement, filename);
+      // Create temporary container for CV rendering (same approach as CVStep6)
+      const tempContainer = document.createElement('div');
+      tempContainer.style.position = 'absolute';
+      tempContainer.style.left = '-9999px';
+      tempContainer.style.top = '0';
+      tempContainer.style.width = '210mm'; // A4 width
+      tempContainer.style.minHeight = '297mm'; // A4 height
+      tempContainer.style.backgroundColor = 'white';
+      tempContainer.style.color = 'black';
+      tempContainer.setAttribute('data-cv-preview', 'true');
+      document.body.appendChild(tempContainer);
+
+      // Import React and ReactDOM
+      const React = await import('react');
+      const ReactDOM = await import('react-dom/client');
+      
+      // Import the correct CV layout component
+      let LayoutComponent;
+      switch (formData.layout) {
+        case 1:
+          LayoutComponent = (await import('@/components/cv-layouts/LiveCareerLayout')).default;
+          break;
+        case 2:
+          LayoutComponent = (await import('@/components/cv-layouts/ClassicLayout')).default;
+          break;
+        case 3:
+          LayoutComponent = (await import('@/components/cv-layouts/CreativeLayout')).default;
+          break;
+        case 4:
+          LayoutComponent = (await import('@/components/cv-layouts/MinimalLayout')).default;
+          break;
+        case 5:
+          LayoutComponent = (await import('@/components/cv-layouts/ProfessionalLayout')).default;
+          break;
+        case 6:
+          LayoutComponent = (await import('@/components/cv-layouts/LiveCareerLayout')).default;
+          break;
+        default:
+          LayoutComponent = (await import('@/components/cv-layouts/LiveCareerLayout')).default;
+      }
+      
+      // Create a React root and render the CV layout
+      const root = ReactDOM.createRoot(tempContainer);
+      
+      await new Promise<void>((resolve) => {
+        root.render(React.createElement(LayoutComponent, { data: formData }));
+        setTimeout(resolve, 300); // Wait for rendering
+      });
+
+      // Import PDF generation functions
+      const { generateCVFilename } = await import('@/lib/pdf-generator');
+      const filename = generateCVFilename(profile.vorname, profile.nachname);
+      
+      // Generate PDF using Supabase storage function
+      const { generateCVFromHTML } = await import('@/lib/supabase-storage');
+      const pdfFile = await generateCVFromHTML(tempContainer, filename);
       
       // Upload PDF to Supabase storage
       const { uploadCV } = await import('@/lib/supabase-storage');
@@ -127,10 +151,9 @@ export const LinkedInProfileSidebar: React.FC<LinkedInProfileSidebarProps> = ({ 
       // Update local profile state
       onProfileUpdate({ cv_url: url });
       
-      // Clean up temporary element
-      if (temporaryElement && cvElement.parentNode) {
-        document.body.removeChild(cvElement);
-      }
+      // Clean up
+      root.unmount();
+      document.body.removeChild(tempContainer);
       
       // Download the PDF
       window.open(url, '_blank');
