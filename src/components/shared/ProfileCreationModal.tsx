@@ -387,9 +387,9 @@ export const ProfileCreationModal = ({
         // Store CV data temporarily for profile page
         localStorage.setItem('cvData', JSON.stringify(formData));
         
-        // Close modal and navigate to profile
+        // Force page reload to refresh auth state and profile data
         onClose();
-        navigate('/profile');
+        window.location.href = '/profile';
     } catch (error) {
       console.error('Unexpected error:', error);
       toast({

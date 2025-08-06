@@ -74,23 +74,27 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const loadProfile = async (userId: string) => {
     try {
       console.log('Loading profile for user:', userId);
+      console.log('Current auth session:', session?.user?.id);
+      console.log('Auth UID:', await supabase.auth.getUser());
+      
       const { data: profile, error } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', userId)
         .maybeSingle();
 
-      console.log('Profile data:', profile, 'Error:', error);
+      console.log('Profile query result - Data:', profile, 'Error:', error);
 
       if (error) {
         console.error('Error loading profile:', error);
+        console.error('Error details:', error.details, error.hint, error.code);
         setProfile(null);
       } else {
         setProfile(profile);
         console.log('Profile loaded successfully:', profile);
       }
     } catch (error) {
-      console.error('Error loading profile:', error);
+      console.error('Unexpected error loading profile:', error);
       setProfile(null);
     }
   };
