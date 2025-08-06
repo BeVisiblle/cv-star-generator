@@ -7,6 +7,7 @@ import { Loader2, UserPlus, Eye, EyeOff, Clock } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
+import { useCVForm } from '@/contexts/CVFormContext';
 
 interface ProfileCreationModalProps {
   isOpen: boolean;
@@ -27,6 +28,7 @@ export const ProfileCreationModal = ({
   const [isCreating, setIsCreating] = useState(false);
   const [rateLimitSeconds, setRateLimitSeconds] = useState(0);
   const navigate = useNavigate();
+  const { setAutoSyncEnabled } = useCVForm();
 
   // Auth state cleanup utility
   const cleanupAuthState = () => {
@@ -75,10 +77,10 @@ export const ProfileCreationModal = ({
   };
 
   const handleCreateProfile = async () => {
-    console.log('ProfileCreationModal: handleCreateProfile called');
-    console.log('ProfileCreationModal: Form data received:', formData);
-    console.log('ProfileCreationModal: Email:', email);
-    console.log('ProfileCreationModal: Password length:', password?.length || 0);
+    console.log(`[${new Date().toISOString()}] ProfileCreationModal: handleCreateProfile called`);
+    console.log(`[${new Date().toISOString()}] ProfileCreationModal: Form data received:`, formData);
+    console.log(`[${new Date().toISOString()}] ProfileCreationModal: Email:`, email);
+    console.log(`[${new Date().toISOString()}] ProfileCreationModal: Password length:`, password?.length || 0);
 
     if (!email || !password) {
       toast({
@@ -109,6 +111,12 @@ export const ProfileCreationModal = ({
       });
       return;
     }
+
+    console.log(`[${new Date().toISOString()}] ProfileCreationModal: Starting profile creation process`);
+    
+    // Disable auto-sync during profile creation to prevent race conditions
+    setAutoSyncEnabled(false);
+    console.log(`[${new Date().toISOString()}] ProfileCreationModal: Auto-sync disabled`);
 
     setIsCreating(true);
 
@@ -364,41 +372,68 @@ export const ProfileCreationModal = ({
          console.log('ProfileCreationModal: Form data keys:', Object.keys(formData || {}));
          console.log('ProfileCreationModal: Updating profile with data:', profileData);
 
-        // Update the profile with all the CV data
-        const { data: updatedProfile, error: profileError } = await supabase
-          .from('profiles')
-          .update(profileData)
-          .eq('id', user.id)
-          .select()
-          .single();
+        // Update the profile with retry mechanism
+        let retryCount = 0;
+        const maxRetries = 3;
+        let profileUpdateSuccess = false;
 
-        if (profileError) {
-          console.error('Profile update error:', profileError);
-          toast({
-            title: "Fehler beim Profil aktualisieren",
-            description: profileError.message,
-            variant: "destructive"
-          });
-          return;
+        while (retryCount < maxRetries && !profileUpdateSuccess) {
+          try {
+            console.log(`[${new Date().toISOString()}] ProfileCreationModal: Profile update attempt ${retryCount + 1}/${maxRetries}`);
+            
+            const { data: updatedProfile, error: profileError } = await supabase
+              .from('profiles')
+              .update(profileData)
+              .eq('id', user.id)
+              .select()
+              .single();
+
+            if (profileError) {
+              throw profileError;
+            }
+
+            console.log(`[${new Date().toISOString()}] ProfileCreationModal: Profile updated successfully:`, updatedProfile);
+            profileUpdateSuccess = true;
+            
+            // Re-enable auto-sync after successful profile creation
+            setAutoSyncEnabled(true);
+            console.log(`[${new Date().toISOString()}] ProfileCreationModal: Auto-sync re-enabled after successful profile creation`);
+
+            toast({
+              title: "Account erstellt!",
+              description: "Ihr Profil wurde erfolgreich erstellt!",
+              variant: "default"
+            });
+            
+            // Clear CV form data from localStorage since it's now in the profile
+            localStorage.removeItem('cvFormData');
+            localStorage.removeItem('cvLayoutEditMode');
+            
+            // Force page reload to refresh auth state and profile data
+            onClose();
+            window.location.href = '/profile';
+            
+          } catch (error) {
+            retryCount++;
+            console.error(`[${new Date().toISOString()}] ProfileCreationModal: Profile update attempt ${retryCount} failed:`, error);
+            
+            if (retryCount < maxRetries) {
+              console.log(`[${new Date().toISOString()}] ProfileCreationModal: Retrying in 1 second...`);
+              await new Promise(resolve => setTimeout(resolve, 1000));
+            } else {
+              setAutoSyncEnabled(true); // Re-enable auto-sync on final failure
+              toast({
+                title: "Fehler beim Profil aktualisieren",
+                description: (error as any).message,
+                variant: "destructive"
+              });
+              return;
+            }
+          }
         }
-
-        console.log('Profile updated successfully:', updatedProfile);
-
-        toast({
-          title: "Account erstellt!",
-          description: "Ihr Profil wurde erfolgreich erstellt!",
-          variant: "default"
-        });
-        
-        // Clear CV form data from localStorage since it's now in the profile
-        localStorage.removeItem('cvFormData');
-        localStorage.removeItem('cvLayoutEditMode');
-        
-        // Force page reload to refresh auth state and profile data
-        onClose();
-        window.location.href = '/profile';
     } catch (error) {
-      console.error('Unexpected error:', error);
+      console.error(`[${new Date().toISOString()}] ProfileCreationModal: Unexpected error:`, error);
+      setAutoSyncEnabled(true); // Re-enable auto-sync on error
       toast({
         title: "Unerwarteter Fehler",
         description: "Ein unerwarteter Fehler ist aufgetreten.",

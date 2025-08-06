@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
+import React, { createContext, useContext, useState, ReactNode, useEffect, useRef } from 'react';
 import { syncCVDataToProfile, loadProfileDataToCV } from '@/utils/profileSync';
 import { useAuthForCV } from '@/hooks/useAuthForCV';
 
@@ -103,6 +103,7 @@ interface CVFormContextType {
   setLayoutEditMode: (mode: boolean) => void;
   syncWithProfile: () => void;
   syncToProfile: () => Promise<void>;
+  setAutoSyncEnabled: (enabled: boolean) => void;
 }
 
 const CVFormContext = createContext<CVFormContextType | undefined>(undefined);
@@ -111,6 +112,8 @@ export const CVFormProvider = ({ children }: { children: ReactNode }) => {
   const { user, profile } = useAuthForCV();
   
   const [formData, setFormData] = useState<CVFormData>({});
+  const [autoSyncEnabled, setAutoSyncEnabled] = useState(true);
+  const autoSyncTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   
   const [currentStep, setCurrentStep] = useState(() => {
     // Check if we're in layout edit mode
@@ -146,17 +149,18 @@ export const CVFormProvider = ({ children }: { children: ReactNode }) => {
   // Sync form data to profile (only when user is logged in)
   const syncToProfile = async () => {
     if (!user?.id || !formData || Object.keys(formData).length === 0) {
-      console.log('Skipping sync - no user or empty formData');
+      console.log(`[${new Date().toISOString()}] CVFormContext: Skipping sync - no user or empty formData`);
       return;
     }
     
-    console.log('Syncing CV data to profile...', formData);
+    console.log(`[${new Date().toISOString()}] CVFormContext: Syncing CV data to profile...`, formData);
     
     try {
       await syncCVDataToProfile(user.id, formData);
-      console.log('Successfully synced CV data to profile');
+      console.log(`[${new Date().toISOString()}] CVFormContext: Successfully synced CV data to profile`);
     } catch (error) {
-      console.error('Error syncing CV data to profile:', error);
+      console.error(`[${new Date().toISOString()}] CVFormContext: Error syncing CV data to profile:`, error);
+      throw error; // Re-throw for caller to handle
     }
   };
 
@@ -164,16 +168,23 @@ export const CVFormProvider = ({ children }: { children: ReactNode }) => {
     const newFormData = { ...formData, ...data };
     setFormData(newFormData);
     
-    // Auto-sync to profile when user is logged in (with debounce)
-    if (user?.id && Object.keys(newFormData).length > 1) {
-      console.log('Auto-syncing CV data to profile:', newFormData);
+    // Auto-sync to profile when user is logged in and auto-sync is enabled
+    if (user?.id && autoSyncEnabled && Object.keys(newFormData).length > 1) {
+      console.log(`[${new Date().toISOString()}] CVFormContext: Auto-sync enabled, scheduling sync...`);
       
-      const timeoutId = setTimeout(() => {
-        syncToProfile();
+      // Clear previous timeout
+      if (autoSyncTimeoutRef.current) {
+        clearTimeout(autoSyncTimeoutRef.current);
+      }
+      
+      // Schedule new sync
+      autoSyncTimeoutRef.current = setTimeout(async () => {
+        try {
+          await syncToProfile();
+        } catch (error) {
+          console.error(`[${new Date().toISOString()}] CVFormContext: Auto-sync failed:`, error);
+        }
       }, 2000); // 2 seconds debounce
-      
-      // Cleanup previous timeout
-      return () => clearTimeout(timeoutId);
     }
   };
 
@@ -185,6 +196,16 @@ export const CVFormProvider = ({ children }: { children: ReactNode }) => {
     localStorage.removeItem('cvLayoutEditMode');
   };
 
+  // Cleanup effect
+  useEffect(() => {
+    return () => {
+      // Clear timeout on unmount
+      if (autoSyncTimeoutRef.current) {
+        clearTimeout(autoSyncTimeoutRef.current);
+      }
+    };
+  }, []);
+
   return (
     <CVFormContext.Provider value={{
       formData,
@@ -195,7 +216,8 @@ export const CVFormProvider = ({ children }: { children: ReactNode }) => {
       isLayoutEditMode,
       setLayoutEditMode,
       syncWithProfile,
-      syncToProfile
+      syncToProfile,
+      setAutoSyncEnabled
     }}>
       {children}
     </CVFormContext.Provider>
