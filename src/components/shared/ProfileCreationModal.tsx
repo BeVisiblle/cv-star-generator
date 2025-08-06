@@ -168,8 +168,13 @@ export const ProfileCreationModal = ({
         console.log('User created:', authData.user.id);
         console.log('Form data:', formData);
         
-        // Wait for auth session to be established
-        await new Promise(resolve => setTimeout(resolve, 2000));
+        // Set the session immediately to ensure authentication
+        if (authData.session) {
+          await supabase.auth.setSession(authData.session);
+        }
+        
+        // Wait longer for auth session to be established and trigger to execute
+        await new Promise(resolve => setTimeout(resolve, 3000));
         
         // Handle file uploads first
         let avatarUrl = typeof formData.profilbild === 'string' ? formData.profilbild : null;
@@ -299,49 +304,60 @@ export const ProfileCreationModal = ({
 
         if (!existingProfile) {
           console.log('No profile found, creating new one');
-          // Create profile if it doesn't exist (trigger didn't work)
-          const { data: newProfile, error: insertError } = await supabase
+          // Wait for trigger first
+          await new Promise(resolve => setTimeout(resolve, 2000));
+          
+          // Check again after waiting
+          const { data: existingProfileAfterWait } = await supabase
             .from('profiles')
-            .insert({
-              id: authData.user.id,
-              email: email,
-              account_created: true,
-              ...profileData
-            })
-            .select()
-            .single();
-
-          if (insertError) {
-            console.error('Profile creation error:', insertError);
-            toast({
-              title: "Fehler beim Profil erstellen",
-              description: insertError.message,
-              variant: "destructive"
-            });
-            return;
-          }
-          console.log('Profile created:', newProfile);
-        } else {
-          console.log('Profile exists, updating');
-          // Update existing profile
-          const { data: updatedProfile, error: profileError } = await supabase
-            .from('profiles')
-            .update(profileData)
+            .select('id')
             .eq('id', authData.user.id)
-            .select()
-            .single();
+            .maybeSingle();
+            
+          if (!existingProfileAfterWait) {
+            // Create profile manually if trigger failed
+            const { data: newProfile, error: insertError } = await supabase
+              .from('profiles')
+              .insert({
+                id: authData.user.id,
+                email: email,
+                account_created: true
+              })
+              .select()
+              .single();
 
-          if (profileError) {
-            console.error('Profile update error:', profileError);
-            toast({
-              title: "Fehler beim Profil aktualisieren",
-              description: profileError.message,
-              variant: "destructive"
-            });
-            return;
+            if (insertError) {
+              console.error('Profile creation error:', insertError);
+              toast({
+                title: "Fehler beim Profil erstellen",
+                description: insertError.message,
+                variant: "destructive"
+              });
+              return;
+            }
+            console.log('Profile created manually:', newProfile);
           }
-          console.log('Profile updated:', updatedProfile);
         }
+        
+        // Now update the profile with all data
+        console.log('Updating profile with data:', profileData);
+        const { data: updatedProfile, error: profileError } = await supabase
+          .from('profiles')
+          .update(profileData)
+          .eq('id', authData.user.id)
+          .select()
+          .single();
+
+        if (profileError) {
+          console.error('Profile update error:', profileError);
+          toast({
+            title: "Fehler beim Profil aktualisieren",
+            description: profileError.message,
+            variant: "destructive"
+          });
+          return;
+        }
+        console.log('Profile updated:', updatedProfile);
 
         toast({
           title: "Profil erfolgreich erstellt!",
