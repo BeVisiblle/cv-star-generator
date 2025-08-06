@@ -81,6 +81,21 @@ export const ProfileCreationModal = ({
     console.log(`[${new Date().toISOString()}] ProfileCreationModal: Form data received:`, formData);
     console.log(`[${new Date().toISOString()}] ProfileCreationModal: Email:`, email);
     console.log(`[${new Date().toISOString()}] ProfileCreationModal: Password length:`, password?.length || 0);
+    
+    // Additional debugging for CV data
+    console.log(`[${new Date().toISOString()}] ProfileCreationModal: CV Data Analysis:`, {
+      hasVorname: !!formData?.vorname,
+      hasNachname: !!formData?.nachname,
+      hasOrt: !!formData?.ort,
+      hasEmail: !!formData?.email,
+      hasBranche: !!formData?.branche,
+      hasStatus: !!formData?.status,
+      hasSchulbildung: !!formData?.schulbildung && formData.schulbildung.length > 0,
+      hasBerufserfahrung: !!formData?.berufserfahrung && formData.berufserfahrung.length > 0,
+      hasSprachen: !!formData?.sprachen && formData.sprachen.length > 0,
+      hasFaehigkeiten: !!formData?.faehigkeiten && formData.faehigkeiten.length > 0,
+      hasUeberMich: !!formData?.ueber_mich
+    });
 
     if (!email || !password) {
       toast({
@@ -408,6 +423,7 @@ export const ProfileCreationModal = ({
             // Clear CV form data from localStorage since it's now in the profile
             localStorage.removeItem('cvFormData');
             localStorage.removeItem('cvLayoutEditMode');
+            localStorage.removeItem('creating-profile');
             
             // Force page reload to refresh auth state and profile data
             onClose();

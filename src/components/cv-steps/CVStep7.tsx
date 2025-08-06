@@ -114,6 +114,17 @@ const CVStep7 = () => {
       return;
     }
 
+    // Ensure data persists during profile creation
+    localStorage.setItem('creating-profile', 'true');
+    
+    // Get current CV data from localStorage and context as backup
+    const savedCVData = localStorage.getItem('cvFormData');
+    const cvDataFromStorage = savedCVData ? JSON.parse(savedCVData) : null;
+    
+    console.log('CVStep7: CV data from context:', formData);
+    console.log('CVStep7: CV data from localStorage:', cvDataFromStorage);
+    console.log('CVStep7: Opening profile modal with CV data');
+
     setShowProfileModal(true);
   };
 
@@ -258,7 +269,10 @@ const CVStep7 = () => {
 
       <ProfileCreationModal
         isOpen={showProfileModal}
-        onClose={() => setShowProfileModal(false)}
+        onClose={() => {
+          localStorage.removeItem('creating-profile');
+          setShowProfileModal(false);
+        }}
         prefilledEmail={formData.email || ''}
         formData={formData}
       />
