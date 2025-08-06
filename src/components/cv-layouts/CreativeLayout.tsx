@@ -29,7 +29,7 @@ const CreativeLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) => {
           }}
         />
         <div className="relative z-10 flex items-center gap-6 text-white">
-          <ProfileImage profilbild={data.profilbild} size="lg" className="border-4 border-white shadow-lg" />
+          <ProfileImage profilbild={data.profilbild} avatar_url={data.avatar_url} size="lg" className="border-4 border-white shadow-lg" />
           <div className="flex-1">
             <h1 className="text-4xl font-bold mb-2 text-white transform -skew-x-3">
               {data.vorname} {data.nachname}

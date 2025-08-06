@@ -89,8 +89,14 @@ const CVStep2 = () => {
               <Input
                 id="geburtsdatum"
                 type="date"
-                value={formData.geburtsdatum instanceof Date ? formData.geburtsdatum.toISOString().split('T')[0] : formData.geburtsdatum || ''}
-                onChange={(e) => updateFormData({ geburtsdatum: new Date(e.target.value) })}
+                value={
+                  formData.geburtsdatum instanceof Date 
+                    ? formData.geburtsdatum.toISOString().split('T')[0] 
+                    : typeof formData.geburtsdatum === 'string' 
+                    ? (formData.geburtsdatum.includes('T') ? formData.geburtsdatum.split('T')[0] : formData.geburtsdatum)
+                    : ''
+                }
+                onChange={(e) => updateFormData({ geburtsdatum: e.target.value })}
               />
             </div>
             <div className="space-y-4">

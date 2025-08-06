@@ -10,8 +10,9 @@ export interface CVData {
   hausnummer?: string;
   plz?: string;
   ort?: string;
-  geburtsdatum?: Date;
+  geburtsdatum?: Date | string;
   profilbild?: File | string;
+  avatar_url?: string;
   status?: 'schueler' | 'azubi' | 'ausgelernt';
   branche?: 'handwerk' | 'it' | 'gesundheit' | 'buero' | 'verkauf' | 'gastronomie' | 'bau';
   ueberMich?: string;
@@ -43,7 +44,7 @@ export interface CVLayoutProps {
   className?: string;
 }
 
-export const formatDate = (date: Date | undefined) => {
+export const formatDate = (date: Date | string | undefined) => {
   if (!date) return '';
   return new Intl.DateTimeFormat('de-DE').format(new Date(date));
 };
@@ -187,21 +188,23 @@ export const ContactInfo: React.FC<{ data: CVData; isLight?: boolean }> = ({ dat
 
 export const ProfileImage: React.FC<{ 
   profilbild?: File | string; 
+  avatar_url?: string;
   size?: 'sm' | 'md' | 'lg';
   className?: string;
-}> = ({ profilbild, size = 'md', className = '' }) => {
+}> = ({ profilbild, avatar_url, size = 'md', className = '' }) => {
   const sizeClasses = {
     sm: 'w-16 h-16',
     md: 'w-24 h-24', 
     lg: 'w-32 h-32'
   };
   
-  if (!profilbild) return null;
+  const imageUrl = profilbild || avatar_url;
+  if (!imageUrl) return null;
   
   return (
     <div className={`${sizeClasses[size]} rounded-full overflow-hidden bg-muted flex-shrink-0 ${className}`}>
       <img
-        src={typeof profilbild === 'string' ? profilbild : URL.createObjectURL(profilbild)}
+        src={typeof imageUrl === 'string' ? imageUrl : URL.createObjectURL(imageUrl)}
         alt="Profilbild"
         className="w-full h-full object-cover"
       />

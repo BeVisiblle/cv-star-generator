@@ -33,7 +33,7 @@ export interface CVFormData {
   // Step 2: Enhanced Personal Data
   vorname?: string;
   nachname?: string;
-  geburtsdatum?: Date;
+  geburtsdatum?: Date | string;
   strasse?: string;
   hausnummer?: string;
   plz?: string;
@@ -41,6 +41,7 @@ export interface CVFormData {
   telefon?: string;
   email?: string;
   profilbild?: File | string;
+  avatar_url?: string;
   
   // Extended fields for enhanced profile
   has_drivers_license?: boolean;
