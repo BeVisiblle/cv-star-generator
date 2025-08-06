@@ -1,9 +1,9 @@
 import React, { useState, useRef } from 'react';
 import { Camera, Edit3 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 
@@ -21,8 +21,15 @@ export const LinkedInProfileHeader: React.FC<LinkedInProfileHeaderProps> = ({
   const [isUploadingCover, setIsUploadingCover] = useState(false);
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
   const [headline, setHeadline] = useState(profile?.headline || '');
+  const [currentPosition, setCurrentPosition] = useState('');
   const coverInputRef = useRef<HTMLInputElement>(null);
   const avatarInputRef = useRef<HTMLInputElement>(null);
+
+  // Get current position from profile data
+  React.useEffect(() => {
+    const position = getCurrentPosition(profile);
+    setCurrentPosition(position);
+  }, [profile]);
 
   const handleCoverUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -118,33 +125,118 @@ export const LinkedInProfileHeader: React.FC<LinkedInProfileHeaderProps> = ({
     onProfileUpdate({ headline });
   };
 
+  const getCurrentPosition = (profile: any) => {
+    if (!profile?.status) return '';
+    
+    switch (profile.status) {
+      case 'schueler':
+        return profile.geplanter_abschluss || 'Abitur';
+      case 'azubi':
+        const currentJob = profile.berufserfahrung?.find((job: any) => !job.bis || new Date(job.bis) > new Date());
+        return currentJob?.position || profile.ausbildungsberuf || 'Ausbildung';
+      case 'ausgelernt':
+        const currentEmployment = profile.berufserfahrung?.find((job: any) => !job.bis || new Date(job.bis) > new Date());
+        return currentEmployment?.position || profile.aktueller_beruf || 'Position';
+      default:
+        return '';
+    }
+  };
+
+  const updateCurrentPosition = async (newPosition: string) => {
+    if (!profile?.status) return;
+    
+    let updates: any = {};
+    
+    switch (profile.status) {
+      case 'schueler':
+        updates.geplanter_abschluss = newPosition;
+        // Update schulbildung if exists
+        if (profile.schulbildung && profile.schulbildung.length > 0) {
+          const updatedSchulbildung = [...profile.schulbildung];
+          updatedSchulbildung[0] = { ...updatedSchulbildung[0], abschluss: newPosition };
+          updates.schulbildung = updatedSchulbildung;
+        }
+        break;
+        
+      case 'azubi':
+        updates.ausbildungsberuf = newPosition;
+        // Update berufserfahrung if exists
+        if (profile.berufserfahrung && profile.berufserfahrung.length > 0) {
+          const updatedBerufserfahrung = [...profile.berufserfahrung];
+          const currentJobIndex = updatedBerufserfahrung.findIndex((job: any) => !job.bis || new Date(job.bis) > new Date());
+          if (currentJobIndex !== -1) {
+            updatedBerufserfahrung[currentJobIndex] = { 
+              ...updatedBerufserfahrung[currentJobIndex], 
+              position: newPosition 
+            };
+            updates.berufserfahrung = updatedBerufserfahrung;
+          }
+        }
+        break;
+        
+      case 'ausgelernt':
+        updates.aktueller_beruf = newPosition;
+        // Update berufserfahrung if exists
+        if (profile.berufserfahrung && profile.berufserfahrung.length > 0) {
+          const updatedBerufserfahrung = [...profile.berufserfahrung];
+          const currentJobIndex = updatedBerufserfahrung.findIndex((job: any) => !job.bis || new Date(job.bis) > new Date());
+          if (currentJobIndex !== -1) {
+            updatedBerufserfahrung[currentJobIndex] = { 
+              ...updatedBerufserfahrung[currentJobIndex], 
+              position: newPosition 
+            };
+            updates.berufserfahrung = updatedBerufserfahrung;
+          }
+        }
+        break;
+    }
+    
+    // Save to database
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      const { error } = await supabase
+        .from('profiles')
+        .update(updates)
+        .eq('id', user.id);
+        
+      if (!error) {
+        onProfileUpdate(updates);
+        toast({
+          title: "Position aktualisiert",
+          description: "Ihre Position wurde erfolgreich aktualisiert."
+        });
+      }
+    }
+  };
+
   const getStatusDescription = (profile: any) => {
-    if (!profile.status) return '';
+    if (!profile?.status) return '';
     
     const currentYear = new Date().getFullYear();
     
     switch (profile.status) {
       case 'schueler':
-        const schoolName = profile.schulbildung?.[0]?.institution || 'Schule';
-        const graduationYear = profile.schulbildung?.[0]?.bis ? 
-          new Date(profile.schulbildung[0].bis).getFullYear() : currentYear + 1;
-        return `Abitur an der ${schoolName}, Abschluss voraussichtlich ${graduationYear}`;
+        const schoolName = profile.schule || profile.schulbildung?.[0]?.institution || 'Schule';
+        const graduationYear = profile.abschlussjahr || 
+          (profile.schulbildung?.[0]?.bis ? new Date(profile.schulbildung[0].bis).getFullYear() : currentYear + 1);
+        const studentPosition = getCurrentPosition(profile);
+        return `${studentPosition} an der ${schoolName}, Abschluss voraussichtlich ${graduationYear}`;
       
       case 'azubi':
         const currentJob = profile.berufserfahrung?.find((job: any) => !job.bis || new Date(job.bis) > new Date());
-        if (currentJob) {
-          const endDate = currentJob.bis ? new Date(currentJob.bis).getFullYear() : currentYear + 2;
-          return `Auszubildender für ${currentJob.position} bei ${currentJob.unternehmen} bis ${endDate}`;
-        }
-        return 'Auszubildender im Handwerk';
+        const company = profile.ausbildungsbetrieb || currentJob?.unternehmen || 'Betrieb';
+        const endDate = profile.voraussichtliches_ende || 
+          (currentJob?.bis ? new Date(currentJob.bis).getFullYear() : currentYear + 2);
+        const apprenticePosition = getCurrentPosition(profile);
+        return `${apprenticePosition} bei ${company} bis ${endDate}`;
       
       case 'ausgelernt':
         const currentEmployment = profile.berufserfahrung?.find((job: any) => !job.bis || new Date(job.bis) > new Date());
-        if (currentEmployment) {
-          const startYear = new Date(currentEmployment.von).getFullYear();
-          return `Angestellter im Bereich ${currentEmployment.position} bei ${currentEmployment.unternehmen} seit ${startYear}`;
-        }
-        return 'Angestellter im Handwerk';
+        const employer = currentEmployment?.unternehmen || 'Unternehmen';
+        const startYear = profile.abschlussjahr_ausgelernt || 
+          (currentEmployment?.von ? new Date(currentEmployment.von).getFullYear() : currentYear);
+        const employeePosition = getCurrentPosition(profile);
+        return `${employeePosition} bei ${employer} seit ${startYear}`;
       
       default:
         return '';
@@ -227,11 +319,29 @@ export const LinkedInProfileHeader: React.FC<LinkedInProfileHeaderProps> = ({
             {profile?.vorname} {profile?.nachname}
           </h1>
           
-          {/* Professional Status */}
+          {/* Professional Status - Fixed badge + Editable position */}
           {profile?.status && (
-            <p className="text-lg font-medium text-primary">
-              {getStatusDescription(profile)}
-            </p>
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <Badge variant="secondary" className="text-sm">
+                  {profile.status === 'schueler' ? 'Schüler' : 
+                   profile.status === 'azubi' ? 'Azubi im Handwerk' : 
+                   'Angestellter im Handwerk'}
+                </Badge>
+                {isEditing && (
+                  <Input
+                    value={currentPosition}
+                    onChange={(e) => setCurrentPosition(e.target.value)}
+                    placeholder="Position eingeben..."
+                    className="text-sm flex-1"
+                    onBlur={() => updateCurrentPosition(currentPosition)}
+                  />
+                )}
+              </div>
+              <p className="text-lg font-medium text-primary">
+                {getStatusDescription(profile)}
+              </p>
+            </div>
           )}
           
           {isEditing ? (
