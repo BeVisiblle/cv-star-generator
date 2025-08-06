@@ -110,11 +110,7 @@ const CVFormContext = createContext<CVFormContextType | undefined>(undefined);
 export const CVFormProvider = ({ children }: { children: ReactNode }) => {
   const { user, profile } = useAuthForCV();
   
-  const [formData, setFormData] = useState<CVFormData>(() => {
-    // Load from localStorage if available
-    const saved = localStorage.getItem('cvFormData');
-    return saved ? JSON.parse(saved) : {};
-  });
+  const [formData, setFormData] = useState<CVFormData>({});
   
   const [currentStep, setCurrentStep] = useState(() => {
     // Check if we're in layout edit mode
@@ -126,36 +122,28 @@ export const CVFormProvider = ({ children }: { children: ReactNode }) => {
     return localStorage.getItem('cvLayoutEditMode') === 'true';
   });
 
-  // Save to localStorage whenever formData changes
-  React.useEffect(() => {
-    localStorage.setItem('cvFormData', JSON.stringify(formData));
-  }, [formData]);
+  // Clear any previous CV data on component mount (new session)
+  useEffect(() => {
+    localStorage.removeItem('cvFormData');
+    console.log('CV Generator: Cleared previous session data');
+  }, []);
 
   // Save layout edit mode to localStorage
-  React.useEffect(() => {
+  useEffect(() => {
     localStorage.setItem('cvLayoutEditMode', isLayoutEditMode.toString());
   }, [isLayoutEditMode]);
 
 
-  // Load profile data into form when profile is available
+  // Load profile data into form ONLY if user has complete profile and specifically requests it
   const syncWithProfile = () => {
-    if (profile && user) {
-      console.log('Syncing profile data to CV form:', profile);
+    if (profile && user && profile.profile_complete) {
+      console.log('Loading complete profile data to CV form:', profile);
       const profileData = loadProfileDataToCV(profile);
-      
-      // Only update if there's meaningful data to sync
-      const hasProfileData = Object.values(profileData).some(value => 
-        value !== undefined && value !== null && value !== '' && 
-        (Array.isArray(value) ? value.length > 0 : true)
-      );
-      
-      if (hasProfileData) {
-        setFormData(prev => ({ ...prev, ...profileData }));
-      }
+      setFormData(profileData);
     }
   };
 
-  // Sync form data to profile
+  // Sync form data to profile (only when user is logged in)
   const syncToProfile = async () => {
     if (!user?.id || !formData) return;
     
@@ -166,24 +154,8 @@ export const CVFormProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  // Auto-sync with profile when profile loads
-  useEffect(() => {
-    if (profile && user) {
-      syncWithProfile();
-    }
-  }, [profile, user]);
-
   const updateFormData = (data: Partial<CVFormData>) => {
     setFormData(prev => ({ ...prev, ...data }));
-    
-    // Auto-sync to profile if user is logged in (debounced)
-    if (user?.id) {
-      const timeoutId = setTimeout(() => {
-        syncToProfile();
-      }, 1000); // 1 second delay to avoid too many requests
-      
-      return () => clearTimeout(timeoutId);
-    }
   };
 
   const resetForm = () => {

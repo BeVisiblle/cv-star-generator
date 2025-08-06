@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthenticatedLayout } from "@/components/AuthenticatedLayout";
 import { AuthProvider } from "@/hooks/useAuth";
 import { CVFormProvider } from "@/contexts/CVFormContext";
+import { CVGeneratorGate } from "@/components/CVGeneratorGate";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Blog from "./pages/Blog";
@@ -40,9 +41,17 @@ const App = () => (
               <Route path="/datenschutz" element={<Datenschutz />} />
               <Route path="/impressum" element={<Impressum />} />
               
-              {/* CV Generator - Open for everyone, registration at the end */}
-              <Route path="/cv-generator" element={<CVGenerator />} />
-              <Route path="/cv-layout-selector" element={<CVGenerator />} />
+              {/* CV Generator - Open for everyone, but validates complete profiles */}
+              <Route path="/cv-generator" element={
+                <CVGeneratorGate>
+                  <CVGenerator />
+                </CVGeneratorGate>
+              } />
+              <Route path="/cv-layout-selector" element={
+                <CVGeneratorGate>
+                  <CVGenerator />
+                </CVGeneratorGate>
+              } />
               
               {/* Protected Routes - Require Authentication */}
               
