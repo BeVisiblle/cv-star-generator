@@ -95,9 +95,18 @@ const Auth = () => {
       });
 
       if (error) {
+        let errorMessage = error.message;
+        
+        // Better error messages for common issues
+        if (error.message.includes('Invalid login credentials')) {
+          errorMessage = "E-Mail oder Passwort ist falsch. Bitte überprüfen Sie Ihre Eingaben.";
+        } else if (error.message.includes('Email not confirmed')) {
+          errorMessage = "Bitte bestätigen Sie zuerst Ihre E-Mail-Adresse.";
+        }
+        
         toast({
           title: "Anmeldung fehlgeschlagen",
-          description: error.message,
+          description: errorMessage,
           variant: "destructive"
         });
         return;
@@ -185,19 +194,26 @@ const Auth = () => {
       });
 
       if (error) {
+        let errorMessage = error.message;
+        
         if (error.message.includes('User already registered')) {
           toast({
-            title: "Account bereits vorhanden",
-            description: "Ein Account mit dieser E-Mail-Adresse existiert bereits. Versuchen Sie sich anzumelden.",
+            title: "E-Mail bereits registriert",
+            description: "Diese E-Mail-Adresse wird bereits verwendet. Bitte logge dich ein oder verwende eine andere E-Mail-Adresse.",
             variant: "destructive"
           });
           setActiveTab('login');
+          setEmail('');
           return;
+        } else if (error.message.includes('Password should be at least')) {
+          errorMessage = "Das Passwort muss mindestens 6 Zeichen lang sein.";
+        } else if (error.message.includes('Signup requires a valid password')) {
+          errorMessage = "Bitte geben Sie ein gültiges Passwort ein.";
         }
 
         toast({
-          title: "Registrierung fehlgeschlagen",
-          description: error.message,
+          title: "Registrierung fehlgeschlagen", 
+          description: errorMessage,
           variant: "destructive"
         });
         return;

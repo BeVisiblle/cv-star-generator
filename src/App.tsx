@@ -15,6 +15,8 @@ import Impressum from "./pages/Impressum";
 import CVGenerator from "./components/CVGenerator";
 import Auth from "./pages/Auth";
 import Profile from "./pages/Profile";
+import ProtectedRoute from "./components/ProtectedRoute";
+import ExampleProfile from "./components/ExampleProfile";
 import Dashboard from "./pages/Dashboard";
 import Marketplace from "./pages/Marketplace";
 import Settings from "./pages/Settings";
@@ -32,12 +34,23 @@ const App = () => (
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/auth" element={<Auth />} />
-              <Route path="/cv-generator" element={<CVGenerator />} />
-              <Route path="/cv-layout-selector" element={<CVGenerator />} />
+              <Route path="/example-profile" element={<ExampleProfile />} />
               <Route path="/blog" element={<Blog />} />
               <Route path="/unternehmen" element={<Unternehmen />} />
               <Route path="/datenschutz" element={<Datenschutz />} />
               <Route path="/impressum" element={<Impressum />} />
+              
+              {/* Protected Routes - Require Authentication */}
+              <Route path="/cv-generator" element={
+                <ProtectedRoute>
+                  <CVGenerator />
+                </ProtectedRoute>
+              } />
+              <Route path="/cv-layout-selector" element={
+                <ProtectedRoute>
+                  <CVGenerator />
+                </ProtectedRoute>
+              } />
               
               {/* Authenticated Routes with Sidebar */}
               <Route element={<AuthenticatedLayout />}>

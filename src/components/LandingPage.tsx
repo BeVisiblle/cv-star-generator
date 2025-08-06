@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle, Clock, Users, Zap, Star, ArrowRight, Download, Eye } from "lucide-react";
+import { CheckCircle, Clock, Users, Zap, Star, ArrowRight, Download, Eye, UserPlus } from "lucide-react";
 import step1HeroImage from '/images/step1-hero.jpg';
 import step1Image from '/images/step1.jpg';
 import step2Image from '/images/step2.jpg';
@@ -119,19 +119,19 @@ export default function LandingPage() {
                   <Button 
                     size="lg" 
                     className="text-lg px-8 py-6 shadow-lg hover:shadow-xl transition-all"
-                    onClick={() => navigate('/cv-generator')}
+                    onClick={() => navigate('/auth')}
                   >
-                    <Zap className="mr-2 h-5 w-5" />
-                    Jetzt CV erstellen - Kostenlos
+                    <UserPlus className="mr-2 h-5 w-5" />
+                    Jetzt kostenlos registrieren
                   </Button>
                   <Button 
                     variant="outline" 
                     size="lg"
                     className="text-lg px-6"
-                    onClick={() => navigate('/auth')}
+                    onClick={() => navigate('/example-profile')}
                   >
                     <Eye className="mr-2 h-4 w-4" />
-                    Beispiel ansehen
+                    Beispielprofil ansehen
                   </Button>
                 </div>
 
@@ -238,9 +238,9 @@ export default function LandingPage() {
                         variant="outline" 
                         size="sm" 
                         className="w-full group-hover:bg-primary group-hover:text-primary-foreground transition-colors"
-                        onClick={() => navigate('/cv-generator')}
+                        onClick={() => navigate('/auth')}
                       >
-                        CV für {branch.title.split(' ')[0]} erstellen
+                        Registrieren für {branch.title.split(' ')[0]}
                         <ArrowRight className="ml-2 h-4 w-4" />
                       </Button>
                     </div>
@@ -376,23 +376,24 @@ export default function LandingPage() {
                 size="lg" 
                 variant="secondary"
                 className="text-lg px-8 py-6 shadow-lg hover:shadow-xl transition-all"
-                onClick={() => navigate('/cv-generator')}
+                onClick={() => navigate('/auth')}
               >
-                <Download className="mr-2 h-5 w-5" />
-                Jetzt kostenlosen CV erstellen
+                <UserPlus className="mr-2 h-5 w-5" />
+                Jetzt kostenlos registrieren
               </Button>
               <Button 
                 size="lg" 
                 variant="outline"
                 className="text-lg px-6 bg-white/10 text-white border-white/20 hover:bg-white/20"
-                onClick={() => navigate('/auth')}
+                onClick={() => navigate('/example-profile')}
               >
-                Profil anlegen & gefunden werden
+                <Eye className="mr-2 h-5 w-5" />
+                Beispielprofil ansehen
               </Button>
             </div>
 
             <p className="text-sm mt-6 opacity-75">
-              ✓ Kostenlos ✓ Ohne Anmeldung ✓ Sofort nutzbar ✓ DSGVO-konform
+              ✓ Kostenlos ✓ E-Mail-Adresse muss gültig und eindeutig sein ✓ Sofort nutzbar ✓ DSGVO-konform
             </p>
           </div>
         </section>
@@ -462,9 +463,9 @@ export default function LandingPage() {
             <div>
               <h4 className="font-semibold mb-4">Für Schüler</h4>
               <ul className="space-y-2 text-sm">
-                <li><Button variant="link" className="h-auto p-0" onClick={() => navigate('/cv-generator')}>CV Generator</Button></li>
+                <li><Button variant="link" className="h-auto p-0" onClick={() => navigate('/example-profile')}>Beispielprofil ansehen</Button></li>
                 <li><Button variant="link" className="h-auto p-0" onClick={() => navigate('/blog')}>Bewerbungstipps</Button></li>
-                <li><Button variant="link" className="h-auto p-0" onClick={() => navigate('/auth')}>Profil erstellen</Button></li>
+                <li><Button variant="link" className="h-auto p-0" onClick={() => navigate('/auth')}>Kostenlos registrieren</Button></li>
               </ul>
             </div>
             
