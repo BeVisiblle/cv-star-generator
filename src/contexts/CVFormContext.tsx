@@ -145,10 +145,16 @@ export const CVFormProvider = ({ children }: { children: ReactNode }) => {
 
   // Sync form data to profile (only when user is logged in)
   const syncToProfile = async () => {
-    if (!user?.id || !formData) return;
+    if (!user?.id || !formData || Object.keys(formData).length === 0) {
+      console.log('Skipping sync - no user or empty formData');
+      return;
+    }
+    
+    console.log('Syncing CV data to profile...', formData);
     
     try {
       await syncCVDataToProfile(user.id, formData);
+      console.log('Successfully synced CV data to profile');
     } catch (error) {
       console.error('Error syncing CV data to profile:', error);
     }
@@ -158,13 +164,15 @@ export const CVFormProvider = ({ children }: { children: ReactNode }) => {
     const newFormData = { ...formData, ...data };
     setFormData(newFormData);
     
-    // Auto-sync to profile when user is logged in
-    if (user?.id) {
-      // Debounce the sync operation
+    // Auto-sync to profile when user is logged in (with debounce)
+    if (user?.id && Object.keys(newFormData).length > 1) {
+      console.log('Auto-syncing CV data to profile:', newFormData);
+      
       const timeoutId = setTimeout(() => {
         syncToProfile();
-      }, 1000);
+      }, 2000); // 2 seconds debounce
       
+      // Cleanup previous timeout
       return () => clearTimeout(timeoutId);
     }
   };
