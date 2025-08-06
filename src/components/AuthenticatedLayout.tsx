@@ -1,10 +1,11 @@
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
-import { Outlet, Navigate } from "react-router-dom";
+import { Outlet, Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 
 export function AuthenticatedLayout() {
   const { profile, isLoading, user } = useAuth();
+  const location = useLocation();
 
   // Show loading state
   if (isLoading) {
@@ -20,8 +21,8 @@ export function AuthenticatedLayout() {
     return <Navigate to="/auth" replace />;
   }
 
-  // Only redirect users with complete profiles that are not published yet
-  if (profile && !profile.profile_published && profile.profile_complete) {
+  // Only redirect users with complete profiles that are not published yet, but not if already on profile page
+  if (profile && !profile.profile_published && profile.profile_complete && location.pathname !== "/profile") {
     return <Navigate to="/profile" replace />;
   }
 
