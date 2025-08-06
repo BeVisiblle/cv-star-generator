@@ -26,8 +26,11 @@ All colors MUST be HSL.
     --muted: 220 13% 91%;
     --muted-foreground: 220 8.9% 46.1%;
 
-    --accent: 197 71% 73%;
-    --accent-foreground: 220 13% 13%;
+    --accent: 220 90% 56%;
+    --accent-foreground: 0 0% 100%;
+    
+    --linkedin-blue: 201 100% 35%;
+    --linkedin-blue-light: 201 100% 95%;
 
     --hero-gradient-from: 197 100% 95%;
     --hero-gradient-to: 0 0% 100%;
