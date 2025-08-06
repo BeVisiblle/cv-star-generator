@@ -13,18 +13,28 @@ import CVStep6 from './cv-steps/CVStep6';
 import CVStep7 from './cv-steps/CVStep7';
 
 const CVGeneratorContent = () => {
-  const { currentStep, setCurrentStep, formData } = useCVForm();
+  const { currentStep, setCurrentStep, formData, isLayoutEditMode } = useCVForm();
   const navigate = useNavigate();
 
   const renderStep = () => {
+    // In layout edit mode, only show steps 5 and 6
+    if (isLayoutEditMode) {
+      switch (currentStep) {
+        case 5: return <CVStep5 />;
+        case 6: return <CVStep6 />;
+        default: return <CVStep5 />;
+      }
+    }
+    
+    // Normal mode - show all steps
     switch (currentStep) {
       case 1: return <CVStep1 />;
       case 2: return <CVStep2 />;
       case 3: return <CVStep3 />;
-        case 4: return <CVStep4 />;
-        case 5: return <CVStep5 />;
-        case 6: return <CVStep6 />;
-        case 7: return <CVStep7 />;
+      case 4: return <CVStep4 />;
+      case 5: return <CVStep5 />;
+      case 6: return <CVStep6 />;
+      case 7: return <CVStep7 />;
       default: return <CVStep1 />;
     }
   };
@@ -50,19 +60,39 @@ const CVGeneratorContent = () => {
   };
 
   const handleNext = () => {
-    if (currentStep < 7 && canGoNext()) {
-      setCurrentStep(currentStep + 1);
+    if (isLayoutEditMode) {
+      // In layout edit mode, only allow step 5 -> 6
+      if (currentStep === 5 && canGoNext()) {
+        setCurrentStep(6);
+      }
+    } else {
+      // Normal mode
+      if (currentStep < 7 && canGoNext()) {
+        setCurrentStep(currentStep + 1);
+      }
     }
   };
 
   const handlePrevious = () => {
-    if (currentStep > 1) {
-      setCurrentStep(currentStep - 1);
+    if (isLayoutEditMode) {
+      // In layout edit mode, only allow step 6 -> 5
+      if (currentStep === 6) {
+        setCurrentStep(5);
+      }
+    } else {
+      // Normal mode
+      if (currentStep > 1) {
+        setCurrentStep(currentStep - 1);
+      }
     }
   };
 
   const handleBackToHome = () => {
-    navigate('/');
+    if (isLayoutEditMode) {
+      navigate('/profile');
+    } else {
+      navigate('/');
+    }
   };
 
   return (
@@ -81,14 +111,26 @@ const CVGeneratorContent = () => {
           
           <div className="space-y-4">
             <h1 className="text-2xl font-bold text-foreground">
-              CV-Generator
+              {isLayoutEditMode ? 'CV-Layout bearbeiten' : 'CV-Generator'}
             </h1>
             <div className="space-y-2">
               <div className="flex justify-between text-sm text-muted-foreground">
-                <span>Schritt {currentStep} von 7</span>
-                <span>{Math.round((currentStep / 7) * 100)}% abgeschlossen</span>
+                {isLayoutEditMode ? (
+                  <>
+                    <span>Schritt {currentStep - 4} von 2</span>
+                    <span>{Math.round(((currentStep - 4) / 2) * 100)}% abgeschlossen</span>
+                  </>
+                ) : (
+                  <>
+                    <span>Schritt {currentStep} von 7</span>
+                    <span>{Math.round((currentStep / 7) * 100)}% abgeschlossen</span>
+                  </>
+                )}
               </div>
-              <Progress value={(currentStep / 7) * 100} className="h-2" />
+              <Progress 
+                value={isLayoutEditMode ? ((currentStep - 4) / 2) * 100 : (currentStep / 7) * 100} 
+                className="h-2" 
+              />
             </div>
           </div>
         </div>
@@ -103,13 +145,13 @@ const CVGeneratorContent = () => {
           <Button
             variant="outline"
             onClick={handlePrevious}
-            disabled={currentStep === 1}
+            disabled={isLayoutEditMode ? currentStep === 5 : currentStep === 1}
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
             Zurück
           </Button>
 
-          {currentStep < 7 && (
+          {(isLayoutEditMode ? currentStep < 6 : currentStep < 7) && (
             <Button
               onClick={handleNext}
               disabled={!canGoNext()}

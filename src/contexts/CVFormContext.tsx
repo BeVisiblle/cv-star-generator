@@ -96,64 +96,38 @@ interface CVFormContextType {
   currentStep: number;
   setCurrentStep: (step: number) => void;
   resetForm: () => void;
+  isLayoutEditMode: boolean;
+  setLayoutEditMode: (mode: boolean) => void;
 }
 
 const CVFormContext = createContext<CVFormContextType | undefined>(undefined);
 
 export const CVFormProvider = ({ children }: { children: ReactNode }) => {
   const [formData, setFormData] = useState<CVFormData>(() => {
-    // Try to load existing CV edit data from localStorage
-    const savedEditData = localStorage.getItem('cvEditData');
-    if (savedEditData) {
-      try {
-        const editData = JSON.parse(savedEditData);
-        localStorage.removeItem('cvEditData'); // Clear after loading
-        return {
-          branche: editData.branche,
-          status: editData.status,
-          vorname: editData.vorname,
-          nachname: editData.nachname,
-          geburtsdatum: editData.geburtsdatum ? new Date(editData.geburtsdatum) : undefined,
-          strasse: editData.strasse,
-          hausnummer: editData.hausnummer,
-          plz: editData.plz,
-          ort: editData.ort,
-          telefon: editData.telefon,
-          email: editData.email,
-          profilbild: editData.avatar_url,
-          has_drivers_license: editData.has_drivers_license,
-          has_own_vehicle: editData.has_own_vehicle,
-          target_year: editData.target_year,
-          visibility_industry: editData.visibility_industry || [],
-          visibility_region: editData.visibility_region || [],
-          ueberMich: editData.uebermich || editData.bio,
-          kenntnisse: editData.kenntnisse,
-          motivation: editData.motivation,
-          praktische_erfahrung: editData.praktische_erfahrung,
-          schulbildung: editData.schulbildung || [],
-          berufserfahrung: editData.berufserfahrung || [],
-          sprachen: editData.sprachen || [],
-          faehigkeiten: editData.faehigkeiten || [],
-          layout: editData.layout || 1,
-          schule: editData.schule,
-          geplanter_abschluss: editData.geplanter_abschluss,
-          abschlussjahr: editData.abschlussjahr,
-          ausbildungsberuf: editData.ausbildungsberuf,
-          ausbildungsbetrieb: editData.ausbildungsbetrieb,
-          startjahr: editData.startjahr,
-          voraussichtliches_ende: editData.voraussichtliches_ende,
-          abschlussjahr_ausgelernt: editData.abschlussjahr_ausgelernt,
-          aktueller_beruf: editData.aktueller_beruf,
-          einwilligung: editData.einwilligung,
-          headline: editData.headline
-        };
-      } catch (error) {
-        console.error('Error loading CV edit data:', error);
-      }
-    }
-    return {};
+    // Load from localStorage if available
+    const saved = localStorage.getItem('cvFormData');
+    return saved ? JSON.parse(saved) : {};
   });
-  const [currentStep, setCurrentStep] = useState(1);
+  
+  const [currentStep, setCurrentStep] = useState(() => {
+    // Check if we're in layout edit mode
+    const isLayoutEdit = localStorage.getItem('cvLayoutEditMode') === 'true';
+    return isLayoutEdit ? 5 : 1;
+  });
+  
+  const [isLayoutEditMode, setLayoutEditMode] = useState(() => {
+    return localStorage.getItem('cvLayoutEditMode') === 'true';
+  });
+
+  // Save to localStorage whenever formData changes
+  React.useEffect(() => {
+    localStorage.setItem('cvFormData', JSON.stringify(formData));
+  }, [formData]);
+
+  // Save layout edit mode to localStorage
+  React.useEffect(() => {
+    localStorage.setItem('cvLayoutEditMode', isLayoutEditMode.toString());
+  }, [isLayoutEditMode]);
 
   const updateFormData = (data: Partial<CVFormData>) => {
     setFormData(prev => ({ ...prev, ...data }));
@@ -162,6 +136,9 @@ export const CVFormProvider = ({ children }: { children: ReactNode }) => {
   const resetForm = () => {
     setFormData({});
     setCurrentStep(1);
+    setLayoutEditMode(false);
+    localStorage.removeItem('cvFormData');
+    localStorage.removeItem('cvLayoutEditMode');
   };
 
   return (
@@ -170,7 +147,9 @@ export const CVFormProvider = ({ children }: { children: ReactNode }) => {
       updateFormData,
       currentStep,
       setCurrentStep,
-      resetForm
+      resetForm,
+      isLayoutEditMode,
+      setLayoutEditMode
     }}>
       {children}
     </CVFormContext.Provider>

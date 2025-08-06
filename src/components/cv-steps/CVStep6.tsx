@@ -2,7 +2,12 @@ import React from 'react';
 import { useCVForm } from '@/contexts/CVFormContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Download } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/hooks/useAuth';
+import { supabase } from '@/integrations/supabase/client';
+import { generatePDF, generateCVFilename } from '@/lib/pdf-generator';
+import { toast } from 'sonner';
 
 // Import layout components
 import ModernLayout from '@/components/cv-layouts/ModernLayout';
@@ -13,7 +18,9 @@ import ProfessionalLayout from '@/components/cv-layouts/ProfessionalLayout';
 import LiveCareerLayout from '@/components/cv-layouts/LiveCareerLayout';
 
 const CVStep6 = () => {
-  const { formData, setCurrentStep } = useCVForm();
+  const { formData, setCurrentStep, isLayoutEditMode, setLayoutEditMode } = useCVForm();
+  const navigate = useNavigate();
+  const { profile } = useAuth();
 
   const getBrancheTitle = () => {
     switch (formData.branche) {
@@ -48,6 +55,50 @@ const CVStep6 = () => {
     setCurrentStep(5);
   };
 
+  const handleFinish = async () => {
+    if (isLayoutEditMode && profile) {
+      try {
+        // Save the selected layout to the user's profile
+        const { error } = await supabase
+          .from('profiles')
+          .update({ layout: formData.layout })
+          .eq('id', profile.id);
+
+        if (error) throw error;
+
+        toast.success('Layout erfolgreich gespeichert!');
+        
+        // Reset layout edit mode and return to profile
+        setLayoutEditMode(false);
+        localStorage.removeItem('cvLayoutEditMode');
+        navigate('/profile');
+      } catch (error) {
+        console.error('Error saving layout:', error);
+        toast.error('Fehler beim Speichern des Layouts');
+      }
+    } else {
+      // Normal CV generation flow
+      setCurrentStep(7);
+    }
+  };
+
+  const handleDownloadCV = async () => {
+    try {
+      const cvElement = document.querySelector('[data-cv-preview]') as HTMLElement;
+      if (!cvElement) {
+        toast.error('CV-Vorschau nicht gefunden');
+        return;
+      }
+
+      const filename = generateCVFilename(formData.vorname || 'Unknown', formData.nachname || 'User');
+      await generatePDF(cvElement, { filename });
+      toast.success('CV erfolgreich heruntergeladen!');
+    } catch (error) {
+      console.error('Error downloading CV:', error);
+      toast.error('Fehler beim Herunterladen des CVs');
+    }
+  };
+
   const renderLayoutComponent = () => {
     const layoutProps = { data: formData };
     
@@ -69,14 +120,32 @@ const CVStep6 = () => {
           <CardDescription>
             Hier siehst du eine Vorschau deines Lebenslaufs im {getLayoutName()}-Layout.
           </CardDescription>
-          <Button
-            variant="outline"
-            onClick={handleBackToLayout}
-            className="w-fit"
-          >
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Zurück zur Layout-Auswahl
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              onClick={handleBackToLayout}
+              className="w-fit"
+            >
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Zurück zur Layout-Auswahl
+            </Button>
+            <Button
+              variant="outline"
+              onClick={handleDownloadCV}
+              className="w-fit"
+            >
+              <Download className="h-4 w-4 mr-2" />
+              CV herunterladen
+            </Button>
+            {isLayoutEditMode && (
+              <Button
+                onClick={handleFinish}
+                className="w-fit"
+              >
+                Layout speichern
+              </Button>
+            )}
+          </div>
         </CardHeader>
         
         <CardContent>

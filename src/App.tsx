@@ -29,6 +29,7 @@ const App = () => (
               <Route path="/" element={<Index />} />
               <Route path="/auth" element={<Auth />} />
               <Route path="/cv-generator" element={<CVGenerator />} />
+              <Route path="/cv-layout-selector" element={<CVGenerator />} />
               <Route path="/profile" element={<Profile />} />
               
               {/* Authenticated Routes with Sidebar */}

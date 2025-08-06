@@ -30,110 +30,44 @@ export const LinkedInProfileSidebar: React.FC<LinkedInProfileSidebarProps> = ({ 
   const navigate = useNavigate();
 
   const handleDownloadCV = async () => {
-    if (!profile?.vorname || !profile?.nachname) {
-      toast({
-        title: "Fehler",
-        description: "Vor- und Nachname sind im Profil erforderlich.",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    setIsGeneratingPDF(true);
     try {
-      // Check if CV URL exists in profile, if yes, download directly
+      setIsGeneratingPDF(true);
+      
+      // Check if CV already exists
       if (profile.cv_url) {
-        const link = document.createElement('a');
-        link.href = profile.cv_url;
-        link.download = `CV_${profile.vorname}_${profile.nachname}_${formatDate(new Date().toISOString())}.pdf`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        
+        // Download existing CV
+        window.open(profile.cv_url, '_blank');
         toast({
-          title: "CV erfolgreich heruntergeladen",
+          title: "CV wird heruntergeladen...",
           description: "Dein gespeicherter Lebenslauf wurde heruntergeladen.",
         });
         return;
       }
 
-      // Generate CV dynamically if no saved CV exists
-      const cvElement = document.createElement('div');
-      cvElement.style.position = 'absolute';
-      cvElement.style.left = '-9999px';
-      cvElement.style.width = '210mm';
-      cvElement.style.minHeight = '297mm';
-      cvElement.style.backgroundColor = 'white';
-      cvElement.style.padding = '20mm';
-      cvElement.style.fontFamily = 'Arial, sans-serif';
-      
-      // Generate CV content based on profile
-      cvElement.innerHTML = `
-        <div style="font-size: 14px; line-height: 1.4; color: #333;">
-          <h1 style="font-size: 24px; margin-bottom: 10px; color: #000;">${profile.vorname} ${profile.nachname}</h1>
-          <p style="margin-bottom: 20px; color: #666;">${profile.email} | ${profile.telefon} | ${profile.ort}</p>
-          
-          ${profile.bio ? `
-            <h2 style="font-size: 18px; margin: 20px 0 10px 0; color: #000; border-bottom: 1px solid #ccc;">Über mich</h2>
-            <p style="margin-bottom: 20px;">${profile.bio}</p>
-          ` : ''}
-          
-          ${profile.berufserfahrung && profile.berufserfahrung.length > 0 ? `
-            <h2 style="font-size: 18px; margin: 20px 0 10px 0; color: #000; border-bottom: 1px solid #ccc;">Berufserfahrung</h2>
-            ${profile.berufserfahrung.map((exp: any) => `
-              <div style="margin-bottom: 15px;">
-                <h3 style="font-size: 16px; margin-bottom: 5px; color: #000;">${exp.titel} - ${exp.unternehmen}</h3>
-                <p style="margin-bottom: 5px; color: #666;">${exp.zeitraum_von} - ${exp.zeitraum_bis} | ${exp.ort}</p>
-                ${exp.beschreibung ? `<p style="margin-bottom: 10px;">${exp.beschreibung}</p>` : ''}
-              </div>
-            `).join('')}
-          ` : ''}
-          
-          ${profile.schulbildung && profile.schulbildung.length > 0 ? `
-            <h2 style="font-size: 18px; margin: 20px 0 10px 0; color: #000; border-bottom: 1px solid #ccc;">Schulbildung</h2>
-            ${profile.schulbildung.map((edu: any) => `
-              <div style="margin-bottom: 15px;">
-                <h3 style="font-size: 16px; margin-bottom: 5px; color: #000;">${edu.schulform} - ${edu.name}</h3>
-                <p style="margin-bottom: 5px; color: #666;">${edu.zeitraum_von} - ${edu.zeitraum_bis} | ${edu.ort}</p>
-                ${edu.beschreibung ? `<p style="margin-bottom: 10px;">${edu.beschreibung}</p>` : ''}
-              </div>
-            `).join('')}
-          ` : ''}
-        </div>
-      `;
-      
-      document.body.appendChild(cvElement);
-      
-      // Generate PDF using html2canvas and jsPDF
-      const html2canvas = (await import('html2canvas')).default;
-      const jsPDF = (await import('jspdf')).jsPDF;
-      
-      const canvas = await html2canvas(cvElement, {
-        scale: 2,
-        logging: false,
-        useCORS: true,
-        allowTaint: true
-      });
-      
-      const imgData = canvas.toDataURL('image/png');
-      const pdf = new jsPDF('p', 'mm', 'a4');
-      
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-      
-      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
-      pdf.save(`CV_${profile.vorname}_${profile.nachname}_${formatDate(new Date().toISOString())}.pdf`);
-      
-      document.body.removeChild(cvElement);
+      // Generate CV from profile data using the selected layout
+      const cvElement = document.querySelector('[data-cv-preview]') as HTMLElement;
+      if (!cvElement) {
+        toast({
+          title: "Fehler",
+          description: "CV-Vorschau nicht gefunden. Bitte aktivieren Sie die Vorschau.",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      // Import PDF generator
+      const { generatePDF, generateCVFilename } = await import('@/lib/pdf-generator');
+      const filename = generateCVFilename(profile.vorname || 'Unknown', profile.nachname || 'User');
+      await generatePDF(cvElement, { filename });
       
       toast({
         title: "CV erfolgreich heruntergeladen",
         description: "Dein Lebenslauf wurde als PDF gespeichert.",
       });
     } catch (error) {
-      console.error('PDF generation error:', error);
+      console.error('Error downloading CV:', error);
       toast({
-        title: "Fehler beim Erstellen der PDF",
+        title: "Fehler beim Herunterladen des CVs",
         description: "Es gab ein Problem beim Generieren der PDF-Datei.",
         variant: "destructive"
       });
@@ -143,14 +77,33 @@ export const LinkedInProfileSidebar: React.FC<LinkedInProfileSidebarProps> = ({ 
   };
 
   const handleEditCV = () => {
-    // Store current profile data for CV generator
-    const cvEditData = {
-      ...profile,
-      // Ensure dates are properly formatted
-      geburtsdatum: profile?.geburtsdatum ? new Date(profile.geburtsdatum).toISOString() : undefined
+    // Save current profile data to localStorage for CV generator
+    const cvData = {
+      branche: profile.branche,
+      status: profile.status,
+      vorname: profile.vorname,
+      nachname: profile.nachname,
+      geburtsdatum: profile.geburtsdatum,
+      strasse: profile.strasse,
+      hausnummer: profile.hausnummer,
+      plz: profile.plz,
+      ort: profile.ort,
+      telefon: profile.telefon,
+      email: profile.email,
+      profilbild: profile.avatar_url,
+      motivation: profile.bio,
+      kenntnisse: profile.kenntnisse,
+      sprachen: profile.sprachen || [],
+      faehigkeiten: profile.faehigkeiten || [],
+      schulbildung: profile.schulbildung || [],
+      berufserfahrung: profile.berufserfahrung || [],
+      layout: profile.layout || 1,
+      ueberMich: profile.uebermich,
     };
-    localStorage.setItem('cvEditData', JSON.stringify(cvEditData));
-    navigate('/cv-generator');
+    
+    localStorage.setItem('cvFormData', JSON.stringify(cvData));
+    localStorage.setItem('cvLayoutEditMode', 'true');
+    navigate('/cv-layout-selector');
   };
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
