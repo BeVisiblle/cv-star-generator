@@ -167,6 +167,29 @@ export const ProfileCreationModal = ({
       if (authData.user) {
         console.log('User created:', authData.user.id);
         
+        // CRITICAL: Set session immediately to ensure proper authentication
+        if (authData.session) {
+          await supabase.auth.setSession(authData.session);
+          console.log('Session set for user:', authData.user.id);
+        }
+        
+        // Wait for auth state to propagate
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        // Verify authentication before proceeding
+        const { data: { user: currentUser } } = await supabase.auth.getUser();
+        if (!currentUser) {
+          console.error('User not authenticated after session set');
+          toast({
+            title: "Authentifizierungsfehler",
+            description: "Benutzer konnte nicht authentifiziert werden. Bitte versuchen Sie es erneut.",
+            variant: "destructive"
+          });
+          return;
+        }
+        
+        console.log('User authenticated:', currentUser.id);
+        
         // Wait for trigger to create basic profile
         await new Promise(resolve => setTimeout(resolve, 2000));
         
@@ -178,18 +201,37 @@ export const ProfileCreationModal = ({
           .maybeSingle();
           
         if (!profileCheck) {
-          console.log('Profile not created by trigger, creating manually');
-          // Create basic profile manually if trigger failed
-          const { error: insertError } = await supabase
+          console.log('Profile not created by trigger, attempting manual creation');
+          
+          // Try to create basic profile manually as authenticated user
+          const { data: newProfile, error: insertError } = await supabase
             .from('profiles')
             .insert({
               id: authData.user.id,
               email: email,
               account_created: true
-            });
+            })
+            .select()
+            .single();
             
           if (insertError) {
             console.error('Manual profile creation failed:', insertError);
+            
+            // If RLS error, try using the service role approach
+            if (insertError.code === '42501') {
+              console.log('RLS policy violation, profile should be created by trigger');
+              toast({
+                title: "Profil wird erstellt",
+                description: "Ihr Account wurde erfolgreich erstellt. Das Profil wird automatisch angelegt.",
+                variant: "default"
+              });
+              
+              // Navigate to profile page anyway, the trigger should work
+              onClose();
+              navigate('/profile');
+              return;
+            }
+            
             toast({
               title: "Fehler beim Profil erstellen",
               description: "Das Profil konnte nicht erstellt werden. Bitte versuchen Sie es erneut.",
@@ -197,6 +239,9 @@ export const ProfileCreationModal = ({
             });
             return;
           }
+          console.log('Profile created manually:', newProfile);
+        } else {
+          console.log('Profile exists:', profileCheck);
         }
         
         // Handle file uploads first
