@@ -238,20 +238,25 @@ const CVStep4 = () => {
                     onChange={(e) => updateSchulbildungEntry(index, 'name', e.target.value)}
                   />
                 </div>
-                <div className="col-span-2">
-                  <PLZOrtSelector
-                    plz={schule.plz || ''}
-                    ort={schule.ort}
-                    onPLZChange={(plz, ort) => {
-                      updateSchulbildungEntry(index, 'plz', plz);
-                      updateSchulbildungEntry(index, 'ort', ort);
-                    }}
-                    onOrtChange={(ort) => updateSchulbildungEntry(index, 'ort', ort)}
-                    required={true}
-                    plzLabel="PLZ"
-                    ortLabel="Ort"
-                    className=""
-                  />
+                <div className="grid grid-cols-3 gap-2">
+                  <div>
+                    <Label htmlFor={`schule-plz-${index}`}>PLZ</Label>
+                    <Input
+                      id={`schule-plz-${index}`}
+                      placeholder="12345"
+                      value={schule.plz || ''}
+                      onChange={(e) => updateSchulbildungEntry(index, 'plz', e.target.value)}
+                    />
+                  </div>
+                  <div className="col-span-2">
+                    <Label htmlFor={`schule-ort-${index}`}>Ort *</Label>
+                    <Input
+                      id={`schule-ort-${index}`}
+                      placeholder="z.B. Berlin"
+                      value={schule.ort}
+                      onChange={(e) => updateSchulbildungEntry(index, 'ort', e.target.value)}
+                    />
+                  </div>
                 </div>
                 <div className="grid grid-cols-2 gap-2">
                   <div>
@@ -343,20 +348,25 @@ const CVStep4 = () => {
                     onChange={(e) => updateBerufserfahrungEntry(index, 'unternehmen', e.target.value)}
                   />
                 </div>
-                <div className="col-span-2">
-                  <PLZOrtSelector
-                    plz={arbeit.plz || ''}
-                    ort={arbeit.ort}
-                    onPLZChange={(plz, ort) => {
-                      updateBerufserfahrungEntry(index, 'plz', plz);
-                      updateBerufserfahrungEntry(index, 'ort', ort);
-                    }}
-                    onOrtChange={(ort) => updateBerufserfahrungEntry(index, 'ort', ort)}
-                    required={true}
-                    plzLabel="PLZ"
-                    ortLabel="Ort"
-                    className=""
-                  />
+                <div className="grid grid-cols-3 gap-2">
+                  <div>
+                    <Label htmlFor={`arbeit-plz-${index}`}>PLZ</Label>
+                    <Input
+                      id={`arbeit-plz-${index}`}
+                      placeholder="12345"
+                      value={arbeit.plz || ''}
+                      onChange={(e) => updateBerufserfahrungEntry(index, 'plz', e.target.value)}
+                    />
+                  </div>
+                  <div className="col-span-2">
+                    <Label htmlFor={`arbeit-ort-${index}`}>Ort *</Label>
+                    <Input
+                      id={`arbeit-ort-${index}`}
+                      placeholder="z.B. München"
+                      value={arbeit.ort}
+                      onChange={(e) => updateBerufserfahrungEntry(index, 'ort', e.target.value)}
+                    />
+                  </div>
                 </div>
                 <div className="grid grid-cols-2 gap-2">
                   <div>
