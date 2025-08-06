@@ -87,12 +87,12 @@ const Profile = () => {
     return (
       <div className="container mx-auto p-6">
         <Card className="p-6 text-center">
-          <h1 className="text-2xl font-bold mb-4">Kein Profil gefunden</h1>
+          <h1 className="text-2xl font-bold mb-4">Willkommen!</h1>
           <p className="text-muted-foreground mb-4">
-            Sie haben noch kein Profil erstellt. Erstellen Sie zunächst einen CV.
+            Erstellen Sie jetzt Ihren ersten Lebenslauf, um von Unternehmen gefunden zu werden.
           </p>
           <Button onClick={() => navigate('/cv-generator')}>
-            CV erstellen
+            Jetzt Lebenslauf erstellen
           </Button>
         </Card>
       </div>

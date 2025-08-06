@@ -30,7 +30,7 @@ import { useQuery } from "@tanstack/react-query";
 const navigationItems = [
   {
     title: "Dashboard",
-    url: "/dashboard",
+    url: "/dashboard", 
     icon: LayoutDashboard,
   },
   {
@@ -42,11 +42,6 @@ const navigationItems = [
     title: "Community",
     url: "/marketplace",
     icon: Users,
-  },
-  {
-    title: "CV Generator",
-    url: "/cv-generator",
-    icon: FileText,
   },
   {
     title: "Einstellungen",

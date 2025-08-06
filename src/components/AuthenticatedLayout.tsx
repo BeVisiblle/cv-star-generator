@@ -20,14 +20,14 @@ export function AuthenticatedLayout() {
     return <Navigate to="/auth" replace />;
   }
 
-  // Redirect to profile if profile exists but not published yet
+  // Redirect to profile if profile exists but not published yet  
   if (profile && !profile.profile_published) {
     return <Navigate to="/profile" replace />;
   }
 
-  // Redirect to CV generator if no profile at all
-  if (!profile) {
-    return <Navigate to="/cv-generator" replace />;
+  // Redirect to profile for users with incomplete profiles
+  if (!profile || !profile.profile_complete) {
+    return <Navigate to="/profile" replace />;
   }
 
   return (

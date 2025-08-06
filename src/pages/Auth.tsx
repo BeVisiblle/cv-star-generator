@@ -115,10 +115,10 @@ const Auth = () => {
       if (data.user) {
         toast({
           title: "Erfolgreich angemeldet",
-          description: "Sie werden weitergeleitet...",
+          description: "Willkommen zurück!",
         });
         
-        // Force page reload for clean state
+        // Redirect existing users to profile, new users will go to CV generator from registration
         window.location.href = '/profile';
       }
     } catch (error) {
@@ -251,17 +251,17 @@ const Auth = () => {
 
         // Success message for registration
         if (data.user.email_confirmed_at) {
-          // User is immediately confirmed
+          // User is immediately confirmed - redirect to CV Generator
           toast({
             title: "Registrierung erfolgreich",
-            description: "Ihr Account wurde erstellt. Sie werden weitergeleitet...",
+            description: "Jetzt können Sie Ihren Lebenslauf erstellen!",
           });
-          window.location.href = '/profile';
+          window.location.href = '/cv-generator';
         } else {
           // User needs to confirm email
           toast({
-            title: "Registrierung erfolgreich",
-            description: "Bitte überprüfen Sie Ihre E-Mails und bestätigen Sie Ihre E-Mail-Adresse.",
+            title: "Registrierung erfolgreich", 
+            description: "Bitte überprüfen Sie Ihre E-Mails und bestätigen Sie Ihre E-Mail-Adresse. Dann können Sie Ihren Lebenslauf erstellen.",
           });
         }
       }
@@ -459,7 +459,7 @@ const Auth = () => {
                     ) : (
                       <UserPlus className="h-4 w-4 mr-2" />
                     )}
-                    {isAuthenticating ? 'Registrieren...' : 'Konto erstellen'}
+                    {isAuthenticating ? 'Registrieren...' : 'Jetzt Lebenslauf erstellen'}
                   </Button>
                 </form>
               </TabsContent>
