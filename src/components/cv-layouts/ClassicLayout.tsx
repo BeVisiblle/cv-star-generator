@@ -1,25 +1,26 @@
 import React from 'react';
 import { CVLayoutProps, getBrancheColors, getBrancheTitle, getStatusTitle, ContactInfo, ProfileImage, LanguageBars, SkillTags } from './CVLayoutBase';
+import { cn } from '@/lib/utils';
 
 const ClassicLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) => {
   const colors = getBrancheColors(data.branche);
   
   return (
-    <div className={`max-w-3xl mx-auto bg-white border-2 border-gray-300 shadow-lg ${className}`} data-cv-preview>
+    <div className={cn("max-w-3xl mx-auto bg-white border-2 border-gray-300 shadow-lg", className)} data-cv-preview>
       {/* Header Section */}
       <div 
-        className="p-6 text-white"
+        className="p-4 md:p-6 text-white cv-header-mobile"
         style={{
           background: `linear-gradient(135deg, hsl(${colors.primary}), hsl(${colors.accent}))`
         }}
       >
-        <div className="flex items-center gap-6">
+        <div className="flex flex-col md:flex-row items-center gap-4 md:gap-6">
           <ProfileImage profilbild={data.profilbild} avatar_url={data.avatar_url} size="md" className="border-2 border-white" />
-          <div className="flex-1">
-            <h1 className="text-3xl font-serif font-bold mb-2 text-white">
+          <div className="flex-1 text-center md:text-left">
+            <h1 className="text-2xl md:text-3xl font-serif font-bold mb-2 text-white cv-text-mobile">
               {data.vorname} {data.nachname}
             </h1>
-            <div className="text-lg mb-3 text-white/90 font-serif">
+            <div className="text-base md:text-lg mb-3 text-white/90 font-serif">
               {getStatusTitle(data.status)} - {getBrancheTitle(data.branche)}
             </div>
             <ContactInfo data={data} isLight />
@@ -28,7 +29,7 @@ const ClassicLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) => {
       </div>
 
       {/* Content */}
-      <div className="p-6 space-y-6">
+      <div className="p-4 md:p-6 space-y-4 md:space-y-6 cv-section-mobile">
         {/* About Me */}
         {data.ueberMich && (
           <div>
@@ -42,7 +43,7 @@ const ClassicLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) => {
         )}
 
         {/* Languages and Skills in two columns */}
-        <div className="grid md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 cv-grid-mobile">
           {/* Languages */}
           {data.sprachen && data.sprachen.length > 0 && (
             <div>

@@ -78,24 +78,27 @@ const CVGeneratorContent = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-4 py-8 max-w-2xl">
+      <div className="container mx-auto px-4 py-4 md:py-8 max-w-full md:max-w-2xl">
         {/* Header */}
-        <div className="mb-8">
+        <div className="mb-6 md:mb-8">
           <Button 
             variant="ghost" 
             onClick={handleBackToHome}
-            className="mb-4"
+            className="mb-4 text-sm md:text-base"
+            size="sm"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
-            Zu meinem Profil
+            <span className="hidden sm:inline">Zu meinem Profil</span>
+            <span className="sm:hidden">Zurück</span>
           </Button>
           
           {/* Quick Navigation für eingeloggte User */}
-          <div className="mb-4 flex gap-2">
+          <div className="mb-4 flex gap-1 md:gap-2 flex-wrap">
             <Button 
               variant="outline" 
               size="sm"
               onClick={() => navigate('/profile')}
+              className="text-xs md:text-sm px-2 md:px-3"
             >
               Profil
             </Button>
@@ -103,6 +106,7 @@ const CVGeneratorContent = () => {
               variant="outline" 
               size="sm"
               onClick={() => navigate('/dashboard')}
+              className="text-xs md:text-sm px-2 md:px-3"
             >
               Dashboard
             </Button>
@@ -110,17 +114,18 @@ const CVGeneratorContent = () => {
               variant="outline" 
               size="sm"
               onClick={() => navigate('/marketplace')}
+              className="text-xs md:text-sm px-2 md:px-3"
             >
               Community
             </Button>
           </div>
           
-          <div className="space-y-4">
-            <h1 className="text-2xl font-bold text-foreground">
+          <div className="space-y-3 md:space-y-4">
+            <h1 className="text-xl md:text-2xl font-bold text-foreground">
               {isLayoutEditMode ? 'CV-Layout bearbeiten' : 'CV-Generator'}
             </h1>
             <div className="space-y-2">
-              <div className="flex justify-between text-sm text-muted-foreground">
+              <div className="flex justify-between text-xs md:text-sm text-muted-foreground">
                 {isLayoutEditMode ? (
                   <>
                     <span>Schritt {currentStep - 4} von 2</span>
@@ -142,17 +147,17 @@ const CVGeneratorContent = () => {
         </div>
 
         {/* Step Content */}
-        <div className="mb-8">
+        <div className="mb-6 md:mb-8">
           {renderStep()}
         </div>
 
         {/* Validation Errors */}
         {Object.keys(validationErrors).length > 0 && (
-          <div className="mb-8 p-4 bg-destructive/10 border border-destructive/20 rounded-lg">
+          <div className="mb-6 md:mb-8 p-3 md:p-4 bg-destructive/10 border border-destructive/20 rounded-lg">
             <h3 className="text-sm font-medium text-destructive mb-2">
               Bitte füllen Sie alle Pflichtfelder aus:
             </h3>
-            <ul className="text-sm text-destructive space-y-1">
+            <ul className="text-xs md:text-sm text-destructive space-y-1">
               {Object.values(validationErrors).map((error, index) => (
                 <li key={index}>• {error}</li>
               ))}
@@ -161,22 +166,30 @@ const CVGeneratorContent = () => {
         )}
 
         {/* Navigation */}
-        <div className="flex justify-between">
+        <div className="flex justify-between gap-2">
           <Button
             variant="outline"
             onClick={handlePrevious}
             disabled={isLayoutEditMode ? currentStep === 5 : currentStep === 1}
+            size="sm"
+            className="flex-shrink-0"
           >
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Zurück
+            <ArrowLeft className="h-4 w-4 mr-1 md:mr-2" />
+            <span className="hidden sm:inline">Zurück</span>
+            <span className="sm:hidden">←</span>
           </Button>
 
           {(isLayoutEditMode ? currentStep < 6 : currentStep < 7) && (
             <Button
               onClick={handleNext}
+              size="sm"
+              className="flex-shrink-0"
             >
-              {currentStep === 5 ? 'Weiter zur Vorschau' : 'Weiter'}
-              <ArrowRight className="h-4 w-4 ml-2" />
+              <span className="hidden sm:inline">
+                {currentStep === 5 ? 'Weiter zur Vorschau' : 'Weiter'}
+              </span>
+              <span className="sm:hidden">→</span>
+              <ArrowRight className="h-4 w-4 ml-1 md:ml-2" />
             </Button>
           )}
         </div>

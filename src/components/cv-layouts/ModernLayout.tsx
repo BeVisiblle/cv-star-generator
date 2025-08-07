@@ -1,25 +1,26 @@
 import React from 'react';
 import { CVLayoutProps, getBrancheColors, getBrancheTitle, getStatusTitle, ContactInfo, ProfileImage, LanguageBars, SkillTags } from './CVLayoutBase';
+import { cn } from '@/lib/utils';
 
 const ModernLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) => {
   const colors = getBrancheColors(data.branche);
   
   return (
-    <div className={`max-w-4xl mx-auto bg-white shadow-2xl rounded-xl overflow-hidden ${className}`} data-cv-preview>
+    <div className={cn("max-w-4xl mx-auto bg-white shadow-2xl rounded-xl overflow-hidden", className)} data-cv-preview>
       {/* Header Section */}
       <div 
-        className="p-8 text-white relative"
+        className="p-4 md:p-8 text-white relative cv-header-mobile"
         style={{
           background: `linear-gradient(135deg, hsl(${colors.primary}), hsl(${colors.accent}))`
         }}
       >
-        <div className="flex items-center gap-6">
+        <div className="flex flex-col md:flex-row items-center gap-4 md:gap-6">
           <ProfileImage profilbild={data.profilbild} avatar_url={data.avatar_url} size="lg" className="border-4 border-white/20" />
-          <div className="flex-1">
-            <h1 className="text-4xl font-bold mb-2 text-white">
+          <div className="flex-1 text-center md:text-left">
+            <h1 className="text-2xl md:text-4xl font-bold mb-2 text-white cv-text-mobile">
               {data.vorname} {data.nachname}
             </h1>
-            <div className="text-xl mb-4 text-white/90">
+            <div className="text-lg md:text-xl mb-3 md:mb-4 text-white/90">
               {getStatusTitle(data.status)} - {getBrancheTitle(data.branche)}
             </div>
             <ContactInfo data={data} isLight />
@@ -28,9 +29,9 @@ const ModernLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) => {
       </div>
 
       {/* Content Grid */}
-      <div className="grid md:grid-cols-3 gap-8 p-8">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8 p-4 md:p-8 cv-grid-mobile">
         {/* Left Sidebar */}
-        <div className="space-y-6">
+        <div className="space-y-4 md:space-y-6 cv-section-mobile">
           {/* Languages */}
           {data.sprachen && data.sprachen.length > 0 && (
             <div>
@@ -63,7 +64,7 @@ const ModernLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) => {
         </div>
 
         {/* Main Content */}
-        <div className="md:col-span-2 space-y-6">
+        <div className="col-span-1 md:col-span-2 space-y-4 md:space-y-6 cv-section-mobile">
           {/* About Me */}
           {data.ueberMich && (
             <div>

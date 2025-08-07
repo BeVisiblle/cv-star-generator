@@ -22,10 +22,10 @@ const CVStep4 = () => {
   // Local states for dynamic entry inputs to prevent focus loss
   const [localEntryInputs, setLocalEntryInputs] = useState<Record<string, string>>({});
 
-  // Debounced update function
+  // Debounced update function with stable reference
   const debouncedUpdate = useDebounce((updates: any) => {
     updateFormData(updates);
-  }, 300);
+  }, 500);
 
   // Helper functions to handle local state for dynamic entries
   const getLocalInputKey = (type: 'schul' | 'berufs', index: number, field: string) => {
