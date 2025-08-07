@@ -227,14 +227,6 @@ export function ProfileCard({
           ) : (
             <div className="space-y-2">
               <Button 
-                size="sm" 
-                onClick={onPreview}
-                variant="outline"
-                className="w-full"
-              >
-                Profil ansehen
-              </Button>
-              <Button 
                 size="sm"
                 onClick={onUnlock}
                 className="w-full bg-blue-600 hover:bg-blue-700"
