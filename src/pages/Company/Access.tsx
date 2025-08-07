@@ -11,7 +11,7 @@ import { Building2, ArrowRight } from "lucide-react";
 export default function CompanyAccess() {
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState("tom@ausbildungsbasis.de");
-  const [password, setPassword] = useState("test123");
+  const [password, setPassword] = useState("Test123!");
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -29,9 +29,15 @@ export default function CompanyAccess() {
         const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
           email,
           password,
+          options: {
+            emailRedirectTo: `${window.location.origin}/company/dashboard`
+          }
         });
 
-        if (signUpError) throw signUpError;
+        if (signUpError) {
+          console.error('Sign up error:', signUpError);
+          throw new Error(`Registrierung fehlgeschlagen: ${signUpError.message}`);
+        }
         
         if (signUpData.user) {
           toast({ 
@@ -52,9 +58,21 @@ export default function CompanyAccess() {
       }, 1500);
 
     } catch (error: any) {
+      console.error('Login error:', error);
+      let errorMessage = error.message;
+      
+      // Better error messages for common issues
+      if (errorMessage.includes('Invalid login credentials')) {
+        errorMessage = 'E-Mail oder Passwort ungültig. Bitte versuchen Sie es erneut.';
+      } else if (errorMessage.includes('Email not confirmed')) {
+        errorMessage = 'Bitte bestätigen Sie Ihre E-Mail-Adresse.';
+      } else if (errorMessage.includes('Password should be')) {
+        errorMessage = 'Das Passwort entspricht nicht den Sicherheitsanforderungen.';
+      }
+      
       toast({ 
         title: "Fehler beim Login", 
-        description: error.message,
+        description: errorMessage,
         variant: "destructive" 
       });
     } finally {
