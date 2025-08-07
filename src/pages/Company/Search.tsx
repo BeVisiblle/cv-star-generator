@@ -34,7 +34,7 @@ interface Profile {
   plz: string;
   avatar_url?: string;
   headline?: string;
-  faehigkeiten?: any[];
+  faehigkeiten?: any;
   email?: string;
   telefon?: string;
   cv_url?: string;
@@ -96,7 +96,7 @@ export default function CompanySearch() {
       const { data, error } = await query.limit(20);
 
       if (error) throw error;
-      setProfiles(data || []);
+      setProfiles((data || []) as Profile[]);
     } catch (error) {
       console.error('Error loading profiles:', error);
       toast({ title: "Fehler beim Laden der Profile", variant: "destructive" });
@@ -133,7 +133,7 @@ export default function CompanySearch() {
         .eq('company_id', company.id)
         .eq('status', 'saved');
 
-      setSavedMatches(data?.map(item => item.profiles).filter(Boolean) || []);
+      setSavedMatches((data?.map(item => item.profiles).filter(Boolean) || []) as Profile[]);
     } catch (error) {
       console.error('Error loading saved matches:', error);
     }
@@ -380,7 +380,7 @@ export default function CompanySearch() {
                         </CardHeader>
                         
                         <CardContent className="pt-0">
-                          {profile.faehigkeiten && profile.faehigkeiten.length > 0 && (
+                          {profile.faehigkeiten && Array.isArray(profile.faehigkeiten) && profile.faehigkeiten.length > 0 && (
                             <div className="mb-3">
                               <div className="flex flex-wrap gap-1">
                                 {profile.faehigkeiten.slice(0, 3).map((skill: any, index: number) => (

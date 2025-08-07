@@ -94,14 +94,22 @@ export default function CompanySettings() {
 
       if (data) {
         setSettings({
-          target_industries: data.target_industries || [],
-          target_locations: data.target_locations || [],
-          target_status: data.target_status || ["azubi", "schueler", "ausgelernt"],
-          notification_prefs: data.notification_prefs || {
-            email_matches: true,
-            email_tokens: true,
-            email_team: true,
-          },
+          target_industries: Array.isArray(data.target_industries) 
+            ? data.target_industries.map(String) 
+            : [],
+          target_locations: Array.isArray(data.target_locations) 
+            ? data.target_locations.map(String) 
+            : [],
+          target_status: Array.isArray(data.target_status) 
+            ? data.target_status.map(String) 
+            : ["azubi", "schueler", "ausgelernt"],
+          notification_prefs: (typeof data.notification_prefs === 'object' && data.notification_prefs !== null) 
+            ? data.notification_prefs as { email_matches: boolean; email_tokens: boolean; email_team: boolean; }
+            : {
+                email_matches: true,
+                email_tokens: true,
+                email_team: true,
+              },
         });
       }
     } catch (error) {

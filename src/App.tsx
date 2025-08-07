@@ -23,6 +23,15 @@ import Marketplace from "./pages/Marketplace";
 import Settings from "./pages/Settings";
 import CompanyDashboard from "./pages/CompanyDashboard";
 
+// Company components
+import { CompanyLayout } from "@/components/Company/CompanyLayout";
+import CompanyOnboarding from "@/pages/Company/Onboarding";
+import CompanyDashboardNew from "@/pages/Company/Dashboard";
+import CompanyProfile from "@/pages/Company/Profile";
+import CompanySearch from "@/pages/Company/Search";
+import CompanySettings from "@/pages/Company/Settings";
+import CompanyPosts from "@/pages/Company/Posts";
+
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -43,27 +52,27 @@ const App = () => (
               <Route path="/impressum" element={<Impressum />} />
               
               {/* CV Generator - Open for everyone, but validates complete profiles */}
-              <Route path="/cv-generator" element={
-                <CVGeneratorGate>
-                  <CVGenerator />
-                </CVGeneratorGate>
-              } />
-              <Route path="/cv-layout-selector" element={
-                <CVGeneratorGate>
-                  <CVGenerator />
-                </CVGeneratorGate>
-              } />
-              
-              {/* Protected Routes - Require Authentication */}
-              
-              {/* Authenticated Routes with Sidebar */}
-              <Route element={<AuthenticatedLayout />}>
-                <Route path="/profile" element={<Profile />} />
-              <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/marketplace" element={<Marketplace />} />
-                <Route path="/settings" element={<Settings />} />
-                <Route path="/company-dashboard" element={<CompanyDashboard />} />
-              </Route>
+          <Route path="/cv-generator" element={<CVGeneratorGate><CVGenerator /></CVGeneratorGate>} />
+          <Route path="/cv-layout-selector" element={<CVGeneratorGate><CVGenerator /></CVGeneratorGate>} />
+          
+          {/* Company routes */}
+          <Route path="/company/onboarding" element={<CompanyOnboarding />} />
+          <Route element={<CompanyLayout />}>
+            <Route path="/company/dashboard" element={<CompanyDashboardNew />} />
+            <Route path="/company/profile" element={<CompanyProfile />} />
+            <Route path="/company/search" element={<CompanySearch />} />
+            <Route path="/company/settings" element={<CompanySettings />} />
+            <Route path="/company/posts" element={<CompanyPosts />} />
+          </Route>
+          
+          {/* Authenticated routes */}
+          <Route element={<AuthenticatedLayout />}>
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/marketplace" element={<Marketplace />} />
+            <Route path="/settings" element={<Settings />} />
+            <Route path="/company-dashboard" element={<CompanyDashboard />} />
+          </Route>
               
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
