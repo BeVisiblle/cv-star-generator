@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useCVForm } from '@/contexts/CVFormContext';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -6,10 +6,69 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card } from '@/components/ui/card';
 import { FileUpload } from '@/components/ui/file-upload';
 import { PLZOrtSelector } from '@/components/shared/PLZOrtSelector';
+import { useDebounce } from '@/hooks/useDebounce';
 
 const CVStep2 = () => {
   const { formData, updateFormData, validationErrors } = useCVForm();
   const [previewUrl, setPreviewUrl] = useState<string>('');
+  
+  // Local states for inputs to prevent focus loss
+  const [localInputs, setLocalInputs] = useState({
+    vorname: formData.vorname || '',
+    nachname: formData.nachname || '',
+    strasse: formData.strasse || '',
+    hausnummer: formData.hausnummer || '',
+    plz: formData.plz || '',
+    ort: formData.ort || '',
+    telefon: formData.telefon || '',
+    email: formData.email || '',
+    schule: formData.schule || '',
+    abschlussjahr: formData.abschlussjahr || '',
+    ausbildungsberuf: formData.ausbildungsberuf || '',
+    ausbildungsbetrieb: formData.ausbildungsbetrieb || '',
+    startjahr: formData.startjahr || '',
+    voraussichtliches_ende: formData.voraussichtliches_ende || '',
+    abschlussjahr_ausgelernt: formData.abschlussjahr_ausgelernt || '',
+    aktueller_beruf: formData.aktueller_beruf || ''
+  });
+
+  // Debounced update function
+  const debouncedUpdate = useDebounce((updates: any) => {
+    updateFormData(updates);
+  }, 300);
+
+  // Update local state when formData changes externally
+  useEffect(() => {
+    setLocalInputs({
+      vorname: formData.vorname || '',
+      nachname: formData.nachname || '',
+      strasse: formData.strasse || '',
+      hausnummer: formData.hausnummer || '',
+      plz: formData.plz || '',
+      ort: formData.ort || '',
+      telefon: formData.telefon || '',
+      email: formData.email || '',
+      schule: formData.schule || '',
+      abschlussjahr: formData.abschlussjahr || '',
+      ausbildungsberuf: formData.ausbildungsberuf || '',
+      ausbildungsbetrieb: formData.ausbildungsbetrieb || '',
+      startjahr: formData.startjahr || '',
+      voraussichtliches_ende: formData.voraussichtliches_ende || '',
+      abschlussjahr_ausgelernt: formData.abschlussjahr_ausgelernt || '',
+      aktueller_beruf: formData.aktueller_beruf || ''
+    });
+  }, [formData]);
+
+  // Handle input changes with local state
+  const handleInputChange = (field: string, value: string) => {
+    setLocalInputs(prev => ({ ...prev, [field]: value }));
+    debouncedUpdate({ [field]: value });
+  };
+
+  // Handle input blur for immediate save
+  const handleInputBlur = (field: string, value: string) => {
+    updateFormData({ [field]: value });
+  };
 
   // Import the FormFieldError component
   const FormFieldError = ({ error, children, className = "" }: { error?: string; children: React.ReactElement; className?: string }) => (
@@ -83,8 +142,9 @@ const CVStep2 = () => {
                 <Label htmlFor="vorname">Vorname *</Label>
                 <Input
                   id="vorname"
-                  value={formData.vorname || ''}
-                  onChange={(e) => updateFormData({ vorname: e.target.value })}
+                  value={localInputs.vorname}
+                  onChange={(e) => handleInputChange('vorname', e.target.value)}
+                  onBlur={(e) => handleInputBlur('vorname', e.target.value)}
                   placeholder="Max"
                 />
               </div>
@@ -94,8 +154,9 @@ const CVStep2 = () => {
                 <Label htmlFor="nachname">Nachname *</Label>
                 <Input
                   id="nachname"
-                  value={formData.nachname || ''}
-                  onChange={(e) => updateFormData({ nachname: e.target.value })}
+                  value={localInputs.nachname}
+                  onChange={(e) => handleInputChange('nachname', e.target.value)}
+                  onBlur={(e) => handleInputBlur('nachname', e.target.value)}
                   placeholder="Mustermann"
                 />
               </div>
@@ -127,8 +188,9 @@ const CVStep2 = () => {
                     <Label htmlFor="strasse">Straße *</Label>
                     <Input
                       id="strasse"
-                      value={formData.strasse || ''}
-                      onChange={(e) => updateFormData({ strasse: e.target.value })}
+                      value={localInputs.strasse}
+                      onChange={(e) => handleInputChange('strasse', e.target.value)}
+                      onBlur={(e) => handleInputBlur('strasse', e.target.value)}
                       placeholder="Musterstraße"
                     />
                   </div>
@@ -138,8 +200,9 @@ const CVStep2 = () => {
                     <Label htmlFor="hausnummer">Nr. *</Label>
                     <Input
                       id="hausnummer"
-                      value={formData.hausnummer || ''}
-                      onChange={(e) => updateFormData({ hausnummer: e.target.value })}
+                      value={localInputs.hausnummer}
+                      onChange={(e) => handleInputChange('hausnummer', e.target.value)}
+                      onBlur={(e) => handleInputBlur('hausnummer', e.target.value)}
                       placeholder="123a"
                     />
                   </div>
@@ -152,8 +215,9 @@ const CVStep2 = () => {
                     <Label htmlFor="plz">PLZ *</Label>
                     <Input
                       id="plz"
-                      value={formData.plz || ''}
-                      onChange={(e) => updateFormData({ plz: e.target.value })}
+                      value={localInputs.plz}
+                      onChange={(e) => handleInputChange('plz', e.target.value)}
+                      onBlur={(e) => handleInputBlur('plz', e.target.value)}
                       placeholder="12345"
                     />
                   </div>
@@ -163,8 +227,9 @@ const CVStep2 = () => {
                     <Label htmlFor="ort">Ort *</Label>
                     <Input
                       id="ort"
-                      value={formData.ort || ''}
-                      onChange={(e) => updateFormData({ ort: e.target.value })}
+                      value={localInputs.ort}
+                      onChange={(e) => handleInputChange('ort', e.target.value)}
+                      onBlur={(e) => handleInputBlur('ort', e.target.value)}
                       placeholder="Berlin"
                     />
                   </div>
@@ -176,8 +241,9 @@ const CVStep2 = () => {
                   <Label htmlFor="telefon">Telefonnummer *</Label>
                   <Input
                     id="telefon"
-                    value={formData.telefon || ''}
-                    onChange={(e) => updateFormData({ telefon: e.target.value })}
+                    value={localInputs.telefon}
+                    onChange={(e) => handleInputChange('telefon', e.target.value)}
+                    onBlur={(e) => handleInputBlur('telefon', e.target.value)}
                     placeholder="+49 123 456789"
                   />
                 </div>
@@ -189,8 +255,9 @@ const CVStep2 = () => {
                   <Input
                     id="email"
                     type="email"
-                    value={formData.email || ''}
-                    onChange={(e) => updateFormData({ email: e.target.value })}
+                    value={localInputs.email}
+                    onChange={(e) => handleInputChange('email', e.target.value)}
+                    onBlur={(e) => handleInputBlur('email', e.target.value)}
                     placeholder="max.mustermann@email.com"
                   />
                 </div>
@@ -266,8 +333,9 @@ const CVStep2 = () => {
                 <Label htmlFor="schule">Schule *</Label>
                 <Input
                   id="schule"
-                  value={formData.schule || ''}
-                  onChange={(e) => updateFormData({ schule: e.target.value })}
+                  value={localInputs.schule}
+                  onChange={(e) => handleInputChange('schule', e.target.value)}
+                  onBlur={(e) => handleInputBlur('schule', e.target.value)}
                   placeholder="Musterschule Musterstadt"
                 />
               </div>
@@ -296,8 +364,9 @@ const CVStep2 = () => {
                   <Input
                     id="abschlussjahr"
                     type="number"
-                    value={formData.abschlussjahr || ''}
-                    onChange={(e) => updateFormData({ abschlussjahr: e.target.value })}
+                    value={localInputs.abschlussjahr}
+                    onChange={(e) => handleInputChange('abschlussjahr', e.target.value)}
+                    onBlur={(e) => handleInputBlur('abschlussjahr', e.target.value)}
                     placeholder="2024"
                     min="2020"
                     max="2030"
@@ -315,8 +384,9 @@ const CVStep2 = () => {
                   <Label htmlFor="ausbildungsberuf">Ausbildungsberuf *</Label>
                   <Input
                     id="ausbildungsberuf"
-                    value={formData.ausbildungsberuf || ''}
-                    onChange={(e) => updateFormData({ ausbildungsberuf: e.target.value })}
+                    value={localInputs.ausbildungsberuf}
+                    onChange={(e) => handleInputChange('ausbildungsberuf', e.target.value)}
+                    onBlur={(e) => handleInputBlur('ausbildungsberuf', e.target.value)}
                     placeholder="z.B. Elektroniker/in"
                   />
                 </div>
@@ -324,8 +394,9 @@ const CVStep2 = () => {
                   <Label htmlFor="ausbildungsbetrieb">Ausbildungsbetrieb *</Label>
                   <Input
                     id="ausbildungsbetrieb"
-                    value={formData.ausbildungsbetrieb || ''}
-                    onChange={(e) => updateFormData({ ausbildungsbetrieb: e.target.value })}
+                    value={localInputs.ausbildungsbetrieb}
+                    onChange={(e) => handleInputChange('ausbildungsbetrieb', e.target.value)}
+                    onBlur={(e) => handleInputBlur('ausbildungsbetrieb', e.target.value)}
                     placeholder="Musterfirma GmbH"
                   />
                 </div>
@@ -337,8 +408,9 @@ const CVStep2 = () => {
                   <Input
                     id="startjahr"
                     type="number"
-                    value={formData.startjahr || ''}
-                    onChange={(e) => updateFormData({ startjahr: e.target.value })}
+                    value={localInputs.startjahr}
+                    onChange={(e) => handleInputChange('startjahr', e.target.value)}
+                    onBlur={(e) => handleInputBlur('startjahr', e.target.value)}
                     placeholder="2022"
                     min="2015"
                     max="2024"
@@ -349,8 +421,9 @@ const CVStep2 = () => {
                   <Input
                     id="voraussichtliches_ende"
                     type="number"
-                    value={formData.voraussichtliches_ende || ''}
-                    onChange={(e) => updateFormData({ voraussichtliches_ende: e.target.value })}
+                    value={localInputs.voraussichtliches_ende}
+                    onChange={(e) => handleInputChange('voraussichtliches_ende', e.target.value)}
+                    onBlur={(e) => handleInputBlur('voraussichtliches_ende', e.target.value)}
                     placeholder="2025"
                     min="2024"
                     max="2030"
@@ -368,8 +441,9 @@ const CVStep2 = () => {
                   <Label htmlFor="ausbildungsberuf">Ausbildungsberuf *</Label>
                   <Input
                     id="ausbildungsberuf"
-                    value={formData.ausbildungsberuf || ''}
-                    onChange={(e) => updateFormData({ ausbildungsberuf: e.target.value })}
+                    value={localInputs.ausbildungsberuf}
+                    onChange={(e) => handleInputChange('ausbildungsberuf', e.target.value)}
+                    onBlur={(e) => handleInputBlur('ausbildungsberuf', e.target.value)}
                     placeholder="z.B. Elektroniker/in"
                   />
                 </div>
@@ -378,8 +452,9 @@ const CVStep2 = () => {
                   <Input
                     id="abschlussjahr_ausgelernt"
                     type="number"
-                    value={formData.abschlussjahr_ausgelernt || ''}
-                    onChange={(e) => updateFormData({ abschlussjahr_ausgelernt: e.target.value })}
+                    value={localInputs.abschlussjahr_ausgelernt}
+                    onChange={(e) => handleInputChange('abschlussjahr_ausgelernt', e.target.value)}
+                    onBlur={(e) => handleInputBlur('abschlussjahr_ausgelernt', e.target.value)}
                     placeholder="2020"
                     min="2000"
                     max="2024"
@@ -391,8 +466,9 @@ const CVStep2 = () => {
                 <Label htmlFor="aktueller_beruf">Aktueller Beruf (optional)</Label>
                 <Input
                   id="aktueller_beruf"
-                  value={formData.aktueller_beruf || ''}
-                  onChange={(e) => updateFormData({ aktueller_beruf: e.target.value })}
+                  value={localInputs.aktueller_beruf}
+                  onChange={(e) => handleInputChange('aktueller_beruf', e.target.value)}
+                  onBlur={(e) => handleInputBlur('aktueller_beruf', e.target.value)}
                   placeholder="z.B. Elektroniker bei Musterfirma"
                 />
               </div>

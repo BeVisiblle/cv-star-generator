@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useCVForm } from '@/contexts/CVFormContext';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -14,9 +14,60 @@ import { SchulbildungEntry, BerufserfahrungEntry } from '@/contexts/CVFormContex
 import { PLZOrtSelector } from '@/components/shared/PLZOrtSelector';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
+import { useDebounce } from '@/hooks/useDebounce';
 
 const CVStep4 = () => {
   const { formData, updateFormData } = useCVForm();
+  
+  // Local states for dynamic entry inputs to prevent focus loss
+  const [localEntryInputs, setLocalEntryInputs] = useState<Record<string, string>>({});
+
+  // Debounced update function
+  const debouncedUpdate = useDebounce((updates: any) => {
+    updateFormData(updates);
+  }, 300);
+
+  // Helper functions to handle local state for dynamic entries
+  const getLocalInputKey = (type: 'schul' | 'berufs', index: number, field: string) => {
+    return `${type}_${index}_${field}`;
+  };
+
+  const handleDynamicInputChange = (type: 'schul' | 'berufs', index: number, field: string, value: string) => {
+    const key = getLocalInputKey(type, index, field);
+    setLocalEntryInputs(prev => ({ ...prev, [key]: value }));
+    
+    // Update formData with debouncing
+    if (type === 'schul') {
+      const schulbildung = formData.schulbildung || [];
+      const updated = [...schulbildung];
+      updated[index] = { ...updated[index], [field]: value };
+      debouncedUpdate({ schulbildung: updated });
+    } else {
+      const berufserfahrung = formData.berufserfahrung || [];
+      const updated = [...berufserfahrung];
+      updated[index] = { ...updated[index], [field]: value };
+      debouncedUpdate({ berufserfahrung: updated });
+    }
+  };
+
+  const handleDynamicInputBlur = (type: 'schul' | 'berufs', index: number, field: string, value: string) => {
+    if (type === 'schul') {
+      const schulbildung = formData.schulbildung || [];
+      const updated = [...schulbildung];
+      updated[index] = { ...updated[index], [field]: value };
+      updateFormData({ schulbildung: updated });
+    } else {
+      const berufserfahrung = formData.berufserfahrung || [];
+      const updated = [...berufserfahrung];
+      updated[index] = { ...updated[index], [field]: value };
+      updateFormData({ berufserfahrung: updated });
+    }
+  };
+
+  const getLocalInputValue = (type: 'schul' | 'berufs', index: number, field: string, defaultValue: string) => {
+    const key = getLocalInputKey(type, index, field);
+    return localEntryInputs[key] !== undefined ? localEntryInputs[key] : defaultValue;
+  };
 
   // Generate year options (current year + 5 future, back to 1950)
   const currentYear = new Date().getFullYear();
@@ -148,6 +199,10 @@ const CVStep4 = () => {
     const updated = [...schulbildung];
     updated[index] = { ...updated[index], [field]: value };
     updateFormData({ schulbildung: updated });
+    
+    // Update local state for consistency
+    const key = getLocalInputKey('schul', index, field);
+    setLocalEntryInputs(prev => ({ ...prev, [key]: value }));
   };
 
   const updateSchulbildungDate = (index: number, field: 'zeitraum_von' | 'zeitraum_bis', year: string) => {
@@ -198,6 +253,10 @@ const CVStep4 = () => {
     const updated = [...berufserfahrung];
     updated[index] = { ...updated[index], [field]: value };
     updateFormData({ berufserfahrung: updated });
+    
+    // Update local state for consistency
+    const key = getLocalInputKey('berufs', index, field);
+    setLocalEntryInputs(prev => ({ ...prev, [key]: value }));
   };
 
   const removeBerufserfahrungEntry = (index: number) => {
@@ -308,8 +367,9 @@ const CVStep4 = () => {
                   <Input
                     id={`schulname-${index}`}
                     placeholder="z.B. Friedrich-Schiller-Gymnasium"
-                    value={schule.name}
-                    onChange={(e) => updateSchulbildungEntry(index, 'name', e.target.value)}
+                    value={getLocalInputValue('schul', index, 'name', schule.name)}
+                    onChange={(e) => handleDynamicInputChange('schul', index, 'name', e.target.value)}
+                    onBlur={(e) => handleDynamicInputBlur('schul', index, 'name', e.target.value)}
                   />
                 </div>
                 <div className="grid grid-cols-3 gap-2">
@@ -318,8 +378,9 @@ const CVStep4 = () => {
                     <Input
                       id={`schule-plz-${index}`}
                       placeholder="12345"
-                      value={schule.plz || ''}
-                      onChange={(e) => updateSchulbildungEntry(index, 'plz', e.target.value)}
+                      value={getLocalInputValue('schul', index, 'plz', schule.plz || '')}
+                      onChange={(e) => handleDynamicInputChange('schul', index, 'plz', e.target.value)}
+                      onBlur={(e) => handleDynamicInputBlur('schul', index, 'plz', e.target.value)}
                     />
                   </div>
                   <div className="col-span-2">
@@ -327,8 +388,9 @@ const CVStep4 = () => {
                     <Input
                       id={`schule-ort-${index}`}
                       placeholder="z.B. Berlin"
-                      value={schule.ort}
-                      onChange={(e) => updateSchulbildungEntry(index, 'ort', e.target.value)}
+                      value={getLocalInputValue('schul', index, 'ort', schule.ort)}
+                      onChange={(e) => handleDynamicInputChange('schul', index, 'ort', e.target.value)}
+                      onBlur={(e) => handleDynamicInputBlur('schul', index, 'ort', e.target.value)}
                     />
                   </div>
                 </div>
@@ -376,8 +438,9 @@ const CVStep4 = () => {
                 <Textarea
                   id={`schulbeschreibung-${index}`}
                   placeholder="z.B. Schwerpunkte, besondere Leistungen, Projekte..."
-                  value={schule.beschreibung || ''}
-                  onChange={(e) => updateSchulbildungEntry(index, 'beschreibung', e.target.value)}
+                  value={getLocalInputValue('schul', index, 'beschreibung', schule.beschreibung || '')}
+                  onChange={(e) => handleDynamicInputChange('schul', index, 'beschreibung', e.target.value)}
+                  onBlur={(e) => handleDynamicInputBlur('schul', index, 'beschreibung', e.target.value)}
                 />
               </div>
             </div>
@@ -427,8 +490,9 @@ const CVStep4 = () => {
                   <Input
                     id={`titel-${index}`}
                     placeholder="z.B. Praktikum, Ferienjob"
-                    value={arbeit.titel}
-                    onChange={(e) => updateBerufserfahrungEntry(index, 'titel', e.target.value)}
+                    value={getLocalInputValue('berufs', index, 'titel', arbeit.titel)}
+                    onChange={(e) => handleDynamicInputChange('berufs', index, 'titel', e.target.value)}
+                    onBlur={(e) => handleDynamicInputBlur('berufs', index, 'titel', e.target.value)}
                   />
                 </div>
                 <div>
@@ -436,8 +500,9 @@ const CVStep4 = () => {
                   <Input
                     id={`unternehmen-${index}`}
                     placeholder="z.B. Müller GmbH"
-                    value={arbeit.unternehmen}
-                    onChange={(e) => updateBerufserfahrungEntry(index, 'unternehmen', e.target.value)}
+                    value={getLocalInputValue('berufs', index, 'unternehmen', arbeit.unternehmen)}
+                    onChange={(e) => handleDynamicInputChange('berufs', index, 'unternehmen', e.target.value)}
+                    onBlur={(e) => handleDynamicInputBlur('berufs', index, 'unternehmen', e.target.value)}
                   />
                 </div>
                 <div className="grid grid-cols-3 gap-2">
@@ -446,8 +511,9 @@ const CVStep4 = () => {
                     <Input
                       id={`arbeit-plz-${index}`}
                       placeholder="12345"
-                      value={arbeit.plz || ''}
-                      onChange={(e) => updateBerufserfahrungEntry(index, 'plz', e.target.value)}
+                      value={getLocalInputValue('berufs', index, 'plz', arbeit.plz || '')}
+                      onChange={(e) => handleDynamicInputChange('berufs', index, 'plz', e.target.value)}
+                      onBlur={(e) => handleDynamicInputBlur('berufs', index, 'plz', e.target.value)}
                     />
                   </div>
                   <div className="col-span-2">
@@ -455,8 +521,9 @@ const CVStep4 = () => {
                     <Input
                       id={`arbeit-ort-${index}`}
                       placeholder="z.B. München"
-                      value={arbeit.ort}
-                      onChange={(e) => updateBerufserfahrungEntry(index, 'ort', e.target.value)}
+                      value={getLocalInputValue('berufs', index, 'ort', arbeit.ort)}
+                      onChange={(e) => handleDynamicInputChange('berufs', index, 'ort', e.target.value)}
+                      onBlur={(e) => handleDynamicInputBlur('berufs', index, 'ort', e.target.value)}
                     />
                   </div>
                 </div>
@@ -570,8 +637,9 @@ const CVStep4 = () => {
                 <Textarea
                   id={`arbeitbeschreibung-${index}`}
                   placeholder="z.B. Tätigkeiten, erworbene Fähigkeiten..."
-                  value={arbeit.beschreibung || ''}
-                  onChange={(e) => updateBerufserfahrungEntry(index, 'beschreibung', e.target.value)}
+                  value={getLocalInputValue('berufs', index, 'beschreibung', arbeit.beschreibung || '')}
+                  onChange={(e) => handleDynamicInputChange('berufs', index, 'beschreibung', e.target.value)}
+                  onBlur={(e) => handleDynamicInputBlur('berufs', index, 'beschreibung', e.target.value)}
                 />
               </div>
             </div>

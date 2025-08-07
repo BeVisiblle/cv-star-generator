@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useCVForm } from '@/contexts/CVFormContext';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
@@ -10,10 +10,45 @@ import { SkillSelector } from '@/components/shared/SkillSelector';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { Sparkles, Loader2 } from 'lucide-react';
+import { useDebounce } from '@/hooks/useDebounce';
 
 const CVStep3 = () => {
   const { formData, updateFormData } = useCVForm();
   const [isGenerating, setIsGenerating] = useState(false);
+  
+  // Local states for textareas to prevent focus loss
+  const [localTextareas, setLocalTextareas] = useState({
+    kenntnisse: formData.kenntnisse || '',
+    motivation: formData.motivation || '',
+    praktische_erfahrung: formData.praktische_erfahrung || '',
+    ueberMich: formData.ueberMich || ''
+  });
+
+  // Debounced update function
+  const debouncedUpdate = useDebounce((updates: any) => {
+    updateFormData(updates);
+  }, 300);
+
+  // Update local state when formData changes externally
+  useEffect(() => {
+    setLocalTextareas({
+      kenntnisse: formData.kenntnisse || '',
+      motivation: formData.motivation || '',
+      praktische_erfahrung: formData.praktische_erfahrung || '',
+      ueberMich: formData.ueberMich || ''
+    });
+  }, [formData]);
+
+  // Handle textarea changes with local state
+  const handleTextareaChange = (field: string, value: string) => {
+    setLocalTextareas(prev => ({ ...prev, [field]: value }));
+    debouncedUpdate({ [field]: value });
+  };
+
+  // Handle textarea blur for immediate save
+  const handleTextareaBlur = (field: string, value: string) => {
+    updateFormData({ [field]: value });
+  };
 
 
   const getBrancheTitle = () => {
@@ -35,8 +70,9 @@ const CVStep3 = () => {
         <Label htmlFor="praktische_faehigkeiten">Was kannst du praktisch besonders gut? *</Label>
         <Textarea
           id="praktische_faehigkeiten"
-          value={formData.kenntnisse || ''}
-          onChange={(e) => updateFormData({ kenntnisse: e.target.value })}
+          value={localTextareas.kenntnisse}
+          onChange={(e) => handleTextareaChange('kenntnisse', e.target.value)}
+          onBlur={(e) => handleTextareaBlur('kenntnisse', e.target.value)}
           placeholder="z.B. Ich kann gut mit Werkzeugen umgehen, habe schon mal ein Regal gebaut..."
           className="mt-2"
           rows={4}
@@ -65,8 +101,13 @@ const CVStep3 = () => {
         
         {formData.praktische_erfahrung?.startsWith('ja') && (
           <Textarea
-            value={formData.praktische_erfahrung?.split(':')[1] || ''}
-            onChange={(e) => updateFormData({ praktische_erfahrung: `ja:${e.target.value}` })}
+            value={localTextareas.praktische_erfahrung?.split(':')[1] || ''}
+            onChange={(e) => {
+              const newValue = `ja:${e.target.value}`;
+              setLocalTextareas(prev => ({ ...prev, praktische_erfahrung: newValue }));
+              debouncedUpdate({ praktische_erfahrung: newValue });
+            }}
+            onBlur={(e) => updateFormData({ praktische_erfahrung: `ja:${e.target.value}` })}
             placeholder="Beschreibe kurz, was du gemacht hast..."
             className="mt-2"
             rows={3}
@@ -78,8 +119,9 @@ const CVStep3 = () => {
         <Label htmlFor="motivation_handwerk">Warum willst du im Handwerk arbeiten? *</Label>
         <Textarea
           id="motivation_handwerk"
-          value={formData.motivation || ''}
-          onChange={(e) => updateFormData({ motivation: e.target.value })}
+          value={localTextareas.motivation}
+          onChange={(e) => handleTextareaChange('motivation', e.target.value)}
+          onBlur={(e) => handleTextareaBlur('motivation', e.target.value)}
           placeholder="z.B. Ich arbeite gerne mit den Händen und sehe gerne konkrete Ergebnisse..."
           className="mt-2"
           rows={4}
@@ -94,8 +136,9 @@ const CVStep3 = () => {
         <Label htmlFor="tech_interesse">Was interessiert dich an Technik oder Computern? *</Label>
         <Textarea
           id="tech_interesse"
-          value={formData.kenntnisse || ''}
-          onChange={(e) => updateFormData({ kenntnisse: e.target.value })}
+          value={localTextareas.kenntnisse}
+          onChange={(e) => handleTextareaChange('kenntnisse', e.target.value)}
+          onBlur={(e) => handleTextareaBlur('kenntnisse', e.target.value)}
           placeholder="z.B. Ich finde es spannend, wie Software funktioniert, löse gerne technische Probleme..."
           className="mt-2"
           rows={4}
@@ -106,8 +149,9 @@ const CVStep3 = () => {
         <Label htmlFor="it_projekte">Hast du schon mal programmiert oder ein IT-Projekt gemacht? (optional)</Label>
         <Textarea
           id="it_projekte"
-          value={formData.praktische_erfahrung || ''}
-          onChange={(e) => updateFormData({ praktische_erfahrung: e.target.value })}
+          value={localTextareas.praktische_erfahrung}
+          onChange={(e) => handleTextareaChange('praktische_erfahrung', e.target.value)}
+          onBlur={(e) => handleTextareaBlur('praktische_erfahrung', e.target.value)}
           placeholder="z.B. Ich habe mal eine einfache Website erstellt, mit Scratch programmiert..."
           className="mt-2"
           rows={3}
@@ -118,8 +162,9 @@ const CVStep3 = () => {
         <Label htmlFor="motivation_it">Warum möchtest du im IT-Bereich arbeiten? *</Label>
         <Textarea
           id="motivation_it"
-          value={formData.motivation || ''}
-          onChange={(e) => updateFormData({ motivation: e.target.value })}
+          value={localTextareas.motivation}
+          onChange={(e) => handleTextareaChange('motivation', e.target.value)}
+          onBlur={(e) => handleTextareaBlur('motivation', e.target.value)}
           placeholder="z.B. Technologie ist die Zukunft und ich möchte Teil davon sein..."
           className="mt-2"
           rows={4}
@@ -134,8 +179,9 @@ const CVStep3 = () => {
         <Label htmlFor="soziale_erfahrung">Warst du schon mal in sozialen oder pflegerischen Rollen aktiv? *</Label>
         <Textarea
           id="soziale_erfahrung"
-          value={formData.kenntnisse || ''}
-          onChange={(e) => updateFormData({ kenntnisse: e.target.value })}
+          value={localTextareas.kenntnisse}
+          onChange={(e) => handleTextareaChange('kenntnisse', e.target.value)}
+          onBlur={(e) => handleTextareaBlur('kenntnisse', e.target.value)}
           placeholder="z.B. Ich habe bei der Nachbarschaftshilfe mitgemacht, auf meine Geschwister aufgepasst..."
           className="mt-2"
           rows={4}
@@ -146,8 +192,9 @@ const CVStep3 = () => {
         <Label htmlFor="motivation_helfen">Warum möchtest du Menschen helfen? *</Label>
         <Textarea
           id="motivation_helfen"
-          value={formData.motivation || ''}
-          onChange={(e) => updateFormData({ motivation: e.target.value })}
+          value={localTextareas.motivation}
+          onChange={(e) => handleTextareaChange('motivation', e.target.value)}
+          onBlur={(e) => handleTextareaBlur('motivation', e.target.value)}
           placeholder="z.B. Es macht mir Freude, wenn ich anderen helfen kann und sie sich besser fühlen..."
           className="mt-2"
           rows={4}
@@ -158,8 +205,9 @@ const CVStep3 = () => {
         <Label htmlFor="umgang_menschen">Was macht dir im Umgang mit Menschen Spaß? *</Label>
         <Textarea
           id="umgang_menschen"
-          value={formData.praktische_erfahrung || ''}
-          onChange={(e) => updateFormData({ praktische_erfahrung: e.target.value })}
+          value={localTextareas.praktische_erfahrung}
+          onChange={(e) => handleTextareaChange('praktische_erfahrung', e.target.value)}
+          onBlur={(e) => handleTextareaBlur('praktische_erfahrung', e.target.value)}
           placeholder="z.B. Ich höre gerne zu, bin geduldig und kann gut erklären..."
           className="mt-2"
           rows={4}
@@ -174,8 +222,9 @@ const CVStep3 = () => {
         <Label htmlFor="organisationstaelent">Was fällt dir bei Organisation und Ordnung besonders leicht? *</Label>
         <Textarea
           id="organisationstaelent"
-          value={formData.kenntnisse || ''}
-          onChange={(e) => updateFormData({ kenntnisse: e.target.value })}
+          value={localTextareas.kenntnisse}
+          onChange={(e) => handleTextareaChange('kenntnisse', e.target.value)}
+          onBlur={(e) => handleTextareaBlur('kenntnisse', e.target.value)}
           placeholder="z.B. Ich kann gut planen, halte Termine ein, arbeite strukturiert..."
           className="mt-2"
           rows={4}
@@ -186,8 +235,9 @@ const CVStep3 = () => {
         <Label htmlFor="motivation_buero">Warum möchtest du im Büro arbeiten? *</Label>
         <Textarea
           id="motivation_buero"
-          value={formData.motivation || ''}
-          onChange={(e) => updateFormData({ motivation: e.target.value })}
+          value={localTextareas.motivation}
+          onChange={(e) => handleTextareaChange('motivation', e.target.value)}
+          onBlur={(e) => handleTextareaBlur('motivation', e.target.value)}
           placeholder="z.B. Ich arbeite gerne am Computer und mag strukturierte Aufgaben..."
           className="mt-2"
           rows={4}
@@ -198,8 +248,9 @@ const CVStep3 = () => {
         <Label htmlFor="computer_erfahrung">Welche Erfahrungen hast du mit Computern? *</Label>
         <Textarea
           id="computer_erfahrung"
-          value={formData.praktische_erfahrung || ''}
-          onChange={(e) => updateFormData({ praktische_erfahrung: e.target.value })}
+          value={localTextareas.praktische_erfahrung}
+          onChange={(e) => handleTextareaChange('praktische_erfahrung', e.target.value)}
+          onBlur={(e) => handleTextareaBlur('praktische_erfahrung', e.target.value)}
           placeholder="z.B. Ich kann gut mit Word und Excel umgehen, nutze das Internet sicher..."
           className="mt-2"
           rows={4}
@@ -214,8 +265,9 @@ const CVStep3 = () => {
         <Label htmlFor="kundenorientierung">Wie gehst du auf Menschen zu? *</Label>
         <Textarea
           id="kundenorientierung"
-          value={formData.kenntnisse || ''}
-          onChange={(e) => updateFormData({ kenntnisse: e.target.value })}
+          value={localTextareas.kenntnisse}
+          onChange={(e) => handleTextareaChange('kenntnisse', e.target.value)}
+          onBlur={(e) => handleTextareaBlur('kenntnisse', e.target.value)}
           placeholder="z.B. Ich bin freundlich, höre zu und kann gut erklären..."
           className="mt-2"
           rows={4}
@@ -226,8 +278,9 @@ const CVStep3 = () => {
         <Label htmlFor="motivation_verkauf">Warum möchtest du im Verkauf arbeiten? *</Label>
         <Textarea
           id="motivation_verkauf"
-          value={formData.motivation || ''}
-          onChange={(e) => updateFormData({ motivation: e.target.value })}
+          value={localTextareas.motivation}
+          onChange={(e) => handleTextareaChange('motivation', e.target.value)}
+          onBlur={(e) => handleTextareaBlur('motivation', e.target.value)}
           placeholder="z.B. Ich helfe gerne Menschen bei Entscheidungen und arbeite gerne im Team..."
           className="mt-2"
           rows={4}
@@ -238,8 +291,9 @@ const CVStep3 = () => {
         <Label htmlFor="verkaufserfahrung">Hast du schon mal etwas verkauft oder beraten? *</Label>
         <Textarea
           id="verkaufserfahrung"
-          value={formData.praktische_erfahrung || ''}
-          onChange={(e) => updateFormData({ praktische_erfahrung: e.target.value })}
+          value={localTextareas.praktische_erfahrung}
+          onChange={(e) => handleTextareaChange('praktische_erfahrung', e.target.value)}
+          onBlur={(e) => handleTextareaBlur('praktische_erfahrung', e.target.value)}
           placeholder="z.B. Ich habe schon mal auf einem Flohmarkt verkauft, Freunden bei Kaufentscheidungen geholfen..."
           className="mt-2"
           rows={4}
@@ -254,8 +308,9 @@ const CVStep3 = () => {
         <Label htmlFor="serviceerfahrung">Was macht dir beim Service und der Gästebetreuung Spaß? *</Label>
         <Textarea
           id="serviceerfahrung"
-          value={formData.kenntnisse || ''}
-          onChange={(e) => updateFormData({ kenntnisse: e.target.value })}
+          value={localTextareas.kenntnisse}
+          onChange={(e) => handleTextareaChange('kenntnisse', e.target.value)}
+          onBlur={(e) => handleTextareaBlur('kenntnisse', e.target.value)}
           placeholder="z.B. Ich sorge gerne dafür, dass sich Menschen wohlfühlen, arbeite gerne schnell..."
           className="mt-2"
           rows={4}
@@ -266,8 +321,9 @@ const CVStep3 = () => {
         <Label htmlFor="motivation_gastronomie">Warum möchtest du in der Gastronomie arbeiten? *</Label>
         <Textarea
           id="motivation_gastronomie"
-          value={formData.motivation || ''}
-          onChange={(e) => updateFormData({ motivation: e.target.value })}
+          value={localTextareas.motivation}
+          onChange={(e) => handleTextareaChange('motivation', e.target.value)}
+          onBlur={(e) => handleTextareaBlur('motivation', e.target.value)}
           placeholder="z.B. Ich arbeite gerne mit Menschen und mag das lebendige Umfeld..."
           className="mt-2"
           rows={4}
@@ -278,8 +334,9 @@ const CVStep3 = () => {
         <Label htmlFor="teamarbeit_stress">Wie gehst du mit Stress und Teamarbeit um? *</Label>
         <Textarea
           id="teamarbeit_stress"
-          value={formData.praktische_erfahrung || ''}
-          onChange={(e) => updateFormData({ praktische_erfahrung: e.target.value })}
+          value={localTextareas.praktische_erfahrung}
+          onChange={(e) => handleTextareaChange('praktische_erfahrung', e.target.value)}
+          onBlur={(e) => handleTextareaBlur('praktische_erfahrung', e.target.value)}
           placeholder="z.B. Ich behalte auch unter Zeitdruck den Überblick, helfe gerne im Team..."
           className="mt-2"
           rows={4}
@@ -294,8 +351,9 @@ const CVStep3 = () => {
         <Label htmlFor="koerperliche_arbeit">Wie stehst du zu körperlicher Arbeit? *</Label>
         <Textarea
           id="koerperliche_arbeit"
-          value={formData.kenntnisse || ''}
-          onChange={(e) => updateFormData({ kenntnisse: e.target.value })}
+          value={localTextareas.kenntnisse}
+          onChange={(e) => handleTextareaChange('kenntnisse', e.target.value)}
+          onBlur={(e) => handleTextareaBlur('kenntnisse', e.target.value)}
           placeholder="z.B. Ich bin körperlich fit, arbeite gerne draußen, packe gerne mit an..."
           className="mt-2"
           rows={4}
@@ -306,8 +364,9 @@ const CVStep3 = () => {
         <Label htmlFor="motivation_bau">Warum möchtest du im Baubereich arbeiten? *</Label>
         <Textarea
           id="motivation_bau"
-          value={formData.motivation || ''}
-          onChange={(e) => updateFormData({ motivation: e.target.value })}
+          value={localTextareas.motivation}
+          onChange={(e) => handleTextareaChange('motivation', e.target.value)}
+          onBlur={(e) => handleTextareaBlur('motivation', e.target.value)}
           placeholder="z.B. Ich baue gerne etwas auf, sehe gerne konkrete Ergebnisse meiner Arbeit..."
           className="mt-2"
           rows={4}
@@ -318,8 +377,9 @@ const CVStep3 = () => {
         <Label htmlFor="handwerkliche_erfahrung_bau">Hast du schon mal gebaut oder auf einer Baustelle gearbeitet? *</Label>
         <Textarea
           id="handwerkliche_erfahrung_bau"
-          value={formData.praktische_erfahrung || ''}
-          onChange={(e) => updateFormData({ praktische_erfahrung: e.target.value })}
+          value={localTextareas.praktische_erfahrung}
+          onChange={(e) => handleTextareaChange('praktische_erfahrung', e.target.value)}
+          onBlur={(e) => handleTextareaBlur('praktische_erfahrung', e.target.value)}
           placeholder="z.B. Ich habe beim Familienhausbau geholfen, schon mal renoviert..."
           className="mt-2"
           rows={4}
@@ -434,8 +494,9 @@ const CVStep3 = () => {
             </Button>
           </div>
           <Textarea
-            value={formData.ueberMich}
-            onChange={(e) => updateFormData({ ueberMich: e.target.value })}
+            value={localTextareas.ueberMich}
+            onChange={(e) => handleTextareaChange('ueberMich', e.target.value)}
+            onBlur={(e) => handleTextareaBlur('ueberMich', e.target.value)}
             rows={4}
             className="mb-2"
           />
