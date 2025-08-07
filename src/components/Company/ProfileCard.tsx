@@ -3,7 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { MapPin, Briefcase, GraduationCap, Heart, Coins, Phone, Mail, User } from "lucide-react";
+import { MapPin, Briefcase, GraduationCap, Heart, Coins, Phone, Mail, Download, User } from "lucide-react";
+import { generatePDF } from "@/lib/pdf-generator";
 import { useState } from "react";
 
 
@@ -107,6 +108,8 @@ export function ProfileCard({
   onSave, 
   onPreview 
 }: ProfileCardProps) {
+  const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
+  
   const displayName = isUnlocked 
     ? `${profile.vorname} ${profile.nachname}`
     : profile.vorname;
@@ -128,6 +131,163 @@ export function ProfileCard({
       return profile.aktueller_beruf;
     }
     return profile.headline || profile.branche;
+  };
+
+  const prepareCVData = () => {
+    return {
+      personalInfo: {
+        firstName: profile.vorname || '',
+        lastName: profile.nachname || '',
+        email: profile.email || '',
+        phone: profile.telefon || '',
+        location: `${profile.ort}, ${profile.plz}`,
+        headline: getJobTitle(),
+        summary: profile.headline || `${profile.status} in ${profile.branche}`
+      },
+      experience: [],
+      education: [],
+      skills: profile.faehigkeiten ? profile.faehigkeiten.map((skill: any) => skill.name || skill) : [],
+      languages: [],
+      layout: 'modern'
+    };
+  };
+
+
+  const handleDownloadCV = async () => {
+    if (!isUnlocked) return;
+    
+    setIsGeneratingPDF(true);
+    try {
+      // Check if CV already exists in database
+      if (profile.cv_url) {
+        // Download existing CV from URL
+        const link = document.createElement('a');
+        link.href = profile.cv_url;
+        link.download = `CV_${profile.vorname}_${profile.nachname}.pdf`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        return;
+      }
+
+      // If no CV exists, generate one (same as profile view does)
+      // Check if we have enough data to generate a CV
+      if (!profile.vorname || !profile.nachname) {
+        console.error('Missing name data for CV generation');
+        return;
+      }
+
+      // Create temporary container for CV rendering
+      const tempContainer = document.createElement('div');
+      tempContainer.style.position = 'absolute';
+      tempContainer.style.left = '-9999px';
+      tempContainer.style.top = '0';
+      tempContainer.style.backgroundColor = 'white';
+      tempContainer.style.width = '210mm';
+      tempContainer.style.minHeight = '297mm';
+      document.body.appendChild(tempContainer);
+
+      // Import CV layouts dynamically
+      const [
+        { default: LiveCareerLayout },
+        { default: ClassicLayout },
+        { default: CreativeLayout },
+        { default: MinimalLayout },
+        { default: ProfessionalLayout },
+        { default: ModernLayout }
+      ] = await Promise.all([
+        import('@/components/cv-layouts/LiveCareerLayout'),
+        import('@/components/cv-layouts/ClassicLayout'),
+        import('@/components/cv-layouts/CreativeLayout'),
+        import('@/components/cv-layouts/MinimalLayout'),
+        import('@/components/cv-layouts/ProfessionalLayout'),
+        import('@/components/cv-layouts/ModernLayout')
+      ]);
+
+      // Determine layout component
+      let LayoutComponent;
+      const layoutId = profile.layout || 1;
+      
+      switch (layoutId) {
+        case 1:
+          LayoutComponent = LiveCareerLayout;
+          break;
+        case 2:
+          LayoutComponent = ClassicLayout;
+          break;
+        case 3:
+          LayoutComponent = CreativeLayout;
+          break;
+        case 4:
+          LayoutComponent = MinimalLayout;
+          break;
+        case 5:
+          LayoutComponent = ProfessionalLayout;
+          break;
+        case 6:
+          LayoutComponent = ModernLayout;
+          break;
+        default:
+          LayoutComponent = LiveCareerLayout;
+      }
+
+      // Prepare CV data matching the profile structure
+      const cvData = {
+        vorname: profile.vorname,
+        nachname: profile.nachname,
+        email: profile.email || '',
+        telefon: profile.telefon || '',
+        adresse: `${profile.ort}, ${profile.plz}`,
+        geburtsdatum: profile.geburtsdatum || '',
+        headline: getJobTitle(),
+        uebermich: profile.headline || `${profile.status} in ${profile.branche}`,
+        berufserfahrung: profile.berufserfahrung || [],
+        ausbildung: profile.ausbildung || [],
+        faehigkeiten: profile.faehigkeiten || [],
+        sprachen: profile.sprachen || [],
+        zertifikate: profile.zertifikate || [],
+        layout: layoutId
+      };
+
+      // Create and render CV element
+      const React = await import('react');
+      const ReactDOM = await import('react-dom/client');
+      
+      const cvElement = React.createElement(LayoutComponent, { 
+        data: cvData
+      });
+      const root = ReactDOM.createRoot(tempContainer);
+      root.render(cvElement);
+
+      // Wait for rendering
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Find the CV preview element
+      const cvPreviewElement = tempContainer.querySelector('[data-cv-preview]') as HTMLElement;
+      if (!cvPreviewElement) {
+        throw new Error('CV preview element not found');
+      }
+
+      // Generate filename and PDF using same logic as profile view
+      const { generatePDF, generateCVFilename } = await import('@/lib/pdf-generator');
+      const filename = generateCVFilename(profile.vorname, profile.nachname);
+      
+      // Generate PDF for download
+      await generatePDF(cvPreviewElement, {
+        filename,
+        quality: 2,
+        format: 'a4',
+        margin: 10
+      });
+
+      // Clean up
+      document.body.removeChild(tempContainer);
+      root.unmount();
+    } catch (error) {
+      console.error('Error downloading CV:', error);
+    } finally {
+      setIsGeneratingPDF(false);
+    }
   };
 
   return (
@@ -232,14 +392,31 @@ export function ProfileCard({
           {/* Action Buttons - Always at same position */}
           <div className="space-y-2 mt-auto">
             {isUnlocked ? (
-              <Button 
-                size="sm" 
-                onClick={onPreview}
-                variant="outline" 
-                className="w-full text-[10px] sm:text-xs px-1 sm:px-2 h-8"
-              >
-                Profil ansehen
-              </Button>
+              <div className="flex gap-2">
+                <Button 
+                  size="sm" 
+                  onClick={onPreview}
+                  variant="outline" 
+                  className="flex-1 text-[10px] sm:text-xs px-1 sm:px-2 h-8"
+                >
+                  Profil ansehen
+                </Button>
+                <Button 
+                  size="sm" 
+                  variant="outline" 
+                  className="flex-1 text-[10px] sm:text-xs px-1 sm:px-2 h-8"
+                  onClick={handleDownloadCV}
+                  disabled={isGeneratingPDF}
+                >
+                  <Download className="h-3 w-3 mr-1" />
+                  <span className="hidden sm:inline">
+                    {isGeneratingPDF ? 'Lädt...' : 'CV Downloaden'}
+                  </span>
+                  <span className="sm:hidden">
+                    {isGeneratingPDF ? 'Lädt...' : 'CV'}
+                  </span>
+                </Button>
+              </div>
             ) : (
               <div className="space-y-2">
                 <Button 
