@@ -662,7 +662,16 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_user_companies: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          company_id: string
+        }[]
+      }
+      is_company_admin: {
+        Args: { check_company_id: string }
+        Returns: boolean
+      }
     }
     Enums: {
       [_ in never]: never
