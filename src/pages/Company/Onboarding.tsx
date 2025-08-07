@@ -105,45 +105,72 @@ export default function CompanyOnboarding() {
 
     setLoading(true);
     
-    // TEMPORARY: Skip actual registration and go directly to company dashboard
     try {
+      // Create user account
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email: data.email,
+        password: data.password,
+        options: {
+          emailRedirectTo: `${window.location.origin}/company/dashboard`
+        }
+      });
+
+      if (authError) {
+        throw new Error(`Registrierung fehlgeschlagen: ${authError.message}`);
+      }
+
+      if (!authData.user) {
+        throw new Error("Benutzer konnte nicht erstellt werden");
+      }
+
+      // Create company
+      const { data: companyData, error: companyError } = await supabase
+        .from('companies')
+        .insert({
+          name: data.companyName,
+          size_range: data.companySize,
+          website_url: data.website || null,
+          industry: data.industries.join(', '),
+          main_location: data.location,
+          active_tokens: 50, // Starting tokens
+          seats: 1, // Single seat for now
+          plan_type: 'basic',
+          subscription_status: 'active'
+        })
+        .select()
+        .single();
+
+      if (companyError) {
+        throw new Error(`Unternehmen konnte nicht erstellt werden: ${companyError.message}`);
+      }
+
+      // Link user to company as admin
+      const { error: linkError } = await supabase
+        .from('company_users')
+        .insert({
+          user_id: authData.user.id,
+          company_id: companyData.id,
+          role: 'admin',
+          accepted_at: new Date().toISOString()
+        });
+
+      if (linkError) {
+        throw new Error(`Benutzer-Verknüpfung fehlgeschlagen: ${linkError.message}`);
+      }
+
       toast({ 
-        title: "Demo-Modus aktiviert", 
-        description: "Sie werden direkt zum Unternehmensprofil weitergeleitet (ohne E-Mail-Verifikation)",
+        title: "Unternehmen erfolgreich erstellt!", 
+        description: "Sie werden zum Dashboard weitergeleitet...",
         duration: 3000
       });
 
-      // Store company data in localStorage for demo
-      const companyData = {
-        id: 'demo-company-' + Date.now(),
-        name: data.companyName,
-        size_range: data.companySize,
-        website_url: data.website || null,
-        industry: data.industries.join(', '),
-        main_location: data.location,
-        targetGroups: data.targetGroups,
-        email: data.email,
-        demoMode: true,
-        active_tokens: 50,
-        seats: 5
-      };
-      
-      localStorage.setItem('demoCompanyData', JSON.stringify(companyData));
-      localStorage.setItem('demoMode', 'true');
-      
-      // Mark as company user type
-      localStorage.setItem('userType', 'company');
-      
-      // Simulate a small delay then redirect
+      // Redirect after short delay
       setTimeout(() => {
-        console.log('Demo setup complete, navigating to dashboard...');
-        toast({ title: "Erfolgreich! Weiterleitung zum Unternehmensprofil..." });
-        
-        // Force page reload to ensure clean state
-        window.location.href = "/company/dashboard";
+        navigate("/company/dashboard");
       }, 2000);
 
     } catch (error: any) {
+      console.error('Onboarding error:', error);
       toast({ 
         title: "Fehler", 
         description: error.message,
@@ -399,13 +426,13 @@ export default function CompanyOnboarding() {
                   className="w-full h-12 text-lg font-semibold mt-6"
                   size="lg"
                 >
-                  {loading ? "Profil wird erstellt..." : "Jetzt starten (Demo-Modus)"}
+                  {loading ? "Unternehmen wird erstellt..." : "Unternehmen erstellen"}
                 </Button>
 
-                <div className="bg-yellow-100 border border-yellow-400 rounded-lg p-3 mt-4">
-                  <p className="text-xs text-yellow-800">
-                    <strong>Demo-Modus:</strong> Sie können direkt loslegen ohne E-Mail-Verifikation. 
-                    Die echte Registrierung implementieren wir später.
+                <div className="bg-blue-100 border border-blue-400 rounded-lg p-3 mt-4">
+                  <p className="text-xs text-blue-800">
+                    <strong>Hinweis:</strong> Nach der Registrierung erhalten Sie eine E-Mail zur Bestätigung. 
+                    Sie können jedoch bereits sofort mit Ihrem Unternehmensprofil beginnen.
                   </p>
                 </div>
 
