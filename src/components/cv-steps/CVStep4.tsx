@@ -6,9 +6,13 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Plus, Trash2 } from 'lucide-react';
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Plus, Trash2, CalendarIcon } from 'lucide-react';
 import { SchulbildungEntry, BerufserfahrungEntry } from '@/contexts/CVFormContext';
 import { PLZOrtSelector } from '@/components/shared/PLZOrtSelector';
+import { format } from 'date-fns';
+import { cn } from '@/lib/utils';
 
 const CVStep4 = () => {
   const { formData, updateFormData } = useCVForm();
@@ -125,6 +129,13 @@ const CVStep4 = () => {
     updateFormData({ schulbildung: updated });
   };
 
+  const updateSchulbildungDate = (index: number, field: 'zeitraum_von' | 'zeitraum_bis', date: Date | undefined) => {
+    if (date) {
+      const year = date.getFullYear().toString();
+      updateSchulbildungEntry(index, field, year);
+    }
+  };
+
   const removeSchulbildungEntry = (index: number) => {
     const schulbildung = formData.schulbildung || [];
     updateFormData({ schulbildung: schulbildung.filter((_, i) => i !== index) });
@@ -149,6 +160,13 @@ const CVStep4 = () => {
     const updated = [...berufserfahrung];
     updated[index] = { ...updated[index], [field]: value };
     updateFormData({ berufserfahrung: updated });
+  };
+
+  const updateBerufserfahrungDate = (index: number, field: 'zeitraum_von' | 'zeitraum_bis', date: Date | undefined) => {
+    if (date) {
+      const monthYear = format(date, 'yyyy-MM');
+      updateBerufserfahrungEntry(index, field, monthYear);
+    }
   };
 
   const removeBerufserfahrungEntry = (index: number) => {
@@ -285,22 +303,58 @@ const CVStep4 = () => {
                 </div>
                 <div className="grid grid-cols-2 gap-2">
                   <div>
-                    <Label htmlFor={`schulvon-${index}`}>Von *</Label>
-                    <Input
-                      id={`schulvon-${index}`}
-                      placeholder="2020"
-                      value={schule.zeitraum_von}
-                      onChange={(e) => updateSchulbildungEntry(index, 'zeitraum_von', e.target.value)}
-                    />
+                    <Label>Von (Jahr) *</Label>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          className={cn(
+                            "w-full justify-start text-left font-normal",
+                            !schule.zeitraum_von && "text-muted-foreground"
+                          )}
+                        >
+                          <CalendarIcon className="mr-2 h-4 w-4" />
+                          {schule.zeitraum_von || "Jahr wählen"}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={schule.zeitraum_von ? new Date(parseInt(schule.zeitraum_von), 0, 1) : undefined}
+                          onSelect={(date) => updateSchulbildungDate(index, 'zeitraum_von', date)}
+                          disabled={(date) => date > new Date() || date < new Date("1950-01-01")}
+                          initialFocus
+                          className="p-3 pointer-events-auto"
+                        />
+                      </PopoverContent>
+                    </Popover>
                   </div>
                   <div>
-                    <Label htmlFor={`schulbis-${index}`}>Bis *</Label>
-                    <Input
-                      id={`schulbis-${index}`}
-                      placeholder="2024"
-                      value={schule.zeitraum_bis}
-                      onChange={(e) => updateSchulbildungEntry(index, 'zeitraum_bis', e.target.value)}
-                    />
+                    <Label>Bis (Jahr) *</Label>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          className={cn(
+                            "w-full justify-start text-left font-normal",
+                            !schule.zeitraum_bis && "text-muted-foreground"
+                          )}
+                        >
+                          <CalendarIcon className="mr-2 h-4 w-4" />
+                          {schule.zeitraum_bis || "Jahr wählen"}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={schule.zeitraum_bis ? new Date(parseInt(schule.zeitraum_bis), 0, 1) : undefined}
+                          onSelect={(date) => updateSchulbildungDate(index, 'zeitraum_bis', date)}
+                          disabled={(date) => date > new Date() || date < new Date("1950-01-01")}
+                          initialFocus
+                          className="p-3 pointer-events-auto"
+                        />
+                      </PopoverContent>
+                    </Popover>
                   </div>
                 </div>
               </div>
@@ -395,22 +449,58 @@ const CVStep4 = () => {
                 </div>
                 <div className="grid grid-cols-2 gap-2">
                   <div>
-                    <Label htmlFor={`arbeitvon-${index}`}>Von *</Label>
-                    <Input
-                      id={`arbeitvon-${index}`}
-                      placeholder="08/2023"
-                      value={arbeit.zeitraum_von}
-                      onChange={(e) => updateBerufserfahrungEntry(index, 'zeitraum_von', e.target.value)}
-                    />
+                    <Label>Von (Monat/Jahr) *</Label>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          className={cn(
+                            "w-full justify-start text-left font-normal",
+                            !arbeit.zeitraum_von && "text-muted-foreground"
+                          )}
+                        >
+                          <CalendarIcon className="mr-2 h-4 w-4" />
+                          {arbeit.zeitraum_von ? format(new Date(arbeit.zeitraum_von), 'MM/yyyy') : "Monat/Jahr wählen"}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={arbeit.zeitraum_von ? new Date(arbeit.zeitraum_von) : undefined}
+                          onSelect={(date) => updateBerufserfahrungDate(index, 'zeitraum_von', date)}
+                          disabled={(date) => date > new Date() || date < new Date("1950-01-01")}
+                          initialFocus
+                          className="p-3 pointer-events-auto"
+                        />
+                      </PopoverContent>
+                    </Popover>
                   </div>
                   <div>
-                    <Label htmlFor={`arbeitbis-${index}`}>Bis *</Label>
-                    <Input
-                      id={`arbeitbis-${index}`}
-                      placeholder="10/2023"
-                      value={arbeit.zeitraum_bis}
-                      onChange={(e) => updateBerufserfahrungEntry(index, 'zeitraum_bis', e.target.value)}
-                    />
+                    <Label>Bis (Monat/Jahr) *</Label>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          className={cn(
+                            "w-full justify-start text-left font-normal",
+                            !arbeit.zeitraum_bis && "text-muted-foreground"
+                          )}
+                        >
+                          <CalendarIcon className="mr-2 h-4 w-4" />
+                          {arbeit.zeitraum_bis ? format(new Date(arbeit.zeitraum_bis), 'MM/yyyy') : "Leer lassen für aktuell"}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={arbeit.zeitraum_bis ? new Date(arbeit.zeitraum_bis) : undefined}
+                          onSelect={(date) => updateBerufserfahrungDate(index, 'zeitraum_bis', date)}
+                          disabled={(date) => date > new Date() || date < new Date("1950-01-01")}
+                          initialFocus
+                          className="p-3 pointer-events-auto"
+                        />
+                      </PopoverContent>
+                    </Popover>
                   </div>
                 </div>
               </div>
