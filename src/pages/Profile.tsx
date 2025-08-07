@@ -210,18 +210,18 @@ const Profile = () => {
         </div>
       </div>
 
-      {/* Responsive layout: Mobile stacked, Desktop with sidebar */}
+      {/* Responsive layout: Mobile stacked with prioritized content, Desktop with sidebar */}
       <div className="flex flex-col lg:grid lg:grid-cols-12 gap-4 md:gap-6">
         {/* Main Content Area */}
-        <main className="lg:col-span-8 space-y-4 md:space-y-6 order-2 lg:order-1">
-          {/* Profile Header with Cover Photo */}
+        <main className="lg:col-span-8 space-y-4 md:space-y-6">
+          {/* Profile Header with Cover Photo - Always first */}
           <LinkedInProfileHeader
             profile={profile}
             isEditing={isEditing}
             onProfileUpdate={handleProfileUpdate}
           />
 
-          {/* About Section */}
+          {/* About Section - High priority on mobile */}
           <LinkedInProfileMain
             profile={profile}
             isEditing={isEditing}
@@ -246,8 +246,8 @@ const Profile = () => {
           <LinkedInProfileActivity profile={profile} />
         </main>
 
-        {/* Right Sidebar - shows first on mobile */}
-        <aside className="lg:col-span-4 order-1 lg:order-2">
+        {/* Right Sidebar - Desktop: sidebar, Mobile: after main content */}
+        <aside className="lg:col-span-4">
           <div className="lg:sticky lg:top-24 space-y-4 md:space-y-6">
             <LinkedInProfileSidebar
               profile={profile}
