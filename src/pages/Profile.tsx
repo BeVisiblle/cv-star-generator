@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useDebounce } from '@/hooks/useDebounce';
@@ -102,7 +102,7 @@ const Profile = () => {
     );
   }
 
-  const handleProfileUpdateImmediate = async (updates: any) => {
+  const handleProfileUpdateImmediate = useCallback(async (updates: any) => {
     if (!profile?.id) return;
     
     setIsSaving(true);
@@ -134,18 +134,18 @@ const Profile = () => {
     } finally {
       setIsSaving(false);
     }
-  };
+  }, [profile?.id]);
 
   // Debounced version for input fields to prevent focus loss
   const handleProfileUpdate = useDebounce(handleProfileUpdateImmediate, 1000);
 
-  const handleExperiencesUpdate = (experiences: any[]) => {
+  const handleExperiencesUpdate = useCallback((experiences: any[]) => {
     handleProfileUpdateImmediate({ berufserfahrung: experiences });
-  };
+  }, [handleProfileUpdateImmediate]);
 
-  const handleEducationUpdate = (education: any[]) => {
+  const handleEducationUpdate = useCallback((education: any[]) => {
     handleProfileUpdateImmediate({ schulbildung: education });
-  };
+  }, [handleProfileUpdateImmediate]);
 
   return (
     <div className="p-6">
