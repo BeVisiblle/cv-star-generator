@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -54,6 +55,7 @@ interface SearchFilters {
 }
 
 export default function CompanySearch() {
+  const navigate = useNavigate();
   const { company, useToken, hasUsedToken } = useCompany();
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [loading, setLoading] = useState(false);
@@ -148,8 +150,7 @@ export default function CompanySearch() {
   };
 
   const handlePreviewProfile = (profile: Profile) => {
-    setSelectedProfile(profile);
-    setIsFullProfileModalOpen(true);
+    navigate(`/company/profile/${profile.id}`);
   };
 
   const handleConfirmUnlock = async () => {
