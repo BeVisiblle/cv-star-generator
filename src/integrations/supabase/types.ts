@@ -145,6 +145,7 @@ export type Database = {
           cover_image_url: string | null
           created_at: string | null
           cv_url: string | null
+          driver_license_class: string | null
           einwilligung: boolean | null
           email: string | null
           faehigkeiten: Json | null
@@ -193,6 +194,7 @@ export type Database = {
           cover_image_url?: string | null
           created_at?: string | null
           cv_url?: string | null
+          driver_license_class?: string | null
           einwilligung?: boolean | null
           email?: string | null
           faehigkeiten?: Json | null
@@ -241,6 +243,7 @@ export type Database = {
           cover_image_url?: string | null
           created_at?: string | null
           cv_url?: string | null
+          driver_license_class?: string | null
           einwilligung?: boolean | null
           email?: string | null
           faehigkeiten?: Json | null

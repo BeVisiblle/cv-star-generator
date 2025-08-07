@@ -198,6 +198,67 @@ const CVStep2 = () => {
             </div>
           </div>
 
+          {/* Führerschein-Abfrage für alle */}
+          <div className="grid md:grid-cols-2 gap-4">
+            <FormFieldError error={validationErrors.has_drivers_license}>
+              <div className="space-y-2">
+                <Label htmlFor="has_drivers_license">Führerschein vorhanden? *</Label>
+                <Select 
+                  value={formData.has_drivers_license ? 'true' : formData.has_drivers_license === false ? 'false' : ''} 
+                  onValueChange={(value) => {
+                    const hasLicense = value === 'true';
+                    updateFormData({ 
+                      has_drivers_license: hasLicense,
+                      driver_license_class: hasLicense ? formData.driver_license_class : undefined
+                    });
+                  }}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Bitte auswählen" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="true">Ja</SelectItem>
+                    <SelectItem value="false">Nein</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </FormFieldError>
+            
+            {formData.has_drivers_license && (
+              <FormFieldError error={validationErrors.driver_license_class}>
+                <div className="space-y-2">
+                  <Label htmlFor="driver_license_class">Führerscheinklasse *</Label>
+                  <Select 
+                    value={formData.driver_license_class || ''} 
+                    onValueChange={(value) => updateFormData({ driver_license_class: value })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Klasse auswählen" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="AM">AM (Moped)</SelectItem>
+                      <SelectItem value="A1">A1 (Leichtkraftrad bis 125ccm)</SelectItem>
+                      <SelectItem value="A2">A2 (Kraftrad bis 35kW)</SelectItem>
+                      <SelectItem value="A">A (Kraftrad)</SelectItem>
+                      <SelectItem value="B">B (PKW)</SelectItem>
+                      <SelectItem value="BE">BE (PKW mit Anhänger)</SelectItem>
+                      <SelectItem value="C1">C1 (LKW bis 7,5t)</SelectItem>
+                      <SelectItem value="C1E">C1E (LKW bis 7,5t mit Anhänger)</SelectItem>
+                      <SelectItem value="C">C (LKW)</SelectItem>
+                      <SelectItem value="CE">CE (LKW mit Anhänger)</SelectItem>
+                      <SelectItem value="D1">D1 (Kleinbus)</SelectItem>
+                      <SelectItem value="D1E">D1E (Kleinbus mit Anhänger)</SelectItem>
+                      <SelectItem value="D">D (Bus)</SelectItem>
+                      <SelectItem value="DE">DE (Bus mit Anhänger)</SelectItem>
+                      <SelectItem value="L">L (Landwirtschaftliche Zugmaschinen)</SelectItem>
+                      <SelectItem value="T">T (Landwirtschaftliche Zugmaschinen bis 60 km/h)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </FormFieldError>
+            )}
+          </div>
+
           {/* Schüler-spezifische Felder */}
           {formData.status === 'schueler' && (
             <>

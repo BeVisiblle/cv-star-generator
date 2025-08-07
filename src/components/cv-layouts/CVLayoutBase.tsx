@@ -1,5 +1,5 @@
 import React from 'react';
-import { Phone, Mail, MapPin, Calendar } from 'lucide-react';
+import { Phone, Mail, MapPin, Calendar, Car } from 'lucide-react';
 
 export interface CVData {
   vorname?: string;
@@ -13,6 +13,8 @@ export interface CVData {
   geburtsdatum?: Date | string;
   profilbild?: File | string;
   avatar_url?: string;
+  has_drivers_license?: boolean;
+  driver_license_class?: string;
   status?: 'schueler' | 'azubi' | 'ausgelernt';
   branche?: 'handwerk' | 'it' | 'gesundheit' | 'buero' | 'verkauf' | 'gastronomie' | 'bau';
   ueberMich?: string;
@@ -168,6 +170,12 @@ export const ContactInfo: React.FC<{ data: CVData; isLight?: boolean }> = ({ dat
         <div className="flex items-center gap-2">
           <Calendar className="h-4 w-4 flex-shrink-0" />
           <span>{formatDate(data.geburtsdatum)}</span>
+        </div>
+      )}
+      {data.has_drivers_license && data.driver_license_class && (
+        <div className="flex items-center gap-2">
+          <Car className="h-4 w-4 flex-shrink-0" />
+          <span>Führerschein {data.driver_license_class}</span>
         </div>
       )}
     </div>

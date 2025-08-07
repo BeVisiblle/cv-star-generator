@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
-import { Edit3, Save, X } from 'lucide-react';
+import { Edit3, Save, X, Car } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Label } from '@/components/ui/label';
 
 interface LinkedInProfileMainProps {
   profile: any;
@@ -17,6 +19,9 @@ export const LinkedInProfileMain: React.FC<LinkedInProfileMainProps> = ({
 }) => {
   const [isEditingAbout, setIsEditingAbout] = useState(false);
   const [aboutText, setAboutText] = useState(profile?.uebermich || '');
+  const [isEditingLicense, setIsEditingLicense] = useState(false);
+  const [hasDriversLicense, setHasDriversLicense] = useState(profile?.has_drivers_license);
+  const [driverLicenseClass, setDriverLicenseClass] = useState(profile?.driver_license_class || '');
 
   const handleSaveAbout = () => {
     onProfileUpdate({ uebermich: aboutText });
@@ -26,6 +31,20 @@ export const LinkedInProfileMain: React.FC<LinkedInProfileMainProps> = ({
   const handleCancelAbout = () => {
     setAboutText(profile?.uebermich || '');
     setIsEditingAbout(false);
+  };
+
+  const handleSaveLicense = () => {
+    onProfileUpdate({ 
+      has_drivers_license: hasDriversLicense,
+      driver_license_class: hasDriversLicense ? driverLicenseClass : null
+    });
+    setIsEditingLicense(false);
+  };
+
+  const handleCancelLicense = () => {
+    setHasDriversLicense(profile?.has_drivers_license);
+    setDriverLicenseClass(profile?.driver_license_class || '');
+    setIsEditingLicense(false);
   };
 
   return (
@@ -76,6 +95,115 @@ export const LinkedInProfileMain: React.FC<LinkedInProfileMainProps> = ({
               ) : (
                 <p className="text-muted-foreground italic">
                   Fügen Sie eine Beschreibung hinzu, um Ihr Profil zu vervollständigen.
+                </p>
+              )}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Driver License Section */}
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+          <CardTitle className="text-xl font-semibold flex items-center gap-2">
+            <Car className="h-5 w-5" />
+            Führerschein
+          </CardTitle>
+          {!isEditingLicense && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setIsEditingLicense(true)}
+              className="opacity-60 hover:opacity-100"
+            >
+              <Edit3 className="h-4 w-4" />
+            </Button>
+          )}
+        </CardHeader>
+        <CardContent>
+          {isEditingLicense ? (
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="has_drivers_license">Führerschein vorhanden?</Label>
+                <Select 
+                  value={hasDriversLicense ? 'true' : hasDriversLicense === false ? 'false' : ''} 
+                  onValueChange={(value) => {
+                    const hasLicense = value === 'true';
+                    setHasDriversLicense(hasLicense);
+                    if (!hasLicense) {
+                      setDriverLicenseClass('');
+                    }
+                  }}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Bitte auswählen" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="true">Ja</SelectItem>
+                    <SelectItem value="false">Nein</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              {hasDriversLicense && (
+                <div className="space-y-2">
+                  <Label htmlFor="driver_license_class">Führerscheinklasse</Label>
+                  <Select 
+                    value={driverLicenseClass} 
+                    onValueChange={setDriverLicenseClass}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Klasse auswählen" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="AM">AM (Moped)</SelectItem>
+                      <SelectItem value="A1">A1 (Leichtkraftrad bis 125ccm)</SelectItem>
+                      <SelectItem value="A2">A2 (Kraftrad bis 35kW)</SelectItem>
+                      <SelectItem value="A">A (Kraftrad)</SelectItem>
+                      <SelectItem value="B">B (PKW)</SelectItem>
+                      <SelectItem value="BE">BE (PKW mit Anhänger)</SelectItem>
+                      <SelectItem value="C1">C1 (LKW bis 7,5t)</SelectItem>
+                      <SelectItem value="C1E">C1E (LKW bis 7,5t mit Anhänger)</SelectItem>
+                      <SelectItem value="C">C (LKW)</SelectItem>
+                      <SelectItem value="CE">CE (LKW mit Anhänger)</SelectItem>
+                      <SelectItem value="D1">D1 (Kleinbus)</SelectItem>
+                      <SelectItem value="D1E">D1E (Kleinbus mit Anhänger)</SelectItem>
+                      <SelectItem value="D">D (Bus)</SelectItem>
+                      <SelectItem value="DE">DE (Bus mit Anhänger)</SelectItem>
+                      <SelectItem value="L">L (Landwirtschaftliche Zugmaschinen)</SelectItem>
+                      <SelectItem value="T">T (Landwirtschaftliche Zugmaschinen bis 60 km/h)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+              
+              <div className="flex flex-col sm:flex-row gap-2">
+                <Button onClick={handleSaveLicense} size="sm" className="flex-1 sm:flex-none">
+                  <Save className="h-4 w-4 mr-2" />
+                  <span className="hidden sm:inline">Speichern</span>
+                  <span className="sm:hidden">Save</span>
+                </Button>
+                <Button variant="outline" onClick={handleCancelLicense} size="sm" className="flex-1 sm:flex-none">
+                  <X className="h-4 w-4 mr-2" />
+                  <span className="hidden sm:inline">Abbrechen</span>
+                  <span className="sm:hidden">Cancel</span>
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {hasDriversLicense ? (
+                <div className="flex items-center gap-2 text-foreground">
+                  <Car className="h-4 w-4 text-muted-foreground" />
+                  <span>
+                    Führerschein {driverLicenseClass || 'vorhanden'}
+                  </span>
+                </div>
+              ) : hasDriversLicense === false ? (
+                <p className="text-muted-foreground">Kein Führerschein vorhanden</p>
+              ) : (
+                <p className="text-muted-foreground italic">
+                  Führerschein-Status hinzufügen
                 </p>
               )}
             </div>

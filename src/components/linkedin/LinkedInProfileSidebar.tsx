@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Download, Edit3, Upload, X, Clock, FileText, Eye, Mail, Phone, Trash2 } from 'lucide-react';
+import { Download, Edit3, Upload, X, Clock, FileText, Eye, Mail, Phone, Trash2, Car } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { LanguageSelector } from '@/components/shared/LanguageSelector';
 import { SkillSelector } from '@/components/shared/SkillSelector';
@@ -181,6 +181,8 @@ export const LinkedInProfileSidebar: React.FC<LinkedInProfileSidebarProps> = ({ 
       telefon: profile.telefon,
       email: profile.email,
       profilbild: profile.avatar_url,
+      has_drivers_license: profile.has_drivers_license,
+      driver_license_class: profile.driver_license_class,
       motivation: profile.bio,
       kenntnisse: profile.kenntnisse,
       sprachen: profile.sprachen || [],
@@ -479,6 +481,8 @@ export const LinkedInProfileSidebar: React.FC<LinkedInProfileSidebarProps> = ({ 
     ort: profile?.ort,
     geburtsdatum: profile?.geburtsdatum ? new Date(profile.geburtsdatum) : undefined,
     profilbild: profile?.avatar_url,
+    has_drivers_license: profile?.has_drivers_license,
+    driver_license_class: profile?.driver_license_class,
     status: profile?.status,
     branche: profile?.branche,
     ueberMich: profile?.uebermich || profile?.bio,
@@ -681,6 +685,14 @@ export const LinkedInProfileSidebar: React.FC<LinkedInProfileSidebarProps> = ({ 
               <Phone className="h-4 w-4 text-muted-foreground" />
               <span className="text-sm">{profile?.telefon || 'Keine Telefonnummer'}</span>
             </div>
+            {profile?.has_drivers_license && (
+              <div className="flex items-center gap-2">
+                <Car className="h-4 w-4 text-muted-foreground" />
+                <span className="text-sm">
+                  Führerschein {profile?.driver_license_class || 'vorhanden'}
+                </span>
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>

@@ -47,6 +47,7 @@ export interface CVFormData {
   
   // Extended fields for enhanced profile
   has_drivers_license?: boolean;
+  driver_license_class?: string;
   has_own_vehicle?: boolean;
   target_year?: string;
   visibility_industry?: string[];
@@ -231,6 +232,12 @@ export const CVFormProvider = ({ children }: { children: ReactNode }) => {
         if (!formData.telefon) errors.telefon = 'Telefonnummer ist erforderlich';
         if (!formData.email) errors.email = 'E-Mail ist erforderlich';
         if (!formData.profilbild && !formData.avatar_url) errors.profilbild = 'Profilbild ist erforderlich';
+        if (formData.has_drivers_license === undefined || formData.has_drivers_license === null) {
+          errors.has_drivers_license = 'Führerschein-Angabe ist erforderlich';
+        }
+        if (formData.has_drivers_license && !formData.driver_license_class) {
+          errors.driver_license_class = 'Führerscheinklasse ist erforderlich';
+        }
         break;
       case 3:
         if (!formData.sprachen || formData.sprachen.length === 0) {
