@@ -40,6 +40,20 @@ export default function CompanyAccess() {
         }
         
         if (signUpData.user) {
+          // Link the new user to the company
+          await supabase
+            .from('company_users')
+            .insert({
+              user_id: signUpData.user.id,
+              company_id: (await supabase
+                .from('companies')
+                .select('id')
+                .eq('name', 'Müller Handwerk GmbH')
+                .single()).data?.id,
+              role: 'admin',
+              accepted_at: new Date().toISOString()
+            });
+
           toast({ 
             title: "Test-Account erstellt!", 
             description: "Sie werden automatisch eingeloggt und weitergeleitet." 
