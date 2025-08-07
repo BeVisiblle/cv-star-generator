@@ -159,27 +159,27 @@ export const ContactInfo: React.FC<{ data: CVData; isLight?: boolean }> = ({ dat
   return (
     <div className={`flex flex-wrap gap-4 text-sm ${textColor}`}>
       {data.telefon && (
-        <div className="flex items-center gap-1">
-          <Phone className="h-4 w-4" />
-          {data.telefon}
+        <div className="flex items-center gap-2">
+          <Phone className="h-4 w-4 flex-shrink-0" />
+          <span>{data.telefon}</span>
         </div>
       )}
       {data.email && (
-        <div className="flex items-center gap-1">
-          <Mail className="h-4 w-4" />
-          {data.email}
+        <div className="flex items-center gap-2">
+          <Mail className="h-4 w-4 flex-shrink-0" />
+          <span>{data.email}</span>
         </div>
       )}
       {(data.strasse && data.ort) && (
-        <div className="flex items-center gap-1">
-          <MapPin className="h-4 w-4" />
-          {data.strasse} {data.hausnummer}, {data.plz} {data.ort}
+        <div className="flex items-center gap-2">
+          <MapPin className="h-4 w-4 flex-shrink-0" />
+          <span>{data.strasse} {data.hausnummer}, {data.plz} {data.ort}</span>
         </div>
       )}
       {data.geburtsdatum && (
-        <div className="flex items-center gap-1">
-          <Calendar className="h-4 w-4" />
-          {formatDate(data.geburtsdatum)}
+        <div className="flex items-center gap-2">
+          <Calendar className="h-4 w-4 flex-shrink-0" />
+          <span>{formatDate(data.geburtsdatum)}</span>
         </div>
       )}
     </div>

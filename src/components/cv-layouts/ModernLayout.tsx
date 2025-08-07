@@ -83,12 +83,18 @@ const ModernLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) => {
                 Schulbildung
               </h3>
               <div className="space-y-4">
-                {data.schulbildung.map((schule, index) => (
-                  <div key={index} className={`border-l-4 border-[hsl(${colors.primary})] pl-4 bg-[hsl(${colors.secondary})] p-4 rounded-r-lg`}>
+                {data.schulbildung
+                  .sort((a, b) => {
+                    const aEnd = parseInt(a.zeitraum_bis) || parseInt(a.zeitraum_von) || 0;
+                    const bEnd = parseInt(b.zeitraum_bis) || parseInt(b.zeitraum_von) || 0;
+                    return bEnd - aEnd;
+                  })
+                  .map((schule, index) => (
+                  <div key={index} className={`border-l-4 border-[hsl(${colors.primary})] pl-4 bg-[hsl(${colors.secondary})] p-4 rounded-r-lg break-inside-avoid`}>
                     <div className="flex justify-between items-start mb-2">
                       <h4 className="font-semibold text-lg">{schule.schulform}</h4>
-                      <span className="text-sm text-muted-foreground bg-white px-2 py-1 rounded">
-                        {schule.zeitraum_von} - {schule.zeitraum_bis}
+                      <span className="text-sm text-muted-foreground bg-white px-2 py-1 rounded whitespace-nowrap">
+                        {schule.zeitraum_von} - {schule.zeitraum_bis || 'Heute'}
                       </span>
                     </div>
                     <div className={`text-[hsl(${colors.text})] font-medium mb-1`}>{schule.name}</div>
@@ -109,12 +115,18 @@ const ModernLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) => {
                 Praktische Erfahrung
               </h3>
               <div className="space-y-4">
-                {data.berufserfahrung.map((arbeit, index) => (
-                  <div key={index} className={`border-l-4 border-[hsl(${colors.primary})] pl-4 bg-[hsl(${colors.secondary})] p-4 rounded-r-lg`}>
+                {data.berufserfahrung
+                  .sort((a, b) => {
+                    const aEnd = a.zeitraum_bis ? new Date(a.zeitraum_bis) : new Date(a.zeitraum_von);
+                    const bEnd = b.zeitraum_bis ? new Date(b.zeitraum_bis) : new Date(b.zeitraum_von);
+                    return bEnd.getTime() - aEnd.getTime();
+                  })
+                  .map((arbeit, index) => (
+                  <div key={index} className={`border-l-4 border-[hsl(${colors.primary})] pl-4 bg-[hsl(${colors.secondary})] p-4 rounded-r-lg break-inside-avoid`}>
                     <div className="flex justify-between items-start mb-2">
                       <h4 className="font-semibold text-lg">{arbeit.titel}</h4>
-                      <span className="text-sm text-muted-foreground bg-white px-2 py-1 rounded">
-                        {arbeit.zeitraum_von} - {arbeit.zeitraum_bis}
+                      <span className="text-sm text-muted-foreground bg-white px-2 py-1 rounded whitespace-nowrap">
+                        {arbeit.zeitraum_von ? new Date(arbeit.zeitraum_von).toLocaleDateString('de-DE', { month: 'short', year: 'numeric' }) : ''} - {arbeit.zeitraum_bis ? new Date(arbeit.zeitraum_bis).toLocaleDateString('de-DE', { month: 'short', year: 'numeric' }) : 'Heute'}
                       </span>
                     </div>
                     <div className={`text-[hsl(${colors.text})] font-medium mb-1`}>{arbeit.unternehmen}</div>

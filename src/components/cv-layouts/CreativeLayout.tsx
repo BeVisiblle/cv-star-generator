@@ -116,18 +116,24 @@ const CreativeLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) => {
                 />
               </h3>
               <div className="space-y-4">
-                {data.schulbildung.map((schule, index) => (
+                {data.schulbildung
+                  .sort((a, b) => {
+                    const aEnd = parseInt(a.zeitraum_bis) || parseInt(a.zeitraum_von) || 0;
+                    const bEnd = parseInt(b.zeitraum_bis) || parseInt(b.zeitraum_von) || 0;
+                    return bEnd - aEnd;
+                  })
+                  .map((schule, index) => (
                   <div 
                     key={index} 
-                    className={`bg-gradient-to-r from-[hsl(${colors.secondary})] to-white p-4 rounded-lg border-l-4 border-[hsl(${colors.primary})] transform hover:scale-105 transition-transform`}
+                    className={`bg-gradient-to-r from-[hsl(${colors.secondary})] to-white p-4 rounded-lg border-l-4 border-[hsl(${colors.primary})] transform hover:scale-105 transition-transform break-inside-avoid`}
                   >
                     <div className="flex justify-between items-start mb-2">
                       <h4 className="font-bold text-lg">{schule.schulform}</h4>
                       <span 
-                        className="text-sm text-white px-3 py-1 rounded-full font-medium"
+                        className="text-sm text-white px-3 py-1 rounded-full font-medium whitespace-nowrap"
                         style={{ background: `hsl(${colors.primary})` }}
                       >
-                        {schule.zeitraum_von} - {schule.zeitraum_bis}
+                        {schule.zeitraum_von} - {schule.zeitraum_bis || 'Heute'}
                       </span>
                     </div>
                     <div className={`text-[hsl(${colors.text})] font-semibold mb-1`}>{schule.name}</div>
@@ -152,18 +158,24 @@ const CreativeLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) => {
                 />
               </h3>
               <div className="space-y-4">
-                {data.berufserfahrung.map((arbeit, index) => (
+                {data.berufserfahrung
+                  .sort((a, b) => {
+                    const aEnd = a.zeitraum_bis ? new Date(a.zeitraum_bis) : new Date(a.zeitraum_von);
+                    const bEnd = b.zeitraum_bis ? new Date(b.zeitraum_bis) : new Date(b.zeitraum_von);
+                    return bEnd.getTime() - aEnd.getTime();
+                  })
+                  .map((arbeit, index) => (
                   <div 
                     key={index} 
-                    className={`bg-gradient-to-r from-[hsl(${colors.secondary})] to-white p-4 rounded-lg border-l-4 border-[hsl(${colors.primary})] transform hover:scale-105 transition-transform`}
+                    className={`bg-gradient-to-r from-[hsl(${colors.secondary})] to-white p-4 rounded-lg border-l-4 border-[hsl(${colors.primary})] transform hover:scale-105 transition-transform break-inside-avoid`}
                   >
                     <div className="flex justify-between items-start mb-2">
                       <h4 className="font-bold text-lg">{arbeit.titel}</h4>
                       <span 
-                        className="text-sm text-white px-3 py-1 rounded-full font-medium"
+                        className="text-sm text-white px-3 py-1 rounded-full font-medium whitespace-nowrap"
                         style={{ background: `hsl(${colors.primary})` }}
                       >
-                        {arbeit.zeitraum_von} - {arbeit.zeitraum_bis}
+                        {arbeit.zeitraum_von ? new Date(arbeit.zeitraum_von).toLocaleDateString('de-DE', { month: 'short', year: 'numeric' }) : ''} - {arbeit.zeitraum_bis ? new Date(arbeit.zeitraum_bis).toLocaleDateString('de-DE', { month: 'short', year: 'numeric' }) : 'Heute'}
                       </span>
                     </div>
                     <div className={`text-[hsl(${colors.text})] font-semibold mb-1`}>{arbeit.unternehmen}</div>

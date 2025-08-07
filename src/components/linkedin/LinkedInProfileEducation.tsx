@@ -88,13 +88,22 @@ export const LinkedInProfileEducation: React.FC<LinkedInProfileEducationProps> =
   };
 
   const formatDateRange = (from: string, to: string) => {
-    const fromDate = new Date(from);
-    const toDate = to === 'present' ? null : new Date(to);
-    
-    const fromMonth = fromDate.toLocaleDateString('de-DE', { month: 'short', year: 'numeric' });
-    const toMonth = toDate ? toDate.toLocaleDateString('de-DE', { month: 'short', year: 'numeric' }) : 'Heute';
-    
-    return `${fromMonth} - ${toMonth}`;
+    if (!from) return '';
+    const toDisplay = to || 'Heute';
+    return `${from} - ${toDisplay}`;
+  };
+
+  const handleSaveWithValidation = () => {
+    // Validate date range
+    if (formData.zeitraum_von && formData.zeitraum_bis) {
+      const fromYear = parseInt(formData.zeitraum_von);
+      const toYear = parseInt(formData.zeitraum_bis);
+      if (fromYear > toYear) {
+        alert('Das Startjahr muss vor dem Endjahr liegen.');
+        return;
+      }
+    }
+    handleSave();
   };
 
   const EducationForm = () => (
@@ -147,20 +156,25 @@ export const LinkedInProfileEducation: React.FC<LinkedInProfileEducationProps> =
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
-          <Label htmlFor="zeitraum_von">Von</Label>
+          <Label htmlFor="zeitraum_von">Von (Jahr)</Label>
           <Input
             id="zeitraum_von"
-            type="month"
+            type="number"
+            min="1950"
+            max="2040"
             value={formData.zeitraum_von}
             onChange={(e) => setFormData({ ...formData, zeitraum_von: e.target.value })}
+            placeholder="z.B. 2020"
             className="text-sm w-full"
           />
         </div>
         <div>
-          <Label htmlFor="zeitraum_bis">Bis</Label>
+          <Label htmlFor="zeitraum_bis">Bis (Jahr)</Label>
           <Input
             id="zeitraum_bis"
-            type="month"
+            type="number"
+            min="1950"
+            max="2040"
             value={formData.zeitraum_bis}
             onChange={(e) => setFormData({ ...formData, zeitraum_bis: e.target.value })}
             placeholder="Leer lassen für aktuell"
@@ -186,7 +200,7 @@ export const LinkedInProfileEducation: React.FC<LinkedInProfileEducationProps> =
           <span className="hidden sm:inline">Abbrechen</span>
           <span className="sm:hidden">Cancel</span>
         </Button>
-        <Button onClick={handleSave} className="flex-1 sm:flex-none" size="sm">
+        <Button onClick={handleSaveWithValidation} className="flex-1 sm:flex-none" size="sm">
           <span className="hidden sm:inline">Speichern</span>
           <span className="sm:hidden">Save</span>
         </Button>
@@ -236,7 +250,14 @@ export const LinkedInProfileEducation: React.FC<LinkedInProfileEducationProps> =
           </div>
         ) : (
           <div className="space-y-6">
-            {education.map((edu, index) => (
+            {education
+              .sort((a, b) => {
+                // Sort by end year/start year (newest first)
+                const aEnd = parseInt(a.zeitraum_bis) || parseInt(a.zeitraum_von) || 0;
+                const bEnd = parseInt(b.zeitraum_bis) || parseInt(b.zeitraum_von) || 0;
+                return bEnd - aEnd;
+              })
+              .map((edu, index) => (
               <div key={index} className="relative group">
                 <div className="flex items-start gap-4">
                   <div className="w-12 h-12 bg-accent/20 rounded-lg flex items-center justify-center flex-shrink-0">

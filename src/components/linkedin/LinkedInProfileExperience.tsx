@@ -85,13 +85,27 @@ export const LinkedInProfileExperience: React.FC<LinkedInProfileExperienceProps>
   };
 
   const formatDateRange = (from: string, to: string) => {
+    if (!from) return '';
     const fromDate = new Date(from);
-    const toDate = to === 'present' ? null : new Date(to);
+    const toDate = to === 'present' || !to ? null : new Date(to);
     
     const fromMonth = fromDate.toLocaleDateString('de-DE', { month: 'short', year: 'numeric' });
     const toMonth = toDate ? toDate.toLocaleDateString('de-DE', { month: 'short', year: 'numeric' }) : 'Heute';
     
     return `${fromMonth} - ${toMonth}`;
+  };
+
+  const handleSaveWithValidation = () => {
+    // Validate date range
+    if (formData.zeitraum_von && formData.zeitraum_bis) {
+      const fromDate = new Date(formData.zeitraum_von);
+      const toDate = new Date(formData.zeitraum_bis);
+      if (fromDate > toDate) {
+        alert('Das Startdatum muss vor dem Enddatum liegen.');
+        return;
+      }
+    }
+    handleSave();
   };
 
   const ExperienceForm = () => (
@@ -171,7 +185,7 @@ export const LinkedInProfileExperience: React.FC<LinkedInProfileExperienceProps>
           <span className="hidden sm:inline">Abbrechen</span>
           <span className="sm:hidden">Cancel</span>
         </Button>
-        <Button onClick={handleSave} className="flex-1 sm:flex-none" size="sm">
+        <Button onClick={handleSaveWithValidation} className="flex-1 sm:flex-none" size="sm">
           <span className="hidden sm:inline">Speichern</span>
           <span className="sm:hidden">Save</span>
         </Button>
@@ -227,7 +241,14 @@ export const LinkedInProfileExperience: React.FC<LinkedInProfileExperienceProps>
           </div>
         ) : (
           <div className="space-y-4 md:space-y-6">
-            {experiences.map((exp, index) => (
+            {experiences
+              .sort((a, b) => {
+                // Sort by end date/start date (newest first)
+                const aEnd = a.zeitraum_bis ? new Date(a.zeitraum_bis) : new Date(a.zeitraum_von);
+                const bEnd = b.zeitraum_bis ? new Date(b.zeitraum_bis) : new Date(b.zeitraum_von);
+                return bEnd.getTime() - aEnd.getTime();
+              })
+              .map((exp, index) => (
               <div key={index} className="relative group">
                 <div className="flex items-start gap-3 md:gap-4">
                   <div className="w-10 h-10 md:w-12 md:h-12 bg-accent/20 rounded-lg flex items-center justify-center flex-shrink-0">

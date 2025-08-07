@@ -187,18 +187,23 @@ const LiveCareerLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) => 
                 Berufserfahrung
               </h3>
               <div className="space-y-4">
-                {data.berufserfahrung.map((job, index) => (
-                  <div key={index} className="cv-section">
+                {data.berufserfahrung
+                  .sort((a, b) => {
+                    const aEnd = a.zeitraum_bis ? new Date(a.zeitraum_bis) : new Date(a.zeitraum_von);
+                    const bEnd = b.zeitraum_bis ? new Date(b.zeitraum_bis) : new Date(b.zeitraum_von);
+                    return bEnd.getTime() - aEnd.getTime();
+                  })
+                  .map((job, index) => (
+                  <div key={index} className="cv-section break-inside-avoid">
                     <div className="flex justify-between items-start mb-1">
                       <div className="flex-1">
                         <h4 className="font-semibold text-gray-900" style={{ fontSize: '10pt' }}>{job.titel}</h4>
                         <p className="font-medium" style={{ color: `hsl(${colors.primary})`, fontSize: '9pt' }}>
-                          {job.unternehmen}
+                          {job.unternehmen} • {job.ort}
                         </p>
-                        <p className="text-gray-600" style={{ fontSize: '9pt' }}>{job.ort}</p>
                       </div>
-                      <div className="text-gray-500 font-medium ml-4" style={{ fontSize: '9pt' }}>
-                        {job.zeitraum_von} - {job.zeitraum_bis}
+                      <div className="text-gray-500 font-medium ml-4 whitespace-nowrap" style={{ fontSize: '9pt' }}>
+                        {job.zeitraum_von ? new Date(job.zeitraum_von).toLocaleDateString('de-DE', { month: 'short', year: 'numeric' }) : ''} - {job.zeitraum_bis ? new Date(job.zeitraum_bis).toLocaleDateString('de-DE', { month: 'short', year: 'numeric' }) : 'Heute'}
                       </div>
                     </div>
                     {job.beschreibung && (
@@ -232,8 +237,14 @@ const LiveCareerLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) => 
                 Ausbildung
               </h3>
               <div className="space-y-4">
-                {data.schulbildung.map((school, index) => (
-                  <div key={index} className="cv-section">
+                {data.schulbildung
+                  .sort((a, b) => {
+                    const aEnd = parseInt(a.zeitraum_bis) || parseInt(a.zeitraum_von) || 0;
+                    const bEnd = parseInt(b.zeitraum_bis) || parseInt(b.zeitraum_von) || 0;
+                    return bEnd - aEnd;
+                  })
+                  .map((school, index) => (
+                  <div key={index} className="cv-section break-inside-avoid">
                     <div className="flex justify-between items-start mb-1">
                       <div className="flex-1">
                         <h4 className="font-semibold text-gray-900" style={{ fontSize: '10pt' }}>{school.schulform}</h4>
@@ -242,8 +253,8 @@ const LiveCareerLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) => 
                         </p>
                         <p className="text-gray-600" style={{ fontSize: '9pt' }}>{school.ort}</p>
                       </div>
-                      <div className="text-gray-500 font-medium ml-4" style={{ fontSize: '9pt' }}>
-                        {school.zeitraum_von} - {school.zeitraum_bis}
+                      <div className="text-gray-500 font-medium ml-4 whitespace-nowrap" style={{ fontSize: '9pt' }}>
+                        {school.zeitraum_von} - {school.zeitraum_bis || 'Heute'}
                       </div>
                     </div>
                     {school.beschreibung && (
