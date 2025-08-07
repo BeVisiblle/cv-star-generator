@@ -47,10 +47,20 @@ export default function CompanyDashboard() {
   const [bestMatches, setBestMatches] = useState<Profile[]>([]);
   const [recentlyUnlocked, setRecentlyUnlocked] = useState<Profile[]>([]);
   const [loading, setLoading] = useState(true);
+  const [demoMode, setDemoMode] = useState(false);
+  const [demoCompanyData, setDemoCompanyData] = useState<any>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (company) {
+    // Check for demo mode
+    const isDemoMode = localStorage.getItem('demoMode') === 'true';
+    const storedDemoData = localStorage.getItem('demoCompanyData');
+    
+    if (isDemoMode && storedDemoData) {
+      setDemoMode(true);
+      setDemoCompanyData(JSON.parse(storedDemoData));
+      loadDemoData();
+    } else if (company) {
       loadDashboardData();
     }
   }, [company]);
@@ -120,6 +130,40 @@ export default function CompanyDashboard() {
     }
   };
 
+  const loadDemoData = () => {
+    // Set demo stats
+    setStats({
+      totalMatches: 12,
+      monthlyMatches: 5,
+      unlockedProfiles: 8,
+      followedProfiles: 3,
+    });
+
+    // Set demo profiles
+    setBestMatches([
+      {
+        id: '1',
+        vorname: 'Max',
+        nachname: 'Mustermann',
+        status: 'Azubi',
+        branche: 'Handwerk',
+        ort: 'Frankfurt',
+        headline: 'Motivierter Azubi Elektrotechnik'
+      },
+      {
+        id: '2',
+        vorname: 'Anna',
+        nachname: 'Schmidt',
+        status: 'Schüler',
+        branche: 'IT',
+        ort: 'München',
+        headline: 'Interessiert an IT-Ausbildung'
+      }
+    ]);
+
+    setLoading(false);
+  };
+
   if (companyLoading || loading) {
     return (
       <div className="flex items-center justify-center min-h-96">
@@ -128,7 +172,7 @@ export default function CompanyDashboard() {
     );
   }
 
-  if (!company) {
+  if (!company && !demoMode) {
     return (
       <div className="text-center py-12">
         <Building2 className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
@@ -136,18 +180,54 @@ export default function CompanyDashboard() {
         <p className="text-muted-foreground">
           Sie sind noch keinem Unternehmen zugeordnet.
         </p>
+        <Button className="mt-4" onClick={() => navigate('/company/onboarding')}>
+          Unternehmen registrieren
+        </Button>
       </div>
     );
   }
 
+  const displayCompany = demoMode ? demoCompanyData : company;
+
   return (
     <div className="space-y-6">
+      {/* Demo Mode Banner */}
+      {demoMode && (
+        <div className="bg-yellow-100 border border-yellow-400 rounded-lg p-4">
+          <div className="flex items-center">
+            <div className="flex-shrink-0">
+              <svg className="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+              </svg>
+            </div>
+            <div className="ml-3">
+              <p className="text-sm text-yellow-800">
+                <strong>Demo-Modus aktiv:</strong> Dies ist eine Vorschau. Echte Registrierung folgt später.
+              </p>
+            </div>
+            <div className="ml-auto">
+              <Button 
+                variant="ghost" 
+                size="sm"
+                onClick={() => {
+                  localStorage.removeItem('demoMode');
+                  localStorage.removeItem('demoCompanyData');
+                  navigate('/company/onboarding');
+                }}
+              >
+                Beenden
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Welcome Section */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold">Willkommen zurück!</h1>
           <p className="text-muted-foreground">
-            Hier ist eine Übersicht über {company.name}
+            Hier ist eine Übersicht über {displayCompany.name}
           </p>
         </div>
         <div className="flex space-x-2">
@@ -170,9 +250,9 @@ export default function CompanyDashboard() {
             <Coins className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{company.active_tokens}</div>
+            <div className="text-2xl font-bold">{demoMode ? '50' : company?.active_tokens}</div>
             <p className="text-xs text-muted-foreground">
-              von {company.seats * 10} verfügbar
+              von {demoMode ? '100' : (company?.seats * 10)} verfügbar
             </p>
           </CardContent>
         </Card>
@@ -209,7 +289,7 @@ export default function CompanyDashboard() {
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{company.seats}</div>
+            <div className="text-2xl font-bold">{demoMode ? '5' : company?.seats}</div>
             <p className="text-xs text-muted-foreground">
               aktive Mitglieder
             </p>

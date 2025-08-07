@@ -104,63 +104,39 @@ export default function CompanyOnboarding() {
     }
 
     setLoading(true);
+    
+    // TEMPORARY: Skip actual registration and go directly to company dashboard
     try {
-      // Sign up user
-      const { data: authData, error: authError } = await supabase.auth.signUp({
-        email: data.email,
-        password: data.password,
-        options: {
-          emailRedirectTo: `${window.location.origin}/company/dashboard`
-        }
+      toast({ 
+        title: "Demo-Modus aktiviert", 
+        description: "Sie werden direkt zum Unternehmensprofil weitergeleitet (ohne E-Mail-Verifikation)",
+        duration: 3000
       });
 
-      if (authError) throw authError;
-
-      if (authData.user) {
-        // Create company
-        const { data: companyData, error: companyError } = await supabase
-          .from('companies')
-          .insert({
-            name: data.companyName,
-            size_range: data.companySize,
-            website_url: data.website || null,
-            industry: data.industries.join(', '),
-            main_location: data.location,
-          })
-          .select()
-          .single();
-
-        if (companyError) throw companyError;
-
-        // Add user as admin
-        const { error: userError } = await supabase
-          .from('company_users')
-          .insert({
-            user_id: authData.user.id,
-            company_id: companyData.id,
-            role: 'admin',
-            accepted_at: new Date().toISOString(),
-          });
-
-        if (userError) throw userError;
-
-        // Create company settings with target groups
-        const { error: settingsError } = await supabase
-          .from('company_settings')
-          .insert({
-            company_id: companyData.id,
-            target_status: data.targetGroups,
-            target_industries: data.industries,
-          });
-
-        if (settingsError) throw settingsError;
-
-        toast({ title: "Unternehmen erfolgreich registriert!" });
+      // Store company data in localStorage for demo
+      const companyData = {
+        name: data.companyName,
+        size_range: data.companySize,
+        website_url: data.website || null,
+        industry: data.industries.join(', '),
+        main_location: data.location,
+        targetGroups: data.targetGroups,
+        email: data.email,
+        demoMode: true // Flag to indicate this is demo mode
+      };
+      
+      localStorage.setItem('demoCompanyData', JSON.stringify(companyData));
+      localStorage.setItem('demoMode', 'true');
+      
+      // Simulate a small delay
+      setTimeout(() => {
+        toast({ title: "Erfolgreich! Weiterleitung zum Unternehmensprofil..." });
         navigate("/company/dashboard");
-      }
+      }, 2000);
+
     } catch (error: any) {
       toast({ 
-        title: "Fehler bei der Registrierung", 
+        title: "Fehler", 
         description: error.message,
         variant: "destructive" 
       });
@@ -414,11 +390,18 @@ export default function CompanyOnboarding() {
                   className="w-full h-12 text-lg font-semibold mt-6"
                   size="lg"
                 >
-                  {loading ? "Registrierung läuft..." : "Jetzt registrieren"}
+                  {loading ? "Profil wird erstellt..." : "Jetzt starten (Demo-Modus)"}
                 </Button>
 
+                <div className="bg-yellow-100 border border-yellow-400 rounded-lg p-3 mt-4">
+                  <p className="text-xs text-yellow-800">
+                    <strong>Demo-Modus:</strong> Sie können direkt loslegen ohne E-Mail-Verifikation. 
+                    Die echte Registrierung implementieren wir später.
+                  </p>
+                </div>
+
                 <p className="text-xs text-muted-foreground text-center mt-4">
-                  Mit der Anmeldung erklärst du dich mit unseren Nutzungsbedingungen einverstanden.
+                  Mit dem Start erklärst du dich mit unseren Nutzungsbedingungen einverstanden.
                 </p>
 
                 <div className="text-center mt-6">
