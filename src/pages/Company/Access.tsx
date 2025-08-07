@@ -10,7 +10,7 @@ import { Building2, ArrowRight } from "lucide-react";
 
 export default function CompanyAccess() {
   const [loading, setLoading] = useState(false);
-  const [email, setEmail] = useState("tom@ausbildungsbasis.de");
+  const [email, setEmail] = useState("test@muller-handwerk.de");
   const [password, setPassword] = useState("Test123!");
   const { toast } = useToast();
   const navigate = useNavigate();
