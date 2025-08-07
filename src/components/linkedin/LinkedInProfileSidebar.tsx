@@ -530,12 +530,12 @@ export const LinkedInProfileSidebar: React.FC<LinkedInProfileSidebarProps> = ({ 
 
   return (
     <div className="space-y-6">
-      {/* CV Section - Only show for non-readonly */}
-      {!readOnly && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg font-semibold flex items-center justify-between">
-              Mein Lebenslauf
+      {/* CV Section - Show download always, hide edit for readOnly */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg font-semibold flex items-center justify-between">
+            Mein Lebenslauf
+            {!readOnly && (
               <div className="flex gap-1">
                 <Button
                   variant="ghost"
@@ -546,44 +546,46 @@ export const LinkedInProfileSidebar: React.FC<LinkedInProfileSidebarProps> = ({ 
                   <Eye className="h-4 w-4" />
                 </Button>
               </div>
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {showCVPreview && profile?.vorname && profile?.nachname ? (
-              <div className="border rounded-lg overflow-hidden bg-white">
-                <div className="bg-muted px-3 py-2 text-xs sm:text-sm font-medium flex justify-between items-center">
-                  <span className="truncate">Vorschau: {getLayoutName()}</span>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setShowCVPreview(false)}
-                    className="h-6 w-6 p-0 min-w-[24px]"
-                  >
-                    <X className="h-3 w-3" />
-                  </Button>
-                </div>
-                <div className="h-32 sm:h-48 overflow-hidden relative">
-                  {renderCVLayout()}
-                </div>
+            )}
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          {!readOnly && showCVPreview && profile?.vorname && profile?.nachname ? (
+            <div className="border rounded-lg overflow-hidden bg-white">
+              <div className="bg-muted px-3 py-2 text-xs sm:text-sm font-medium flex justify-between items-center">
+                <span className="truncate">Vorschau: {getLayoutName()}</span>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowCVPreview(false)}
+                  className="h-6 w-6 p-0 min-w-[24px]"
+                >
+                  <X className="h-3 w-3" />
+                </Button>
               </div>
-            ) : showCVPreview && (!profile?.vorname || !profile?.nachname) ? (
-              <div className="border rounded-lg p-3 sm:p-4 text-center text-muted-foreground">
-                <FileText className="h-6 w-6 sm:h-8 sm:w-8 mx-auto mb-2" />
-                <p className="text-xs sm:text-sm">Vervollständigen Sie Ihr Profil für eine CV-Vorschau</p>
+              <div className="h-32 sm:h-48 overflow-hidden relative">
+                {renderCVLayout()}
               </div>
-            ) : null}
-            
-            <Button 
-              onClick={handleDownloadCV}
-              disabled={isGeneratingPDF}
-              className="w-full bg-primary hover:bg-primary/90 text-sm"
-              size="sm"
-            >
-              <Download className="h-4 w-4 mr-2" />
-              <span className="hidden sm:inline">{isGeneratingPDF ? 'Generiere...' : 'CV herunterladen'}</span>
-              <span className="sm:hidden">{isGeneratingPDF ? 'Gen...' : 'Download'}</span>
-            </Button>
-            
+            </div>
+          ) : !readOnly && showCVPreview && (!profile?.vorname || !profile?.nachname) ? (
+            <div className="border rounded-lg p-3 sm:p-4 text-center text-muted-foreground">
+              <FileText className="h-6 w-6 sm:h-8 sm:w-8 mx-auto mb-2" />
+              <p className="text-xs sm:text-sm">Vervollständigen Sie Ihr Profil für eine CV-Vorschau</p>
+            </div>
+          ) : null}
+          
+          <Button 
+            onClick={handleDownloadCV}
+            disabled={isGeneratingPDF}
+            className="w-full bg-primary hover:bg-primary/90 text-sm"
+            size="sm"
+          >
+            <Download className="h-4 w-4 mr-2" />
+            <span className="hidden sm:inline">{isGeneratingPDF ? 'Generiere...' : 'CV herunterladen'}</span>
+            <span className="sm:hidden">{isGeneratingPDF ? 'Gen...' : 'Download'}</span>
+          </Button>
+          
+          {!readOnly && (
             <Button 
               onClick={handleEditCV}
               variant="outline"
@@ -594,23 +596,23 @@ export const LinkedInProfileSidebar: React.FC<LinkedInProfileSidebarProps> = ({ 
               <span className="hidden sm:inline">CV bearbeiten</span>
               <span className="sm:hidden">Bearbeiten</span>
             </Button>
-            
-            {profile?.updated_at && (
-              <div className="flex items-center gap-2 text-xs text-muted-foreground justify-start">
-                <Clock className="h-3 w-3" />
-                zuletzt aktualisiert: {formatDate(profile.updated_at)}
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      )}
+          )}
+          
+          {profile?.updated_at && (
+            <div className="flex items-center gap-2 text-xs text-muted-foreground justify-start">
+              <Clock className="h-3 w-3" />
+              zuletzt aktualisiert: {formatDate(profile.updated_at)}
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
-      {/* Document Upload - Only show upload for non-readonly, always show existing documents */}
+      {/* Document Section - Show if documents exist or not readonly */}
       {(!readOnly || userDocuments.length > 0) && (
         <Card>
           <CardHeader>
             <CardTitle className="text-lg font-semibold">
-              {readOnly ? "Dokumente" : "Dokumente hochladen"}
+              {readOnly ? "Zeugnisse & Zertifikate" : "Dokumente hochladen"}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
