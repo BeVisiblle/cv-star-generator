@@ -211,51 +211,44 @@ const Profile = () => {
       </div>
 
       {/* Mobile-first responsive layout */}
-      <div className="flex flex-col lg:grid lg:grid-cols-12 gap-4 md:gap-6">
-        {/* Main Content Area */}
-        <main className="lg:col-span-8 space-y-4 md:space-y-6 order-2 lg:order-1">
-          {/* Profile Header with Cover Photo */}
-          <LinkedInProfileHeader
-            profile={profile}
-            isEditing={isEditing}
-            onProfileUpdate={handleProfileUpdate}
-          />
+      <div className="space-y-4 md:space-y-6">
+        {/* Profile Header with Cover Photo */}
+        <LinkedInProfileHeader
+          profile={profile}
+          isEditing={isEditing}
+          onProfileUpdate={handleProfileUpdate}
+        />
 
-          {/* About Section */}
-          <LinkedInProfileMain
-            profile={profile}
-            isEditing={isEditing}
-            onProfileUpdate={handleProfileUpdate}
-          />
+        {/* About Section */}
+        <LinkedInProfileMain
+          profile={profile}
+          isEditing={isEditing}
+          onProfileUpdate={handleProfileUpdate}
+        />
 
-          {/* Experience Section */}
-          <LinkedInProfileExperience
-            experiences={profile?.berufserfahrung || []}
-            isEditing={isEditing}
-            onExperiencesUpdate={handleExperiencesUpdate}
-          />
+        {/* Experience Section */}
+        <LinkedInProfileExperience
+          experiences={profile?.berufserfahrung || []}
+          isEditing={isEditing}
+          onExperiencesUpdate={handleExperiencesUpdate}
+        />
 
-          {/* Education Section */}
-          <LinkedInProfileEducation
-            education={profile?.schulbildung || []}
-            isEditing={isEditing}
-            onEducationUpdate={handleEducationUpdate}
-          />
+        {/* Education Section */}
+        <LinkedInProfileEducation
+          education={profile?.schulbildung || []}
+          isEditing={isEditing}
+          onEducationUpdate={handleEducationUpdate}
+        />
 
-          {/* Activity Section */}
-          <LinkedInProfileActivity profile={profile} />
-        </main>
+        {/* Skills and Languages Sidebar */}
+        <LinkedInProfileSidebar
+          profile={profile}
+          isEditing={isEditing}
+          onProfileUpdate={handleProfileUpdate}
+        />
 
-        {/* Right Sidebar - shows first on mobile */}
-        <aside className="lg:col-span-4 order-1 lg:order-2">
-          <div className="lg:sticky lg:top-24">
-            <LinkedInProfileSidebar
-              profile={profile}
-              isEditing={isEditing}
-              onProfileUpdate={handleProfileUpdate}
-            />
-          </div>
-        </aside>
+        {/* Activity Section */}
+        <LinkedInProfileActivity profile={profile} />
       </div>
 
       {/* Preview Modal */}
