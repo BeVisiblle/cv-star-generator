@@ -133,23 +133,11 @@ export const getBrancheColors = (branche?: string) => {
 };
 
 export const LanguageBars: React.FC<{ niveau: string; branche?: string }> = ({ niveau, branche }) => {
-  const levels = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2', 'Muttersprache'];
-  const currentLevel = niveau === 'Muttersprache' ? 6 : levels.indexOf(niveau);
-  const colors = getBrancheColors(branche);
-  
+  // Remove the progress bars - just return the niveau text
   return (
-    <div className="flex gap-1">
-      {Array.from({ length: 6 }, (_, i) => (
-        <div
-          key={i}
-          className={`h-2 w-4 rounded-sm transition-colors ${
-            i <= currentLevel 
-              ? `bg-[hsl(${colors.primary})]` 
-              : 'bg-muted'
-          }`}
-        />
-      ))}
-    </div>
+    <span className="text-sm text-muted-foreground font-medium">
+      {niveau}
+    </span>
   );
 };
 

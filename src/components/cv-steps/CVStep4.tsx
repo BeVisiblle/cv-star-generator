@@ -164,6 +164,9 @@ const CVStep4 = () => {
   const toggleCurrentJob = (index: number, isCurrent: boolean) => {
     if (isCurrent) {
       updateBerufserfahrungEntry(index, 'zeitraum_bis', '');
+    } else {
+      // When unchecking "current job", clear the end date so user can set it
+      updateBerufserfahrungEntry(index, 'zeitraum_bis', '');
     }
   };
 

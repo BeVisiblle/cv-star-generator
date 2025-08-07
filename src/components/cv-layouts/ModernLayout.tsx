@@ -117,6 +117,14 @@ const ModernLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) => {
               <div className="space-y-4">
                 {data.berufserfahrung
                   .sort((a, b) => {
+                    // Current jobs (bis heute) should appear first
+                    const aIsCurrent = !a.zeitraum_bis || a.zeitraum_bis === '';
+                    const bIsCurrent = !b.zeitraum_bis || b.zeitraum_bis === '';
+                    
+                    if (aIsCurrent && !bIsCurrent) return -1;
+                    if (!aIsCurrent && bIsCurrent) return 1;
+                    
+                    // For non-current jobs, sort by end date (newest first)
                     const aEnd = a.zeitraum_bis ? new Date(a.zeitraum_bis) : new Date(a.zeitraum_von);
                     const bEnd = b.zeitraum_bis ? new Date(b.zeitraum_bis) : new Date(b.zeitraum_von);
                     return bEnd.getTime() - aEnd.getTime();

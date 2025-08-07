@@ -1,0 +1,46 @@
+/* CV Print Styles for better page breaks */
+@media print {
+  .cv-section {
+    page-break-inside: avoid;
+    break-inside: avoid;
+    margin-bottom: 20px;
+  }
+  
+  .break-inside-avoid {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+  
+  /* Prevent orphaned content */
+  h1, h2, h3, h4, h5, h6 {
+    page-break-after: avoid;
+    break-after: avoid;
+  }
+  
+  /* Keep related content together */
+  .cv-entry {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+  
+  /* Better spacing for printed version */
+  .cv-section + .cv-section {
+    margin-top: 16px;
+  }
+  
+  /* Ensure proper page margins */
+  @page {
+    margin: 15mm;
+    size: A4;
+  }
+}
+
+/* Also apply these styles for screen to match print layout */
+.cv-section {
+  break-inside: avoid;
+  margin-bottom: 20px;
+}
+
+.break-inside-avoid {
+  break-inside: avoid;
+}
