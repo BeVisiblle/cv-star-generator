@@ -24,11 +24,51 @@ const Profile = () => {
   const [showPreview, setShowPreview] = useState(false);
   const [profile, setProfile] = useState<any>(null);
 
-  useEffect(() => {
-    if (authProfile) {
-      setProfile({ ...authProfile });
+  // All hooks must be called before any conditional returns
+  const handleProfileUpdateImmediate = useCallback(async (updates: any) => {
+    if (!profile?.id) return;
+    
+    setIsSaving(true);
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({
+          ...updates,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', profile.id);
+
+      if (error) throw error;
+
+      // Update local profile state
+      setProfile(prev => ({ ...prev, ...updates }));
+
+      toast({
+        title: "Profil aktualisiert",
+        description: "Ihre Änderungen wurden gespeichert."
+      });
+    } catch (error) {
+      console.error('Update error:', error);
+      toast({
+        title: "Fehler beim Speichern",
+        description: "Ihre Änderungen konnten nicht gespeichert werden.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSaving(false);
     }
-  }, [authProfile]);
+  }, [profile?.id]);
+
+  // Debounced version for input fields to prevent focus loss
+  const handleProfileUpdate = useDebounce(handleProfileUpdateImmediate, 1000);
+
+  const handleExperiencesUpdate = useCallback((experiences: any[]) => {
+    handleProfileUpdateImmediate({ berufserfahrung: experiences });
+  }, [handleProfileUpdateImmediate]);
+
+  const handleEducationUpdate = useCallback((education: any[]) => {
+    handleProfileUpdateImmediate({ schulbildung: education });
+  }, [handleProfileUpdateImmediate]);
 
   const handleSave = async () => {
     if (!profile?.id) return;
@@ -78,6 +118,12 @@ const Profile = () => {
     }
   };
 
+  useEffect(() => {
+    if (authProfile) {
+      setProfile({ ...authProfile });
+    }
+  }, [authProfile]);
+
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -102,50 +148,7 @@ const Profile = () => {
     );
   }
 
-  const handleProfileUpdateImmediate = useCallback(async (updates: any) => {
-    if (!profile?.id) return;
-    
-    setIsSaving(true);
-    try {
-      const { error } = await supabase
-        .from('profiles')
-        .update({
-          ...updates,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', profile.id);
-
-      if (error) throw error;
-
-      // Update local profile state
-      setProfile(prev => ({ ...prev, ...updates }));
-
-      toast({
-        title: "Profil aktualisiert",
-        description: "Ihre Änderungen wurden gespeichert."
-      });
-    } catch (error) {
-      console.error('Update error:', error);
-      toast({
-        title: "Fehler beim Speichern",
-        description: "Ihre Änderungen konnten nicht gespeichert werden.",
-        variant: "destructive"
-      });
-    } finally {
-      setIsSaving(false);
-    }
-  }, [profile?.id]);
-
-  // Debounced version for input fields to prevent focus loss
-  const handleProfileUpdate = useDebounce(handleProfileUpdateImmediate, 1000);
-
-  const handleExperiencesUpdate = useCallback((experiences: any[]) => {
-    handleProfileUpdateImmediate({ berufserfahrung: experiences });
-  }, [handleProfileUpdateImmediate]);
-
-  const handleEducationUpdate = useCallback((education: any[]) => {
-    handleProfileUpdateImmediate({ schulbildung: education });
-  }, [handleProfileUpdateImmediate]);
+  // Early returns after all hooks are declared
 
   return (
     <div className="p-6">
