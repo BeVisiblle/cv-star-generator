@@ -104,6 +104,9 @@ interface CVFormContextType {
   syncWithProfile: () => void;
   syncToProfile: () => Promise<void>;
   setAutoSyncEnabled: (enabled: boolean) => void;
+  validationErrors: Record<string, string>;
+  validateStep: (step: number) => boolean;
+  clearValidationErrors: () => void;
 }
 
 const CVFormContext = createContext<CVFormContextType | undefined>(undefined);
@@ -112,6 +115,7 @@ export const CVFormProvider = ({ children }: { children: ReactNode }) => {
   const { user, profile } = useAuthForCV();
   
   const [formData, setFormData] = useState<CVFormData>({});
+  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
   const [autoSyncEnabled, setAutoSyncEnabled] = useState(true);
   const autoSyncTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   
@@ -208,6 +212,67 @@ export const CVFormProvider = ({ children }: { children: ReactNode }) => {
     localStorage.removeItem('cvLayoutEditMode');
   };
 
+  const validateStep = (step: number): boolean => {
+    const errors: Record<string, string> = {};
+    
+    switch (step) {
+      case 1:
+        if (!formData.branche) errors.branche = 'Branche ist erforderlich';
+        if (!formData.status) errors.status = 'Status ist erforderlich';
+        break;
+      case 2:
+        if (!formData.vorname) errors.vorname = 'Vorname ist erforderlich';
+        if (!formData.nachname) errors.nachname = 'Nachname ist erforderlich';
+        if (!formData.geburtsdatum) errors.geburtsdatum = 'Geburtsdatum ist erforderlich';
+        if (!formData.strasse) errors.strasse = 'Straße ist erforderlich';
+        if (!formData.hausnummer) errors.hausnummer = 'Hausnummer ist erforderlich';
+        if (!formData.plz) errors.plz = 'PLZ ist erforderlich';
+        if (!formData.ort) errors.ort = 'Ort ist erforderlich';
+        if (!formData.telefon) errors.telefon = 'Telefonnummer ist erforderlich';
+        if (!formData.email) errors.email = 'E-Mail ist erforderlich';
+        if (!formData.profilbild && !formData.avatar_url) errors.profilbild = 'Profilbild ist erforderlich';
+        break;
+      case 3:
+        if (!formData.sprachen || formData.sprachen.length === 0) {
+          errors.sprachen = 'Mindestens eine Sprache ist erforderlich';
+        }
+        break;
+      case 4:
+        if (!formData.schulbildung || formData.schulbildung.length === 0) {
+          errors.schulbildung = 'Mindestens ein Schulbildungs-Eintrag ist erforderlich';
+        }
+        // Validate each schulbildung entry
+        formData.schulbildung?.forEach((schule, index) => {
+          if (!schule.schulform) errors[`schulbildung_${index}_schulform`] = 'Schulform ist erforderlich';
+          if (!schule.name) errors[`schulbildung_${index}_name`] = 'Name der Institution ist erforderlich';
+          if (!schule.ort) errors[`schulbildung_${index}_ort`] = 'Ort ist erforderlich';
+          if (!schule.zeitraum_von) errors[`schulbildung_${index}_zeitraum_von`] = 'Start-Jahr ist erforderlich';
+          if (!schule.zeitraum_bis) errors[`schulbildung_${index}_zeitraum_bis`] = 'End-Jahr ist erforderlich';
+        });
+        // Validate each berufserfahrung entry
+        formData.berufserfahrung?.forEach((arbeit, index) => {
+          if (!arbeit.titel) errors[`berufserfahrung_${index}_titel`] = 'Position ist erforderlich';
+          if (!arbeit.unternehmen) errors[`berufserfahrung_${index}_unternehmen`] = 'Unternehmen ist erforderlich';
+          if (!arbeit.ort) errors[`berufserfahrung_${index}_ort`] = 'Ort ist erforderlich';
+          if (!arbeit.zeitraum_von) errors[`berufserfahrung_${index}_zeitraum_von`] = 'Start-Datum ist erforderlich';
+        });
+        break;
+      case 5:
+        if (!formData.layout) errors.layout = 'Layout-Auswahl ist erforderlich';
+        break;
+      case 7:
+        if (!formData.einwilligung) errors.einwilligung = 'Einwilligung ist erforderlich';
+        break;
+    }
+    
+    setValidationErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  const clearValidationErrors = () => {
+    setValidationErrors({});
+  };
+
   // Cleanup effect
   useEffect(() => {
     return () => {
@@ -229,7 +294,10 @@ export const CVFormProvider = ({ children }: { children: ReactNode }) => {
       setLayoutEditMode,
       syncWithProfile,
       syncToProfile,
-      setAutoSyncEnabled
+      setAutoSyncEnabled,
+      validationErrors,
+      validateStep,
+      clearValidationErrors
     }}>
       {children}
     </CVFormContext.Provider>

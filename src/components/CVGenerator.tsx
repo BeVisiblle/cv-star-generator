@@ -13,7 +13,7 @@ import CVStep6 from './cv-steps/CVStep6';
 import CVStep7 from './cv-steps/CVStep7';
 
 const CVGeneratorContent = () => {
-  const { currentStep, setCurrentStep, formData, isLayoutEditMode } = useCVForm();
+  const { currentStep, setCurrentStep, formData, isLayoutEditMode, validateStep, validationErrors } = useCVForm();
   const navigate = useNavigate();
 
   const renderStep = () => {
@@ -39,35 +39,16 @@ const CVGeneratorContent = () => {
     }
   };
 
-  const canGoNext = () => {
-    switch (currentStep) {
-      case 1:
-        return formData.branche && formData.status;
-      case 2:
-        return formData.vorname && formData.nachname && formData.geburtsdatum && 
-               formData.strasse && formData.hausnummer && formData.plz && 
-               formData.ort && formData.email && (formData.profilbild || formData.avatar_url);
-      case 3:
-        // For step 3, we need languages and either kenntnisse+motivation OR they can be empty and will be generated
-        return formData.sprachen && formData.sprachen.length > 0;
-      case 4:
-        return formData.schulbildung && formData.schulbildung.length > 0;
-      case 5:
-        return formData.layout;
-      default:
-        return true;
-    }
-  };
 
   const handleNext = () => {
     if (isLayoutEditMode) {
       // In layout edit mode, only allow step 5 -> 6
-      if (currentStep === 5 && canGoNext()) {
+      if (currentStep === 5 && validateStep(5)) {
         setCurrentStep(6);
       }
     } else {
-      // Normal mode
-      if (currentStep < 7 && canGoNext()) {
+      // Normal mode - validate current step before proceeding
+      if (currentStep < 7 && validateStep(currentStep)) {
         setCurrentStep(currentStep + 1);
       }
     }
@@ -165,6 +146,20 @@ const CVGeneratorContent = () => {
           {renderStep()}
         </div>
 
+        {/* Validation Errors */}
+        {Object.keys(validationErrors).length > 0 && (
+          <div className="mb-8 p-4 bg-destructive/10 border border-destructive/20 rounded-lg">
+            <h3 className="text-sm font-medium text-destructive mb-2">
+              Bitte füllen Sie alle Pflichtfelder aus:
+            </h3>
+            <ul className="text-sm text-destructive space-y-1">
+              {Object.values(validationErrors).map((error, index) => (
+                <li key={index}>• {error}</li>
+              ))}
+            </ul>
+          </div>
+        )}
+
         {/* Navigation */}
         <div className="flex justify-between">
           <Button
@@ -179,7 +174,6 @@ const CVGeneratorContent = () => {
           {(isLayoutEditMode ? currentStep < 6 : currentStep < 7) && (
             <Button
               onClick={handleNext}
-              disabled={!canGoNext()}
             >
               {currentStep === 5 ? 'Weiter zur Vorschau' : 'Weiter'}
               <ArrowRight className="h-4 w-4 ml-2" />

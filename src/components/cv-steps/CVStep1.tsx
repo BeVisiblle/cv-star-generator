@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 
 const CVStep1 = () => {
-  const { formData, updateFormData } = useCVForm();
+  const { formData, updateFormData, validationErrors } = useCVForm();
 
   const branches = [
     { key: 'handwerk', emoji: '👷', title: 'Handwerk', desc: 'Bau, Elektro, Sanitär, KFZ und mehr' },
@@ -26,9 +26,15 @@ const CVStep1 = () => {
     <div className="space-y-8">
       <div>
         <h2 className="text-xl font-semibold mb-2">Wähle deine Branche</h2>
-        <p className="text-muted-foreground mb-6">
+        <p className="text-muted-foreground mb-2">
           In welchem Bereich möchtest du arbeiten?
         </p>
+        {validationErrors.branche && (
+          <p className="text-sm text-destructive font-medium mb-4">
+            {validationErrors.branche}
+          </p>
+        )}
+        
         
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
           {branches.map((branch) => (
@@ -37,7 +43,9 @@ const CVStep1 = () => {
               className={`p-6 cursor-pointer transition-all hover:shadow-md ${
                 formData.branche === branch.key 
                   ? 'ring-2 ring-primary bg-primary/5' 
-                  : 'hover:bg-accent/50'
+                  : validationErrors.branche 
+                    ? 'border-destructive ring-1 ring-destructive/20 hover:bg-accent/50'
+                    : 'hover:bg-accent/50'
               }`}
               onClick={() => updateFormData({ branche: branch.key })}
             >
@@ -53,9 +61,15 @@ const CVStep1 = () => {
 
       <div>
         <h2 className="text-xl font-semibold mb-2">Deine aktuelle Situation</h2>
-        <p className="text-muted-foreground mb-6">
+        <p className="text-muted-foreground mb-2">
           Was beschreibt dich am besten?
         </p>
+        {validationErrors.status && (
+          <p className="text-sm text-destructive font-medium mb-4">
+            {validationErrors.status}
+          </p>
+        )}
+        
         
         <div className="grid md:grid-cols-3 gap-4">
           {statuses.map((status) => (
@@ -64,7 +78,9 @@ const CVStep1 = () => {
               className={`p-6 cursor-pointer transition-all hover:shadow-md ${
                 formData.status === status.key 
                   ? 'ring-2 ring-primary bg-primary/5' 
-                  : 'hover:bg-accent/50'
+                  : validationErrors.status 
+                    ? 'border-destructive ring-1 ring-destructive/20 hover:bg-accent/50'
+                    : 'hover:bg-accent/50'
               }`}
               onClick={() => updateFormData({ status: status.key })}
             >

@@ -8,9 +8,22 @@ import { FileUpload } from '@/components/ui/file-upload';
 import { PLZOrtSelector } from '@/components/shared/PLZOrtSelector';
 
 const CVStep2 = () => {
-  const { formData, updateFormData } = useCVForm();
+  const { formData, updateFormData, validationErrors } = useCVForm();
   const [previewUrl, setPreviewUrl] = useState<string>('');
 
+  // Import the FormFieldError component
+  const FormFieldError = ({ error, children, className = "" }: { error?: string; children: React.ReactElement; className?: string }) => (
+    <div className={`space-y-1 ${className}`}>
+      {React.cloneElement(children, {
+        className: `${children.props.className} ${error ? "border-destructive focus:border-destructive ring-destructive" : ""}`
+      })}
+      {error && (
+        <p className="text-sm text-destructive font-medium">
+          {error}
+        </p>
+      )}
+    </div>
+  );
   const abschlussOptions = [
     'Hauptschulabschluss',
     'Realschulabschluss / Mittlere Reife',
@@ -51,117 +64,137 @@ const CVStep2 = () => {
       <Card className="p-6">
         <div className="space-y-4">
           {/* Profilbild Upload - Pflicht */}
-          <div className="space-y-2">
-            <Label htmlFor="profilbild">Profilbild *</Label>
-            <FileUpload 
-              onFileSelect={handleFileSelect}
-              previewUrl={previewUrl}
-              accept="image/*"
-              maxSize={5}
-            />
-          </div>
+          <FormFieldError error={validationErrors.profilbild}>
+            <div className="space-y-2">
+              <Label htmlFor="profilbild">Profilbild *</Label>
+              <FileUpload 
+                onFileSelect={handleFileSelect}
+                previewUrl={previewUrl}
+                accept="image/*"
+                maxSize={5}
+              />
+            </div>
+          </FormFieldError>
 
           {/* Grunddaten für alle */}
           <div className="grid md:grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="vorname">Vorname *</Label>
-              <Input
-                id="vorname"
-                value={formData.vorname || ''}
-                onChange={(e) => updateFormData({ vorname: e.target.value })}
-                placeholder="Max"
-              />
-            </div>
-            <div>
-              <Label htmlFor="nachname">Nachname *</Label>
-              <Input
-                id="nachname"
-                value={formData.nachname || ''}
-                onChange={(e) => updateFormData({ nachname: e.target.value })}
-                placeholder="Mustermann"
-              />
-            </div>
+            <FormFieldError error={validationErrors.vorname}>
+              <div>
+                <Label htmlFor="vorname">Vorname *</Label>
+                <Input
+                  id="vorname"
+                  value={formData.vorname || ''}
+                  onChange={(e) => updateFormData({ vorname: e.target.value })}
+                  placeholder="Max"
+                />
+              </div>
+            </FormFieldError>
+            <FormFieldError error={validationErrors.nachname}>
+              <div>
+                <Label htmlFor="nachname">Nachname *</Label>
+                <Input
+                  id="nachname"
+                  value={formData.nachname || ''}
+                  onChange={(e) => updateFormData({ nachname: e.target.value })}
+                  placeholder="Mustermann"
+                />
+              </div>
+            </FormFieldError>
           </div>
 
           <div className="grid md:grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="geburtsdatum">Geburtsdatum *</Label>
-              <Input
-                id="geburtsdatum"
-                type="date"
-                value={
-                  formData.geburtsdatum instanceof Date 
-                    ? formData.geburtsdatum.toISOString().split('T')[0] 
-                    : typeof formData.geburtsdatum === 'string' 
-                    ? (formData.geburtsdatum.includes('T') ? formData.geburtsdatum.split('T')[0] : formData.geburtsdatum)
-                    : ''
-                }
-                onChange={(e) => updateFormData({ geburtsdatum: e.target.value })}
-              />
-            </div>
+            <FormFieldError error={validationErrors.geburtsdatum}>
+              <div>
+                <Label htmlFor="geburtsdatum">Geburtsdatum *</Label>
+                <Input
+                  id="geburtsdatum"
+                  type="date"
+                  value={
+                    formData.geburtsdatum instanceof Date 
+                      ? formData.geburtsdatum.toISOString().split('T')[0] 
+                      : typeof formData.geburtsdatum === 'string' 
+                      ? (formData.geburtsdatum.includes('T') ? formData.geburtsdatum.split('T')[0] : formData.geburtsdatum)
+                      : ''
+                  }
+                  onChange={(e) => updateFormData({ geburtsdatum: e.target.value })}
+                />
+              </div>
+            </FormFieldError>
             <div className="space-y-4">
               <div className="grid md:grid-cols-3 gap-4">
-                <div className="md:col-span-2">
-                  <Label htmlFor="strasse">Straße *</Label>
-                  <Input
-                    id="strasse"
-                    value={formData.strasse || ''}
-                    onChange={(e) => updateFormData({ strasse: e.target.value })}
-                    placeholder="Musterstraße"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="hausnummer">Nr. *</Label>
-                  <Input
-                    id="hausnummer"
-                    value={formData.hausnummer || ''}
-                    onChange={(e) => updateFormData({ hausnummer: e.target.value })}
-                    placeholder="123a"
-                  />
-                </div>
+                <FormFieldError error={validationErrors.strasse} className="md:col-span-2">
+                  <div>
+                    <Label htmlFor="strasse">Straße *</Label>
+                    <Input
+                      id="strasse"
+                      value={formData.strasse || ''}
+                      onChange={(e) => updateFormData({ strasse: e.target.value })}
+                      placeholder="Musterstraße"
+                    />
+                  </div>
+                </FormFieldError>
+                <FormFieldError error={validationErrors.hausnummer}>
+                  <div>
+                    <Label htmlFor="hausnummer">Nr. *</Label>
+                    <Input
+                      id="hausnummer"
+                      value={formData.hausnummer || ''}
+                      onChange={(e) => updateFormData({ hausnummer: e.target.value })}
+                      placeholder="123a"
+                    />
+                  </div>
+                </FormFieldError>
               </div>
               
               <div className="grid grid-cols-3 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="plz">PLZ</Label>
-                  <Input
-                    id="plz"
-                    value={formData.plz || ''}
-                    onChange={(e) => updateFormData({ plz: e.target.value })}
-                    placeholder="12345"
-                  />
-                </div>
-                <div className="space-y-2 col-span-2">
-                  <Label htmlFor="ort">Ort</Label>
-                  <Input
-                    id="ort"
-                    value={formData.ort || ''}
-                    onChange={(e) => updateFormData({ ort: e.target.value })}
-                    placeholder="Berlin"
-                  />
-                </div>
+                <FormFieldError error={validationErrors.plz}>
+                  <div className="space-y-2">
+                    <Label htmlFor="plz">PLZ *</Label>
+                    <Input
+                      id="plz"
+                      value={formData.plz || ''}
+                      onChange={(e) => updateFormData({ plz: e.target.value })}
+                      placeholder="12345"
+                    />
+                  </div>
+                </FormFieldError>
+                <FormFieldError error={validationErrors.ort} className="col-span-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="ort">Ort *</Label>
+                    <Input
+                      id="ort"
+                      value={formData.ort || ''}
+                      onChange={(e) => updateFormData({ ort: e.target.value })}
+                      placeholder="Berlin"
+                    />
+                  </div>
+                </FormFieldError>
               </div>
               
-              <div>
-                <Label htmlFor="telefon">Telefonnummer (optional)</Label>
-                <Input
-                  id="telefon"
-                  value={formData.telefon || ''}
-                  onChange={(e) => updateFormData({ telefon: e.target.value })}
-                  placeholder="+49 123 456789"
-                />
-              </div>
+              <FormFieldError error={validationErrors.telefon}>
+                <div>
+                  <Label htmlFor="telefon">Telefonnummer *</Label>
+                  <Input
+                    id="telefon"
+                    value={formData.telefon || ''}
+                    onChange={(e) => updateFormData({ telefon: e.target.value })}
+                    placeholder="+49 123 456789"
+                  />
+                </div>
+              </FormFieldError>
               
-              <div>
-                <Label htmlFor="email">E-Mail-Adresse *</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={formData.email || ''}
-                  onChange={(e) => updateFormData({ email: e.target.value })}
-                  placeholder="max.mustermann@email.com"
-                />
-              </div>
+              <FormFieldError error={validationErrors.email}>
+                <div>
+                  <Label htmlFor="email">E-Mail-Adresse *</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    value={formData.email || ''}
+                    onChange={(e) => updateFormData({ email: e.target.value })}
+                    placeholder="max.mustermann@email.com"
+                  />
+                </div>
+              </FormFieldError>
             </div>
           </div>
 
