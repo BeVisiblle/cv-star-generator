@@ -151,62 +151,69 @@ const Profile = () => {
   // Early returns after all hooks are declared
 
   return (
-    <div className="p-6">
-      {/* Profile Actions Header */}
-      <div className="mb-6 flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">
-            {profile.vorname} {profile.nachname}
-          </h1>
-          <p className="text-muted-foreground text-sm">
-            LinkedIn-Style Professional Profile
-          </p>
-        </div>
-        
-        <div className="flex gap-2">
-          {!profile.profile_published && (
-            <Button 
-              variant="outline" 
-              onClick={() => setShowPreview(true)}
-              size="sm"
-            >
-              Vorschau
-            </Button>
-          )}
+    <div className="p-3 md:p-6 min-h-screen bg-background">
+      {/* Mobile-optimized Profile Actions Header */}
+      <div className="mb-4 md:mb-6">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0">
+          <div className="min-w-0 flex-1">
+            <h1 className="text-xl md:text-2xl font-bold truncate">
+              {profile.vorname} {profile.nachname}
+            </h1>
+            <p className="text-muted-foreground text-xs md:text-sm">
+              LinkedIn-Style Professional Profile
+            </p>
+          </div>
           
-          {isEditing ? (
-            <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2 w-full sm:w-auto">
+            {!profile.profile_published && (
               <Button 
                 variant="outline" 
-                onClick={() => setIsEditing(false)}
-                disabled={isSaving}
+                onClick={() => setShowPreview(true)}
                 size="sm"
+                className="flex-1 sm:flex-none"
               >
-                <X className="h-4 w-4 mr-2" />
-                Abbrechen
+                Vorschau
               </Button>
-              <Button onClick={handleSave} disabled={isSaving} size="sm">
-                {isSaving ? (
-                  <Clock className="h-4 w-4 mr-2 animate-spin" />
-                ) : (
-                  <Check className="h-4 w-4 mr-2" />
-                )}
-                Speichern
+            )}
+            
+            {isEditing ? (
+              <div className="flex gap-2 flex-1 sm:flex-none">
+                <Button 
+                  variant="outline" 
+                  onClick={() => setIsEditing(false)}
+                  disabled={isSaving}
+                  size="sm"
+                  className="flex-1 sm:flex-none"
+                >
+                  <X className="h-4 w-4 mr-1 sm:mr-2" />
+                  <span className="hidden sm:inline">Abbrechen</span>
+                  <span className="sm:hidden">Abbr.</span>
+                </Button>
+                <Button onClick={handleSave} disabled={isSaving} size="sm" className="flex-1 sm:flex-none">
+                  {isSaving ? (
+                    <Clock className="h-4 w-4 mr-1 sm:mr-2 animate-spin" />
+                  ) : (
+                    <Check className="h-4 w-4 mr-1 sm:mr-2" />
+                  )}
+                  <span className="hidden sm:inline">Speichern</span>
+                  <span className="sm:hidden">Save</span>
+                </Button>
+              </div>
+            ) : (
+              <Button onClick={() => setIsEditing(true)} size="sm" className="flex-1 sm:flex-none">
+                <Edit3 className="h-4 w-4 mr-1 sm:mr-2" />
+                <span className="hidden sm:inline">Bearbeiten</span>
+                <span className="sm:hidden">Edit</span>
               </Button>
-            </div>
-          ) : (
-            <Button onClick={() => setIsEditing(true)} size="sm">
-              <Edit3 className="h-4 w-4 mr-2" />
-              Bearbeiten
-            </Button>
-          )}
+            )}
+          </div>
         </div>
       </div>
 
-      {/* Main Content */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      {/* Mobile-first responsive layout */}
+      <div className="flex flex-col lg:grid lg:grid-cols-12 gap-4 md:gap-6">
         {/* Main Content Area */}
-        <main className="lg:col-span-8 space-y-6">
+        <main className="lg:col-span-8 space-y-4 md:space-y-6 order-2 lg:order-1">
           {/* Profile Header with Cover Photo */}
           <LinkedInProfileHeader
             profile={profile}
@@ -239,9 +246,9 @@ const Profile = () => {
           <LinkedInProfileActivity profile={profile} />
         </main>
 
-        {/* Right Sidebar */}
-        <aside className="lg:col-span-4">
-          <div className="sticky top-24">
+        {/* Right Sidebar - shows first on mobile */}
+        <aside className="lg:col-span-4 order-1 lg:order-2">
+          <div className="lg:sticky lg:top-24">
             <LinkedInProfileSidebar
               profile={profile}
               isEditing={isEditing}

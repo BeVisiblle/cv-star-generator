@@ -244,7 +244,7 @@ export const LinkedInProfileHeader: React.FC<LinkedInProfileHeaderProps> = ({
   return (
     <div className="relative bg-card rounded-xl overflow-hidden shadow-sm border">
       {/* Cover Photo */}
-      <div className="relative h-48 bg-gradient-to-r from-primary/20 to-accent/30">
+      <div className="relative h-32 sm:h-40 md:h-48 bg-gradient-to-r from-primary/20 to-accent/30">
         {profile?.cover_image_url ? (
           <img 
             src={profile.cover_image_url} 
@@ -259,12 +259,12 @@ export const LinkedInProfileHeader: React.FC<LinkedInProfileHeaderProps> = ({
           <Button
             variant="secondary"
             size="sm"
-            className="absolute top-4 right-4 bg-background/80 backdrop-blur-sm"
+            className="absolute top-2 right-2 bg-background/80 backdrop-blur-sm text-xs"
             onClick={() => coverInputRef.current?.click()}
             disabled={isUploadingCover}
           >
-            <Camera className="h-4 w-4 mr-2" />
-            Cover
+            <Camera className="h-3 w-3 mr-1" />
+            <span className="hidden sm:inline">Cover</span>
           </Button>
         )}
         
@@ -278,13 +278,13 @@ export const LinkedInProfileHeader: React.FC<LinkedInProfileHeaderProps> = ({
       </div>
 
       {/* Profile Info */}
-      <div className="px-6 pb-6">
+      <div className="px-4 md:px-6 pb-4 md:pb-6">
         {/* Avatar */}
-        <div className="relative -mt-16 mb-4">
+        <div className="relative -mt-12 sm:-mt-16 mb-3 md:mb-4">
           <div className="relative inline-block">
-            <Avatar className="w-32 h-32 border-4 border-background shadow-lg">
+            <Avatar className="w-20 h-20 sm:w-24 sm:h-24 md:w-32 md:h-32 border-4 border-background shadow-lg">
               <AvatarImage src={profile?.avatar_url} alt="Profile" />
-              <AvatarFallback className="text-2xl font-bold bg-primary/10">
+              <AvatarFallback className="text-lg md:text-2xl font-bold bg-primary/10">
                 {profile?.vorname?.[0]}{profile?.nachname?.[0]}
               </AvatarFallback>
             </Avatar>
@@ -293,11 +293,11 @@ export const LinkedInProfileHeader: React.FC<LinkedInProfileHeaderProps> = ({
               <Button
                 variant="secondary"
                 size="sm"
-                className="absolute bottom-2 right-2 rounded-full w-8 h-8 p-0"
+                className="absolute bottom-1 right-1 rounded-full w-6 h-6 sm:w-8 sm:h-8 p-0"
                 onClick={() => avatarInputRef.current?.click()}
                 disabled={isUploadingAvatar}
               >
-                <Camera className="h-4 w-4" />
+                <Camera className="h-3 w-3 sm:h-4 sm:w-4" />
               </Button>
             )}
           </div>
@@ -313,15 +313,15 @@ export const LinkedInProfileHeader: React.FC<LinkedInProfileHeaderProps> = ({
 
         {/* Name and Headline */}
         <div className="space-y-2">
-          <h1 className="text-3xl font-bold text-foreground">
+          <h1 className="text-2xl md:text-3xl font-bold text-foreground">
             {profile?.vorname} {profile?.nachname}
           </h1>
           
-          {/* Professional Status - Fixed badge + Editable position */}
+          {/* Professional Status - Mobile optimized badge + Editable position */}
           {profile?.status && (
             <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                <Badge variant="secondary" className="text-sm">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+                <Badge variant="secondary" className="text-xs sm:text-sm w-fit">
                   {profile.status === 'schueler' ? 'Schüler' : 
                    profile.status === 'azubi' ? 'Azubi im Handwerk' : 
                    'Angestellter im Handwerk'}
@@ -331,12 +331,12 @@ export const LinkedInProfileHeader: React.FC<LinkedInProfileHeaderProps> = ({
                     value={currentPosition}
                     onChange={(e) => setCurrentPosition(e.target.value)}
                     placeholder="Position eingeben..."
-                    className="text-sm flex-1"
+                    className="text-sm"
                     onBlur={() => updateCurrentPosition(currentPosition)}
                   />
                 )}
               </div>
-              <p className="text-lg font-medium text-primary">
+              <p className="text-sm md:text-lg font-medium text-primary leading-tight">
                 {getStatusDescription(profile)}
               </p>
             </div>
@@ -348,18 +348,18 @@ export const LinkedInProfileHeader: React.FC<LinkedInProfileHeaderProps> = ({
                 value={headline}
                 onChange={(e) => setHeadline(e.target.value)}
                 placeholder="Add a professional headline..."
-                className="text-lg font-medium"
+                className="text-sm md:text-lg font-medium"
                 onBlur={handleHeadlineUpdate}
               />
-              <Edit3 className="h-4 w-4 text-muted-foreground" />
+              <Edit3 className="h-4 w-4 text-muted-foreground flex-shrink-0" />
             </div>
           ) : (
-            <p className="text-lg font-medium text-muted-foreground">
+            <p className="text-sm md:text-lg font-medium text-muted-foreground">
               {headline || 'Professional seeking opportunities'}
             </p>
           )}
           
-          <p className="text-muted-foreground">
+          <p className="text-sm text-muted-foreground">
             {profile?.ort && `${profile.ort}${profile?.plz ? ` • ${profile.plz}` : ''}`}
           </p>
         </div>

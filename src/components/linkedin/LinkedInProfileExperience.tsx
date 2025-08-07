@@ -99,7 +99,7 @@ export const LinkedInProfileExperience: React.FC<LinkedInProfileExperienceProps>
 
   const ExperienceForm = () => (
     <div className="space-y-4">
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <Label htmlFor="titel">Position</Label>
           <Input
@@ -107,6 +107,7 @@ export const LinkedInProfileExperience: React.FC<LinkedInProfileExperienceProps>
             value={formData.titel}
             onChange={(e) => setFormData({ ...formData, titel: e.target.value })}
             placeholder="z.B. Softwareentwickler"
+            className="text-sm"
           />
         </div>
         <div>
@@ -116,11 +117,12 @@ export const LinkedInProfileExperience: React.FC<LinkedInProfileExperienceProps>
             value={formData.unternehmen}
             onChange={(e) => setFormData({ ...formData, unternehmen: e.target.value })}
             placeholder="z.B. Tech AG"
+            className="text-sm"
           />
         </div>
       </div>
       
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
         <div>
           <Label htmlFor="ort">Ort</Label>
           <Input
@@ -128,6 +130,7 @@ export const LinkedInProfileExperience: React.FC<LinkedInProfileExperienceProps>
             value={formData.ort}
             onChange={(e) => setFormData({ ...formData, ort: e.target.value })}
             placeholder="z.B. München"
+            className="text-sm"
           />
         </div>
         <div>
@@ -137,11 +140,12 @@ export const LinkedInProfileExperience: React.FC<LinkedInProfileExperienceProps>
             value={formData.plz}
             onChange={(e) => setFormData({ ...formData, plz: e.target.value })}
             placeholder="80331"
+            className="text-sm"
           />
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <Label htmlFor="zeitraum_von">Von</Label>
           <Input
@@ -149,6 +153,7 @@ export const LinkedInProfileExperience: React.FC<LinkedInProfileExperienceProps>
             type="month"
             value={formData.zeitraum_von}
             onChange={(e) => setFormData({ ...formData, zeitraum_von: e.target.value })}
+            className="text-sm"
           />
         </div>
         <div>
@@ -159,6 +164,7 @@ export const LinkedInProfileExperience: React.FC<LinkedInProfileExperienceProps>
             value={formData.zeitraum_bis}
             onChange={(e) => setFormData({ ...formData, zeitraum_bis: e.target.value })}
             placeholder="Leer lassen für aktuell"
+            className="text-sm"
           />
         </div>
       </div>
@@ -171,14 +177,15 @@ export const LinkedInProfileExperience: React.FC<LinkedInProfileExperienceProps>
           onChange={(e) => setFormData({ ...formData, beschreibung: e.target.value })}
           placeholder="Beschreiben Sie Ihre Tätigkeiten und Erfolge..."
           rows={3}
+          className="text-sm"
         />
       </div>
 
-      <div className="flex gap-2 justify-end">
-        <Button variant="outline" onClick={handleCancel}>
+      <div className="flex flex-col sm:flex-row gap-2 justify-end pt-4">
+        <Button variant="outline" onClick={handleCancel} className="flex-1 sm:flex-none">
           Abbrechen
         </Button>
-        <Button onClick={handleSave}>
+        <Button onClick={handleSave} className="flex-1 sm:flex-none">
           Speichern
         </Button>
       </div>
@@ -187,22 +194,24 @@ export const LinkedInProfileExperience: React.FC<LinkedInProfileExperienceProps>
 
   return (
     <Card>
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
-        <CardTitle className="text-xl font-semibold flex items-center gap-2">
-          <Building className="h-5 w-5" />
-          Berufserfahrung
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3 md:pb-4">
+        <CardTitle className="text-lg md:text-xl font-semibold flex items-center gap-2">
+          <Building className="h-4 w-4 md:h-5 md:w-5" />
+          <span className="hidden sm:inline">Berufserfahrung</span>
+          <span className="sm:hidden">Erfahrung</span>
         </CardTitle>
         {isEditing && (
           <Dialog open={isAddingNew} onOpenChange={setIsAddingNew}>
             <DialogTrigger asChild>
-              <Button variant="outline" size="sm" onClick={() => setIsDialogOpen(true)}>
-                <Plus className="h-4 w-4 mr-2" />
-                Hinzufügen
+              <Button variant="outline" size="sm" onClick={() => setIsDialogOpen(true)} className="text-xs">
+                <Plus className="h-3 w-3 md:h-4 md:w-4 mr-1 md:mr-2" />
+                <span className="hidden sm:inline">Hinzufügen</span>
+                <span className="sm:hidden">+</span>
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-2xl">
+            <DialogContent className="max-w-lg md:max-w-2xl mx-4">
               <DialogHeader>
-                <DialogTitle>Neue Berufserfahrung hinzufügen</DialogTitle>
+                <DialogTitle className="text-base md:text-lg">Neue Berufserfahrung hinzufügen</DialogTitle>
               </DialogHeader>
               <ExperienceForm />
             </DialogContent>
