@@ -657,6 +657,27 @@ export type Database = {
         }
         Relationships: []
       }
+      user_types: {
+        Row: {
+          created_at: string | null
+          id: string
+          user_id: string
+          user_type: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          user_id: string
+          user_type: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          user_id?: string
+          user_type?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -668,8 +689,16 @@ export type Database = {
           company_id: string
         }[]
       }
+      get_user_company_id: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
       is_company_admin: {
         Args: { check_company_id: string }
+        Returns: boolean
+      }
+      is_company_member: {
+        Args: Record<PropertyKey, never>
         Returns: boolean
       }
     }

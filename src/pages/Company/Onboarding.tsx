@@ -115,6 +115,7 @@ export default function CompanyOnboarding() {
 
       // Store company data in localStorage for demo
       const companyData = {
+        id: 'demo-company-' + Date.now(),
         name: data.companyName,
         size_range: data.companySize,
         website_url: data.website || null,
@@ -122,13 +123,18 @@ export default function CompanyOnboarding() {
         main_location: data.location,
         targetGroups: data.targetGroups,
         email: data.email,
-        demoMode: true // Flag to indicate this is demo mode
+        demoMode: true,
+        active_tokens: 50,
+        seats: 5
       };
       
       localStorage.setItem('demoCompanyData', JSON.stringify(companyData));
       localStorage.setItem('demoMode', 'true');
       
-      // Simulate a small delay
+      // Mark as company user type
+      localStorage.setItem('userType', 'company');
+      
+      // Simulate a small delay then redirect
       setTimeout(() => {
         toast({ title: "Erfolgreich! Weiterleitung zum Unternehmensprofil..." });
         navigate("/company/dashboard");
