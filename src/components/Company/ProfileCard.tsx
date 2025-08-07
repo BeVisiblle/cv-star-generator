@@ -147,52 +147,52 @@ export function ProfileCard({
             
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-1">
-                <h3 className="font-semibold text-lg truncate">
+                <h3 className="font-semibold text-sm sm:text-lg truncate">
                   {displayName}
                 </h3>
-                <div className={`w-3 h-3 rounded-full ${getMatchColor(matchPercentage)} flex-shrink-0`} />
+                <div className={`w-2 h-2 sm:w-3 sm:h-3 rounded-full ${getMatchColor(matchPercentage)} flex-shrink-0`} />
               </div>
               
-              <p className="text-sm text-muted-foreground mb-2 line-clamp-1">
+              <p className="text-xs sm:text-sm text-muted-foreground mb-2 line-clamp-1">
                 {getJobTitle()}
               </p>
               
-              <div className="flex items-center gap-3 text-xs text-muted-foreground">
+              <div className="flex items-center gap-2 sm:gap-3 text-xs text-muted-foreground">
                 <div className="flex items-center gap-1">
                   {getStatusIcon(profile.status)}
-                  <span>{getStatusLabel(profile.status)}</span>
+                  <span className="truncate">{getStatusLabel(profile.status)}</span>
                 </div>
-                <div className="flex items-center gap-1">
-                  <MapPin className="h-3 w-3" />
-                  <span>{profile.ort}</span>
+                <div className="flex items-center gap-1 min-w-0">
+                  <MapPin className="h-3 w-3 flex-shrink-0" />
+                  <span className="truncate">{profile.ort}</span>
                 </div>
               </div>
             </div>
           </div>
           
-          <div className="text-right">
-            <div className="text-sm font-medium text-green-600 mb-1">
+          <div className="text-right flex-shrink-0">
+            <div className="text-xs sm:text-sm font-medium text-green-600 mb-1">
               {matchPercentage}% Match
             </div>
             <Button
               variant="ghost"
               size="sm"
               onClick={onSave}
-              className="opacity-0 group-hover:opacity-100 transition-opacity"
+              className="opacity-0 group-hover:opacity-100 transition-opacity h-6 w-6 sm:h-8 sm:w-8 p-0"
             >
-              <Heart className="h-4 w-4" />
+              <Heart className="h-3 w-3 sm:h-4 sm:w-4" />
             </Button>
           </div>
         </div>
       </CardHeader>
       
-      <CardContent className="pt-0 flex-1 flex flex-col justify-between">
+      <CardContent className="pt-0 flex-1 flex flex-col justify-between min-w-0 px-3 sm:px-6">
         {/* Skills - Fixed height area */}
-        <div className="mb-4 h-[60px] flex items-start">
+        <div className="mb-4 h-[50px] sm:h-[60px] flex items-start overflow-hidden">
           {topSkills.length > 0 ? (
             <div className="flex flex-wrap gap-1">
               {topSkills.map((skill: any, index: number) => (
-                <Badge key={index} variant="secondary" className="text-xs">
+                <Badge key={index} variant="secondary" className="text-xs truncate max-w-[80px]">
                   {skill.name || skill}
                 </Badge>
               ))}
@@ -215,13 +215,14 @@ export function ProfileCard({
                 size="sm" 
                 onClick={onPreview}
                 variant="outline" 
-                className="flex-1"
+                className="flex-1 text-xs px-2"
               >
                 Profil ansehen
               </Button>
-              <Button size="sm" variant="outline" className="flex-1">
-                <Phone className="h-4 w-4 mr-1" />
-                Kontakt
+              <Button size="sm" variant="outline" className="flex-1 text-xs px-2">
+                <Phone className="h-3 w-3 mr-1" />
+                <span className="hidden sm:inline">Kontakt</span>
+                <span className="sm:hidden">Tel</span>
               </Button>
             </div>
           ) : (
@@ -229,10 +230,11 @@ export function ProfileCard({
               <Button 
                 size="sm"
                 onClick={onUnlock}
-                className="w-full bg-blue-600 hover:bg-blue-700"
+                className="w-full bg-blue-600 hover:bg-blue-700 text-xs px-2"
               >
-                <Coins className="h-4 w-4 mr-1" />
-                Freischalten (1 Token)
+                <Coins className="h-3 w-3 mr-1" />
+                <span className="hidden sm:inline">Freischalten (1 Token)</span>
+                <span className="sm:hidden">Freischalten</span>
               </Button>
             </div>
           )}
@@ -242,15 +244,15 @@ export function ProfileCard({
         {isUnlocked && (
           <div className="mt-3 pt-3 border-t space-y-1">
             {profile.email && (
-              <div className="flex items-center text-sm">
-                <Mail className="h-4 w-4 mr-2 text-muted-foreground" />
+              <div className="flex items-center text-xs sm:text-sm min-w-0">
+                <Mail className="h-3 w-3 sm:h-4 sm:w-4 mr-2 text-muted-foreground flex-shrink-0" />
                 <span className="truncate">{profile.email}</span>
               </div>
             )}
             {profile.telefon && (
-              <div className="flex items-center text-sm">
-                <Phone className="h-4 w-4 mr-2 text-muted-foreground" />
-                <span>{profile.telefon}</span>
+              <div className="flex items-center text-xs sm:text-sm">
+                <Phone className="h-3 w-3 sm:h-4 sm:w-4 mr-2 text-muted-foreground flex-shrink-0" />
+                <span className="truncate">{profile.telefon}</span>
               </div>
             )}
           </div>

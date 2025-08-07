@@ -249,10 +249,10 @@ export default function CompanySearch() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 p-3 md:p-6 max-w-full overflow-x-hidden">
       {/* LinkedIn-style Search Header */}
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-3xl font-bold">Kandidatensuche</h1>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-3">
+        <h1 className="text-2xl sm:text-3xl font-bold">Kandidatensuche</h1>
         <div className="flex items-center space-x-2">
           <Badge variant="secondary" className="px-3 py-1">
             <Coins className="h-4 w-4 mr-1" />

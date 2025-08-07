@@ -111,26 +111,28 @@ const CompanyProfileView = () => {
   return (
     <div className="p-3 md:p-6 min-h-screen bg-background max-w-full overflow-x-hidden">
       {/* Breadcrumb Header */}
-      <div className="mb-4 md:mb-6">
-        <div className="flex items-center justify-between gap-3">
+      <div className="mb-4 md:mb-6 max-w-full">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <Button 
             variant="outline" 
             onClick={() => navigate('/company/search')}
-            className="flex items-center gap-2"
+            className="flex items-center gap-2 w-fit"
           >
             <ArrowLeft className="h-4 w-4" />
-            Zurück zur Suche
+            <span className="hidden sm:inline">Zurück zur Suche</span>
+            <span className="sm:hidden">Zurück</span>
           </Button>
           
           {!isUnlocked && (
-            <div className="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-sm">
-              Limitierte Ansicht - Profil nicht freigeschaltet
+            <div className="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-xs sm:text-sm text-center">
+              <span className="hidden sm:inline">Limitierte Ansicht - Profil nicht freigeschaltet</span>
+              <span className="sm:hidden">Nicht freigeschaltet</span>
             </div>
           )}
         </div>
         
         <div className="mt-4">
-          <h1 className="text-xl md:text-2xl font-bold">
+          <h1 className="text-lg sm:text-xl md:text-2xl font-bold truncate">
             {isUnlocked ? `${profile.vorname} ${profile.nachname}` : profile.vorname}
           </h1>
           <p className="text-muted-foreground text-xs md:text-sm">
