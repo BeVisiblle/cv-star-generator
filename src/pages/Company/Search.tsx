@@ -13,6 +13,7 @@ import { useToast } from "@/hooks/use-toast";
 import { SearchHeader } from "@/components/Company/SearchHeader";
 import { ProfileCard } from "@/components/Company/ProfileCard";
 import { UnlockProfileModal } from "@/components/Company/UnlockProfileModal";
+import { FullProfileModal } from "@/components/Company/FullProfileModal";
 import { 
   Search as SearchIcon, 
   Filter, 
@@ -60,6 +61,7 @@ export default function CompanySearch() {
   const [savedMatches, setSavedMatches] = useState<Profile[]>([]);
   const [selectedProfile, setSelectedProfile] = useState<Profile | null>(null);
   const [isUnlockModalOpen, setIsUnlockModalOpen] = useState(false);
+  const [isFullProfileModalOpen, setIsFullProfileModalOpen] = useState(false);
   const [isUnlocking, setIsUnlocking] = useState(false);
   const [filters, setFilters] = useState<SearchFilters>({
     keywords: "",
@@ -147,7 +149,7 @@ export default function CompanySearch() {
 
   const handlePreviewProfile = (profile: Profile) => {
     setSelectedProfile(profile);
-    setIsUnlockModalOpen(true);
+    setIsFullProfileModalOpen(true);
   };
 
   const handleConfirmUnlock = async () => {
@@ -187,11 +189,9 @@ export default function CompanySearch() {
     }
   };
 
-  const handleUnlockProfile = async (profileId: string) => {
-    const profile = profiles.find(p => p.id === profileId);
-    if (profile) {
-      handlePreviewProfile(profile);
-    }
+  const handleUnlockProfile = async (profile: Profile) => {
+    setSelectedProfile(profile);
+    setIsUnlockModalOpen(true);
   };
 
   const handleSaveMatch = async (profile: Profile) => {
@@ -336,7 +336,7 @@ export default function CompanySearch() {
                   profile={profile}
                   isUnlocked={unlocked}
                   matchPercentage={matchPercentage}
-                  onUnlock={() => handleUnlockProfile(profile.id)}
+                  onUnlock={() => handleUnlockProfile(profile)}
                   onSave={() => handleSaveMatch(profile)}
                   onPreview={() => handlePreviewProfile(profile)}
                 />
@@ -375,6 +375,17 @@ export default function CompanySearch() {
           </CardContent>
         </Card>
       )}
+
+      {/* Full Profile Modal */}
+      <FullProfileModal
+        isOpen={isFullProfileModalOpen}
+        onClose={() => {
+          setIsFullProfileModalOpen(false);
+          setSelectedProfile(null);
+        }}
+        profile={selectedProfile}
+        isUnlocked={selectedProfile ? isProfileUnlocked(selectedProfile.id) : false}
+      />
 
       {/* Unlock Profile Modal */}
       <UnlockProfileModal

@@ -101,7 +101,7 @@ export function ProfileCard({
   
   const displayName = isUnlocked 
     ? `${profile.vorname} ${profile.nachname}`
-    : `${profile.vorname} ${profile.nachname?.charAt(0)}.`;
+    : profile.vorname;
 
   const avatarSrc = isUnlocked ? profile.avatar_url : undefined;
 
@@ -123,8 +123,8 @@ export function ProfileCard({
   };
 
   return (
-    <Card className="group hover:shadow-lg transition-all duration-200 border-0 shadow-sm hover:shadow-md">
-      <CardHeader className="pb-3">
+    <Card className="group hover:shadow-lg transition-all duration-200 border-0 shadow-sm hover:shadow-md h-[320px] flex flex-col">
+      <CardHeader className="pb-3 flex-shrink-0">
         <div className="flex items-start justify-between">
           <div className="flex items-start space-x-3 flex-1">
             <div className="relative">
@@ -186,10 +186,10 @@ export function ProfileCard({
         </div>
       </CardHeader>
       
-      <CardContent className="pt-0">
-        {/* Skills */}
-        {topSkills.length > 0 && (
-          <div className="mb-4">
+      <CardContent className="pt-0 flex-1 flex flex-col justify-between">
+        {/* Skills - Fixed height area */}
+        <div className="mb-4 h-[60px] flex items-start">
+          {topSkills.length > 0 ? (
             <div className="flex flex-wrap gap-1">
               {topSkills.map((skill: any, index: number) => (
                 <Badge key={index} variant="secondary" className="text-xs">
@@ -202,20 +202,26 @@ export function ProfileCard({
                 </Badge>
               )}
             </div>
-          </div>
-        )}
+          ) : (
+            <div className="text-xs text-muted-foreground">Keine Fähigkeiten angegeben</div>
+          )}
+        </div>
 
-        {/* Action Buttons */}
-        <div className="space-y-2">
+        {/* Action Buttons - Always at same position */}
+        <div className="space-y-2 mt-auto">
           {isUnlocked ? (
             <div className="flex gap-2">
+              <Button 
+                size="sm" 
+                onClick={onPreview}
+                variant="outline" 
+                className="flex-1"
+              >
+                Profil ansehen
+              </Button>
               <Button size="sm" variant="outline" className="flex-1">
                 <Phone className="h-4 w-4 mr-1" />
                 Kontakt
-              </Button>
-              <Button size="sm" variant="outline" className="flex-1">
-                <Download className="h-4 w-4 mr-1" />
-                CV
               </Button>
             </div>
           ) : (
