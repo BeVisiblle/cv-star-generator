@@ -304,44 +304,48 @@ export const LinkedInProfileSidebar: React.FC<LinkedInProfileSidebarProps> = ({ 
         <CardContent className="space-y-3">
           {showCVPreview && profile?.vorname && profile?.nachname ? (
             <div className="border rounded-lg overflow-hidden bg-white">
-              <div className="bg-muted px-3 py-2 text-sm font-medium flex justify-between items-center">
-                <span>Vorschau: {getLayoutName()}</span>
+              <div className="bg-muted px-3 py-2 text-xs sm:text-sm font-medium flex justify-between items-center">
+                <span className="truncate">Vorschau: {getLayoutName()}</span>
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={() => setShowCVPreview(false)}
-                  className="h-6 w-6 p-0"
+                  className="h-6 w-6 p-0 min-w-[24px]"
                 >
                   <X className="h-3 w-3" />
                 </Button>
               </div>
-              <div className="h-48 overflow-hidden relative">
+              <div className="h-32 sm:h-48 overflow-hidden relative">
                 {renderCVLayout()}
               </div>
             </div>
           ) : showCVPreview && (!profile?.vorname || !profile?.nachname) ? (
-            <div className="border rounded-lg p-4 text-center text-muted-foreground">
-              <FileText className="h-8 w-8 mx-auto mb-2" />
-              <p className="text-sm">Vervollständigen Sie Ihr Profil für eine CV-Vorschau</p>
+            <div className="border rounded-lg p-3 sm:p-4 text-center text-muted-foreground">
+              <FileText className="h-6 w-6 sm:h-8 sm:w-8 mx-auto mb-2" />
+              <p className="text-xs sm:text-sm">Vervollständigen Sie Ihr Profil für eine CV-Vorschau</p>
             </div>
           ) : null}
           
           <Button 
             onClick={handleDownloadCV}
             disabled={isGeneratingPDF}
-            className="w-full bg-primary hover:bg-primary/90"
+            className="w-full bg-primary hover:bg-primary/90 text-sm"
+            size="sm"
           >
             <Download className="h-4 w-4 mr-2" />
-            {isGeneratingPDF ? 'Generiere...' : 'CV herunterladen'}
+            <span className="hidden sm:inline">{isGeneratingPDF ? 'Generiere...' : 'CV herunterladen'}</span>
+            <span className="sm:hidden">{isGeneratingPDF ? 'Gen...' : 'Download'}</span>
           </Button>
           
           <Button 
             onClick={handleEditCV}
             variant="outline"
-            className="w-full"
+            className="w-full text-sm"
+            size="sm"
           >
             <Edit3 className="h-4 w-4 mr-2" />
-            CV bearbeiten
+            <span className="hidden sm:inline">CV bearbeiten</span>
+            <span className="sm:hidden">Bearbeiten</span>
           </Button>
           
           {profile?.updated_at && (

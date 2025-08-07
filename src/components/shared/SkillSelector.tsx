@@ -87,12 +87,13 @@ export const SkillSelector = ({
         )}
 
         {/* Custom Skill Input */}
-        <div className="flex gap-2">
+        <div className="flex flex-col sm:flex-row gap-2">
           <Input
             placeholder="Eigene Fähigkeit eingeben..."
             value={customSkill}
             onChange={(e) => setCustomSkill(e.target.value)}
             disabled={selectedSkills.length >= maxSkills}
+            className="flex-1 text-sm md:text-base"
             onKeyDown={(e) => {
               if (e.key === 'Enter') {
                 e.preventDefault();
@@ -105,8 +106,11 @@ export const SkillSelector = ({
             variant="outline"
             onClick={addCustomSkill}
             disabled={!customSkill.trim() || selectedSkills.length >= maxSkills}
+            className="w-full sm:w-auto"
+            size="sm"
           >
-            <Plus className="h-4 w-4" />
+            <Plus className="h-4 w-4 mr-2 sm:mr-0" />
+            <span className="sm:hidden">Hinzufügen</span>
           </Button>
         </div>
 
@@ -114,13 +118,13 @@ export const SkillSelector = ({
         {selectedSkills.length > 0 ? (
           <div className="flex flex-wrap gap-2">
             {selectedSkills.map((skill, index) => (
-              <div key={index} className="flex items-center gap-1 bg-primary/10 text-primary px-3 py-1 rounded-full text-sm">
-                {skill}
+              <div key={index} className="flex items-center gap-1 bg-primary/10 text-primary px-3 py-2 rounded-full text-xs md:text-sm">
+                <span className="max-w-[120px] md:max-w-none truncate">{skill}</span>
                 <Button
                   type="button"
                   variant="ghost"
                   size="sm"
-                  className="h-auto p-0 ml-1"
+                  className="h-auto p-0 ml-1 min-w-[16px]"
                   onClick={() => removeSkill(index)}
                 >
                   <Trash2 className="h-3 w-3" />
