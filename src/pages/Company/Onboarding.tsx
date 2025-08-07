@@ -136,8 +136,11 @@ export default function CompanyOnboarding() {
       
       // Simulate a small delay then redirect
       setTimeout(() => {
+        console.log('Demo setup complete, navigating to dashboard...');
         toast({ title: "Erfolgreich! Weiterleitung zum Unternehmensprofil..." });
-        navigate("/company/dashboard");
+        
+        // Force page reload to ensure clean state
+        window.location.href = "/company/dashboard";
       }, 2000);
 
     } catch (error: any) {

@@ -42,27 +42,38 @@ function CompanyProtectedRoute({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     async function checkCompanyAccess() {
-      if (!user) {
-        setIsLoading(false);
-        return;
-      }
-
-      // Check demo mode first
+      // Check demo mode FIRST and IMMEDIATELY
       const demoMode = localStorage.getItem('demoMode') === 'true';
+      console.log('Demo mode check:', demoMode);
+      
       if (demoMode) {
+        console.log('Demo mode detected - allowing company access');
         setUserType('company');
         setIsLoading(false);
         return;
       }
 
+      if (!user) {
+        console.log('No user found');
+        setIsLoading(false);
+        return;
+      }
+
       try {
-        const { data: companyUser } = await supabase
+        console.log('Checking company user for:', user.id);
+        const { data: companyUser, error } = await supabase
           .from('company_users')
           .select('*')
           .eq('user_id', user.id)
           .single();
 
-        setUserType(companyUser ? 'company' : 'not_company');
+        console.log('Company user check result:', { data: companyUser, error });
+
+        if (companyUser && !error) {
+          setUserType('company');
+        } else {
+          setUserType('not_company');
+        }
       } catch (error) {
         console.error('Error checking company access:', error);
         setUserType('not_company');
@@ -74,6 +85,7 @@ function CompanyProtectedRoute({ children }: { children: React.ReactNode }) {
   }, [user]);
 
   if (isLoading) {
+    console.log('CompanyProtectedRoute: Loading...');
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
@@ -81,14 +93,19 @@ function CompanyProtectedRoute({ children }: { children: React.ReactNode }) {
     );
   }
 
-  if (!user) {
+  console.log('CompanyProtectedRoute: User type:', userType, 'User:', !!user);
+
+  if (!user && localStorage.getItem('demoMode') !== 'true') {
+    console.log('No user and no demo mode - redirecting to auth');
     return <Navigate to="/auth" replace />;
   }
 
   if (userType !== 'company') {
+    console.log('Not a company user - redirecting to onboarding');
     return <Navigate to="/company/onboarding" replace />;
   }
 
+  console.log('Access granted to company routes');
   return <>{children}</>;
 }
 
