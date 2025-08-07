@@ -82,19 +82,38 @@ export const ProfileCreationModal = ({
     console.log(`[${new Date().toISOString()}] ProfileCreationModal: Email:`, email);
     console.log(`[${new Date().toISOString()}] ProfileCreationModal: Password length:`, password?.length || 0);
     
+    // Try to get CV data from localStorage as fallback if formData is empty or incomplete
+    let effectiveFormData = formData;
+    if (!formData?.vorname || !formData?.nachname) {
+      const savedCVData = localStorage.getItem('cvFormData');
+      if (savedCVData) {
+        try {
+          const parsedCVData = JSON.parse(savedCVData);
+          console.log(`[${new Date().toISOString()}] ProfileCreationModal: Using localStorage CV data as fallback:`, parsedCVData);
+          effectiveFormData = { ...parsedCVData, ...formData }; // Merge with preference to passed formData
+        } catch (error) {
+          console.error('Error parsing localStorage CV data:', error);
+        }
+      }
+    }
+    
     // Additional debugging for CV data
     console.log(`[${new Date().toISOString()}] ProfileCreationModal: CV Data Analysis:`, {
-      hasVorname: !!formData?.vorname,
-      hasNachname: !!formData?.nachname,
-      hasOrt: !!formData?.ort,
-      hasEmail: !!formData?.email,
-      hasBranche: !!formData?.branche,
-      hasStatus: !!formData?.status,
-      hasSchulbildung: !!formData?.schulbildung && formData.schulbildung.length > 0,
-      hasBerufserfahrung: !!formData?.berufserfahrung && formData.berufserfahrung.length > 0,
-      hasSprachen: !!formData?.sprachen && formData.sprachen.length > 0,
-      hasFaehigkeiten: !!formData?.faehigkeiten && formData.faehigkeiten.length > 0,
-      hasUeberMich: !!formData?.ueber_mich
+      hasVorname: !!effectiveFormData?.vorname,
+      hasNachname: !!effectiveFormData?.nachname,
+      hasOrt: !!effectiveFormData?.ort,
+      hasEmail: !!effectiveFormData?.email,
+      hasBranche: !!effectiveFormData?.branche,
+      hasStatus: !!effectiveFormData?.status,
+      hasSchulbildung: !!effectiveFormData?.schulbildung && effectiveFormData.schulbildung.length > 0,
+      hasBerufserfahrung: !!effectiveFormData?.berufserfahrung && effectiveFormData.berufserfahrung.length > 0,
+      hasSprachen: !!effectiveFormData?.sprachen && effectiveFormData.sprachen.length > 0,
+      hasFaehigkeiten: !!effectiveFormData?.faehigkeiten && effectiveFormData.faehigkeiten.length > 0,
+      hasUeberMich: !!effectiveFormData?.ueber_mich || !!effectiveFormData?.ueberMich,
+      actualVorname: effectiveFormData?.vorname,
+      actualNachname: effectiveFormData?.nachname,
+      actualBranche: effectiveFormData?.branche,
+      actualStatus: effectiveFormData?.status
     });
 
     if (!email || !password) {
@@ -266,34 +285,34 @@ export const ProfileCreationModal = ({
         }
         
         // Handle file uploads first
-        let avatarUrl = typeof formData.profilbild === 'string' ? formData.profilbild : null;
-        let coverImageUrl = typeof formData.cover_image === 'string' ? formData.cover_image : null;
+        let avatarUrl = typeof effectiveFormData.profilbild === 'string' ? effectiveFormData.profilbild : null;
+        let coverImageUrl = typeof effectiveFormData.cover_image === 'string' ? effectiveFormData.cover_image : null;
         let cvUrl = null;
 
         try {
           // Upload profile image if it's a File
-          if (formData.profilbild instanceof File) {
+          if (effectiveFormData.profilbild instanceof File) {
             const { uploadProfileImage } = await import('@/lib/supabase-storage');
-            const uploadResult = await uploadProfileImage(formData.profilbild);
+            const uploadResult = await uploadProfileImage(effectiveFormData.profilbild);
             avatarUrl = uploadResult.url;
           }
 
           // Upload cover image if it's a File  
-          if (formData.cover_image instanceof File) {
+          if (effectiveFormData.cover_image instanceof File) {
             const { uploadCoverImage } = await import('@/lib/supabase-storage');
-            const uploadResult = await uploadCoverImage(formData.cover_image);
+            const uploadResult = await uploadCoverImage(effectiveFormData.cover_image);
             coverImageUrl = uploadResult.url;
           }
 
           // Generate and upload CV PDF
-          if (formData.vorname && formData.nachname) {
+          if (effectiveFormData.vorname && effectiveFormData.nachname) {
             const { generateCVFilename } = await import('@/lib/pdf-generator');
             const { generateCVFromHTML, uploadCV } = await import('@/lib/supabase-storage');
             
             // Find CV preview element
             const cvElement = document.querySelector('[data-cv-preview]') as HTMLElement;
             if (cvElement) {
-              const filename = generateCVFilename(formData.vorname, formData.nachname);
+              const filename = generateCVFilename(effectiveFormData.vorname, effectiveFormData.nachname);
               const cvFile = await generateCVFromHTML(cvElement, filename);
               const uploadResult = await uploadCV(cvFile);
               cvUrl = uploadResult.url;
@@ -306,7 +325,7 @@ export const ProfileCreationModal = ({
 
         // Helper functions for profile data
         const getBrancheTitle = () => {
-          switch (formData.branche) {
+          switch (effectiveFormData.branche) {
             case 'handwerk': return 'Handwerk';
             case 'it': return 'IT';
             case 'gesundheit': return 'Gesundheit';
@@ -319,7 +338,7 @@ export const ProfileCreationModal = ({
         };
 
         const getStatusTitle = () => {
-          switch (formData.status) {
+          switch (effectiveFormData.status) {
             case 'schueler': return 'Schüler:in';
             case 'azubi': return 'Azubi';
             case 'ausgelernt': return 'Ausgelernte Fachkraft';
@@ -330,65 +349,67 @@ export const ProfileCreationModal = ({
         
         // Generate AI-powered bio from form data
         const bioText = [
-          formData.ueberMich,
-          formData.kenntnisse && `Kenntnisse: ${formData.kenntnisse}`,
-          formData.motivation && `Motivation: ${formData.motivation}`,
-          formData.praktische_erfahrung && `Praktische Erfahrung: ${formData.praktische_erfahrung}`
+          effectiveFormData.ueberMich,
+          effectiveFormData.kenntnisse && `Kenntnisse: ${effectiveFormData.kenntnisse}`,
+          effectiveFormData.motivation && `Motivation: ${effectiveFormData.motivation}`,
+          effectiveFormData.praktische_erfahrung && `Praktische Erfahrung: ${effectiveFormData.praktische_erfahrung}`
         ].filter(Boolean).join('\n\n');
+        
+        console.log(`[${new Date().toISOString()}] ProfileCreationModal: Generated bio text:`, bioText);
         
         // Prepare profile update data
         const profileData = {
           email: email,
-          vorname: formData.vorname,
-          nachname: formData.nachname,
-              geburtsdatum: formData.geburtsdatum ? 
-                (formData.geburtsdatum instanceof Date ? 
-                  formData.geburtsdatum.toISOString().split('T')[0] : 
-                  formData.geburtsdatum
+          vorname: effectiveFormData.vorname,
+          nachname: effectiveFormData.nachname,
+              geburtsdatum: effectiveFormData.geburtsdatum ? 
+                (effectiveFormData.geburtsdatum instanceof Date ? 
+                  effectiveFormData.geburtsdatum.toISOString().split('T')[0] : 
+                  effectiveFormData.geburtsdatum
                 ) : null,
-          strasse: formData.strasse,
-          hausnummer: formData.hausnummer,
-          plz: formData.plz,
-          ort: formData.ort,
-          telefon: formData.telefon,
+          strasse: effectiveFormData.strasse,
+          hausnummer: effectiveFormData.hausnummer,
+          plz: effectiveFormData.plz,
+          ort: effectiveFormData.ort,
+          telefon: effectiveFormData.telefon,
           avatar_url: avatarUrl,
           cover_image_url: coverImageUrl,
           cv_url: cvUrl,
-          headline: formData.headline || `${getStatusTitle()} ${formData.branche ? `in ${getBrancheTitle()}` : ''}`,
-          bio: bioText || formData.ueberMich,
-          branche: formData.branche,
-          status: formData.status,
-          schule: formData.schule,
-          geplanter_abschluss: formData.geplanter_abschluss,
-          abschlussjahr: formData.abschlussjahr,
-          ausbildungsberuf: formData.ausbildungsberuf,
-          ausbildungsbetrieb: formData.ausbildungsbetrieb,
-          startjahr: formData.startjahr,
-          voraussichtliches_ende: formData.voraussichtliches_ende,
-          abschlussjahr_ausgelernt: formData.abschlussjahr_ausgelernt,
-          aktueller_beruf: formData.aktueller_beruf,
-          sprachen: formData.sprachen || [],
-          faehigkeiten: formData.faehigkeiten || [],
-          schulbildung: formData.schulbildung || [],
-          berufserfahrung: formData.berufserfahrung || [],
-          layout: formData.layout || 1,
-          uebermich: formData.ueberMich,
-          kenntnisse: formData.kenntnisse,
-          motivation: formData.motivation,
-          praktische_erfahrung: formData.praktische_erfahrung,
-          has_drivers_license: formData.has_drivers_license || false,
-          has_own_vehicle: formData.has_own_vehicle || false,
-          target_year: formData.target_year,
-          visibility_industry: formData.visibility_industry || [],
-          visibility_region: formData.visibility_region || [],
-          einwilligung: formData.einwilligung,
+          headline: effectiveFormData.headline || `${getStatusTitle()} ${effectiveFormData.branche ? `in ${getBrancheTitle()}` : ''}`,
+          bio: bioText || effectiveFormData.ueberMich || effectiveFormData.ueber_mich,
+          branche: effectiveFormData.branche || null,
+          status: effectiveFormData.status || null,
+          schule: effectiveFormData.schule,
+          geplanter_abschluss: effectiveFormData.geplanter_abschluss,
+          abschlussjahr: effectiveFormData.abschlussjahr,
+          ausbildungsberuf: effectiveFormData.ausbildungsberuf,
+          ausbildungsbetrieb: effectiveFormData.ausbildungsbetrieb,
+          startjahr: effectiveFormData.startjahr,
+          voraussichtliches_ende: effectiveFormData.voraussichtliches_ende,
+          abschlussjahr_ausgelernt: effectiveFormData.abschlussjahr_ausgelernt,
+          aktueller_beruf: effectiveFormData.aktueller_beruf,
+          sprachen: effectiveFormData.sprachen || [],
+          faehigkeiten: effectiveFormData.faehigkeiten || [],
+          schulbildung: effectiveFormData.schulbildung || [],
+          berufserfahrung: effectiveFormData.berufserfahrung || [],
+          layout: effectiveFormData.layout || 1,
+          uebermich: effectiveFormData.ueberMich || effectiveFormData.ueber_mich,
+          kenntnisse: effectiveFormData.kenntnisse,
+          motivation: effectiveFormData.motivation,
+          praktische_erfahrung: effectiveFormData.praktische_erfahrung,
+          has_drivers_license: effectiveFormData.has_drivers_license || false,
+          has_own_vehicle: effectiveFormData.has_own_vehicle || false,
+          target_year: effectiveFormData.target_year,
+          visibility_industry: effectiveFormData.visibility_industry || [],
+          visibility_region: effectiveFormData.visibility_region || [],
+          einwilligung: effectiveFormData.einwilligung || false,
           profile_complete: true,
           profile_published: false,
           updated_at: new Date().toISOString()
         };
 
-         console.log('ProfileCreationModal: Form data received:', formData);
-         console.log('ProfileCreationModal: Form data keys:', Object.keys(formData || {}));
+         console.log('ProfileCreationModal: Effective form data:', effectiveFormData);
+         console.log('ProfileCreationModal: Effective form data keys:', Object.keys(effectiveFormData || {}));
          console.log('ProfileCreationModal: Updating profile with data:', profileData);
 
         // Update the profile with retry mechanism
