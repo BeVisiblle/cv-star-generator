@@ -158,6 +158,19 @@ export function ProfileCard({
     
     setIsGeneratingPDF(true);
     try {
+      // Check if CV already exists in database
+      if (profile.cv_url) {
+        // Download existing CV from URL
+        const link = document.createElement('a');
+        link.href = profile.cv_url;
+        link.download = `CV_${profile.vorname}_${profile.nachname}.pdf`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        return;
+      }
+
+      // If no CV exists, generate one (same as profile view does)
       // Check if we have enough data to generate a CV
       if (!profile.vorname || !profile.nachname) {
         console.error('Missing name data for CV generation');
@@ -259,7 +272,7 @@ export function ProfileCard({
       const { generatePDF, generateCVFilename } = await import('@/lib/pdf-generator');
       const filename = generateCVFilename(profile.vorname, profile.nachname);
       
-      // Generate PDF
+      // Generate PDF for download
       await generatePDF(cvPreviewElement, {
         filename,
         quality: 2,
@@ -271,7 +284,7 @@ export function ProfileCard({
       document.body.removeChild(tempContainer);
       root.unmount();
     } catch (error) {
-      console.error('Error generating PDF:', error);
+      console.error('Error downloading CV:', error);
     } finally {
       setIsGeneratingPDF(false);
     }
