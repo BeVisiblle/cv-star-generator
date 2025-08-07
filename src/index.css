@@ -124,8 +124,29 @@ All colors MUST be HSL.
     break-before: page;
   }
 
+  /* CV Section page break optimization */
+  .cv-section {
+    page-break-inside: avoid;
+    break-inside: avoid;
+    -webkit-column-break-inside: avoid;
+    -moz-column-break-inside: avoid;
+    column-break-inside: avoid;
+    margin-bottom: 20px;
+    display: block;
+  }
+
+  .page-break {
+    page-break-before: always;
+    break-before: page;
+  }
+
+  .cv-container {
+    display: block;
+  }
+
   /* Additional PDF optimization for sections */
-  .page-break-inside-avoid h3 {
+  .page-break-inside-avoid h3,
+  .cv-section h3 {
     page-break-after: avoid;
     break-after: avoid;
   }

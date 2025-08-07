@@ -113,3 +113,118 @@ export const loadProfileDataToCV = (profile: any): Partial<CVFormData> => {
     einwilligung: profile.einwilligung
   };
 };
+
+export const regenerateCVFromProfile = async (userId: string, profile: any) => {
+  if (!userId || !profile || !profile.vorname || !profile.nachname) return;
+  
+  try {
+    // Import required modules for CV generation
+    const { generateCVFromHTML, uploadCV } = await import('@/lib/supabase-storage');
+    
+    // Create CV data from profile
+    const cvData = {
+      branche: profile.branche || '',
+      status: profile.status || '',
+      vorname: profile.vorname || '',
+      nachname: profile.nachname || '',
+      geburtsdatum: profile.geburtsdatum || '',
+      strasse: profile.strasse || '',
+      hausnummer: profile.hausnummer || '',
+      plz: profile.plz || '',
+      ort: profile.ort || '',
+      telefon: profile.telefon || '',
+      email: profile.email || '',
+      ueberMich: profile.uebermich || profile.bio || '',
+      schulbildung: profile.schulbildung || [],
+      berufserfahrung: profile.berufserfahrung || [],
+      sprachen: profile.sprachen || [],
+      faehigkeiten: profile.faehigkeiten || [],
+      profilbild: profile.avatar_url || ''
+    };
+
+    // Create temporary container for CV rendering
+    const tempContainer = document.createElement('div');
+    tempContainer.style.position = 'absolute';
+    tempContainer.style.left = '-9999px';
+    tempContainer.style.top = '0';
+    tempContainer.style.backgroundColor = 'white';
+    tempContainer.style.width = '210mm';
+    tempContainer.style.minHeight = '297mm';
+    document.body.appendChild(tempContainer);
+
+    try {
+      // Import and render the correct CV layout
+      const LiveCareerLayout = await import('@/components/cv-layouts/LiveCareerLayout');
+      let LayoutComponent = LiveCareerLayout.default;
+
+      const layoutId = profile.layout || 1;
+      switch (layoutId) {
+        case 2:
+          LayoutComponent = (await import('@/components/cv-layouts/ClassicLayout')).default;
+          break;
+        case 3:
+          LayoutComponent = (await import('@/components/cv-layouts/CreativeLayout')).default;
+          break;
+        case 4:
+          LayoutComponent = (await import('@/components/cv-layouts/MinimalLayout')).default;
+          break;
+        case 5:
+          LayoutComponent = (await import('@/components/cv-layouts/ProfessionalLayout')).default;
+          break;
+        case 6:
+          LayoutComponent = (await import('@/components/cv-layouts/ModernLayout')).default;
+          break;
+      }
+
+      // Render CV layout
+      const React = await import('react');
+      const ReactDOM = await import('react-dom/client');
+      
+      const cvElement = React.createElement(LayoutComponent, { data: cvData });
+      const root = ReactDOM.createRoot(tempContainer);
+      root.render(cvElement);
+
+      // Wait for rendering
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Find the CV preview element
+      const cvPreviewElement = tempContainer.querySelector('[data-cv-preview]') as HTMLElement;
+      if (!cvPreviewElement) {
+        throw new Error('CV preview element not found');
+      }
+
+      // Generate filename and create PDF file
+      const { generateCVFilename } = await import('@/lib/pdf-generator');
+      const filename = generateCVFilename(profile.vorname, profile.nachname);
+      const pdfFile = await generateCVFromHTML(cvPreviewElement, filename);
+      
+      // Upload to Supabase
+      const { url } = await uploadCV(pdfFile);
+      
+      // Update profile with new CV URL
+      const { error } = await supabase
+        .from('profiles')
+        .update({ cv_url: url })
+        .eq('id', userId);
+
+      if (error) {
+        throw error;
+      }
+
+      // Clean up
+      root.unmount();
+      document.body.removeChild(tempContainer);
+      
+      console.log('CV successfully regenerated from profile');
+    } catch (error) {
+      // Clean up on error
+      if (document.body.contains(tempContainer)) {
+        document.body.removeChild(tempContainer);
+      }
+      throw error;
+    }
+  } catch (error) {
+    console.error('Error regenerating CV from profile:', error);
+    throw error;
+  }
+};

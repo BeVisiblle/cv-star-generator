@@ -107,7 +107,7 @@ const LiveCareerLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) => 
           
           {/* About Me */}
           {data.ueberMich && (
-            <div>
+            <div className="cv-section">
               <h3 
                 className="font-bold uppercase tracking-wide mb-2"
                 style={{ 
@@ -125,7 +125,7 @@ const LiveCareerLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) => 
 
           {/* Skills */}
           {(data.status === 'azubi' || data.status === 'ausgelernt') && data.faehigkeiten && data.faehigkeiten.length > 0 && (
-            <div>
+            <div className="cv-section">
               <h3 
                 className="font-bold uppercase tracking-wide mb-2"
                 style={{ 
@@ -148,7 +148,7 @@ const LiveCareerLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) => 
 
           {/* Languages */}
           {data.sprachen && data.sprachen.length > 0 && (
-            <div>
+            <div className="cv-section">
               <h3 
                 className="font-bold uppercase tracking-wide mb-2"
                 style={{ 
@@ -176,7 +176,7 @@ const LiveCareerLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) => 
           
           {/* Work Experience */}
           {data.berufserfahrung && data.berufserfahrung.length > 0 && (
-            <div className="page-break-inside-avoid">
+            <div className="cv-section">
               <h3 
                 className="font-bold uppercase tracking-wide mb-3"
                 style={{ 
@@ -188,7 +188,7 @@ const LiveCareerLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) => 
               </h3>
               <div className="space-y-4">
                 {data.berufserfahrung.map((job, index) => (
-                  <div key={index}>
+                  <div key={index} className="cv-section">
                     <div className="flex justify-between items-start mb-1">
                       <div className="flex-1">
                         <h4 className="font-semibold text-gray-900" style={{ fontSize: '10pt' }}>{job.titel}</h4>
@@ -221,7 +221,7 @@ const LiveCareerLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) => 
 
           {/* Education */}
           {data.schulbildung && data.schulbildung.length > 0 && (
-            <div className="page-break-inside-avoid">
+            <div className="cv-section">
               <h3 
                 className="font-bold uppercase tracking-wide mb-3"
                 style={{ 
@@ -233,7 +233,7 @@ const LiveCareerLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) => 
               </h3>
               <div className="space-y-4">
                 {data.schulbildung.map((school, index) => (
-                  <div key={index}>
+                  <div key={index} className="cv-section">
                     <div className="flex justify-between items-start mb-1">
                       <div className="flex-1">
                         <h4 className="font-semibold text-gray-900" style={{ fontSize: '10pt' }}>{school.schulform}</h4>

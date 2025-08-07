@@ -33,17 +33,6 @@ export const LinkedInProfileSidebar: React.FC<LinkedInProfileSidebarProps> = ({ 
   const handleDownloadCV = async () => {
     try {
       setIsGeneratingPDF(true);
-      
-      // Check if CV already exists
-      if (profile.cv_url) {
-        // Download existing CV
-        window.open(profile.cv_url, '_blank');
-        toast({
-          title: "CV wird heruntergeladen...",
-          description: "Dein gespeicherter Lebenslauf wurde heruntergeladen.",
-        });
-        return;
-      }
 
       // Check if we have enough data to generate a CV
       if (!profile.vorname || !profile.nachname) {
@@ -55,33 +44,14 @@ export const LinkedInProfileSidebar: React.FC<LinkedInProfileSidebarProps> = ({ 
         return;
       }
 
-      // Convert profile data to CV format
-      const cvData = {
-        branche: profile.branche || '',
-        status: profile.status || '',
-        vorname: profile.vorname || '',
-        nachname: profile.nachname || '',
-        geburtsdatum: profile.geburtsdatum || '',
-        strasse: profile.strasse || '',
-        hausnummer: profile.hausnummer || '',
-        plz: profile.plz || '',
-        ort: profile.ort || '',
-        telefon: profile.telefon || '',
-        email: profile.email || '',
-        ueber_mich: profile.uebermich || profile.bio || '',
-        schulbildung: profile.schulbildung || [],
-        berufserfahrung: profile.berufserfahrung || [],
-        sprachen: profile.sprachen || [],
-        faehigkeiten: profile.faehigkeiten || [],
-        profilbild: profile.avatar_url || ''
-      };
-
       // Create temporary container for CV rendering
       const tempContainer = document.createElement('div');
       tempContainer.style.position = 'absolute';
       tempContainer.style.left = '-9999px';
       tempContainer.style.top = '0';
       tempContainer.style.backgroundColor = 'white';
+      tempContainer.style.width = '210mm';
+      tempContainer.style.minHeight = '297mm';
       document.body.appendChild(tempContainer);
 
       // Import and render the correct CV layout
@@ -111,11 +81,16 @@ export const LinkedInProfileSidebar: React.FC<LinkedInProfileSidebarProps> = ({ 
           LayoutComponent = LiveCareerLayout;
       }
 
-      // Create and render CV element
+      // Create and render CV element with proper data formatting
       const React = await import('react');
       const ReactDOM = await import('react-dom/client');
       
-      const cvElement = React.createElement(LayoutComponent, { data: cvData });
+      const cvElement = React.createElement(LayoutComponent, { 
+        data: {
+          ...cvData,
+          ueberMich: profile.uebermich || profile.bio || ''
+        }
+      });
       const root = ReactDOM.createRoot(tempContainer);
       root.render(cvElement);
 
@@ -128,68 +103,25 @@ export const LinkedInProfileSidebar: React.FC<LinkedInProfileSidebarProps> = ({ 
         throw new Error('CV preview element not found');
       }
 
-      // Generate filename and PDF using same functions as CVStep7
+      // Generate filename and PDF using same logic as CVStep7
       const { generatePDF, generateCVFilename } = await import('@/lib/pdf-generator');
       const filename = generateCVFilename(profile.vorname, profile.nachname);
       
-      // Create a blob URL for the PDF
-      let pdfBlob: Blob;
-      
-      // Temporarily create PDF and convert to blob
-      const canvas = await (await import('html2canvas')).default(cvPreviewElement, {
-        scale: 2,
-        useCORS: true,
-        allowTaint: true,
-        backgroundColor: '#ffffff',
-      });
-
-      const jsPDF = (await import('jspdf')).default;
-      const imgWidth = 190;
-      const pageHeight = 287;
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
-      
-      const pdf = new jsPDF({
-        orientation: 'portrait',
-        unit: 'mm',
+      // Generate PDF using the unified function
+      await generatePDF(cvPreviewElement, {
+        filename,
+        quality: 2,
         format: 'a4',
+        margin: 10
       });
 
-      const imgData = canvas.toDataURL('image/png', 1.0);
-      
-      if (imgHeight <= pageHeight) {
-        pdf.addImage(imgData, 'PNG', 10, 10, imgWidth, imgHeight);
-      } else {
-        let remainingHeight = imgHeight;
-        let position = 0;
-        
-        while (remainingHeight > 0) {
-          if (position > 0) {
-            pdf.addPage();
-          }
-          
-          pdf.addImage(
-            imgData,
-            'PNG',
-            10,
-            10 - position,
-            imgWidth,
-            imgHeight
-          );
-          
-          remainingHeight -= pageHeight;
-          position += pageHeight;
-        }
-      }
-
-      pdfBlob = pdf.output('blob');
-      const pdfFile = new File([pdfBlob], filename, { type: 'application/pdf' });
-      
-      // Upload PDF to Supabase storage
-      const { uploadCV } = await import('@/lib/supabase-storage');
+      // Generate PDF file for Supabase upload
+      const { generateCVFromHTML, uploadCV } = await import('@/lib/supabase-storage');
+      const pdfFile = await generateCVFromHTML(cvPreviewElement, filename);
       const { url } = await uploadCV(pdfFile);
       
       // Save CV URL to profile
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from('profiles')
         .update({ cv_url: url })
         .eq('id', profile.id);
@@ -205,12 +137,9 @@ export const LinkedInProfileSidebar: React.FC<LinkedInProfileSidebarProps> = ({ 
       root.unmount();
       document.body.removeChild(tempContainer);
       
-      // Download the PDF
-      window.open(url, '_blank');
-      
       toast({
-        title: "CV erfolgreich generiert",
-        description: "Dein Lebenslauf wurde gespeichert und kann von Unternehmen heruntergeladen werden.",
+        title: "CV erfolgreich erstellt",
+        description: `Dein Lebenslauf wurde als ${filename} heruntergeladen und gespeichert.`,
       });
     } catch (error) {
       console.error('Error generating CV:', error);
@@ -263,12 +192,26 @@ export const LinkedInProfileSidebar: React.FC<LinkedInProfileSidebarProps> = ({ 
     });
   };
 
-  const handleLanguagesChange = (languages: any[]) => {
+  const handleLanguagesChange = async (languages: any[]) => {
     onProfileUpdate({ sprachen: languages });
+    await regenerateCV();
   };
 
-  const handleSkillsChange = (skills: string[]) => {
+  const handleSkillsChange = async (skills: string[]) => {
     onProfileUpdate({ faehigkeiten: skills });
+    await regenerateCV();
+  };
+
+  const regenerateCV = async () => {
+    if (!profile.id || !profile.vorname || !profile.nachname) return;
+    
+    try {
+      // Regenerate CV silently when profile data changes
+      const { regenerateCVFromProfile } = await import('@/utils/profileSync');
+      await regenerateCVFromProfile(profile.id, profile);
+    } catch (error) {
+      console.error('Error regenerating CV:', error);
+    }
   };
 
   const formatDate = (dateString: string) => {
