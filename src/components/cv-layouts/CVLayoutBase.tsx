@@ -201,10 +201,33 @@ export const ProfileImage: React.FC<{
   const imageUrl = profilbild || avatar_url;
   if (!imageUrl) return null;
   
+  // Check if imageUrl is a valid File/Blob object before creating object URL
+  const getImageSrc = () => {
+    if (typeof imageUrl === 'string') {
+      return imageUrl;
+    }
+    
+    // Check if it's a File object (has the required properties)
+    if (imageUrl && typeof imageUrl === 'object' && 'type' in imageUrl && 'size' in imageUrl) {
+      try {
+        return URL.createObjectURL(imageUrl as File);
+      } catch (error) {
+        console.warn('Failed to create object URL for image:', error);
+        return null;
+      }
+    }
+    
+    // If it's neither a string nor a valid File object, return null
+    return null;
+  };
+
+  const imageSrc = getImageSrc();
+  if (!imageSrc) return null;
+  
   return (
     <div className={`${sizeClasses[size]} rounded-full overflow-hidden bg-muted flex-shrink-0 ${className}`}>
       <img
-        src={typeof imageUrl === 'string' ? imageUrl : URL.createObjectURL(imageUrl)}
+        src={imageSrc}
         alt="Profilbild"
         className="w-full h-full object-cover"
       />
