@@ -35,11 +35,11 @@ export function BranchSelector({ selectedBranches, onSelectionChange, error }: B
         )}
       </div>
       
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-4 gap-2">
         {branches.map((branch) => (
           <Card 
             key={branch.key}
-            className={`p-4 cursor-pointer transition-all hover:shadow-sm ${
+            className={`p-3 cursor-pointer transition-all hover:shadow-sm ${
               selectedBranches.includes(branch.key)
                 ? 'ring-2 ring-primary bg-primary/5' 
                 : error 
@@ -49,9 +49,9 @@ export function BranchSelector({ selectedBranches, onSelectionChange, error }: B
             onClick={() => toggleBranch(branch.key)}
           >
             <div className="text-center">
-              <div className="text-2xl mb-1">{branch.emoji}</div>
-              <h4 className="font-medium text-sm mb-1">{branch.title}</h4>
-              <p className="text-xs text-muted-foreground">{branch.desc}</p>
+              <div className="text-xl mb-1">{branch.emoji}</div>
+              <h4 className="font-medium text-xs mb-1">{branch.title}</h4>
+              <p className="text-[10px] text-muted-foreground leading-tight">{branch.desc}</p>
             </div>
           </Card>
         ))}

@@ -3,7 +3,9 @@ import { Badge } from "@/components/ui/badge";
 
 interface PriceCalculatorProps {
   selectedGroups: string[];
+  selectedBranches: string[];
   companyName: string;
+  companySize: string;
 }
 
 const targetGroupOptions = [
@@ -12,16 +14,39 @@ const targetGroupOptions = [
   { id: "gesellen", label: "Gesellen", price: 59 },
 ];
 
-export function PriceCalculator({ selectedGroups, companyName }: PriceCalculatorProps) {
+const branchOptions = [
+  { key: 'handwerk', label: 'Handwerk', features: ['5 Seats für Angestellte', 'AI Chatbot', 'Skill-Matching'] },
+  { key: 'it', label: 'IT', features: ['10 Seats für Angestellte', 'Tech-Screening', 'Code-Assessment'] },
+  { key: 'gesundheit', label: 'Gesundheit', features: ['3 Seats für Angestellte', 'Zertifikat-Check', 'Schichtplanung'] },
+  { key: 'buero', label: 'Büro & Verwaltung', features: ['7 Seats für Angestellte', 'Soft-Skills Test', 'Office-Tools'] },
+  { key: 'verkauf', label: 'Verkauf & Handel', features: ['5 Seats für Angestellte', 'Sales-Training', 'Kundenkontakt-Check'] },
+  { key: 'gastronomie', label: 'Gastronomie', features: ['4 Seats für Angestellte', 'Service-Check', 'Hygiene-Schulung'] },
+  { key: 'bau', label: 'Bau & Architektur', features: ['6 Seats für Angestellte', 'Sicherheits-Check', 'CAD-Skills'] }
+];
+
+const companySizeMultiplier = {
+  "1-10": 1.0,
+  "11-25": 1.2,
+  "26-50": 1.4,
+  "51-100": 1.6,
+  "101-250": 1.8,
+  "250+": 2.0
+};
+
+export function PriceCalculator({ selectedGroups, selectedBranches, companyName, companySize }: PriceCalculatorProps) {
   const calculateTotal = () => {
-    return selectedGroups.reduce((total, groupId) => {
+    const basePrice = selectedGroups.reduce((total, groupId) => {
       const group = targetGroupOptions.find(g => g.id === groupId);
       return total + (group?.price || 0);
     }, 0);
+    
+    const multiplier = companySizeMultiplier[companySize as keyof typeof companySizeMultiplier] || 1.0;
+    return Math.round(basePrice * multiplier);
   };
 
   const total = calculateTotal();
   const selectedOptions = targetGroupOptions.filter(group => selectedGroups.includes(group.id));
+  const selectedBranchDetails = branchOptions.filter(branch => selectedBranches.includes(branch.key));
 
   return (
     <Card className="p-6 bg-gradient-to-br from-primary/5 to-accent/10 border-primary/20 sticky top-4">
@@ -33,8 +58,24 @@ export function PriceCalculator({ selectedGroups, companyName }: PriceCalculator
           )}
         </div>
 
-        {selectedOptions.length > 0 ? (
-          <div className="space-y-3">
+        {selectedOptions.length > 0 || selectedBranchDetails.length > 0 ? (
+          <div className="space-y-4">
+            {/* Branchen mit Features */}
+            {selectedBranchDetails.map(branch => (
+              <div key={branch.key} className="bg-accent/10 rounded-lg p-3">
+                <h4 className="font-semibold text-sm mb-2">{branch.label}</h4>
+                <div className="space-y-1">
+                  {branch.features.map((feature, index) => (
+                    <div key={index} className="flex items-center text-xs text-muted-foreground">
+                      <span className="text-green-600 mr-2">✓</span>
+                      {feature}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+
+            {/* Zielgruppen */}
             {selectedOptions.map(group => (
               <div key={group.id} className="flex items-center justify-between py-2 border-b border-border/50">
                 <div className="flex items-center space-x-2">
@@ -43,6 +84,13 @@ export function PriceCalculator({ selectedGroups, companyName }: PriceCalculator
                 <span className="font-medium">{group.price}€</span>
               </div>
             ))}
+            
+            {companySize && (
+              <div className="flex items-center justify-between py-2 border-b border-border/50">
+                <span className="text-sm text-muted-foreground">Unternehmensgröße</span>
+                <span className="text-xs font-medium">{companySize} MA</span>
+              </div>
+            )}
             
             <div className="pt-3 border-t border-border">
               <div className="flex items-center justify-between">
