@@ -236,14 +236,14 @@ export const LinkedInProfileSidebar: React.FC<LinkedInProfileSidebarProps> = ({ 
         // Upload file to storage
         const uploadResult = await uploadFile(file, 'documents', 'certificates');
         
-        // Save document metadata to database
+        // Save document metadata to database with correct document_type value
         const { error } = await supabase
           .from('user_documents')
           .insert({
             user_id: profile.id,
             filename: uploadResult.path,
             original_name: file.name,
-            document_type: 'certificate',
+            document_type: 'zertifikat', // Use allowed value instead of 'certificate'
             file_type: file.type,
             file_size: file.size
           });
