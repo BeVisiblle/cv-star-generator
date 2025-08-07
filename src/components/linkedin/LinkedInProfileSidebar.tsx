@@ -685,14 +685,6 @@ export const LinkedInProfileSidebar: React.FC<LinkedInProfileSidebarProps> = ({ 
               <Phone className="h-4 w-4 text-muted-foreground" />
               <span className="text-sm">{profile?.telefon || 'Keine Telefonnummer'}</span>
             </div>
-            {profile?.has_drivers_license && (
-              <div className="flex items-center gap-2">
-                <Car className="h-4 w-4 text-muted-foreground" />
-                <span className="text-sm">
-                  Führerschein {profile?.driver_license_class || 'vorhanden'}
-                </span>
-              </div>
-            )}
           </div>
         </CardContent>
       </Card>
@@ -751,6 +743,29 @@ export const LinkedInProfileSidebar: React.FC<LinkedInProfileSidebarProps> = ({ 
               )}
             </div>
           )}
+        </CardContent>
+      </Card>
+
+      {/* Driver's License */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg font-semibold">Führerschein</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-2">
+            {profile?.has_drivers_license ? (
+              <div className="flex items-center gap-2">
+                <Car className="h-4 w-4 text-muted-foreground" />
+                <span className="text-sm">
+                  Führerschein {profile?.driver_license_class || 'vorhanden'}
+                </span>
+              </div>
+            ) : profile?.has_drivers_license === false ? (
+              <p className="text-muted-foreground text-sm">Kein Führerschein vorhanden</p>
+            ) : (
+              <p className="text-muted-foreground text-sm">Führerschein-Status nicht angegeben</p>
+            )}
+          </div>
         </CardContent>
       </Card>
 

@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { MapPin, Briefcase, Eye } from "lucide-react";
+import { MapPin, Briefcase, Eye, Car } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -16,6 +16,8 @@ interface ProfileData {
   profilbild?: File | string;
   faehigkeiten?: string[];
   ueber_mich?: string;
+  has_drivers_license?: boolean;
+  driver_license_class?: string;
 }
 
 interface ProfilePreviewModalProps {
@@ -111,12 +113,22 @@ export function ProfilePreviewModal({ isOpen, onClose, profileData, onPublish }:
                     </p>
                   </div>
 
-                  {profileData.ort && (
-                    <div className="flex items-center gap-1 text-muted-foreground">
-                      <MapPin className="h-4 w-4" />
-                      <span className="text-sm">{profileData.ort}</span>
-                    </div>
-                  )}
+                  <div className="flex items-center gap-4 text-muted-foreground">
+                    {profileData.ort && (
+                      <div className="flex items-center gap-1">
+                        <MapPin className="h-4 w-4" />
+                        <span className="text-sm">{profileData.ort}</span>
+                      </div>
+                    )}
+                    {profileData.has_drivers_license && (
+                      <div className="flex items-center gap-1">
+                        <Car className="h-4 w-4" />
+                        <span className="text-sm">
+                          Führerschein {profileData.driver_license_class || ''}
+                        </span>
+                      </div>
+                    )}
+                  </div>
 
                   {profileData.ueber_mich && (
                     <p className="text-sm text-foreground line-clamp-2 mt-2">
