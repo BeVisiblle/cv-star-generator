@@ -39,7 +39,7 @@ export function FullProfileModal({ profile, isOpen, onClose, isUnlocked }: FullP
   if (!profile) return null;
 
   const displayName = isUnlocked 
-    ? `${profile.vorname} ${profile.nachname}`
+    ? `${profile.vorname} ${profile.nachname?.charAt(0)}.`
     : profile.vorname;
 
   const avatarSrc = isUnlocked ? profile.avatar_url : undefined;
