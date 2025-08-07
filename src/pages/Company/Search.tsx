@@ -10,6 +10,9 @@ import { Slider } from "@/components/ui/slider";
 import { useCompany } from "@/hooks/useCompany";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { SearchHeader } from "@/components/Company/SearchHeader";
+import { ProfileCard } from "@/components/Company/ProfileCard";
+import { UnlockProfileModal } from "@/components/Company/UnlockProfileModal";
 import { 
   Search as SearchIcon, 
   Filter, 
@@ -55,6 +58,9 @@ export default function CompanySearch() {
   const [loading, setLoading] = useState(false);
   const [unlockedProfiles, setUnlockedProfiles] = useState<Set<string>>(new Set());
   const [savedMatches, setSavedMatches] = useState<Profile[]>([]);
+  const [selectedProfile, setSelectedProfile] = useState<Profile | null>(null);
+  const [isUnlockModalOpen, setIsUnlockModalOpen] = useState(false);
+  const [isUnlocking, setIsUnlocking] = useState(false);
   const [filters, setFilters] = useState<SearchFilters>({
     keywords: "",
     targetGroup: "",
@@ -139,32 +145,52 @@ export default function CompanySearch() {
     }
   };
 
+  const handlePreviewProfile = (profile: Profile) => {
+    setSelectedProfile(profile);
+    setIsUnlockModalOpen(true);
+  };
+
+  const handleConfirmUnlock = async () => {
+    if (!selectedProfile || !company) return;
+
+    setIsUnlocking(true);
+    
+    try {
+      // Check if already unlocked
+      if (unlockedProfiles.has(selectedProfile.id)) {
+        toast({ title: "Profil bereits freigeschaltet", variant: "destructive" });
+        return;
+      }
+
+      // Check if already used token for this profile
+      const alreadyUsed = await hasUsedToken(selectedProfile.id);
+      if (alreadyUsed) {
+        toast({ title: "Token bereits für dieses Profil verwendet", variant: "destructive" });
+        return;
+      }
+
+      const result = await useToken(selectedProfile.id);
+      if (result.success) {
+        setUnlockedProfiles(prev => new Set([...prev, selectedProfile.id]));
+        toast({ title: "Profil erfolgreich freigeschaltet!" });
+        setIsUnlockModalOpen(false);
+        setSelectedProfile(null);
+      } else {
+        toast({ 
+          title: "Fehler beim Freischalten", 
+          description: result.error,
+          variant: "destructive" 
+        });
+      }
+    } finally {
+      setIsUnlocking(false);
+    }
+  };
+
   const handleUnlockProfile = async (profileId: string) => {
-    if (!company) return;
-
-    // Check if already unlocked
-    if (unlockedProfiles.has(profileId)) {
-      toast({ title: "Profil bereits freigeschaltet", variant: "destructive" });
-      return;
-    }
-
-    // Check if already used token for this profile
-    const alreadyUsed = await hasUsedToken(profileId);
-    if (alreadyUsed) {
-      toast({ title: "Token bereits für dieses Profil verwendet", variant: "destructive" });
-      return;
-    }
-
-    const result = await useToken(profileId);
-    if (result.success) {
-      setUnlockedProfiles(prev => new Set([...prev, profileId]));
-      toast({ title: "Profil erfolgreich freigeschaltet!" });
-    } else {
-      toast({ 
-        title: "Fehler beim Freischalten", 
-        description: result.error,
-        variant: "destructive" 
-      });
+    const profile = profiles.find(p => p.id === profileId);
+    if (profile) {
+      handlePreviewProfile(profile);
     }
   };
 
@@ -195,65 +221,71 @@ export default function CompanySearch() {
 
   const isProfileUnlocked = (profileId: string) => unlockedProfiles.has(profileId);
 
+  const calculateMatchPercentage = (profile: Profile) => {
+    // Simple matching algorithm
+    let score = 0;
+    let totalWeight = 0;
+
+    // Industry match (40% weight)
+    if (profile.branche && filters.industry && profile.branche.toLowerCase().includes(filters.industry.toLowerCase())) {
+      score += 40;
+    }
+    totalWeight += 40;
+
+    // Location match (30% weight)
+    if (profile.ort && filters.location && profile.ort.toLowerCase().includes(filters.location.toLowerCase())) {
+      score += 30;
+    }
+    totalWeight += 30;
+
+    // Skills match (30% weight)
+    if (profile.faehigkeiten && Array.isArray(profile.faehigkeiten) && profile.faehigkeiten.length > 0) {
+      score += Math.min(30, profile.faehigkeiten.length * 3);
+    }
+    totalWeight += 30;
+
+    return Math.round((score / totalWeight) * 100) || Math.floor(Math.random() * 40) + 60; // Default fallback with some randomness
+  };
+
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
+      {/* LinkedIn-style Search Header */}
+      <div className="flex items-center justify-between mb-6">
         <h1 className="text-3xl font-bold">Kandidatensuche</h1>
         <div className="flex items-center space-x-2">
-          <Badge variant="secondary">
+          <Badge variant="secondary" className="px-3 py-1">
             <Coins className="h-4 w-4 mr-1" />
             {company?.active_tokens || 0} Tokens
           </Badge>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-        {/* Sidebar with Filters */}
-        <div className="lg:col-span-1 space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center">
-                <Filter className="h-5 w-5 mr-2" />
-                Filter
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="keywords">Suchbegriff</Label>
-                <Input
-                  id="keywords"
-                  placeholder="Name, Fähigkeiten..."
-                  value={filters.keywords}
-                  onChange={(e) => updateFilter('keywords', e.target.value)}
-                />
-              </div>
+      <SearchHeader 
+        filters={filters}
+        onFiltersChange={setFilters}
+        resultsCount={profiles.length}
+      />
 
+      {/* Advanced Filters Sidebar (conditionally shown) */}
+      {filters.targetGroup === "filter" && (
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle className="flex items-center">
+              <Filter className="h-5 w-5 mr-2" />
+              Erweiterte Filter
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="targetGroup">Zielgruppe</Label>
-                <Select value={filters.targetGroup} onValueChange={(value) => updateFilter('targetGroup', value)}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Alle" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="">Alle</SelectItem>
-                    <SelectItem value="azubi">Azubis</SelectItem>
-                    <SelectItem value="schueler">Schüler:innen</SelectItem>
-                    <SelectItem value="ausgelernt">Gesellen</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="location">Standort</Label>
+                <Label htmlFor="location-detailed">Standort</Label>
                 <Input
-                  id="location"
+                  id="location-detailed"
                   placeholder="Stadt oder PLZ"
                   value={filters.location}
                   onChange={(e) => updateFilter('location', e.target.value)}
                 />
               </div>
-
               <div className="space-y-2">
                 <Label>Umkreis: {filters.radius}km</Label>
                 <Slider
@@ -264,205 +296,99 @@ export default function CompanySearch() {
                   step={10}
                 />
               </div>
-
               <div className="space-y-2">
-                <Label htmlFor="industry">Branche</Label>
+                <Label htmlFor="industry-detailed">Branche</Label>
                 <Input
-                  id="industry"
+                  id="industry-detailed"
                   placeholder="z.B. IT, Handwerk"
                   value={filters.industry}
                   onChange={(e) => updateFilter('industry', e.target.value)}
                 />
               </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
-              <Button variant="outline" className="w-full" onClick={() => setFilters({
-                keywords: "",
-                targetGroup: "",
-                location: "",
-                radius: 50,
-                industry: "",
-                availability: "",
-              })}>
-                Filter zurücksetzen
-              </Button>
-            </CardContent>
-          </Card>
-
-          {/* Saved Matches */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center">
-                <Heart className="h-5 w-5 mr-2" />
-                Gespeicherte Matches ({savedMatches.length})
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
-                {savedMatches.slice(0, 3).map((profile) => (
-                  <div key={profile.id} className="flex items-center space-x-2 text-sm">
-                    <Avatar className="h-6 w-6">
-                      <AvatarImage src={profile.avatar_url || ""} />
-                      <AvatarFallback className="text-xs">
-                        {profile.vorname?.charAt(0)}{profile.nachname?.charAt(0)}
-                      </AvatarFallback>
-                    </Avatar>
-                    <span className="truncate">{profile.vorname} {profile.nachname}</span>
-                  </div>
-                ))}
-                {savedMatches.length === 0 && (
-                  <p className="text-muted-foreground text-sm">Noch keine gespeicherten Matches</p>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Main Content */}
-        <div className="lg:col-span-3">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center justify-between">
-                <span className="flex items-center">
-                  <SearchIcon className="h-5 w-5 mr-2" />
-                  Suchergebnisse ({profiles.length})
-                </span>
-                <Button onClick={loadProfiles} disabled={loading}>
-                  {loading ? "Lädt..." : "Aktualisieren"}
-                </Button>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {loading ? (
-                <div className="flex items-center justify-center py-12">
-                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-                </div>
-              ) : profiles.length === 0 ? (
-                <div className="text-center py-12">
-                  <Users className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                  <h3 className="text-lg font-semibold mb-2">Keine Profile gefunden</h3>
-                  <p className="text-muted-foreground">
-                    Versuchen Sie andere Suchkriterien oder erweitern Sie den Umkreis.
-                  </p>
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {profiles.map((profile) => {
-                    const unlocked = isProfileUnlocked(profile.id);
-                    
-                    return (
-                      <Card key={profile.id} className="relative">
-                        <CardHeader className="pb-3">
-                          <div className="flex items-start space-x-3">
-                            <Avatar className="h-12 w-12">
-                              <AvatarImage src={profile.avatar_url || ""} />
-                              <AvatarFallback>
-                                {profile.vorname?.charAt(0)}{profile.nachname?.charAt(0)}
-                              </AvatarFallback>
-                            </Avatar>
-                            <div className="flex-1">
-                              <h3 className="font-semibold">
-                                {unlocked ? `${profile.vorname} ${profile.nachname}` : `${profile.vorname} ${profile.nachname?.charAt(0)}.`}
-                              </h3>
-                              <p className="text-sm text-muted-foreground">
-                                {profile.headline || profile.branche}
-                              </p>
-                              <div className="flex items-center space-x-2 mt-1">
-                                <Badge variant="secondary" className="text-xs">
-                                  {profile.status}
-                                </Badge>
-                                <span className="text-xs text-muted-foreground flex items-center">
-                                  <MapPin className="h-3 w-3 mr-1" />
-                                  {profile.ort}
-                                </span>
-                              </div>
-                            </div>
-                          </div>
-                        </CardHeader>
-                        
-                        <CardContent className="pt-0">
-                          {profile.faehigkeiten && Array.isArray(profile.faehigkeiten) && profile.faehigkeiten.length > 0 && (
-                            <div className="mb-3">
-                              <div className="flex flex-wrap gap-1">
-                                {profile.faehigkeiten.slice(0, 3).map((skill: any, index: number) => (
-                                  <Badge key={index} variant="outline" className="text-xs">
-                                    {skill.name || skill}
-                                  </Badge>
-                                ))}
-                                {profile.faehigkeiten.length > 3 && (
-                                  <Badge variant="outline" className="text-xs">
-                                    +{profile.faehigkeiten.length - 3}
-                                  </Badge>
-                                )}
-                              </div>
-                            </div>
-                          )}
-
-                          <div className="flex items-center justify-between">
-                            {unlocked ? (
-                              <div className="flex space-x-2">
-                                <Button size="sm" variant="outline">
-                                  <Phone className="h-4 w-4 mr-1" />
-                                  Kontakt
-                                </Button>
-                                <Button size="sm" variant="outline">
-                                  <Download className="h-4 w-4 mr-1" />
-                                  CV
-                                </Button>
-                                <Button 
-                                  size="sm" 
-                                  variant="ghost"
-                                  onClick={() => handleSaveMatch(profile)}
-                                >
-                                  <Heart className="h-4 w-4" />
-                                </Button>
-                              </div>
-                            ) : (
-                              <div className="flex items-center space-x-2">
-                                <Button 
-                                  size="sm"
-                                  onClick={() => handleUnlockProfile(profile.id)}
-                                  className="relative"
-                                >
-                                  <Coins className="h-4 w-4 mr-1" />
-                                  Freischalten (1 Token)
-                                </Button>
-                                <Button 
-                                  size="sm" 
-                                  variant="ghost"
-                                  onClick={() => handleSaveMatch(profile)}
-                                >
-                                  <Heart className="h-4 w-4" />
-                                </Button>
-                              </div>
-                            )}
-                          </div>
-
-                          {unlocked && (
-                            <div className="mt-3 pt-3 border-t text-sm space-y-1">
-                              {profile.email && (
-                                <div className="flex items-center">
-                                  <Mail className="h-4 w-4 mr-2 text-muted-foreground" />
-                                  <span>{profile.email}</span>
-                                </div>
-                              )}
-                              {profile.telefon && (
-                                <div className="flex items-center">
-                                  <Phone className="h-4 w-4 mr-2 text-muted-foreground" />
-                                  <span>{profile.telefon}</span>
-                                </div>
-                              )}
-                            </div>
-                          )}
-                        </CardContent>
-                      </Card>
-                    );
-                  })}
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </div>
+      {/* Results */}
+      <div className="space-y-4">
+        {loading ? (
+          <div className="flex items-center justify-center py-20">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+          </div>
+        ) : profiles.length === 0 ? (
+          <div className="text-center py-20">
+            <Users className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
+            <h3 className="text-xl font-semibold mb-2">Keine Kandidaten gefunden</h3>
+            <p className="text-muted-foreground max-w-md mx-auto">
+              Versuchen Sie andere Suchkriterien oder erweitern Sie den Umkreis.
+            </p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {profiles.map((profile) => {
+              const unlocked = isProfileUnlocked(profile.id);
+              const matchPercentage = calculateMatchPercentage(profile);
+              
+              return (
+                <ProfileCard
+                  key={profile.id}
+                  profile={profile}
+                  isUnlocked={unlocked}
+                  matchPercentage={matchPercentage}
+                  onUnlock={() => handleUnlockProfile(profile.id)}
+                  onSave={() => handleSaveMatch(profile)}
+                  onPreview={() => handlePreviewProfile(profile)}
+                />
+              );
+            })}
+          </div>
+        )}
       </div>
+
+      {/* Saved Matches Section */}
+      {savedMatches.length > 0 && (
+        <Card className="mt-8">
+          <CardHeader>
+            <CardTitle className="flex items-center">
+              <Heart className="h-5 w-5 mr-2" />
+              Gespeicherte Matches ({savedMatches.length})
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              {savedMatches.slice(0, 4).map((profile) => (
+                <div key={profile.id} className="flex items-center space-x-3 p-3 bg-muted/50 rounded-lg">
+                  <Avatar className="h-10 w-10">
+                    <AvatarImage src={profile.avatar_url || ""} />
+                    <AvatarFallback>
+                      {profile.vorname?.charAt(0)}{profile.nachname?.charAt(0)}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium truncate">{profile.vorname} {profile.nachname}</p>
+                    <p className="text-sm text-muted-foreground truncate">{profile.branche}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Unlock Profile Modal */}
+      <UnlockProfileModal
+        isOpen={isUnlockModalOpen}
+        onClose={() => {
+          setIsUnlockModalOpen(false);
+          setSelectedProfile(null);
+        }}
+        profile={selectedProfile}
+        matchPercentage={selectedProfile ? calculateMatchPercentage(selectedProfile) : 0}
+        onConfirmUnlock={handleConfirmUnlock}
+        tokenCost={1}
+        isLoading={isUnlocking}
+      />
     </div>
   );
 }
