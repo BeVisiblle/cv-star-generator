@@ -25,6 +25,12 @@ interface Profile {
   schule?: string;
   ausbildungsberuf?: string;
   aktueller_beruf?: string;
+  layout?: number;
+  geburtsdatum?: string;
+  berufserfahrung?: any[];
+  ausbildung?: any[];
+  sprachen?: any[];
+  zertifikate?: any[];
 }
 
 interface ProfileCardProps {
@@ -152,59 +158,118 @@ export function ProfileCard({
     
     setIsGeneratingPDF(true);
     try {
-      const cvData = prepareCVData();
-      
-      // Create a temporary container to render the CV
+      // Check if we have enough data to generate a CV
+      if (!profile.vorname || !profile.nachname) {
+        console.error('Missing name data for CV generation');
+        return;
+      }
+
+      // Create temporary container for CV rendering
       const tempContainer = document.createElement('div');
       tempContainer.style.position = 'absolute';
       tempContainer.style.left = '-9999px';
       tempContainer.style.top = '0';
+      tempContainer.style.backgroundColor = 'white';
       tempContainer.style.width = '210mm';
-      tempContainer.style.height = '297mm';
+      tempContainer.style.minHeight = '297mm';
       document.body.appendChild(tempContainer);
 
-      // Render the CV layout (this would need React.render in a real implementation)
-      // For now, we'll create a simple HTML representation
-      tempContainer.innerHTML = `
-        <div style="width: 210mm; min-height: 297mm; padding: 20mm; font-family: Arial, sans-serif; background: white;">
-          <div style="text-align: center; margin-bottom: 30px;">
-            <h1 style="font-size: 28px; margin: 0; color: #1f2937;">${profile.vorname} ${profile.nachname}</h1>
-            <p style="font-size: 16px; color: #6b7280; margin: 5px 0;">${getJobTitle()}</p>
-            <p style="font-size: 14px; color: #6b7280; margin: 5px 0;">${profile.ort}, ${profile.plz}</p>
-            ${profile.email ? `<p style="font-size: 14px; color: #6b7280; margin: 5px 0;">${profile.email}</p>` : ''}
-            ${profile.telefon ? `<p style="font-size: 14px; color: #6b7280; margin: 5px 0;">${profile.telefon}</p>` : ''}
-          </div>
-          
-          ${profile.faehigkeiten && profile.faehigkeiten.length > 0 ? `
-            <div style="margin-bottom: 30px;">
-              <h2 style="font-size: 18px; color: #1f2937; border-bottom: 2px solid #3b82f6; padding-bottom: 5px; margin-bottom: 15px;">Fähigkeiten</h2>
-              <div style="display: flex; flex-wrap: wrap; gap: 8px;">
-                ${profile.faehigkeiten.map((skill: any) => `
-                  <span style="background: #eff6ff; color: #1d4ed8; padding: 4px 12px; border-radius: 16px; font-size: 12px; font-weight: 500;">
-                    ${skill.name || skill}
-                  </span>
-                `).join('')}
-              </div>
-            </div>
-          ` : ''}
-          
-          <div style="margin-bottom: 30px;">
-            <h2 style="font-size: 18px; color: #1f2937; border-bottom: 2px solid #3b82f6; padding-bottom: 5px; margin-bottom: 15px;">Profil</h2>
-            <p style="font-size: 14px; line-height: 1.6; color: #374151;">
-              ${profile.status === 'azubi' ? `Auszubildende/r im Bereich ${profile.branche}` : 
-                profile.status === 'schueler' ? `Schüler/in mit Interesse an ${profile.branche}` :
-                `Erfahrene/r Fachkraft im Bereich ${profile.branche}`}
-            </p>
-          </div>
-        </div>
-      `;
+      // Import CV layouts dynamically
+      const [
+        { default: LiveCareerLayout },
+        { default: ClassicLayout },
+        { default: CreativeLayout },
+        { default: MinimalLayout },
+        { default: ProfessionalLayout },
+        { default: ModernLayout }
+      ] = await Promise.all([
+        import('@/components/cv-layouts/LiveCareerLayout'),
+        import('@/components/cv-layouts/ClassicLayout'),
+        import('@/components/cv-layouts/CreativeLayout'),
+        import('@/components/cv-layouts/MinimalLayout'),
+        import('@/components/cv-layouts/ProfessionalLayout'),
+        import('@/components/cv-layouts/ModernLayout')
+      ]);
 
-      await generatePDF(tempContainer.firstElementChild as HTMLElement, {
-        filename: `CV_${profile.vorname}_${profile.nachname}.pdf`,
-        quality: 1.0
+      // Determine layout component
+      let LayoutComponent;
+      const layoutId = profile.layout || 1;
+      
+      switch (layoutId) {
+        case 1:
+          LayoutComponent = LiveCareerLayout;
+          break;
+        case 2:
+          LayoutComponent = ClassicLayout;
+          break;
+        case 3:
+          LayoutComponent = CreativeLayout;
+          break;
+        case 4:
+          LayoutComponent = MinimalLayout;
+          break;
+        case 5:
+          LayoutComponent = ProfessionalLayout;
+          break;
+        case 6:
+          LayoutComponent = ModernLayout;
+          break;
+        default:
+          LayoutComponent = LiveCareerLayout;
+      }
+
+      // Prepare CV data matching the profile structure
+      const cvData = {
+        vorname: profile.vorname,
+        nachname: profile.nachname,
+        email: profile.email || '',
+        telefon: profile.telefon || '',
+        adresse: `${profile.ort}, ${profile.plz}`,
+        geburtsdatum: profile.geburtsdatum || '',
+        headline: getJobTitle(),
+        uebermich: profile.headline || `${profile.status} in ${profile.branche}`,
+        berufserfahrung: profile.berufserfahrung || [],
+        ausbildung: profile.ausbildung || [],
+        faehigkeiten: profile.faehigkeiten || [],
+        sprachen: profile.sprachen || [],
+        zertifikate: profile.zertifikate || [],
+        layout: layoutId
+      };
+
+      // Create and render CV element
+      const React = await import('react');
+      const ReactDOM = await import('react-dom/client');
+      
+      const cvElement = React.createElement(LayoutComponent, { 
+        data: cvData
+      });
+      const root = ReactDOM.createRoot(tempContainer);
+      root.render(cvElement);
+
+      // Wait for rendering
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Find the CV preview element
+      const cvPreviewElement = tempContainer.querySelector('[data-cv-preview]') as HTMLElement;
+      if (!cvPreviewElement) {
+        throw new Error('CV preview element not found');
+      }
+
+      // Generate filename and PDF using same logic as profile view
+      const { generatePDF, generateCVFilename } = await import('@/lib/pdf-generator');
+      const filename = generateCVFilename(profile.vorname, profile.nachname);
+      
+      // Generate PDF
+      await generatePDF(cvPreviewElement, {
+        filename,
+        quality: 2,
+        format: 'a4',
+        margin: 10
       });
 
+      // Clean up
       document.body.removeChild(tempContainer);
+      root.unmount();
     } catch (error) {
       console.error('Error generating PDF:', error);
     } finally {
