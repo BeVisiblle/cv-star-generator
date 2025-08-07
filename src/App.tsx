@@ -25,6 +25,7 @@ import Settings from "./pages/Settings";
 
 // Company components
 import { CompanyLayout } from "@/components/Company/CompanyLayout";
+import CompanyAccess from "@/pages/Company/Access";
 import CompanyOnboarding from "@/pages/Company/Onboarding";
 import CompanyDashboardNew from "@/pages/Company/Dashboard";
 import CompanyProfile from "@/pages/Company/Profile";
@@ -130,6 +131,7 @@ const App = () => (
               <Route path="/cv-layout-selector" element={<CVGeneratorGate><CVGenerator /></CVGeneratorGate>} />
               
               {/* Company routes */}
+              <Route path="/company/access" element={<CompanyAccess />} />
               <Route path="/company/onboarding" element={<CompanyOnboarding />} />
               <Route
                 path="/company/*"
