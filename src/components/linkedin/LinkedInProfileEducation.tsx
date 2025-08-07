@@ -98,8 +98,8 @@ export const LinkedInProfileEducation: React.FC<LinkedInProfileEducationProps> =
   };
 
   const EducationForm = () => (
-    <div className="space-y-4">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div className="space-y-4 w-full max-w-full overflow-hidden">
+      <div className="grid grid-cols-1 gap-4">
         <div>
           <Label htmlFor="schulform">Schulform/Abschluss</Label>
           <Input
@@ -107,7 +107,7 @@ export const LinkedInProfileEducation: React.FC<LinkedInProfileEducationProps> =
             value={formData.schulform}
             onChange={(e) => setFormData({ ...formData, schulform: e.target.value })}
             placeholder="z.B. Abitur, Realschulabschluss"
-            className="text-sm"
+            className="text-sm w-full"
           />
         </div>
         <div>
@@ -117,20 +117,20 @@ export const LinkedInProfileEducation: React.FC<LinkedInProfileEducationProps> =
             value={formData.name}
             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
             placeholder="z.B. Max-Mustermann-Gymnasium"
-            className="text-sm"
+            className="text-sm w-full"
           />
         </div>
       </div>
       
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-        <div>
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div className="sm:col-span-2">
           <Label htmlFor="ort">Ort</Label>
           <Input
             id="ort"
             value={formData.ort}
             onChange={(e) => setFormData({ ...formData, ort: e.target.value })}
             placeholder="z.B. München"
-            className="text-sm"
+            className="text-sm w-full"
           />
         </div>
         <div>
@@ -140,12 +140,12 @@ export const LinkedInProfileEducation: React.FC<LinkedInProfileEducationProps> =
             value={formData.plz}
             onChange={(e) => setFormData({ ...formData, plz: e.target.value })}
             placeholder="80331"
-            className="text-sm"
+            className="text-sm w-full"
           />
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
           <Label htmlFor="zeitraum_von">Von</Label>
           <Input
@@ -153,7 +153,7 @@ export const LinkedInProfileEducation: React.FC<LinkedInProfileEducationProps> =
             type="month"
             value={formData.zeitraum_von}
             onChange={(e) => setFormData({ ...formData, zeitraum_von: e.target.value })}
-            className="text-sm"
+            className="text-sm w-full"
           />
         </div>
         <div>
@@ -164,7 +164,7 @@ export const LinkedInProfileEducation: React.FC<LinkedInProfileEducationProps> =
             value={formData.zeitraum_bis}
             onChange={(e) => setFormData({ ...formData, zeitraum_bis: e.target.value })}
             placeholder="Leer lassen für aktuell"
-            className="text-sm"
+            className="text-sm w-full"
           />
         </div>
       </div>
@@ -177,16 +177,18 @@ export const LinkedInProfileEducation: React.FC<LinkedInProfileEducationProps> =
           onChange={(e) => setFormData({ ...formData, beschreibung: e.target.value })}
           placeholder="Besondere Leistungen, Schwerpunkte, etc..."
           rows={3}
-          className="text-sm"
+          className="text-sm w-full resize-none"
         />
       </div>
 
       <div className="flex flex-col sm:flex-row gap-2 justify-end pt-4">
-        <Button variant="outline" onClick={handleCancel} className="flex-1 sm:flex-none">
-          Abbrechen
+        <Button variant="outline" onClick={handleCancel} className="flex-1 sm:flex-none" size="sm">
+          <span className="hidden sm:inline">Abbrechen</span>
+          <span className="sm:hidden">Cancel</span>
         </Button>
-        <Button onClick={handleSave} className="flex-1 sm:flex-none">
-          Speichern
+        <Button onClick={handleSave} className="flex-1 sm:flex-none" size="sm">
+          <span className="hidden sm:inline">Speichern</span>
+          <span className="sm:hidden">Save</span>
         </Button>
       </div>
     </div>
@@ -276,11 +278,13 @@ export const LinkedInProfileEducation: React.FC<LinkedInProfileEducationProps> =
                                 <Edit3 className="h-4 w-4" />
                               </Button>
                             </DialogTrigger>
-                            <DialogContent className="max-w-2xl">
-                              <DialogHeader>
-                                <DialogTitle>Ausbildung bearbeiten</DialogTitle>
+                            <DialogContent className="w-[95vw] max-w-lg max-h-[85vh] overflow-y-auto p-4">
+                              <DialogHeader className="text-left pb-2">
+                                <DialogTitle className="text-lg">Ausbildung bearbeiten</DialogTitle>
                               </DialogHeader>
-                              <EducationForm />
+                              <div className="w-full">
+                                <EducationForm />
+                              </div>
                             </DialogContent>
                           </Dialog>
                           

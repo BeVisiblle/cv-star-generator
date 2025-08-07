@@ -151,7 +151,7 @@ const Profile = () => {
   // Early returns after all hooks are declared
 
   return (
-    <div className="p-3 md:p-6 min-h-screen bg-background">
+    <div className="p-3 md:p-6 min-h-screen bg-background max-w-full overflow-x-hidden">{/* Prevent horizontal scroll */}
       {/* Mobile-optimized Profile Actions Header */}
       <div className="mb-4 md:mb-6">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0">

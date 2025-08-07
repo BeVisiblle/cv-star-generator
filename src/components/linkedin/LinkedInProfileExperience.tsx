@@ -11,7 +11,6 @@ interface Experience {
   titel: string;
   unternehmen: string;
   ort: string;
-  plz?: string;
   zeitraum_von: string;
   zeitraum_bis: string;
   beschreibung?: string;
@@ -35,7 +34,6 @@ export const LinkedInProfileExperience: React.FC<LinkedInProfileExperienceProps>
     titel: '',
     unternehmen: '',
     ort: '',
-    plz: '',
     zeitraum_von: '',
     zeitraum_bis: '',
     beschreibung: ''
@@ -46,7 +44,6 @@ export const LinkedInProfileExperience: React.FC<LinkedInProfileExperienceProps>
       titel: '',
       unternehmen: '',
       ort: '',
-      plz: '',
       zeitraum_von: '',
       zeitraum_bis: '',
       beschreibung: ''
@@ -98,8 +95,8 @@ export const LinkedInProfileExperience: React.FC<LinkedInProfileExperienceProps>
   };
 
   const ExperienceForm = () => (
-    <div className="space-y-4">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div className="space-y-4 w-full max-w-full overflow-hidden">
+      <div className="grid grid-cols-1 gap-4">
         <div>
           <Label htmlFor="titel">Position</Label>
           <Input
@@ -107,7 +104,7 @@ export const LinkedInProfileExperience: React.FC<LinkedInProfileExperienceProps>
             value={formData.titel}
             onChange={(e) => setFormData({ ...formData, titel: e.target.value })}
             placeholder="z.B. Softwareentwickler"
-            className="text-sm"
+            className="text-sm w-full"
           />
         </div>
         <div>
@@ -117,35 +114,23 @@ export const LinkedInProfileExperience: React.FC<LinkedInProfileExperienceProps>
             value={formData.unternehmen}
             onChange={(e) => setFormData({ ...formData, unternehmen: e.target.value })}
             placeholder="z.B. Tech AG"
-            className="text-sm"
-          />
-        </div>
-      </div>
-      
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-        <div>
-          <Label htmlFor="ort">Ort</Label>
-          <Input
-            id="ort"
-            value={formData.ort}
-            onChange={(e) => setFormData({ ...formData, ort: e.target.value })}
-            placeholder="z.B. München"
-            className="text-sm"
-          />
-        </div>
-        <div>
-          <Label htmlFor="plz">PLZ</Label>
-          <Input
-            id="plz"
-            value={formData.plz}
-            onChange={(e) => setFormData({ ...formData, plz: e.target.value })}
-            placeholder="80331"
-            className="text-sm"
+            className="text-sm w-full"
           />
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <Label htmlFor="ort">Ort</Label>
+        <Input
+          id="ort"
+          value={formData.ort}
+          onChange={(e) => setFormData({ ...formData, ort: e.target.value })}
+          placeholder="z.B. Berlin, Deutschland"
+          className="text-sm w-full"
+        />
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
           <Label htmlFor="zeitraum_von">Von</Label>
           <Input
@@ -153,7 +138,7 @@ export const LinkedInProfileExperience: React.FC<LinkedInProfileExperienceProps>
             type="month"
             value={formData.zeitraum_von}
             onChange={(e) => setFormData({ ...formData, zeitraum_von: e.target.value })}
-            className="text-sm"
+            className="text-sm w-full"
           />
         </div>
         <div>
@@ -164,7 +149,7 @@ export const LinkedInProfileExperience: React.FC<LinkedInProfileExperienceProps>
             value={formData.zeitraum_bis}
             onChange={(e) => setFormData({ ...formData, zeitraum_bis: e.target.value })}
             placeholder="Leer lassen für aktuell"
-            className="text-sm"
+            className="text-sm w-full"
           />
         </div>
       </div>
@@ -177,16 +162,18 @@ export const LinkedInProfileExperience: React.FC<LinkedInProfileExperienceProps>
           onChange={(e) => setFormData({ ...formData, beschreibung: e.target.value })}
           placeholder="Beschreiben Sie Ihre Tätigkeiten und Erfolge..."
           rows={3}
-          className="text-sm"
+          className="text-sm w-full resize-none"
         />
       </div>
 
       <div className="flex flex-col sm:flex-row gap-2 justify-end pt-4">
-        <Button variant="outline" onClick={handleCancel} className="flex-1 sm:flex-none">
-          Abbrechen
+        <Button variant="outline" onClick={handleCancel} className="flex-1 sm:flex-none" size="sm">
+          <span className="hidden sm:inline">Abbrechen</span>
+          <span className="sm:hidden">Cancel</span>
         </Button>
-        <Button onClick={handleSave} className="flex-1 sm:flex-none">
-          Speichern
+        <Button onClick={handleSave} className="flex-1 sm:flex-none" size="sm">
+          <span className="hidden sm:inline">Speichern</span>
+          <span className="sm:hidden">Save</span>
         </Button>
       </div>
     </div>
@@ -203,65 +190,69 @@ export const LinkedInProfileExperience: React.FC<LinkedInProfileExperienceProps>
         {isEditing && (
           <Dialog open={isAddingNew} onOpenChange={setIsAddingNew}>
             <DialogTrigger asChild>
-              <Button variant="outline" size="sm" onClick={() => setIsDialogOpen(true)} className="text-xs">
-                <Plus className="h-3 w-3 md:h-4 md:w-4 mr-1 md:mr-2" />
+              <Button variant="outline" size="sm" onClick={() => setIsDialogOpen(true)}>
+                <Plus className="h-4 w-4 mr-1 sm:mr-2" />
                 <span className="hidden sm:inline">Hinzufügen</span>
                 <span className="sm:hidden">+</span>
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-lg md:max-w-2xl mx-4">
-              <DialogHeader>
-                <DialogTitle className="text-base md:text-lg">Neue Berufserfahrung hinzufügen</DialogTitle>
+            <DialogContent className="w-[95vw] max-w-lg max-h-[85vh] overflow-y-auto p-4">
+              <DialogHeader className="text-left pb-2">
+                <DialogTitle className="text-lg">Neue Erfahrung hinzufügen</DialogTitle>
               </DialogHeader>
-              <ExperienceForm />
+              <div className="w-full">
+                <ExperienceForm />
+              </div>
             </DialogContent>
           </Dialog>
         )}
       </CardHeader>
       <CardContent>
         {experiences.length === 0 ? (
-          <div className="text-center py-8 text-muted-foreground">
-            <Building className="h-12 w-12 mx-auto mb-4 opacity-50" />
-            <p>Noch keine Berufserfahrung hinzugefügt</p>
+          <div className="text-center py-6 md:py-8 text-muted-foreground">
+            <Building className="h-8 w-8 md:h-12 md:w-12 mx-auto mb-4 opacity-50" />
+            <p className="text-sm md:text-base">Noch keine Berufserfahrung hinzugefügt</p>
             {isEditing && (
               <Button 
                 variant="outline" 
                 className="mt-4"
+                size="sm"
                 onClick={() => setIsAddingNew(true)}
               >
                 <Plus className="h-4 w-4 mr-2" />
-                Erste Erfahrung hinzufügen
+                <span className="hidden sm:inline">Erste Erfahrung hinzufügen</span>
+                <span className="sm:hidden">Hinzufügen</span>
               </Button>
             )}
           </div>
         ) : (
-          <div className="space-y-6">
+          <div className="space-y-4 md:space-y-6">
             {experiences.map((exp, index) => (
               <div key={index} className="relative group">
-                <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
-                    <Building className="h-6 w-6 text-primary" />
+                <div className="flex items-start gap-3 md:gap-4">
+                  <div className="w-10 h-10 md:w-12 md:h-12 bg-accent/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <Building className="h-5 w-5 md:h-6 md:w-6 text-accent-foreground" />
                   </div>
                   
-                  <div className="flex-1">
+                  <div className="flex-1 min-w-0">
                     <div className="flex items-start justify-between">
-                      <div>
-                        <h3 className="font-semibold text-lg">{exp.titel}</h3>
-                        <p className="text-primary font-medium">{exp.unternehmen}</p>
-                        <div className="flex items-center gap-4 text-sm text-muted-foreground mt-1">
+                      <div className="min-w-0 flex-1">
+                        <h3 className="font-semibold text-base md:text-lg truncate">{exp.titel}</h3>
+                        <p className="text-primary font-medium text-sm md:text-base truncate">{exp.unternehmen}</p>
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 text-xs md:text-sm text-muted-foreground mt-1">
                           <span className="flex items-center gap-1">
                             <MapPin className="h-3 w-3" />
-                            {exp.ort}{exp.plz && `, ${exp.plz}`}
+                            <span className="truncate">{exp.ort}</span>
                           </span>
                           <span className="flex items-center gap-1">
                             <Calendar className="h-3 w-3" />
-                            {formatDateRange(exp.zeitraum_von, exp.zeitraum_bis || 'present')}
+                            <span className="truncate">{formatDateRange(exp.zeitraum_von, exp.zeitraum_bis || 'present')}</span>
                           </span>
                         </div>
                       </div>
                       
                       {isEditing && (
-                        <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity ml-2">
                           <Dialog open={isDialogOpen && editingIndex === index} onOpenChange={(open) => {
                             if (!open) {
                               setIsDialogOpen(false);
@@ -274,15 +265,18 @@ export const LinkedInProfileExperience: React.FC<LinkedInProfileExperienceProps>
                                 variant="ghost"
                                 size="sm"
                                 onClick={() => handleEdit(index)}
+                                className="h-8 w-8 p-0"
                               >
                                 <Edit3 className="h-4 w-4" />
                               </Button>
                             </DialogTrigger>
-                            <DialogContent className="max-w-2xl">
-                              <DialogHeader>
-                                <DialogTitle>Berufserfahrung bearbeiten</DialogTitle>
+                            <DialogContent className="w-[95vw] max-w-lg max-h-[85vh] overflow-y-auto p-4">
+                              <DialogHeader className="text-left pb-2">
+                                <DialogTitle className="text-lg">Erfahrung bearbeiten</DialogTitle>
                               </DialogHeader>
-                              <ExperienceForm />
+                              <div className="w-full">
+                                <ExperienceForm />
+                              </div>
                             </DialogContent>
                           </Dialog>
                           
@@ -290,7 +284,7 @@ export const LinkedInProfileExperience: React.FC<LinkedInProfileExperienceProps>
                             variant="ghost"
                             size="sm"
                             onClick={() => handleDelete(index)}
-                            className="text-destructive hover:text-destructive"
+                            className="text-destructive hover:text-destructive h-8 w-8 p-0"
                           >
                             <Trash2 className="h-4 w-4" />
                           </Button>
@@ -299,7 +293,7 @@ export const LinkedInProfileExperience: React.FC<LinkedInProfileExperienceProps>
                     </div>
                     
                     {exp.beschreibung && (
-                      <p className="text-muted-foreground mt-3 leading-relaxed">
+                      <p className="text-muted-foreground mt-2 md:mt-3 leading-relaxed text-sm md:text-base">
                         {exp.beschreibung}
                       </p>
                     )}
@@ -307,7 +301,7 @@ export const LinkedInProfileExperience: React.FC<LinkedInProfileExperienceProps>
                 </div>
                 
                 {index < experiences.length - 1 && (
-                  <div className="mt-6 border-b border-border/50" />
+                  <div className="mt-4 md:mt-6 border-b border-border/50" />
                 )}
               </div>
             ))}
