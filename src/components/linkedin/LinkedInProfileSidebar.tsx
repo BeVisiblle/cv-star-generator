@@ -193,13 +193,21 @@ export const LinkedInProfileSidebar: React.FC<LinkedInProfileSidebarProps> = ({ 
   };
 
   const handleLanguagesChange = async (languages: any[]) => {
-    onProfileUpdate({ sprachen: languages });
-    await regenerateCV();
+    try {
+      await onProfileUpdate({ sprachen: languages });
+      await regenerateCV();
+    } catch (error) {
+      console.error('Error updating languages:', error);
+    }
   };
 
   const handleSkillsChange = async (skills: string[]) => {
-    onProfileUpdate({ faehigkeiten: skills });
-    await regenerateCV();
+    try {
+      await onProfileUpdate({ faehigkeiten: skills });
+      await regenerateCV();
+    } catch (error) {
+      console.error('Error updating skills:', error);
+    }
   };
 
   const regenerateCV = async () => {

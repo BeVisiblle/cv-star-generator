@@ -121,8 +121,8 @@ export const LinkedInProfileHeader: React.FC<LinkedInProfileHeaderProps> = ({
     }
   };
 
-  const handleHeadlineUpdate = () => {
-    onProfileUpdate({ headline });
+  const handleHeadlineUpdate = async () => {
+    await onProfileUpdate({ headline });
   };
 
   const getCurrentPosition = (profile: any) => {
@@ -191,21 +191,19 @@ export const LinkedInProfileHeader: React.FC<LinkedInProfileHeaderProps> = ({
         break;
     }
     
-    // Save to database
-    const { data: { user } } = await supabase.auth.getUser();
-    if (user) {
-      const { error } = await supabase
-        .from('profiles')
-        .update(updates)
-        .eq('id', user.id);
-        
-      if (!error) {
-        onProfileUpdate(updates);
-        toast({
-          title: "Position aktualisiert",
-          description: "Ihre Position wurde erfolgreich aktualisiert."
-        });
-      }
+    try {
+      await onProfileUpdate(updates);
+      toast({
+        title: "Position aktualisiert",
+        description: "Ihre Position wurde erfolgreich aktualisiert."
+      });
+    } catch (error) {
+      console.error('Error updating position:', error);
+      toast({
+        title: "Fehler beim Speichern",
+        description: "Die Position konnte nicht aktualisiert werden.",
+        variant: "destructive"
+      });
     }
   };
 

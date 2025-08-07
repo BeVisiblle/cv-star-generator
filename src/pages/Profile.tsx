@@ -59,8 +59,8 @@ const Profile = () => {
     }
   }, [profile?.id]);
 
-  // Debounced version for input fields to prevent focus loss
-  const handleProfileUpdate = useDebounce(handleProfileUpdateImmediate, 1000);
+  // Simple profile update without debouncing for form submissions
+  const handleProfileUpdate = handleProfileUpdateImmediate;
 
   const handleExperiencesUpdate = useCallback((experiences: any[]) => {
     handleProfileUpdateImmediate({ berufserfahrung: experiences });
