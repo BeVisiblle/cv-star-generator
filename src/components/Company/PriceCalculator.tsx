@@ -40,13 +40,27 @@ export function PriceCalculator({ selectedGroups, selectedBranches, companyName,
       return total + (group?.price || 0);
     }, 0);
     
-    const multiplier = companySizeMultiplier[companySize as keyof typeof companySizeMultiplier] || 1.0;
-    return Math.round(basePrice * multiplier);
+    // Add branch multiplier (each additional branch adds 10€)
+    const branchMultiplier = selectedBranches.length > 1 ? (selectedBranches.length - 1) * 10 : 0;
+    
+    // Company size multiplier
+    const sizeMultiplier = companySizeMultiplier[companySize as keyof typeof companySizeMultiplier] || 1.0;
+    
+    return Math.round((basePrice + branchMultiplier) * sizeMultiplier);
   };
 
   const total = calculateTotal();
   const selectedOptions = targetGroupOptions.filter(group => selectedGroups.includes(group.id));
   const selectedBranchDetails = branchOptions.filter(branch => selectedBranches.includes(branch.key));
+
+  const packageFeatures = [
+    "Unbegrenzte Profile-Suche",
+    "CV-Download & Kontaktdaten",
+    "Skill-Matching Algorithm",
+    "24/7 Support",
+    "DSGVO-konform",
+    "Mobile App verfügbar"
+  ];
 
   return (
     <Card className="p-6 bg-gradient-to-br from-primary/5 to-accent/10 border-primary/20 sticky top-4">
@@ -86,9 +100,31 @@ export function PriceCalculator({ selectedGroups, selectedBranches, companyName,
             ))}
             
             {companySize && (
-              <div className="flex items-center justify-between py-2 border-b border-border/50">
-                <span className="text-sm text-muted-foreground">Unternehmensgröße</span>
-                <span className="text-xs font-medium">{companySize} MA</span>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between py-2 border-b border-border/50">
+                  <span className="text-sm text-muted-foreground">Unternehmensgröße</span>
+                  <span className="text-xs font-medium">{companySize} MA</span>
+                </div>
+                
+                {/* Package Features */}
+                <div className="bg-accent/10 rounded-lg p-3">
+                  <h4 className="font-semibold text-sm mb-2">Im Paket enthalten:</h4>
+                  <div className="space-y-1">
+                    {packageFeatures.map((feature, index) => (
+                      <div key={index} className="flex items-center text-xs text-muted-foreground">
+                        <span className="text-green-600 mr-2">✓</span>
+                        {feature}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                
+                {selectedBranches.length > 1 && (
+                  <div className="flex items-center justify-between py-2 border-b border-border/50">
+                    <span className="text-sm text-muted-foreground">Mehrere Branchen (+{(selectedBranches.length - 1) * 10}€)</span>
+                    <span className="text-xs font-medium">{selectedBranches.length} Branchen</span>
+                  </div>
+                )}
               </div>
             )}
             
