@@ -21,6 +21,7 @@ import ExampleProfile from "./components/ExampleProfile";
 import Dashboard from "./pages/Dashboard";
 import Marketplace from "./pages/Marketplace";
 import Settings from "./pages/Settings";
+import CompanyDashboard from "./pages/CompanyDashboard";
 
 const queryClient = new QueryClient();
 
@@ -58,9 +59,10 @@ const App = () => (
               {/* Authenticated Routes with Sidebar */}
               <Route element={<AuthenticatedLayout />}>
                 <Route path="/profile" element={<Profile />} />
-                <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/marketplace" element={<Marketplace />} />
                 <Route path="/settings" element={<Settings />} />
+                <Route path="/company-dashboard" element={<CompanyDashboard />} />
               </Route>
               
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

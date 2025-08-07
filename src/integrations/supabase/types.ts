@@ -14,6 +14,177 @@ export type Database = {
   }
   public: {
     Tables: {
+      companies: {
+        Row: {
+          active_tokens: number | null
+          additional_locations: Json | null
+          created_at: string | null
+          description: string | null
+          founded_year: number | null
+          header_image: string | null
+          id: string
+          industry: string | null
+          logo_url: string | null
+          main_location: string | null
+          name: string
+          plan_type: string | null
+          seats: number | null
+          size_range: string | null
+          subscription_status: string | null
+          updated_at: string | null
+          website_url: string | null
+        }
+        Insert: {
+          active_tokens?: number | null
+          additional_locations?: Json | null
+          created_at?: string | null
+          description?: string | null
+          founded_year?: number | null
+          header_image?: string | null
+          id?: string
+          industry?: string | null
+          logo_url?: string | null
+          main_location?: string | null
+          name: string
+          plan_type?: string | null
+          seats?: number | null
+          size_range?: string | null
+          subscription_status?: string | null
+          updated_at?: string | null
+          website_url?: string | null
+        }
+        Update: {
+          active_tokens?: number | null
+          additional_locations?: Json | null
+          created_at?: string | null
+          description?: string | null
+          founded_year?: number | null
+          header_image?: string | null
+          id?: string
+          industry?: string | null
+          logo_url?: string | null
+          main_location?: string | null
+          name?: string
+          plan_type?: string | null
+          seats?: number | null
+          size_range?: string | null
+          subscription_status?: string | null
+          updated_at?: string | null
+          website_url?: string | null
+        }
+        Relationships: []
+      }
+      company_posts: {
+        Row: {
+          company_id: string | null
+          content: string
+          created_at: string | null
+          id: string
+          media_url: string | null
+          visibility: string | null
+        }
+        Insert: {
+          company_id?: string | null
+          content: string
+          created_at?: string | null
+          id?: string
+          media_url?: string | null
+          visibility?: string | null
+        }
+        Update: {
+          company_id?: string | null
+          content?: string
+          created_at?: string | null
+          id?: string
+          media_url?: string | null
+          visibility?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "company_posts_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      company_settings: {
+        Row: {
+          company_id: string | null
+          created_at: string | null
+          id: string
+          notification_prefs: Json | null
+          target_industries: Json | null
+          target_locations: Json | null
+          target_status: Json | null
+          updated_at: string | null
+        }
+        Insert: {
+          company_id?: string | null
+          created_at?: string | null
+          id?: string
+          notification_prefs?: Json | null
+          target_industries?: Json | null
+          target_locations?: Json | null
+          target_status?: Json | null
+          updated_at?: string | null
+        }
+        Update: {
+          company_id?: string | null
+          created_at?: string | null
+          id?: string
+          notification_prefs?: Json | null
+          target_industries?: Json | null
+          target_locations?: Json | null
+          target_status?: Json | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "company_settings_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: true
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      company_users: {
+        Row: {
+          accepted_at: string | null
+          company_id: string | null
+          id: string
+          invited_at: string | null
+          role: string | null
+          user_id: string | null
+        }
+        Insert: {
+          accepted_at?: string | null
+          company_id?: string | null
+          id?: string
+          invited_at?: string | null
+          role?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          accepted_at?: string | null
+          company_id?: string | null
+          id?: string
+          invited_at?: string | null
+          role?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "company_users_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       follows: {
         Row: {
           created_at: string | null
@@ -70,6 +241,48 @@ export type Database = {
           name?: string
         }
         Relationships: []
+      }
+      matches: {
+        Row: {
+          company_id: string | null
+          created_at: string | null
+          id: string
+          matched_at: string | null
+          profile_id: string | null
+          status: string | null
+        }
+        Insert: {
+          company_id?: string | null
+          created_at?: string | null
+          id?: string
+          matched_at?: string | null
+          profile_id?: string | null
+          status?: string | null
+        }
+        Update: {
+          company_id?: string | null
+          created_at?: string | null
+          id?: string
+          matched_at?: string | null
+          profile_id?: string | null
+          status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "matches_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "matches_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       postal_codes: {
         Row: {
@@ -327,6 +540,89 @@ export type Database = {
           status_level?: string | null
         }
         Relationships: []
+      }
+      subscriptions: {
+        Row: {
+          company_id: string | null
+          created_at: string | null
+          end_date: string | null
+          id: string
+          is_active: boolean | null
+          plan_id: string
+          price_yearly: number | null
+          seat_count: number | null
+          start_date: string | null
+          token_per_month: number | null
+        }
+        Insert: {
+          company_id?: string | null
+          created_at?: string | null
+          end_date?: string | null
+          id?: string
+          is_active?: boolean | null
+          plan_id: string
+          price_yearly?: number | null
+          seat_count?: number | null
+          start_date?: string | null
+          token_per_month?: number | null
+        }
+        Update: {
+          company_id?: string | null
+          created_at?: string | null
+          end_date?: string | null
+          id?: string
+          is_active?: boolean | null
+          plan_id?: string
+          price_yearly?: number | null
+          seat_count?: number | null
+          start_date?: string | null
+          token_per_month?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subscriptions_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tokens_used: {
+        Row: {
+          company_id: string | null
+          id: string
+          profile_id: string | null
+          used_at: string | null
+        }
+        Insert: {
+          company_id?: string | null
+          id?: string
+          profile_id?: string | null
+          used_at?: string | null
+        }
+        Update: {
+          company_id?: string | null
+          id?: string
+          profile_id?: string | null
+          used_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tokens_used_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tokens_used_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_documents: {
         Row: {

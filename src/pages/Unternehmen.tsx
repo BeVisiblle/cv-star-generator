@@ -88,13 +88,13 @@ export default function Unternehmen() {
             </div>
             
             <div className="text-center">
-              <Button 
-                size="lg" 
-                onClick={() => navigate('/auth')}
-                className="text-lg px-8 py-6 mb-4"
-              >
-                Jetzt registrieren
-              </Button>
+          <Button 
+            size="lg" 
+            onClick={() => navigate('/company-dashboard')}
+            className="text-lg px-8 py-6 mb-4"
+          >
+            Zum Dashboard
+          </Button>
               <p className="text-sm text-muted-foreground">
                 30 Tage kostenlos testen
               </p>
