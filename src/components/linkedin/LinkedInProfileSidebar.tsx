@@ -1,14 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Download, Edit3, Upload, X, Clock, FileText, Eye, Mail, Phone } from 'lucide-react';
+import { Download, Edit3, Upload, X, Clock, FileText, Eye, Mail, Phone, Trash2 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { LanguageSelector } from '@/components/shared/LanguageSelector';
 import { SkillSelector } from '@/components/shared/SkillSelector';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
+import { uploadFile, deleteFile } from '@/lib/supabase-storage';
 
 // Import CV layout components
 import ModernLayout from '@/components/cv-layouts/ModernLayout';
@@ -24,10 +25,22 @@ interface LinkedInProfileSidebarProps {
   onProfileUpdate: (updates: any) => void;
 }
 
+interface UserDocument {
+  id: string;
+  filename: string;
+  original_name: string;
+  document_type: string;
+  file_type: string;
+  file_size: number;
+  uploaded_at: string;
+}
+
 export const LinkedInProfileSidebar: React.FC<LinkedInProfileSidebarProps> = ({ profile, isEditing, onProfileUpdate }) => {
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
-  const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
+  const [userDocuments, setUserDocuments] = useState<UserDocument[]>([]);
   const [showCVPreview, setShowCVPreview] = useState(false);
+  const [isLoadingDocuments, setIsLoadingDocuments] = useState(false);
+  const [isUploadingDocument, setIsUploadingDocument] = useState(false);
   const navigate = useNavigate();
 
   const handleDownloadCV = async () => {
@@ -183,13 +196,138 @@ export const LinkedInProfileSidebar: React.FC<LinkedInProfileSidebarProps> = ({ 
     navigate('/cv-layout-selector');
   };
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // Load user documents on component mount
+  useEffect(() => {
+    if (profile?.id) {
+      loadUserDocuments();
+    }
+  }, [profile?.id]);
+
+  const loadUserDocuments = async () => {
+    setIsLoadingDocuments(true);
+    try {
+      const { data, error } = await supabase
+        .from('user_documents')
+        .select('*')
+        .eq('user_id', profile.id)
+        .order('uploaded_at', { ascending: false });
+
+      if (error) throw error;
+      setUserDocuments(data || []);
+    } catch (error) {
+      console.error('Error loading documents:', error);
+      toast({
+        title: "Fehler beim Laden der Dokumente",
+        description: "Dokumente konnten nicht geladen werden.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoadingDocuments(false);
+    }
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
-    setUploadedFiles(prev => [...prev, ...files]);
-    toast({
-      title: "Dateien hochgeladen",
-      description: `${files.length} Datei(en) wurden erfolgreich hinzugefügt.`,
-    });
+    if (files.length === 0) return;
+
+    setIsUploadingDocument(true);
+    try {
+      for (const file of files) {
+        // Upload file to storage
+        const uploadResult = await uploadFile(file, 'documents', 'certificates');
+        
+        // Save document metadata to database
+        const { error } = await supabase
+          .from('user_documents')
+          .insert({
+            user_id: profile.id,
+            filename: uploadResult.path,
+            original_name: file.name,
+            document_type: 'certificate',
+            file_type: file.type,
+            file_size: file.size
+          });
+
+        if (error) throw error;
+      }
+
+      // Reload documents
+      await loadUserDocuments();
+      
+      toast({
+        title: "Dateien erfolgreich hochgeladen",
+        description: `${files.length} Datei(en) wurden gespeichert.`,
+      });
+    } catch (error) {
+      console.error('Error uploading files:', error);
+      toast({
+        title: "Fehler beim Hochladen",
+        description: "Dateien konnten nicht gespeichert werden.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsUploadingDocument(false);
+      // Reset file input
+      e.target.value = '';
+    }
+  };
+
+  const handleDownloadDocument = async (userDoc: UserDocument) => {
+    try {
+      const { data } = supabase.storage
+        .from('documents')
+        .getPublicUrl(userDoc.filename);
+      
+      // Create a temporary link to trigger download
+      const link = document.createElement('a');
+      link.href = data.publicUrl;
+      link.download = userDoc.original_name;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      toast({
+        title: "Download gestartet",
+        description: `${userDoc.original_name} wird heruntergeladen.`,
+      });
+    } catch (error) {
+      console.error('Error downloading document:', error);
+      toast({
+        title: "Fehler beim Download",
+        description: "Datei konnte nicht heruntergeladen werden.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleDeleteDocument = async (userDoc: UserDocument) => {
+    try {
+      // Delete from storage
+      await deleteFile('documents', userDoc.filename);
+      
+      // Delete from database
+      const { error } = await supabase
+        .from('user_documents')
+        .delete()
+        .eq('id', userDoc.id);
+
+      if (error) throw error;
+
+      // Reload documents
+      await loadUserDocuments();
+      
+      toast({
+        title: "Datei gelöscht",
+        description: `${userDoc.original_name} wurde entfernt.`,
+      });
+    } catch (error) {
+      console.error('Error deleting document:', error);
+      toast({
+        title: "Fehler beim Löschen",
+        description: "Datei konnte nicht gelöscht werden.",
+        variant: "destructive"
+      });
+    }
   };
 
   const handleLanguagesChange = async (languages: any[]) => {
@@ -376,29 +514,51 @@ export const LinkedInProfileSidebar: React.FC<LinkedInProfileSidebarProps> = ({ 
               variant="outline"
               className="w-full"
               onClick={() => document.getElementById('document-upload')?.click()}
+              disabled={isUploadingDocument}
             >
               <Upload className="h-4 w-4 mr-2" />
-              Zeugnisse & Zertifikate
+              {isUploadingDocument ? 'Uploading...' : 'Zeugnisse & Zertifikate'}
             </Button>
           </div>
           
-          {uploadedFiles.length > 0 && (
+          {isLoadingDocuments ? (
+            <div className="flex items-center justify-center py-4">
+              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
+            </div>
+          ) : userDocuments.length > 0 ? (
             <div className="space-y-2">
-              <p className="text-sm font-medium">Hochgeladene Dateien:</p>
-              {uploadedFiles.map((file, index) => (
-                <div key={index} className="flex items-center justify-between text-xs bg-muted p-2 rounded">
-                  <span className="truncate">{file.name}</span>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setUploadedFiles(prev => prev.filter((_, i) => i !== index))}
-                    className="h-6 w-6 p-0"
-                  >
-                    <X className="h-3 w-3" />
-                  </Button>
+              <p className="text-sm font-medium">Gespeicherte Dokumente:</p>
+              {userDocuments.map((doc) => (
+                <div key={doc.id} className="flex items-center justify-between text-xs bg-muted p-2 rounded">
+                  <div className="flex items-center gap-2 flex-1 min-w-0">
+                    <FileText className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                    <span className="truncate">{doc.original_name}</span>
+                  </div>
+                  <div className="flex items-center gap-1 flex-shrink-0">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleDownloadDocument(doc)}
+                      className="h-6 w-6 p-0"
+                      title="Herunterladen"
+                    >
+                      <Download className="h-3 w-3" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleDeleteDocument(doc)}
+                      className="h-6 w-6 p-0 text-destructive hover:text-destructive"
+                      title="Löschen"
+                    >
+                      <Trash2 className="h-3 w-3" />
+                    </Button>
+                  </div>
                 </div>
               ))}
             </div>
+          ) : (
+            <p className="text-sm text-muted-foreground">Noch keine Dokumente hochgeladen.</p>
           )}
         </CardContent>
       </Card>
