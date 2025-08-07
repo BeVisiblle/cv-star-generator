@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
+import { useDebounce } from '@/hooks/useDebounce';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Edit3, Check, Clock, X, Loader2 } from 'lucide-react';
@@ -101,7 +102,7 @@ const Profile = () => {
     );
   }
 
-  const handleProfileUpdate = async (updates: any) => {
+  const handleProfileUpdateImmediate = async (updates: any) => {
     if (!profile?.id) return;
     
     setIsSaving(true);
@@ -135,12 +136,15 @@ const Profile = () => {
     }
   };
 
+  // Debounced version for input fields to prevent focus loss
+  const handleProfileUpdate = useDebounce(handleProfileUpdateImmediate, 1000);
+
   const handleExperiencesUpdate = (experiences: any[]) => {
-    handleProfileUpdate({ berufserfahrung: experiences });
+    handleProfileUpdateImmediate({ berufserfahrung: experiences });
   };
 
   const handleEducationUpdate = (education: any[]) => {
-    handleProfileUpdate({ schulbildung: education });
+    handleProfileUpdateImmediate({ schulbildung: education });
   };
 
   return (

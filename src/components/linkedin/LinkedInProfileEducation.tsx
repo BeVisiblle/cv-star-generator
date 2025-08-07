@@ -30,6 +30,7 @@ export const LinkedInProfileEducation: React.FC<LinkedInProfileEducationProps> =
 }) => {
   const [isAddingNew, setIsAddingNew] = useState(false);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [formData, setFormData] = useState<Education>({
     schulform: '',
     name: '',
@@ -64,12 +65,14 @@ export const LinkedInProfileEducation: React.FC<LinkedInProfileEducationProps> =
       onEducationUpdate([...education, formData]);
       setIsAddingNew(false);
     }
+    setIsDialogOpen(false);
     resetForm();
   };
 
   const handleEdit = (index: number) => {
     setFormData(education[index]);
     setEditingIndex(index);
+    setIsDialogOpen(true);
   };
 
   const handleDelete = (index: number) => {
@@ -80,6 +83,7 @@ export const LinkedInProfileEducation: React.FC<LinkedInProfileEducationProps> =
   const handleCancel = () => {
     setIsAddingNew(false);
     setEditingIndex(null);
+    setIsDialogOpen(false);
     resetForm();
   };
 
@@ -191,7 +195,7 @@ export const LinkedInProfileEducation: React.FC<LinkedInProfileEducationProps> =
         {isEditing && (
           <Dialog open={isAddingNew} onOpenChange={setIsAddingNew}>
             <DialogTrigger asChild>
-              <Button variant="outline" size="sm">
+              <Button variant="outline" size="sm" onClick={() => setIsDialogOpen(true)}>
                 <Plus className="h-4 w-4 mr-2" />
                 Hinzufügen
               </Button>
@@ -249,7 +253,13 @@ export const LinkedInProfileEducation: React.FC<LinkedInProfileEducationProps> =
                       
                       {isEditing && (
                         <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <Dialog>
+                          <Dialog open={isDialogOpen && editingIndex === index} onOpenChange={(open) => {
+                            if (!open) {
+                              setIsDialogOpen(false);
+                              setEditingIndex(null);
+                              resetForm();
+                            }
+                          }}>
                             <DialogTrigger asChild>
                               <Button
                                 variant="ghost"

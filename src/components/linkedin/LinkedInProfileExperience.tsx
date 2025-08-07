@@ -30,6 +30,7 @@ export const LinkedInProfileExperience: React.FC<LinkedInProfileExperienceProps>
 }) => {
   const [isAddingNew, setIsAddingNew] = useState(false);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [formData, setFormData] = useState<Experience>({
     titel: '',
     unternehmen: '',
@@ -64,12 +65,14 @@ export const LinkedInProfileExperience: React.FC<LinkedInProfileExperienceProps>
       onExperiencesUpdate([...experiences, formData]);
       setIsAddingNew(false);
     }
+    setIsDialogOpen(false);
     resetForm();
   };
 
   const handleEdit = (index: number) => {
     setFormData(experiences[index]);
     setEditingIndex(index);
+    setIsDialogOpen(true);
   };
 
   const handleDelete = (index: number) => {
@@ -80,6 +83,7 @@ export const LinkedInProfileExperience: React.FC<LinkedInProfileExperienceProps>
   const handleCancel = () => {
     setIsAddingNew(false);
     setEditingIndex(null);
+    setIsDialogOpen(false);
     resetForm();
   };
 
@@ -191,7 +195,7 @@ export const LinkedInProfileExperience: React.FC<LinkedInProfileExperienceProps>
         {isEditing && (
           <Dialog open={isAddingNew} onOpenChange={setIsAddingNew}>
             <DialogTrigger asChild>
-              <Button variant="outline" size="sm">
+              <Button variant="outline" size="sm" onClick={() => setIsDialogOpen(true)}>
                 <Plus className="h-4 w-4 mr-2" />
                 Hinzufügen
               </Button>
@@ -249,7 +253,13 @@ export const LinkedInProfileExperience: React.FC<LinkedInProfileExperienceProps>
                       
                       {isEditing && (
                         <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <Dialog>
+                          <Dialog open={isDialogOpen && editingIndex === index} onOpenChange={(open) => {
+                            if (!open) {
+                              setIsDialogOpen(false);
+                              setEditingIndex(null);
+                              resetForm();
+                            }
+                          }}>
                             <DialogTrigger asChild>
                               <Button
                                 variant="ghost"
