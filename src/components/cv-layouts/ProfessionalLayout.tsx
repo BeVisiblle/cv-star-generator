@@ -127,7 +127,7 @@ const ProfessionalLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) =
                         className="text-sm text-white px-3 py-1 rounded font-medium whitespace-nowrap"
                         style={{ background: `hsl(${colors.primary})` }}
                       >
-                        {arbeit.zeitraum_von ? new Date(arbeit.zeitraum_von).toLocaleDateString('de-DE', { month: 'short', year: 'numeric' }) : ''} - {arbeit.zeitraum_bis ? new Date(arbeit.zeitraum_bis).toLocaleDateString('de-DE', { month: 'short', year: 'numeric' }) : 'Heute'}
+                        {arbeit.zeitraum_von ? new Date(arbeit.zeitraum_von).toLocaleDateString('de-DE', { month: '2-digit', year: 'numeric' }).replace('.', '/') : ''} - {arbeit.zeitraum_bis ? new Date(arbeit.zeitraum_bis).toLocaleDateString('de-DE', { month: '2-digit', year: 'numeric' }).replace('.', '/') : 'heute'}
                       </span>
                     </div>
                     <div className={`text-[hsl(${colors.text})] font-medium mb-1`}>{arbeit.unternehmen}</div>

@@ -133,7 +133,7 @@ const MinimalLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) => {
                   <div className="flex justify-between items-start mb-2">
                     <h4 className="font-medium">{arbeit.titel}</h4>
                     <span className="text-sm text-muted-foreground font-light whitespace-nowrap">
-                      {arbeit.zeitraum_von ? new Date(arbeit.zeitraum_von).toLocaleDateString('de-DE', { month: 'short', year: 'numeric' }) : ''} - {arbeit.zeitraum_bis ? new Date(arbeit.zeitraum_bis).toLocaleDateString('de-DE', { month: 'short', year: 'numeric' }) : 'Heute'}
+                      {arbeit.zeitraum_von ? new Date(arbeit.zeitraum_von).toLocaleDateString('de-DE', { month: '2-digit', year: 'numeric' }).replace('.', '/') : ''} - {arbeit.zeitraum_bis ? new Date(arbeit.zeitraum_bis).toLocaleDateString('de-DE', { month: '2-digit', year: 'numeric' }).replace('.', '/') : 'heute'}
                     </span>
                   </div>
                   <div className={`text-[hsl(${colors.text})] font-light mb-1`}>{arbeit.unternehmen}</div>

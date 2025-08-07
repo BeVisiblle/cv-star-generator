@@ -203,7 +203,7 @@ const LiveCareerLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) => 
                         </p>
                       </div>
                       <div className="text-gray-500 font-medium ml-4 whitespace-nowrap" style={{ fontSize: '9pt' }}>
-                        {job.zeitraum_von ? new Date(job.zeitraum_von).toLocaleDateString('de-DE', { month: 'short', year: 'numeric' }) : ''} - {job.zeitraum_bis ? new Date(job.zeitraum_bis).toLocaleDateString('de-DE', { month: 'short', year: 'numeric' }) : 'Heute'}
+                        {job.zeitraum_von ? new Date(job.zeitraum_von).toLocaleDateString('de-DE', { month: '2-digit', year: 'numeric' }).replace('.', '/') : ''} - {job.zeitraum_bis ? new Date(job.zeitraum_bis).toLocaleDateString('de-DE', { month: '2-digit', year: 'numeric' }).replace('.', '/') : 'heute'}
                       </div>
                     </div>
                     {job.beschreibung && (
