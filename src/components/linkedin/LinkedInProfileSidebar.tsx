@@ -274,25 +274,49 @@ export const LinkedInProfileSidebar: React.FC<LinkedInProfileSidebarProps> = ({ 
 
   const handleDownloadDocument = async (userDoc: UserDocument) => {
     try {
+      console.log('Starting download for:', userDoc);
+      
       const { data } = supabase.storage
         .from('documents')
         .getPublicUrl(userDoc.filename);
       
+      console.log('Public URL:', data.publicUrl);
+      console.log('File type:', userDoc.file_type);
+      
       // If it's already a PDF, download directly
       if (userDoc.file_type === 'application/pdf') {
+        console.log('Downloading PDF directly');
+        
+        // Try to fetch the file first to ensure it exists
+        const response = await fetch(data.publicUrl);
+        if (!response.ok) {
+          throw new Error(`File not found: ${response.status}`);
+        }
+        
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        
         const link = document.createElement('a');
-        link.href = data.publicUrl;
+        link.href = url;
         link.download = userDoc.original_name;
+        link.style.display = 'none';
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
+        
+        // Clean up the object URL
+        window.URL.revokeObjectURL(url);
+        
+        console.log('PDF download completed');
       } else {
+        console.log('Converting image to PDF');
         // For images and other files, convert to PDF
         const img = new Image();
         img.crossOrigin = 'anonymous';
         
         img.onload = async () => {
           try {
+            console.log('Image loaded, creating PDF');
             const jsPDF = (await import('jspdf')).default;
             
             const pdf = new jsPDF({
@@ -318,8 +342,6 @@ export const LinkedInProfileSidebar: React.FC<LinkedInProfileSidebarProps> = ({ 
                   pdf.addPage();
                 }
                 
-                const currentPageHeight = Math.min(pageHeight, remainingHeight);
-                
                 pdf.addImage(
                   img,
                   'JPEG',
@@ -337,6 +359,7 @@ export const LinkedInProfileSidebar: React.FC<LinkedInProfileSidebarProps> = ({ 
             // Download the PDF
             const fileName = userDoc.original_name.replace(/\.[^/.]+$/, '.pdf');
             pdf.save(fileName);
+            console.log('PDF conversion and download completed');
             
           } catch (error) {
             console.error('Error converting to PDF:', error);
@@ -344,18 +367,20 @@ export const LinkedInProfileSidebar: React.FC<LinkedInProfileSidebarProps> = ({ 
             const link = document.createElement('a');
             link.href = data.publicUrl;
             link.download = userDoc.original_name;
+            link.target = '_blank';
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
           }
         };
         
-        img.onerror = () => {
-          console.error('Error loading image for PDF conversion');
+        img.onerror = (error) => {
+          console.error('Error loading image for PDF conversion:', error);
           // Fallback to direct download
           const link = document.createElement('a');
           link.href = data.publicUrl;
           link.download = userDoc.original_name;
+          link.target = '_blank';
           document.body.appendChild(link);
           link.click();
           document.body.removeChild(link);
