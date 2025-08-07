@@ -155,6 +155,7 @@ const CompanyProfileView = () => {
             profile={displayProfile}
             isEditing={false}
             onProfileUpdate={() => {}} // Read-only
+            readOnly={true}
           />
 
           {/* Experience Section */}
@@ -184,6 +185,7 @@ const CompanyProfileView = () => {
               profile={displayProfile}
               isEditing={false}
               onProfileUpdate={() => {}} // Read-only
+              readOnly={true}
             />
             
             {/* Contact Action Card for Unlocked Profiles */}

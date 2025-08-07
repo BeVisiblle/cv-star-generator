@@ -9,11 +9,13 @@ interface LinkedInProfileMainProps {
   profile: any;
   isEditing: boolean;
   onProfileUpdate: (updates: any) => void;
+  readOnly?: boolean;
 }
 export const LinkedInProfileMain: React.FC<LinkedInProfileMainProps> = ({
   profile,
   isEditing,
-  onProfileUpdate
+  onProfileUpdate,
+  readOnly = false
 }) => {
   const [isEditingAbout, setIsEditingAbout] = useState(false);
   const [aboutText, setAboutText] = useState(profile?.uebermich || '');
@@ -47,12 +49,12 @@ export const LinkedInProfileMain: React.FC<LinkedInProfileMainProps> = ({
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
           <CardTitle className="text-xl font-semibold">Über mich</CardTitle>
-          {!isEditingAbout && <Button variant="ghost" size="sm" onClick={() => setIsEditingAbout(true)} className="opacity-60 hover:opacity-100">
+          {!readOnly && !isEditingAbout && <Button variant="ghost" size="sm" onClick={() => setIsEditingAbout(true)} className="opacity-60 hover:opacity-100">
               <Edit3 className="h-4 w-4" />
             </Button>}
         </CardHeader>
         <CardContent>
-          {isEditingAbout ? <div className="space-y-4">
+          {!readOnly && isEditingAbout ? <div className="space-y-4">
               <Textarea value={aboutText} onChange={e => setAboutText(e.target.value)} placeholder="Erzählen Sie etwas über sich, Ihre Erfahrungen und Ziele..." className="min-h-[120px] md:min-h-[150px] resize-none text-sm md:text-base" />
               <div className="flex flex-col sm:flex-row gap-2">
                 <Button onClick={handleSaveAbout} size="sm" className="flex-1 sm:flex-none">
@@ -70,7 +72,7 @@ export const LinkedInProfileMain: React.FC<LinkedInProfileMainProps> = ({
               {aboutText ? <p className="text-foreground leading-relaxed whitespace-pre-wrap">
                   {aboutText}
                 </p> : <p className="text-muted-foreground italic">
-                  Fügen Sie eine Beschreibung hinzu, um Ihr Profil zu vervollständigen.
+                  {readOnly ? "Keine Beschreibung verfügbar." : "Fügen Sie eine Beschreibung hinzu, um Ihr Profil zu vervollständigen."}
                 </p>}
             </div>}
         </CardContent>

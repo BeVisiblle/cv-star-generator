@@ -23,6 +23,7 @@ interface LinkedInProfileSidebarProps {
   profile: any;
   isEditing: boolean;
   onProfileUpdate: (updates: any) => void;
+  readOnly?: boolean;
 }
 
 interface UserDocument {
@@ -35,7 +36,7 @@ interface UserDocument {
   uploaded_at: string;
 }
 
-export const LinkedInProfileSidebar: React.FC<LinkedInProfileSidebarProps> = ({ profile, isEditing, onProfileUpdate }) => {
+export const LinkedInProfileSidebar: React.FC<LinkedInProfileSidebarProps> = ({ profile, isEditing, onProfileUpdate, readOnly = false }) => {
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
   const [userDocuments, setUserDocuments] = useState<UserDocument[]>([]);
   const [showCVPreview, setShowCVPreview] = useState(false);
@@ -529,146 +530,158 @@ export const LinkedInProfileSidebar: React.FC<LinkedInProfileSidebarProps> = ({ 
 
   return (
     <div className="space-y-6">
-      {/* Mein Lebenslauf */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg font-semibold flex items-center justify-between">
-            Mein Lebenslauf
-            <div className="flex gap-1">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setShowCVPreview(!showCVPreview)}
-                className="h-8 w-8 p-0"
-              >
-                <Eye className="h-4 w-4" />
-              </Button>
-            </div>
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          {showCVPreview && profile?.vorname && profile?.nachname ? (
-            <div className="border rounded-lg overflow-hidden bg-white">
-              <div className="bg-muted px-3 py-2 text-xs sm:text-sm font-medium flex justify-between items-center">
-                <span className="truncate">Vorschau: {getLayoutName()}</span>
+      {/* CV Section - Only show for non-readonly */}
+      {!readOnly && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg font-semibold flex items-center justify-between">
+              Mein Lebenslauf
+              <div className="flex gap-1">
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => setShowCVPreview(false)}
-                  className="h-6 w-6 p-0 min-w-[24px]"
+                  onClick={() => setShowCVPreview(!showCVPreview)}
+                  className="h-8 w-8 p-0"
                 >
-                  <X className="h-3 w-3" />
+                  <Eye className="h-4 w-4" />
                 </Button>
               </div>
-              <div className="h-32 sm:h-48 overflow-hidden relative">
-                {renderCVLayout()}
-              </div>
-            </div>
-          ) : showCVPreview && (!profile?.vorname || !profile?.nachname) ? (
-            <div className="border rounded-lg p-3 sm:p-4 text-center text-muted-foreground">
-              <FileText className="h-6 w-6 sm:h-8 sm:w-8 mx-auto mb-2" />
-              <p className="text-xs sm:text-sm">Vervollständigen Sie Ihr Profil für eine CV-Vorschau</p>
-            </div>
-          ) : null}
-          
-          <Button 
-            onClick={handleDownloadCV}
-            disabled={isGeneratingPDF}
-            className="w-full bg-primary hover:bg-primary/90 text-sm"
-            size="sm"
-          >
-            <Download className="h-4 w-4 mr-2" />
-            <span className="hidden sm:inline">{isGeneratingPDF ? 'Generiere...' : 'CV herunterladen'}</span>
-            <span className="sm:hidden">{isGeneratingPDF ? 'Gen...' : 'Download'}</span>
-          </Button>
-          
-          <Button 
-            onClick={handleEditCV}
-            variant="outline"
-            className="w-full text-sm"
-            size="sm"
-          >
-            <Edit3 className="h-4 w-4 mr-2" />
-            <span className="hidden sm:inline">CV bearbeiten</span>
-            <span className="sm:hidden">Bearbeiten</span>
-          </Button>
-          
-          {profile?.updated_at && (
-            <div className="flex items-center gap-2 text-xs text-muted-foreground justify-start">
-              <Clock className="h-3 w-3" />
-              zuletzt aktualisiert: {formatDate(profile.updated_at)}
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Document Upload */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg font-semibold">Dokumente hochladen</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          <div className="relative">
-            <Input
-              type="file"
-              multiple
-              accept=".pdf,image/*"
-              onChange={handleFileUpload}
-              className="hidden"
-              id="document-upload"
-            />
-            <Button
-              variant="outline"
-              className="w-full"
-              onClick={() => document.getElementById('document-upload')?.click()}
-              disabled={isUploadingDocument}
-            >
-              <Upload className="h-4 w-4 mr-2" />
-              {isUploadingDocument ? 'Uploading...' : 'Zeugnisse & Zertifikate'}
-            </Button>
-          </div>
-          
-          {isLoadingDocuments ? (
-            <div className="flex items-center justify-center py-4">
-              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
-            </div>
-          ) : userDocuments.length > 0 ? (
-            <div className="space-y-2">
-              <p className="text-sm font-medium">Gespeicherte Dokumente:</p>
-              {userDocuments.map((doc) => (
-                <div key={doc.id} className="flex items-center justify-between text-xs bg-muted p-2 rounded">
-                  <div className="flex items-center gap-2 flex-1 min-w-0">
-                    <FileText className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                    <span className="truncate">{doc.original_name}</span>
-                  </div>
-                  <div className="flex items-center gap-1 flex-shrink-0">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleDownloadDocument(doc)}
-                      className="h-6 w-6 p-0"
-                      title="Herunterladen"
-                    >
-                      <Download className="h-3 w-3" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleDeleteDocument(doc)}
-                      className="h-6 w-6 p-0 text-destructive hover:text-destructive"
-                      title="Löschen"
-                    >
-                      <Trash2 className="h-3 w-3" />
-                    </Button>
-                  </div>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {showCVPreview && profile?.vorname && profile?.nachname ? (
+              <div className="border rounded-lg overflow-hidden bg-white">
+                <div className="bg-muted px-3 py-2 text-xs sm:text-sm font-medium flex justify-between items-center">
+                  <span className="truncate">Vorschau: {getLayoutName()}</span>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setShowCVPreview(false)}
+                    className="h-6 w-6 p-0 min-w-[24px]"
+                  >
+                    <X className="h-3 w-3" />
+                  </Button>
                 </div>
-              ))}
-            </div>
-          ) : (
-            <p className="text-sm text-muted-foreground">Noch keine Dokumente hochgeladen.</p>
-          )}
-        </CardContent>
-      </Card>
+                <div className="h-32 sm:h-48 overflow-hidden relative">
+                  {renderCVLayout()}
+                </div>
+              </div>
+            ) : showCVPreview && (!profile?.vorname || !profile?.nachname) ? (
+              <div className="border rounded-lg p-3 sm:p-4 text-center text-muted-foreground">
+                <FileText className="h-6 w-6 sm:h-8 sm:w-8 mx-auto mb-2" />
+                <p className="text-xs sm:text-sm">Vervollständigen Sie Ihr Profil für eine CV-Vorschau</p>
+              </div>
+            ) : null}
+            
+            <Button 
+              onClick={handleDownloadCV}
+              disabled={isGeneratingPDF}
+              className="w-full bg-primary hover:bg-primary/90 text-sm"
+              size="sm"
+            >
+              <Download className="h-4 w-4 mr-2" />
+              <span className="hidden sm:inline">{isGeneratingPDF ? 'Generiere...' : 'CV herunterladen'}</span>
+              <span className="sm:hidden">{isGeneratingPDF ? 'Gen...' : 'Download'}</span>
+            </Button>
+            
+            <Button 
+              onClick={handleEditCV}
+              variant="outline"
+              className="w-full text-sm"
+              size="sm"
+            >
+              <Edit3 className="h-4 w-4 mr-2" />
+              <span className="hidden sm:inline">CV bearbeiten</span>
+              <span className="sm:hidden">Bearbeiten</span>
+            </Button>
+            
+            {profile?.updated_at && (
+              <div className="flex items-center gap-2 text-xs text-muted-foreground justify-start">
+                <Clock className="h-3 w-3" />
+                zuletzt aktualisiert: {formatDate(profile.updated_at)}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Document Upload - Only show upload for non-readonly, always show existing documents */}
+      {(!readOnly || userDocuments.length > 0) && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg font-semibold">
+              {readOnly ? "Dokumente" : "Dokumente hochladen"}
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {!readOnly && (
+              <div className="relative">
+                <Input
+                  type="file"
+                  multiple
+                  accept=".pdf,image/*"
+                  onChange={handleFileUpload}
+                  className="hidden"
+                  id="document-upload"
+                />
+                <Button
+                  variant="outline"
+                  className="w-full"
+                  onClick={() => document.getElementById('document-upload')?.click()}
+                  disabled={isUploadingDocument}
+                >
+                  <Upload className="h-4 w-4 mr-2" />
+                  {isUploadingDocument ? 'Uploading...' : 'Zeugnisse & Zertifikate'}
+                </Button>
+              </div>
+            )}
+            
+            {isLoadingDocuments ? (
+              <div className="flex items-center justify-center py-4">
+                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
+              </div>
+            ) : userDocuments.length > 0 ? (
+              <div className="space-y-2">
+                <p className="text-sm font-medium">
+                  {readOnly ? "Verfügbare Dokumente:" : "Gespeicherte Dokumente:"}
+                </p>
+                {userDocuments.map((doc) => (
+                  <div key={doc.id} className="flex items-center justify-between text-xs bg-muted p-2 rounded">
+                    <div className="flex items-center gap-2 flex-1 min-w-0">
+                      <FileText className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                      <span className="truncate">{doc.original_name}</span>
+                    </div>
+                    <div className="flex items-center gap-1 flex-shrink-0">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleDownloadDocument(doc)}
+                        className="h-6 w-6 p-0"
+                        title="Herunterladen"
+                      >
+                        <Download className="h-3 w-3" />
+                      </Button>
+                      {!readOnly && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleDeleteDocument(doc)}
+                          className="h-6 w-6 p-0 text-destructive hover:text-destructive"
+                          title="Löschen"
+                        >
+                          <Trash2 className="h-3 w-3" />
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : readOnly ? null : (
+              <p className="text-sm text-muted-foreground">Noch keine Dokumente hochgeladen.</p>
+            )}
+          </CardContent>
+        </Card>
+      )}
 
       {/* Contact Information */}
       <Card>
@@ -695,7 +708,7 @@ export const LinkedInProfileSidebar: React.FC<LinkedInProfileSidebarProps> = ({ 
           <CardTitle className="text-lg font-semibold">Sprachen</CardTitle>
         </CardHeader>
         <CardContent>
-          {isEditing ? (
+          {!readOnly && isEditing ? (
             <LanguageSelector
               languages={profile?.sprachen || []}
               onLanguagesChange={handleLanguagesChange}
@@ -723,7 +736,7 @@ export const LinkedInProfileSidebar: React.FC<LinkedInProfileSidebarProps> = ({ 
           <CardTitle className="text-lg font-semibold">Fähigkeiten</CardTitle>
         </CardHeader>
         <CardContent>
-          {isEditing ? (
+          {!readOnly && isEditing ? (
             <SkillSelector
               selectedSkills={profile?.faehigkeiten || []}
               onSkillsChange={handleSkillsChange}
