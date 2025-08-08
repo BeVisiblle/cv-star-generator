@@ -14,6 +14,96 @@ export type Database = {
   }
   public: {
     Tables: {
+      candidate_contacts: {
+        Row: {
+          candidate_id: string
+          channel: string
+          company_id: string
+          created_at: string
+          created_by: string
+          id: string
+          outcome: string | null
+        }
+        Insert: {
+          candidate_id: string
+          channel: string
+          company_id: string
+          created_at?: string
+          created_by: string
+          id?: string
+          outcome?: string | null
+        }
+        Update: {
+          candidate_id?: string
+          channel?: string
+          company_id?: string
+          created_at?: string
+          created_by?: string
+          id?: string
+          outcome?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_candidate_contacts_company"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_candidate_contacts_profile"
+            columns: ["candidate_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      candidate_notes: {
+        Row: {
+          body: string
+          candidate_id: string
+          company_id: string
+          created_at: string
+          created_by: string
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          body: string
+          candidate_id: string
+          company_id: string
+          created_at?: string
+          created_by: string
+          id?: string
+          updated_at?: string
+        }
+        Update: {
+          body?: string
+          candidate_id?: string
+          company_id?: string
+          created_at?: string
+          created_by?: string
+          id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_candidate_notes_company"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_candidate_notes_profile"
+            columns: ["candidate_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       companies: {
         Row: {
           account_status: string
@@ -96,6 +186,104 @@ export type Database = {
             columns: ["location_id"]
             isOneToOne: false
             referencedRelation: "locations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      company_activity: {
+        Row: {
+          actor_user_id: string
+          company_id: string
+          created_at: string
+          id: string
+          payload: Json
+          type: string
+        }
+        Insert: {
+          actor_user_id: string
+          company_id: string
+          created_at?: string
+          id?: string
+          payload?: Json
+          type: string
+        }
+        Update: {
+          actor_user_id?: string
+          company_id?: string
+          created_at?: string
+          id?: string
+          payload?: Json
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_company_activity_company"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      company_candidates: {
+        Row: {
+          candidate_id: string
+          company_id: string
+          created_at: string
+          id: string
+          last_touched_at: string | null
+          next_action_at: string | null
+          next_action_note: string | null
+          owner_user_id: string | null
+          source: string | null
+          stage: string
+          unlocked_at: string | null
+          unlocked_by_user_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          candidate_id: string
+          company_id: string
+          created_at?: string
+          id?: string
+          last_touched_at?: string | null
+          next_action_at?: string | null
+          next_action_note?: string | null
+          owner_user_id?: string | null
+          source?: string | null
+          stage?: string
+          unlocked_at?: string | null
+          unlocked_by_user_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          candidate_id?: string
+          company_id?: string
+          created_at?: string
+          id?: string
+          last_touched_at?: string | null
+          next_action_at?: string | null
+          next_action_note?: string | null
+          owner_user_id?: string | null
+          source?: string | null
+          stage?: string
+          unlocked_at?: string | null
+          unlocked_by_user_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_company_candidates_company"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_company_candidates_profile"
+            columns: ["candidate_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
