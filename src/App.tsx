@@ -22,6 +22,7 @@ import Profile from "./pages/Profile";
 import Dashboard from "./pages/Dashboard";
 import Marketplace from "./pages/Marketplace";
 import Settings from "./pages/Settings";
+import BaseLayout from "@/components/layout/BaseLayout";
 
 // Company components
 import { CompanyLayout } from "@/components/Company/CompanyLayout";
@@ -119,7 +120,7 @@ const App = () => (
         <BrowserRouter>
           <CVFormProvider>
             <Routes>
-              <Route path="/" element={<Index />} />
+              <Route path="/" element={<BaseLayout><Index /></BaseLayout>} />
               <Route path="/auth" element={<Auth />} />
               <Route path="/blog" element={<Blog />} />
               <Route path="/unternehmen" element={<Unternehmen />} />

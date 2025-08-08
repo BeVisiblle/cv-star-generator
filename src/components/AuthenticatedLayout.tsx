@@ -2,6 +2,7 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { Outlet, Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import BaseLayout from "@/components/layout/BaseLayout";
 
 export function AuthenticatedLayout() {
   const { profile, isLoading, user } = useAuth();
@@ -43,8 +44,10 @@ export function AuthenticatedLayout() {
           </header>
 
           {/* Main Content */}
-          <div className="flex-1 p-6">
-            <Outlet />
+          <div className="flex-1 p-0">
+            <BaseLayout>
+              <Outlet />
+            </BaseLayout>
           </div>
         </main>
       </div>

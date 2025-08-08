@@ -207,4 +207,23 @@ All colors MUST be HSL.
 @layer utilities {
   .pt-safe { padding-top: env(safe-area-inset-top); }
   .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
+
+  /* Line clamp utilities (no plugin) */
+  .line-clamp-1 { display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
+  .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .line-clamp-3 { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+
+  /* Dev viewport presets - body width constrained only when set */
+  body { width: var(--dev-viewport-width, auto); margin-left: auto; margin-right: auto; }
 }
+
+/* Silent global overflow corrections when OverflowGuard detects issues */
+html.overflow-fix, .overflow-fix body {
+  /* Ensure no horizontal scroll globally */
+  overflow-x: hidden;
+}
+
+.overflow-fix table { table-layout: fixed; min-width: 0; width: 100%; }
+.overflow-fix th, .overflow-fix td { word-break: break-word; overflow-wrap: anywhere; hyphens: auto; }
+.overflow-fix h1, .overflow-fix h2 { overflow-wrap: anywhere; word-break: break-word; hyphens: auto; }
+.overflow-fix img, .overflow-fix iframe, .overflow-fix canvas, .overflow-fix svg { max-width: 100%; height: auto; }

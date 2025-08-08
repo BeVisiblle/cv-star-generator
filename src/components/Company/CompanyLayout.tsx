@@ -4,6 +4,7 @@ import { CompanyHeader } from "@/components/Company/CompanyHeader";
 import { Outlet, Navigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useCompany } from "@/hooks/useCompany";
+import BaseLayout from "@/components/layout/BaseLayout";
 
 export function CompanyLayout() {
   const { user, isLoading: authLoading } = useAuth();
@@ -37,8 +38,10 @@ export function CompanyLayout() {
           <CompanyHeader />
           
           {/* Main Content */}
-          <div className="flex-1 p-6">
-            <Outlet />
+          <div className="flex-1 p-0">
+            <BaseLayout>
+              <Outlet />
+            </BaseLayout>
           </div>
         </main>
       </div>
