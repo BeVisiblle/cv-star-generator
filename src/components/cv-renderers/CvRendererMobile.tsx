@@ -21,12 +21,12 @@ export const CvRendererMobile: React.FC<Props> = ({ content, className }) => {
       )}
       aria-label="Lebenslauf Vorschau – Mobil"
     >
-      <header className="px-5 pt-5 pb-4 flex items-center gap-4 border-b border-border">
+      <header className="px-4 py-4 flex items-center gap-4 border-b border-border">
         {content.avatarUrl && (
           <img
             src={content.avatarUrl}
             alt={`${content.fullName || 'Profil'} – Profilbild`}
-            className="h-14 w-14 rounded-full object-cover shrink-0"
+            className="h-12 w-12 rounded-full object-cover shrink-0"
           />
         )}
         <div className="min-w-0">
@@ -37,7 +37,7 @@ export const CvRendererMobile: React.FC<Props> = ({ content, className }) => {
         </div>
       </header>
 
-      <main className="px-5 py-4 space-y-4">
+      <main className="px-4 py-3 space-y-3">
         {/* Kontakt */}
         {(content.contact?.email || content.contact?.phone || content.contact?.location) && (
           <section className="cv-section">
@@ -64,7 +64,7 @@ export const CvRendererMobile: React.FC<Props> = ({ content, className }) => {
         {content.experience?.length > 0 && (
           <section className="cv-section">
             <h2 className="text-sm font-medium mb-2">Berufserfahrung</h2>
-            <div className="space-y-3">
+            <div className="space-y-2">
               {content.experience.map((e, idx) => (
                 <article key={idx} className="text-[13px]">
                   <div className="font-medium">
@@ -88,7 +88,7 @@ export const CvRendererMobile: React.FC<Props> = ({ content, className }) => {
         {content.education?.length > 0 && (
           <section className="cv-section">
             <h2 className="text-sm font-medium mb-2">Ausbildung</h2>
-            <div className="space-y-3">
+            <div className="space-y-2">
               {content.education.map((ed, idx) => (
                 <article key={idx} className="text-[13px]">
                   <div className="font-medium">

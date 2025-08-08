@@ -159,27 +159,29 @@ const CVStep6 = () => {
           <CardDescription>
             Hier siehst du eine Vorschau deines Lebenslaufs im {getLayoutName()}-Layout.
           </CardDescription>
-          <div className="flex gap-2">
-            <Button
-              variant="outline"
-              onClick={handleBackToLayout}
-              className="w-fit"
-            >
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Zurück zur Layout-Auswahl
-            </Button>
-            <Button
-              variant="outline"
-              onClick={handleDownloadCV}
-              className="w-fit"
-            >
-              <Download className="h-4 w-4 mr-2" />
-              CV herunterladen
-            </Button>
+          <div className="flex flex-col sm:flex-row gap-2 sm:items-center">
+            <div className="flex flex-col gap-2 sm:flex-row">
+              <Button
+                variant="outline"
+                onClick={handleBackToLayout}
+                className="w-full sm:w-fit"
+              >
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Zurück zur Layout-Auswahl
+              </Button>
+              <Button
+                variant="outline"
+                onClick={handleDownloadCV}
+                className="w-full sm:w-fit"
+              >
+                <Download className="h-4 w-4 mr-2" />
+                CV herunterladen
+              </Button>
+            </div>
             {isLayoutEditMode && (
               <Button
                 onClick={handleFinish}
-                className="w-fit"
+                className="w-full sm:w-fit"
               >
                 Layout speichern
               </Button>
@@ -188,8 +190,12 @@ const CVStep6 = () => {
         </CardHeader>
         
         <CardContent>
-          {/* Render the selected layout component */}
-          {renderLayoutComponent()}
+          <div className="w-full flex justify-center">
+            <div className="origin-top scale-90 sm:scale-100 transition-transform">
+              {/* Render the selected layout component */}
+              {renderLayoutComponent()}
+            </div>
+          </div>
 
           <div className="mt-6 p-4 bg-muted/20 rounded-lg">
             <p className="text-sm text-muted-foreground">
