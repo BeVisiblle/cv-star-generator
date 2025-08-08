@@ -268,6 +268,24 @@ export type Database = {
         }
         Relationships: []
       }
+      languages_master: {
+        Row: {
+          code: string
+          name_de: string
+          name_en: string
+        }
+        Insert: {
+          code: string
+          name_de: string
+          name_en: string
+        }
+        Update: {
+          code?: string
+          name_de?: string
+          name_en?: string
+        }
+        Relationships: []
+      }
       locations: {
         Row: {
           city: string
@@ -608,6 +626,27 @@ export type Database = {
           id?: string
           name?: string
           status_level?: string | null
+        }
+        Relationships: []
+      }
+      skills_master: {
+        Row: {
+          category: string | null
+          id: number
+          name: string
+          name_de: string | null
+        }
+        Insert: {
+          category?: string | null
+          id?: number
+          name: string
+          name_de?: string | null
+        }
+        Update: {
+          category?: string | null
+          id?: number
+          name?: string
+          name_de?: string | null
         }
         Relationships: []
       }
