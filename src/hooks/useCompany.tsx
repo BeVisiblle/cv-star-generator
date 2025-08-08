@@ -44,6 +44,26 @@ export const useCompany = () => {
     }
   }, [user]);
 
+  // Realtime subscription: keep company data in sync with DB changes
+  useEffect(() => {
+    if (!company?.id) return;
+    const channel = supabase
+      .channel(`companies:${company.id}`)
+      .on(
+        'postgres_changes',
+        { event: 'UPDATE', schema: 'public', table: 'companies', filter: `id=eq.${company.id}` },
+        (payload) => {
+          const updated = payload.new as any;
+          setCompany((prev) => (prev ? { ...prev, ...updated } : updated));
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [company?.id]);
+
   const loadCompanyData = async () => {
     try {
       setLoading(true);
