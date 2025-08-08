@@ -38,8 +38,8 @@ const CVStep7 = () => {
   };
 
   const getLayoutName = () => {
-    const layouts = ['Modern', 'Klassisch', 'Kreativ', 'Minimalistisch', 'Professionell'];
-    return formData.layout ? layouts[formData.layout - 1] : 'Nicht gewählt';
+    const layouts = ['Modern', 'Klassisch', 'Kreativ', 'Minimalistisch', 'Professionell', 'LiveCareer'];
+    return formData.layout ? layouts[(formData.layout - 1) % layouts.length] : 'Nicht gewählt';
   };
 
   const handleDownloadPDF = async () => {

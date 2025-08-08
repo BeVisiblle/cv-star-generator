@@ -1,5 +1,5 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { CVFormProvider, useCVForm } from '@/contexts/CVFormContext';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
@@ -13,8 +13,16 @@ import CVStep6 from './cv-steps/CVStep6';
 import CVStep7 from './cv-steps/CVStep7';
 
 const CVGeneratorContent = () => {
-  const { currentStep, setCurrentStep, formData, isLayoutEditMode, validateStep, validationErrors } = useCVForm();
+  const { currentStep, setCurrentStep, formData, isLayoutEditMode, setLayoutEditMode, validateStep, validationErrors } = useCVForm();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    if (location.pathname === '/cv-generator') {
+      setLayoutEditMode(false);
+      localStorage.removeItem('cvLayoutEditMode');
+    }
+  }, [location.pathname, setLayoutEditMode]);
 
   const renderStep = () => {
     // In layout edit mode, only show steps 5 and 6
