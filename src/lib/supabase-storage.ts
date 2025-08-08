@@ -59,16 +59,47 @@ export const generateCVFromHTML = async (
 ): Promise<File> => {
   const { generatePDF } = await import('@/lib/pdf-generator');
   
-  // Create a temporary canvas and convert to blob
+  // Prepare a clean offscreen clone to avoid scaled transforms
   const html2canvas = (await import('html2canvas')).default;
   const jsPDF = (await import('jspdf')).default;
-  
-  const canvas = await html2canvas(element, {
+
+  const cleanup: Array<() => void> = [];
+
+  const style = document.createElement('style');
+  style.textContent = `
+    .pdf-clone, .pdf-clone * {
+      transform: none !important;
+      animation: none !important;
+      transition: none !important;
+      filter: none !important;
+    }
+  `;
+  document.head.appendChild(style);
+  cleanup.push(() => style.remove());
+
+  const clone = element.cloneNode(true) as HTMLElement;
+  clone.classList.add('pdf-clone');
+  clone.style.position = 'fixed';
+  clone.style.left = '-10000px';
+  clone.style.top = '0';
+  clone.style.maxWidth = 'none';
+  clone.style.width = `${element.scrollWidth || element.clientWidth}px`;
+  (clone.style as any).zoom = '1';
+  clone.style.transform = 'none';
+  document.body.appendChild(clone);
+  cleanup.push(() => clone.remove());
+
+  const canvas = await html2canvas(clone, {
     scale: 2,
     useCORS: true,
     allowTaint: true,
     backgroundColor: '#ffffff',
+    width: clone.scrollWidth,
+    height: clone.scrollHeight,
+    logging: false,
   });
+
+  cleanup.forEach((fn) => fn());
 
   // Create PDF blob
   const imgWidth = 190;
@@ -150,17 +181,49 @@ export const generateCVVariantFile = async (
   const html2canvas = (await import('html2canvas')).default;
   const jsPDF = (await import('jspdf')).default;
 
-  const canvas = await html2canvas(element, {
+  // Prepare a clean offscreen clone to avoid scaled transforms
+  const cleanup: Array<() => void> = [];
+
+  const style = document.createElement('style');
+  style.textContent = `
+    .pdf-clone, .pdf-clone * {
+      transform: none !important;
+      animation: none !important;
+      transition: none !important;
+      filter: none !important;
+    }
+  `;
+  document.head.appendChild(style);
+  cleanup.push(() => style.remove());
+
+  const clone = element.cloneNode(true) as HTMLElement;
+  clone.classList.add('pdf-clone');
+  clone.style.position = 'fixed';
+  clone.style.left = '-10000px';
+  clone.style.top = '0';
+  clone.style.maxWidth = 'none';
+  clone.style.width = `${element.scrollWidth || element.clientWidth}px`;
+  (clone.style as any).zoom = '1';
+  clone.style.transform = 'none';
+  document.body.appendChild(clone);
+  cleanup.push(() => clone.remove());
+
+  const canvas = await html2canvas(clone, {
     scale: 2,
     useCORS: true,
     allowTaint: true,
     backgroundColor: '#ffffff',
+    width: clone.scrollWidth,
+    height: clone.scrollHeight,
+    logging: false,
   });
+
+  cleanup.forEach((fn) => fn());
 
   // Page dimensions in mm
   const pageDims = variant === 'a4'
     ? { width: 210, height: 297, margin: 10 }
-    : { width: 100, height: 200, margin: 8 };
+    : { width: 105, height: 148, margin: 8 }; // A6 portrait for mobile
 
   const usableWidth = pageDims.width - 2 * pageDims.margin;
   const usableHeight = pageDims.height - 2 * pageDims.margin;

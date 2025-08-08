@@ -36,7 +36,7 @@ export const generatePDF = async (
       ? { width: 210, height: 297 }
       : format === 'letter'
         ? { width: 216, height: 279 }
-        : { width: 100, height: 200 }; // mobile phone-optimized page
+        : { width: 105, height: 148 }; // A6 portrait for mobile
 
     const usableWidth = pageDims.width - 2 * margin;
     const usableHeight = pageDims.height - 2 * margin;
