@@ -143,7 +143,7 @@ export default function LandingPage() {
                 <div className="flex flex-col sm:flex-row gap-4">
                   <Button 
                     size="lg" 
-                    className="text-lg px-8 py-6 shadow-lg hover:shadow-xl transition-all"
+                    className="w-full sm:w-auto text-base sm:text-lg px-8 py-5 shadow-lg hover:shadow-xl transition-all"
                     onClick={() => navigate('/cv-generator')}
                   >
                     <Zap className="mr-2 h-5 w-5" />
@@ -152,7 +152,7 @@ export default function LandingPage() {
                   <Button 
                     variant="outline" 
                     size="lg"
-                    className="text-lg px-6"
+                    className="w-full sm:w-auto text-base sm:text-lg px-6 py-5"
                     onClick={() => navigate('/auth')}
                   >
                     <LogIn className="mr-2 h-4 w-4" />
@@ -400,7 +400,7 @@ export default function LandingPage() {
               <Button 
                 size="lg" 
                 variant="secondary"
-                className="text-lg px-8 py-6 shadow-lg hover:shadow-xl transition-all"
+                className="w-full sm:w-auto text-base sm:text-lg px-8 py-5 shadow-lg hover:shadow-xl transition-all"
                 onClick={() => navigate('/cv-generator')}
               >
                 <Download className="mr-2 h-5 w-5" />
@@ -409,7 +409,7 @@ export default function LandingPage() {
               <Button 
                 size="lg" 
                 variant="outline"
-                className="text-lg px-6"
+                className="w-full sm:w-auto text-base sm:text-lg px-6 py-5"
                 onClick={() => navigate('/auth')}
               >
                 <LogIn className="mr-2 h-5 w-5" />
