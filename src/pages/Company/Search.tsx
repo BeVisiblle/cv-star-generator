@@ -327,7 +327,7 @@ export default function CompanySearch() {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {profiles.map((profile) => {
+            {profiles.filter((p) => !isProfileUnlocked(p.id)).map((profile) => {
               const unlocked = isProfileUnlocked(profile.id);
               const matchPercentage = calculateMatchPercentage(profile);
               

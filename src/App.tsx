@@ -34,6 +34,7 @@ import CompanySettings from "@/pages/Company/Settings";
 import CompanyPosts from "@/pages/Company/Posts";
 import CompanyProfileView from "@/pages/Company/ProfileView";
 import CompanyBilling from "@/pages/Company/Billing";
+import CompanyUnlocked from "@/pages/Company/Unlocked";
 
 const queryClient = new QueryClient();
 
@@ -144,6 +145,7 @@ const App = () => (
                 <Route path="dashboard" element={<CompanyDashboardNew />} />
                 <Route path="profile" element={<CompanyProfile />} />
                 <Route path="search" element={<CompanySearch />} />
+                <Route path="unlocked" element={<CompanyUnlocked />} />
                 <Route path="billing" element={<CompanyBilling />} />
                 <Route path="settings" element={<CompanySettings />} />
                 <Route path="posts" element={<CompanyPosts />} />
