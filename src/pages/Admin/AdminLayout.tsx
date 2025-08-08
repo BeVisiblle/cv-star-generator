@@ -35,14 +35,14 @@ export default function AdminLayout() {
         return;
       }
       const { data, error } = await supabase
-        .from("user_types")
-        .select("user_type")
-        .eq("user_id", user.id)
-        .maybeSingle();
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", user.id);
       if (mounted) {
-        if (error) console.warn("user_types fetch error", error);
-        const role = data?.user_type ?? "viewer";
-        setAllowed(role === "admin" || role === "editor");
+        if (error) console.warn("user_roles fetch error", error);
+        const roles = (data as { role: string }[]) || [];
+        const isAllowed = roles.some((r) => r.role === "admin" || r.role === "editor");
+        setAllowed(isAllowed);
         setLoading(false);
       }
     }
