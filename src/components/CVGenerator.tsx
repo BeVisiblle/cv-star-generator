@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { CVFormProvider, useCVForm } from '@/contexts/CVFormContext';
+import { useCVForm } from '@/contexts/CVFormContext';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
@@ -209,11 +209,7 @@ const CVGeneratorContent = () => {
 };
 
 const CVGenerator = () => {
-  return (
-    <CVFormProvider>
-      <CVGeneratorContent />
-    </CVFormProvider>
-  );
+  return <CVGeneratorContent />;
 };
 
 export default CVGenerator;

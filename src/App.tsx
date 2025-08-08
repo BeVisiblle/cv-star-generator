@@ -118,7 +118,6 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
-          <CVFormProvider>
             <Routes>
               <Route path="/" element={<BaseLayout><Index /></BaseLayout>} />
               <Route path="/auth" element={<Auth />} />
@@ -163,7 +162,6 @@ const App = () => (
               {/* 404 */}
               <Route path="*" element={<NotFound />} />
             </Routes>
-          </CVFormProvider>
         </BrowserRouter>
       </AuthProvider>
     </TooltipProvider>
