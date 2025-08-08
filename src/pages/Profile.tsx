@@ -13,12 +13,13 @@ import { LinkedInProfileSidebar } from '@/components/linkedin/LinkedInProfileSid
 import { LinkedInProfileExperience } from '@/components/linkedin/LinkedInProfileExperience';
 import { LinkedInProfileEducation } from '@/components/linkedin/LinkedInProfileEducation';
 import { LinkedInProfileActivity } from '@/components/linkedin/LinkedInProfileActivity';
-
 import { ProfilePreviewModal } from '@/components/ProfilePreviewModal';
-
 const Profile = () => {
   const navigate = useNavigate();
-  const { profile: authProfile, isLoading } = useAuth();
+  const {
+    profile: authProfile,
+    isLoading
+  } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
@@ -27,22 +28,21 @@ const Profile = () => {
   // All hooks must be called before any conditional returns
   const handleProfileUpdateImmediate = useCallback(async (updates: any) => {
     if (!profile?.id) return;
-    
     setIsSaving(true);
     try {
-      const { error } = await supabase
-        .from('profiles')
-        .update({
-          ...updates,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', profile.id);
-
+      const {
+        error
+      } = await supabase.from('profiles').update({
+        ...updates,
+        updated_at: new Date().toISOString()
+      }).eq('id', profile.id);
       if (error) throw error;
 
       // Update local profile state
-      setProfile(prev => ({ ...prev, ...updates }));
-
+      setProfile(prev => ({
+        ...prev,
+        ...updates
+      }));
       toast({
         title: "Profil aktualisiert",
         description: "Ihre Änderungen wurden gespeichert."
@@ -61,49 +61,46 @@ const Profile = () => {
 
   // Simple profile update without debouncing for form submissions
   const handleProfileUpdate = handleProfileUpdateImmediate;
-
   const handleExperiencesUpdate = useCallback((experiences: any[]) => {
-    handleProfileUpdateImmediate({ berufserfahrung: experiences });
+    handleProfileUpdateImmediate({
+      berufserfahrung: experiences
+    });
   }, [handleProfileUpdateImmediate]);
-
   const handleEducationUpdate = useCallback((education: any[]) => {
-    handleProfileUpdateImmediate({ schulbildung: education });
+    handleProfileUpdateImmediate({
+      schulbildung: education
+    });
   }, [handleProfileUpdateImmediate]);
-
   const handleSave = async () => {
     if (!profile?.id) return;
-    
     setIsSaving(true);
     try {
-      const { error } = await supabase
-        .from('profiles')
-        .update({
-          vorname: profile.vorname,
-          nachname: profile.nachname,
-          telefon: profile.telefon,
-          email: profile.email,
-          strasse: profile.strasse,
-          hausnummer: profile.hausnummer,
-          plz: profile.plz,
-          ort: profile.ort,
-          uebermich: profile.uebermich,
-          kenntnisse: profile.kenntnisse,
-          motivation: profile.motivation,
-          faehigkeiten: profile.faehigkeiten,
-          sprachen: profile.sprachen,
-          berufserfahrung: profile.berufserfahrung,
-          schulbildung: profile.schulbildung,
-          avatar_url: profile.avatar_url,
-          cover_image_url: profile.cover_image_url,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', profile.id);
-
+      const {
+        error
+      } = await supabase.from('profiles').update({
+        vorname: profile.vorname,
+        nachname: profile.nachname,
+        telefon: profile.telefon,
+        email: profile.email,
+        strasse: profile.strasse,
+        hausnummer: profile.hausnummer,
+        plz: profile.plz,
+        ort: profile.ort,
+        uebermich: profile.uebermich,
+        kenntnisse: profile.kenntnisse,
+        motivation: profile.motivation,
+        faehigkeiten: profile.faehigkeiten,
+        sprachen: profile.sprachen,
+        berufserfahrung: profile.berufserfahrung,
+        schulbildung: profile.schulbildung,
+        avatar_url: profile.avatar_url,
+        cover_image_url: profile.cover_image_url,
+        updated_at: new Date().toISOString()
+      }).eq('id', profile.id);
       if (error) throw error;
-
       toast({
         title: "Profil gespeichert",
-        description: "Ihre Änderungen wurden erfolgreich gespeichert.",
+        description: "Ihre Änderungen wurden erfolgreich gespeichert."
       });
       setIsEditing(false);
     } catch (error) {
@@ -117,24 +114,20 @@ const Profile = () => {
       setIsSaving(false);
     }
   };
-
   useEffect(() => {
     if (authProfile) {
-      setProfile({ ...authProfile });
+      setProfile({
+        ...authProfile
+      });
     }
   }, [authProfile]);
-
   if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
+    return <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
-      </div>
-    );
+      </div>;
   }
-
   if (!profile) {
-    return (
-      <div className="container mx-auto p-6">
+    return <div className="container mx-auto p-6">
         <Card className="p-6 text-center">
           <h1 className="text-2xl font-bold mb-4">Willkommen!</h1>
           <p className="text-muted-foreground mb-4">
@@ -144,14 +137,12 @@ const Profile = () => {
             Jetzt Lebenslauf erstellen
           </Button>
         </Card>
-      </div>
-    );
+      </div>;
   }
 
   // Early returns after all hooks are declared
 
-  return (
-    <div className="p-3 md:p-6 min-h-screen bg-background max-w-full overflow-x-hidden pb-24 pt-safe">{/* Prevent horizontal scroll and reserve for sticky footer */}
+  return <div className="p-3 md:p-6 min-h-screen bg-background max-w-full overflow-x-hidden pb-24 pt-safe">{/* Prevent horizontal scroll and reserve for sticky footer */}
       {/* Mobile-optimized Profile Actions Header */}
       <div className="sticky top-0 z-30 mb-4 md:mb-6 bg-background/80 supports-[backdrop-filter]:bg-background/60 backdrop-blur border-b">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0">
@@ -159,53 +150,30 @@ const Profile = () => {
             <h1 className="text-xl md:text-2xl font-bold truncate">
               {profile.vorname} {profile.nachname}
             </h1>
-            <p className="text-muted-foreground text-xs md:text-sm">
-              LinkedIn-Style Professional Profile
-            </p>
+            
           </div>
           
           <div className="flex flex-wrap gap-2 w-full sm:w-auto">
-            {!profile.profile_published && (
-              <Button 
-                variant="outline" 
-                onClick={() => setShowPreview(true)}
-                size="sm"
-                className="flex-1 sm:flex-none min-h-[44px]"
-              >
+            {!profile.profile_published && <Button variant="outline" onClick={() => setShowPreview(true)} size="sm" className="flex-1 sm:flex-none min-h-[44px]">
                 Vorschau
-              </Button>
-            )}
+              </Button>}
             
-            {isEditing ? (
-              <div className="hidden md:flex gap-2 flex-1 sm:flex-none">
-                <Button 
-                  variant="outline" 
-                  onClick={() => setIsEditing(false)}
-                  disabled={isSaving}
-                  size="sm"
-                  className="flex-1 sm:flex-none min-h-[44px]"
-                >
+            {isEditing ? <div className="hidden md:flex gap-2 flex-1 sm:flex-none">
+                <Button variant="outline" onClick={() => setIsEditing(false)} disabled={isSaving} size="sm" className="flex-1 sm:flex-none min-h-[44px]">
                   <X className="h-4 w-4 mr-1 sm:mr-2" />
                   <span className="hidden sm:inline">Abbrechen</span>
                   <span className="sm:hidden">Abbr.</span>
                 </Button>
                 <Button onClick={handleSave} disabled={isSaving} size="sm" className="flex-1 sm:flex-none min-h-[44px]">
-                  {isSaving ? (
-                    <Clock className="h-4 w-4 mr-1 sm:mr-2 animate-spin" />
-                  ) : (
-                    <Check className="h-4 w-4 mr-1 sm:mr-2" />
-                  )}
+                  {isSaving ? <Clock className="h-4 w-4 mr-1 sm:mr-2 animate-spin" /> : <Check className="h-4 w-4 mr-1 sm:mr-2" />}
                   <span className="hidden sm:inline">Speichern</span>
                   <span className="sm:hidden">Save</span>
                 </Button>
-              </div>
-            ) : (
-              <Button onClick={() => setIsEditing(true)} size="sm" className="flex-1 sm:flex-none min-h-[44px]">
+              </div> : <Button onClick={() => setIsEditing(true)} size="sm" className="flex-1 sm:flex-none min-h-[44px]">
                 <Edit3 className="h-4 w-4 mr-1 sm:mr-2" />
                 <span className="hidden sm:inline">Bearbeiten</span>
                 <span className="sm:hidden">Edit</span>
-              </Button>
-            )}
+              </Button>}
           </div>
         </div>
       </div>
@@ -215,32 +183,16 @@ const Profile = () => {
         {/* Main Content Area */}
         <main className="lg:col-span-8 space-y-4 md:space-y-6">
           {/* Profile Header with Cover Photo - Always first */}
-          <LinkedInProfileHeader
-            profile={profile}
-            isEditing={isEditing}
-            onProfileUpdate={handleProfileUpdate}
-          />
+          <LinkedInProfileHeader profile={profile} isEditing={isEditing} onProfileUpdate={handleProfileUpdate} />
 
           {/* About Section - High priority on mobile */}
-          <LinkedInProfileMain
-            profile={profile}
-            isEditing={isEditing}
-            onProfileUpdate={handleProfileUpdate}
-          />
+          <LinkedInProfileMain profile={profile} isEditing={isEditing} onProfileUpdate={handleProfileUpdate} />
 
           {/* Experience Section */}
-          <LinkedInProfileExperience
-            experiences={profile?.berufserfahrung || []}
-            isEditing={isEditing}
-            onExperiencesUpdate={handleExperiencesUpdate}
-          />
+          <LinkedInProfileExperience experiences={profile?.berufserfahrung || []} isEditing={isEditing} onExperiencesUpdate={handleExperiencesUpdate} />
 
           {/* Education Section */}
-          <LinkedInProfileEducation
-            education={profile?.schulbildung || []}
-            isEditing={isEditing}
-            onEducationUpdate={handleEducationUpdate}
-          />
+          <LinkedInProfileEducation education={profile?.schulbildung || []} isEditing={isEditing} onEducationUpdate={handleEducationUpdate} />
 
           {/* Activity Section */}
           <LinkedInProfileActivity profile={profile} />
@@ -249,55 +201,31 @@ const Profile = () => {
         {/* Right Sidebar - Desktop: sidebar, Mobile: after main content */}
         <aside className="lg:col-span-4">
           <div className="lg:sticky lg:top-24 space-y-4 md:space-y-6">
-            <LinkedInProfileSidebar
-              profile={profile}
-              isEditing={isEditing}
-              onProfileUpdate={handleProfileUpdate}
-            />
+            <LinkedInProfileSidebar profile={profile} isEditing={isEditing} onProfileUpdate={handleProfileUpdate} />
           </div>
         </aside>
       </div>
 
       {/* Sticky bottom Save Bar (mobile) */}
-      {isEditing && (
-        <div className="fixed inset-x-0 bottom-0 z-40 border-t bg-background/95 supports-[backdrop-filter]:bg-background/80 backdrop-blur px-4 py-3 pb-safe md:hidden">
+      {isEditing && <div className="fixed inset-x-0 bottom-0 z-40 border-t bg-background/95 supports-[backdrop-filter]:bg-background/80 backdrop-blur px-4 py-3 pb-safe md:hidden">
           <div className="container mx-auto flex items-center justify-end gap-2">
-            <Button
-              variant="outline"
-              onClick={() => setIsEditing(false)}
-              disabled={isSaving}
-              size="sm"
-              className="min-h-[44px]"
-            >
+            <Button variant="outline" onClick={() => setIsEditing(false)} disabled={isSaving} size="sm" className="min-h-[44px]">
               Abbrechen
             </Button>
-            <Button
-              onClick={handleSave}
-              disabled={isSaving}
-              size="sm"
-              className="min-h-[44px]"
-            >
+            <Button onClick={handleSave} disabled={isSaving} size="sm" className="min-h-[44px]">
               {isSaving ? <Clock className="h-4 w-4 mr-2 animate-spin" /> : <Check className="h-4 w-4 mr-2" />}
               Speichern
             </Button>
           </div>
-        </div>
-      )}
+        </div>}
 
       {/* Preview Modal */}
-      {showPreview && (
-        <ProfilePreviewModal
-          isOpen={showPreview}
-          profileData={profile}
-          onPublish={async () => {
-            await handleProfileUpdate({ profile_published: true });
-            setShowPreview(false);
-          }}
-          onClose={() => setShowPreview(false)}
-        />
-      )}
-    </div>
-  );
+      {showPreview && <ProfilePreviewModal isOpen={showPreview} profileData={profile} onPublish={async () => {
+      await handleProfileUpdate({
+        profile_published: true
+      });
+      setShowPreview(false);
+    }} onClose={() => setShowPreview(false)} />}
+    </div>;
 };
-
 export default Profile;
