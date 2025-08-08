@@ -20,6 +20,10 @@ const CVStep7 = () => {
       case 'handwerk': return 'Handwerk';
       case 'it': return 'IT';
       case 'gesundheit': return 'Gesundheit';
+      case 'buero': return 'Büro & Verwaltung';
+      case 'verkauf': return 'Verkauf & Handel';
+      case 'gastronomie': return 'Gastronomie';
+      case 'bau': return 'Bau & Architektur';
       default: return '';
     }
   };
@@ -34,7 +38,7 @@ const CVStep7 = () => {
   };
 
   const getLayoutName = () => {
-    const layouts = ['Klassisch', 'Modern', 'Kreativ', 'Technisch', 'Handwerk'];
+    const layouts = ['Modern', 'Klassisch', 'Kreativ', 'Minimalistisch', 'Professionell'];
     return formData.layout ? layouts[formData.layout - 1] : 'Nicht gewählt';
   };
 

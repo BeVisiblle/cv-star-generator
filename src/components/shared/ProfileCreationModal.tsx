@@ -274,7 +274,7 @@ export const ProfileCreationModal = ({
             console.error('Profile creation failed:', insertError);
             toast({
               title: "Fehler beim Profil erstellen",
-              description: "Das Profil konnte nicht erstellt werden. Bitte versuchen Sie es erneut.",
+              description: insertError.message || "Das Profil konnte nicht erstellt werden. Bitte versuchen Sie es erneut.",
               variant: "destructive"
             });
             return;
@@ -477,7 +477,7 @@ export const ProfileCreationModal = ({
       setAutoSyncEnabled(true); // Re-enable auto-sync on error
       toast({
         title: "Unerwarteter Fehler",
-        description: "Ein unerwarteter Fehler ist aufgetreten.",
+        description: (error as any)?.message || "Ein unerwarteter Fehler ist aufgetreten.",
         variant: "destructive"
       });
     } finally {

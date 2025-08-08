@@ -48,6 +48,10 @@ const CVStep5 = () => {
       case 'handwerk': return 2; // Klassisch
       case 'it': return 1; // Modern
       case 'gesundheit': return 5; // Professionell
+      case 'buero': return 4; // Minimalistisch
+      case 'verkauf': return 3; // Kreativ
+      case 'gastronomie': return 3; // Kreativ
+      case 'bau': return 2; // Klassisch
       default: return 1;
     }
   };
@@ -113,9 +117,14 @@ const CVStep5 = () => {
         <Card className="bg-blue-50 border-blue-200">
           <CardContent className="p-4">
             <p className="text-sm text-blue-800">
-              💡 <strong>Tipp:</strong> Das Layout "{layouts.find(l => l.id === recommendedLayoutId)?.name}" 
-              ist besonders gut für den Bereich {formData.branche === 'handwerk' ? 'Handwerk' : 
-              formData.branche === 'it' ? 'IT' : 'Gesundheitswesen'} geeignet.
+              💡 <strong>Tipp:</strong> Das Layout "{layouts.find(l => l.id === recommendedLayoutId)?.name}"
+              ist besonders gut für den Bereich {formData.branche === 'handwerk' ? 'Handwerk' :
+              formData.branche === 'it' ? 'IT' :
+              formData.branche === 'gesundheit' ? 'Gesundheitswesen' :
+              formData.branche === 'buero' ? 'Büro & Verwaltung' :
+              formData.branche === 'verkauf' ? 'Verkauf & Handel' :
+              formData.branche === 'gastronomie' ? 'Gastronomie' :
+              formData.branche === 'bau' ? 'Bau & Architektur' : ''} geeignet.
             </p>
           </CardContent>
         </Card>
