@@ -15,7 +15,7 @@ export function adjustContentForVariant(content: CVContent, variant: Variant): C
 
   const maxSkills = isMobile ? 10 : 16;
   const maxLangs = isMobile ? 5 : 8;
-  const maxAbout = isMobile ? 600 : 900;
+  const maxAbout = isMobile ? 500 : 900;
   const maxExp = isMobile ? 4 : 8;
   const maxEdu = isMobile ? 3 : 6;
 

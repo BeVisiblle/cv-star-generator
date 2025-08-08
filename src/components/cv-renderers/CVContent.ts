@@ -43,6 +43,7 @@ export interface CVContent {
   languages: CVLanguage[];
   branche?: string;
   status?: string;
+  driversLicenseClass?: string;
 }
 
 function pick<T = any>(obj: any, keys: string[]): T | undefined {
@@ -57,7 +58,7 @@ export function mapFormDataToContent(formData: any): CVContent {
   const lastName = pick<string>(formData, ['nachname', 'lastName', 'lastname']);
   const avatarUrl = pick<string>(formData, ['avatar_url', 'profilbild', 'avatar']);
   const headline = pick<string>(formData, ['headline', 'position', 'titel']);
-  const about = pick<string>(formData, ['about', 'ueber_mich', 'beschreibung']);
+  const about = pick<string>(formData, ['about', 'ueber_mich', 'ueberMich', 'beschreibung', 'bio']);
 
   const email = pick<string>(formData, ['email']);
   const phone = pick<string>(formData, ['telefon', 'phone']);
@@ -65,6 +66,8 @@ export function mapFormDataToContent(formData: any): CVContent {
   const website = pick<string>(formData, ['website']);
   const linkedin = pick<string>(formData, ['linkedin']);
   const github = pick<string>(formData, ['github']);
+  const hasDL = pick<boolean>(formData, ['has_drivers_license']);
+  const driversLicenseClass = hasDL ? pick<string>(formData, ['driver_license_class']) : undefined;
 
   const experience = (pick<any[]>(formData, ['experience', 'berufserfahrung', 'jobs']) || []).map((e: any) => ({
     role: pick<string>(e, ['role', 'position', 'titel']),
@@ -103,5 +106,6 @@ export function mapFormDataToContent(formData: any): CVContent {
     languages,
     branche: pick<string>(formData, ['branche']),
     status: pick<string>(formData, ['status']),
+    driversLicenseClass,
   };
 }

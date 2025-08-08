@@ -46,6 +46,7 @@ export const CvRendererMobile: React.FC<Props> = ({ content, className }) => {
               {content.contact.email && <li>{content.contact.email}</li>}
               {content.contact.phone && <li>{content.contact.phone}</li>}
               {content.contact.location && <li>{content.contact.location}</li>}
+              {content.driversLicenseClass && <li>Führerschein {content.driversLicenseClass}</li>}
             </ul>
           </section>
         )}

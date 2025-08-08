@@ -160,7 +160,7 @@ export const generateCVVariantFile = async (
   // Page dimensions in mm
   const pageDims = variant === 'a4'
     ? { width: 210, height: 297, margin: 10 }
-    : { width: 90, height: 160, margin: 8 };
+    : { width: 100, height: 200, margin: 8 };
 
   const usableWidth = pageDims.width - 2 * pageDims.margin;
   const usableHeight = pageDims.height - 2 * pageDims.margin;

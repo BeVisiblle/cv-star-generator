@@ -14,9 +14,19 @@ import { generateCVVariantFile, uploadCVWithFilename } from '@/lib/supabase-stor
 
 // Variant-aware CV renderers
 import { CvRendererMobile } from '@/components/cv-renderers/CvRendererMobile';
-import { CvRendererA4 } from '@/components/cv-renderers/CvRendererA4';
+
 import { mapFormDataToContent, CVContent } from '@/components/cv-renderers/CVContent';
 import { adjustContentForVariant } from '@/lib/page-length';
+
+// A4 layout variants
+import ModernLayout from '@/components/cv-layouts/ModernLayout';
+import ClassicLayout from '@/components/cv-layouts/ClassicLayout';
+import CreativeLayout from '@/components/cv-layouts/CreativeLayout';
+import MinimalLayout from '@/components/cv-layouts/MinimalLayout';
+import ProfessionalLayout from '@/components/cv-layouts/ProfessionalLayout';
+import LiveCareerLayout from '@/components/cv-layouts/LiveCareerLayout';
+import { mapFormDataToCVData } from '@/components/cv-layouts/mapFormDataToCVData';
+import { cn } from '@/lib/utils';
 
 const CVStep6 = () => {
   const { formData, setCurrentStep, isLayoutEditMode, setLayoutEditMode } = useCVForm();
@@ -52,7 +62,8 @@ const CVStep6 = () => {
       case 3: return 'Kreativ';
       case 4: return 'Minimalistisch';
       case 5: return 'Professionell';
-      default: return 'Standard';
+      case 6: return 'LiveCareer';
+      default: return 'Modern';
     }
   };
 
@@ -141,14 +152,39 @@ const CVStep6 = () => {
   };
 
   const renderLayoutComponent = () => {
-    const content: CVContent = mapFormDataToContent(formData);
     const variant: 'mobile' | 'a4' = isMobile ? 'mobile' : 'a4';
-    const adjusted = adjustContentForVariant(content, variant);
 
     if (variant === 'mobile') {
+      const content: CVContent = mapFormDataToContent(formData);
+      const adjusted = adjustContentForVariant(content, 'mobile');
       return <CvRendererMobile content={adjusted} />;
     }
-    return <CvRendererA4 content={adjusted} />;
+
+    // A4 preview using selected layout
+    const data = mapFormDataToCVData(formData);
+    const selected = formData.layout ?? 1;
+
+    const LayoutComponent =
+      selected === 2 ? ClassicLayout :
+      selected === 3 ? CreativeLayout :
+      selected === 4 ? MinimalLayout :
+      selected === 5 ? ProfessionalLayout :
+      selected === 6 ? LiveCareerLayout :
+      ModernLayout;
+
+    return (
+      <article
+        data-cv-preview
+        data-variant="a4"
+        className={cn(
+          'cv-a4 mx-auto bg-card text-foreground rounded-md shadow-sm border border-border overflow-hidden',
+          'max-w-full'
+        )}
+        aria-label="Lebenslauf Vorschau – A4"
+      >
+        <LayoutComponent data={data} />
+      </article>
+    );
   };
 
   return (
