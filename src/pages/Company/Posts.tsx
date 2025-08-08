@@ -139,7 +139,7 @@ export default function CompanyPosts() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="p-3 md:p-6 min-h-screen bg-background max-w-full overflow-x-hidden space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold">Beiträge</h1>

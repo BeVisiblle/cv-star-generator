@@ -151,9 +151,9 @@ const Profile = () => {
   // Early returns after all hooks are declared
 
   return (
-    <div className="p-3 md:p-6 min-h-screen bg-background max-w-full overflow-x-hidden">{/* Prevent horizontal scroll */}
+    <div className="p-3 md:p-6 min-h-screen bg-background max-w-full overflow-x-hidden pb-24 pt-safe">{/* Prevent horizontal scroll and reserve for sticky footer */}
       {/* Mobile-optimized Profile Actions Header */}
-      <div className="mb-4 md:mb-6">
+      <div className="sticky top-0 z-30 mb-4 md:mb-6 bg-background/80 supports-[backdrop-filter]:bg-background/60 backdrop-blur border-b">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0">
           <div className="min-w-0 flex-1">
             <h1 className="text-xl md:text-2xl font-bold truncate">
@@ -170,26 +170,26 @@ const Profile = () => {
                 variant="outline" 
                 onClick={() => setShowPreview(true)}
                 size="sm"
-                className="flex-1 sm:flex-none"
+                className="flex-1 sm:flex-none min-h-[44px]"
               >
                 Vorschau
               </Button>
             )}
             
             {isEditing ? (
-              <div className="flex gap-2 flex-1 sm:flex-none">
+              <div className="hidden md:flex gap-2 flex-1 sm:flex-none">
                 <Button 
                   variant="outline" 
                   onClick={() => setIsEditing(false)}
                   disabled={isSaving}
                   size="sm"
-                  className="flex-1 sm:flex-none"
+                  className="flex-1 sm:flex-none min-h-[44px]"
                 >
                   <X className="h-4 w-4 mr-1 sm:mr-2" />
                   <span className="hidden sm:inline">Abbrechen</span>
                   <span className="sm:hidden">Abbr.</span>
                 </Button>
-                <Button onClick={handleSave} disabled={isSaving} size="sm" className="flex-1 sm:flex-none">
+                <Button onClick={handleSave} disabled={isSaving} size="sm" className="flex-1 sm:flex-none min-h-[44px]">
                   {isSaving ? (
                     <Clock className="h-4 w-4 mr-1 sm:mr-2 animate-spin" />
                   ) : (
@@ -200,7 +200,7 @@ const Profile = () => {
                 </Button>
               </div>
             ) : (
-              <Button onClick={() => setIsEditing(true)} size="sm" className="flex-1 sm:flex-none">
+              <Button onClick={() => setIsEditing(true)} size="sm" className="flex-1 sm:flex-none min-h-[44px]">
                 <Edit3 className="h-4 w-4 mr-1 sm:mr-2" />
                 <span className="hidden sm:inline">Bearbeiten</span>
                 <span className="sm:hidden">Edit</span>
@@ -257,6 +257,32 @@ const Profile = () => {
           </div>
         </aside>
       </div>
+
+      {/* Sticky bottom Save Bar (mobile) */}
+      {isEditing && (
+        <div className="fixed inset-x-0 bottom-0 z-40 border-t bg-background/95 supports-[backdrop-filter]:bg-background/80 backdrop-blur px-4 py-3 pb-safe md:hidden">
+          <div className="container mx-auto flex items-center justify-end gap-2">
+            <Button
+              variant="outline"
+              onClick={() => setIsEditing(false)}
+              disabled={isSaving}
+              size="sm"
+              className="min-h-[44px]"
+            >
+              Abbrechen
+            </Button>
+            <Button
+              onClick={handleSave}
+              disabled={isSaving}
+              size="sm"
+              className="min-h-[44px]"
+            >
+              {isSaving ? <Clock className="h-4 w-4 mr-2 animate-spin" /> : <Check className="h-4 w-4 mr-2" />}
+              Speichern
+            </Button>
+          </div>
+        </div>
+      )}
 
       {/* Preview Modal */}
       {showPreview && (

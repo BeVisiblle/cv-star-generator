@@ -112,27 +112,27 @@ export default function CompanyProfile() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="min-h-screen bg-background overflow-x-hidden pt-safe pb-24 space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold">Unternehmensprofil</h1>
-        <div className="flex space-x-2">
-          <Button variant="outline">
+      <div className="sticky top-0 z-30 bg-background/80 supports-[backdrop-filter]:bg-background/60 backdrop-blur border-b py-3 px-1 flex items-center justify-between">
+        <h1 className="text-2xl md:text-3xl font-bold truncate">Unternehmensprofil</h1>
+        <div className="flex space-x-2 items-center">
+          <Button variant="outline" className="min-h-[44px]">
             <Eye className="h-4 w-4 mr-2" />
             Vorschau als Bewerber
           </Button>
           {editing ? (
-            <div className="flex space-x-2">
-              <Button variant="outline" onClick={() => setEditing(false)}>
+            <div className="hidden md:flex space-x-2">
+              <Button variant="outline" onClick={() => setEditing(false)} className="min-h-[44px]">
                 Abbrechen
               </Button>
-              <Button onClick={handleSave} disabled={saving}>
+              <Button onClick={handleSave} disabled={saving} className="min-h-[44px]">
                 <Save className="h-4 w-4 mr-2" />
                 {saving ? "Speichern..." : "Speichern"}
               </Button>
             </div>
           ) : (
-            <Button onClick={() => setEditing(true)}>
+            <Button onClick={() => setEditing(true)} className="min-h-[44px]">
               Profil bearbeiten
             </Button>
           )}
@@ -353,6 +353,18 @@ export default function CompanyProfile() {
           </Card>
         </TabsContent>
       </Tabs>
+
+      {editing && (
+        <div className="fixed inset-x-0 bottom-0 z-40 border-t bg-background/95 supports-[backdrop-filter]:bg-background/80 backdrop-blur px-4 py-3 pb-safe md:hidden">
+          <div className="container mx-auto flex items-center justify-end gap-2">
+            <Button variant="outline" onClick={() => setEditing(false)} className="min-h-[44px]">Abbrechen</Button>
+            <Button onClick={handleSave} disabled={saving} className="min-h-[44px]">
+              <Save className="h-4 w-4 mr-2" />
+              {saving ? "Speichern..." : "Speichern"}
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

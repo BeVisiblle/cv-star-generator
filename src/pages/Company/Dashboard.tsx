@@ -190,7 +190,7 @@ export default function CompanyDashboard() {
   const displayCompany = demoMode ? demoCompanyData : company;
 
   return (
-    <div className="space-y-6">
+    <div className="p-3 md:p-6 min-h-screen bg-background max-w-full overflow-x-hidden space-y-6">
       {/* Demo Mode Banner */}
       {demoMode && (
         <div className="bg-yellow-100 border border-yellow-400 rounded-lg p-4">
