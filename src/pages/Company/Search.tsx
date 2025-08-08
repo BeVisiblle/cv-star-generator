@@ -15,8 +15,6 @@ import { SearchHeader } from "@/components/Company/SearchHeader";
 import { ProfileCard } from "@/components/Company/ProfileCard";
 import { UnlockProfileModal } from "@/components/Company/UnlockProfileModal";
 import { FullProfileModal } from "@/components/Company/FullProfileModal";
-import { LocationSelect } from "@/components/Company/LocationSelect";
-import { RadiusSelector } from "@/components/Company/RadiusSelector";
 import { 
   Search as SearchIcon, 
   Filter, 
@@ -51,7 +49,6 @@ interface SearchFilters {
   keywords: string;
   targetGroup: string;
   location: string;
-  locationId?: number; // canonical locations.id
   radius: number;
   industry: string;
   availability: string;
@@ -84,85 +81,39 @@ export default function CompanySearch() {
     loadSavedMatches();
   }, [company, filters]);
 
-const loadProfiles = async () => {
-  setLoading(true);
-  try {
-    // Prefer geo-based search when possible
-    if (filters.locationId && filters.radius) {
-      const { data: near, error: rpcError } = await supabase.rpc('get_users_near_location', {
-        p_loc_id: filters.locationId,
-        p_radius_km: filters.radius,
-      });
-      if (rpcError) throw rpcError;
-      const ids = (near as any[] | null)?.map((r: any) => r.profile_id) ?? [];
-      if (ids.length > 0) {
-        let q = supabase
-          .from('profiles')
-          .select('*')
-          .in('id', ids)
-          .eq('profile_published', true);
-        if (filters.targetGroup) q = q.eq('status', filters.targetGroup);
-        if (filters.industry) q = q.ilike('branche', `%${filters.industry}%`);
-        if (filters.keywords) q = q.or(`vorname.ilike.%${filters.keywords}%,nachname.ilike.%${filters.keywords}%,headline.ilike.%${filters.keywords}%`);
-        const { data, error } = await q.limit(20);
-        if (error) throw error;
-        const order = new Map(ids.map((id: string, idx: number) => [id, idx]));
-        setProfiles(((data || []) as Profile[]).sort((a, b) => (order.get(a.id) ?? 0) - (order.get(b.id) ?? 0)));
-        return;
-      } else {
-        setProfiles([]);
-        return;
+  const loadProfiles = async () => {
+    setLoading(true);
+    try {
+      let query = supabase
+        .from('profiles')
+        .select('*')
+        .eq('profile_published', true);
+
+      // Apply filters
+      if (filters.targetGroup) {
+        query = query.eq('status', filters.targetGroup);
       }
-    } else if (company?.id && filters.radius) {
-      const { data: nearProfiles, error: rpcError } = await supabase.rpc('get_users_near_company', {
-        p_company_id: company.id,
-        p_radius_km: filters.radius,
-      });
-      if (!rpcError && Array.isArray(nearProfiles)) {
-        let data = (nearProfiles as any[]).filter((p) => p.profile_published);
-        if (filters.targetGroup) data = data.filter((p) => p.status === filters.targetGroup);
-        if (filters.industry) data = data.filter((p) => p.branche?.toLowerCase().includes(filters.industry.toLowerCase()));
-        if (filters.keywords) {
-          const kw = filters.keywords.toLowerCase();
-          data = data.filter((p) => (p.vorname?.toLowerCase().includes(kw)) || (p.nachname?.toLowerCase().includes(kw)) || (p.headline?.toLowerCase().includes(kw)));
-        }
-        setProfiles((data as Profile[]).slice(0, 20));
-        return;
+      if (filters.industry) {
+        query = query.ilike('branche', `%${filters.industry}%`);
       }
-      // fallthrough to basic query on rpc error
-    }
+      if (filters.location) {
+        query = query.ilike('ort', `%${filters.location}%`);
+      }
+      if (filters.keywords) {
+        query = query.or(`vorname.ilike.%${filters.keywords}%,nachname.ilike.%${filters.keywords}%,headline.ilike.%${filters.keywords}%`);
+      }
 
-    // Basic query fallback
-    let query = supabase
-      .from('profiles')
-      .select('*')
-      .eq('profile_published', true);
+      const { data, error } = await query.limit(20);
 
-    // Apply filters
-    if (filters.targetGroup) {
-      query = query.eq('status', filters.targetGroup);
+      if (error) throw error;
+      setProfiles((data || []) as Profile[]);
+    } catch (error) {
+      console.error('Error loading profiles:', error);
+      toast({ title: "Fehler beim Laden der Profile", variant: "destructive" });
+    } finally {
+      setLoading(false);
     }
-    if (filters.industry) {
-      query = query.ilike('branche', `%${filters.industry}%`);
-    }
-    if (filters.location) {
-      query = query.ilike('ort', `%${filters.location}%`);
-    }
-    if (filters.keywords) {
-      query = query.or(`vorname.ilike.%${filters.keywords}%,nachname.ilike.%${filters.keywords}%,headline.ilike.%${filters.keywords}%`);
-    }
-
-    const { data, error } = await query.limit(20);
-
-    if (error) throw error;
-    setProfiles((data || []) as Profile[]);
-  } catch (error) {
-    console.error('Error loading profiles:', error);
-    toast({ title: "Fehler beim Laden der Profile", variant: "destructive" });
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
   const loadUnlockedProfiles = async () => {
     if (!company) return;
@@ -328,21 +279,22 @@ const loadProfiles = async () => {
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="space-y-2">
-                <LocationSelect
-                  value={filters.location || filters.locationId ? { id: filters.locationId ?? 0, label: filters.location } : null}
-                  onChange={(v) => {
-                    setFilters((prev) => ({
-                      ...prev,
-                      location: v?.label || "",
-                      locationId: v && v.id > 0 ? v.id : undefined,
-                    }));
-                  }}
+                <Label htmlFor="location-detailed">Standort</Label>
+                <Input
+                  id="location-detailed"
+                  placeholder="Stadt oder PLZ"
+                  value={filters.location}
+                  onChange={(e) => updateFilter('location', e.target.value)}
                 />
               </div>
               <div className="space-y-2">
-                <RadiusSelector
-                  value={filters.radius}
-                  onChange={(v) => updateFilter('radius', v)}
+                <Label>Umkreis: {filters.radius}km</Label>
+                <Slider
+                  value={[filters.radius]}
+                  onValueChange={(value) => updateFilter('radius', value[0])}
+                  max={200}
+                  min={10}
+                  step={10}
                 />
               </div>
               <div className="space-y-2">
