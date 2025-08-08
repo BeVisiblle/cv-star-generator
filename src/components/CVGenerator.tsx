@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useCVForm } from '@/contexts/CVFormContext';
+import { CVFormProvider, useCVForm } from '@/contexts/CVFormContext';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
@@ -202,7 +202,9 @@ const CVGeneratorContent = () => {
 
 const CVGenerator = () => {
   return (
-    <CVGeneratorContent />
+    <CVFormProvider>
+      <CVGeneratorContent />
+    </CVFormProvider>
   );
 };
 
