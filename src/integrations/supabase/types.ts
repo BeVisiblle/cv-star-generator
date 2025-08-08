@@ -597,6 +597,133 @@ export type Database = {
           },
         ]
       }
+      page_revisions: {
+        Row: {
+          changed_at: string
+          changed_by: string
+          content_html: string | null
+          content_markdown: string | null
+          id: string
+          page_id: string
+        }
+        Insert: {
+          changed_at?: string
+          changed_by: string
+          content_html?: string | null
+          content_markdown?: string | null
+          id?: string
+          page_id: string
+        }
+        Update: {
+          changed_at?: string
+          changed_by?: string
+          content_html?: string | null
+          content_markdown?: string | null
+          id?: string
+          page_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "page_revisions_page_id_fkey"
+            columns: ["page_id"]
+            isOneToOne: false
+            referencedRelation: "pages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      page_views: {
+        Row: {
+          id: number
+          ip_hash: string | null
+          page_id: string
+          user_agent: string | null
+          viewed_at: string
+        }
+        Insert: {
+          id?: number
+          ip_hash?: string | null
+          page_id: string
+          user_agent?: string | null
+          viewed_at?: string
+        }
+        Update: {
+          id?: number
+          ip_hash?: string | null
+          page_id?: string
+          user_agent?: string | null
+          viewed_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "page_views_page_id_fkey"
+            columns: ["page_id"]
+            isOneToOne: false
+            referencedRelation: "pages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pages: {
+        Row: {
+          author_id: string
+          category: string | null
+          content_html: string | null
+          content_markdown: string | null
+          created_at: string
+          featured_image_url: string | null
+          id: string
+          keywords: string[] | null
+          meta_description: string
+          meta_title: string
+          page_type: string
+          publish_at: string | null
+          slug: string
+          status: string
+          tags: string[] | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          author_id: string
+          category?: string | null
+          content_html?: string | null
+          content_markdown?: string | null
+          created_at?: string
+          featured_image_url?: string | null
+          id?: string
+          keywords?: string[] | null
+          meta_description: string
+          meta_title: string
+          page_type?: string
+          publish_at?: string | null
+          slug: string
+          status?: string
+          tags?: string[] | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          author_id?: string
+          category?: string | null
+          content_html?: string | null
+          content_markdown?: string | null
+          created_at?: string
+          featured_image_url?: string | null
+          id?: string
+          keywords?: string[] | null
+          meta_description?: string
+          meta_title?: string
+          page_type?: string
+          publish_at?: string | null
+          slug?: string
+          status?: string
+          tags?: string[] | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       plan_changes: {
         Row: {
           client_request_id: string | null
@@ -1890,6 +2017,10 @@ export type Database = {
       }
       is_company_member: {
         Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
+      is_content_editor: {
+        Args: { _uid?: string }
         Returns: boolean
       }
       json: {
