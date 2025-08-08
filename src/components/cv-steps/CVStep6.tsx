@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useCVForm } from '@/contexts/CVFormContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -25,8 +26,12 @@ const CVStep6 = () => {
   const getBrancheTitle = () => {
     switch (formData.branche) {
       case 'handwerk': return 'Handwerk';
-      case 'it': return 'IT';
-      case 'gesundheit': return 'Gesundheit';
+      case 'it': return 'IT & Technik';
+      case 'gesundheit': return 'Gesundheit & Pflege';
+      case 'buero': return 'Büro & Verwaltung';
+      case 'verkauf': return 'Verkauf & Handel';
+      case 'gastronomie': return 'Gastronomie';
+      case 'bau': return 'Bau & Architektur';
       default: return '';
     }
   };

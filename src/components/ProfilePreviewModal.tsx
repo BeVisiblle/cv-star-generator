@@ -1,3 +1,4 @@
+
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -59,10 +60,14 @@ export function ProfilePreviewModal({ isOpen, onClose, profileData, onPublish }:
 
   const getBrancheTitle = (branche?: string) => {
     const titles = {
-      'handwerk': 'Handwerk',
-      'it': 'IT & Technik',
-      'gesundheit': 'Gesundheit & Pflege'
-    };
+      handwerk: 'Handwerk',
+      it: 'IT & Technik',
+      gesundheit: 'Gesundheit & Pflege',
+      buero: 'Büro & Verwaltung',
+      verkauf: 'Verkauf & Handel',
+      gastronomie: 'Gastronomie',
+      bau: 'Bau & Architektur',
+    } as const;
     return branche ? titles[branche as keyof typeof titles] || branche : '';
   };
 
