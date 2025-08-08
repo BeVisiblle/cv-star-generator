@@ -43,7 +43,6 @@ const ModernLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) => {
                   <div key={index}>
                     <div className="flex justify-between items-center mb-2">
                       <span className="font-medium">{sprache.sprache}</span>
-                      <span className="text-sm text-muted-foreground">{sprache.niveau}</span>
                     </div>
                     <LanguageBars niveau={sprache.niveau} branche={data.branche} />
                   </div>

@@ -55,7 +55,6 @@ const ClassicLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) => {
                   <div key={index}>
                     <div className="flex justify-between items-center mb-1">
                       <span className="font-medium font-serif">{sprache.sprache}</span>
-                      <span className="text-sm text-muted-foreground">{sprache.niveau}</span>
                     </div>
                     <LanguageBars niveau={sprache.niveau} branche={data.branche} />
                   </div>

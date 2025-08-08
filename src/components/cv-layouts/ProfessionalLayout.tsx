@@ -7,7 +7,7 @@ const ProfessionalLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) =
   return (
     <div className={`max-w-4xl mx-auto bg-white border border-gray-300 shadow-lg ${className}`} data-cv-preview>
       {/* Header Section */}
-      <div className={`bg-gray-50 p-8 border-b-2 border-[hsl(${colors.primary})]`}>
+      <div className={`p-8 border-b-2 border-[hsl(${colors.primary})]`}>
         <div className="flex items-center gap-6">
           <ProfileImage profilbild={data.profilbild} avatar_url={data.avatar_url} size="lg" className="border-2 border-gray-300" />
           <div className="flex-1">
@@ -34,10 +34,9 @@ const ProfessionalLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) =
               </h3>
               <div className="space-y-3">
                 {data.sprachen.map((sprache, index) => (
-                  <div key={index} className="bg-gray-50 p-3 rounded">
+                  <div key={index} className="p-3 rounded">
                     <div className="flex justify-between items-center mb-2">
                       <span className="font-medium">{sprache.sprache}</span>
-                      <span className="text-sm text-muted-foreground">{sprache.niveau}</span>
                     </div>
                     <LanguageBars niveau={sprache.niveau} branche={data.branche} />
                   </div>
@@ -65,7 +64,7 @@ const ProfessionalLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) =
               <h3 className={`text-lg font-semibold text-[hsl(${colors.text})] mb-3 pb-2 border-b border-[hsl(${colors.primary})]`}>
                 Über mich
               </h3>
-              <p className="text-gray-700 leading-relaxed bg-gray-50 p-4 rounded">
+              <p className="text-gray-700 leading-relaxed p-4 rounded">
                 {data.ueberMich}
               </p>
             </div>
@@ -85,7 +84,7 @@ const ProfessionalLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) =
                     return bEnd - aEnd;
                   })
                   .map((schule, index) => (
-                  <div key={index} className={`border border-gray-200 p-4 rounded bg-gray-50 break-inside-avoid`}>
+                  <div key={index} className={`border border-gray-200 p-4 rounded break-inside-avoid`}>
                     <div className="flex justify-between items-start mb-2">
                       <h4 className="font-semibold text-lg">{schule.schulform}</h4>
                       <span 
@@ -128,7 +127,7 @@ const ProfessionalLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) =
                     return bEnd.getTime() - aEnd.getTime();
                   })
                   .map((arbeit, index) => (
-                  <div key={index} className={`border border-gray-200 p-4 rounded bg-gray-50 break-inside-avoid`}>
+                  <div key={index} className={`border border-gray-200 p-4 rounded break-inside-avoid`}>
                     <div className="flex justify-between items-start mb-2">
                       <h4 className="font-semibold text-lg">{arbeit.titel}</h4>
                       <span 

@@ -61,9 +61,6 @@ const CreativeLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) => {
                   <div key={index} className={`bg-[hsl(${colors.secondary})] p-3 rounded-lg transform hover:scale-105 transition-transform`}>
                     <div className="flex justify-between items-center mb-2">
                       <span className="font-bold">{sprache.sprache}</span>
-                      <span className="text-sm text-muted-foreground bg-white px-2 py-1 rounded-full">
-                        {sprache.niveau}
-                      </span>
                     </div>
                     <LanguageBars niveau={sprache.niveau} branche={data.branche} />
                   </div>

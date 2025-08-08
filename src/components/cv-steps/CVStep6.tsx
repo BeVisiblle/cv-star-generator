@@ -12,11 +12,6 @@ import { toast } from 'sonner';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { generateCVVariantFile, uploadCVWithFilename } from '@/lib/supabase-storage';
 
-// Variant-aware CV renderers
-import { CvRendererMobile } from '@/components/cv-renderers/CvRendererMobile';
-
-import { mapFormDataToContent, CVContent } from '@/components/cv-renderers/CVContent';
-import { adjustContentForVariant } from '@/lib/page-length';
 
 // A4 layout variants
 import ModernLayout from '@/components/cv-layouts/ModernLayout';
@@ -152,15 +147,7 @@ const CVStep6 = () => {
   };
 
   const renderLayoutComponent = () => {
-    const variant: 'mobile' | 'a4' = isMobile ? 'mobile' : 'a4';
-
-    if (variant === 'mobile') {
-      const content: CVContent = mapFormDataToContent(formData);
-      const adjusted = adjustContentForVariant(content, 'mobile');
-      return <CvRendererMobile content={adjusted} />;
-    }
-
-    // A4 preview using selected layout
+    // Always render A4 layout for consistent preview (also on mobile)
     const data = mapFormDataToCVData(formData);
     const selected = formData.layout ?? 1;
 
@@ -227,18 +214,12 @@ const CVStep6 = () => {
         
         <CardContent>
           <div className="w-full flex justify-center">
-            <div className="origin-top scale-90 sm:scale-100 transition-transform">
+            <div className="origin-top scale-[0.74] sm:scale-90 md:scale-100 transition-transform">
               {/* Render the selected layout component */}
               {renderLayoutComponent()}
             </div>
           </div>
 
-          <div className="mt-6 p-4 bg-muted/20 rounded-lg">
-            <p className="text-sm text-muted-foreground">
-              <strong>Hinweis:</strong> Layout "{getLayoutName()}" mit branchenspezifischem Farbschema. 
-              Das finale Layout wird für PDF optimiert und professionell formatiert.
-            </p>
-          </div>
         </CardContent>
       </Card>
     </div>

@@ -40,6 +40,13 @@ const CVStep5 = () => {
       description: 'Seriöses Layout für Gesundheitswesen und Behörden',
       preview: '🏢',
       color: 'bg-slate-50 border-slate-200'
+    },
+    {
+      id: 6,
+      name: 'LiveCareer',
+      description: 'A4-optimiertes, kompaktes Layout – ideal für PDF',
+      preview: '🧩',
+      color: 'bg-blue-50 border-blue-200'
     }
   ];
 
