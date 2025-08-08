@@ -7,18 +7,16 @@ import { ArrowLeft, Download } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
-import { generatePDF, generateCVFilename } from '@/lib/pdf-generator';
+import { generateCVFilename } from '@/lib/pdf-generator';
 import { toast } from 'sonner';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { generateCVVariantFile, uploadCVWithFilename } from '@/lib/supabase-storage';
 
-// Import layout components
-import ModernLayout from '@/components/cv-layouts/ModernLayout';
-import ClassicLayout from '@/components/cv-layouts/ClassicLayout';
-import CreativeLayout from '@/components/cv-layouts/CreativeLayout';
-import MinimalLayout from '@/components/cv-layouts/MinimalLayout';
-import ProfessionalLayout from '@/components/cv-layouts/ProfessionalLayout';
-import LiveCareerLayout from '@/components/cv-layouts/LiveCareerLayout';
+// Variant-aware CV renderers
+import { CvRendererMobile } from '@/components/cv-renderers/CvRendererMobile';
+import { CvRendererA4 } from '@/components/cv-renderers/CvRendererA4';
+import { mapFormDataToContent, CVContent } from '@/components/cv-renderers/CVContent';
+import { adjustContentForVariant } from '@/lib/page-length';
 
 const CVStep6 = () => {
   const { formData, setCurrentStep, isLayoutEditMode, setLayoutEditMode } = useCVForm();
@@ -97,9 +95,45 @@ const CVStep6 = () => {
         return;
       }
 
-      const filename = generateCVFilename(formData.vorname || 'Unknown', formData.nachname || 'User');
-      await generatePDF(cvElement, { filename });
+      const base = generateCVFilename(formData.vorname || 'Unknown', formData.nachname || 'User');
+      const baseNoExt = base.replace(/\.pdf$/i, '');
+      const variant: 'mobile' | 'a4' = isMobile ? 'mobile' : 'a4';
+
+      // Primary: generate and download current variant
+      const file = await generateCVVariantFile(cvElement, `${baseNoExt}_${variant}.pdf`, variant);
+      const url = URL.createObjectURL(file);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = file.name;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
       toast.success('CV erfolgreich heruntergeladen!');
+
+      // Upload if authenticated
+      if (profile) {
+        try {
+          await uploadCVWithFilename(file, file.name);
+          toast.success('CV in deinem Konto gespeichert.');
+        } catch (e) {
+          console.error('Fehler beim Hochladen des CVs:', e);
+        }
+      }
+
+      // Background: generate alternate variant
+      const other: 'mobile' | 'a4' = variant === 'mobile' ? 'a4' : 'mobile';
+      setTimeout(async () => {
+        try {
+          const alt = await generateCVVariantFile(cvElement, `${baseNoExt}_${other}.pdf`, other);
+          if (profile) {
+            await uploadCVWithFilename(alt, alt.name);
+          }
+          toast.success(`Alternatives ${other.toUpperCase()}-Format bereit.`);
+        } catch (err) {
+          console.error('Fehler beim Erzeugen des alternativen Formats:', err);
+        }
+      }, 0);
     } catch (error) {
       console.error('Error downloading CV:', error);
       toast.error('Fehler beim Herunterladen des CVs');
@@ -107,16 +141,14 @@ const CVStep6 = () => {
   };
 
   const renderLayoutComponent = () => {
-    const layoutProps = { data: formData };
-    
-    switch (formData.layout) {
-      case 1: return <LiveCareerLayout {...layoutProps} />;
-      case 2: return <ClassicLayout {...layoutProps} />;
-      case 3: return <CreativeLayout {...layoutProps} />;
-      case 4: return <MinimalLayout {...layoutProps} />;
-      case 5: return <ProfessionalLayout {...layoutProps} />;
-      default: return <LiveCareerLayout {...layoutProps} />;
+    const content: CVContent = mapFormDataToContent(formData);
+    const variant: 'mobile' | 'a4' = isMobile ? 'mobile' : 'a4';
+    const adjusted = adjustContentForVariant(content, variant);
+
+    if (variant === 'mobile') {
+      return <CvRendererMobile content={adjusted} />;
     }
+    return <CvRendererA4 content={adjusted} />;
   };
 
   return (

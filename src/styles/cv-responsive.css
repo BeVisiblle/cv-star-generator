@@ -1,0 +1,20 @@
+/* Responsive, fixed-size wrappers for CV preview to avoid overflow and ensure predictable PDF output */
+
+/* Screen sizes */
+.cv-a4 {
+  width: 794px; /* ~ A4 @96dpi */
+}
+
+.cv-mobile {
+  width: 372px; /* typical mobile page width */
+}
+
+/* Prevent horizontal scroll inside CV */
+.cv-a4, .cv-mobile {
+  overflow-x: hidden;
+}
+
+/* Print sizing hints are in cv-print.css; we keep screen-only sizing here */
+@media (max-width: 400px) {
+  .cv-mobile { width: 100%; }
+}
