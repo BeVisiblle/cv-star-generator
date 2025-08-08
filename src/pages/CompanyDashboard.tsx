@@ -127,69 +127,32 @@ export default function CompanyDashboard() {
     if (!company) return;
 
     try {
-      // Check if token already used for this profile
-      const { data: existingToken } = await supabase
-        .from('tokens_used')
-        .select('id')
-        .eq('company_id', company.id)
-        .eq('profile_id', profileId)
-        .single();
-
-      if (existingToken) {
-        toast({
-          title: "Bereits freigeschaltet",
-          description: "Sie haben bereits ein Token für dieses Profil verwendet.",
-        });
+      const { data, error } = await supabase.rpc('use_token', { p_profile_id: profileId });
+      if (error) {
+        const msg = String(error.message || '').toUpperCase();
+        if (msg.includes('ALREADY_USED')) {
+          toast({ title: 'Bereits freigeschaltet', description: 'Sie haben bereits ein Token für dieses Profil verwendet.' });
+        } else if (msg.includes('NO_TOKENS')) {
+          toast({ title: 'Keine Token verfügbar', description: 'Sie haben keine aktiven Token mehr. Bitte upgraden Sie Ihr Abo.', variant: 'destructive' });
+        } else if (msg.includes('NO_COMPANY')) {
+          toast({ title: 'Kein Unternehmen', description: 'Sie sind keinem Unternehmen zugeordnet.', variant: 'destructive' });
+        } else if (msg.includes('NO_CONSENT')) {
+          toast({ title: 'Nicht freigegeben', description: 'Das Profil ist nicht veröffentlicht oder ohne Einwilligung.', variant: 'destructive' });
+        } else {
+          toast({ title: 'Fehler', description: 'Token konnte nicht verwendet werden.', variant: 'destructive' });
+        }
         return;
       }
 
-      if (company.active_tokens <= 0) {
-        toast({
-          title: "Keine Token verfügbar",
-          description: "Sie haben keine aktiven Token mehr. Bitte upgraden Sie Ihr Abo.",
-          variant: "destructive",
-        });
-        return;
+      const remaining = Array.isArray(data) ? (data[0] as any)?.remaining_tokens : (data as any)?.remaining_tokens;
+      if (typeof remaining === 'number') {
+        setCompany({ ...company, active_tokens: remaining });
       }
 
-      // Use token
-      const { error: tokenError } = await supabase
-        .from('tokens_used')
-        .insert({
-          company_id: company.id,
-          profile_id: profileId,
-        });
-
-      if (tokenError) {
-        console.error('Error using token:', tokenError);
-        return;
-      }
-
-      // Update company active tokens
-      const { error: updateError } = await supabase
-        .from('companies')
-        .update({ active_tokens: company.active_tokens - 1 })
-        .eq('id', company.id);
-
-      if (updateError) {
-        console.error('Error updating tokens:', updateError);
-        return;
-      }
-
-      setCompany({ ...company, active_tokens: company.active_tokens - 1 });
-      
-      toast({
-        title: "Profil freigeschaltet",
-        description: "Sie können jetzt alle Details des Profils einsehen.",
-      });
-
+      toast({ title: 'Profil freigeschaltet', description: 'Sie können jetzt alle Details des Profils einsehen.' });
     } catch (error) {
       console.error('Error using token:', error);
-      toast({
-        title: "Fehler",
-        description: "Token konnte nicht verwendet werden.",
-        variant: "destructive",
-      });
+      toast({ title: 'Fehler', description: 'Token konnte nicht verwendet werden.', variant: 'destructive' });
     }
   };
 

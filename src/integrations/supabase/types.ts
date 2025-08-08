@@ -2703,6 +2703,13 @@ export type Database = {
         }
         Returns: string
       }
+      use_token: {
+        Args: { p_profile_id: string }
+        Returns: {
+          token_id: string
+          remaining_tokens: number
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never

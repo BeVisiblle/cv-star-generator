@@ -6,6 +6,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { MapPin, Briefcase, GraduationCap, Heart, Coins, Phone, Mail, Download, User } from "lucide-react";
 import { generatePDF } from "@/lib/pdf-generator";
 import { useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 
 interface Profile {
@@ -155,14 +156,34 @@ export function ProfileCard({
 
   const handleDownloadCV = async () => {
     if (!isUnlocked) return;
-    
     setIsGeneratingPDF(true);
     try {
-      // Check if CV already exists in database
       if (profile.cv_url) {
-        // Download existing CV from URL
+        // Attempt to generate a signed URL for private storage
+        let downloadUrl = profile.cv_url;
+        const extractStoragePath = (url: string) => {
+          try {
+            const marker = '/storage/v1/object/public/';
+            const idx = url.indexOf(marker);
+            if (idx === -1) return null;
+            const after = url.substring(idx + marker.length);
+            const [bucket, ...rest] = after.split('/');
+            return { bucket, path: rest.join('/') };
+          } catch {
+            return null;
+          }
+        };
+        const parsed = extractStoragePath(profile.cv_url);
+        if (parsed) {
+          const { data: signed, error } = await supabase.storage
+            .from(parsed.bucket)
+            .createSignedUrl(parsed.path, 60);
+          if (!error && signed?.signedUrl) {
+            downloadUrl = signed.signedUrl;
+          }
+        }
         const link = document.createElement('a');
-        link.href = profile.cv_url;
+        link.href = downloadUrl;
         link.download = `CV_${profile.vorname}_${profile.nachname}.pdf`;
         document.body.appendChild(link);
         link.click();

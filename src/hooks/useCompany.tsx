@@ -101,42 +101,14 @@ export const useCompany = () => {
     if (!company) return { success: false, error: 'No company found' };
 
     try {
-      // Check if token already used for this profile
-      const { data: existingToken } = await supabase
-        .from('tokens_used')
-        .select('id')
-        .eq('company_id', company.id)
-        .eq('profile_id', profileId)
-        .single();
+      const { data, error } = await supabase.rpc('use_token', { p_profile_id: profileId });
+      if (error) throw error;
 
-      if (existingToken) {
-        return { success: false, error: 'Token already used for this profile' };
+      const remaining = Array.isArray(data) ? (data[0] as any)?.remaining_tokens : (data as any)?.remaining_tokens;
+      if (typeof remaining === 'number') {
+        setCompany({ ...company, active_tokens: remaining });
       }
 
-      if (company.active_tokens <= 0) {
-        return { success: false, error: 'No active tokens available' };
-      }
-
-      // Use token
-      const { error: tokenError } = await supabase
-        .from('tokens_used')
-        .insert({
-          company_id: company.id,
-          profile_id: profileId,
-        });
-
-      if (tokenError) throw tokenError;
-
-      // Update company active tokens
-      const { error: updateError } = await supabase
-        .from('companies')
-        .update({ active_tokens: company.active_tokens - 1 })
-        .eq('id', company.id);
-
-      if (updateError) throw updateError;
-
-      setCompany({ ...company, active_tokens: company.active_tokens - 1 });
-      
       return { success: true };
     } catch (err: any) {
       console.error('Error using token:', err);

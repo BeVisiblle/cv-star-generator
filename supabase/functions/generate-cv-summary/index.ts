@@ -112,7 +112,7 @@ Erstelle daraus einen maximal 4-zeiligen Text, der sich als „Über mich"-Absch
 
 Der Text darf weder übertrieben noch generisch klingen, sondern soll authentisch zur Person passen. Du darfst kreativ sein – aber nicht unrealistisch.`;
 
-    console.log('Sending prompt to OpenAI:', prompt);
+    // Sending prompt to OpenAI (content redacted in logs)
 
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -144,7 +144,7 @@ Der Text darf weder übertrieben noch generisch klingen, sondern soll authentisc
     const data = await response.json();
     const generatedText = data.choices[0].message.content.trim();
 
-    console.log('Generated CV summary:', generatedText);
+    // CV summary generated successfully
 
     return new Response(JSON.stringify({ 
       success: true,
