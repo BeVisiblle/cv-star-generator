@@ -7,8 +7,10 @@ import { ArrowLeft, Download } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
-import { generatePDF, generateCVFilename } from '@/lib/pdf-generator';
+import { generateCVFilename } from '@/lib/pdf-generator';
 import { toast } from 'sonner';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { generateCVVariantFile, uploadCVWithFilename } from '@/lib/supabase-storage';
 
 // Import layout components
 import ModernLayout from '@/components/cv-layouts/ModernLayout';
@@ -22,7 +24,7 @@ const CVStep6 = () => {
   const { formData, setCurrentStep, isLayoutEditMode, setLayoutEditMode } = useCVForm();
   const navigate = useNavigate();
   const { profile } = useAuth();
-
+  const isMobile = useIsMobile();
   const getBrancheTitle = () => {
     switch (formData.branche) {
       case 'handwerk': return 'Handwerk';

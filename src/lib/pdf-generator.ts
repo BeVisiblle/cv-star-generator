@@ -4,7 +4,7 @@ import jsPDF from 'jspdf';
 export interface PDFGeneratorOptions {
   filename?: string;
   quality?: number;
-  format?: 'a4' | 'letter';
+  format?: 'a4' | 'letter' | 'mobile';
   margin?: number;
 }
 
@@ -31,22 +31,29 @@ export const generatePDF = async (
       height: element.scrollHeight,
     });
 
-    // PDF dimensions (A4: 210 x 297 mm)
-    const imgWidth = format === 'a4' ? 190 : 200; // Accounting for margins
-    const pageHeight = format === 'a4' ? 287 : 260; // Accounting for margins
-    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+    // Determine page size in millimeters
+    const pageDims = format === 'a4'
+      ? { width: 210, height: 297 }
+      : format === 'letter'
+        ? { width: 216, height: 279 }
+        : { width: 90, height: 160 }; // mobile phone-optimized page
+
+    const usableWidth = pageDims.width - 2 * margin;
+    const usableHeight = pageDims.height - 2 * margin;
+    const imgHeight = (canvas.height * usableWidth) / canvas.width;
     
     const pdf = new jsPDF({
-      orientation: imgHeight > pageHeight ? 'portrait' : 'portrait',
+      orientation: 'portrait',
       unit: 'mm',
-      format: format,
+      // Use custom array for mobile size, named preset for others
+      format: format === 'mobile' ? [pageDims.width, pageDims.height] : format,
     });
 
     const imgData = canvas.toDataURL('image/png', 1.0);
     
     // If content fits on one page
-    if (imgHeight <= pageHeight) {
-      pdf.addImage(imgData, 'PNG', margin, margin, imgWidth, imgHeight);
+    if (imgHeight <= usableHeight) {
+      pdf.addImage(imgData, 'PNG', margin, margin, usableWidth, imgHeight);
     } else {
       // Handle multi-page PDFs
       let remainingHeight = imgHeight;
@@ -54,22 +61,22 @@ export const generatePDF = async (
       
       while (remainingHeight > 0) {
         if (position > 0) {
-          pdf.addPage();
+          pdf.addPage(format === 'mobile' ? [pageDims.width, pageDims.height] : undefined);
         }
         
-        const currentPageHeight = Math.min(pageHeight, remainingHeight);
+        const currentPageHeight = Math.min(usableHeight, remainingHeight);
         
         pdf.addImage(
           imgData,
           'PNG',
           margin,
           margin - position,
-          imgWidth,
+          usableWidth,
           imgHeight
         );
         
-        remainingHeight -= pageHeight;
-        position += pageHeight;
+        remainingHeight -= usableHeight;
+        position += usableHeight;
       }
     }
 
