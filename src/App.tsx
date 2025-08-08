@@ -35,6 +35,13 @@ import CompanyPosts from "@/pages/Company/Posts";
 import CompanyProfileView from "@/pages/Company/ProfileView";
 import CompanyBilling from "@/pages/Company/Billing";
 import CompanyUnlocked from "@/pages/Company/Unlocked";
+import AdminLayout from "./pages/Admin/AdminLayout";
+import PagesList from "./pages/Admin/PagesList";
+import PageEditor from "./pages/Admin/PageEditor";
+import SeoInsights from "./pages/Admin/SeoInsights";
+import ScheduledPosts from "./pages/Admin/ScheduledPosts";
+import AdminSettings from "./pages/Admin/AdminSettings";
+import PublicPage from "./pages/PublicPage";
 
 const queryClient = new QueryClient();
 
@@ -124,6 +131,8 @@ const App = () => (
               <Route path="/" element={<BaseLayout><Index /></BaseLayout>} />
               <Route path="/auth" element={<Auth />} />
               <Route path="/blog" element={<Blog />} />
+              <Route path="/blog/:slug" element={<PublicPage />} />
+              <Route path="/p/:slug" element={<PublicPage />} />
               <Route path="/unternehmen" element={<Unternehmen />} />
               <Route path="/datenschutz" element={<Datenschutz />} />
               <Route path="/impressum" element={<Impressum />} />
@@ -158,6 +167,17 @@ const App = () => (
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/marketplace" element={<Marketplace />} />
                 <Route path="/settings" element={<Settings />} />
+              </Route>
+
+              {/* Admin routes */}
+              <Route path="/admin" element={<AdminLayout />}>
+                <Route index element={<PagesList />} />
+                <Route path="pages" element={<PagesList />} />
+                <Route path="pages/new" element={<PageEditor />} />
+                <Route path="pages/:id" element={<PageEditor />} />
+                <Route path="seo" element={<SeoInsights />} />
+                <Route path="scheduled" element={<ScheduledPosts />} />
+                <Route path="settings" element={<AdminSettings />} />
               </Route>
                 
               {/* Legacy redirects */}
