@@ -77,14 +77,14 @@ const CVGeneratorContent = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-4 py-4 md:py-8 max-w-full md:max-w-2xl">
+    <div className="min-h-screen bg-background overflow-x-hidden">
+      <div className="container mx-auto px-4 py-4 md:py-8 pb-24 md:pb-8 pt-safe max-w-full md:max-w-2xl">
         {/* Header */}
-        <div className="mb-6 md:mb-8">
+        <div className="sticky top-0 z-30 mb-6 md:mb-8 bg-background/80 supports-[backdrop-filter]:bg-background/60 backdrop-blur border-b">
           <Button 
             variant="ghost" 
             onClick={handleBackToHome}
-            className="mb-4 text-sm md:text-base"
+            className="mb-4 text-sm md:text-base min-h-[44px]"
             size="sm"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
@@ -121,7 +121,7 @@ const CVGeneratorContent = () => {
           </div>
           
           <div className="space-y-3 md:space-y-4">
-            <h1 className="text-xl md:text-2xl font-bold text-foreground">
+            <h1 className="text-2xl md:text-2xl font-bold text-foreground">
               {isLayoutEditMode ? 'CV-Layout bearbeiten' : 'CV-Generator'}
             </h1>
             <div className="space-y-2">
@@ -147,7 +147,7 @@ const CVGeneratorContent = () => {
         </div>
 
         {/* Step Content */}
-        <div className="mb-6 md:mb-8">
+        <div className="mb-6 md:mb-8 break-words">
           {renderStep()}
         </div>
 
@@ -166,32 +166,34 @@ const CVGeneratorContent = () => {
         )}
 
         {/* Navigation */}
-        <div className="flex justify-between gap-2">
-          <Button
-            variant="outline"
-            onClick={handlePrevious}
-            disabled={isLayoutEditMode ? currentStep === 5 : currentStep === 1}
-            size="sm"
-            className="flex-shrink-0"
-          >
-            <ArrowLeft className="h-4 w-4 mr-1 md:mr-2" />
-            <span className="hidden sm:inline">Zurück</span>
-            <span className="sm:hidden">←</span>
-          </Button>
-
-          {(isLayoutEditMode ? currentStep < 6 : currentStep < 7) && (
+        <div className="fixed inset-x-0 bottom-0 z-40 border-t bg-background/95 supports-[backdrop-filter]:bg-background/80 backdrop-blur px-4 py-3 pb-safe md:static md:bg-transparent md:border-0 md:px-0 md:py-0">
+          <div className="container mx-auto max-w-full md:max-w-2xl flex justify-between gap-2">
             <Button
-              onClick={handleNext}
+              variant="outline"
+              onClick={handlePrevious}
+              disabled={isLayoutEditMode ? currentStep === 5 : currentStep === 1}
               size="sm"
-              className="flex-shrink-0"
+              className="flex-shrink-0 min-h-[44px]"
             >
-              <span className="hidden sm:inline">
-                {currentStep === 5 ? 'Weiter zur Vorschau' : 'Weiter'}
-              </span>
-              <span className="sm:hidden">→</span>
-              <ArrowRight className="h-4 w-4 ml-1 md:ml-2" />
+              <ArrowLeft className="h-4 w-4 mr-1 md:mr-2" />
+              <span className="hidden sm:inline">Zurück</span>
+              <span className="sm:hidden">←</span>
             </Button>
-          )}
+
+            {(isLayoutEditMode ? currentStep < 6 : currentStep < 7) && (
+              <Button
+                onClick={handleNext}
+                size="sm"
+                className="flex-shrink-0 min-h-[44px]"
+              >
+                <span className="hidden sm:inline">
+                  {currentStep === 5 ? 'Weiter zur Vorschau' : 'Weiter'}
+                </span>
+                <span className="sm:hidden">→</span>
+                <ArrowRight className="h-4 w-4 ml-1 md:ml-2" />
+              </Button>
+            )}
+          </div>
         </div>
       </div>
     </div>

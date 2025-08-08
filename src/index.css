@@ -26,7 +26,7 @@ All colors MUST be HSL.
     --muted: 220 13% 91%;
     --muted-foreground: 220 8.9% 46.1%;
 
-    --accent: 220 90% 56%;
+    --accent: 184 73% 63%;
     --accent-foreground: 0 0% 100%;
     
     --linkedin-blue: 201 100% 35%;
@@ -107,6 +107,15 @@ All colors MUST be HSL.
 
   body {
     @apply bg-background text-foreground;
+    overflow-x: hidden;
+    font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+  }
+
+  /* Media defaults to prevent horizontal overflow */
+  img, video, canvas, svg, iframe {
+    max-width: 100%;
+    height: auto;
+    display: block;
   }
 
   /* PDF Page Break Controls */
@@ -151,13 +160,13 @@ All colors MUST be HSL.
     break-after: avoid;
   }
 
-  /* Mobile optimization for CV layouts */
+  /* Mobile optimization for CV layouts - ensure no horizontal scroll */
   @media screen and (max-width: 768px) {
     .cv-layout-mobile {
       transform: scale(0.85);
       transform-origin: top center;
-      overflow-x: auto;
-      min-width: 210mm;
+      overflow-x: hidden;
+      max-width: 100%;
     }
     
     .cv-content-mobile {
@@ -193,4 +202,9 @@ All colors MUST be HSL.
       min-width: 44px;
     }
   }
+}
+
+@layer utilities {
+  .pt-safe { padding-top: env(safe-area-inset-top); }
+  .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
 }
