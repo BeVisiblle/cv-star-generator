@@ -176,6 +176,54 @@ export type Database = {
           },
         ]
       }
+      company_subscriptions: {
+        Row: {
+          company_id: string
+          created_at: string
+          plan_id: string
+          renews_at: string | null
+          seats: number
+          status: string
+          token_balance: number
+          updated_at: string
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          plan_id: string
+          renews_at?: string | null
+          seats?: number
+          status?: string
+          token_balance?: number
+          updated_at?: string
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          plan_id?: string
+          renews_at?: string | null
+          seats?: number
+          status?: string
+          token_balance?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "company_subscriptions_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: true
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "company_subscriptions_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       company_users: {
         Row: {
           accepted_at: string | null
@@ -360,6 +408,85 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      plan_changes: {
+        Row: {
+          client_request_id: string | null
+          company_id: string
+          created_at: string
+          from_plan: string | null
+          id: number
+          to_plan: string
+        }
+        Insert: {
+          client_request_id?: string | null
+          company_id: string
+          created_at?: string
+          from_plan?: string | null
+          id?: number
+          to_plan: string
+        }
+        Update: {
+          client_request_id?: string | null
+          company_id?: string
+          created_at?: string
+          from_plan?: string | null
+          id?: number
+          to_plan?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "plan_changes_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "plan_changes_from_plan_fkey"
+            columns: ["from_plan"]
+            isOneToOne: false
+            referencedRelation: "plans"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "plan_changes_to_plan_fkey"
+            columns: ["to_plan"]
+            isOneToOne: false
+            referencedRelation: "plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      plans: {
+        Row: {
+          active: boolean
+          id: string
+          included_seats: number
+          included_tokens: number
+          max_seats: number
+          monthly_price_cents: number
+          name: string
+        }
+        Insert: {
+          active?: boolean
+          id: string
+          included_seats?: number
+          included_tokens?: number
+          max_seats?: number
+          monthly_price_cents: number
+          name: string
+        }
+        Update: {
+          active?: boolean
+          id?: string
+          included_seats?: number
+          included_tokens?: number
+          max_seats?: number
+          monthly_price_cents?: number
+          name?: string
+        }
+        Relationships: []
       }
       postal_codes: {
         Row: {
@@ -602,6 +729,73 @@ export type Database = {
         }
         Relationships: []
       }
+      seat_ledger: {
+        Row: {
+          client_request_id: string | null
+          company_id: string
+          created_at: string
+          delta: number
+          id: number
+          reason: string
+        }
+        Insert: {
+          client_request_id?: string | null
+          company_id: string
+          created_at?: string
+          delta: number
+          id?: number
+          reason: string
+        }
+        Update: {
+          client_request_id?: string | null
+          company_id?: string
+          created_at?: string
+          delta?: number
+          id?: number
+          reason?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "seat_ledger_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      seat_pricing_tiers: {
+        Row: {
+          active: boolean
+          id: number
+          min_seats: number
+          plan_id: string
+          seat_price_cents: number
+        }
+        Insert: {
+          active?: boolean
+          id?: number
+          min_seats: number
+          plan_id: string
+          seat_price_cents: number
+        }
+        Update: {
+          active?: boolean
+          id?: number
+          min_seats?: number
+          plan_id?: string
+          seat_price_cents?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "seat_pricing_tiers_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       skills: {
         Row: {
           branch: string | null
@@ -720,6 +914,65 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      token_ledger: {
+        Row: {
+          client_request_id: string | null
+          company_id: string
+          created_at: string
+          delta: number
+          id: number
+          reason: string
+          ref: string | null
+        }
+        Insert: {
+          client_request_id?: string | null
+          company_id: string
+          created_at?: string
+          delta: number
+          id?: number
+          reason: string
+          ref?: string | null
+        }
+        Update: {
+          client_request_id?: string | null
+          company_id?: string
+          created_at?: string
+          delta?: number
+          id?: number
+          reason?: string
+          ref?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "token_ledger_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      token_pricing_tiers: {
+        Row: {
+          active: boolean
+          id: number
+          min_qty: number
+          unit_price_cents: number
+        }
+        Insert: {
+          active?: boolean
+          id?: number
+          min_qty: number
+          unit_price_cents: number
+        }
+        Update: {
+          active?: boolean
+          id?: number
+          min_qty?: number
+          unit_price_cents?: number
+        }
+        Relationships: []
       }
       tokens_used: {
         Row: {
@@ -971,6 +1224,13 @@ export type Database = {
         Args: { geom1: unknown; geom2: unknown }
         Returns: boolean
       }
+      add_seats: {
+        Args: { _company_id: string; _add: number; _client_request_id?: string }
+        Returns: {
+          new_seats: number
+          paid_cents: number
+        }[]
+      }
       addauth: {
         Args: { "": string }
         Returns: boolean
@@ -1049,6 +1309,28 @@ export type Database = {
       bytea: {
         Args: { "": unknown } | { "": unknown }
         Returns: string
+      }
+      change_plan: {
+        Args: {
+          _company_id: string
+          _to_plan: string
+          _client_request_id?: string
+        }
+        Returns: {
+          plan_id: string
+          seats: number
+          token_balance: number
+        }[]
+      }
+      consume_tokens: {
+        Args: {
+          _company_id: string
+          _qty: number
+          _reason: string
+          _ref?: string
+          _client_request_id?: string
+        }
+        Returns: number
       }
       create_company_account: {
         Args: {
@@ -1324,6 +1606,10 @@ export type Database = {
         Args: { "": number }
         Returns: string
       }
+      get_token_unit_price_cents: {
+        Args: { qty: number }
+        Returns: number
+      }
       get_user_companies: {
         Args: Record<PropertyKey, never>
         Returns: {
@@ -1405,6 +1691,10 @@ export type Database = {
       gidx_out: {
         Args: { "": unknown }
         Returns: unknown
+      }
+      has_company_access: {
+        Args: { _company_id: string }
+        Returns: boolean
       }
       is_company_admin: {
         Args: { check_company_id: string }
@@ -1615,6 +1905,13 @@ export type Database = {
       postgis_wagyu_version: {
         Args: Record<PropertyKey, never>
         Returns: string
+      }
+      purchase_tokens: {
+        Args: { _company_id: string; _qty: number; _client_request_id?: string }
+        Returns: {
+          new_balance: number
+          paid_cents: number
+        }[]
       }
       spheroid_in: {
         Args: { "": unknown }
