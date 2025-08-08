@@ -16,7 +16,7 @@ interface Profile {
   status: string;
   branche: string;
   ort: string;
-  plz?: string;
+  plz: string;
   avatar_url?: string;
   headline?: string;
   faehigkeiten?: any;
@@ -42,8 +42,12 @@ export default function CompanyUnlocked() {
           .eq('company_id', company.id)
           .order('used_at', { ascending: false });
         if (error) throw error;
-        const list = (data || []).map((row: any) => row.profiles).filter(Boolean);
-        setProfiles(list as Profile[]);
+        const list = (data || []).map((row: any) => {
+          const p = row.profiles;
+          if (!p) return null;
+          return { ...p, plz: p.plz ?? '' };
+        }).filter(Boolean) as Profile[];
+        setProfiles(list);
       } catch (e) {
         console.error('Error loading unlocked profiles', e);
       } finally {
