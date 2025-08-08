@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { useLanguages } from '@/hooks/useLanguages';
 import { Plus, Trash2, Loader2 } from 'lucide-react';
 import { SprachEntry } from '@/contexts/CVFormContext';
+import { Combobox } from '@/components/ui/combobox';
 
 interface LanguageSelectorProps {
   languages: SprachEntry[];
@@ -85,21 +86,17 @@ export const LanguageSelector = ({
           <div key={index} className="flex flex-col sm:flex-row gap-2 sm:gap-4 sm:items-center p-3 border rounded-lg">
             {/* Language Selection */}
             {!error && availableLanguages.length > 0 ? (
-              <Select
+              <Combobox
+                items={availableLanguages.map((lang) => ({
+                  value: lang.name,
+                  label: `${lang.name}${lang.code ? ` (${String(lang.code).toLowerCase()})` : ''}`,
+                }))}
                 value={language.sprache}
-                onValueChange={(value) => updateLanguage(index, 'sprache', value)}
-              >
-                <SelectTrigger className="flex-1">
-                  <SelectValue placeholder="Sprache wählen" />
-                </SelectTrigger>
-                <SelectContent>
-                  {availableLanguages.map((lang) => (
-                    <SelectItem key={lang.id} value={lang.name}>
-                      {lang.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                onChange={(value) => updateLanguage(index, 'sprache', value)}
+                placeholder="Sprache wählen"
+                searchPlaceholder="Sprache suchen..."
+                className="flex-1"
+              />
             ) : (
               <Input
                 placeholder="z.B. Deutsch"

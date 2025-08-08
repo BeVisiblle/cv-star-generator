@@ -16,15 +16,34 @@ export const useLanguages = () => {
     const fetchLanguages = async () => {
       try {
         setLoading(true);
-        const { data, error } = await supabase
+        const { data, error: primaryError } = await supabase
           .from('languages')
           .select('id, name, code')
           .order('name');
 
-        if (error) {
-          setError(error.message);
+        if (!primaryError && data && data.length > 0) {
+          setLanguages(data);
+          setError(null);
+          return;
+        }
+
+        // Fallback to master table if primary fails or returns empty
+        const { data: master, error: fallbackError } = await supabase
+          .from('languages_master')
+          .select('code, name_de')
+          .order('name_de');
+
+        if (fallbackError) {
+          setError(primaryError?.message || fallbackError.message);
+          setLanguages([]);
         } else {
-          setLanguages(data || []);
+          const mapped = (master || []).map((l: any) => ({
+            id: `master-${l.code}`,
+            name: l.name_de,
+            code: l.code,
+          }));
+          setLanguages(mapped);
+          setError(null);
         }
       } catch (err) {
         setError('Failed to fetch languages');

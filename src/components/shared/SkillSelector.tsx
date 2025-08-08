@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useSkills } from '@/hooks/useSkills';
 import { Plus, Trash2, Loader2 } from 'lucide-react';
+import { Combobox } from '@/components/ui/combobox';
 
 interface SkillSelectorProps {
   selectedSkills: string[];
@@ -68,23 +68,16 @@ export const SkillSelector = ({
       </div>
       
       <div className="space-y-4">
-        {/* Predefined Skills Dropdown */}
-        {!error && skills.length > 0 && (
-          <Select onValueChange={(value) => addSkill(value)} disabled={selectedSkills.length >= maxSkills}>
-            <SelectTrigger>
-              <SelectValue placeholder={selectedSkills.length >= maxSkills ? "Maximum erreicht" : placeholder} />
-            </SelectTrigger>
-            <SelectContent>
-              {skills
-                .filter(skill => !selectedSkills.includes(skill.name))
-                .map((skill) => (
-                  <SelectItem key={skill.id} value={skill.name}>
-                    {skill.name}
-                  </SelectItem>
-                ))}
-            </SelectContent>
-          </Select>
-        )}
+          <Combobox
+            items={skills
+              .filter(skill => !selectedSkills.includes(skill.name))
+              .map((skill) => ({ value: skill.name, label: skill.name }))}
+            value={undefined}
+            onChange={(value) => addSkill(value)}
+            placeholder={selectedSkills.length >= maxSkills ? "Maximum erreicht" : placeholder}
+            searchPlaceholder="Fähigkeit suchen..."
+            disabled={selectedSkills.length >= maxSkills}
+          />
 
         {/* Custom Skill Input */}
         <div className="flex flex-col sm:flex-row gap-2">
