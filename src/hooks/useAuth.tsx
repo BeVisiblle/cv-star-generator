@@ -73,7 +73,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const loadProfile = async (userId: string) => {
     setIsLoading(true);
     try {
-      console.log('Loading profile for user:', userId);
+      console.debug('Loading profile');
       
       const { data: profile, error } = await supabase
         .from('profiles')
@@ -81,7 +81,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         .eq('id', userId)
         .maybeSingle();
 
-      console.log('Profile query result - Data:', profile, 'Error:', error);
+      console.debug('Profile query completed');
 
       if (error) {
         console.error('Error loading profile:', error);
@@ -89,7 +89,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         setProfile(null);
       } else {
         setProfile(profile);
-        console.log('Profile loaded successfully:', profile);
+        console.debug('Profile loaded');
       }
     } catch (error) {
       console.error('Unexpected error loading profile:', error);
