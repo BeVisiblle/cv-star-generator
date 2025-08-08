@@ -3,14 +3,35 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle, Clock, Users, Zap, Star, ArrowRight, Download, Eye, UserPlus } from "lucide-react";
+import { CheckCircle, Clock, Users, Zap, Star, ArrowRight, Download, LogIn, Menu } from "lucide-react";
 import step1HeroImage from '/images/step1-hero.jpg';
 import step1Image from '/images/step1.jpg';
 import step2Image from '/images/step2.jpg';
 import step3Image from '/images/step3.jpg';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 
 export default function LandingPage() {
   const navigate = useNavigate();
+
+  const MobileMenu = () => (
+    <Sheet>
+      <SheetTrigger asChild>
+        <Button variant="outline" size="icon" aria-label="Menü öffnen">
+          <Menu className="h-5 w-5" />
+        </Button>
+      </SheetTrigger>
+      <SheetContent side="right" className="w-[280px]">
+        <SheetHeader>
+          <SheetTitle>Navigation</SheetTitle>
+        </SheetHeader>
+        <div className="mt-6 flex flex-col gap-2">
+          <Button variant="ghost" className="justify-start" onClick={() => navigate('/blog')}>Ratgeber</Button>
+          <Button variant="ghost" className="justify-start" onClick={() => navigate('/unternehmen')}>Für Unternehmen</Button>
+          <Button variant="default" className="justify-start" onClick={() => navigate('/auth')}>Anmelden</Button>
+        </div>
+      </SheetContent>
+    </Sheet>
+  );
 
   const benefits = [
     { icon: Clock, title: "5 Minuten", description: "Bis zum fertigen Lebenslauf" },
@@ -87,6 +108,10 @@ export default function LandingPage() {
                 Anmelden
               </Button>
             </nav>
+            {/* Mobile menu */}
+            <div className="md:hidden">
+              <MobileMenu />
+            </div>
           </div>
         </div>
       </header>
@@ -128,10 +153,10 @@ export default function LandingPage() {
                     variant="outline" 
                     size="lg"
                     className="text-lg px-6"
-                    onClick={() => navigate('/example-profile')}
+                    onClick={() => navigate('/auth')}
                   >
-                    <Eye className="mr-2 h-4 w-4" />
-                    Beispielprofil ansehen
+                    <LogIn className="mr-2 h-4 w-4" />
+                    Schon ein Konto? Anmelden
                   </Button>
                 </div>
 
@@ -384,11 +409,11 @@ export default function LandingPage() {
               <Button 
                 size="lg" 
                 variant="outline"
-                className="text-lg px-6 bg-white/10 text-white border-white/20 hover:bg-white/20"
-                onClick={() => navigate('/example-profile')}
+                className="text-lg px-6"
+                onClick={() => navigate('/auth')}
               >
-                <Eye className="mr-2 h-5 w-5" />
-                Beispielprofil ansehen
+                <LogIn className="mr-2 h-5 w-5" />
+                Schon ein Konto? Anmelden
               </Button>
             </div>
 

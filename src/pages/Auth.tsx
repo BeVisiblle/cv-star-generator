@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { supabase } from '@/integrations/supabase/client';
 import { Loader2, Eye, EyeOff, LogIn, UserPlus, ArrowLeft } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 
 const Auth = () => {
   const navigate = useNavigate();
@@ -20,6 +21,7 @@ const Auth = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isAuthenticating, setIsAuthenticating] = useState(false);
   const [activeTab, setActiveTab] = useState('login');
+  const [role, setRole] = useState<'applicant' | 'company'>('applicant');
 
   // Redirect if already authenticated
   useEffect(() => {
@@ -117,9 +119,8 @@ const Auth = () => {
           title: "Erfolgreich angemeldet",
           description: "Willkommen zurück!",
         });
-        
-        // Redirect existing users to profile, new users will go to CV generator from registration
-        window.location.href = '/profile';
+        // Redirect based on selected role
+        window.location.href = role === 'company' ? '/company/dashboard' : '/profile';
       }
     } catch (error) {
       console.error('Login error:', error);
@@ -251,17 +252,17 @@ const Auth = () => {
 
         // Success message for registration
         if (data.user.email_confirmed_at) {
-          // User is immediately confirmed - redirect to CV Generator
+          // User is immediately confirmed - redirect to selected flow
           toast({
             title: "Registrierung erfolgreich",
-            description: "Jetzt können Sie Ihren Lebenslauf erstellen!",
+            description: role === 'company' ? "Willkommen! Weiter zur Unternehmens-Onboarding." : "Jetzt können Sie Ihren Lebenslauf erstellen!",
           });
-          window.location.href = '/cv-generator';
+          window.location.href = role === 'company' ? '/company/onboarding' : '/cv-generator';
         } else {
           // User needs to confirm email
           toast({
             title: "Registrierung erfolgreich", 
-            description: "Bitte überprüfen Sie Ihre E-Mails und bestätigen Sie Ihre E-Mail-Adresse. Dann können Sie Ihren Lebenslauf erstellen.",
+            description: "Bitte überprüfen Sie Ihre E-Mails und bestätigen Sie Ihre E-Mail-Adresse. Dann können Sie fortfahren.",
           });
         }
       }
@@ -303,6 +304,14 @@ const Auth = () => {
           <p className="text-muted-foreground">
             Erstellen Sie ein kostenloses Konto oder melden Sie sich an
           </p>
+
+          {/* Role Switcher */}
+          <div className="flex justify-center mt-4">
+            <ToggleGroup type="single" value={role} onValueChange={(v) => v && setRole(v as 'applicant'|'company')}>
+              <ToggleGroupItem value="applicant" className="min-w-[140px]">Bewerber</ToggleGroupItem>
+              <ToggleGroupItem value="company" className="min-w-[140px]">Unternehmen</ToggleGroupItem>
+            </ToggleGroup>
+          </div>
         </div>
 
         {/* Auth Forms */}
@@ -372,6 +381,21 @@ const Auth = () => {
                     )}
                     {isAuthenticating ? 'Anmelden...' : 'Anmelden'}
                   </Button>
+
+                  {/* Secondary CTA based on role */}
+                  <div className="text-center text-sm text-muted-foreground">
+                    {role === 'company' ? (
+                      <>
+                        Noch kein Unternehmenskonto?{' '}
+                        <button type="button" className="underline" onClick={() => navigate('/company/onboarding')}>Jetzt erstellen</button>
+                      </>
+                    ) : (
+                      <>
+                        Noch kein Konto?{' '}
+                        <button type="button" className="underline" onClick={() => navigate('/cv-generator')}>Jetzt erstellen</button>
+                      </>
+                    )}
+                  </div>
                 </form>
               </TabsContent>
 
