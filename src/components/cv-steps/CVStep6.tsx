@@ -7,7 +7,7 @@ import { ArrowLeft, Download } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
-import { generateCVFilename } from '@/lib/pdf-generator';
+import { generatePDF, generateCVFilename } from '@/lib/pdf-generator';
 import { toast } from 'sonner';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { generateCVVariantFile, uploadCVWithFilename } from '@/lib/supabase-storage';
