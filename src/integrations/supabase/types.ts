@@ -16,8 +16,11 @@ export type Database = {
     Tables: {
       companies: {
         Row: {
+          account_status: string
           active_tokens: number | null
           additional_locations: Json | null
+          contact_person: string | null
+          country: string | null
           created_at: string | null
           description: string | null
           founded_year: number | null
@@ -27,7 +30,9 @@ export type Database = {
           logo_url: string | null
           main_location: string | null
           name: string
+          phone: string | null
           plan_type: string | null
+          primary_email: string | null
           seats: number | null
           size_range: string | null
           subscription_status: string | null
@@ -35,8 +40,11 @@ export type Database = {
           website_url: string | null
         }
         Insert: {
+          account_status?: string
           active_tokens?: number | null
           additional_locations?: Json | null
+          contact_person?: string | null
+          country?: string | null
           created_at?: string | null
           description?: string | null
           founded_year?: number | null
@@ -46,7 +54,9 @@ export type Database = {
           logo_url?: string | null
           main_location?: string | null
           name: string
+          phone?: string | null
           plan_type?: string | null
+          primary_email?: string | null
           seats?: number | null
           size_range?: string | null
           subscription_status?: string | null
@@ -54,8 +64,11 @@ export type Database = {
           website_url?: string | null
         }
         Update: {
+          account_status?: string
           active_tokens?: number | null
           additional_locations?: Json | null
+          contact_person?: string | null
+          country?: string | null
           created_at?: string | null
           description?: string | null
           founded_year?: number | null
@@ -65,7 +78,9 @@ export type Database = {
           logo_url?: string | null
           main_location?: string | null
           name?: string
+          phone?: string | null
           plan_type?: string | null
+          primary_email?: string | null
           seats?: number | null
           size_range?: string | null
           subscription_status?: string | null
@@ -683,6 +698,21 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      create_company_account: {
+        Args: {
+          p_name: string
+          p_primary_email: string
+          p_industry: string
+          p_city: string
+          p_country: string
+          p_size_range: string
+          p_contact_person: string
+          p_phone: string
+          p_website: string
+          p_created_by: string
+        }
+        Returns: string
+      }
       get_user_companies: {
         Args: Record<PropertyKey, never>
         Returns: {

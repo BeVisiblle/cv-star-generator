@@ -16,15 +16,17 @@ interface OnboardingData {
   // Company Info
   companyName: string;
   companySize: string;
-  location: string;
+  location: string; // Format: City, Country
   website: string;
+  contactPerson: string;
+  phone: string;
   
   // Business Details
   industries: string[];
   targetGroups: string[];
   
   // Auth (at the end)
-  email: string;
+  email: string; // also used as primary contact email
   password: string;
   confirmPassword: string;
 }
@@ -36,6 +38,8 @@ export default function CompanyOnboarding() {
     companySize: "",
     location: "",
     website: "",
+    contactPerson: "",
+    phone: "",
     industries: [],
     targetGroups: [],
     email: "",
@@ -69,6 +73,9 @@ export default function CompanyOnboarding() {
     if (!data.companyName.trim()) newErrors.companyName = "Unternehmensname ist erforderlich";
     if (!data.companySize) newErrors.companySize = "Unternehmensgröße ist erforderlich";
     if (!data.location.trim()) newErrors.location = "Standort ist erforderlich";
+    if (data.location && !data.location.includes(',')) newErrors.location = "Bitte Stadt und Land angeben (z.B. Berlin, Deutschland)";
+    if (!data.contactPerson.trim()) newErrors.contactPerson = "Ansprechpartner ist erforderlich";
+    if (!data.phone.trim()) newErrors.phone = "Telefonnummer ist erforderlich";
     if (data.industries.length === 0) newErrors.industries = "Mindestens eine Branche auswählen";
     if (data.targetGroups.length === 0) newErrors.targetGroups = "Mindestens eine Zielgruppe auswählen";
     
@@ -103,78 +110,122 @@ export default function CompanyOnboarding() {
       return;
     }
 
+    // Parse city and country from location
+    const [cityRaw, countryRaw] = data.location.split(',').map((s) => s?.trim());
+    const city = cityRaw || '';
+    const country = countryRaw || '';
+
+    if (!city || !country) {
+      setErrors((prev) => ({ ...prev, location: "Bitte Stadt und Land angeben (z.B. Berlin, Deutschland)" }));
+      toast({ title: "Standort unvollständig", description: "Bitte Stadt und Land angeben.", variant: "destructive" });
+      return;
+    }
+
     setLoading(true);
-    
+
     try {
-      // Create user account
+      // Duplicate company check by primary email
+      const { data: existingCompany } = await supabase
+        .from('companies')
+        .select('id')
+        .ilike('primary_email', data.email)
+        .maybeSingle();
+
+      if (existingCompany) {
+        toast({
+          title: 'Unternehmen existiert bereits',
+          description: 'Bitte melden Sie sich an oder verwenden Sie eine andere E-Mail.',
+          variant: 'destructive'
+        });
+        return;
+      }
+
+      // Create user account first
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: data.email,
         password: data.password,
-        options: {
-          emailRedirectTo: `${window.location.origin}/company/dashboard`
+        options: { emailRedirectTo: `${window.location.origin}/company/dashboard` }
+      });
+      if (authError) throw new Error(`Registrierung fehlgeschlagen: ${authError.message}`);
+      if (!authData.user) throw new Error('Benutzer konnte nicht erstellt werden');
+
+      // Retry helper with exponential backoff
+      const attemptCreate = async (attempt = 1): Promise<string> => {
+        try {
+          const { data: companyId, error } = await supabase.rpc('create_company_account', {
+            p_name: data.companyName,
+            p_primary_email: data.email,
+            p_industry: data.industries.join(', '),
+            p_city: city,
+            p_country: country,
+            p_size_range: data.companySize,
+            p_contact_person: data.contactPerson,
+            p_phone: data.phone,
+            p_website: data.website || null,
+            p_created_by: authData.user!.id
+          });
+          if (error) throw error;
+          if (!companyId) throw new Error('Keine Firmen-ID zurückgegeben');
+          return companyId as unknown as string;
+        } catch (err: any) {
+          if (attempt >= 3) throw err;
+          const delay = Math.pow(2, attempt) * 500; // 500ms, 1000ms, 2000ms
+          await new Promise((r) => setTimeout(r, delay));
+          return attemptCreate(attempt + 1);
         }
-      });
+      };
 
-      if (authError) {
-        throw new Error(`Registrierung fehlgeschlagen: ${authError.message}`);
-      }
+      // Create company via RPC
+      const companyId = await attemptCreate(1);
 
-      if (!authData.user) {
-        throw new Error("Benutzer konnte nicht erstellt werden");
-      }
-
-      // Create company
-      const { data: companyData, error: companyError } = await supabase
+      // Verify round-trip
+      const { data: stored, error: fetchError } = await supabase
         .from('companies')
-        .insert({
-          name: data.companyName,
-          size_range: data.companySize,
-          website_url: data.website || null,
-          industry: data.industries.join(', '),
-          main_location: data.location,
-          active_tokens: 50, // Starting tokens
-          seats: 1, // Single seat for now
-          plan_type: 'basic',
-          subscription_status: 'active'
-        })
-        .select()
+        .select('*')
+        .eq('id', companyId)
         .single();
+      if (fetchError) throw fetchError;
 
-      if (companyError) {
-        throw new Error(`Unternehmen konnte nicht erstellt werden: ${companyError.message}`);
+      const expected = {
+        name: data.companyName,
+        primary_email: data.email,
+        industry: data.industries.join(', '),
+        main_location: city,
+        country: country,
+        size_range: data.companySize,
+        contact_person: data.contactPerson,
+        phone: data.phone,
+        website_url: data.website || null
+      };
+
+      const needsCorrection = Object.entries(expected).some(([k, v]) => (stored as any)[k] !== v);
+      if (needsCorrection) {
+        const { error: fixError } = await supabase
+          .from('companies')
+          .update(expected)
+          .eq('id', companyId);
+        if (fixError) throw fixError;
       }
 
-      // Link user to company as admin
-      const { error: linkError } = await supabase
-        .from('company_users')
-        .insert({
-          user_id: authData.user.id,
-          company_id: companyData.id,
-          role: 'admin',
-          accepted_at: new Date().toISOString()
-        });
-
-      if (linkError) {
-        throw new Error(`Benutzer-Verknüpfung fehlgeschlagen: ${linkError.message}`);
-      }
-
-      toast({ 
-        title: "Unternehmen erfolgreich erstellt!", 
-        description: "Sie werden zum Dashboard weitergeleitet...",
-        duration: 3000
+      toast({
+        title: 'Unternehmen erfolgreich erstellt!',
+        description: 'Weiterleitung zum Dashboard...'
       });
 
-      // Redirect after short delay
-      setTimeout(() => {
-        navigate("/company/dashboard");
-      }, 2000);
-
+      navigate('/company/dashboard');
     } catch (error: any) {
       console.error('Onboarding error:', error);
+      // Offline/Network handling: persist payload for retry
+      const pending = {
+        ts: Date.now(),
+        payload: { ...data }
+      };
+      try { localStorage.setItem('company_onboarding_pending', JSON.stringify(pending)); } catch {}
+
       toast({ 
-        title: "Fehler", 
-        description: error.message,
-        variant: "destructive" 
+        title: 'Fehler beim Erstellen', 
+        description: 'Bitte prüfen Sie Ihre Verbindung und versuchen Sie es erneut.',
+        variant: 'destructive' 
       });
     } finally {
       setLoading(false);
@@ -248,7 +299,7 @@ export default function CompanyOnboarding() {
                           id="location"
                           value={data.location}
                           onChange={(e) => updateData('location', e.target.value)}
-                          placeholder="Stadt, Deutschland"
+                          placeholder="Stadt, Land (z.B. Berlin, Deutschland)"
                           className={errors.location ? "border-destructive" : ""}
                         />
                         {errors.location && (
@@ -264,6 +315,36 @@ export default function CompanyOnboarding() {
                           onChange={(e) => updateData('website', e.target.value)}
                           placeholder="https://www.ihr-unternehmen.de"
                         />
+                      </div>
+                    </div>
+
+                    <div className="grid md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="contactPerson">Ansprechpartner *</Label>
+                        <Input
+                          id="contactPerson"
+                          value={data.contactPerson}
+                          onChange={(e) => updateData('contactPerson', e.target.value)}
+                          placeholder="Vollständiger Name"
+                          className={errors.contactPerson ? "border-destructive" : ""}
+                        />
+                        {errors.contactPerson && (
+                          <p className="text-sm text-destructive">{errors.contactPerson}</p>
+                        )}
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="phone">Telefon *</Label>
+                        <Input
+                          id="phone"
+                          value={data.phone}
+                          onChange={(e) => updateData('phone', e.target.value)}
+                          placeholder="+49 30 1234567"
+                          className={errors.phone ? "border-destructive" : ""}
+                        />
+                        {errors.phone && (
+                          <p className="text-sm text-destructive">{errors.phone}</p>
+                        )}
                       </div>
                     </div>
                   </div>
