@@ -10,6 +10,7 @@ interface SearchFilters {
   keywords: string;
   targetGroup: string;
   location: string;
+  locationId?: number;
   radius: number;
   industry: string;
   availability: string;
@@ -40,9 +41,13 @@ export function SearchHeader({ filters, onFiltersChange, resultsCount }: SearchH
     });
   };
 
-  const clearFilter = (filterKey: keyof SearchFilters) => {
-    onFiltersChange({ ...filters, [filterKey]: "" });
-  };
+const clearFilter = (filterKey: keyof SearchFilters) => {
+  if (filterKey === 'location') {
+    onFiltersChange({ ...filters, location: '', locationId: undefined });
+  } else {
+    onFiltersChange({ ...filters, [filterKey]: '' });
+  }
+};
 
   const hasActiveFilters = filters.location || filters.industry || filters.targetGroup;
 
