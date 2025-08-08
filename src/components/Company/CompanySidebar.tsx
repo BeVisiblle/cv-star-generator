@@ -7,7 +7,8 @@ import {
   Settings, 
   Plus,
   Users,
-  Target
+  Target,
+  Coins
 } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 
@@ -28,6 +29,7 @@ const menuItems = [
   { title: "Unternehmensprofil", url: "/company/profile", icon: Building2 },
   { title: "Kandidatensuche", url: "/company/search", icon: Search },
   { title: "Beiträge", url: "/company/posts", icon: FileText },
+  { title: "Abrechnung", url: "/company/billing", icon: Coins },
   { title: "Team", url: "/company/team", icon: Users },
   { title: "Einstellungen", url: "/company/settings", icon: Settings },
 ];
