@@ -49,6 +49,7 @@ import ScheduledPosts from "./pages/Admin/ScheduledPosts";
 import AdminSettings from "./pages/Admin/AdminSettings";
 import PublicPage from "./pages/PublicPage";
 import UserProfilePage from "./pages/UserProfile";
+import PublicCompanyView from "./pages/Companies/PublicCompanyView";
 
 const queryClient = new QueryClient();
 
@@ -173,6 +174,7 @@ const App = () => (
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/marketplace" element={<Marketplace />} />
+                <Route path="/companies/:id" element={<PublicCompanyView />} />
                 <Route path="/community/contacts" element={<CommunityContacts />} />
                 <Route path="/community/companies" element={<CommunityCompanies />} />
                 <Route path="/community/messages" element={<CommunityMessages />} />

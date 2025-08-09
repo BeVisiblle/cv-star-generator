@@ -14,11 +14,31 @@ import { useSearchParams, useNavigate, Link, useLocation } from 'react-router-do
 import { useAuth } from '@/hooks/useAuth';
 import { useConnections, type ConnectionState } from '@/hooks/useConnections';
 import { toast } from '@/hooks/use-toast';
+import { useFollowCompany } from '@/hooks/useFollowCompany';
 
 // Simple types for the new sections
  type Person = { id: string; vorname?: string | null; nachname?: string | null; avatar_url?: string | null };
  type Company = { id: string; name: string; logo_url?: string | null };
  type Post = { id: string; content: string; image_url?: string | null; user_id: string };
+
+const CompanyListItem: React.FC<{ c: Company }> = ({ c }) => {
+  const { isFollowing, toggleFollow, loading } = useFollowCompany(c.id);
+  return (
+    <div className="flex items-center gap-3">
+      <Link to={`/companies/${c.id}`} className="h-8 w-8 rounded bg-muted overflow-hidden flex-shrink-0">
+        {c.logo_url ? <img src={c.logo_url} alt={c.name} /> : null}
+      </Link>
+      <Link to={`/companies/${c.id}`} className="text-sm font-medium truncate hover:underline">
+        {c.name}
+      </Link>
+      <div className="ml-auto">
+        <Button size="sm" variant={isFollowing ? 'secondary' : 'default'} onClick={toggleFollow} disabled={loading}>
+          {isFollowing ? 'Gefolgt' : 'Folgen'}
+        </Button>
+      </div>
+    </div>
+  );
+};
 
 export default function Marketplace() {
   const [q, setQ] = React.useState('');
@@ -265,17 +285,9 @@ React.useEffect(() => {
                         </Button>
                       </div>
                       <div className="space-y-3">
-                        {(companiesQuery.data || []).map((c) => (
-                          <div key={c.id} className="flex items-center gap-3">
-                            <div className="h-8 w-8 rounded bg-muted overflow-hidden">
-                              {c.logo_url ? <img src={c.logo_url} alt={c.name} /> : null}
-                            </div>
-                            <div className="text-sm font-medium truncate">{c.name}</div>
-                            <div className="ml-auto">
-                              <Button size="sm" variant="secondary">Folgen</Button>
-                            </div>
-                          </div>
-                        ))}
+{(companiesQuery.data || []).map((c) => (
+  <CompanyListItem key={c.id} c={c} />
+))}
                         {companiesQuery.isLoading && <div className="text-sm text-muted-foreground">Lade Unternehmen…</div>}
                         {!companiesQuery.isLoading && (companiesQuery.data || []).length === 0 && (
                           <div className="text-sm text-muted-foreground">Keine Unternehmen gefunden.</div>
