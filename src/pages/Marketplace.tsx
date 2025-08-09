@@ -231,11 +231,13 @@ React.useEffect(() => {
                           const name = `${p.vorname ?? ''} ${p.nachname ?? ''}`.trim() || 'Unbekannt';
                           return (
                             <div key={p.id} className="flex items-center gap-3">
-                              <Avatar className="h-8 w-8">
-                                <AvatarImage src={p.avatar_url ?? undefined} alt={name} />
-                                <AvatarFallback>{name.slice(0,2).toUpperCase()}</AvatarFallback>
-                              </Avatar>
-                              <div className="text-sm font-medium truncate">{name}</div>
+                              <Link to={`/u/${p.id}`} className="flex items-center gap-3 min-w-0">
+                                <Avatar className="h-8 w-8">
+                                  <AvatarImage src={p.avatar_url ?? undefined} alt={name} />
+                                  <AvatarFallback>{name.slice(0,2).toUpperCase()}</AvatarFallback>
+                                </Avatar>
+                                <div className="text-sm font-medium truncate hover:underline">{name}</div>
+                              </Link>
                               <div className="ml-auto flex items-center gap-2">
                                 {((statusMap[p.id] ?? 'none') === 'none' || (statusMap[p.id] ?? 'none') === 'declined') && (
                                   <Button size="sm" variant="secondary" onClick={() => onConnect(p.id)}>
