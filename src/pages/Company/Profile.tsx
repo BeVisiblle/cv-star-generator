@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useCompany } from "@/hooks/useCompany";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
@@ -40,7 +41,7 @@ interface CompanyProfile {
 export default function CompanyProfile() {
   const { company, updateCompany, loading } = useCompany();
   const navigate = useNavigate();
-  const [editing, setEditing] = useState(false);
+const [editing, setEditing] = useState(false);
 const [profileData, setProfileData] = useState<CompanyProfile>({
   name: "",
   description: "",
@@ -55,8 +56,9 @@ const [profileData, setProfileData] = useState<CompanyProfile>({
   mission_statement: "",
   employee_count: null,
 });
-  const [saving, setSaving] = useState(false);
-  const { toast } = useToast();
+const [showPreview, setShowPreview] = useState(false);
+const [saving, setSaving] = useState(false);
+const { toast } = useToast();
 
   useEffect(() => {
     if (company) {
@@ -165,7 +167,7 @@ const [profileData, setProfileData] = useState<CompanyProfile>({
       <div className="sticky top-0 z-30 bg-background/80 supports-[backdrop-filter]:bg-background/60 backdrop-blur border-b py-3 px-1 flex items-center justify-between">
         <h1 className="text-2xl md:text-3xl font-bold truncate">Unternehmensprofil</h1>
         <div className="flex space-x-2 items-center">
-          <Button variant="outline" className="min-h-[44px]" onClick={() => navigate(`/companies/${company.id}`)}>
+          <Button variant="outline" className="min-h-[44px]" onClick={() => setShowPreview(true)}>
             <Eye className="h-4 w-4 mr-2" />
             Vorschau als Bewerber
           </Button>
@@ -224,7 +226,7 @@ const [profileData, setProfileData] = useState<CompanyProfile>({
               <input type="file" accept="image/*" ref={headerInputRef} className="hidden" onChange={handleHeaderChange} />
               <input type="file" accept="image/*" ref={logoInputRef} className="hidden" onChange={handleLogoChange} />
               
-              <div className="p-6 -mt-10 sm:-mt-12">
+              <div className="p-6 mt-2 sm:mt-3">
                 <div className="flex items-start space-x-4">
                   <div className="relative">
                     <Avatar className="h-20 w-20 sm:h-24 sm:w-24 ring-2 ring-background shadow-md">
@@ -246,16 +248,7 @@ const [profileData, setProfileData] = useState<CompanyProfile>({
                   </div>
                   
                   <div className="flex-1">
-                    {editing ? (
-                      <Input
-                        value={profileData.name}
-                        onChange={(e) => updateField('name', e.target.value)}
-                        className="text-2xl font-bold mb-2"
-                        placeholder="Unternehmensname"
-                      />
-                    ) : (
-                      <h2 className="text-2xl font-bold mb-2">{profileData.name}</h2>
-                    )}
+                    <h2 className="text-2xl font-bold mb-2">{profileData.name}</h2>
                     
                     <div className="flex flex-wrap gap-2 mb-3">
                       <Badge variant="secondary">
@@ -441,6 +434,77 @@ const [profileData, setProfileData] = useState<CompanyProfile>({
           </Card>
         </TabsContent>
       </Tabs>
+
+      <Dialog open={showPreview} onOpenChange={setShowPreview}>
+        <DialogContent className="max-w-4xl">
+          <DialogHeader>
+            <DialogTitle>Vorschau für Bewerber</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <section>
+              <div className="w-full h-40 sm:h-56 md:h-64 rounded-lg overflow-hidden bg-muted">
+                {profileData.header_image && (
+                  <img src={profileData.header_image} alt={`${profileData.name} Titelbild`} className="w-full h-full object-cover" />
+                )}
+              </div>
+            </section>
+            <section className="-mt-10 sm:-mt-12">
+              <div className="bg-card rounded-lg shadow p-4 sm:p-5 md:p-6 flex items-start gap-4">
+                <div className="h-20 w-20 sm:h-24 sm:w-24 rounded-xl overflow-hidden border bg-muted flex-shrink-0">
+                  {profileData.logo_url && <img src={profileData.logo_url} alt={`${profileData.name} Logo`} className="w-full h-full object-cover" />}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <h2 className="text-xl md:text-2xl font-bold truncate">{profileData.name}</h2>
+                  <div className="text-sm text-muted-foreground mt-1 truncate">
+                    {[profileData.industry, profileData.size_range, typeof profileData.employee_count === 'number' ? `${profileData.employee_count} Mitarbeitende` : null].filter(Boolean).join(' • ')}
+                  </div>
+                  <div className="text-sm text-muted-foreground mt-1 truncate">
+                    {profileData.main_location && (
+                      <span className="inline-flex items-center"><MapPin className="h-4 w-4 mr-1" />{profileData.main_location}</span>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </section>
+            <section className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_320px] gap-4 md:gap-6 pt-2">
+              <div className="space-y-4 md:space-y-6">
+                <Card className="p-4 sm:p-5 md:p-6">
+                  <h3 className="text-lg font-semibold">Über uns</h3>
+                  <p className="mt-2 whitespace-pre-line text-sm leading-relaxed text-muted-foreground">
+                    {profileData.description || 'Dieses Unternehmen hat noch keine Beschreibung hinzugefügt.'}
+                  </p>
+                </Card>
+                {profileData.mission_statement && (
+                  <Card className="p-4 sm:p-5 md:p-6">
+                    <h3 className="text-lg font-semibold">Mission</h3>
+                    <p className="mt-2 whitespace-pre-line text-sm leading-relaxed text-muted-foreground">
+                      {profileData.mission_statement}
+                    </p>
+                  </Card>
+                )}
+              </div>
+              <aside className="space-y-4 md:space-y-6">
+                <Card className="p-4 sm:p-5 md:p-6">
+                  <h3 className="text-lg font-semibold">Links</h3>
+                  <div className="mt-2 flex flex-col gap-2 text-sm">
+                    {profileData.website_url && (
+                      <a href={profileData.website_url} target="_blank" rel="noreferrer" className="inline-flex items-center text-primary hover:underline">
+                        <Globe className="h-4 w-4 mr-2" /> Webseite
+                      </a>
+                    )}
+                  </div>
+                </Card>
+                <Card className="p-4 sm:p-5 md:p-6">
+                  <h3 className="text-lg font-semibold">Standort</h3>
+                  <div className="mt-2 text-sm text-muted-foreground">
+                    {profileData.main_location || '—'}
+                  </div>
+                </Card>
+              </aside>
+            </section>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {editing && (
         <div className="fixed inset-x-0 bottom-0 z-40 border-t bg-background/95 supports-[backdrop-filter]:bg-background/80 backdrop-blur px-4 py-3 pb-safe md:hidden">
