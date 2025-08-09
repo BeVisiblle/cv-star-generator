@@ -1,3 +1,4 @@
+
 import React, { useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
@@ -5,7 +6,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { useFollowCompany } from '@/hooks/useFollowCompany';
-import { ExternalLink, MapPin, Globe, ArrowLeft } from 'lucide-react';
+import { ExternalLink, MapPin, Globe, ArrowLeft, Linkedin, Instagram } from 'lucide-react';
 
 // Minimal shape mapped to existing DB columns
 type Company = {
@@ -22,6 +23,8 @@ type Company = {
   website_url?: string | null;
   main_location?: string | null;
   country?: string | null;
+  linkedin_url?: string | null;
+  instagram_url?: string | null;
 };
 
 export default function PublicCompanyView() {
@@ -33,7 +36,7 @@ export default function PublicCompanyView() {
       if (!id) return null;
       const { data, error } = await supabase
         .from('companies')
-        .select('id,name,industry,logo_url,header_image,size_range,contact_person,primary_email,phone,description,website_url,main_location,country')
+        .select('id,name,industry,logo_url,header_image,size_range,contact_person,primary_email,phone,description,website_url,main_location,country,linkedin_url,instagram_url')
         .eq('id', id)
         .maybeSingle();
       if (error) throw error;
@@ -163,7 +166,16 @@ export default function PublicCompanyView() {
                     <Globe className="h-4 w-4 mr-2" /> Webseite <ExternalLink className="h-3 w-3 ml-1" />
                   </a>
                 )}
-                {/* Social links can be added later when available in schema */}
+                {c?.linkedin_url && (
+                  <a href={c.linkedin_url} target="_blank" rel="noreferrer" className="inline-flex items-center text-primary hover:underline">
+                    <Linkedin className="h-4 w-4 mr-2" /> LinkedIn <ExternalLink className="h-3 w-3 ml-1" />
+                  </a>
+                )}
+                {c?.instagram_url && (
+                  <a href={c.instagram_url} target="_blank" rel="noreferrer" className="inline-flex items-center text-primary hover:underline">
+                    <Instagram className="h-4 w-4 mr-2" /> Instagram <ExternalLink className="h-3 w-3 ml-1" />
+                  </a>
+                )}
               </div>
             </Card>
           </aside>
