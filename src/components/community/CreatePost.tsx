@@ -8,7 +8,13 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useToast } from "@/hooks/use-toast";
 import { Send, Image, X } from "lucide-react";
 
-export const CreatePost = () => {
+export interface CreatePostProps {
+  container?: "card" | "none"; // render inside Card (default) or bare content for composer dialog
+  hideHeader?: boolean;          // hide avatar/header row (for dialog header)
+  variant?: "default" | "composer"; // adjusts spacing/labels
+}
+
+export const CreatePost = ({ container = "card", hideHeader = false, variant = "default" }: CreatePostProps) => {
   const [content, setContent] = useState("");
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -129,73 +135,82 @@ export const CreatePost = () => {
     }
   };
 
+  const Inner = (
+    <div className="space-y-4">
+      {!hideHeader && (
+        <div className="flex items-start space-x-4">
+          <Avatar className="h-10 w-10">
+            <AvatarFallback>Du</AvatarFallback>
+            <AvatarImage src={undefined} />
+          </Avatar>
+          <div className="flex-1" />
+        </div>
+      )}
+
+      <Textarea
+        placeholder="Worüber möchten Sie sprechen?"
+        value={content}
+        onChange={(e) => setContent(e.target.value)}
+        className={
+          variant === 'composer' ? 'min-h-[280px] resize-none' : 'min-h-[100px] resize-none'
+        }
+      />
+
+      {imagePreview && (
+        <div className="relative inline-block">
+          <img src={imagePreview} alt="Preview" className="max-h-60 rounded-lg border" />
+          <Button
+            variant="destructive"
+            size="sm"
+            className="absolute -top-2 -right-2 h-6 w-6 rounded-full p-0"
+            onClick={removeImage}
+          >
+            <X className="h-3 w-3" />
+          </Button>
+        </div>
+      )}
+
+      <div className="flex justify-between items-center">
+        <div className="flex items-center space-x-2">
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handleImageSelect}
+            className="hidden"
+            id="image-upload"
+          />
+          <label htmlFor="image-upload">
+            <Button variant="outline" size="sm" asChild className="cursor-pointer">
+              <span>
+                <Image className="h-4 w-4 mr-2" />
+                Bild hinzufügen
+              </span>
+            </Button>
+          </label>
+          <div className="text-sm text-muted-foreground">
+            {content.length}/500 Zeichen
+          </div>
+        </div>
+        <Button 
+          disabled={(!content.trim() && !imageFile) || isSubmitting}
+          onClick={handleSubmit}
+          className="flex items-center gap-2"
+        >
+          <Send className="h-4 w-4" />
+          {isSubmitting ? "Wird veröffentlicht..." : "Posten"}
+        </Button>
+      </div>
+    </div>
+  );
+
+  if (container === "none") {
+    return <div className="p-0">{Inner}</div>;
+  }
+
   return (
     <Card>
       <CardContent className="p-6">
-        <div className="space-y-4">
-          <div className="flex items-start space-x-4">
-            <Avatar className="h-10 w-10">
-              <AvatarFallback>Du</AvatarFallback>
-            </Avatar>
-            <div className="flex-1 space-y-3">
-              <Textarea
-                placeholder="Was beschäftigt dich heute? Teile deine Gedanken, Fragen oder Erfahrungen..."
-                value={content}
-                onChange={(e) => setContent(e.target.value)}
-                className="min-h-[100px] resize-none"
-              />
-              
-              {imagePreview && (
-                <div className="relative inline-block">
-                  <img
-                    src={imagePreview}
-                    alt="Preview"
-                    className="max-h-40 rounded-lg border"
-                  />
-                  <Button
-                    variant="destructive"
-                    size="sm"
-                    className="absolute -top-2 -right-2 h-6 w-6 rounded-full p-0"
-                    onClick={removeImage}
-                  >
-                    <X className="h-3 w-3" />
-                  </Button>
-                </div>
-              )}
-
-              <div className="flex justify-between items-center">
-                <div className="flex items-center space-x-2">
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageSelect}
-                    className="hidden"
-                    id="image-upload"
-                  />
-                  <label htmlFor="image-upload">
-                    <Button variant="outline" size="sm" asChild className="cursor-pointer">
-                      <span>
-                        <Image className="h-4 w-4 mr-2" />
-                        Bild hinzufügen
-                      </span>
-                    </Button>
-                  </label>
-                  <div className="text-sm text-muted-foreground">
-                    {content.length}/500 Zeichen
-                  </div>
-                </div>
-                <Button 
-                  disabled={(!content.trim() && !imageFile) || isSubmitting}
-                  onClick={handleSubmit}
-                  className="flex items-center gap-2"
-                >
-                  <Send className="h-4 w-4" />
-                  {isSubmitting ? "Wird veröffentlicht..." : "Beitrag veröffentlichen"}
-                </Button>
-              </div>
-            </div>
-          </div>
-        </div>
+        {Inner}
       </CardContent>
     </Card>
   );
