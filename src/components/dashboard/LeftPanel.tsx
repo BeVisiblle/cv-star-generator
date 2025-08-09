@@ -5,57 +5,34 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { MapPin } from "lucide-react";
-
 function firstWords(text?: string | null, n: number = 20) {
   if (!text) return null;
   const words = text.trim().split(/\s+/);
   const slice = words.slice(0, n).join(" ");
   return words.length > n ? `${slice}…` : slice;
 }
-
 function getAbout(profile: any): string | null {
   if (!profile) return null;
-  return (
-    profile.ueber_mich ||
-    profile.ueberMich ||
-    profile.uebermich ||
-    profile.about ||
-    profile.bio ||
-    profile.beschreibung ||
-    profile.motivation ||
-    null
-  );
+  return profile.ueber_mich || profile.ueberMich || profile.uebermich || profile.about || profile.bio || profile.beschreibung || profile.motivation || null;
 }
-
 export const LeftPanel: React.FC = () => {
-  const { profile } = useAuth();
+  const {
+    profile
+  } = useAuth();
   const navigate = useNavigate();
   const about = getAbout(profile);
   const snippet = firstWords(about, 20);
-
-  return (
-    <aside aria-label="Profilübersicht" className="space-y-4">
+  return <aside aria-label="Profilübersicht" className="space-y-4">
       {/* Profilkarte mit Titelbild */}
       <Card className="p-0 overflow-hidden">
         {/* Cover + Avatar overlay */}
         <div className="relative">
-          <div className="h-20 sm:h-24 bg-muted">
-            {profile?.cover_image_url ? (
-              <img
-                src={profile.cover_image_url}
-                alt="Titelbild"
-                className="h-full w-full object-cover"
-                loading="lazy"
-              />
-            ) : null}
-          </div>
+          
           <div className="absolute -bottom-7 left-5">
             <Avatar className="h-16 w-16 ring-2 ring-background shadow">
               <AvatarImage src={profile?.avatar_url || undefined} alt={`${profile?.vorname ?? 'Unbekannt'} Avatar`} />
               <AvatarFallback>
-                {profile?.vorname && profile?.nachname
-                  ? `${profile.vorname[0]}${profile.nachname[0]}`
-                  : "U"}
+                {profile?.vorname && profile?.nachname ? `${profile.vorname[0]}${profile.nachname[0]}` : "U"}
               </AvatarFallback>
             </Avatar>
           </div>
@@ -65,23 +42,17 @@ export const LeftPanel: React.FC = () => {
         <div className="px-5 pt-10 pb-5">
           <div className="min-w-0">
             <h2 className="text-xl font-semibold leading-tight truncate">
-              {profile?.vorname && profile?.nachname
-                ? `${profile.vorname} ${profile.nachname}`
-                : "Dein Profil"}
+              {profile?.vorname && profile?.nachname ? `${profile.vorname} ${profile.nachname}` : "Dein Profil"}
             </h2>
-            {(profile?.headline || snippet) && (
-              <p className="mt-1 text-sm text-muted-foreground line-clamp-1">{profile?.headline || snippet}</p>
-            )}
-            {(profile?.ort || profile?.branche) && (
-              <div className="mt-1 text-sm text-muted-foreground flex items-center gap-1.5">
+            {(profile?.headline || snippet) && <p className="mt-1 text-sm text-muted-foreground line-clamp-1">{profile?.headline || snippet}</p>}
+            {(profile?.ort || profile?.branche) && <div className="mt-1 text-sm text-muted-foreground flex items-center gap-1.5">
                 <MapPin className="h-4 w-4" aria-hidden />
                 <span>
                   {profile?.ort}
                   {profile?.branche && profile?.ort && " • "}
                   {profile?.branche}
                 </span>
-              </div>
-            )}
+              </div>}
           </div>
 
         </div>
@@ -129,8 +100,6 @@ export const LeftPanel: React.FC = () => {
           <li>• Benachrichtigungen</li>
         </ul>
       </Card>
-    </aside>
-  );
+    </aside>;
 };
-
 export default LeftPanel;
