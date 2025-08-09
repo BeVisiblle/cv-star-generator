@@ -36,16 +36,20 @@ export const LinkedInProfileHeader: React.FC<LinkedInProfileHeaderProps> = ({
   }, [profile]);
 
   const handleCoverUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
+    const inputEl = event.target;
+    const file = inputEl.files?.[0];
+    if (!file) {
+      // ensure change fires next time even with same file
+      inputEl.value = '';
+      return;
+    }
 
     setIsUploadingCover(true);
     try {
       // Upload to Supabase Storage and update profile
       const { uploadCoverImage } = await import('@/lib/supabase-storage');
-      
       const uploadResult = await uploadCoverImage(file);
-      
+
       // Update profile in database
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
@@ -53,13 +57,10 @@ export const LinkedInProfileHeader: React.FC<LinkedInProfileHeaderProps> = ({
           .from('profiles')
           .update({ cover_image_url: uploadResult.url })
           .eq('id', user.id);
-          
+        
         if (!error) {
           onProfileUpdate({ cover_image_url: uploadResult.url });
-          toast({
-            title: "Titelbild hochgeladen",
-            description: "Ihr Titelbild wurde erfolgreich aktualisiert."
-          });
+          toast({ title: "Titelbild hochgeladen", description: "Ihr Titelbild wurde erfolgreich aktualisiert." });
         }
       }
     } catch (error) {
@@ -69,26 +70,29 @@ export const LinkedInProfileHeader: React.FC<LinkedInProfileHeaderProps> = ({
       reader.onload = (e) => {
         const result = e.target?.result as string;
         onProfileUpdate({ cover_image_url: result, cover_url: result, titelbild_url: result });
-        toast({
-          title: "Titelbild hochgeladen",
-          description: "Ihr Titelbild wurde erfolgreich aktualisiert."
-        });
+        toast({ title: "Titelbild hochgeladen", description: "Ihr Titelbild wurde erfolgreich aktualisiert." });
       };
       reader.readAsDataURL(file);
     } finally {
+      // reset input so selecting the same file works again
+      try { inputEl.value = ''; } catch {}
+      try { coverInputRef.current && (coverInputRef.current.value = ''); } catch {}
       setIsUploadingCover(false);
     }
   };
 
   const handleAvatarUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
+    const inputEl = event.target;
+    const file = inputEl.files?.[0];
+    if (!file) {
+      inputEl.value = '';
+      return;
+    }
 
     setIsUploadingAvatar(true);
     try {
       // Upload to Supabase Storage and update profile
       const { uploadProfileImage } = await import('@/lib/supabase-storage');
-      
       const uploadResult = await uploadProfileImage(file);
       
       // Update profile in database
@@ -121,6 +125,8 @@ export const LinkedInProfileHeader: React.FC<LinkedInProfileHeaderProps> = ({
       };
       reader.readAsDataURL(file);
     } finally {
+      try { inputEl.value = ''; } catch {}
+      try { avatarInputRef.current && (avatarInputRef.current.value = ''); } catch {}
       setIsUploadingAvatar(false);
     }
   };
