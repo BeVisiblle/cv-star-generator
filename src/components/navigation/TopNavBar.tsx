@@ -37,8 +37,8 @@ export default function TopNavBar() {
         <SidebarTrigger className="mr-1" />
         <div className="flex items-center gap-2">
           <button onClick={() => navigate('/')} className="flex items-center gap-2" aria-label="Ausbildungsbasis Startseite">
-            <img src="/lovable-uploads/8297f269-1ddb-4b49-a83d-9a561d9e57b4.png" alt="Ausbildungsbasis Logo" className="h-8 w-8 rounded-md object-contain" loading="lazy" />
-            <span className="hidden sm:inline font-semibold">Ausbildungsbasis</span>
+            
+            
           </button>
         </div>
 
