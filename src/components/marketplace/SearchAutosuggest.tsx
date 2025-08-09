@@ -66,10 +66,7 @@ export default function SearchAutosuggest({ query, onSelect, open }: SearchAutos
             .or(`vorname.ilike.%${q}%,nachname.ilike.%${q}%`)
             .limit(MAX_PER_GROUP),
           supabase
-            .from("companies")
-            .select("id, name, logo_url")
-            .ilike("name", `%${q}%`)
-            .limit(MAX_PER_GROUP),
+            .rpc('get_companies_public', { search: q, limit_count: MAX_PER_GROUP, offset_count: 0 }),
           supabase
             .from("company_posts")
             .select("id, content")

@@ -35,10 +35,7 @@ export function RightRail() {
     queryKey: ["marketplace-companies-reco"],
     queryFn: async () => {
       const { data, error } = await sb
-        .from("companies")
-        .select("id, name, logo_url")
-        .order("created_at", { ascending: false })
-        .limit(3);
+        .rpc('get_companies_public', { search: null, limit_count: 3, offset_count: 0 });
       if (error) return [] as CompanyReco[];
       return (data || []) as CompanyReco[];
     },

@@ -37,12 +37,10 @@ export default function PublicCompanyView() {
     queryFn: async () => {
       if (!id) return null;
       const { data, error } = await supabase
-        .from('companies')
-        .select('id,name,industry,logo_url,header_image,size_range,employee_count,contact_person,primary_email,phone,description,mission_statement,website_url,main_location,country,linkedin_url,instagram_url')
-        .eq('id', id)
-        .maybeSingle();
+        .rpc('get_company_public', { p_id: id });
       if (error) throw error;
-      return (data as Company) || null;
+      const row = ((data as any[]) || [])[0] || null;
+      return row as Company | null;
     },
     enabled: !!id,
   });

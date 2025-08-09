@@ -2454,6 +2454,54 @@ export type Database = {
         Args: { "": string }
         Returns: unknown
       }
+      get_companies_public: {
+        Args: { search?: string; limit_count?: number; offset_count?: number }
+        Returns: {
+          id: string
+          name: string
+          logo_url: string
+          header_image: string
+          description: string
+          industry: string
+          size_range: string
+          main_location: string
+          country: string
+          website_url: string
+          linkedin_url: string
+          instagram_url: string
+          created_at: string
+        }[]
+      }
+      get_companies_public_by_ids: {
+        Args: { ids: string[] }
+        Returns: {
+          id: string
+          name: string
+          logo_url: string
+          industry: string
+          main_location: string
+        }[]
+      }
+      get_company_public: {
+        Args: { p_id: string }
+        Returns: {
+          id: string
+          name: string
+          logo_url: string
+          header_image: string
+          description: string
+          mission_statement: string
+          industry: string
+          size_range: string
+          employee_count: number
+          main_location: string
+          country: string
+          website_url: string
+          linkedin_url: string
+          instagram_url: string
+          created_at: string
+        }[]
+      }
       get_feed: {
         Args: {
           viewer_id: string

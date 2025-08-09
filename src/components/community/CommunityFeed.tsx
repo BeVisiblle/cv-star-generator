@@ -57,9 +57,7 @@ export default function CommunityFeed() {
       let companiesMap: Record<string, any> = {};
       if (companyIds.length > 0) {
         const { data: companies, error: compErr } = await supabase
-          .from('companies')
-          .select('id, name, logo_url, industry')
-          .in('id', companyIds);
+          .rpc('get_companies_public_by_ids', { ids: companyIds as any });
         if (compErr) {
           console.error('[feed] companies join error', compErr);
         } else {
@@ -70,6 +68,7 @@ export default function CommunityFeed() {
       const items: PostWithAuthor[] = rows.map((p: any) => ({
         ...p,
         author: profilesMap[p.user_id] || null,
+        company: companiesMap[p.author_id] || null,
       }));
 
       const last = rows.length ? rows[rows.length - 1] : null;

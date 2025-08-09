@@ -142,10 +142,11 @@ export default function Marketplace() {
   const companiesQuery = useQuery<Company[]>({
     queryKey: ['mp-companies', appliedQ, moreCompanies],
     queryFn: async () => {
-      let qy = supabase.from('companies').select('id, name, logo_url');
-      if (appliedQ) qy = qy.ilike('name', `%${appliedQ}%`);
-      else qy = qy.order('created_at', { ascending: false });
-      const { data, error } = await qy.limit(moreCompanies ? 18 : 6);
+      const { data, error } = await supabase.rpc('get_companies_public', {
+        search: appliedQ || null,
+        limit_count: moreCompanies ? 18 : 6,
+        offset_count: 0,
+      });
       if (error) return [] as Company[]; // RLS may block; fail soft
       return (data || []) as Company[];
     },

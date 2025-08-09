@@ -32,12 +32,8 @@ export const CompanyRecommendations: React.FC<CompanyRecommendationsProps> = ({ 
     const load = async () => {
       setLoading(true);
       try {
-        let query = supabase
-          .from("companies")
-          .select("id, name, logo_url, industry, main_location, created_at")
-          .order('created_at', { ascending: false })
-          .limit(12) as any;
-        const { data, error } = await query;
+        const { data, error } = await supabase
+          .rpc('get_companies_public', { search: null, limit_count: 12, offset_count: 0 });
         if (error) throw error;
         setItems(((data as any[]) || []).map(d => ({ id: d.id, name: d.name, logo_url: d.logo_url, industry: d.industry, main_location: d.main_location })).slice(0, limit));
       } catch (e) {
