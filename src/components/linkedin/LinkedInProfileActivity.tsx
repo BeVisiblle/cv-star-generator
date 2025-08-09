@@ -32,32 +32,59 @@ export const LinkedInProfileActivity: React.FC<LinkedInProfileActivityProps> = (
   const navigate = useNavigate();
 
   const { data: recentPosts, isLoading } = useQuery({
-    queryKey: ['recent-community-posts'],
+    queryKey: ['recent-community-posts', profile?.id],
     queryFn: async () => {
+      if (!profile?.id) return [];
       const { data: posts, error } = await supabase
         .from('posts')
         .select('*')
+        .eq('user_id', profile.id)
         .order('created_at', { ascending: false })
-        .limit(10);
+        .limit(6);
 
       if (error) throw error;
 
-      // Get profile data for each post
-      const userIds = posts?.map(post => post.user_id) || [];
-      if (userIds.length === 0) return [];
+      let result = posts || [];
 
-      const { data: profiles, error: profileError } = await supabase
-        .from("profiles")
-        .select("id, vorname, nachname, avatar_url, ausbildungsberuf")
-        .in("id", userIds);
+      // Fallback: provide 6 demo posts for testing if none exist
+      if (!result.length) {
+        const names = [profile.vorname || 'Alex', profile.nachname || 'M.'];
+        const images = [
+          'https://images.unsplash.com/photo-1498050108023-c5249f4df085?q=80&w=1200&auto=format&fit=crop',
+          'https://images.unsplash.com/photo-1516251193007-45ef944ab0c6?q=80&w=1200&auto=format&fit=crop',
+          'https://images.unsplash.com/photo-1520975867597-0f0a113a2d97?q=80&w=1200&auto=format&fit=crop',
+          'https://images.unsplash.com/photo-1520974722171-5f69e34f56b0?q=80&w=1200&auto=format&fit=crop',
+          'https://images.unsplash.com/photo-1520975967075-3f1f3c2d7b68?q=80&w=1200&auto=format&fit=crop',
+          'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?q=80&w=1200&auto=format&fit=crop'
+        ];
+        const texts = [
+          'Mein Projekt der Woche: Werkzeug sortiert und Werkbank neu aufgebaut.',
+          'Heute mit dem Team an einem Kundenauftrag gearbeitet – viel gelernt!',
+          'Kleiner Erfolg: Prüfungsvorbereitung gut gelaufen.',
+          'Neuer Kurs gestartet – freue mich auf die Inhalte.',
+          'Feedback gesucht: Wie findet ihr meinen Lebenslauf?',
+          'Tipp: Täglich 20 Min üben bringt viel!'
+        ];
+        result = Array.from({ length: 6 }).map((_, i) => ({
+          id: `demo-${i}`,
+          content: texts[i % texts.length],
+          image_url: images[i % images.length],
+          created_at: new Date(Date.now() - i * 3600_000).toISOString(),
+          user_id: profile.id,
+        } as any));
+      }
 
-      if (profileError) throw profileError;
-
-      // Combine posts with profiles
-      const postsWithProfiles = posts?.map(post => ({
+      // Attach author (current profile) to all
+      const postsWithProfiles = result.map((post: any) => ({
         ...post,
-        author: profiles?.find(p => p.id === post.user_id)
-      })) || [];
+        author: {
+          id: profile.id,
+          vorname: profile.vorname,
+          nachname: profile.nachname,
+          avatar_url: profile.avatar_url,
+          ausbildungsberuf: profile.ausbildungsberuf || profile.aktueller_beruf || ''
+        }
+      }));
 
       return postsWithProfiles;
     },
