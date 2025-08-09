@@ -3,6 +3,7 @@ import CommunityFeed from '@/components/community/CommunityFeed';
 import { ComposerTeaser } from '@/components/dashboard/ComposerTeaser';
 import { LeftPanel } from '@/components/dashboard/LeftPanel';
 import { RightPanel } from '@/components/dashboard/RightPanel';
+import FeedSortBar from '@/components/community/FeedSortBar';
 
 const Dashboard = () => {
   return (
@@ -20,6 +21,12 @@ const Dashboard = () => {
           {/* Center column (flex grows) */}
           <section className="flex-1 min-w-0 space-y-4">
             <ComposerTeaser />
+            <div className="my-2">
+              {/* Sortierleiste unter dem Beitragsfeld */}
+              <React.Suspense>
+                {React.createElement(require("@/components/community/FeedSortBar").FeedSortBar)}
+              </React.Suspense>
+            </div>
             <CommunityFeed />
           </section>
 

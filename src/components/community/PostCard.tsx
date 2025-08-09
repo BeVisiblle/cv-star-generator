@@ -14,6 +14,7 @@ interface PostCardProps {
     image_url?: string;
     created_at: string;
     user_id: string;
+    recent_interaction?: string; // z. B. "Florian hat das kommentiert"
     author?: {
       id: string;
       vorname?: string;
@@ -59,7 +60,15 @@ export default function PostCard({ post }: PostCardProps) {
   };
 
   return (
-    <Card className="p-6 space-y-4">
+    <Card className="p-0">
+      {/* Interaction hint */}
+      {post.recent_interaction && (
+        <div className="px-4 py-2 text-xs text-muted-foreground border-b">
+          {post.recent_interaction}
+        </div>
+      )}
+
+      <div className="p-6 space-y-4">
       {/* Post Header */}
       <div className="flex items-start space-x-3">
         <Avatar className="h-10 w-10">
@@ -153,6 +162,7 @@ export default function PostCard({ post }: PostCardProps) {
           </p>
         </div>
       )}
+      </div>
     </Card>
   );
 }

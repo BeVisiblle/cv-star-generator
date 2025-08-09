@@ -257,6 +257,12 @@ export default function CommunityFeed() {
               'Community‑Frage: Welche Soft Skills sind euch im Team am wichtigsten?',
               'Motivation des Tages: Jeden Tag eine kleine Sache besser machen.'
             ];
+            const interactions = [
+              "Ein Mitglied hat das kommentiert",
+              "Zwei Mitglieder gefällt das",
+              `${names[(i+3) % names.length]} hat das kommentiert`,
+              `${names[(i+5) % names.length]} gefällt das`
+            ];
             return (
               <PostCard
                 key={`demo-${i}`}
@@ -264,10 +270,11 @@ export default function CommunityFeed() {
                   id: `demo-${i}`,
                   content: texts[i % texts.length],
                   created_at: new Date(Date.now() - i * 3600_000).toISOString(),
-                  user_id: 'demo',
+                  user_id: "demo",
                   image_url: images[i % images.length],
+                  recent_interaction: interactions[i % interactions.length],
                   author: {
-                    id: 'demo',
+                    id: "demo",
                     vorname: names[i % names.length],
                     nachname: surns[i % surns.length],
                     avatar_url: `https://i.pravatar.cc/150?img=${(i % 70) + 1}`,
