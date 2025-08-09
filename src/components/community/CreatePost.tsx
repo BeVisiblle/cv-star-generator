@@ -41,8 +41,7 @@ export const CreatePost = ({ container = "card", hideHeader = false, variant = "
           image_url: imageUrl,
           user_id: user.user.id,
           status: scheduledISO ? 'scheduled' : 'published',
-          scheduled_at: scheduledISO,
-          post_type: imageUrl ? "image" : "text"
+          scheduled_at: scheduledISO
         })
         .select()
         .single();
@@ -77,14 +76,22 @@ useEffect(() => {
 
 const handleImageSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
   const file = event.target.files?.[0];
-  if (file) {
-    setImageFile(file);
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      setImagePreview(e.target?.result as string);
-    };
-    reader.readAsDataURL(file);
+  if (!file) return;
+
+  if (!file.type.startsWith('image/')) {
+    toast({ title: 'Ungültiger Dateityp', description: 'Bitte ein Bild auswählen.', variant: 'destructive' });
+    return;
   }
+  const maxBytes = 10 * 1024 * 1024; // 10MB
+  if (file.size > maxBytes) {
+    toast({ title: 'Datei zu groß', description: 'Bilder dürfen max. 10 MB groß sein.', variant: 'destructive' });
+    return;
+  }
+
+  setImageFile(file);
+  const reader = new FileReader();
+  reader.onload = (e) => setImagePreview(e.target?.result as string);
+  reader.readAsDataURL(file);
 };
 
   const removeImage = () => {

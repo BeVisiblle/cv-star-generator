@@ -179,7 +179,7 @@ export const NewPostComposer: React.FC = () => {
           </SheetHeader>
           {Header}
           <div className="flex-1 overflow-y-auto px-6 pb-6">
-            <CreatePost container="none" hideHeader variant="composer" hideBottomBar onStateChange={handleStateChange} />
+            <CreatePost container="none" hideHeader variant="composer" hideBottomBar onStateChange={handleStateChange} scheduledAt={scheduledAt} />
           </div>
           <div className="sticky bottom-0">{BottomToolbar}</div>
         </SheetContent>
@@ -192,7 +192,7 @@ export const NewPostComposer: React.FC = () => {
       <DialogContent className="md:max-w-3xl w-full p-0 rounded-xl overflow-hidden">
         {Header}
         <div className="px-6 py-5">
-          <CreatePost container="none" hideHeader variant="composer" hideBottomBar onStateChange={handleStateChange} />
+          <CreatePost container="none" hideHeader variant="composer" hideBottomBar onStateChange={handleStateChange} scheduledAt={scheduledAt} />
         </div>
         {BottomToolbar}
       </DialogContent>
