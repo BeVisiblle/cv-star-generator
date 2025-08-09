@@ -5,7 +5,6 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
-import { Switch } from '@/components/ui/switch';
 interface LinkedInProfileMainProps {
   profile: any;
   isEditing: boolean;
@@ -80,36 +79,18 @@ export const LinkedInProfileMain: React.FC<LinkedInProfileMainProps> = ({
       </Card>
 
       {/* Driver License Section */}
+      
+
+      {/* Activity/Analytics Section (Future) */}
       <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
-          <CardTitle className="text-xl font-semibold flex items-center gap-2"><Car className="h-4 w-4" /> Führerschein</CardTitle>
+        <CardHeader>
+          
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div className="space-y-2">
-              <Label>Vorhanden</Label>
-              <div className="flex items-center gap-3">
-                <Switch checked={!!hasDriversLicense} onCheckedChange={(v) => { const val = !!v; setHasDriversLicense(val); onProfileUpdate({ has_drivers_license: val, driver_license_class: val ? (driverLicenseClass || null) : null }); }} />
-                <span className="text-sm text-muted-foreground">{hasDriversLicense ? 'Ja' : 'Nein'}</span>
-              </div>
-            </div>
-
-            <div className="space-y-2 sm:col-span-2">
-              <Label>Klasse</Label>
-              <Select value={driverLicenseClass || ''} onValueChange={(val) => { setDriverLicenseClass(val); if (val) onProfileUpdate({ has_drivers_license: true, driver_license_class: val }); }} disabled={!hasDriversLicense}>
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Klasse wählen" />
-                </SelectTrigger>
-                <SelectContent className="z-50 bg-background">
-                  {['AM','A1','A2','A','B','BE','C','CE','D','DE','T','L'].map((k) => (
-                    <SelectItem key={k} value={k}>{k}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {/* Änderungen werden automatisch gespeichert */}
-            </div>
+          <div className="text-center py-8 text-muted-foreground">
+            <p>Aktivitäts-Dashboard wird bald verfügbar sein</p>
           </div>
         </CardContent>
       </Card>
     </div>;
-  };
+};
