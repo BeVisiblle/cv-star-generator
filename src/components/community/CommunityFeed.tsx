@@ -25,10 +25,10 @@ export default function CommunityFeed() {
       console.log('[feed] fetching page', pageParam);
 
       const { data: posts, error } = await supabase.rpc('get_feed', {
-        viewer_id: viewerId,
+        viewer_id: viewerId as string,
         after_published: pageParam.after_published,
         after_id: pageParam.after_id,
-        page_size: PAGE_SIZE,
+        limit_count: PAGE_SIZE,
       });
 
       if (error) {
@@ -105,8 +105,8 @@ export default function CommunityFeed() {
 
       // Sichtbarkeit per can_view_post absichern
       const { data: allowed, error: allowErr } = await supabase.rpc('can_view_post', {
-        p_post_id: postId,
-        p_viewer_id: viewerId,
+        _post_id: postId,
+        _viewer: viewerId as string,
       });
 
       if (allowErr) {
