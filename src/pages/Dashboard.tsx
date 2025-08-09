@@ -1,23 +1,37 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import CommunityFeed from '@/components/community/CommunityFeed';
+import { ComposerTeaser } from '@/components/dashboard/ComposerTeaser';
+import { LeftPanel } from '@/components/dashboard/LeftPanel';
+import { RightPanel } from '@/components/dashboard/RightPanel';
 
 const Dashboard = () => {
-  const navigate = useNavigate();
-
   return (
-    <div className="container mx-auto p-6 max-w-full overflow-x-hidden">
-      <Card className="p-6">
-        <h1 className="text-2xl font-bold mb-4">Dashboard</h1>
-        <p className="text-muted-foreground mb-4">
-          Das Dashboard wird gerade überarbeitet, um die neuen Datenbank-Features zu unterstützen.
-        </p>
-        <Button onClick={() => navigate('/')}>
-          Zurück zum CV Generator
-        </Button>
-      </Card>
-    </div>
+    <main className="w-full">
+      <h1 className="sr-only">Dashboard</h1>
+      <div className="mx-auto max-w-[1200px] px-4 sm:px-6 lg:px-8 py-6">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-6">
+          {/* Left column */}
+          <div className="hidden lg:block lg:col-span-3">
+            <div className="sticky top-20 space-y-4">
+              <LeftPanel />
+            </div>
+          </div>
+
+          {/* Center column */}
+          <section className="col-span-1 lg:col-span-6 space-y-4">
+            <ComposerTeaser />
+            <CommunityFeed />
+          </section>
+
+          {/* Right column */}
+          <div className="hidden xl:block xl:col-span-3">
+            <div className="sticky top-20 space-y-4">
+              <RightPanel />
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
   );
 };
 
