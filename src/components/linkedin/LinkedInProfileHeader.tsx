@@ -24,6 +24,7 @@ export const LinkedInProfileHeader: React.FC<LinkedInProfileHeaderProps> = ({
   const [currentPosition, setCurrentPosition] = useState('');
   const coverInputRef = useRef<HTMLInputElement>(null);
   const avatarInputRef = useRef<HTMLInputElement>(null);
+  const hasHeadline = typeof profile?.headline === 'string' && profile.headline.trim().length > 0;
 
   // Get current position from profile data
   React.useEffect(() => {
@@ -346,7 +347,7 @@ export const LinkedInProfileHeader: React.FC<LinkedInProfileHeaderProps> = ({
           )}
           
           <p className="text-sm md:text-lg font-medium text-muted-foreground">
-            {headline || 'Professional seeking opportunities'}
+            {hasHeadline ? headline : '—'}
           </p>
           
           <p className="text-sm text-muted-foreground flex items-center gap-1.5">

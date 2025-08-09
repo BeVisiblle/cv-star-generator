@@ -83,13 +83,12 @@ const Profile = () => {
     if (!profile?.id) return;
     setIsSaving(true);
     try {
-      const {
+      const { 
         error
       } = await supabase.from('profiles').update({
         vorname: profile.vorname,
         nachname: profile.nachname,
         telefon: profile.telefon,
-        email: profile.email,
         strasse: profile.strasse,
         hausnummer: profile.hausnummer,
         plz: profile.plz,
@@ -237,7 +236,7 @@ const Profile = () => {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div className="space-y-1">
                     <Label htmlFor="email">E-Mail</Label>
-                    <Input id="email" type="email" value={profile.email || ''} onChange={(e) => setProfile((p: any) => ({...p, email: e.target.value}))} />
+                    <Input id="email" type="email" value={profile.email || ''} disabled readOnly />
                   </div>
                   <div className="space-y-1">
                     <Label htmlFor="telefon">Telefon</Label>

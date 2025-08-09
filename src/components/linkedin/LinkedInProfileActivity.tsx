@@ -12,6 +12,7 @@ import { openPostComposer } from '@/lib/event-bus';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
+import { useToast } from '@/hooks/use-toast';
 
 interface ActivityPost {
   id: string;
@@ -35,6 +36,7 @@ interface LinkedInProfileActivityProps {
 export const LinkedInProfileActivity: React.FC<LinkedInProfileActivityProps> = ({ profile }) => {
 const navigate = useNavigate();
 const queryClient = useQueryClient();
+const { toast } = useToast();
 
   const { data: recentPosts, isLoading } = useQuery({
     queryKey: ['recent-community-posts', profile?.id],
@@ -209,7 +211,25 @@ const queryClient = useQueryClient();
                                 {formatDistanceToNow(new Date(post.created_at), { addSuffix: true, locale: de })}
                               </span>
                               {isOwn && (
-                                <Button variant="destructive" size="icon" className="h-7 w-7 ml-2" onClick={(e)=>{ e.stopPropagation(); if(window.confirm('Diesen Beitrag wirklich löschen?')){ supabase.from('posts').delete().eq('id', post.id).eq('user_id', profile.id).then(()=>{ /* no-op here */ }); } }} aria-label="Beitrag löschen">
+                                <Button
+                                  variant="destructive"
+                                  size="icon"
+                                  className="h-7 w-7 ml-2"
+                                  onClick={(e)=>{
+                                    e.stopPropagation();
+                                    if(window.confirm('Diesen Beitrag wirklich löschen?')){
+                                      supabase.from('posts').delete().eq('id', post.id).eq('user_id', profile.id).then(({ error })=>{
+                                        if(error){
+                                          toast({ title: 'Löschen fehlgeschlagen', description: error.message, variant: 'destructive' });
+                                        } else {
+                                          toast({ title: 'Beitrag gelöscht' });
+                                          queryClient.invalidateQueries({ queryKey: ['recent-community-posts', profile.id] });
+                                        }
+                                      });
+                                    }
+                                  }}
+                                  aria-label="Beitrag löschen"
+                                >
                                   <Trash className="h-4 w-4" />
                                 </Button>
                               )}
