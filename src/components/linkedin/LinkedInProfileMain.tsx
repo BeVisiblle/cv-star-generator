@@ -89,14 +89,14 @@ export const LinkedInProfileMain: React.FC<LinkedInProfileMainProps> = ({
             <div className="space-y-2">
               <Label>Vorhanden</Label>
               <div className="flex items-center gap-3">
-                <Switch checked={!!hasDriversLicense} onCheckedChange={(v) => setHasDriversLicense(!!v)} />
+                <Switch checked={!!hasDriversLicense} onCheckedChange={(v) => { const val = !!v; setHasDriversLicense(val); onProfileUpdate({ has_drivers_license: val, driver_license_class: val ? (driverLicenseClass || null) : null }); }} />
                 <span className="text-sm text-muted-foreground">{hasDriversLicense ? 'Ja' : 'Nein'}</span>
               </div>
             </div>
 
             <div className="space-y-2 sm:col-span-2">
               <Label>Klasse</Label>
-              <Select value={driverLicenseClass || ''} onValueChange={setDriverLicenseClass} disabled={!hasDriversLicense}>
+              <Select value={driverLicenseClass || ''} onValueChange={(val) => { setDriverLicenseClass(val); if (val) onProfileUpdate({ has_drivers_license: true, driver_license_class: val }); }} disabled={!hasDriversLicense}>
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Klasse wählen" />
                 </SelectTrigger>
@@ -106,14 +106,7 @@ export const LinkedInProfileMain: React.FC<LinkedInProfileMainProps> = ({
                   ))}
                 </SelectContent>
               </Select>
-              <div className="flex gap-2 pt-1">
-                {!readOnly && isEditing && (
-                  <>
-                    <Button size="sm" onClick={handleSaveLicense}>Speichern</Button>
-                    <Button size="sm" variant="outline" onClick={handleCancelLicense}>Abbrechen</Button>
-                  </>
-                )}
-              </div>
+              {/* Änderungen werden automatisch gespeichert */}
             </div>
           </div>
         </CardContent>
