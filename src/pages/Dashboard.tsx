@@ -7,7 +7,7 @@ import FeedSortBar from '@/components/community/FeedSortBar';
 
 const Dashboard = () => {
   return (
-    <main className="w-full">
+    <main className="w-full overflow-x-hidden">
       <h1 className="sr-only">Dashboard</h1>
       <div className="mx-auto max-w-screen-2xl px-3 sm:px-6 lg:px-8 py-6">
         <div className="flex gap-4 lg:gap-6">
