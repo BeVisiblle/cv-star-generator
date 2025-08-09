@@ -453,18 +453,21 @@ export type Database = {
           follower_id: string
           following_id: string
           id: string
+          status: string
         }
         Insert: {
           created_at?: string | null
           follower_id: string
           following_id: string
           id?: string
+          status?: string
         }
         Update: {
           created_at?: string | null
           follower_id?: string
           following_id?: string
           id?: string
+          status?: string
         }
         Relationships: [
           {
@@ -833,24 +836,39 @@ export type Database = {
           created_at: string | null
           id: string
           image_url: string | null
+          link_url: string | null
+          published_at: string
+          scheduled_at: string | null
+          status: string
           updated_at: string | null
           user_id: string
+          visibility: string
         }
         Insert: {
           content: string
           created_at?: string | null
           id?: string
           image_url?: string | null
+          link_url?: string | null
+          published_at?: string
+          scheduled_at?: string | null
+          status?: string
           updated_at?: string | null
           user_id: string
+          visibility?: string
         }
         Update: {
           content?: string
           created_at?: string | null
           id?: string
           image_url?: string | null
+          link_url?: string | null
+          published_at?: string
+          scheduled_at?: string | null
+          status?: string
           updated_at?: string | null
           user_id?: string
+          visibility?: string
         }
         Relationships: [
           {
@@ -1646,6 +1664,10 @@ export type Database = {
         Args: { "": unknown } | { "": unknown }
         Returns: string
       }
+      can_view_post: {
+        Args: { _post_id: string; _viewer: string }
+        Returns: boolean
+      }
       change_plan: {
         Args: {
           _company_id: string
@@ -1938,6 +1960,27 @@ export type Database = {
         Args: { "": string }
         Returns: unknown
       }
+      get_feed: {
+        Args: {
+          viewer_id: string
+          after_published?: string
+          after_id?: string
+          limit_count?: number
+        }
+        Returns: {
+          content: string
+          created_at: string | null
+          id: string
+          image_url: string | null
+          link_url: string | null
+          published_at: string
+          scheduled_at: string | null
+          status: string
+          updated_at: string | null
+          user_id: string
+          visibility: string
+        }[]
+      }
       get_proj4_from_srid: {
         Args: { "": number }
         Returns: string
@@ -2038,6 +2081,10 @@ export type Database = {
       }
       is_company_member: {
         Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
+      is_company_member_uid: {
+        Args: { _uid: string }
         Returns: boolean
       }
       is_content_editor: {
@@ -3345,6 +3392,18 @@ export type Database = {
         Returns: {
           token_id: string
           remaining_tokens: number
+        }[]
+      }
+      viewer_first_degree: {
+        Args: { viewer: string }
+        Returns: {
+          id: string
+        }[]
+      }
+      viewer_second_degree: {
+        Args: { viewer: string }
+        Returns: {
+          id: string
         }[]
       }
     }
