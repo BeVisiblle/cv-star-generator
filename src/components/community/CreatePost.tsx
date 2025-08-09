@@ -5,8 +5,10 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Input } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
-import { Send, Image, X } from "lucide-react";
+import { Send, Image, X, FileText } from "lucide-react";
 
 export interface CreatePostProps {
   container?: "card" | "none"; // render inside Card (default) or bare content for composer dialog
@@ -15,6 +17,9 @@ export interface CreatePostProps {
   hideBottomBar?: boolean;       // hide default bottom actions to allow external toolbar
   onStateChange?: (state: { canPost: boolean; isSubmitting: boolean }) => void; // notify parent
   scheduledAt?: Date | null;     // optional scheduled time (UTC stored)
+  showPoll?: boolean;
+  showEvent?: boolean;
+  celebration?: boolean;
 }
 
 export const CreatePost = ({ container = "card", hideHeader = false, variant = "default", hideBottomBar = false, onStateChange, scheduledAt }: CreatePostProps) => {

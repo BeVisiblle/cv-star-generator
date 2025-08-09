@@ -40,6 +40,9 @@ export const NewPostComposer: React.FC = () => {
   const [scheduleOpen, setScheduleOpen] = React.useState(false);
   const [scheduleDate, setScheduleDate] = React.useState<Date | undefined>(undefined);
   const [scheduleTime, setScheduleTime] = React.useState<string>('09:00');
+  const [showPoll, setShowPoll] = React.useState(false);
+  const [showEvent, setShowEvent] = React.useState(false);
+  const [celebration, setCelebration] = React.useState(false);
 
   const applySchedule = () => {
     if (scheduleDate && scheduleTime) {
@@ -91,7 +94,7 @@ export const NewPostComposer: React.FC = () => {
             <PopoverContent className="w-[320px]" align="end">
               <div className="space-y-3">
                 <div className="text-sm font-medium">Beitrag planen</div>
-                <DateCalendar mode="single" selected={scheduleDate} onSelect={setScheduleDate as any} />
+                <DateCalendar mode="single" selected={scheduleDate} onSelect={setScheduleDate as any} className="p-3 pointer-events-auto" />
                 <div className="flex items-center gap-2">
                   <Input type="time" value={scheduleTime} onChange={(e) => setScheduleTime(e.target.value)} className="h-9" />
                 </div>
@@ -139,7 +142,20 @@ export const NewPostComposer: React.FC = () => {
                     whileTap={{ scale: 0.9 }}
                     className="h-11 w-11 rounded-full bg-muted text-muted-foreground flex items-center justify-center shadow-md focus:outline-none focus:ring-2 focus:ring-primary"
                     style={{ boxShadow: 'var(--shadow-elegant)' }}
-                    onClick={() => setTrayOpen(false)}
+                    onClick={() => {
+                      if (label === 'Medien') {
+                        document.getElementById('image-upload')?.click();
+                      } else if (label === 'Dokument') {
+                        document.getElementById('document-upload')?.click();
+                      } else if (label === 'Umfrage') {
+                        setShowPoll(true);
+                      } else if (label === 'Event') {
+                        setShowEvent(true);
+                      } else if (label === 'Feier') {
+                        setCelebration((v) => !v);
+                      }
+                      setTrayOpen(false);
+                    }}
                     aria-label={label}
                   >
                     <Icon className="h-5 w-5" />
@@ -179,7 +195,7 @@ export const NewPostComposer: React.FC = () => {
           </SheetHeader>
           {Header}
           <div className="flex-1 overflow-y-auto px-6 pb-6">
-            <CreatePost container="none" hideHeader variant="composer" hideBottomBar onStateChange={handleStateChange} scheduledAt={scheduledAt} />
+            <CreatePost container="none" hideHeader variant="composer" hideBottomBar onStateChange={handleStateChange} scheduledAt={scheduledAt} showPoll={showPoll} showEvent={showEvent} celebration={celebration} />
           </div>
           <div className="sticky bottom-0">{BottomToolbar}</div>
         </SheetContent>
