@@ -85,106 +85,117 @@ export default function Marketplace() {
         {/* Left: Auf dieser Seite */}
         <div className="hidden lg:block"><LeftOnThisPage /></div>
 
-        {/* Center: Sections */}
+        {/* Center: Sections (filter by type) */}
         <div className="space-y-6">
-          {/* Personen */}
-          <section id="personen">
-            <Card className="p-4 rounded-2xl">
-              <div className="flex items-center justify-between mb-3">
-                <h2 className="text-lg font-semibold">Interessante Personen</h2>
-                <Button variant="ghost" size="sm" onClick={() => setMorePeople((v) => !v)}>
-                  {morePeople ? 'Weniger anzeigen' : 'Mehr anzeigen'}
-                </Button>
-              </div>
-              <div className="space-y-3">
-                {(peopleQuery.data || []).map((p) => {
-                  const name = `${p.vorname ?? ''} ${p.nachname ?? ''}`.trim() || 'Unbekannt';
-                  return (
-                    <div key={p.id} className="flex items-center gap-3">
-                      <Avatar className="h-8 w-8">
-                        <AvatarImage src={p.avatar_url ?? undefined} alt={name} />
-                        <AvatarFallback>{name.slice(0,2).toUpperCase()}</AvatarFallback>
-                      </Avatar>
-                      <div className="text-sm font-medium truncate">{name}</div>
-                      <div className="ml-auto">
-                        <Button size="sm" variant="secondary">Profil ansehen</Button>
+          {(() => {
+            const type = (new URLSearchParams(window.location.search).get('type') || 'people').toLowerCase();
+            return (
+              <>
+                {(type === 'people') && (
+                  <section id="personen">
+                    <Card className="p-4 rounded-2xl">
+                      <div className="flex items-center justify-between mb-3">
+                        <h2 className="text-lg font-semibold">Interessante Personen</h2>
+                        <Button variant="ghost" size="sm" onClick={() => setMorePeople((v) => !v)}>
+                          {morePeople ? 'Weniger anzeigen' : 'Mehr anzeigen'}
+                        </Button>
                       </div>
-                    </div>
-                  );
-                })}
-                {peopleQuery.isLoading && <div className="text-sm text-muted-foreground">Lade Personen…</div>}
-                {!peopleQuery.isLoading && (peopleQuery.data || []).length === 0 && (
-                  <div className="text-sm text-muted-foreground">Keine Personen gefunden.</div>
+                      <div className="space-y-3">
+                        {(peopleQuery.data || []).map((p) => {
+                          const name = `${p.vorname ?? ''} ${p.nachname ?? ''}`.trim() || 'Unbekannt';
+                          return (
+                            <div key={p.id} className="flex items-center gap-3">
+                              <Avatar className="h-8 w-8">
+                                <AvatarImage src={p.avatar_url ?? undefined} alt={name} />
+                                <AvatarFallback>{name.slice(0,2).toUpperCase()}</AvatarFallback>
+                              </Avatar>
+                              <div className="text-sm font-medium truncate">{name}</div>
+                              <div className="ml-auto">
+                                <Button size="sm" variant="secondary">Vernetzen</Button>
+                              </div>
+                            </div>
+                          );
+                        })}
+                        {peopleQuery.isLoading && <div className="text-sm text-muted-foreground">Lade Personen…</div>}
+                        {!peopleQuery.isLoading && (peopleQuery.data || []).length === 0 && (
+                          <div className="text-sm text-muted-foreground">Keine Personen gefunden.</div>
+                        )}
+                      </div>
+                    </Card>
+                  </section>
                 )}
-              </div>
-            </Card>
-          </section>
 
-          {/* Unternehmen */}
-          <section id="unternehmen">
-            <Card className="p-4 rounded-2xl">
-              <div className="flex items-center justify-between mb-3">
-                <h2 className="text-lg font-semibold">Interessante Unternehmen</h2>
-                <Button variant="ghost" size="sm" onClick={() => setMoreCompanies((v) => !v)}>
-                  {moreCompanies ? 'Weniger anzeigen' : 'Mehr anzeigen'}
-                </Button>
-              </div>
-              <div className="space-y-3">
-                {(companiesQuery.data || []).map((c) => (
-                  <div key={c.id} className="flex items-center gap-3">
-                    <div className="h-8 w-8 rounded bg-muted overflow-hidden">
-                      {c.logo_url ? <img src={c.logo_url} alt={c.name} /> : null}
-                    </div>
-                    <div className="text-sm font-medium truncate">{c.name}</div>
-                    <div className="ml-auto">
-                      <Button size="sm" variant="secondary">Folgen</Button>
-                    </div>
-                  </div>
-                ))}
-                {companiesQuery.isLoading && <div className="text-sm text-muted-foreground">Lade Unternehmen…</div>}
-                {!companiesQuery.isLoading && (companiesQuery.data || []).length === 0 && (
-                  <div className="text-sm text-muted-foreground">Keine Unternehmen gefunden.</div>
+                {(type === 'companies') && (
+                  <section id="unternehmen">
+                    <Card className="p-4 rounded-2xl">
+                      <div className="flex items-center justify-between mb-3">
+                        <h2 className="text-lg font-semibold">Interessante Unternehmen</h2>
+                        <Button variant="ghost" size="sm" onClick={() => setMoreCompanies((v) => !v)}>
+                          {moreCompanies ? 'Weniger anzeigen' : 'Mehr anzeigen'}
+                        </Button>
+                      </div>
+                      <div className="space-y-3">
+                        {(companiesQuery.data || []).map((c) => (
+                          <div key={c.id} className="flex items-center gap-3">
+                            <div className="h-8 w-8 rounded bg-muted overflow-hidden">
+                              {c.logo_url ? <img src={c.logo_url} alt={c.name} /> : null}
+                            </div>
+                            <div className="text-sm font-medium truncate">{c.name}</div>
+                            <div className="ml-auto">
+                              <Button size="sm" variant="secondary">Folgen</Button>
+                            </div>
+                          </div>
+                        ))}
+                        {companiesQuery.isLoading && <div className="text-sm text-muted-foreground">Lade Unternehmen…</div>}
+                        {!companiesQuery.isLoading && (companiesQuery.data || []).length === 0 && (
+                          <div className="text-sm text-muted-foreground">Keine Unternehmen gefunden.</div>
+                        )}
+                      </div>
+                    </Card>
+                  </section>
                 )}
-              </div>
-            </Card>
-          </section>
 
-          {/* Beiträge */}
-          <section id="beitraege">
-            <Card className="p-4 rounded-2xl">
-              <div className="flex items-center justify-between mb-3">
-                <h2 className="text-lg font-semibold">Interessante Beiträge</h2>
-                <Button variant="ghost" size="sm" onClick={() => setMorePosts((v) => !v)}>
-                  {morePosts ? 'Weniger anzeigen' : 'Mehr anzeigen'}
-                </Button>
-              </div>
-              <div className="space-y-3">
-                {(postsQuery.data || []).map((post) => (
-                  <div key={post.id} className="flex items-start gap-3">
-                    <div className="h-8 w-8 rounded bg-muted/60 flex-shrink-0" />
-                    <div className="text-sm leading-relaxed line-clamp-3">{post.content}</div>
-                  </div>
-                ))}
-                {postsQuery.isLoading && <div className="text-sm text-muted-foreground">Lade Beiträge…</div>}
-                {!postsQuery.isLoading && (postsQuery.data || []).length === 0 && (
-                  <div className="text-sm text-muted-foreground">Keine Beiträge gefunden.</div>
+                {(type === 'posts') && (
+                  <section id="beitraege">
+                    <Card className="p-4 rounded-2xl">
+                      <div className="flex items-center justify-between mb-3">
+                        <h2 className="text-lg font-semibold">Interessante Beiträge</h2>
+                        <Button variant="ghost" size="sm" onClick={() => setMorePosts((v) => !v)}>
+                          {morePosts ? 'Weniger anzeigen' : 'Mehr anzeigen'}
+                        </Button>
+                      </div>
+                      <div className="space-y-3">
+                        {(postsQuery.data || []).map((post) => (
+                          <div key={post.id} className="flex items-start gap-3">
+                            <div className="h-8 w-8 rounded bg-muted/60 flex-shrink-0" />
+                            <div className="text-sm leading-relaxed line-clamp-3">{post.content}</div>
+                          </div>
+                        ))}
+                        {postsQuery.isLoading && <div className="text-sm text-muted-foreground">Lade Beiträge…</div>}
+                        {!postsQuery.isLoading && (postsQuery.data || []).length === 0 && (
+                          <div className="text-sm text-muted-foreground">Keine Beiträge gefunden.</div>
+                        )}
+                      </div>
+                    </Card>
+                  </section>
                 )}
-              </div>
-            </Card>
-          </section>
 
-          {/* Gruppen (Platzhalter, bis Tabelle vorhanden) */}
-          <section id="gruppen">
-            <Card className="p-4 rounded-2xl">
-              <div className="flex items-center justify-between mb-3">
-                <h2 className="text-lg font-semibold">Interessante Gruppen</h2>
-                <Button variant="ghost" size="sm" disabled>
-                  Mehr anzeigen
-                </Button>
-              </div>
-              <div className="text-sm text-muted-foreground">Gruppen werden hier angezeigt, sobald verfügbar.</div>
-            </Card>
-          </section>
+                {(type === 'groups') && (
+                  <section id="gruppen">
+                    <Card className="p-4 rounded-2xl">
+                      <div className="flex items-center justify-between mb-3">
+                        <h2 className="text-lg font-semibold">Gruppen</h2>
+                        <Button variant="ghost" size="sm" disabled>
+                          Mehr anzeigen
+                        </Button>
+                      </div>
+                      <div className="text-sm text-muted-foreground">Gruppen werden hier angezeigt, sobald verfügbar.</div>
+                    </Card>
+                  </section>
+                )}
+              </>
+            );
+          })()}
         </div>
 
         {/* Right rail */}

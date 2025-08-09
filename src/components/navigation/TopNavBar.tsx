@@ -30,7 +30,8 @@ export default function TopNavBar() {
 
   const handleSubmit = () => {
     const term = q.trim();
-    navigate(`/marketplace?q=${encodeURIComponent(term)}`);
+    const type = new URLSearchParams(location.search).get('type') || 'people';
+    navigate(`/marketplace?type=${encodeURIComponent(type)}&q=${encodeURIComponent(term)}`);
   };
 
   return (
@@ -52,7 +53,13 @@ export default function TopNavBar() {
             onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
             onFocus={() => setOpen(true)}
             onBlur={() => setTimeout(() => setOpen(false), 120)}
-            placeholder="Suche nach Personen, Unternehmen und Beiträgen…"
+            placeholder={(new URLSearchParams(location.search).get('type') || 'people') === 'people'
+              ? 'Suche nach Azubis, Schüler:innen, Gesellen…'
+              : (new URLSearchParams(location.search).get('type') === 'companies'
+                  ? 'Suche nach Unternehmen…'
+                  : (new URLSearchParams(location.search).get('type') === 'posts'
+                      ? 'Suche nach Beiträgen…'
+                      : 'Suche nach Gruppen…'))}
             className="pl-10 h-9"
             aria-label="Globale Suche"
           />
