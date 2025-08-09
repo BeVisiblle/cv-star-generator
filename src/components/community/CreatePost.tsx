@@ -61,6 +61,7 @@ export const CreatePost = ({ container = "card", hideHeader = false, variant = "
           content,
           image_url: imageUrl,
           user_id: user.user.id,
+          author_id: user.user.id,
           celebration,
           status: scheduledISO ? 'scheduled' : 'published',
           scheduled_at: scheduledISO

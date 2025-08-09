@@ -1,5 +1,5 @@
 import React from 'react';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { subscribeOpenPostComposer } from '@/lib/event-bus';
@@ -206,6 +206,8 @@ export const NewPostComposer: React.FC = () => {
   return (
     <Dialog open={open} onOpenChange={(v) => { setOpen(v); setTrayOpen(false); }}>
       <DialogContent className="md:max-w-3xl w-full p-0 rounded-xl overflow-hidden">
+        <DialogTitle className="sr-only">Neuer Beitrag</DialogTitle>
+        <DialogDescription className="sr-only">Verfasse und veröffentliche einen neuen Beitrag.</DialogDescription>
         {Header}
         <div className="px-6 py-5">
           <CreatePost container="none" hideHeader variant="composer" hideBottomBar onStateChange={handleStateChange} scheduledAt={scheduledAt} showPoll={showPoll} showEvent={showEvent} celebration={celebration} />
