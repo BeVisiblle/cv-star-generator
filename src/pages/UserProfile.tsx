@@ -16,6 +16,7 @@ import { RightRailAd } from "@/components/linkedin/right-rail/RightRailAd";
 import { PeopleRecommendations } from "@/components/linkedin/right-rail/PeopleRecommendations";
 import { CompanyRecommendations } from "@/components/linkedin/right-rail/CompanyRecommendations";
 import { toast } from "@/hooks/use-toast";
+import { InView } from "@/components/util/InView";
 
 export default function UserProfilePage() {
   const { id } = useParams();
@@ -144,7 +145,7 @@ export default function UserProfilePage() {
     if (status === "accepted") {
       return (
         <div className="flex gap-2">
-          <Button onClick={() => navigate("/community/messages")}>
+          <Button onClick={() => navigate("/community/messages")} className="min-h-[44px]">
             <MessageSquareMore className="h-4 w-4 mr-1" /> Nachricht
           </Button>
         </div>
@@ -153,30 +154,30 @@ export default function UserProfilePage() {
     if (status === "none" || !user) {
       return (
         <div className="flex gap-2">
-          <Button onClick={onConnect}><UserPlus className="h-4 w-4 mr-1" /> Vernetzen</Button>
+          <Button onClick={onConnect} className="min-h-[44px]"><UserPlus className="h-4 w-4 mr-1" /> Vernetzen</Button>
         </div>
       );
     }
     if (status === "pending") {
       return (
         <div className="flex items-center gap-2">
-          <Button variant="secondary" disabled><Check className="h-4 w-4 mr-1" /> Ausstehend</Button>
-          <Button variant="ghost" onClick={onCancel}><X className="h-4 w-4" /> Zurückziehen</Button>
+          <Button variant="secondary" disabled className="min-h-[44px]"><Check className="h-4 w-4 mr-1" /> Ausstehend</Button>
+          <Button variant="ghost" onClick={onCancel} className="min-h-[44px]"><X className="h-4 w-4" /> Zurückziehen</Button>
         </div>
       );
     }
     if (status === "incoming") {
       return (
         <div className="flex items-center gap-2">
-          <Button onClick={onAccept}>Annehmen</Button>
-          <Button variant="outline" onClick={onDecline}>Ablehnen</Button>
+          <Button onClick={onAccept} className="min-h-[44px]">Annehmen</Button>
+          <Button variant="outline" onClick={onDecline} className="min-h-[44px]">Ablehnen</Button>
         </div>
       );
     }
     if (status === "declined") {
       return (
         <div className="flex items-center gap-2">
-          <Button onClick={onConnect}>Erneut senden</Button>
+          <Button onClick={onConnect} className="min-h-[44px]">Erneut senden</Button>
         </div>
       );
     }
@@ -184,10 +185,10 @@ export default function UserProfilePage() {
   };
 
   return (
-    <div className="p-3 md:p-6 min-h-screen bg-background max-w-full overflow-x-hidden">
+    <div className="px-0 md:px-2 lg:px-4 py-3 md:py-6 min-h-screen bg-background max-w-full overflow-x-hidden">
       <div className="mb-4 md:mb-6 max-w-full">
         <div className="flex items-center justify-between gap-3">
-          <Button variant="outline" className="flex items-center gap-2 w-fit" onClick={() => navigate(-1)}>
+          <Button variant="outline" className="flex items-center gap-2 w-fit min-h-[44px]" onClick={() => navigate(-1)}>
             <ArrowLeft className="h-4 w-4" /> Zurück
           </Button>
           {renderActions()}
@@ -206,8 +207,12 @@ export default function UserProfilePage() {
           <div className="lg:sticky lg:top-24 space-y-4 md:space-y-6">
             <LinkedInProfileSidebar profile={displayProfile} isEditing={false} onProfileUpdate={() => {}} readOnly={!isOwner} showLanguagesAndSkills={isOwner} showLicenseAndStats={isOwner} showCVSection={isOwner} />
             <RightRailAd variant="card" size="sm" />
-            <PeopleRecommendations limit={5} showMoreLink="/entdecken/azubis" showMore={true} />
-            <CompanyRecommendations limit={3} />
+            <InView rootMargin="300px" placeholder={<div className="h-32 rounded-md bg-muted/50 animate-pulse" />}> 
+              <PeopleRecommendations limit={5} showMoreLink="/entdecken/azubis" showMore={true} />
+            </InView>
+            <InView rootMargin="300px" placeholder={<div className="h-32 rounded-md bg-muted/50 animate-pulse" />}> 
+              <CompanyRecommendations limit={3} />
+            </InView>
             <RightRailAd variant="banner" size="sm" />
           </div>
         </aside>
