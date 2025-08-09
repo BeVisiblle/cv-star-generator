@@ -273,17 +273,31 @@ export const LinkedInProfileHeader: React.FC<LinkedInProfileHeaderProps> = ({
         ) : (
           <div className="w-full h-full bg-gradient-to-r from-primary/10 to-accent/20" />
         )}
+
+        {/* Add prominent add button when there is no cover */}
+        {isOwner && !(profile?.cover_image_url || profile?.cover_url || profile?.titelbild_url) && (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <label
+              htmlFor="cover-upload"
+              className="cursor-pointer inline-flex items-center gap-2 rounded-md border border-dashed px-4 py-2 bg-background/70 hover:bg-background/80 transition-colors text-sm"
+              aria-label="Titelbild hinzufügen"
+            >
+              <Camera className="h-4 w-4" />
+              {isUploadingCover ? 'Lädt…' : 'Titelbild hinzufügen'}
+            </label>
+          </div>
+        )}
+
         {isOwner && (
           <div className="absolute right-3 bottom-3">
             <Button size="sm" variant="secondary" asChild disabled={isUploadingCover}>
-              <label htmlFor="cover-upload" className="flex items-center">
+              <label htmlFor="cover-upload" className="flex items-center" aria-label="Titelbild ändern">
                 <Camera className="h-4 w-4 mr-2" />
-                {isUploadingCover ? 'Lädt…' : 'Titelbild ändern'}
+                {isUploadingCover ? 'Lädt…' : ((profile?.cover_image_url || profile?.cover_url || profile?.titelbild_url) ? 'Titelbild ändern' : 'Titelbild hinzufügen')}
               </label>
             </Button>
           </div>
         )}
-        
         
         <input
           id="cover-upload"
