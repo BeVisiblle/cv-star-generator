@@ -22,6 +22,7 @@ import { ProfilePreviewModal } from '@/components/ProfilePreviewModal';
 import { SkillsLanguagesSidebar } from '@/components/linkedin/SkillsLanguagesSidebar';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
+import { InView } from '@/components/util/InView';
 const Profile = () => {
   const navigate = useNavigate();
   const {
@@ -183,9 +184,9 @@ const Profile = () => {
 
   // Early returns after all hooks are declared
 
-  return <div className="p-3 md:p-6 min-h-screen bg-background max-w-full overflow-x-hidden pb-24 pt-safe">{/* Prevent horizontal scroll and reserve for sticky footer */}
+  return <div className="px-0 md:px-2 lg:px-4 py-3 md:py-6 min-h-screen bg-background max-w-full overflow-x-hidden pb-24 pt-safe">{/* Prevent horizontal scroll and reserve for sticky footer */}
       {/* Mobile-optimized Profile Actions Header */}
-      <div className="sticky top-0 z-30 mb-4 md:mb-6 bg-background/80 supports-[backdrop-filter]:bg-background/60 backdrop-blur border-b">
+      <div className="sticky top-14 md:top-0 z-30 mb-4 md:mb-6 bg-background/80 supports-[backdrop-filter]:bg-background/60 backdrop-blur border-b">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0">
           <div className="min-w-0 flex-1">
             <h1 className="text-xl md:text-2xl font-bold truncate">
@@ -345,8 +346,12 @@ const Profile = () => {
             <LinkedInProfileSidebar profile={profile} isEditing={isEditing} onProfileUpdate={handleProfileUpdate} showLanguagesAndSkills={false} showLicenseAndStats={false} />
             <RightRailAd variant="card" size="sm" />
             <SkillsLanguagesSidebar profile={profile} isEditing={isEditing} onProfileUpdate={handleProfileUpdate} />
-            <PeopleRecommendations limit={3} showMoreLink="/entdecken/azubis" showMore />
-            <CompanyRecommendations limit={3} showMoreLink="/entdecken/unternehmen" showMore />
+            <InView rootMargin="300px" placeholder={<div className="h-32 rounded-md bg-muted/50 animate-pulse" />}> 
+              <PeopleRecommendations limit={3} showMoreLink="/entdecken/azubis" showMore />
+            </InView>
+            <InView rootMargin="300px" placeholder={<div className="h-32 rounded-md bg-muted/50 animate-pulse" />}> 
+              <CompanyRecommendations limit={3} showMoreLink="/entdecken/unternehmen" showMore />
+            </InView>
             <RightRailAd variant="banner" size="sm" />
           </div>
         </aside>

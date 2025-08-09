@@ -267,6 +267,8 @@ export const LinkedInProfileHeader: React.FC<LinkedInProfileHeaderProps> = ({
             alt={(profile?.vorname || profile?.nachname) ? `Titelbild von ${profile?.vorname ?? ''} ${profile?.nachname ?? ''}`.trim() : 'Titelbild'} 
             className="w-full h-full object-cover object-[center_top]"
             loading="lazy"
+            decoding="async"
+            sizes="(max-width: 768px) 100vw, 800px"
           />
         ) : (
           <div className="w-full h-full bg-gradient-to-r from-primary/10 to-accent/20" />
@@ -299,7 +301,7 @@ export const LinkedInProfileHeader: React.FC<LinkedInProfileHeaderProps> = ({
         <div className="relative -mt-12 sm:-mt-16 mb-3 md:mb-4">
           <div className="relative inline-block">
             <Avatar className="w-20 h-20 sm:w-24 sm:h-24 md:w-32 md:h-32 border-4 border-background shadow-lg">
-              <AvatarImage src={profile?.avatar_url} alt="Profile" />
+              <AvatarImage src={profile?.avatar_url} alt="Profilbild" loading="lazy" decoding="async" />
               <AvatarFallback className="text-lg md:text-2xl font-bold bg-primary/10">
                 {profile?.vorname?.[0]}{profile?.nachname?.[0]}
               </AvatarFallback>
@@ -348,13 +350,13 @@ export const LinkedInProfileHeader: React.FC<LinkedInProfileHeaderProps> = ({
                   {currentPosition || '—'}
                 </div>
               </div>
-              <p className="text-sm md:text-lg font-medium text-primary leading-tight">
+              <p className="text-sm md:text-lg font-medium text-primary leading-tight line-clamp-2">
                 {getStatusDescription(profile)}
               </p>
             </div>
           )}
           
-          <p className="text-sm md:text-lg font-medium text-muted-foreground">
+          <p className="text-sm md:text-lg font-medium text-muted-foreground line-clamp-2">
             {hasHeadline ? headline : '—'}
           </p>
           

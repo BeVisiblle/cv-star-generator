@@ -10,6 +10,7 @@ import { SkillSelector } from '@/components/shared/SkillSelector';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { uploadFile, deleteFile } from '@/lib/supabase-storage';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 // Import CV layout components
 import ModernLayout from '@/components/cv-layouts/ModernLayout';
@@ -51,6 +52,7 @@ export const LinkedInProfileSidebar: React.FC<LinkedInProfileSidebarProps> = ({
   const [isLoadingDocuments, setIsLoadingDocuments] = useState(false);
   const [isUploadingDocument, setIsUploadingDocument] = useState(false);
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
   const handleDownloadCV = async () => {
     try {
       setIsGeneratingPDF(true);
@@ -523,7 +525,7 @@ export const LinkedInProfileSidebar: React.FC<LinkedInProfileSidebarProps> = ({
               Mein Lebenslauf
               {!readOnly && (
                 <div className="flex gap-1">
-                  <Button variant="ghost" size="sm" onClick={() => setShowCVPreview(!showCVPreview)} className="h-8 w-8 p-0">
+                  <Button variant="ghost" size="sm" onClick={() => setShowCVPreview(!showCVPreview)} className="h-8 w-8 p-0 hidden md:inline-flex">
                     <Eye className="h-4 w-4" />
                   </Button>
                 </div>
@@ -531,7 +533,7 @@ export const LinkedInProfileSidebar: React.FC<LinkedInProfileSidebarProps> = ({
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
-            {!readOnly && showCVPreview && profile?.vorname && profile?.nachname ? (
+            {!readOnly && showCVPreview && !isMobile && profile?.vorname && profile?.nachname ? (
               <div className="border rounded-lg overflow-hidden bg-white">
                 <div className="bg-muted px-3 py-2 text-xs sm:text-sm font-medium flex justify-between items-center">
                   <span className="truncate">Vorschau: {getLayoutName()}</span>
