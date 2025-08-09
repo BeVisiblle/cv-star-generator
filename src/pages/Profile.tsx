@@ -20,6 +20,8 @@ import { PeopleRecommendations } from '@/components/linkedin/right-rail/PeopleRe
 import { CompanyRecommendations } from '@/components/linkedin/right-rail/CompanyRecommendations';
 import { ProfilePreviewModal } from '@/components/ProfilePreviewModal';
 import { SkillsLanguagesSidebar } from '@/components/linkedin/SkillsLanguagesSidebar';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Switch } from '@/components/ui/switch';
 const Profile = () => {
   const navigate = useNavigate();
   const {
@@ -264,6 +266,47 @@ const Profile = () => {
                   <div className="space-y-1">
                     <Label htmlFor="ort">Ort</Label>
                     <Input id="ort" value={profile.ort || ''} onChange={(e) => setProfile((p: any) => ({...p, ort: e.target.value}))} onBlur={(e) => handleProfileUpdateImmediate({ ort: e.target.value })} />
+                  </div>
+
+                  {/* Führerschein unten bei Kontaktdaten */}
+                  <div className="col-span-1 sm:col-span-2 border-t pt-3 mt-1">
+                    <h5 className="text-sm font-semibold mb-2 flex items-center gap-2"><Car className="h-4 w-4" /> Führerschein</h5>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                      <div className="space-y-1">
+                        <Label>Vorhanden</Label>
+                        <div className="flex items-center gap-3">
+                          <Switch
+                            checked={!!profile?.has_drivers_license}
+                            onCheckedChange={(val) => {
+                              const v = !!val;
+                              setProfile((p: any) => ({ ...p, has_drivers_license: v, driver_license_class: v ? (p.driver_license_class || null) : null }));
+                              handleProfileUpdateImmediate({ has_drivers_license: v, driver_license_class: v ? (profile?.driver_license_class || null) : null });
+                            }}
+                          />
+                          <span className="text-sm text-muted-foreground">{profile?.has_drivers_license ? 'Ja' : 'Nein'}</span>
+                        </div>
+                      </div>
+                      <div className="space-y-1 sm:col-span-2">
+                        <Label>Klasse</Label>
+                        <Select
+                          value={profile?.driver_license_class || ''}
+                          onValueChange={(val) => {
+                            setProfile((p: any) => ({ ...p, driver_license_class: val, has_drivers_license: true }));
+                            handleProfileUpdateImmediate({ has_drivers_license: true, driver_license_class: val });
+                          }}
+                          disabled={!profile?.has_drivers_license}
+                        >
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Klasse wählen" />
+                          </SelectTrigger>
+                          <SelectContent className="z-50 bg-background">
+                            {['AM','A1','A2','A','B','BE','C','CE','D','DE','T','L'].map((k) => (
+                              <SelectItem key={k} value={k}>{k}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
                   </div>
                 </div>
               ) : (

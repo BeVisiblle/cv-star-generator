@@ -48,11 +48,11 @@ export const LinkedInProfileHeader: React.FC<LinkedInProfileHeaderProps> = ({
       if (user) {
         const { error } = await supabase
           .from('profiles')
-          .update({ cover_image_url: uploadResult.url, cover_url: uploadResult.url, titelbild_url: uploadResult.url })
+          .update({ cover_image_url: uploadResult.url })
           .eq('id', user.id);
           
         if (!error) {
-          onProfileUpdate({ cover_image_url: uploadResult.url, cover_url: uploadResult.url, titelbild_url: uploadResult.url });
+          onProfileUpdate({ cover_image_url: uploadResult.url });
           toast({
             title: "Titelbild hochgeladen",
             description: "Ihr Titelbild wurde erfolgreich aktualisiert."
