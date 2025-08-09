@@ -8,7 +8,10 @@ import {
   FileText,
   LogOut,
   ChevronRight,
-  Plus
+  Plus,
+  MessageSquare,
+  Briefcase,
+  Building2
 } from "lucide-react";
 import {
   Sidebar,
@@ -19,6 +22,9 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubItem,
+  SidebarMenuSubButton,
   SidebarHeader,
   SidebarFooter,
   useSidebar,
@@ -39,11 +45,6 @@ const navigationItems = [
     title: "Mein Profil",
     url: "/profile",
     icon: User,
-  },
-  {
-    title: "Community",
-    url: "/marketplace",
-    icon: Users,
   },
   {
     title: "Einstellungen",
@@ -132,6 +133,62 @@ export function AppSidebar() {
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
+
+              {/* Community with subpages */}
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild>
+                  <NavLink
+                    to="/marketplace"
+                    className={({ isActive }) =>
+                      `flex items-center gap-3 rounded-lg px-3 py-2 transition-all ${
+                        (isActive || currentPath.startsWith('/community'))
+                          ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                          : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                      }`
+                    }
+                  >
+                    <Users className="h-4 w-4" />
+                    {!collapsed && <span>Community</span>}
+                    {!collapsed && (currentPath === "/marketplace" || currentPath.startsWith("/community")) && (
+                      <ChevronRight className="ml-auto h-4 w-4" />
+                    )}
+                  </NavLink>
+                </SidebarMenuButton>
+                <SidebarMenuSub>
+                  <SidebarMenuSubItem>
+                    <SidebarMenuSubButton asChild>
+                      <NavLink to="/community/contacts" className={({ isActive }) => isActive ? "text-primary" : ""}>
+                        <Users className="h-4 w-4" />
+                        {!collapsed && <span>Meine Freunde / Kontakte</span>}
+                      </NavLink>
+                    </SidebarMenuSubButton>
+                  </SidebarMenuSubItem>
+                  <SidebarMenuSubItem>
+                    <SidebarMenuSubButton asChild>
+                      <NavLink to="/community/companies" className={({ isActive }) => isActive ? "text-primary" : ""}>
+                        <Building2 className="h-4 w-4" />
+                        {!collapsed && <span>Unternehmen</span>}
+                      </NavLink>
+                    </SidebarMenuSubButton>
+                  </SidebarMenuSubItem>
+                  <SidebarMenuSubItem>
+                    <SidebarMenuSubButton asChild>
+                      <NavLink to="/community/messages" className={({ isActive }) => isActive ? "text-primary" : ""}>
+                        <MessageSquare className="h-4 w-4" />
+                        {!collapsed && <span>Nachrichten</span>}
+                      </NavLink>
+                    </SidebarMenuSubButton>
+                  </SidebarMenuSubItem>
+                  <SidebarMenuSubItem>
+                    <SidebarMenuSubButton asChild>
+                      <NavLink to="/community/jobs" className={({ isActive }) => isActive ? "text-primary" : ""}>
+                        <Briefcase className="h-4 w-4" />
+                        {!collapsed && <span>Jobs</span>}
+                      </NavLink>
+                    </SidebarMenuSubButton>
+                  </SidebarMenuSubItem>
+                </SidebarMenuSub>
+              </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>

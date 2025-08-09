@@ -4,13 +4,17 @@ import { Bell } from "lucide-react";
 import { useLocation } from "react-router-dom";
 
 const titleMap: Record<string, string> = {
+  "/community/contacts": "Meine Kontakte",
+  "/community/companies": "Unternehmen",
+  "/community/messages": "Nachrichten",
+  "/community/jobs": "Jobs",
+  "/marketplace": "Community",
   "/dashboard": "Home Feed",
   "/network": "My Network",
   "/companies": "Companies",
   "/messages": "Messages",
   "/notifications": "Notifications",
   "/profile": "Profil",
-  "/marketplace": "Community",
 };
 
 export default function TopNavBar() {

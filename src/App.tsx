@@ -25,6 +25,10 @@ import Settings from "./pages/Settings";
 import BaseLayout from "@/components/layout/BaseLayout";
 import DiscoverAzubis from "./pages/DiscoverAzubis";
 import DiscoverCompanies from "./pages/DiscoverCompanies";
+import CommunityContacts from "./pages/Community/Contacts";
+import CommunityCompanies from "./pages/Community/Companies";
+import CommunityMessages from "./pages/Community/Messages";
+import CommunityJobs from "./pages/Community/Jobs";
 
 // Company components
 import { CompanyLayout } from "@/components/Company/CompanyLayout";
@@ -168,6 +172,10 @@ const App = () => (
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/marketplace" element={<Marketplace />} />
+                <Route path="/community/contacts" element={<CommunityContacts />} />
+                <Route path="/community/companies" element={<CommunityCompanies />} />
+                <Route path="/community/messages" element={<CommunityMessages />} />
+                <Route path="/community/jobs" element={<CommunityJobs />} />
                 <Route path="/settings" element={<Settings />} />
                 <Route path="/entdecken/azubis" element={<DiscoverAzubis />} />
                 <Route path="/entdecken/unternehmen" element={<DiscoverCompanies />} />
