@@ -49,8 +49,8 @@ export const LeftPanel: React.FC = () => {
               />
             ) : null}
           </div>
-          <div className="absolute -bottom-6 left-5">
-            <Avatar className="h-12 w-12 ring-2 ring-background">
+          <div className="absolute -bottom-7 left-5">
+            <Avatar className="h-16 w-16 ring-2 ring-background shadow">
               <AvatarImage src={profile?.avatar_url || undefined} alt={`${profile?.vorname ?? 'Unbekannt'} Avatar`} />
               <AvatarFallback>
                 {profile?.vorname && profile?.nachname
@@ -62,7 +62,7 @@ export const LeftPanel: React.FC = () => {
         </div>
 
         {/* Content */}
-        <div className="px-5 pt-8 pb-5">
+        <div className="px-5 pt-10 pb-5">
           <div className="min-w-0">
             <h2 className="text-xl font-semibold leading-tight truncate">
               {profile?.vorname && profile?.nachname
@@ -85,11 +85,6 @@ export const LeftPanel: React.FC = () => {
             )}
           </div>
 
-          <div className="mt-4 flex flex-wrap gap-2">
-            <Badge variant="secondary">Profil</Badge>
-            <Badge variant="secondary">Netzwerk</Badge>
-            <Badge variant="secondary">Beiträge</Badge>
-          </div>
         </div>
       </Card>
 
