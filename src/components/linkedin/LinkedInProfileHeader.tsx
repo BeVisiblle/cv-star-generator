@@ -269,13 +269,16 @@ export const LinkedInProfileHeader: React.FC<LinkedInProfileHeaderProps> = ({
           <div className="w-full h-full bg-gradient-to-r from-primary/10 to-accent/20" />
         )}
         <div className="absolute right-3 bottom-3">
-          <Button size="sm" variant="secondary" onClick={() => coverInputRef.current?.click()} disabled={isUploadingCover}>
-            <Camera className="h-4 w-4 mr-2" />
-            {isUploadingCover ? 'Lädt…' : 'Titelbild ändern'}
+          <Button size="sm" variant="secondary" asChild disabled={isUploadingCover}>
+            <label htmlFor="cover-upload" className="flex items-center">
+              <Camera className="h-4 w-4 mr-2" />
+              {isUploadingCover ? 'Lädt…' : 'Titelbild ändern'}
+            </label>
           </Button>
         </div>
         
         <input
+          id="cover-upload"
           ref={coverInputRef}
           type="file"
           accept="image/*"
@@ -296,19 +299,20 @@ export const LinkedInProfileHeader: React.FC<LinkedInProfileHeaderProps> = ({
               </AvatarFallback>
             </Avatar>
             <Button
-              type="button"
+              asChild
               variant="secondary"
               size="icon"
               className="absolute -bottom-1 -right-1 h-8 w-8 rounded-full"
-              onClick={() => avatarInputRef.current?.click()}
               disabled={isUploadingAvatar}
-              aria-label="Profilbild ändern"
             >
-              <Camera className="h-4 w-4" />
+              <label htmlFor="avatar-upload" aria-label="Profilbild ändern" className="flex items-center justify-center">
+                <Camera className="h-4 w-4" />
+              </label>
             </Button>
           </div>
           
           <input
+            id="avatar-upload"
             ref={avatarInputRef}
             type="file"
             accept="image/*"
