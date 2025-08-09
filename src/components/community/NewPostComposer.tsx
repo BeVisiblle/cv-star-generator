@@ -61,7 +61,7 @@ export const NewPostComposer: React.FC = () => {
   const Header = (
     <div className="px-6 pt-5 pb-3 border-b bg-background">
       <div className="flex items-center gap-3">
-        <Avatar className="h-9 w-9">
+        <Avatar className="h-7 w-7 md:h-9 md:w-9">
           <AvatarImage src={profile?.avatar_url || undefined} />
           <AvatarFallback>
             {profile?.vorname && profile?.nachname ? `${profile.vorname[0]}${profile.nachname[0]}` : 'U'}
@@ -73,12 +73,12 @@ export const NewPostComposer: React.FC = () => {
           </div>
           <div className="mt-1">
             <Select value={audience} onValueChange={(v) => setAudience(v as any)}>
-              <SelectTrigger className="h-8 w-[220px] text-xs">
-                <SelectValue placeholder="Sichtbarkeit wählen" />
+              <SelectTrigger className="h-8 text-xs px-2 w-auto min-w-[112px]">
+                <SelectValue placeholder="Sichtbarkeit" />
               </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="public">Jeder (öffentlich)</SelectItem>
-                <SelectItem value="connections">Nur Verbindungen</SelectItem>
+              <SelectContent align="start">
+                <SelectItem value="public">Jeder</SelectItem>
+                <SelectItem value="connections">Verbindungen</SelectItem>
                 <SelectItem value="private">Privat</SelectItem>
               </SelectContent>
             </Select>
@@ -189,7 +189,7 @@ export const NewPostComposer: React.FC = () => {
   if (isMobile) {
     return (
       <Sheet open={open} onOpenChange={(v) => { setOpen(v); setTrayOpen(false); }}>
-        <SheetContent side="bottom" className="h-[92vh] p-0 flex flex-col">
+        <SheetContent side="bottom" className="h-[85vh] p-0 flex flex-col">
           <SheetHeader className="px-6 pt-4 pb-2">
             <SheetTitle>Neuer Beitrag</SheetTitle>
           </SheetHeader>

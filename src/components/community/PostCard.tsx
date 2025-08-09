@@ -138,8 +138,10 @@ export default function PostCard({ post }: PostCardProps) {
           {post.image_url && (
             <img
               src={post.image_url}
-              alt="Post image"
-              className="rounded-lg max-w-full h-auto"
+              alt="Community Post Bild"
+              loading="lazy"
+              decoding="async"
+              className="w-full max-h-[52vh] object-cover rounded-lg"
             />
           )}
         </div>
@@ -154,7 +156,7 @@ export default function PostCard({ post }: PostCardProps) {
         </div>
 
         {/* Post Actions */}
-        <div className="flex items-center justify-between pt-2 border-t">
+        <div className="flex flex-wrap items-center justify-between gap-y-1 pt-2 border-t">
           <div className="flex items-center space-x-1 sm:space-x-2">
             <Button
               variant="ghost"

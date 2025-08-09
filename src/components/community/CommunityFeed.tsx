@@ -216,7 +216,7 @@ export default function CommunityFeed() {
   const isEmpty = !posts || posts.length === 0;
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 max-md:snap-y max-md:snap-mandatory">
       {incoming.length > 0 && (
         <div className="sticky top-0 z-10">
           <Card className="p-3 border-primary/30 bg-primary/10 backdrop-blur supports-[backdrop-filter]:bg-primary/15">
@@ -264,24 +264,26 @@ export default function CommunityFeed() {
               `${names[(i+5) % names.length]} gefällt das`
             ];
             return (
-              <PostCard
-                key={`demo-${i}`}
-                post={{
-                  id: `demo-${i}`,
-                  content: texts[i % texts.length],
-                  created_at: new Date(Date.now() - i * 3600_000).toISOString(),
-                  user_id: "demo",
-                  image_url: images[i % images.length],
-                  recent_interaction: interactions[i % interactions.length],
-                  author: {
-                    id: "demo",
-                    vorname: names[i % names.length],
-                    nachname: surns[i % surns.length],
-                    avatar_url: `https://i.pravatar.cc/150?img=${(i % 70) + 1}`,
-                    ausbildungsberuf: roles[i % roles.length]
-                  }
-                }}
-              />
+              <div className="mx-auto w-full max-w-[420px] px-2 max-md:snap-start">
+                <PostCard
+                  key={`demo-${i}`}
+                  post={{
+                    id: `demo-${i}`,
+                    content: texts[i % texts.length],
+                    created_at: new Date(Date.now() - i * 3600_000).toISOString(),
+                    user_id: "demo",
+                    image_url: images[i % images.length],
+                    recent_interaction: interactions[i % interactions.length],
+                    author: {
+                      id: "demo",
+                      vorname: names[i % names.length],
+                      nachname: surns[i % surns.length],
+                      avatar_url: `https://i.pravatar.cc/150?img=${(i % 70) + 1}`,
+                      ausbildungsberuf: roles[i % roles.length]
+                    }
+                  }}
+                />
+              </div>
             );
           })}
         </>
@@ -289,7 +291,9 @@ export default function CommunityFeed() {
         <>
           <div className="space-y-4">
             {posts.map((post: any) => (
-              <PostCard key={post.id} post={post} />
+              <div key={post.id} className="mx-auto w-full max-w-[420px] px-2 max-md:snap-start">
+                <PostCard post={post} />
+              </div>
             ))}
           </div>
 
