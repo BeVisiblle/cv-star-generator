@@ -131,6 +131,7 @@ export type Database = {
           country: string | null
           created_at: string | null
           description: string | null
+          employee_count: number | null
           founded_year: number | null
           header_image: string | null
           id: string
@@ -140,6 +141,7 @@ export type Database = {
           location_id: number | null
           logo_url: string | null
           main_location: string | null
+          mission_statement: string | null
           name: string
           phone: string | null
           plan_type: string | null
@@ -158,6 +160,7 @@ export type Database = {
           country?: string | null
           created_at?: string | null
           description?: string | null
+          employee_count?: number | null
           founded_year?: number | null
           header_image?: string | null
           id?: string
@@ -167,6 +170,7 @@ export type Database = {
           location_id?: number | null
           logo_url?: string | null
           main_location?: string | null
+          mission_statement?: string | null
           name: string
           phone?: string | null
           plan_type?: string | null
@@ -185,6 +189,7 @@ export type Database = {
           country?: string | null
           created_at?: string | null
           description?: string | null
+          employee_count?: number | null
           founded_year?: number | null
           header_image?: string | null
           id?: string
@@ -194,6 +199,7 @@ export type Database = {
           location_id?: number | null
           logo_url?: string | null
           main_location?: string | null
+          mission_statement?: string | null
           name?: string
           phone?: string | null
           plan_type?: string | null

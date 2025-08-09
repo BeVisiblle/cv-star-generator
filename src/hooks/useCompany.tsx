@@ -14,6 +14,10 @@ interface Company {
   main_location?: string;
   additional_locations?: any;
   website_url?: string;
+  linkedin_url?: string;
+  instagram_url?: string;
+  mission_statement?: string;
+  employee_count?: number;
   plan_type?: string;
   active_tokens: number;
   seats: number;

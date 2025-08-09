@@ -25,6 +25,8 @@ type Company = {
   country?: string | null;
   linkedin_url?: string | null;
   instagram_url?: string | null;
+  mission_statement?: string | null;
+  employee_count?: number | null;
 };
 
 export default function PublicCompanyView() {
@@ -36,7 +38,7 @@ export default function PublicCompanyView() {
       if (!id) return null;
       const { data, error } = await supabase
         .from('companies')
-        .select('id,name,industry,logo_url,header_image,size_range,contact_person,primary_email,phone,description,website_url,main_location,country,linkedin_url,instagram_url')
+        .select('id,name,industry,logo_url,header_image,size_range,employee_count,contact_person,primary_email,phone,description,mission_statement,website_url,main_location,country,linkedin_url,instagram_url')
         .eq('id', id)
         .maybeSingle();
       if (error) throw error;
@@ -103,7 +105,11 @@ export default function PublicCompanyView() {
             <div className="min-w-0 flex-1">
               <h1 className="text-xl md:text-2xl font-bold truncate">{c?.name || 'Unternehmen'}</h1>
               <div className="text-sm text-muted-foreground mt-1 truncate">
-                {[c?.industry, c?.size_range].filter(Boolean).join(' • ')}
+                {[
+                  c?.industry,
+                  c?.size_range,
+                  typeof c?.employee_count === 'number' ? `${c.employee_count} Mitarbeitende` : null,
+                ].filter(Boolean).join(' • ')}
               </div>
               <div className="text-sm text-muted-foreground mt-1 truncate">
                 {c?.main_location && (
@@ -130,6 +136,15 @@ export default function PublicCompanyView() {
                 {c?.description || 'Dieses Unternehmen hat noch keine Beschreibung hinzugefügt.'}
               </p>
             </Card>
+
+            {c?.mission_statement && (
+              <Card className="p-4 sm:p-5 md:p-6">
+                <h2 className="text-lg font-semibold">Mission</h2>
+                <p className="mt-2 whitespace-pre-line text-sm leading-relaxed text-muted-foreground">
+                  {c.mission_statement}
+                </p>
+              </Card>
+            )}
 
             <Card className="p-4 sm:p-5 md:p-6">
               <h2 className="text-lg font-semibold">Kontakt</h2>

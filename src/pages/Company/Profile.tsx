@@ -32,23 +32,27 @@ interface CompanyProfile {
   logo_url: string;
   header_image: string;
   size_range: string;
+  mission_statement: string;
+  employee_count: number | null;
 }
 
 export default function CompanyProfile() {
   const { company, updateCompany, loading } = useCompany();
   const [editing, setEditing] = useState(false);
-  const [profileData, setProfileData] = useState<CompanyProfile>({
-    name: "",
-    description: "",
-    industry: "",
-    founded_year: null,
-    main_location: "",
-    additional_locations: [],
-    website_url: "",
-    logo_url: "",
-    header_image: "",
-    size_range: "",
-  });
+const [profileData, setProfileData] = useState<CompanyProfile>({
+  name: "",
+  description: "",
+  industry: "",
+  founded_year: null,
+  main_location: "",
+  additional_locations: [],
+  website_url: "",
+  logo_url: "",
+  header_image: "",
+  size_range: "",
+  mission_statement: "",
+  employee_count: null,
+});
   const [saving, setSaving] = useState(false);
   const { toast } = useToast();
 
@@ -58,13 +62,15 @@ export default function CompanyProfile() {
         name: company.name || "",
         description: company.description || "",
         industry: company.industry || "",
-        founded_year: company.founded_year,
+        founded_year: company.founded_year ?? null,
         main_location: company.main_location || "",
         additional_locations: company.additional_locations || [],
         website_url: company.website_url || "",
         logo_url: company.logo_url || "",
         header_image: company.header_image || "",
         size_range: company.size_range || "",
+        mission_statement: company.mission_statement || "",
+        employee_count: company.employee_count ?? null,
       });
     }
   }, [company]);
@@ -263,6 +269,23 @@ export default function CompanyProfile() {
                 )}
               </div>
 
+              <div className="space-y-2">
+                <Label htmlFor="mission_statement">Mission</Label>
+                {editing ? (
+                  <Textarea
+                    id="mission_statement"
+                    value={profileData.mission_statement}
+                    onChange={(e) => updateField('mission_statement', e.target.value)}
+                    placeholder="Wofür steht Ihr Unternehmen?"
+                    rows={3}
+                  />
+                ) : (
+                  <p className="text-muted-foreground">
+                    {profileData.mission_statement || "Noch keine Mission angegeben."}
+                  </p>
+                )}
+              </div>
+
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="industry">Branche</Label>
@@ -322,6 +345,22 @@ export default function CompanyProfile() {
                     <p className="text-muted-foreground">{profileData.website_url || "Nicht angegeben"}</p>
                   )}
                 </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="employee_count">Mitarbeiterzahl</Label>
+                {editing ? (
+                  <Input
+                    id="employee_count"
+                    type="number"
+                    min={0}
+                    value={profileData.employee_count ?? ""}
+                    onChange={(e) => updateField('employee_count', e.target.value === '' ? null : parseInt(e.target.value))}
+                    placeholder="z.B. 42"
+                  />
+                ) : (
+                  <p className="text-muted-foreground">{profileData.employee_count ?? "Nicht angegeben"}</p>
+                )}
               </div>
             </CardContent>
           </Card>
