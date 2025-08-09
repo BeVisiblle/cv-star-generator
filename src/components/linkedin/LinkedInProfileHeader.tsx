@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { Camera, Edit3 } from 'lucide-react';
+import { Camera, Edit3, MapPin } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -207,6 +207,18 @@ export const LinkedInProfileHeader: React.FC<LinkedInProfileHeaderProps> = ({
     }
   };
 
+  const getEmployerOrSchool = (p: any) => {
+    if (!p) return '';
+    if (p.status === 'schueler') {
+      return p.schule || p.schulbildung?.[0]?.institution || '';
+    }
+    if (p.status === 'azubi' || p.status === 'ausgelernt') {
+      const current = p.berufserfahrung?.find((job: any) => !job.bis || new Date(job.bis) > new Date());
+      return current?.unternehmen || p.ausbildungsbetrieb || '';
+    }
+    return '';
+  };
+
   const getStatusDescription = (profile: any) => {
     if (!profile?.status) return '';
     
@@ -242,9 +254,9 @@ export const LinkedInProfileHeader: React.FC<LinkedInProfileHeaderProps> = ({
   };
 
   return (
-    <div className="relative bg-card rounded-xl overflow-hidden shadow-sm border">
+    <div className="relative bg-background rounded-xl overflow-hidden shadow-sm border">
       {/* Cover Photo */}
-      <div className="relative h-32 sm:h-40 md:h-48 bg-gradient-to-r from-primary/20 to-accent/30">
+      <div className="relative h-24 sm:h-28 md:h-32 bg-gradient-to-r from-primary/20 to-accent/30">
         {profile?.cover_image_url || profile?.cover_url || profile?.titelbild_url ? (
           <img 
             src={(profile.cover_image_url || profile.cover_url || profile.titelbild_url) as string}
@@ -360,8 +372,11 @@ export const LinkedInProfileHeader: React.FC<LinkedInProfileHeaderProps> = ({
             </p>
           )}
           
-          <p className="text-sm text-muted-foreground">
-            {profile?.ort && `${profile.ort}${profile?.plz ? ` • ${profile.plz}` : ''}`}
+          <p className="text-sm text-muted-foreground flex items-center gap-1.5">
+            <MapPin className="h-4 w-4" aria-hidden />
+            <span>{profile?.ort || '—'}</span>
+            {profile?.branche && <span> • {profile.branche}</span>}
+            {getEmployerOrSchool(profile) && <span> • {getEmployerOrSchool(profile)}</span>}
           </p>
         </div>
       </div>
