@@ -22,10 +22,7 @@ const Dashboard = () => {
           <section className="flex-1 min-w-0 space-y-4">
             <ComposerTeaser />
             <div className="my-2">
-              {/* Sortierleiste unter dem Beitragsfeld */}
-              <React.Suspense>
-                {React.createElement(require("@/components/community/FeedSortBar").FeedSortBar)}
-              </React.Suspense>
+              <FeedSortBar />
             </div>
             <CommunityFeed />
           </section>
