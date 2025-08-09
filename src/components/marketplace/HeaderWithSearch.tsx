@@ -6,7 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
-
+import SearchAutosuggest from "@/components/marketplace/SearchAutosuggest";
 interface HeaderWithSearchProps {
   value: string;
   onChange: (v: string) => void;
@@ -16,7 +16,7 @@ interface HeaderWithSearchProps {
 
 export function HeaderWithSearch({ value, onChange, onSubmit, className }: HeaderWithSearchProps) {
   const { profile } = useAuth();
-
+  const [open, setOpen] = React.useState(false);
   return (
     <div className={cn("w-full bg-background/95 supports-[backdrop-filter]:bg-background/80 backdrop-blur border-b", className)}>
       <div className="mx-auto w-full max-w-7xl px-3 sm:px-6 py-3 flex items-center gap-3">
@@ -33,9 +33,20 @@ export function HeaderWithSearch({ value, onChange, onSubmit, className }: Heade
             value={value}
             onChange={(e) => onChange(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && onSubmit()}
-            placeholder="Search people, posts, and groups…"
+            onFocus={() => setOpen(true)}
+            onBlur={() => setTimeout(() => setOpen(false), 120)}
+            placeholder="Suche nach Personen, Unternehmen und Beiträgen…"
             className="pl-10 h-10"
             aria-label="Global marketplace search"
+          />
+          <SearchAutosuggest
+            query={value}
+            open={open && !!value}
+            onSelect={(_, payload) => {
+              onChange(payload.label);
+              onSubmit();
+              setOpen(false);
+            }}
           />
         </div>
 

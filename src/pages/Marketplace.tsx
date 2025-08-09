@@ -2,13 +2,13 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import HeaderWithSearch from '@/components/marketplace/HeaderWithSearch';
+import LeftOnThisPage from '@/components/marketplace/LeftOnThisPage';
+import FilterChipsBar from '@/components/marketplace/FilterChipsBar';
+import RightRail from '@/components/marketplace/RightRail';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import HeaderWithSearch from '@/components/marketplace/HeaderWithSearch';
-import LeftFilters, { LeftFiltersState, ItemType, Visibility } from '@/components/marketplace/LeftFilters';
-import TopFilterBar from '@/components/marketplace/TopFilterBar';
-import ItemCard, { MarketplaceItem } from '@/components/marketplace/ItemCard';
-import RightRail from '@/components/marketplace/RightRail';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import MarketplaceComposer from '@/components/marketplace/MarketplaceComposer';
 import { Plus } from 'lucide-react';
 
