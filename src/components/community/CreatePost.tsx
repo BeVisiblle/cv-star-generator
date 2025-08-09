@@ -95,6 +95,27 @@ export const CreatePost = () => {
 
     setIsSubmitting(true);
     try {
+      // Rate limit: 10 posts per day
+      const { data: rlData, error: rlError } = await supabase.functions.invoke(
+        'check-rate-limit',
+        {
+          body: { action: 'post', limit: 10, window_minutes: 1440 },
+        }
+      );
+
+      if (rlError) {
+        console.error('Rate limit check error:', rlError);
+      }
+
+      if (rlData && rlData.allowed === false) {
+        toast({
+          title: 'Limit erreicht',
+          description: 'Du hast dein tägliches Beitragslimit erreicht. Bitte versuche es später erneut.',
+          variant: 'destructive',
+        });
+        return;
+      }
+
       let imageUrl;
       if (imageFile) {
         imageUrl = await uploadImage(imageFile);
@@ -102,7 +123,7 @@ export const CreatePost = () => {
 
       await createPostMutation.mutateAsync({ content, imageUrl });
     } catch (error) {
-      console.error("Error submitting post:", error);
+      console.error('Error submitting post:', error);
     } finally {
       setIsSubmitting(false);
     }
