@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -12,219 +11,182 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import MarketplaceComposer from '@/components/marketplace/MarketplaceComposer';
 import { Plus } from 'lucide-react';
 
-const PAGE_SIZE = 16;
-
-// Use an untyped Supabase instance to sidestep missing generated types for marketplace tables
-const sb: any = supabase;
-
-const defaultFilters: LeftFiltersState = {
-  type: 'all',
-  location: '',
-  tags: [],
-  companies: [],
-  category: '',
-};
-
-const availableTags = [
-  'first-year','dual','near-me','full-time','office','admin','it','service','application-tips'
-];
+// Simple types for the new sections
+type Person = { id: string; vorname?: string | null; nachname?: string | null; avatar_url?: string | null };
+type Company = { id: string; name: string; logo_url?: string | null };
+type Post = { id: string; content: string; image_url?: string | null };
 
 export default function Marketplace() {
   const [q, setQ] = React.useState('');
   const [appliedQ, setAppliedQ] = React.useState('');
-  const [filters, setFilters] = React.useState<LeftFiltersState>(defaultFilters);
-  const [sort, setSort] = React.useState<'Newest' | 'MostRelevant'>('Newest');
-  const [visibility, setVisibility] = React.useState<Visibility>('All');
-  const [page, setPage] = React.useState(0);
   const [openComposer, setOpenComposer] = React.useState(false);
 
-  // Categories for filter pills (from DB)
-  const categoriesQuery = useQuery<{ slug: string; label: string }[]>({
-    queryKey: ['marketplace-categories'],
+  const [morePeople, setMorePeople] = React.useState(false);
+  const [moreCompanies, setMoreCompanies] = React.useState(false);
+  const [morePosts, setMorePosts] = React.useState(false);
+
+  const handleSearch = () => setAppliedQ(q.trim());
+
+  // Queries
+  const peopleQuery = useQuery<Person[]>({
+    queryKey: ['mp-people', appliedQ, morePeople],
     queryFn: async () => {
-      const { data, error } = await sb
-        .from('marketplace_categories')
-        .select('slug,label')
-        .order('label', { ascending: true });
+      const base = supabase.from('profiles').select('id, vorname, nachname, avatar_url');
+      const qy = appliedQ ? base.or(`vorname.ilike.%${appliedQ}%,nachname.ilike.%${appliedQ}%`) : base.order('created_at', { ascending: false });
+      const { data, error } = await qy.limit(morePeople ? 18 : 6);
       if (error) throw error;
-      return (data || []) as { slug: string; label: string }[];
+      return (data || []) as Person[];
     },
   });
 
-  // Companies for filters (from DB)
-  const companiesQuery = useQuery<{ id: string; name: string }[]>({
-    queryKey: ['marketplace-companies-filter'],
+  const companiesQuery = useQuery<Company[]>({
+    queryKey: ['mp-companies', appliedQ, moreCompanies],
     queryFn: async () => {
-      const { data, error } = await sb
-        .from('companies')
-        .select('id,name')
-        .order('created_at', { ascending: false })
-        .limit(20);
-      if (error) throw error;
-      return (data || []) as { id: string; name: string }[];
+      let qy = supabase.from('companies').select('id, name, logo_url');
+      if (appliedQ) qy = qy.ilike('name', `%${appliedQ}%`);
+      else qy = qy.order('created_at', { ascending: false });
+      const { data, error } = await qy.limit(moreCompanies ? 18 : 6);
+      if (error) return [] as Company[]; // RLS may block; fail soft
+      return (data || []) as Company[];
     },
   });
 
-  const itemsQuery = useQuery<MarketplaceItem[]>({
-    queryKey: ['marketplace-items', appliedQ, filters, sort, visibility, page],
-    queryFn: async (): Promise<MarketplaceItem[]> => {
-      let query = sb
-        .from('marketplace_items')
-        .select('*')
-        .order('created_at', { ascending: sort === 'Newest' ? false : true });
-
-      if (appliedQ.trim()) {
-        // Full text search on generated column
-        query = query.textSearch('search_tsv', appliedQ);
-      }
-
-      if (filters.type !== 'all') {
-        query = query.eq('type', filters.type);
-      }
-
-      if (visibility !== 'All') {
-        query = query.eq('visibility', visibility);
-      }
-
-      if (filters.tags.length > 0) {
-        // tags contains array
-        query = query.contains('tags', filters.tags);
-      }
-
-      if (filters.category) {
-        // categories mapped to tags in seed for demo
-        query = query.contains('tags', [filters.category]);
-      }
-
-      if (filters.location.trim()) {
-        // simple ilike on location
-        query = query.ilike('location', `%${filters.location}%`);
-      }
-
-      if (filters.companies.length > 0) {
-        // filter by company names — fetch IDs first
-        const { data: comps, error: compErr } = await sb
-          .from('companies')
-          .select('id,name')
-          .in('name', filters.companies);
-        if (compErr) throw compErr;
-        const ids = (comps || []).map((c: { id: string }) => c.id);
-        if (ids.length > 0) query = query.in('company_id', ids);
-      }
-
-      // Pagination
-      const from = page * PAGE_SIZE;
-      const to = from + PAGE_SIZE - 1;
-      const { data, error } = await query.range(from, to);
+  const postsQuery = useQuery<Post[]>({
+    queryKey: ['mp-posts', appliedQ, morePosts],
+    queryFn: async () => {
+      let qy = supabase.from('posts').select('id, content, image_url').eq('status', 'published');
+      if (appliedQ) qy = qy.ilike('content', `%${appliedQ}%`);
+      else qy = qy.order('published_at', { ascending: false });
+      const { data, error } = await qy.limit(morePosts ? 18 : 6);
       if (error) throw error;
-      return (data || []) as MarketplaceItem[];
+      return (data || []) as Post[];
     },
-    // Reset page data on filter changes is handled by key change
   });
-
-  const handleSearch = () => {
-    setAppliedQ(q);
-    setPage(0);
-  };
-
-  const loadMore = () => setPage((p) => p + 1);
-
-  // Combine results across pages for a simple infinite scroll feel
-  const [accumulated, setAccumulated] = React.useState<MarketplaceItem[]>([]);
-  React.useEffect(() => {
-    // Reset when filters/search/sort/visibility changed or page reset to 0
-    setAccumulated([]);
-  }, [appliedQ, filters, sort, visibility]);
-  React.useEffect(() => {
-    if (itemsQuery.data) {
-      setAccumulated((prev) => {
-        const ids = new Set(prev.map((i) => i.id));
-        const merged = [...prev];
-        for (const it of itemsQuery.data!) {
-          if (!ids.has(it.id)) merged.push(it);
-        }
-        return merged;
-      });
-    }
-  }, [itemsQuery.data, page]);
 
   return (
     <div className="min-h-screen flex flex-col">
-      {/* Header with search next to logo */}
+      {/* Header with search next to logo (with autosuggest) */}
       <HeaderWithSearch value={q} onChange={setQ} onSubmit={handleSearch} />
 
-      <div className="mx-auto w-full max-w-7xl px-3 sm:px-6 py-6 grid grid-cols-1 md:grid-cols-[260px_minmax(0,1fr)] lg:grid-cols-[260px_minmax(0,1fr)_320px] gap-6">
-        {/* Left sidebar (filters) */}
-        <div className="hidden md:block">
-          <LeftFilters
-            state={filters}
-            onChange={(patch) => {
-              setFilters((f) => ({ ...f, ...patch }));
-              setPage(0);
-            }}
-            availableCompanies={companiesQuery.data}
-            availableTags={availableTags}
-            availableCategories={categoriesQuery.data}
-          />
-          <div className="mt-4">
-            <Button className="w-full" onClick={() => setOpenComposer(true)}>
-              <Plus className="h-4 w-4 mr-2" /> Post
-            </Button>
-          </div>
-        </div>
-
-        {/* Main */}
-        <div className="space-y-4">
-          <Card className="p-4 rounded-2xl">
-            <div className="space-y-2">
-              <div className="text-2xl font-bold">Marketplace</div>
-              <div className="text-muted-foreground">
-                Discover apprenticeships, groups, and content for your career start.
-              </div>
-            </div>
-            <div className="mt-4">
-              <TopFilterBar
-                currentType={filters.type as ItemType}
-                onTypeChange={(t) => { setFilters((f) => ({ ...f, type: t })); setPage(0); }}
-                sort={sort}
-                onSortChange={(s) => { setSort(s); setPage(0); }}
-                visibility={visibility}
-                onVisibilityChange={(v) => { setVisibility(v); setPage(0); }}
-              />
-            </div>
-          </Card>
-
-          {/* Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            {(accumulated || []).map((item) => (
-              <ItemCard key={item.id} item={item} onView={() => { /* optional details */ }} />
-            ))}
-
-            {itemsQuery.isLoading && Array.from({ length: 8 }).map((_, i) => (
-              <Card key={`sk-${i}`} className="h-64 rounded-2xl animate-pulse bg-muted/40" />
-            ))}
-          </div>
-
-          {/* Load more */}
-          <div className="flex justify-center">
-            <Button variant="secondary" onClick={loadMore} disabled={itemsQuery.isLoading}>
-              {itemsQuery.isLoading ? "Loading…" : "Load more"}
-            </Button>
-          </div>
-        </div>
-
-        {/* Right rail */}
-        <div className="hidden lg:block">
-          <RightRail />
+      {/* Chips under header */}
+      <div className="border-b">
+        <div className="mx-auto w-full max-w-7xl px-3 sm:px-6 py-3">
+          <FilterChipsBar />
         </div>
       </div>
 
+      <div className="mx-auto w-full max-w-7xl px-3 sm:px-6 py-6 grid grid-cols-1 lg:grid-cols-[240px_minmax(0,1fr)_320px] gap-6">
+        {/* Left: Auf dieser Seite */}
+        <div className="hidden lg:block"><LeftOnThisPage /></div>
+
+        {/* Center: Sections */}
+        <div className="space-y-6">
+          {/* Personen */}
+          <section id="personen">
+            <Card className="p-4 rounded-2xl">
+              <div className="flex items-center justify-between mb-3">
+                <h2 className="text-lg font-semibold">Interessante Personen</h2>
+                <Button variant="ghost" size="sm" onClick={() => setMorePeople((v) => !v)}>
+                  {morePeople ? 'Weniger anzeigen' : 'Mehr anzeigen'}
+                </Button>
+              </div>
+              <div className="space-y-3">
+                {(peopleQuery.data || []).map((p) => {
+                  const name = `${p.vorname ?? ''} ${p.nachname ?? ''}`.trim() || 'Unbekannt';
+                  return (
+                    <div key={p.id} className="flex items-center gap-3">
+                      <Avatar className="h-8 w-8">
+                        <AvatarImage src={p.avatar_url ?? undefined} alt={name} />
+                        <AvatarFallback>{name.slice(0,2).toUpperCase()}</AvatarFallback>
+                      </Avatar>
+                      <div className="text-sm font-medium truncate">{name}</div>
+                      <div className="ml-auto">
+                        <Button size="sm" variant="secondary">Profil ansehen</Button>
+                      </div>
+                    </div>
+                  );
+                })}
+                {peopleQuery.isLoading && <div className="text-sm text-muted-foreground">Lade Personen…</div>}
+                {!peopleQuery.isLoading && (peopleQuery.data || []).length === 0 && (
+                  <div className="text-sm text-muted-foreground">Keine Personen gefunden.</div>
+                )}
+              </div>
+            </Card>
+          </section>
+
+          {/* Unternehmen */}
+          <section id="unternehmen">
+            <Card className="p-4 rounded-2xl">
+              <div className="flex items-center justify-between mb-3">
+                <h2 className="text-lg font-semibold">Interessante Unternehmen</h2>
+                <Button variant="ghost" size="sm" onClick={() => setMoreCompanies((v) => !v)}>
+                  {moreCompanies ? 'Weniger anzeigen' : 'Mehr anzeigen'}
+                </Button>
+              </div>
+              <div className="space-y-3">
+                {(companiesQuery.data || []).map((c) => (
+                  <div key={c.id} className="flex items-center gap-3">
+                    <div className="h-8 w-8 rounded bg-muted overflow-hidden">
+                      {c.logo_url ? <img src={c.logo_url} alt={c.name} /> : null}
+                    </div>
+                    <div className="text-sm font-medium truncate">{c.name}</div>
+                    <div className="ml-auto">
+                      <Button size="sm" variant="secondary">Folgen</Button>
+                    </div>
+                  </div>
+                ))}
+                {companiesQuery.isLoading && <div className="text-sm text-muted-foreground">Lade Unternehmen…</div>}
+                {!companiesQuery.isLoading && (companiesQuery.data || []).length === 0 && (
+                  <div className="text-sm text-muted-foreground">Keine Unternehmen gefunden.</div>
+                )}
+              </div>
+            </Card>
+          </section>
+
+          {/* Beiträge */}
+          <section id="beitraege">
+            <Card className="p-4 rounded-2xl">
+              <div className="flex items-center justify-between mb-3">
+                <h2 className="text-lg font-semibold">Interessante Beiträge</h2>
+                <Button variant="ghost" size="sm" onClick={() => setMorePosts((v) => !v)}>
+                  {morePosts ? 'Weniger anzeigen' : 'Mehr anzeigen'}
+                </Button>
+              </div>
+              <div className="space-y-3">
+                {(postsQuery.data || []).map((post) => (
+                  <div key={post.id} className="flex items-start gap-3">
+                    <div className="h-8 w-8 rounded bg-muted/60 flex-shrink-0" />
+                    <div className="text-sm leading-relaxed line-clamp-3">{post.content}</div>
+                  </div>
+                ))}
+                {postsQuery.isLoading && <div className="text-sm text-muted-foreground">Lade Beiträge…</div>}
+                {!postsQuery.isLoading && (postsQuery.data || []).length === 0 && (
+                  <div className="text-sm text-muted-foreground">Keine Beiträge gefunden.</div>
+                )}
+              </div>
+            </Card>
+          </section>
+
+          {/* Gruppen (Platzhalter, bis Tabelle vorhanden) */}
+          <section id="gruppen">
+            <Card className="p-4 rounded-2xl">
+              <div className="flex items-center justify-between mb-3">
+                <h2 className="text-lg font-semibold">Interessante Gruppen</h2>
+                <Button variant="ghost" size="sm" disabled>
+                  Mehr anzeigen
+                </Button>
+              </div>
+              <div className="text-sm text-muted-foreground">Gruppen werden hier angezeigt, sobald verfügbar.</div>
+            </Card>
+          </section>
+        </div>
+
+        {/* Right rail */}
+        <div className="hidden xl:block"><RightRail /></div>
+      </div>
+
       {/* Mobile FAB */}
-      <Button
-        className="md:hidden fixed bottom-5 right-5 h-12 w-12 rounded-full shadow-lg"
-        size="icon"
-        onClick={() => setOpenComposer(true)}
-      >
+      <Button className="md:hidden fixed bottom-5 right-5 h-12 w-12 rounded-full shadow-lg" size="icon" onClick={() => setOpenComposer(true)}>
         <Plus className="h-5 w-5" />
       </Button>
 

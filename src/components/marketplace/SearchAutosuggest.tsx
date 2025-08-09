@@ -29,7 +29,7 @@ interface SuggestionCompany {
 
 interface SuggestionPost {
   id: string;
-  body: string;
+  content: string;
 }
 
 export type SuggestionType = "person" | "company" | "post";
@@ -72,8 +72,8 @@ export default function SearchAutosuggest({ query, onSelect, open }: SearchAutos
             .limit(MAX_PER_GROUP),
           supabase
             .from("company_posts")
-            .select("id, body")
-            .ilike("body", `%${q}%`)
+            .select("id, content")
+            .ilike("content", `%${q}%`)
             .limit(MAX_PER_GROUP),
         ]);
         if (!active) return;
@@ -134,9 +134,9 @@ export default function SearchAutosuggest({ query, onSelect, open }: SearchAutos
           {posts.length > 0 && (
             <CommandGroup heading="Beiträge">
               {posts.map((post) => (
-                <CommandItem key={`post-${post.id}`} onSelect={() => onSelect("post", { id: post.id, label: post.body.slice(0, 50) })}>
+                <CommandItem key={`post-${post.id}`} onSelect={() => onSelect("post", { id: post.id, label: post.content.slice(0, 50) })}>
                   <FileText className="mr-2 h-4 w-4 text-muted-foreground" />
-                  <span className="truncate">{post.body}</span>
+                  <span className="truncate">{post.content}</span>
                 </CommandItem>
               ))}
             </CommandGroup>
