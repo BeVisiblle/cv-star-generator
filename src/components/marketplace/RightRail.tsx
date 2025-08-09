@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import AdCard from "@/components/ads/AdCard";
+import { PeopleRecommendations } from "@/components/linkedin/right-rail/PeopleRecommendations";
 
 // Use an untyped Supabase instance to avoid type errors for tables
 // that are not present in the generated Supabase types yet.

@@ -10,9 +10,10 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import MarketplaceComposer from '@/components/marketplace/MarketplaceComposer';
 import { Plus, Check, X, UserPlus } from 'lucide-react';
-import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useSearchParams, useNavigate, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useConnections, type ConnectionState } from '@/hooks/useConnections';
+import { toast } from '@/hooks/use-toast';
 
 // Simple types for the new sections
  type Person = { id: string; vorname?: string | null; nachname?: string | null; avatar_url?: string | null };
@@ -27,6 +28,11 @@ export default function Marketplace() {
   const [morePeople, setMorePeople] = React.useState(false);
   const [moreCompanies, setMoreCompanies] = React.useState(false);
   const [morePosts, setMorePosts] = React.useState(false);
+
+  const { user } = useAuth();
+  const { getStatuses, requestConnection, acceptRequest, declineRequest, cancelRequest } = useConnections();
+  const [statusMap, setStatusMap] = React.useState<Record<string, ConnectionState>>({});
+  const location = useLocation();
 
   const [searchParams] = useSearchParams();
   React.useEffect(() => {
