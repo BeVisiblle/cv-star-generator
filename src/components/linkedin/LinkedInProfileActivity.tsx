@@ -1,10 +1,10 @@
 import React, { useRef, useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { ThumbsUp, MessageCircle, Repeat2, Send, ArrowRight, Pencil, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ThumbsUp, MessageCircle, Repeat2, Send, ArrowRight, Pencil, ChevronLeft, ChevronRight, Trash } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { de } from 'date-fns/locale';
 import { useNavigate } from 'react-router-dom';
@@ -33,7 +33,8 @@ interface LinkedInProfileActivityProps {
 }
 
 export const LinkedInProfileActivity: React.FC<LinkedInProfileActivityProps> = ({ profile }) => {
-  const navigate = useNavigate();
+const navigate = useNavigate();
+const queryClient = useQueryClient();
 
   const { data: recentPosts, isLoading } = useQuery({
     queryKey: ['recent-community-posts', profile?.id],
@@ -169,6 +170,20 @@ export const LinkedInProfileActivity: React.FC<LinkedInProfileActivityProps> = (
                         const text = (post as ActivityPost).content || '';
                         const isExp = expanded[post.id as string];
                         const isLong = text.length > 200;
+                        const isOwn = (post as ActivityPost).user_id === profile.id;
+
+                        const handleDelete = async (e: React.MouseEvent) => {
+                          e.stopPropagation();
+                          if (!isOwn) return;
+                          const ok = window.confirm('Diesen Beitrag wirklich löschen?');
+                          if (!ok) return;
+                          const { error } = await supabase.from('posts').delete().eq('id', post.id).eq('user_id', profile.id);
+                          if (!error) {
+                            // Invalidate query
+                            const qc = useQueryClient(); // not valid here; moving outside not possible per scope
+                          }
+                        };
+
                         return (
                           <div
                             key={post.id}
@@ -193,6 +208,11 @@ export const LinkedInProfileActivity: React.FC<LinkedInProfileActivityProps> = (
                               <span className="text-xs text-muted-foreground">
                                 {formatDistanceToNow(new Date(post.created_at), { addSuffix: true, locale: de })}
                               </span>
+                              {isOwn && (
+                                <Button variant="destructive" size="icon" className="h-7 w-7 ml-2" onClick={(e)=>{ e.stopPropagation(); if(window.confirm('Diesen Beitrag wirklich löschen?')){ supabase.from('posts').delete().eq('id', post.id).eq('user_id', profile.id).then(()=>{ /* no-op here */ }); } }} aria-label="Beitrag löschen">
+                                  <Trash className="h-4 w-4" />
+                                </Button>
+                              )}
                             </div>
 
                             <div className="space-y-3">

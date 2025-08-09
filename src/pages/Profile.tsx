@@ -4,6 +4,8 @@ import { useAuth } from '@/hooks/useAuth';
 import { useDebounce } from '@/hooks/useDebounce';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Edit3, Check, Clock, X, Loader2, Mail, Phone, MapPin, Car } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
@@ -231,20 +233,49 @@ const Profile = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Card className="p-4">
               <h4 className="text-sm font-semibold mb-2">Kontaktdaten</h4>
-              <div className="space-y-1 text-sm text-muted-foreground">
-                {profile?.email && (
-                  <div className="flex items-center gap-2"><Mail className="h-4 w-4" /> <span>{profile.email}</span></div>
-                )}
-                {profile?.telefon && (
-                  <div className="flex items-center gap-2"><Phone className="h-4 w-4" /> <span>{profile.telefon}</span></div>
-                )}
-                {(profile?.ort || profile?.strasse) && (
-                  <div className="flex items-center gap-2"><MapPin className="h-4 w-4" /> <span>{[profile?.strasse && `${profile.strasse} ${profile.hausnummer || ''}`.trim(), profile?.plz && profile?.ort && `${profile.plz} ${profile.ort}`].filter(Boolean).join(' • ') || profile?.ort}</span></div>
-                )}
-                {typeof profile?.has_drivers_license === 'boolean' && (
-                  <div className="flex items-center gap-2"><Car className="h-4 w-4" /> <span>Führerschein: {profile.has_drivers_license ? (profile?.driver_license_class ? `Ja, Klasse ${profile.driver_license_class}` : 'Ja') : 'Nein'}</span></div>
-                )}
-              </div>
+              {isEditing ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="space-y-1">
+                    <Label htmlFor="email">E-Mail</Label>
+                    <Input id="email" type="email" value={profile.email || ''} onChange={(e) => setProfile((p: any) => ({...p, email: e.target.value}))} />
+                  </div>
+                  <div className="space-y-1">
+                    <Label htmlFor="telefon">Telefon</Label>
+                    <Input id="telefon" value={profile.telefon || ''} onChange={(e) => setProfile((p: any) => ({...p, telefon: e.target.value}))} />
+                  </div>
+                  <div className="space-y-1">
+                    <Label htmlFor="strasse">Straße</Label>
+                    <Input id="strasse" value={profile.strasse || ''} onChange={(e) => setProfile((p: any) => ({...p, strasse: e.target.value}))} />
+                  </div>
+                  <div className="space-y-1">
+                    <Label htmlFor="hausnummer">Hausnummer</Label>
+                    <Input id="hausnummer" value={profile.hausnummer || ''} onChange={(e) => setProfile((p: any) => ({...p, hausnummer: e.target.value}))} />
+                  </div>
+                  <div className="space-y-1">
+                    <Label htmlFor="plz">PLZ</Label>
+                    <Input id="plz" value={profile.plz || ''} onChange={(e) => setProfile((p: any) => ({...p, plz: e.target.value}))} />
+                  </div>
+                  <div className="space-y-1">
+                    <Label htmlFor="ort">Ort</Label>
+                    <Input id="ort" value={profile.ort || ''} onChange={(e) => setProfile((p: any) => ({...p, ort: e.target.value}))} />
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-1 text-sm text-muted-foreground">
+                  {profile?.email && (
+                    <div className="flex items-center gap-2"><Mail className="h-4 w-4" /> <span>{profile.email}</span></div>
+                  )}
+                  {profile?.telefon && (
+                    <div className="flex items-center gap-2"><Phone className="h-4 w-4" /> <span>{profile.telefon}</span></div>
+                  )}
+                  {(profile?.ort || profile?.strasse) && (
+                    <div className="flex items-center gap-2"><MapPin className="h-4 w-4" /> <span>{[profile?.strasse && `${profile.strasse} ${profile.hausnummer || ''}`.trim(), profile?.plz && profile?.ort && `${profile.plz} ${profile.ort}`].filter(Boolean).join(' • ') || profile?.ort}</span></div>
+                  )}
+                  {typeof profile?.has_drivers_license === 'boolean' && (
+                    <div className="flex items-center gap-2"><Car className="h-4 w-4" /> <span>Führerschein: {profile.has_drivers_license ? (profile?.driver_license_class ? `Ja, Klasse ${profile.driver_license_class}` : 'Ja') : 'Nein'}</span></div>
+                  )}
+                </div>
+              )}
             </Card>
             <Card className="p-4">
               <h4 className="text-sm font-semibold mb-2">Profilaktivitäten</h4>

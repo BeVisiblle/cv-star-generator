@@ -267,8 +267,14 @@ export const LinkedInProfileHeader: React.FC<LinkedInProfileHeaderProps> = ({
         ) : (
           <div className="w-full h-full bg-gradient-to-r from-primary/10 to-accent/20" />
         )}
-        
-        {/* Cover edit disabled by request */}
+        {isEditing && (
+          <div className="absolute right-3 bottom-3">
+            <Button size="sm" variant="secondary" onClick={() => coverInputRef.current?.click()} disabled={isUploadingCover}>
+              <Camera className="h-4 w-4 mr-2" />
+              {isUploadingCover ? 'Lädt…' : 'Titelbild ändern'}
+            </Button>
+          </div>
+        )}
         
         <input
           ref={coverInputRef}
@@ -290,8 +296,19 @@ export const LinkedInProfileHeader: React.FC<LinkedInProfileHeaderProps> = ({
                 {profile?.vorname?.[0]}{profile?.nachname?.[0]}
               </AvatarFallback>
             </Avatar>
-            
-            {/* Avatar edit disabled by request */}
+            {isEditing && (
+              <Button
+                type="button"
+                variant="secondary"
+                size="icon"
+                className="absolute -bottom-1 -right-1 h-8 w-8 rounded-full"
+                onClick={() => avatarInputRef.current?.click()}
+                disabled={isUploadingAvatar}
+                aria-label="Profilbild ändern"
+              >
+                <Camera className="h-4 w-4" />
+              </Button>
+            )}
           </div>
           
           <input
