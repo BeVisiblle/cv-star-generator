@@ -1,5 +1,4 @@
 
-import { useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -26,25 +25,26 @@ export const usePostLikes = (postId: string) => {
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading } = useQuery<{ count: number; liked: boolean }>({
     queryKey: ["post-likes", postId, user?.id ?? "anon"],
-    queryFn: async () => {
+    queryFn: async (): Promise<{ count: number; liked: boolean }> => {
       console.debug("[likes] fetch", { postId });
-      const { count, error } = await supabase
-        .from("post_likes")
+      const { count, error } = await (supabase
+        .from<any>("post_likes")
         .select("*", { count: "exact", head: true })
-        .eq("post_id", postId);
+        .eq("post_id", postId));
       if (error) throw error;
 
       let liked = false;
       if (user?.id) {
-        const { data: mine, error: mineErr } = await supabase
-          .from("post_likes")
+        const { data: mine, error: mineErr } = await (supabase
+          .from<any>("post_likes")
           .select("id")
           .eq("post_id", postId)
           .eq("user_id", user.id)
-          .maybeSingle();
-        if (mineErr && mineErr.code !== "PGRST116") throw mineErr;
+          .maybeSingle());
+        // PGRST116 = no rows found for .single(); with maybeSingle it's fine to ignore null result
+        if (mineErr && (mineErr as any).code !== "PGRST116") throw mineErr;
         liked = Boolean(mine);
       }
       return { count: count ?? 0, liked };
@@ -63,22 +63,23 @@ export const usePostLikes = (postId: string) => {
       }
       const liked = data?.liked ?? false;
       if (liked) {
-        const { error } = await supabase
-          .from("post_likes")
+        const { error } = await (supabase
+          .from<any>("post_likes")
           .delete()
           .eq("post_id", postId)
-          .eq("user_id", user.id);
+          .eq("user_id", user.id));
         if (error) throw error;
       } else {
-        const { error } = await supabase.from("post_likes").insert({
+        const { error } = await (supabase.from<any>("post_likes").insert({
           post_id: postId,
           user_id: user.id,
-        });
+        }));
         if (error) throw error;
       }
       return { changed: true };
     },
     onSuccess: () => {
+      // Invalidate all like queries for this post (for any user key)
       queryClient.invalidateQueries({ queryKey: ["post-likes", postId] });
     },
   });
@@ -97,25 +98,25 @@ export const usePostComments = (postId: string) => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const commentsQuery = useQuery({
+  const commentsQuery = useQuery<PostComment[]>({
     queryKey: ["post-comments", postId],
     queryFn: async (): Promise<PostComment[]> => {
       console.debug("[comments] fetch", { postId });
-      const { data: comments, error } = await supabase
-        .from("post_comments")
+      const { data: comments, error } = await (supabase
+        .from<any>("post_comments")
         .select("*")
         .eq("post_id", postId)
-        .order("created_at", { ascending: true });
+        .order("created_at", { ascending: true }));
       if (error) throw error;
 
-      const items = comments ?? [];
+      const items = (comments ?? []) as any[];
       const userIds = Array.from(new Set(items.map((c: any) => c.user_id).filter(Boolean)));
       let profilesMap: Record<string, any> = {};
       if (userIds.length) {
         const { data: profiles, error: profErr } = await supabase
           .from("profiles")
           .select("id, vorname, nachname, avatar_url")
-          .in("id", userIds);
+          .in("id", userIds as any);
         if (profErr) throw profErr;
         profilesMap = Object.fromEntries((profiles ?? []).map((p: any) => [p.id, p]));
       }
@@ -123,7 +124,7 @@ export const usePostComments = (postId: string) => {
       return items.map((c: any) => ({
         ...c,
         author: profilesMap[c.user_id] ?? null,
-      }));
+      })) as PostComment[];
     },
   });
 
@@ -137,12 +138,12 @@ export const usePostComments = (postId: string) => {
         });
         return;
       }
-      const { error } = await supabase.from("post_comments").insert({
+      const { error } = await (supabase.from<any>("post_comments").insert({
         post_id: postId,
         user_id: user.id,
         content: payload.content,
         parent_comment_id: payload.parentId ?? null,
-      });
+      }));
       if (error) throw error;
     },
     onSuccess: () => {
