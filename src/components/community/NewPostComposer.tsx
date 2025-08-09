@@ -208,7 +208,7 @@ export const NewPostComposer: React.FC = () => {
       <DialogContent className="md:max-w-3xl w-full p-0 rounded-xl overflow-hidden">
         {Header}
         <div className="px-6 py-5">
-          <CreatePost container="none" hideHeader variant="composer" hideBottomBar onStateChange={handleStateChange} scheduledAt={scheduledAt} />
+          <CreatePost container="none" hideHeader variant="composer" hideBottomBar onStateChange={handleStateChange} scheduledAt={scheduledAt} showPoll={showPoll} showEvent={showEvent} celebration={celebration} />
         </div>
         {BottomToolbar}
       </DialogContent>

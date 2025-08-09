@@ -93,8 +93,10 @@ export const CreatePost = ({ container = "card", hideHeader = false, variant = "
 
 // Notify parent on state changes
 useEffect(() => {
-  onStateChange?.({ canPost: Boolean(content.trim() || imageFile), isSubmitting });
-}, [content, imageFile, isSubmitting, onStateChange]);
+  const pollValid = showPoll ? Boolean(pollQuestion.trim() && pollOptions.filter(o => o.trim()).length >= 2) : false;
+  const eventValid = showEvent ? Boolean(eventTitle.trim() && eventStartDate && eventStartTime && eventEndDate && eventEndTime) : false;
+  onStateChange?.({ canPost: Boolean(content.trim() || imageFile || documentFile || pollValid || eventValid), isSubmitting });
+}, [content, imageFile, documentFile, pollQuestion, pollOptions, eventTitle, eventStartDate, eventStartTime, eventEndDate, eventEndTime, showPoll, showEvent, isSubmitting, onStateChange]);
 
 const handleImageSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
   const file = event.target.files?.[0];
@@ -172,7 +174,71 @@ const handleImageSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
         imageUrl = await uploadImage(imageFile);
       }
 
-      await createPostMutation.mutateAsync({ content, imageUrl });
+      const newPost = await createPostMutation.mutateAsync({ content, imageUrl });
+
+      // Upload and attach document if present
+      if (documentFile) {
+        const docUpload = await uploadFile(documentFile, 'post-media', 'documents');
+        const { error: docErr } = await supabase
+          .from('post_documents')
+          .insert({
+            post_id: newPost.id,
+            storage_path: docUpload.path,
+            file_name: documentFile.name,
+            file_size: documentFile.size,
+          });
+        if (docErr) throw docErr;
+      }
+
+      // Create poll if requested and valid
+      if (showPoll && pollQuestion.trim()) {
+        const options = pollOptions.map(o => o.trim()).filter(Boolean);
+        if (options.length >= 2) {
+          const endsAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
+          const { data: poll, error: pollErr } = await supabase
+            .from('post_polls')
+            .insert({ post_id: newPost.id, question: pollQuestion.trim(), ends_at: endsAt })
+            .select()
+            .single();
+          if (pollErr) throw pollErr;
+
+          const { error: optErr } = await supabase
+            .from('post_poll_options')
+            .insert(options.map((option_text: string) => ({ poll_id: poll.id, option_text })));
+          if (optErr) throw optErr;
+        }
+      }
+
+      // Create event if requested and valid
+      if (showEvent && eventTitle.trim() && eventStartDate && eventStartTime && eventEndDate && eventEndTime) {
+        const startAt = new Date(`${eventStartDate}T${eventStartTime}:00`);
+        const endAt = new Date(`${eventEndDate}T${eventEndTime}:00`);
+        const { error: eventErr } = await supabase
+          .from('post_events')
+          .insert({
+            post_id: newPost.id,
+            title: eventTitle.trim(),
+            start_at: startAt.toISOString(),
+            end_at: endAt.toISOString(),
+            is_online: eventIsOnline,
+            location: eventIsOnline ? null : (eventLocation || null),
+            link_url: eventIsOnline ? (eventLink || null) : null,
+          });
+        if (eventErr) throw eventErr;
+      }
+
+      // Reset add-on states
+      setDocumentFile(null);
+      setPollQuestion("");
+      setPollOptions(["", ""]);
+      setEventTitle("");
+      setEventStartDate("");
+      setEventStartTime("");
+      setEventEndDate("");
+      setEventEndTime("");
+      setEventIsOnline(true);
+      setEventLocation("");
+      setEventLink("");
     } catch (error) {
       console.error('Error submitting post:', error);
     } finally {
@@ -271,13 +337,20 @@ const handleImageSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
         </div>
       )}
 
-{/* External toolbars can point to this input via htmlFor */}
+{/* External toolbars can point to these inputs via htmlFor */}
 <input
   type="file"
   accept="image/*"
   onChange={handleImageSelect}
   className="hidden"
   id="image-upload"
+/>
+<input
+  type="file"
+  accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.txt"
+  onChange={handleDocumentSelect}
+  className="hidden"
+  id="document-upload"
 />
 
 {/* Hidden submit button for external triggers */}
