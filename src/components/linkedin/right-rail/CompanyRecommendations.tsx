@@ -31,8 +31,8 @@ export const CompanyRecommendations: React.FC<CompanyRecommendationsProps> = ({ 
       try {
         let query = supabase
           .from("companies")
-          .select("id, name, logo_url, industry, main_location, subscription_status, created_at")
-          .eq("subscription_status", "active")
+          .select("id, name, logo_url, industry, main_location, created_at")
+          .order('created_at', { ascending: false })
           .limit(12) as any;
         const { data, error } = await query;
         if (error) throw error;
@@ -85,7 +85,7 @@ export const CompanyRecommendations: React.FC<CompanyRecommendationsProps> = ({ 
               </div>
               <div className="flex gap-2">
                 <Button size="sm" variant="secondary" onClick={() => followCompany(c.id)}>Folgen</Button>
-                <Button size="sm" variant="outline" onClick={() => navigate('/unternehmen')}>Ansehen</Button>
+                <Button size="sm" variant="outline" onClick={() => navigate(`/companies/${c.id}`)}>Ansehen</Button>
               </div>
             </div>
           );

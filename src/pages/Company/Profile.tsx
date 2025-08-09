@@ -8,7 +8,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useCompany } from "@/hooks/useCompany";
-import { supabase } from "@/integrations/supabase/client";
+import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { uploadFile } from "@/lib/supabase-storage";
 import { 
@@ -39,6 +39,7 @@ interface CompanyProfile {
 
 export default function CompanyProfile() {
   const { company, updateCompany, loading } = useCompany();
+  const navigate = useNavigate();
   const [editing, setEditing] = useState(false);
 const [profileData, setProfileData] = useState<CompanyProfile>({
   name: "",
@@ -164,7 +165,7 @@ const [profileData, setProfileData] = useState<CompanyProfile>({
       <div className="sticky top-0 z-30 bg-background/80 supports-[backdrop-filter]:bg-background/60 backdrop-blur border-b py-3 px-1 flex items-center justify-between">
         <h1 className="text-2xl md:text-3xl font-bold truncate">Unternehmensprofil</h1>
         <div className="flex space-x-2 items-center">
-          <Button variant="outline" className="min-h-[44px]">
+          <Button variant="outline" className="min-h-[44px]" onClick={() => navigate(`/companies/${company.id}`)}>
             <Eye className="h-4 w-4 mr-2" />
             Vorschau als Bewerber
           </Button>
