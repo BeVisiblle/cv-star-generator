@@ -64,20 +64,24 @@ export const LeftPanel: React.FC = () => {
         {/* Content */}
         <div className="px-5 pt-8 pb-5">
           <div className="min-w-0">
-            <h2 className="text-lg font-semibold truncate">
+            <h2 className="text-xl font-semibold leading-tight truncate">
               {profile?.vorname && profile?.nachname
                 ? `${profile.vorname} ${profile.nachname}`
                 : "Dein Profil"}
             </h2>
-            {snippet && (
-              <p className="mt-1 text-sm text-muted-foreground line-clamp-2">{snippet}</p>
+            {(profile?.headline || snippet) && (
+              <p className="mt-1 text-sm text-muted-foreground line-clamp-1">{profile?.headline || snippet}</p>
             )}
-            {(profile?.ort || profile?.branche) && (
-              <p className="mt-1 text-sm text-muted-foreground">
-                {profile?.ort ? profile.ort : ""}
-                {profile?.ort && profile?.branche ? " • " : ""}
-                {profile?.branche ? profile.branche : ""}
-              </p>
+            {profile?.ort && (
+              <p className="mt-1 text-sm text-muted-foreground">{profile.ort}</p>
+            )}
+            {profile?.branche && (
+              <div className="mt-2">
+                <Badge variant="secondary" className="inline-flex items-center gap-1.5">
+                  <span className="inline-block h-2.5 w-2.5 rounded-sm bg-primary" aria-hidden />
+                  {profile.branche}
+                </Badge>
+              </div>
             )}
           </div>
 
