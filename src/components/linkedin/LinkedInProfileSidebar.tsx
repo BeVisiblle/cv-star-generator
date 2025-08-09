@@ -23,6 +23,8 @@ interface LinkedInProfileSidebarProps {
   isEditing: boolean;
   onProfileUpdate: (updates: any) => void;
   readOnly?: boolean;
+  showLanguagesAndSkills?: boolean;
+  showLicenseAndStats?: boolean;
 }
 interface UserDocument {
   id: string;
@@ -37,7 +39,9 @@ export const LinkedInProfileSidebar: React.FC<LinkedInProfileSidebarProps> = ({
   profile,
   isEditing,
   onProfileUpdate,
-  readOnly = false
+  readOnly = false,
+  showLanguagesAndSkills = true,
+  showLicenseAndStats = true
 }) => {
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
   const [userDocuments, setUserDocuments] = useState<UserDocument[]>([]);
@@ -600,76 +604,112 @@ export const LinkedInProfileSidebar: React.FC<LinkedInProfileSidebarProps> = ({
       
 
       {/* Languages */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg font-semibold">Sprachen</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {!readOnly && isEditing ? <LanguageSelector languages={profile?.sprachen || []} onLanguagesChange={handleLanguagesChange} /> : <div className="space-y-2">
-              {profile?.sprachen && profile.sprachen.length > 0 ? profile.sprachen.map((lang: any, index: number) => <div key={index} className="flex justify-between items-center">
-                    <span className="font-medium">{lang.sprache}</span>
-                    <Badge variant="secondary">{lang.niveau}</Badge>
-                  </div>) : <p className="text-muted-foreground text-sm">Keine Sprachen hinzugefügt</p>}
-            </div>}
-        </CardContent>
-      </Card>
+{showLanguagesAndSkills && (
+  <Card>
+    <CardHeader>
+      <CardTitle className="text-lg font-semibold">Sprachen</CardTitle>
+    </CardHeader>
+    <CardContent>
+      {!readOnly && isEditing ? (
+        <LanguageSelector languages={profile?.sprachen || []} onLanguagesChange={handleLanguagesChange} />
+      ) : (
+        <div className="space-y-2">
+          {profile?.sprachen && profile.sprachen.length > 0 ? (
+            profile.sprachen.map((lang: any, index: number) => (
+              <div key={index} className="flex justify-between items-center">
+                <span className="font-medium">{lang.sprache}</span>
+                <Badge variant="secondary">{lang.niveau}</Badge>
+              </div>
+            ))
+          ) : (
+            <p className="text-muted-foreground text-sm">Keine Sprachen hinzugefügt</p>
+          )}
+        </div>
+      )}
+    </CardContent>
+  </Card>
+)}
 
       {/* Skills */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg font-semibold">Fähigkeiten</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {!readOnly && isEditing ? <SkillSelector selectedSkills={profile?.faehigkeiten || []} onSkillsChange={handleSkillsChange} branch={profile?.branche} statusLevel={profile?.status} /> : <div className="flex flex-wrap gap-2">
-              {profile?.faehigkeiten && profile.faehigkeiten.length > 0 ? profile.faehigkeiten.map((skill: string, index: number) => <Badge key={index} variant="secondary">
-                    {skill}
-                  </Badge>) : <p className="text-muted-foreground text-sm">Keine Fähigkeiten hinzugefügt</p>}
-            </div>}
-        </CardContent>
-      </Card>
+{showLanguagesAndSkills && (
+  <Card>
+    <CardHeader>
+      <CardTitle className="text-lg font-semibold">Fähigkeiten</CardTitle>
+    </CardHeader>
+    <CardContent>
+      {!readOnly && isEditing ? (
+        <SkillSelector selectedSkills={profile?.faehigkeiten || []} onSkillsChange={handleSkillsChange} branch={profile?.branche} statusLevel={profile?.status} />
+      ) : (
+        <div className="flex flex-wrap gap-2">
+          {profile?.faehigkeiten && profile.faehigkeiten.length > 0 ? (
+            profile.faehigkeiten.map((skill: string, index: number) => (
+              <Badge key={index} variant="secondary">
+                {skill}
+              </Badge>
+            ))
+          ) : (
+            <p className="text-muted-foreground text-sm">Keine Fähigkeiten hinzugefügt</p>
+          )}
+        </div>
+      )}
+    </CardContent>
+  </Card>
+)}
 
       {/* Driver's License */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg font-semibold">Führerschein</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-2">
-            {profile?.has_drivers_license ? <div className="flex items-center gap-2">
-                <Car className="h-4 w-4 text-muted-foreground" />
-                <span className="text-sm">
-                  Führerschein {profile?.driver_license_class || 'vorhanden'}
-                </span>
-              </div> : profile?.has_drivers_license === false ? <p className="text-muted-foreground text-sm">Kein Führerschein vorhanden</p> : <p className="text-muted-foreground text-sm">Führerschein-Status nicht angegeben</p>}
+{showLicenseAndStats && (
+  <Card>
+    <CardHeader>
+      <CardTitle className="text-lg font-semibold">Führerschein</CardTitle>
+    </CardHeader>
+    <CardContent>
+      <div className="space-y-2">
+        {profile?.has_drivers_license ? (
+          <div className="flex items-center gap-2">
+            <Car className="h-4 w-4 text-muted-foreground" />
+            <span className="text-sm">
+              Führerschein {profile?.driver_license_class || 'vorhanden'}
+            </span>
           </div>
-        </CardContent>
-      </Card>
+        ) : profile?.has_drivers_license === false ? (
+          <p className="text-muted-foreground text-sm">Kein Führerschein vorhanden</p>
+        ) : (
+          <p className="text-muted-foreground text-sm">Führerschein-Status nicht angegeben</p>
+        )}
+      </div>
+    </CardContent>
+  </Card>
+)}
 
       {/* Profile Stats */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg font-semibold">Profil-Statistiken</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          <div className="flex justify-between text-sm">
-            <span>Profil vollständig:</span>
-            <span className={profile?.profile_complete ? "text-green-600" : "text-orange-500"}>
-              {profile?.profile_complete ? "Ja" : "Nein"}
-            </span>
-          </div>
-          <div className="flex justify-between text-sm">
-            <span>Öffentlich sichtbar:</span>
-            <span className={profile?.profile_published ? "text-green-600" : "text-orange-500"}>
-              {profile?.profile_published ? "Ja" : "Nein"}
-            </span>
-          </div>
-          {profile?.created_at && <div className="flex justify-between text-sm">
-              <span>Erstellt am:</span>
-              <span className="text-muted-foreground">
-                {formatDate(profile.created_at)}
-              </span>
-            </div>}
-        </CardContent>
-      </Card>
+{showLicenseAndStats && (
+  <Card>
+    <CardHeader>
+      <CardTitle className="text-lg font-semibold">Profil-Statistiken</CardTitle>
+    </CardHeader>
+    <CardContent className="space-y-3">
+      <div className="flex justify-between text-sm">
+        <span>Profil vollständig:</span>
+        <span className={profile?.profile_complete ? "text-green-600" : "text-orange-500"}>
+          {profile?.profile_complete ? "Ja" : "Nein"}
+        </span>
+      </div>
+      <div className="flex justify-between text-sm">
+        <span>Öffentlich sichtbar:</span>
+        <span className={profile?.profile_published ? "text-green-600" : "text-orange-500"}>
+          {profile?.profile_published ? "Ja" : "Nein"}
+        </span>
+      </div>
+      {profile?.created_at && (
+        <div className="flex justify-between text-sm">
+          <span>Erstellt am:</span>
+          <span className="text-muted-foreground">
+            {formatDate(profile.created_at)}
+          </span>
+        </div>
+      )}
+    </CardContent>
+  </Card>
+)}
     </div>;
 };

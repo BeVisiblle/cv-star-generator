@@ -4,7 +4,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useDebounce } from '@/hooks/useDebounce';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Edit3, Check, Clock, X, Loader2, Mail, Phone, MapPin } from 'lucide-react';
+import { Edit3, Check, Clock, X, Loader2, Mail, Phone, MapPin, Car } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { LinkedInProfileHeader } from '@/components/linkedin/LinkedInProfileHeader';
@@ -17,6 +17,7 @@ import { RightRailAd } from '@/components/linkedin/right-rail/RightRailAd';
 import { PeopleRecommendations } from '@/components/linkedin/right-rail/PeopleRecommendations';
 import { CompanyRecommendations } from '@/components/linkedin/right-rail/CompanyRecommendations';
 import { ProfilePreviewModal } from '@/components/ProfilePreviewModal';
+import { SkillsLanguagesSidebar } from '@/components/linkedin/SkillsLanguagesSidebar';
 const Profile = () => {
   const navigate = useNavigate();
   const {
@@ -27,6 +28,8 @@ const Profile = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
   const [profile, setProfile] = useState<any>(null);
+  const [documentsCount, setDocumentsCount] = useState<number>(0);
+  const [profileVisits, setProfileVisits] = useState<number>(0);
 
   // All hooks must be called before any conditional returns
   const handleProfileUpdateImmediate = useCallback(async (updates: any) => {
@@ -124,6 +127,31 @@ const Profile = () => {
       });
     }
   }, [authProfile]);
+
+  useEffect(() => {
+    const loadCounts = async () => {
+      if (!profile?.id) return;
+      try {
+        const { count: docsCount, error: docsError } = await supabase
+          .from('user_documents')
+          .select('*', { count: 'exact', head: true })
+          .eq('user_id', profile.id);
+        if (!docsError) setDocumentsCount(docsCount ?? 0);
+      } catch (e) {
+        console.warn('Dokumente zählen fehlgeschlagen:', e);
+      }
+      try {
+        const { count: visitsCount, error: visitsError } = await supabase
+          .from('tokens_used')
+          .select('*', { count: 'exact', head: true })
+          .eq('profile_id', profile.id);
+        if (!visitsError) setProfileVisits(visitsCount ?? 0);
+      } catch (e) {
+        console.warn('Profilbesuche zählen fehlgeschlagen:', e);
+      }
+    };
+    loadCounts();
+  }, [profile?.id]);
   if (isLoading) {
     return <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
@@ -213,14 +241,19 @@ const Profile = () => {
                 {(profile?.ort || profile?.strasse) && (
                   <div className="flex items-center gap-2"><MapPin className="h-4 w-4" /> <span>{[profile?.strasse && `${profile.strasse} ${profile.hausnummer || ''}`.trim(), profile?.plz && profile?.ort && `${profile.plz} ${profile.ort}`].filter(Boolean).join(' • ') || profile?.ort}</span></div>
                 )}
+                {typeof profile?.has_drivers_license === 'boolean' && (
+                  <div className="flex items-center gap-2"><Car className="h-4 w-4" /> <span>Führerschein: {profile.has_drivers_license ? (profile?.driver_license_class ? `Ja, Klasse ${profile.driver_license_class}` : 'Ja') : 'Nein'}</span></div>
+                )}
               </div>
             </Card>
             <Card className="p-4">
               <h4 className="text-sm font-semibold mb-2">Profilaktivitäten</h4>
               <div className="space-y-1 text-sm text-muted-foreground">
-                <div>• Profil komplett: {profile?.vorname && profile?.nachname ? 'Ja' : 'Nein'}</div>
-                <div>• Dokumente hochgeladen: —</div>
-                <div>• Letzte Aktualisierung: {new Date(profile?.updated_at || Date.now()).toLocaleDateString('de-DE')}</div>
+                <div>• Profil vollständig: {profile?.profile_complete ? 'Ja' : 'Nein'}</div>
+                <div>• Öffentlich sichtbar: {profile?.profile_published ? 'Ja' : 'Nein'}</div>
+                <div>• Erstellt am: {profile?.created_at ? new Date(profile.created_at).toLocaleDateString('de-DE') : '—'}</div>
+                <div>• Dokumente hochgeladen: {documentsCount > 0 ? 'Ja' : 'Nein'}</div>
+                <div>• Profilbesuche: {profileVisits}</div>
               </div>
             </Card>
           </div>
@@ -229,10 +262,11 @@ const Profile = () => {
         {/* Right Sidebar - Desktop: sidebar, Mobile: after main content */}
         <aside className="lg:col-span-4">
           <div className="lg:sticky lg:top-24 space-y-4 md:space-y-6">
-            <LinkedInProfileSidebar profile={profile} isEditing={isEditing} onProfileUpdate={handleProfileUpdate} />
+            <LinkedInProfileSidebar profile={profile} isEditing={isEditing} onProfileUpdate={handleProfileUpdate} showLanguagesAndSkills={false} showLicenseAndStats={false} />
             <RightRailAd variant="card" size="sm" />
-            <PeopleRecommendations limit={3} />
-            <CompanyRecommendations limit={3} />
+            <SkillsLanguagesSidebar profile={profile} isEditing={isEditing} onProfileUpdate={handleProfileUpdate} />
+            <PeopleRecommendations limit={3} showMoreLink="/entdecken/azubis" showMore />
+            <CompanyRecommendations limit={3} showMoreLink="/entdecken/unternehmen" showMore />
             <RightRailAd variant="banner" size="sm" />
           </div>
         </aside>
