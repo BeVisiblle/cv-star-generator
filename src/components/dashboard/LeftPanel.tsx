@@ -33,7 +33,7 @@ export const LeftPanel: React.FC = () => {
         {/* Cover + Avatar overlay */}
         <div className="relative">
           <img
-            src={profile?.cover_url || profile?.titelbild_url || '/images/step1-hero.jpg'}
+            src={profile?.cover_image_url || profile?.cover_url || profile?.titelbild_url || '/images/step1-hero.jpg'}
             alt="Titelbild"
             className="h-24 w-full object-cover"
             loading="lazy"

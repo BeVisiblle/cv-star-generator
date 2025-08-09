@@ -245,11 +245,12 @@ export const LinkedInProfileHeader: React.FC<LinkedInProfileHeaderProps> = ({
     <div className="relative bg-card rounded-xl overflow-hidden shadow-sm border">
       {/* Cover Photo */}
       <div className="relative h-32 sm:h-40 md:h-48 bg-gradient-to-r from-primary/20 to-accent/30">
-        {profile?.cover_image_url ? (
+        {profile?.cover_image_url || profile?.cover_url || profile?.titelbild_url ? (
           <img 
-            src={profile.cover_image_url} 
-            alt="Cover" 
+            src={(profile.cover_image_url || profile.cover_url || profile.titelbild_url) as string}
+            alt={`Titelbild von ${profile?.vorname ?? ''} ${profile?.nachname ?? ''}`.trim() || 'Titelbild'} 
             className="w-full h-full object-cover"
+            loading="lazy"
           />
         ) : (
           <div className="w-full h-full bg-gradient-to-r from-primary/10 to-accent/20" />
