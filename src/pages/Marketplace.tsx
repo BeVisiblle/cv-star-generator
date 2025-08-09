@@ -32,6 +32,7 @@ export default function Marketplace() {
   const { user } = useAuth();
   const { getStatuses, requestConnection, acceptRequest, declineRequest, cancelRequest } = useConnections();
   const [statusMap, setStatusMap] = React.useState<Record<string, ConnectionState>>({});
+  const [authors, setAuthors] = React.useState<Record<string, { name: string; avatar_url: string | null }>>({});
   const location = useLocation();
 
   const [searchParams] = useSearchParams();
@@ -56,6 +57,68 @@ export default function Marketplace() {
     },
   });
 
+
+  // Load connection statuses for visible people (exclude self)
+  React.useEffect(() => {
+    if (!user || !peopleQuery.data) return;
+    const ids = peopleQuery.data.map(p => p.id).filter(id => id !== user.id);
+    if (ids.length === 0) return;
+    (async () => {
+      try {
+        const statuses = await getStatuses(ids);
+        setStatusMap(statuses);
+      } catch (e) {
+        console.error(e);
+      }
+    })();
+  }, [user, peopleQuery.data, getStatuses]);
+
+  const onConnect = async (targetId: string) => {
+    try {
+      if (!user) {
+        window.location.href = '/auth';
+        return;
+      }
+      await requestConnection(targetId);
+      setStatusMap(prev => ({ ...prev, [targetId]: 'pending' }));
+      toast({ title: 'Anfrage gesendet', description: 'Deine Verbindungsanfrage ist jetzt ausstehend.' });
+    } catch (e) {
+      console.error(e);
+      toast({ title: 'Fehler', description: 'Konnte Anfrage nicht senden.', variant: 'destructive' });
+    }
+  };
+
+  const onAccept = async (fromId: string) => {
+    try {
+      await acceptRequest(fromId);
+      setStatusMap(prev => ({ ...prev, [fromId]: 'accepted' }));
+      toast({ title: 'Verbunden', description: 'Ihr könnt jetzt chatten.' });
+    } catch (e) {
+      console.error(e);
+      toast({ title: 'Fehler', description: 'Konnte Anfrage nicht annehmen.', variant: 'destructive' });
+    }
+  };
+
+  const onDecline = async (fromId: string) => {
+    try {
+      await declineRequest(fromId);
+      setStatusMap(prev => ({ ...prev, [fromId]: 'declined' }));
+    } catch (e) {
+      console.error(e);
+      toast({ title: 'Fehler', description: 'Konnte Anfrage nicht ablehnen.', variant: 'destructive' });
+    }
+  };
+
+  const onCancel = async (targetId: string) => {
+    try {
+      await cancelRequest(targetId);
+      setStatusMap(prev => ({ ...prev, [targetId]: 'none' }));
+    } catch (e) {
+      console.error(e);
+      toast({ title: 'Fehler', description: 'Konnte Anfrage nicht zurückziehen.', variant: 'destructive' });
+    }
+  };
+
   const companiesQuery = useQuery<Company[]>({
     queryKey: ['mp-companies', appliedQ, moreCompanies],
     queryFn: async () => {
@@ -79,6 +142,36 @@ export default function Marketplace() {
       return (data || []) as Post[];
     },
   });
+
+React.useEffect(() => {
+    if (!postsQuery.data || postsQuery.data.length === 0) return;
+    const ids = Array.from(new Set(postsQuery.data.map(p => p.user_id)));
+    if (ids.length === 0) return;
+    (async () => {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('id, vorname, nachname, avatar_url')
+        .in('id', ids);
+      if (!error && data) {
+        const map: Record<string, { name: string; avatar_url: string | null }> = {};
+        (data as any[]).forEach((p) => {
+          const name = [p.vorname, p.nachname].filter(Boolean).join(' ') || 'Unbekannt';
+          map[p.id] = { name, avatar_url: p.avatar_url ?? null };
+        });
+        setAuthors(map);
+      }
+    })();
+  }, [postsQuery.data]);
+
+  React.useEffect(() => {
+    if (location.hash && location.hash.startsWith('#post-')) {
+      const id = location.hash.slice(1);
+      const el = document.getElementById(id);
+      if (el) {
+        setTimeout(() => el.scrollIntoView({ behavior: 'smooth', block: 'start' }), 0);
+      }
+    }
+  }, [location.hash, postsQuery.data]);
 
   return (
     <div className="min-h-screen flex flex-col">
