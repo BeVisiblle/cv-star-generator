@@ -5,7 +5,6 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import SearchAutosuggest from "@/components/marketplace/SearchAutosuggest";
 import ConnectionsDrawer from "@/components/community/ConnectionsDrawer";
-import HeaderSearchMobile from "@/components/navigation/HeaderSearchMobile";
 const titleMap: Record<string, string> = {
   "/community/contacts": "Meine Kontakte",
   "/community/companies": "Unternehmen",
@@ -39,17 +38,13 @@ export default function TopNavBar() {
   };
 
   return (
-    <header className="relative sticky top-0 z-40 h-14 flex items-center border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 px-3 sm:px-4">
+    <header className="sticky top-0 z-40 h-14 flex items-center border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 px-3 sm:px-4">
       <div className="flex items-center gap-2 w-full">
         <SidebarTrigger className="mr-1" />
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 rounded-lg bg-primary text-primary-foreground flex items-center justify-center font-bold text-sm">
             AM
           </div>
-        </div>
-        {/* Mobile search icon → expand */}
-        <div className="sm:hidden ml-1">
-          <HeaderSearchMobile />
         </div>
 
         {/* Global search next to logo */}
@@ -98,7 +93,7 @@ export default function TopNavBar() {
         </div>
 
         {/* Right actions: Network, Messages then Bell */}
-        <div className="flex items-center gap-1 ml-auto">
+        <div className="flex items-center gap-1">
           <button
             className="inline-flex items-center justify-center h-9 w-9 rounded-md hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             onClick={() => setDrawerOpen(true)}

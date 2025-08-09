@@ -163,10 +163,10 @@ const isOwner = user?.id === profile?.id;
             {activeTab === 'posts' ? (
               recentPosts && recentPosts.length > 0 ? (
                 <div className="relative">
-                  <Button variant="secondary" size="icon" className="hidden sm:flex absolute left-0 top-1/2 -translate-y-1/2 z-10 rounded-full h-8 w-8" onClick={() => scrollByStep('left')} aria-label="Zurück">
+                  <Button variant="secondary" size="icon" className="absolute left-0 top-1/2 -translate-y-1/2 z-10 rounded-full h-8 w-8" onClick={() => scrollByStep('left')} aria-label="Zurück">
                     <ChevronLeft className="h-4 w-4" />
                   </Button>
-                  <Button variant="secondary" size="icon" className="hidden sm:flex absolute right-0 top-1/2 -translate-y-1/2 z-10 rounded-full h-8 w-8" onClick={() => scrollByStep('right')} aria-label="Weiter">
+                  <Button variant="secondary" size="icon" className="absolute right-0 top-1/2 -translate-y-1/2 z-10 rounded-full h-8 w-8" onClick={() => scrollByStep('right')} aria-label="Weiter">
                     <ChevronRight className="h-4 w-4" />
                   </Button>
 
@@ -194,7 +194,7 @@ const isOwner = user?.id === profile?.id;
                         return (
                           <div
                             key={post.id}
-                            className="activity-card flex-shrink-0 w-[92vw] max-w-[420px] sm:w-[360px] bg-muted/50 rounded-lg p-4 border hover:bg-muted/70 transition-colors cursor-pointer snap-center"
+                            className="activity-card flex-shrink-0 w-[320px] bg-muted/50 rounded-lg p-4 border hover:bg-muted/70 transition-colors cursor-pointer snap-start"
                             onClick={() => navigate('/marketplace')}
                           >
                             <div className="flex items-center space-x-3 mb-3">
