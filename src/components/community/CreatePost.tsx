@@ -57,6 +57,14 @@ export const CreatePost = ({ container = "card", hideHeader = false, variant = "
         ? new Date(scheduledAt).toISOString()
         : null;
 
+      // Map UI audience to DB visibility values
+      const visibilityMap: Record<'public' | 'connections' | 'private', string> = {
+        public: 'CommunityAndCompanies',
+        connections: 'ConnectionsOnly',
+        private: 'Private'
+      };
+      const dbVisibility = visibilityMap[visibility ?? 'public'] ?? 'CommunityAndCompanies';
+
       const { error } = await supabase
         .from("posts")
         .insert({
@@ -66,7 +74,7 @@ export const CreatePost = ({ container = "card", hideHeader = false, variant = "
           user_id: user.id,
           author_id: user.id,
           celebration,
-          visibility: visibility,
+          visibility: dbVisibility,
           status: scheduledISO ? 'scheduled' : 'published',
           scheduled_at: scheduledISO
         });
