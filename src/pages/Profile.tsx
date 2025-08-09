@@ -13,6 +13,9 @@ import { LinkedInProfileSidebar } from '@/components/linkedin/LinkedInProfileSid
 import { LinkedInProfileExperience } from '@/components/linkedin/LinkedInProfileExperience';
 import { LinkedInProfileEducation } from '@/components/linkedin/LinkedInProfileEducation';
 import { LinkedInProfileActivity } from '@/components/linkedin/LinkedInProfileActivity';
+import { RightRailAd } from '@/components/linkedin/right-rail/RightRailAd';
+import { PeopleRecommendations } from '@/components/linkedin/right-rail/PeopleRecommendations';
+import { CompanyRecommendations } from '@/components/linkedin/right-rail/CompanyRecommendations';
 import { ProfilePreviewModal } from '@/components/ProfilePreviewModal';
 const Profile = () => {
   const navigate = useNavigate();
@@ -201,6 +204,10 @@ const Profile = () => {
         {/* Right Sidebar - Desktop: sidebar, Mobile: after main content */}
         <aside className="lg:col-span-4">
           <div className="lg:sticky lg:top-24 space-y-4 md:space-y-6">
+            <RightRailAd variant="card" />
+            <PeopleRecommendations />
+            <CompanyRecommendations />
+            <RightRailAd variant="banner" />
             <LinkedInProfileSidebar profile={profile} isEditing={isEditing} onProfileUpdate={handleProfileUpdate} />
           </div>
         </aside>

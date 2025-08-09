@@ -20,6 +20,17 @@ function getAbout(profile: any): string | null {
   if (!profile) return null;
   return profile.ueber_mich || profile.ueberMich || profile.uebermich || profile.about || profile.bio || profile.beschreibung || profile.motivation || null;
 }
+function getEmployerOrSchool(p: any): string | null {
+  if (!p) return null;
+  if (p.status === 'schueler') {
+    return p.schule || p.schulbildung?.[0]?.institution || null;
+  }
+  if (p.status === 'azubi' || p.status === 'ausgelernt') {
+    const current = p.berufserfahrung?.find((job: any) => !job.bis || new Date(job.bis) > new Date());
+    return current?.unternehmen || p.ausbildungsbetrieb || null;
+  }
+  return null;
+}
 export const LeftPanel: React.FC = () => {
   const {
     profile
@@ -55,12 +66,12 @@ export const LeftPanel: React.FC = () => {
               {profile?.vorname && profile?.nachname ? `${profile.vorname} ${profile.nachname}` : "Dein Profil"}
             </h2>
             {about10 && <p className="mt-1 text-sm text-muted-foreground line-clamp-1">{about10}</p>}
-            {(profile?.ort || profile?.branche) && <div className="mt-1 text-sm text-muted-foreground flex items-center gap-1.5">
+            {(profile?.ort || profile?.branche || getEmployerOrSchool(profile)) && <div className="mt-1 text-sm text-muted-foreground flex items-center gap-1.5">
                 <MapPin className="h-4 w-4" aria-hidden />
                 <span>
-                  {profile?.ort}
-                  {profile?.branche && profile?.ort && " • "}
-                  {profile?.branche}
+                  {profile?.ort || '—'}
+                  {profile?.branche && ' • '}<>{profile?.branche}</>
+                  {getEmployerOrSchool(profile) && ' • '}<>{getEmployerOrSchool(profile) ?? ''}</>
                 </span>
               </div>}
           </div>
