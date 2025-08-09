@@ -187,7 +187,7 @@ export default function CommunityFeed() {
 
   if (!viewerId) {
     return (
-      <Card className="p-4 sm:p-5 md:p-6">
+      <Card className="p-6">
         <p className="text-center text-muted-foreground">
           Bitte melde dich an, um deinen Community‑Feed zu sehen.
         </p>
@@ -205,7 +205,7 @@ export default function CommunityFeed() {
 
   if (feedQuery.isError) {
     return (
-      <Card className="p-4 sm:p-5 md:p-6">
+      <Card className="p-6">
         <p className="text-center text-muted-foreground">
           Fehler beim Laden der Beiträge. Bitte versuche es später erneut.
         </p>

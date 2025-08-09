@@ -92,7 +92,7 @@ export default function PostCard({ post }: PostCardProps) {
         </div>
       )}
 
-      <div className="p-4 sm:p-5 md:p-6 space-y-3 md:space-y-4">
+      <div className="p-6 space-y-4">
         {/* Post Header */}
         <div className="flex items-start space-x-3">
           <div className="cursor-pointer" onClick={() => navigate(`/u/${post.author?.id || post.user_id}`)}>
