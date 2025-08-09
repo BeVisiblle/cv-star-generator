@@ -1,21 +1,36 @@
 import React from "react";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { useAuth } from "@/hooks/useAuth";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Textarea } from "@/components/ui/textarea";
 import { useMessaging } from "@/hooks/useMessaging";
-import QuickMessageDialog from "@/components/community/QuickMessageDialog";
+import { supabase } from "@/integrations/supabase/client";
+
+const formatDate = (iso?: string | null) => {
+  if (!iso) return "";
+  const d = new Date(iso);
+  const now = new Date();
+  const sameYear = d.getFullYear() === now.getFullYear();
+  return d.toLocaleDateString("de-DE", { day: "2-digit", month: sameYear ? "short" : "2-digit" });
+};
 
 export default function CommunityMessages() {
-  const { user } = useAuth();
-  const { loadConversationsWithLast } = useMessaging();
+  const { loadConversationsWithLast, sendMessage } = useMessaging();
+
   const [query, setQuery] = React.useState("");
-  const [showAll, setShowAll] = React.useState(false);
-  const [openCompose, setOpenCompose] = React.useState(false);
   const [items, setItems] = React.useState<any[]>([]);
   const [loading, setLoading] = React.useState(true);
+  const [selectedId, setSelectedId] = React.useState<string | null>(null);
+  const selected = React.useMemo(() => items.find((c) => c.id === selectedId) || null, [items, selectedId]);
 
+  type Msg = { id: string; conversation_id: string; sender_id: string; content: string; created_at: string };
+  const [messages, setMessages] = React.useState<Msg[]>([]);
+  const [composer, setComposer] = React.useState("");
+  const [sending, setSending] = React.useState(false);
+  const listRef = React.useRef<HTMLDivElement>(null);
+
+  // Load conversations
   React.useEffect(() => {
     let mounted = true;
     (async () => {
@@ -23,10 +38,30 @@ export default function CommunityMessages() {
       const data = await loadConversationsWithLast();
       if (!mounted) return;
       setItems(data);
+      setSelectedId((cur) => cur || data[0]?.id || null);
       setLoading(false);
     })();
     return () => { mounted = false; };
   }, [loadConversationsWithLast]);
+
+  // Load messages for selected conversation
+  React.useEffect(() => {
+    let mounted = true;
+    (async () => {
+      if (!selectedId) { setMessages([]); return; }
+      const { data, error } = await supabase
+        .from("messages")
+        .select("id, conversation_id, sender_id, content, created_at")
+        .eq("conversation_id", selectedId)
+        .order("created_at", { ascending: true });
+      if (!mounted) return;
+      if (error) { setMessages([]); return; }
+      setMessages((data || []) as Msg[]);
+      // scroll to bottom
+      setTimeout(() => listRef.current?.scrollTo({ top: listRef.current.scrollHeight, behavior: 'smooth' }), 50);
+    })();
+    return () => { mounted = false; };
+  }, [selectedId]);
 
   const filtered = React.useMemo(() => {
     const t = query.trim().toLowerCase();
@@ -38,88 +73,130 @@ export default function CommunityMessages() {
     });
   }, [items, query]);
 
-  const recent = filtered.slice(0, 4);
-  const rest = filtered.slice(4);
+  const onSend = async () => {
+    if (!selected || !composer.trim()) return;
+    try {
+      setSending(true);
+      await sendMessage(selected.otherUser.id, composer);
+      setComposer("");
+      // refresh conversation list and messages
+      const updated = await loadConversationsWithLast();
+      setItems(updated);
+      // Re-load thread
+      const { data } = await supabase
+        .from("messages")
+        .select("id, conversation_id, sender_id, content, created_at")
+        .eq("conversation_id", selected.id)
+        .order("created_at", { ascending: true });
+      setMessages((data || []) as Msg[]);
+      setTimeout(() => listRef.current?.scrollTo({ top: listRef.current.scrollHeight, behavior: 'smooth' }), 50);
+    } finally {
+      setSending(false);
+    }
+  };
 
   return (
-    <main className="w-full py-6 space-y-4">
-      <div className="flex items-center justify-between gap-3">
-        <h1 className="text-xl font-semibold">Nachrichten</h1>
-        <Button onClick={() => setOpenCompose(true)}>Neue Nachricht</Button>
-      </div>
-
-      <div className="flex items-center gap-3">
-        <Input
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder="Nachrichten oder Kontakte durchsuchen…"
-          aria-label="Nachrichten suchen"
-        />
-      </div>
-
-      <section className="space-y-3">
-        <h2 className="text-sm font-medium text-muted-foreground">Neueste Nachrichten</h2>
-        <Card className="p-3">
-          <div className="space-y-3">
-            {(loading ? [] : recent).map((c) => {
+    <main className="w-full py-4 sm:py-6">
+      <div className="grid grid-cols-1 lg:grid-cols-[320px_minmax(0,1fr)_320px] gap-4">
+        {/* Left: Conversation list */}
+        <Card className="p-0 overflow-hidden">
+          <div className="p-3 border-b">
+            <div className="flex items-center gap-2">
+              <h1 className="text-base font-semibold">Nachrichten</h1>
+              <div className="ml-auto" />
+            </div>
+            <div className="mt-2">
+              <Input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Nachrichten durchsuchen" aria-label="Nachrichten durchsuchen" />
+            </div>
+            {/* Filter chips (UI only) */}
+            <div className="mt-2 flex flex-wrap gap-2 text-xs">
+              <span className="inline-flex items-center px-2 py-1 rounded-full bg-primary/10 text-primary">Nachrichten</span>
+              <span className="inline-flex items-center px-2 py-1 rounded-full bg-muted">Ungelesen</span>
+              <span className="inline-flex items-center px-2 py-1 rounded-full bg-muted">Meine Kontakte</span>
+              <span className="inline-flex items-center px-2 py-1 rounded-full bg-muted">InMail</span>
+              <span className="inline-flex items-center px-2 py-1 rounded-full bg-muted">Als Favorit markiert</span>
+            </div>
+          </div>
+          <div className="max-h-[calc(100vh-220px)] lg:max-h-[calc(100vh-200px)] overflow-auto p-2">
+            {loading && <div className="p-3 text-sm text-muted-foreground">Lade…</div>}
+            {!loading && filtered.length === 0 && (
+              <div className="p-3 text-sm text-muted-foreground">Keine Konversationen gefunden.</div>
+            )}
+            {!loading && filtered.map((c) => {
               const name = [c.otherUser?.vorname, c.otherUser?.nachname].filter(Boolean).join(" ") || "Unbekannt";
+              const active = selectedId === c.id;
               return (
-                <div key={c.id} className="flex items-start gap-3">
-                  <Avatar className="h-8 w-8">
+                <button key={c.id} className={`w-full text-left px-2 py-2 rounded-lg flex items-start gap-3 ${active ? 'bg-muted' : 'hover:bg-muted/60'}`} onClick={() => setSelectedId(c.id)}>
+                  <Avatar className="h-9 w-9">
                     <AvatarImage src={c.otherUser?.avatar_url ?? undefined} alt={name} />
                     <AvatarFallback>{name.slice(0,2).toUpperCase()}</AvatarFallback>
                   </Avatar>
                   <div className="min-w-0 flex-1">
-                    <div className="text-sm font-medium truncate">{name}</div>
-                    <div className="text-xs text-muted-foreground truncate">{c.lastMessage?.content || "—"}</div>
+                    <div className="flex items-center gap-2">
+                      <div className="text-sm font-medium truncate flex-1">{name}</div>
+                      <div className="text-[11px] text-muted-foreground">{formatDate(c.lastMessageAt)}</div>
+                    </div>
+                    <div className="text-xs text-muted-foreground truncate">{c.lastMessage?.content || '—'}</div>
                   </div>
-                  <Button size="sm" variant="ghost" onClick={() => setOpenCompose(true)}>Antworten</Button>
-                </div>
+                </button>
               );
             })}
-            {loading && <div className="text-sm text-muted-foreground">Lade…</div>}
-            {!loading && recent.length === 0 && (
-              <div className="text-sm text-muted-foreground">Keine Nachrichten vorhanden.</div>
-            )}
           </div>
         </Card>
-        {rest.length > 0 && (
-          <div className="pt-1">
-            <Button variant="link" size="sm" className="px-0" onClick={() => setShowAll((v) => !v)}>
-              {showAll ? "Weniger anzeigen" : "Mehr anzeigen"}
-            </Button>
-          </div>
-        )}
-      </section>
 
-      {showAll && rest.length > 0 && (
-        <section className="space-y-3">
-          <h2 className="text-sm font-medium text-muted-foreground">Weitere Nachrichten</h2>
-          <Card className="p-3">
-            <div className="space-y-3">
-              {rest.map((c) => {
-                const name = [c.otherUser?.vorname, c.otherUser?.nachname].filter(Boolean).join(" ") || "Unbekannt";
-                return (
-                  <div key={c.id} className="flex items-start gap-3">
-                    <Avatar className="h-8 w-8">
-                      <AvatarImage src={c.otherUser?.avatar_url ?? undefined} alt={name} />
-                      <AvatarFallback>{name.slice(0,2).toUpperCase()}</AvatarFallback>
-                    </Avatar>
-                    <div className="min-w-0 flex-1">
-                      <div className="text-sm font-medium truncate">{name}</div>
-                      <div className="text-xs text-muted-foreground truncate">{c.lastMessage?.content || "—"}</div>
-                    </div>
-                    <Button size="sm" variant="ghost" onClick={() => setOpenCompose(true)}>Antworten</Button>
+        {/* Center: Conversation thread */}
+        <Card className="flex flex-col min-h-[60vh]">
+          {!selected ? (
+            <div className="p-6 text-sm text-muted-foreground">Wähle eine Konversation links aus.</div>
+          ) : (
+            <>
+              <div className="p-4 border-b">
+                <div className="flex items-center gap-3">
+                  <Avatar className="h-10 w-10">
+                    <AvatarImage src={selected.otherUser?.avatar_url ?? undefined} alt="" />
+                    <AvatarFallback>{([selected.otherUser?.vorname, selected.otherUser?.nachname].filter(Boolean).join(" ") || 'U').slice(0,2).toUpperCase()}</AvatarFallback>
+                  </Avatar>
+                  <div className="min-w-0">
+                    <div className="text-sm font-semibold truncate">{[selected.otherUser?.vorname, selected.otherUser?.nachname].filter(Boolean).join(" ") || 'Unbekannt'}</div>
+                    <div className="text-xs text-muted-foreground truncate">Unterhaltung</div>
                   </div>
-                );
-              })}
+                </div>
+              </div>
+
+              <div ref={listRef} className="flex-1 overflow-auto p-4 space-y-3 bg-background">
+                {messages.map((m) => (
+                  <div key={m.id} className="flex gap-2">
+                    {/* We don't know sender == self here; simple bubble */}
+                    <div className="rounded-lg bg-muted px-3 py-2 text-sm max-w-[75%] whitespace-pre-wrap">{m.content}</div>
+                  </div>
+                ))}
+                {messages.length === 0 && (
+                  <div className="text-sm text-muted-foreground">Noch keine Nachrichten. Schreib als erstes!</div>
+                )}
+              </div>
+
+              <div className="border-t p-3">
+                <div className="flex items-end gap-2">
+                  <Textarea rows={2} value={composer} onChange={(e) => setComposer(e.target.value)} placeholder="Nachricht schreiben…" className="min-h-[44px]" />
+                  <Button onClick={onSend} disabled={!composer.trim() || sending}>{sending ? 'Senden…' : 'Senden'}</Button>
+                </div>
+              </div>
+            </>
+          )}
+        </Card>
+
+        {/* Right: Weitere Posteingänge (ohne Werbung) */}
+        <div className="space-y-4">
+          <Card className="p-4">
+            <div className="text-sm font-semibold mb-3">Weitere Posteingänge</div>
+            <div className="space-y-2 text-sm">
+              <div className="flex items-center justify-between"><span>Ausbildungsbasis</span><span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-primary text-primary-foreground text-[10px] leading-none px-1">1</span></div>
+              <div className="flex items-center justify-between"><span>Zettelcloud</span><span className="text-muted-foreground text-xs">—</span></div>
+              <div className="flex items-center justify-between"><span>Recruiter‑Nachrichten</span><span className="text-muted-foreground text-xs">—</span></div>
             </div>
           </Card>
-        </section>
-      )}
-
-      <QuickMessageDialog open={openCompose} onOpenChange={setOpenCompose} />
+        </div>
+      </div>
     </main>
   );
 }
-
