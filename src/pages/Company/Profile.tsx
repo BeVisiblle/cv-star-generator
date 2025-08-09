@@ -198,14 +198,16 @@ const [profileData, setProfileData] = useState<CompanyProfile>({
           {/* Header Image & Logo */}
           <Card>
             <CardContent className="p-0">
-              <div className="relative h-48 bg-gradient-to-r from-accent/20 to-primary/20 rounded-t-lg">
+              <div className="relative h-40 sm:h-56 md:h-64 bg-gradient-to-r from-accent/20 to-primary/20 rounded-t-lg">
                 {profileData.header_image && (
                   <img 
                     src={profileData.header_image} 
-                    alt="Header" 
+                    alt={`${profileData.name} Header`} 
                     className="w-full h-full object-cover rounded-t-lg"
                   />
                 )}
+                {/* subtle bottom gradient for readability */}
+                <div className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-background/60 to-transparent rounded-b-lg" />
                 {editing && (
                   <Button 
                     size="sm" 
@@ -222,10 +224,10 @@ const [profileData, setProfileData] = useState<CompanyProfile>({
               <input type="file" accept="image/*" ref={headerInputRef} className="hidden" onChange={handleHeaderChange} />
               <input type="file" accept="image/*" ref={logoInputRef} className="hidden" onChange={handleLogoChange} />
               
-              <div className="p-6">
+              <div className="p-6 -mt-10 sm:-mt-12">
                 <div className="flex items-start space-x-4">
                   <div className="relative">
-                    <Avatar className="h-20 w-20">
+                    <Avatar className="h-20 w-20 sm:h-24 sm:w-24 ring-2 ring-background shadow-md">
                       <AvatarImage src={profileData.logo_url} alt={profileData.name} />
                       <AvatarFallback className="text-2xl">
                         {profileData.name.charAt(0)}
