@@ -5,8 +5,9 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
-import { UserPlus, Check, ChevronRight } from "lucide-react";
+import { UserPlus, Check, ChevronRight, MessageSquareMore, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useConnections, type ConnectionState } from "@/hooks/useConnections";
 
 interface SimpleProfile {
   id: string;
@@ -28,9 +29,12 @@ interface PeopleRecommendationsProps {
 
 export const PeopleRecommendations: React.FC<PeopleRecommendationsProps> = ({ limit = 3, showMoreLink = "/entdecken/azubis", showMore = true }) => {
   const { user } = useAuth();
+  const navigate = useNavigate();
+  const { getStatuses, requestConnection, acceptRequest, declineRequest, cancelRequest } = useConnections();
+
   const [loading, setLoading] = React.useState(true);
   const [items, setItems] = React.useState<SimpleProfile[]>([]);
-  const [following, setFollowing] = React.useState<Record<string, boolean>>({});
+  const [statusMap, setStatusMap] = React.useState<Record<string, ConnectionState>>({});
 
   React.useEffect(() => {
     const load = async () => {
@@ -45,6 +49,10 @@ export const PeopleRecommendations: React.FC<PeopleRecommendationsProps> = ({ li
         if (error) throw error;
         const filtered = (data as SimpleProfile[]).filter(p => p.id !== user.id).slice(0, limit);
         setItems(filtered);
+        // Preload connection statuses
+        const ids = filtered.map(f => f.id);
+        const statuses = await getStatuses(ids);
+        setStatusMap(statuses);
       } catch (e) {
         console.error(e);
       } finally {
@@ -52,18 +60,47 @@ export const PeopleRecommendations: React.FC<PeopleRecommendationsProps> = ({ li
       }
     };
     load();
-  }, [user]);
+  }, [user, limit, getStatuses]);
 
-  const connect = async (targetId: string) => {
-    if (!user) return;
+  const onConnect = async (targetId: string) => {
     try {
-      const { error } = await supabase.from("follows").insert({ follower_id: user.id, following_id: targetId });
-      if (error) throw error;
-      setFollowing(prev => ({ ...prev, [targetId]: true }));
-      toast({ title: "Verbunden", description: "Anfrage erfolgreich gesendet." });
+      await requestConnection(targetId);
+      setStatusMap(prev => ({ ...prev, [targetId]: "pending" }));
+      toast({ title: "Anfrage gesendet", description: "Deine Verbindungsanfrage ist jetzt ausstehend." });
     } catch (e) {
       console.error(e);
-      toast({ title: "Fehler", description: "Konnte nicht verbinden.", variant: "destructive" });
+      toast({ title: "Fehler", description: "Konnte Anfrage nicht senden.", variant: "destructive" });
+    }
+  };
+
+  const onAccept = async (fromId: string) => {
+    try {
+      await acceptRequest(fromId);
+      setStatusMap(prev => ({ ...prev, [fromId]: "accepted" }));
+      toast({ title: "Verbunden", description: "Ihr könnt jetzt chatten." });
+    } catch (e) {
+      console.error(e);
+      toast({ title: "Fehler", description: "Konnte Anfrage nicht annehmen.", variant: "destructive" });
+    }
+  };
+
+  const onDecline = async (fromId: string) => {
+    try {
+      await declineRequest(fromId);
+      setStatusMap(prev => ({ ...prev, [fromId]: "declined" }));
+    } catch (e) {
+      console.error(e);
+      toast({ title: "Fehler", description: "Konnte Anfrage nicht ablehnen.", variant: "destructive" });
+    }
+  };
+
+  const onCancel = async (targetId: string) => {
+    try {
+      await cancelRequest(targetId);
+      setStatusMap(prev => ({ ...prev, [targetId]: "none" }));
+    } catch (e) {
+      console.error(e);
+      toast({ title: "Fehler", description: "Konnte Anfrage nicht zurückziehen.", variant: "destructive" });
     }
   };
 
@@ -89,7 +126,7 @@ export const PeopleRecommendations: React.FC<PeopleRecommendationsProps> = ({ li
           const name = [p.vorname, p.nachname].filter(Boolean).join(" ") || "Unbekannt";
           const infoLine = [p.ort, p.branche].filter(Boolean).join(" • ");
           const subtitle = p.headline || p.ausbildungsberuf || p.geplanter_abschluss || "";
-          const isFollowed = !!following[p.id];
+          const st = statusMap[p.id] || "none";
           return (
             <div key={p.id} className="flex items-center gap-3">
               <Avatar className="h-10 w-10">
@@ -101,9 +138,35 @@ export const PeopleRecommendations: React.FC<PeopleRecommendationsProps> = ({ li
                 {subtitle && <div className="text-xs text-muted-foreground truncate">{subtitle}</div>}
                 {infoLine && <div className="text-xs text-muted-foreground truncate">{infoLine}</div>}
               </div>
-              <Button size="sm" variant={isFollowed ? "secondary" : "default"} onClick={() => connect(p.id)} disabled={isFollowed}>
-                {isFollowed ? (<><Check className="h-4 w-4 mr-1" /> Verbunden</>) : (<><UserPlus className="h-4 w-4 mr-1" /> Vernetzen</>)}
-              </Button>
+              {st === "accepted" && (
+                <Button size="sm" onClick={() => navigate("/community/messages")}> 
+                  <MessageSquareMore className="h-4 w-4 mr-1" /> Nachricht
+                </Button>
+              )}
+              {st === "none" && (
+                <Button size="sm" onClick={() => onConnect(p.id)}>
+                  <UserPlus className="h-4 w-4 mr-1" /> Vernetzen
+                </Button>
+              )}
+              {st === "pending" && (
+                <div className="flex items-center gap-2">
+                  <Button size="sm" variant="secondary" disabled>
+                    <Check className="h-4 w-4 mr-1" /> Ausstehend
+                  </Button>
+                  <Button size="icon" variant="ghost" aria-label="Anfrage zurückziehen" onClick={() => onCancel(p.id)}>
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+              )}
+              {st === "incoming" && (
+                <div className="flex items-center gap-2">
+                  <Button size="sm" onClick={() => onAccept(p.id)}>Annehmen</Button>
+                  <Button size="sm" variant="outline" onClick={() => onDecline(p.id)}>Ablehnen</Button>
+                </div>
+              )}
+              {st === "declined" && (
+                <Button size="sm" variant="outline" onClick={() => onConnect(p.id)}>Erneut senden</Button>
+              )}
             </div>
           );
         })}

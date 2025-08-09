@@ -1,9 +1,10 @@
 import React from "react";
 import { SidebarTrigger } from "@/components/ui/sidebar";
-import { Bell, Search as SearchIcon, MessageSquareMore } from "lucide-react";
+import { Bell, Search as SearchIcon, MessageSquareMore, Users } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import SearchAutosuggest from "@/components/marketplace/SearchAutosuggest";
+import ConnectionsDrawer from "@/components/community/ConnectionsDrawer";
 const titleMap: Record<string, string> = {
   "/community/contacts": "Meine Kontakte",
   "/community/companies": "Unternehmen",
@@ -27,6 +28,7 @@ export default function TopNavBar() {
     : "Home Feed";
   const [q, setQ] = React.useState("");
   const [open, setOpen] = React.useState(false);
+  const [drawerOpen, setDrawerOpen] = React.useState(false);
 
   const handleSubmit = () => {
     const term = q.trim();
