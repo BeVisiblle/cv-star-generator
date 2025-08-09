@@ -8,7 +8,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import { Calendar as CalendarIcon, Image as ImageIcon, Plus, PartyPopper, FileText, BarChart3, Users, Globe, Lock } from 'lucide-react';
+import { Calendar as CalendarIcon, Image as ImageIcon, Plus, PartyPopper, FileText, BarChart3, Users, Globe } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar as DateCalendar } from '@/components/ui/calendar';
@@ -19,7 +19,7 @@ import { Badge } from '@/components/ui/badge';
 export const NewPostComposer: React.FC = () => {
   const isMobile = useIsMobile();
   const [open, setOpen] = React.useState(false);
-  const [audience, setAudience] = React.useState<'public' | 'connections' | 'private'>('public');
+  const [audience, setAudience] = React.useState<'public' | 'connections'>('public');
   const [trayOpen, setTrayOpen] = React.useState(false);
   const [canPost, setCanPost] = React.useState(false);
   const [isSubmitting, setIsSubmitting] = React.useState(false);
@@ -34,7 +34,7 @@ export const NewPostComposer: React.FC = () => {
     setIsSubmitting(s.isSubmitting);
   }, []);
 
-  const AudienceIcon = audience === 'public' ? Globe : audience === 'connections' ? Users : Lock;
+  const AudienceIcon = audience === 'public' ? Globe : Users;
 
   const [scheduledAt, setScheduledAt] = React.useState<Date | null>(null);
   const [scheduleOpen, setScheduleOpen] = React.useState(false);
@@ -78,8 +78,7 @@ export const NewPostComposer: React.FC = () => {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="public">Jeder (öffentlich)</SelectItem>
-                <SelectItem value="connections">Nur Verbindungen</SelectItem>
-                <SelectItem value="private">Privat</SelectItem>
+                <SelectItem value="connections">Nur Community</SelectItem>
               </SelectContent>
             </Select>
           </div>

@@ -60,8 +60,8 @@ export const CreatePost = ({ container = "card", hideHeader = false, variant = "
       // Map UI audience to DB visibility values
       const visibilityMap: Record<'public' | 'connections' | 'private', string> = {
         public: 'CommunityAndCompanies',
-        connections: 'ConnectionsOnly',
-        private: 'Private'
+        connections: 'CommunityOnly',
+        private: 'CommunityOnly'
       };
       const dbVisibility = visibilityMap[visibility ?? 'public'] ?? 'CommunityAndCompanies';
 
