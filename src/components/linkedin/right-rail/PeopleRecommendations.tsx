@@ -122,55 +122,57 @@ export const PeopleRecommendations: React.FC<PeopleRecommendationsProps> = ({ li
             ))}
           </div>
         )}
-        {!loading && items.map(p => {
-          const name = [p.vorname, p.nachname].filter(Boolean).join(" ") || "Unbekannt";
-          const infoLine = [p.ort, p.branche].filter(Boolean).join(" • ");
-          const subtitle = p.headline || p.ausbildungsberuf || p.geplanter_abschluss || "";
-          const st = statusMap[p.id] || "none";
-          return (
-            <div key={p.id} className="flex items-center gap-3">
-              <Avatar className="h-10 w-10 cursor-pointer" onClick={() => navigate(`/u/${p.id}`)}>
-                <AvatarImage src={p.avatar_url ?? undefined} alt={`${name} Avatar`} />
-                <AvatarFallback>{name.slice(0, 2)}</AvatarFallback>
-              </Avatar>
-              <div className="flex-1 min-w-0 cursor-pointer" onClick={() => navigate(`/u/${p.id}`)}>
-                <div className="text-sm font-medium truncate">{name}</div>
-                {subtitle && <div className="text-xs text-muted-foreground truncate">{subtitle}</div>}
-                {infoLine && <div className="text-xs text-muted-foreground truncate">{infoLine}</div>}
+        {!loading && (
+          (items.filter(p => (statusMap[p.id] ?? 'none') !== 'accepted' && p.id !== user?.id)).map(p => {
+            const name = [p.vorname, p.nachname].filter(Boolean).join(" ") || "Unbekannt";
+            const infoLine = [p.ort, p.branche].filter(Boolean).join(" • ");
+            const subtitle = p.headline || p.ausbildungsberuf || p.geplanter_abschluss || "";
+            const st = statusMap[p.id] || "none";
+            return (
+              <div key={p.id} className="flex items-center gap-3">
+                <Avatar className="h-10 w-10 cursor-pointer" onClick={() => navigate(`/u/${p.id}`)}>
+                  <AvatarImage src={p.avatar_url ?? undefined} alt={`${name} Avatar`} />
+                  <AvatarFallback>{name.slice(0, 2)}</AvatarFallback>
+                </Avatar>
+                <div className="flex-1 min-w-0 cursor-pointer" onClick={() => navigate(`/u/${p.id}`)}>
+                  <div className="text-sm font-medium truncate">{name}</div>
+                  {subtitle && <div className="text-xs text-muted-foreground truncate">{subtitle}</div>}
+                  {infoLine && <div className="text-xs text-muted-foreground truncate">{infoLine}</div>}
+                </div>
+                {st === "accepted" && (
+                  <Button size="sm" onClick={() => navigate(`/community/messages`)}> 
+                    <MessageSquareMore className="h-4 w-4 mr-1" /> Nachricht
+                  </Button>
+                )}
+                {st === "none" && (
+                  <Button size="sm" onClick={() => onConnect(p.id)}>
+                    <UserPlus className="h-4 w-4 mr-1" /> Vernetzen
+                  </Button>
+                )}
+                {st === "pending" && (
+                  <div className="flex items-center gap-2">
+                    <Button size="sm" variant="secondary" disabled>
+                      <Check className="h-4 w-4 mr-1" /> Ausstehend
+                    </Button>
+                    <Button size="icon" variant="ghost" aria-label="Anfrage zurückziehen" onClick={() => onCancel(p.id)}>
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                )}
+                {st === "incoming" && (
+                  <div className="flex items-center gap-2">
+                    <Button size="sm" onClick={() => onAccept(p.id)}>Annehmen</Button>
+                    <Button size="sm" variant="outline" onClick={() => onDecline(p.id)}>Ablehnen</Button>
+                  </div>
+                )}
+                {st === "declined" && (
+                  <Button size="sm" variant="outline" onClick={() => onConnect(p.id)}>Erneut senden</Button>
+                )}
               </div>
-              {st === "accepted" && (
-                <Button size="sm" onClick={() => navigate(`/community/messages`)}> 
-                  <MessageSquareMore className="h-4 w-4 mr-1" /> Nachricht
-                </Button>
-              )}
-              {st === "none" && (
-                <Button size="sm" onClick={() => onConnect(p.id)}>
-                  <UserPlus className="h-4 w-4 mr-1" /> Vernetzen
-                </Button>
-              )}
-              {st === "pending" && (
-                <div className="flex items-center gap-2">
-                  <Button size="sm" variant="secondary" disabled>
-                    <Check className="h-4 w-4 mr-1" /> Ausstehend
-                  </Button>
-                  <Button size="icon" variant="ghost" aria-label="Anfrage zurückziehen" onClick={() => onCancel(p.id)}>
-                    <X className="h-4 w-4" />
-                  </Button>
-                </div>
-              )}
-              {st === "incoming" && (
-                <div className="flex items-center gap-2">
-                  <Button size="sm" onClick={() => onAccept(p.id)}>Annehmen</Button>
-                  <Button size="sm" variant="outline" onClick={() => onDecline(p.id)}>Ablehnen</Button>
-                </div>
-              )}
-              {st === "declined" && (
-                <Button size="sm" variant="outline" onClick={() => onConnect(p.id)}>Erneut senden</Button>
-              )}
-            </div>
-          );
-        })}
-        {!loading && items.length === 0 && (
+            );
+          })
+        )}
+        {!loading && items.filter(p => (statusMap[p.id] ?? 'none') !== 'accepted' && p.id !== user?.id).length === 0 && (
           <p className="text-xs text-muted-foreground">Keine Empfehlungen gefunden.</p>
         )}
         {showMore && (

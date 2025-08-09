@@ -3,6 +3,7 @@ import { Edit3, Save, X } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
+import { useAuth } from '@/hooks/useAuth';
 interface LinkedInProfileMainProps {
   profile: any;
   isEditing: boolean;
@@ -15,6 +16,8 @@ export const LinkedInProfileMain: React.FC<LinkedInProfileMainProps> = ({
   onProfileUpdate,
   readOnly = false
 }) => {
+  const { user } = useAuth();
+  const isOwner = user?.id === profile?.id;
   const [isEditingAbout, setIsEditingAbout] = useState(false);
   const [aboutText, setAboutText] = useState(profile?.uebermich || '');
   const handleSaveAbout = () => {
@@ -31,10 +34,12 @@ export const LinkedInProfileMain: React.FC<LinkedInProfileMainProps> = ({
       {/* About Section */}
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
-          <CardTitle className="text-xl font-semibold">Über mich</CardTitle>
-          {!readOnly && !isEditingAbout && <Button variant="ghost" size="sm" onClick={() => setIsEditingAbout(true)} className="opacity-60 hover:opacity-100">
+          <CardTitle className="text-xl font-semibold">{isOwner ? 'Über mich' : `Über ${profile?.vorname || 'diese Person'}`}</CardTitle>
+          {isOwner && !isEditingAbout && (
+            <Button variant="ghost" size="sm" onClick={() => setIsEditingAbout(true)} className="opacity-60 hover:opacity-100">
               <Edit3 className="h-4 w-4" />
-            </Button>}
+            </Button>
+          )}
         </CardHeader>
         <CardContent>
           {!readOnly && isEditingAbout ? <div className="space-y-4">

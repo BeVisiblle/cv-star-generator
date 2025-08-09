@@ -85,7 +85,7 @@ export default function PostCard({ post }: PostCardProps) {
   };
 
   return (
-    <Card className="p-0">
+    <Card id={`post-${post.id}`} className="p-0">
       {post.recent_interaction && (
         <div className="px-4 py-2 text-xs text-muted-foreground border-b">
           {post.recent_interaction}

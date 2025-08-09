@@ -9,13 +9,15 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import MarketplaceComposer from '@/components/marketplace/MarketplaceComposer';
-import { Plus } from 'lucide-react';
-import { useSearchParams } from 'react-router-dom';
+import { Plus, Check, X, UserPlus } from 'lucide-react';
+import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useAuth } from '@/hooks/useAuth';
+import { useConnections, type ConnectionState } from '@/hooks/useConnections';
 
 // Simple types for the new sections
-type Person = { id: string; vorname?: string | null; nachname?: string | null; avatar_url?: string | null };
-type Company = { id: string; name: string; logo_url?: string | null };
-type Post = { id: string; content: string; image_url?: string | null };
+ type Person = { id: string; vorname?: string | null; nachname?: string | null; avatar_url?: string | null };
+ type Company = { id: string; name: string; logo_url?: string | null };
+ type Post = { id: string; content: string; image_url?: string | null; user_id: string };
 
 export default function Marketplace() {
   const [q, setQ] = React.useState('');
@@ -63,7 +65,7 @@ export default function Marketplace() {
   const postsQuery = useQuery<Post[]>({
     queryKey: ['mp-posts', appliedQ, morePosts],
     queryFn: async () => {
-      let qy = supabase.from('posts').select('id, content, image_url').eq('status', 'published');
+      let qy = supabase.from('posts').select('id, content, image_url, user_id').eq('status', 'published');
       if (appliedQ) qy = qy.ilike('content', `%${appliedQ}%`);
       else qy = qy.order('published_at', { ascending: false });
       const { data, error } = await qy.limit(morePosts ? 18 : 6);
