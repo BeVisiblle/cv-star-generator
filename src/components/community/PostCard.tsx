@@ -9,6 +9,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { de } from 'date-fns/locale';
 import { useToast } from '@/hooks/use-toast';
 import { usePostLikes, usePostComments } from '@/hooks/usePostInteractions';
+import { useNavigate } from 'react-router-dom';
 
 interface PostCardProps {
   post: {
@@ -33,6 +34,7 @@ export default function PostCard({ post }: PostCardProps) {
   const [newComment, setNewComment] = useState('');
   const [expanded, setExpanded] = useState(false);
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const { count: likeCount, liked, isLoading: likesLoading, toggleLike, isToggling } = usePostLikes(post.id);
   const { comments, commentsCount, isLoading: commentsLoading, addComment, isAdding } = usePostComments(post.id);

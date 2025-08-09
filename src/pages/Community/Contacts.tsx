@@ -1,10 +1,9 @@
 import React from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { useConnections } from "@/hooks/useConnections";
 import { useNavigate } from "react-router-dom";
 
@@ -24,7 +23,7 @@ export default function Contacts() {
   const [profiles, setProfiles] = React.useState<Record<string, BasicProfile>>({});
   const [loading, setLoading] = React.useState(true);
 
-  const [viewId, setViewId] = React.useState<string | null>(null);
+  
 
   const fullName = (p?: BasicProfile) => [p?.vorname, p?.nachname].filter(Boolean).join(" ") || "Unbekannt";
 
@@ -117,7 +116,7 @@ export default function Contacts() {
                   <div className="text-sm font-medium truncate">{fullName(profiles[id])}</div>
                   <div className="text-xs text-muted-foreground truncate">{profiles[id]?.headline || [profiles[id]?.ort, profiles[id]?.branche].filter(Boolean).join(" • ")}</div>
                 </div>
-                <Button size="sm" variant="secondary" onClick={() => setViewId(id)}>Profil</Button>
+                <Button size="sm" variant="secondary" onClick={() => navigate(`/u/${id}`)}>Profil</Button>
                 <Button size="sm" onClick={() => navigate("/community/messages")}>Nachricht</Button>
               </div>
             ))}
@@ -125,29 +124,6 @@ export default function Contacts() {
         </Card>
       </section>
 
-      {/* Friend restricted view */}
-      <Dialog open={!!viewId} onOpenChange={(o) => !o && setViewId(null)}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Profil</DialogTitle>
-          </DialogHeader>
-          {viewId && (
-            <div className="space-y-4">
-              <div className="flex items-center gap-3">
-                <Avatar className="h-12 w-12"><AvatarImage src={profiles[viewId]?.avatar_url ?? undefined} /><AvatarFallback>{fullName(profiles[viewId]).slice(0,2)}</AvatarFallback></Avatar>
-                <div>
-                  <div className="font-semibold">{fullName(profiles[viewId])}</div>
-                  <div className="text-sm text-muted-foreground">{profiles[viewId]?.headline || [profiles[viewId]?.ort, profiles[viewId]?.branche].filter(Boolean).join(" • ")}</div>
-                </div>
-              </div>
-              <div>
-                <h3 className="text-sm font-semibold mb-1">Über mich</h3>
-                <p className="text-sm text-muted-foreground">Einsicht in Lebenslauf, Skills, Sprachen und Kontaktdaten ist nur für dich selbst sichtbar.</p>
-              </div>
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
     </main>
   );
 }

@@ -70,10 +70,20 @@ export default function TopNavBar() {
           <SearchAutosuggest
             query={q}
             open={open && !!q}
-            onSelect={(_, payload) => {
+            onSelect={(type, payload) => {
+              setOpen(false);
+              if (type === "person") {
+                navigate(`/u/${payload.id}`);
+                setQ("");
+                return;
+              }
+              if (type === "company") {
+                navigate(`/unternehmen`);
+                return;
+              }
+              // default: search page with query
               setQ(payload.label);
               handleSubmit();
-              setOpen(false);
             }}
           />
         </div>
