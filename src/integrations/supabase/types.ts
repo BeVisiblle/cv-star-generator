@@ -135,6 +135,8 @@ export type Database = {
           header_image: string | null
           id: string
           industry: string | null
+          instagram_url: string | null
+          linkedin_url: string | null
           location_id: number | null
           logo_url: string | null
           main_location: string | null
@@ -160,6 +162,8 @@ export type Database = {
           header_image?: string | null
           id?: string
           industry?: string | null
+          instagram_url?: string | null
+          linkedin_url?: string | null
           location_id?: number | null
           logo_url?: string | null
           main_location?: string | null
@@ -185,6 +189,8 @@ export type Database = {
           header_image?: string | null
           id?: string
           industry?: string | null
+          instagram_url?: string | null
+          linkedin_url?: string | null
           location_id?: number | null
           logo_url?: string | null
           main_location?: string | null
