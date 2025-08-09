@@ -1,10 +1,10 @@
 import React from "react";
 import { Card } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
+import { MapPin } from "lucide-react";
 
 function firstWords(text?: string | null, n: number = 20) {
   if (!text) return null;
@@ -72,15 +72,14 @@ export const LeftPanel: React.FC = () => {
             {(profile?.headline || snippet) && (
               <p className="mt-1 text-sm text-muted-foreground line-clamp-1">{profile?.headline || snippet}</p>
             )}
-            {profile?.ort && (
-              <p className="mt-1 text-sm text-muted-foreground">{profile.ort}</p>
-            )}
-            {profile?.branche && (
-              <div className="mt-2">
-                <Badge variant="secondary" className="inline-flex items-center gap-1.5">
-                  <span className="inline-block h-2.5 w-2.5 rounded-sm bg-primary" aria-hidden />
-                  {profile.branche}
-                </Badge>
+            {(profile?.ort || profile?.branche) && (
+              <div className="mt-1 text-sm text-muted-foreground flex items-center gap-1.5">
+                <MapPin className="h-4 w-4" aria-hidden />
+                <span>
+                  {profile?.ort}
+                  {profile?.branche && profile?.ort && " • "}
+                  {profile?.branche}
+                </span>
               </div>
             )}
           </div>
