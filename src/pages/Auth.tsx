@@ -119,8 +119,14 @@ const Auth = () => {
           title: "Erfolgreich angemeldet",
           description: "Willkommen zurück!",
         });
-        // Redirect based on selected role
-        window.location.href = role === 'company' ? '/company/dashboard' : '/profile';
+        // Ermittele Rolle anhand der Datenbank (kein Umschalten per UI)
+        const { data: isCompany, error: roleErr } = await supabase.rpc('is_company_member');
+        if (roleErr) {
+          console.warn('Rollenprüfung fehlgeschlagen, fallback auf Profil:', roleErr);
+          window.location.href = '/profile';
+        } else {
+          window.location.href = isCompany ? '/company/dashboard' : '/profile';
+        }
       }
     } catch (error) {
       console.error('Login error:', error);

@@ -21,9 +21,10 @@ export interface CreatePostProps {
   showPoll?: boolean;
   showEvent?: boolean;
   celebration?: boolean;
+  visibility?: 'public' | 'connections' | 'private';
 }
 
-export const CreatePost = ({ container = "card", hideHeader = false, variant = "default", hideBottomBar = false, onStateChange, scheduledAt, showPoll = false, showEvent = false, celebration = false }: CreatePostProps) => {
+export const CreatePost = ({ container = "card", hideHeader = false, variant = "default", hideBottomBar = false, onStateChange, scheduledAt, showPoll = false, showEvent = false, celebration = false, visibility = 'public' }: CreatePostProps) => {
   const [content, setContent] = useState("");
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -65,6 +66,7 @@ export const CreatePost = ({ container = "card", hideHeader = false, variant = "
           user_id: user.id,
           author_id: user.id,
           celebration,
+          visibility: visibility,
           status: scheduledISO ? 'scheduled' : 'published',
           scheduled_at: scheduledISO
         });
