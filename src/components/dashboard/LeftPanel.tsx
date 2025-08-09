@@ -2,9 +2,11 @@ import React from "react";
 import { Card } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
+import { useNavigate } from "react-router-dom";
 
-function firstWords(text?: string | null, n: number = 6) {
+function firstWords(text?: string | null, n: number = 20) {
   if (!text) return null;
   const words = text.trim().split(/\s+/);
   const slice = words.slice(0, n).join(" ");
@@ -27,8 +29,9 @@ function getAbout(profile: any): string | null {
 
 export const LeftPanel: React.FC = () => {
   const { profile } = useAuth();
+  const navigate = useNavigate();
   const about = getAbout(profile);
-  const snippet = firstWords(about, 6);
+  const snippet = firstWords(about, 20);
 
   return (
     <aside aria-label="Profilübersicht" className="space-y-4">
@@ -75,11 +78,52 @@ export const LeftPanel: React.FC = () => {
             </p>
           )}
 
+          {(profile?.ort || profile?.branche) && (
+            <p className="mt-1 text-sm text-muted-foreground">
+              {profile?.ort ? profile.ort : ""}
+              {profile?.ort && profile?.branche ? " • " : ""}
+              {profile?.branche ? profile.branche : ""}
+            </p>
+          )}
+
           <div className="mt-4 flex flex-wrap gap-2">
             <Badge variant="secondary">Profil</Badge>
             <Badge variant="secondary">Netzwerk</Badge>
             <Badge variant="secondary">Beiträge</Badge>
           </div>
+        </div>
+      </Card>
+
+      {/* Statistik-Karte wie im Screenshot */}
+      <Card className="p-5">
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <span className="text-sm">Profilbesuche</span>
+            <span className="text-sm font-semibold text-primary">295</span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-sm">Impressions von Beiträgen</span>
+            <span className="text-sm font-semibold text-primary">102</span>
+          </div>
+          <hr className="my-2 border-border" />
+          <div className="flex items-center justify-between">
+            <Button variant="link" className="px-0" onClick={() => navigate('/profile')}>
+              Zum Profil
+            </Button>
+          </div>
+        </div>
+      </Card>
+
+      {/* Schnellaktionen: Jobvorschläge */}
+      <Card className="p-5">
+        <h3 className="text-sm font-medium mb-3">Schnellaktionen</h3>
+        <div className="flex flex-wrap gap-2">
+          <Button size="sm" variant="secondary" onClick={() => navigate('/marketplace')}>
+            Jobvorschläge
+          </Button>
+          <Button size="sm" variant="outline" onClick={() => navigate('/marketplace')}>
+            Trend‑Jobs
+          </Button>
         </div>
       </Card>
 
@@ -97,4 +141,3 @@ export const LeftPanel: React.FC = () => {
 };
 
 export default LeftPanel;
-
