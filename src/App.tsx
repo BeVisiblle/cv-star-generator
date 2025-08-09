@@ -23,6 +23,8 @@ import Dashboard from "./pages/Dashboard";
 import Marketplace from "./pages/Marketplace";
 import Settings from "./pages/Settings";
 import BaseLayout from "@/components/layout/BaseLayout";
+import DiscoverAzubis from "./pages/DiscoverAzubis";
+import DiscoverCompanies from "./pages/DiscoverCompanies";
 
 // Company components
 import { CompanyLayout } from "@/components/Company/CompanyLayout";
@@ -167,6 +169,8 @@ const App = () => (
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/marketplace" element={<Marketplace />} />
                 <Route path="/settings" element={<Settings />} />
+                <Route path="/entdecken/azubis" element={<DiscoverAzubis />} />
+                <Route path="/entdecken/unternehmen" element={<DiscoverCompanies />} />
               </Route>
 
               {/* Admin routes */}

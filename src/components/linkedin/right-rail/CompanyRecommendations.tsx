@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
+import { ChevronRight } from "lucide-react";
 
 interface SimpleCompany {
   id: string;
@@ -13,8 +14,13 @@ interface SimpleCompany {
   industry: string | null;
   main_location: string | null;
 }
+interface CompanyRecommendationsProps {
+  limit?: number;
+  showMoreLink?: string;
+  showMore?: boolean;
+}
 
-export const CompanyRecommendations: React.FC = () => {
+export const CompanyRecommendations: React.FC<CompanyRecommendationsProps> = ({ limit = 3, showMoreLink = "/entdecken/unternehmen", showMore = true }) => {
   const navigate = useNavigate();
   const [loading, setLoading] = React.useState(true);
   const [items, setItems] = React.useState<SimpleCompany[]>([]);
@@ -27,10 +33,10 @@ export const CompanyRecommendations: React.FC = () => {
           .from("companies")
           .select("id, name, logo_url, industry, main_location, subscription_status, created_at")
           .eq("subscription_status", "active")
-          .limit(6) as any;
+          .limit(12) as any;
         const { data, error } = await query;
         if (error) throw error;
-        setItems((data as any[]).map(d => ({ id: d.id, name: d.name, logo_url: d.logo_url, industry: d.industry, main_location: d.main_location })));
+        setItems(((data as any[]) || []).map(d => ({ id: d.id, name: d.name, logo_url: d.logo_url, industry: d.industry, main_location: d.main_location })).slice(0, limit));
       } catch (e) {
         // RLS kann den Zugriff beschränken – wir zeigen dann eine leere Liste
         console.warn("Company recommendations restricted by RLS or error.", e);
@@ -87,7 +93,14 @@ export const CompanyRecommendations: React.FC = () => {
         {!loading && items.length === 0 && (
           <p className="text-xs text-muted-foreground">Aktuell keine Unternehmensempfehlungen verfügbar.</p>
         )}
-      </div>
-    </Card>
+      {showMore && (
+        <div className="pt-2">
+          <Button variant="link" size="sm" className="px-0" onClick={() => (window.location.href = showMoreLink)}>
+            Mehr anzeigen <ChevronRight className="h-4 w-4 ml-1" />
+          </Button>
+        </div>
+      )}
+    </div>
+  </Card>
   );
 };

@@ -81,16 +81,5 @@ export const LinkedInProfileMain: React.FC<LinkedInProfileMainProps> = ({
       {/* Driver License Section */}
       
 
-      {/* Activity/Analytics Section (Future) */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-xl font-semibold">Aktivität</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="text-center py-8 text-muted-foreground">
-            <p>Aktivitäts-Dashboard wird bald verfügbar sein</p>
-          </div>
-        </CardContent>
-      </Card>
     </div>;
 };

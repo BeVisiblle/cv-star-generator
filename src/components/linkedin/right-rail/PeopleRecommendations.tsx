@@ -5,7 +5,8 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
-import { UserPlus, Check } from "lucide-react";
+import { UserPlus, Check, ChevronRight } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 interface SimpleProfile {
   id: string;
@@ -19,8 +20,13 @@ interface SimpleProfile {
   geplanter_abschluss: string | null;
   status: string | null;
 }
+interface PeopleRecommendationsProps {
+  limit?: number;
+  showMoreLink?: string;
+  showMore?: boolean;
+}
 
-export const PeopleRecommendations: React.FC = () => {
+export const PeopleRecommendations: React.FC<PeopleRecommendationsProps> = ({ limit = 3, showMoreLink = "/entdecken/azubis", showMore = true }) => {
   const { user } = useAuth();
   const [loading, setLoading] = React.useState(true);
   const [items, setItems] = React.useState<SimpleProfile[]>([]);
@@ -37,7 +43,7 @@ export const PeopleRecommendations: React.FC = () => {
           .eq("profile_published", true)
           .in("status", ["azubi", "schueler"]) as any;
         if (error) throw error;
-        const filtered = (data as SimpleProfile[]).filter(p => p.id !== user.id).slice(0, 6);
+        const filtered = (data as SimpleProfile[]).filter(p => p.id !== user.id).slice(0, limit);
         setItems(filtered);
       } catch (e) {
         console.error(e);
@@ -103,6 +109,13 @@ export const PeopleRecommendations: React.FC = () => {
         })}
         {!loading && items.length === 0 && (
           <p className="text-xs text-muted-foreground">Keine Empfehlungen gefunden.</p>
+        )}
+        {showMore && (
+          <div className="pt-2">
+            <Button variant="link" size="sm" className="px-0" onClick={() => (window.location.href = showMoreLink)}>
+              Mehr anzeigen <ChevronRight className="h-4 w-4 ml-1" />
+            </Button>
+          </div>
         )}
       </div>
     </Card>

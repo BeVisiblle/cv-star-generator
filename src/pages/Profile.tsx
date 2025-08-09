@@ -4,7 +4,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useDebounce } from '@/hooks/useDebounce';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Edit3, Check, Clock, X, Loader2 } from 'lucide-react';
+import { Edit3, Check, Clock, X, Loader2, Mail, Phone, MapPin } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { LinkedInProfileHeader } from '@/components/linkedin/LinkedInProfileHeader';
@@ -187,9 +187,11 @@ const Profile = () => {
         <main className="lg:col-span-8 space-y-4 md:space-y-6">
           {/* Profile Header with Cover Photo - Always first */}
           <LinkedInProfileHeader profile={profile} isEditing={isEditing} onProfileUpdate={handleProfileUpdate} />
-
           {/* About Section - High priority on mobile */}
           <LinkedInProfileMain profile={profile} isEditing={isEditing} onProfileUpdate={handleProfileUpdate} />
+
+          {/* Activity Section (moved above Experience) */}
+          <LinkedInProfileActivity profile={profile} />
 
           {/* Experience Section */}
           <LinkedInProfileExperience experiences={profile?.berufserfahrung || []} isEditing={isEditing} onExperiencesUpdate={handleExperiencesUpdate} />
@@ -197,18 +199,41 @@ const Profile = () => {
           {/* Education Section */}
           <LinkedInProfileEducation education={profile?.schulbildung || []} isEditing={isEditing} onEducationUpdate={handleEducationUpdate} />
 
-          {/* Activity Section */}
-          <LinkedInProfileActivity profile={profile} />
+          {/* Small tiles under Education: Contact & Profile Highlights */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <Card className="p-4">
+              <h4 className="text-sm font-semibold mb-2">Kontaktdaten</h4>
+              <div className="space-y-1 text-sm text-muted-foreground">
+                {profile?.email && (
+                  <div className="flex items-center gap-2"><Mail className="h-4 w-4" /> <span>{profile.email}</span></div>
+                )}
+                {profile?.telefon && (
+                  <div className="flex items-center gap-2"><Phone className="h-4 w-4" /> <span>{profile.telefon}</span></div>
+                )}
+                {(profile?.ort || profile?.strasse) && (
+                  <div className="flex items-center gap-2"><MapPin className="h-4 w-4" /> <span>{[profile?.strasse && `${profile.strasse} ${profile.hausnummer || ''}`.trim(), profile?.plz && profile?.ort && `${profile.plz} ${profile.ort}`].filter(Boolean).join(' • ') || profile?.ort}</span></div>
+                )}
+              </div>
+            </Card>
+            <Card className="p-4">
+              <h4 className="text-sm font-semibold mb-2">Profilaktivitäten</h4>
+              <div className="space-y-1 text-sm text-muted-foreground">
+                <div>• Profil komplett: {profile?.vorname && profile?.nachname ? 'Ja' : 'Nein'}</div>
+                <div>• Dokumente hochgeladen: —</div>
+                <div>• Letzte Aktualisierung: {new Date(profile?.updated_at || Date.now()).toLocaleDateString('de-DE')}</div>
+              </div>
+            </Card>
+          </div>
         </main>
 
         {/* Right Sidebar - Desktop: sidebar, Mobile: after main content */}
         <aside className="lg:col-span-4">
           <div className="lg:sticky lg:top-24 space-y-4 md:space-y-6">
-            <RightRailAd variant="card" />
-            <PeopleRecommendations />
-            <CompanyRecommendations />
-            <RightRailAd variant="banner" />
             <LinkedInProfileSidebar profile={profile} isEditing={isEditing} onProfileUpdate={handleProfileUpdate} />
+            <RightRailAd variant="card" size="sm" />
+            <PeopleRecommendations limit={3} />
+            <CompanyRecommendations limit={3} />
+            <RightRailAd variant="banner" size="sm" />
           </div>
         </aside>
       </div>
