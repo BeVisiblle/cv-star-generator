@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,6 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useCompany } from "@/hooks/useCompany";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { uploadFile } from "@/lib/supabase-storage";
 import { 
   Building2, 
   Globe, 
@@ -100,6 +101,46 @@ const [profileData, setProfileData] = useState<CompanyProfile>({
     setProfileData(prev => ({ ...prev, [field]: value }));
   };
 
+  // Image upload refs and handlers
+  const logoInputRef = useRef<HTMLInputElement>(null);
+  const headerInputRef = useRef<HTMLInputElement>(null);
+
+  const onHeaderBtnClick = () => headerInputRef.current?.click();
+  const onLogoBtnClick = () => logoInputRef.current?.click();
+
+  const handleHeaderChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !company?.id) return;
+    try {
+      setSaving(true);
+      const { url } = await uploadFile(file, 'company-media', `companies/${company.id}/cover`);
+      await updateCompany({ header_image: url });
+      setProfileData(prev => ({ ...prev, header_image: url }));
+      toast({ title: 'Cover aktualisiert' });
+    } catch (err: any) {
+      toast({ title: 'Upload fehlgeschlagen', description: err.message, variant: 'destructive' });
+    } finally {
+      setSaving(false);
+      e.target.value = '';
+    }
+  };
+
+  const handleLogoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !company?.id) return;
+    try {
+      setSaving(true);
+      const { url } = await uploadFile(file, 'company-media', `companies/${company.id}/logo`);
+      await updateCompany({ logo_url: url });
+      setProfileData(prev => ({ ...prev, logo_url: url }));
+      toast({ title: 'Logo aktualisiert' });
+    } catch (err: any) {
+      toast({ title: 'Upload fehlgeschlagen', description: err.message, variant: 'destructive' });
+    } finally {
+      setSaving(false);
+      e.target.value = '';
+    }
+  };
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-96">
@@ -169,12 +210,16 @@ const [profileData, setProfileData] = useState<CompanyProfile>({
                     size="sm" 
                     variant="secondary" 
                     className="absolute top-4 right-4"
+                    onClick={onHeaderBtnClick}
                   >
                     <Camera className="h-4 w-4 mr-2" />
                     Header ändern
                   </Button>
                 )}
               </div>
+
+              <input type="file" accept="image/*" ref={headerInputRef} className="hidden" onChange={handleHeaderChange} />
+              <input type="file" accept="image/*" ref={logoInputRef} className="hidden" onChange={handleLogoChange} />
               
               <div className="p-6">
                 <div className="flex items-start space-x-4">
@@ -190,6 +235,7 @@ const [profileData, setProfileData] = useState<CompanyProfile>({
                         size="sm" 
                         variant="secondary" 
                         className="absolute -bottom-2 -right-2 h-8 w-8 p-0"
+                        onClick={onLogoBtnClick}
                       >
                         <Camera className="h-4 w-4" />
                       </Button>
