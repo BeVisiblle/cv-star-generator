@@ -24,7 +24,8 @@ const Profile = () => {
   const navigate = useNavigate();
   const {
     profile: authProfile,
-    isLoading
+    isLoading,
+    refetchProfile
   } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -38,34 +39,39 @@ const Profile = () => {
     if (!profile?.id) return;
     setIsSaving(true);
     try {
-      const {
-        error
-      } = await supabase.from('profiles').update({
-        ...updates,
-        updated_at: new Date().toISOString()
-      }).eq('id', profile.id);
+      const { error } = await supabase
+        .from('profiles')
+        .update({
+          ...updates,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', profile.id);
       if (error) throw error;
 
       // Update local profile state
-      setProfile(prev => ({
+      setProfile((prev) => ({
         ...prev,
-        ...updates
+        ...updates,
       }));
+
+      // Ensure latest data is fetched from server
+      refetchProfile?.();
+
       toast({
         title: "Profil aktualisiert",
-        description: "Ihre Änderungen wurden gespeichert."
+        description: "Ihre Änderungen wurden gespeichert.",
       });
     } catch (error) {
       console.error('Update error:', error);
       toast({
         title: "Fehler beim Speichern",
         description: "Ihre Änderungen konnten nicht gespeichert werden.",
-        variant: "destructive"
+        variant: "destructive",
       });
     } finally {
       setIsSaving(false);
     }
-  }, [profile?.id]);
+  }, [profile?.id, refetchProfile]);
 
   // Simple profile update without debouncing for form submissions
   const handleProfileUpdate = handleProfileUpdateImmediate;
@@ -109,6 +115,7 @@ const Profile = () => {
         title: "Profil gespeichert",
         description: "Ihre Änderungen wurden erfolgreich gespeichert."
       });
+      refetchProfile?.();
       setIsEditing(false);
     } catch (error) {
       console.error('Save error:', error);
@@ -240,23 +247,23 @@ const Profile = () => {
                   </div>
                   <div className="space-y-1">
                     <Label htmlFor="telefon">Telefon</Label>
-                    <Input id="telefon" value={profile.telefon || ''} onChange={(e) => setProfile((p: any) => ({...p, telefon: e.target.value}))} />
+                    <Input id="telefon" value={profile.telefon || ''} onChange={(e) => setProfile((p: any) => ({...p, telefon: e.target.value}))} onBlur={(e) => handleProfileUpdateImmediate({ telefon: e.target.value })} />
                   </div>
                   <div className="space-y-1">
                     <Label htmlFor="strasse">Straße</Label>
-                    <Input id="strasse" value={profile.strasse || ''} onChange={(e) => setProfile((p: any) => ({...p, strasse: e.target.value}))} />
+                    <Input id="strasse" value={profile.strasse || ''} onChange={(e) => setProfile((p: any) => ({...p, strasse: e.target.value}))} onBlur={(e) => handleProfileUpdateImmediate({ strasse: e.target.value })} />
                   </div>
                   <div className="space-y-1">
                     <Label htmlFor="hausnummer">Hausnummer</Label>
-                    <Input id="hausnummer" value={profile.hausnummer || ''} onChange={(e) => setProfile((p: any) => ({...p, hausnummer: e.target.value}))} />
+                    <Input id="hausnummer" value={profile.hausnummer || ''} onChange={(e) => setProfile((p: any) => ({...p, hausnummer: e.target.value}))} onBlur={(e) => handleProfileUpdateImmediate({ hausnummer: e.target.value })} />
                   </div>
                   <div className="space-y-1">
                     <Label htmlFor="plz">PLZ</Label>
-                    <Input id="plz" value={profile.plz || ''} onChange={(e) => setProfile((p: any) => ({...p, plz: e.target.value}))} />
+                    <Input id="plz" value={profile.plz || ''} onChange={(e) => setProfile((p: any) => ({...p, plz: e.target.value}))} onBlur={(e) => handleProfileUpdateImmediate({ plz: e.target.value })} />
                   </div>
                   <div className="space-y-1">
                     <Label htmlFor="ort">Ort</Label>
-                    <Input id="ort" value={profile.ort || ''} onChange={(e) => setProfile((p: any) => ({...p, ort: e.target.value}))} />
+                    <Input id="ort" value={profile.ort || ''} onChange={(e) => setProfile((p: any) => ({...p, ort: e.target.value}))} onBlur={(e) => handleProfileUpdateImmediate({ ort: e.target.value })} />
                   </div>
                 </div>
               ) : (
