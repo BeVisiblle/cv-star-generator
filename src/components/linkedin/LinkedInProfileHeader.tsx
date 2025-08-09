@@ -268,18 +268,7 @@ export const LinkedInProfileHeader: React.FC<LinkedInProfileHeaderProps> = ({
           <div className="w-full h-full bg-gradient-to-r from-primary/10 to-accent/20" />
         )}
         
-        {isEditing && (
-          <Button
-            variant="secondary"
-            size="sm"
-            className="absolute top-2 right-2 bg-background/80 backdrop-blur-sm text-xs"
-            onClick={() => coverInputRef.current?.click()}
-            disabled={isUploadingCover}
-          >
-            <Camera className="h-3 w-3 mr-1" />
-            <span className="hidden sm:inline">Cover</span>
-          </Button>
-        )}
+        {/* Cover edit disabled by request */}
         
         <input
           ref={coverInputRef}
@@ -302,17 +291,7 @@ export const LinkedInProfileHeader: React.FC<LinkedInProfileHeaderProps> = ({
               </AvatarFallback>
             </Avatar>
             
-            {isEditing && (
-              <Button
-                variant="secondary"
-                size="sm"
-                className="absolute bottom-1 right-1 rounded-full w-6 h-6 sm:w-8 sm:h-8 p-0"
-                onClick={() => avatarInputRef.current?.click()}
-                disabled={isUploadingAvatar}
-              >
-                <Camera className="h-3 w-3 sm:h-4 sm:w-4" />
-              </Button>
-            )}
+            {/* Avatar edit disabled by request */}
           </div>
           
           <input
@@ -339,15 +318,9 @@ export const LinkedInProfileHeader: React.FC<LinkedInProfileHeaderProps> = ({
                    profile.status === 'azubi' ? 'Azubi im Handwerk' : 
                    'Angestellter im Handwerk'}
                 </Badge>
-                {isEditing && (
-                  <Input
-                    value={currentPosition}
-                    onChange={(e) => setCurrentPosition(e.target.value)}
-                    placeholder="Position eingeben..."
-                    className="text-sm"
-                    onBlur={() => updateCurrentPosition(currentPosition)}
-                  />
-                )}
+                <div className="rounded-md border px-3 py-1 text-xs sm:text-sm text-muted-foreground">
+                  {currentPosition || '—'}
+                </div>
               </div>
               <p className="text-sm md:text-lg font-medium text-primary leading-tight">
                 {getStatusDescription(profile)}
@@ -355,22 +328,9 @@ export const LinkedInProfileHeader: React.FC<LinkedInProfileHeaderProps> = ({
             </div>
           )}
           
-          {isEditing ? (
-            <div className="flex items-center gap-2">
-              <Input
-                value={headline}
-                onChange={(e) => setHeadline(e.target.value)}
-                placeholder="Add a professional headline..."
-                className="text-sm md:text-lg font-medium"
-                onBlur={handleHeadlineUpdate}
-              />
-              <Edit3 className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-            </div>
-          ) : (
-            <p className="text-sm md:text-lg font-medium text-muted-foreground">
-              {headline || 'Professional seeking opportunities'}
-            </p>
-          )}
+          <p className="text-sm md:text-lg font-medium text-muted-foreground">
+            {headline || 'Professional seeking opportunities'}
+          </p>
           
           <p className="text-sm text-muted-foreground flex items-center gap-1.5">
             <MapPin className="h-4 w-4" aria-hidden />
