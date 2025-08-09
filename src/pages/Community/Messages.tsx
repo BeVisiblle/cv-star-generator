@@ -6,6 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Textarea } from "@/components/ui/textarea";
 import { useMessaging } from "@/hooks/useMessaging";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 
 const formatDate = (iso?: string | null) => {
   if (!iso) return "";
@@ -14,9 +15,25 @@ const formatDate = (iso?: string | null) => {
   const sameYear = d.getFullYear() === now.getFullYear();
   return d.toLocaleDateString("de-DE", { day: "2-digit", month: sameYear ? "short" : "2-digit" });
 };
+const isSameDay = (a?: string | null, b?: string | null) => {
+  if (!a || !b) return false;
+  const da = new Date(a), db = new Date(b);
+  return da.getFullYear() === db.getFullYear() && da.getMonth() === db.getMonth() && da.getDate() === db.getDate();
+};
+const weekdayLabel = (iso?: string | null) => {
+  if (!iso) return "";
+  const d = new Date(iso);
+  return d.toLocaleDateString("de-DE", { weekday: "long" }).toUpperCase();
+};
+const formatDateTime = (iso?: string | null) => {
+  if (!iso) return "";
+  const d = new Date(iso);
+  return d.toLocaleString("de-DE", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" });
+};
 
 export default function CommunityMessages() {
   const { loadConversationsWithLast, sendMessage } = useMessaging();
+  const { user } = useAuth();
 
   const [query, setQuery] = React.useState("");
   const [items, setItems] = React.useState<any[]>([]);
@@ -164,12 +181,30 @@ export default function CommunityMessages() {
               </div>
 
               <div ref={listRef} className="flex-1 overflow-auto p-4 space-y-3 bg-background">
-                {messages.map((m) => (
-                  <div key={m.id} className="flex gap-2">
-                    {/* We don't know sender == self here; simple bubble */}
-                    <div className="rounded-lg bg-muted px-3 py-2 text-sm max-w-[75%] whitespace-pre-wrap">{m.content}</div>
-                  </div>
-                ))}
+                {messages.map((m, idx) => {
+                  const prev = messages[idx - 1];
+                  const showDay = !prev || !isSameDay(m.created_at, prev?.created_at);
+                  const isSelf = m.sender_id === user?.id;
+                  return (
+                    <React.Fragment key={m.id}>
+                      {showDay && (
+                        <div className="my-3 text-center">
+                          <span className="inline-flex items-center px-3 py-1 rounded-full bg-muted text-muted-foreground text-[11px] uppercase tracking-wide">
+                            {weekdayLabel(m.created_at)}
+                          </span>
+                        </div>
+                      )}
+                      <div className={`flex w-full ${isSelf ? 'justify-end' : 'justify-start'} gap-2`}>
+                        <div className={`${isSelf ? 'bg-primary text-primary-foreground' : 'bg-muted'} rounded-lg px-3 py-2 text-sm max-w-[75%] whitespace-pre-wrap`}>
+                          {m.content}
+                        </div>
+                      </div>
+                      <div className={`text-[11px] text-muted-foreground ${isSelf ? 'text-right pr-1' : 'text-left pl-1'} -mt-1`}>
+                        {formatDateTime(m.created_at)}
+                      </div>
+                    </React.Fragment>
+                  );
+                })}
                 {messages.length === 0 && (
                   <div className="text-sm text-muted-foreground">Noch keine Nachrichten. Schreib als erstes!</div>
                 )}
