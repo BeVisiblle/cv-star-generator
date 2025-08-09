@@ -37,22 +37,20 @@ export const LeftPanel: React.FC = () => {
     <aside aria-label="Profilübersicht" className="space-y-4">
       {/* Profilkarte mit Titelbild */}
       <Card className="p-0 overflow-hidden">
-        {/* Titelbild */}
-        <div className="h-20 sm:h-24 bg-muted">
-          {profile?.cover_image_url ? (
-            <img
-              src={profile.cover_image_url}
-              alt="Titelbild"
-              className="h-full w-full object-cover"
-              loading="lazy"
-            />
-          ) : null}
-        </div>
-
-        {/* Inhalt */}
-        <div className="p-5">
-          <div className="flex items-center gap-4">
-            <Avatar className="h-12 w-12">
+        {/* Cover + Avatar overlay */}
+        <div className="relative">
+          <div className="h-20 sm:h-24 bg-muted">
+            {profile?.cover_image_url ? (
+              <img
+                src={profile.cover_image_url}
+                alt="Titelbild"
+                className="h-full w-full object-cover"
+                loading="lazy"
+              />
+            ) : null}
+          </div>
+          <div className="absolute -bottom-6 left-5">
+            <Avatar className="h-12 w-12 ring-2 ring-background">
               <AvatarImage src={profile?.avatar_url || undefined} alt={`${profile?.vorname ?? 'Unbekannt'} Avatar`} />
               <AvatarFallback>
                 {profile?.vorname && profile?.nachname
@@ -60,31 +58,28 @@ export const LeftPanel: React.FC = () => {
                   : "U"}
               </AvatarFallback>
             </Avatar>
-            <div className="min-w-0">
-              <h2 className="text-base font-medium truncate">
-                {profile?.vorname && profile?.nachname
-                  ? `${profile.vorname} ${profile.nachname}`
-                  : "Dein Profil"}
-              </h2>
-              {profile?.ausbildungsberuf && (
-                <p className="text-sm text-muted-foreground truncate">{profile.ausbildungsberuf}</p>
-              )}
-            </div>
           </div>
+        </div>
 
-          {snippet && (
-            <p className="mt-3 text-sm text-muted-foreground line-clamp-2">
-              {snippet}
-            </p>
-          )}
-
-          {(profile?.ort || profile?.branche) && (
-            <p className="mt-1 text-sm text-muted-foreground">
-              {profile?.ort ? profile.ort : ""}
-              {profile?.ort && profile?.branche ? " • " : ""}
-              {profile?.branche ? profile.branche : ""}
-            </p>
-          )}
+        {/* Content */}
+        <div className="px-5 pt-8 pb-5">
+          <div className="min-w-0">
+            <h2 className="text-lg font-semibold truncate">
+              {profile?.vorname && profile?.nachname
+                ? `${profile.vorname} ${profile.nachname}`
+                : "Dein Profil"}
+            </h2>
+            {snippet && (
+              <p className="mt-1 text-sm text-muted-foreground line-clamp-2">{snippet}</p>
+            )}
+            {(profile?.ort || profile?.branche) && (
+              <p className="mt-1 text-sm text-muted-foreground">
+                {profile?.ort ? profile.ort : ""}
+                {profile?.ort && profile?.branche ? " • " : ""}
+                {profile?.branche ? profile.branche : ""}
+              </p>
+            )}
+          </div>
 
           <div className="mt-4 flex flex-wrap gap-2">
             <Badge variant="secondary">Profil</Badge>
