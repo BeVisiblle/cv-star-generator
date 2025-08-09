@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
@@ -12,9 +12,11 @@ export interface CreatePostProps {
   container?: "card" | "none"; // render inside Card (default) or bare content for composer dialog
   hideHeader?: boolean;          // hide avatar/header row (for dialog header)
   variant?: "default" | "composer"; // adjusts spacing/labels
+  hideBottomBar?: boolean;       // hide default bottom actions to allow external toolbar
+  onStateChange?: (state: { canPost: boolean; isSubmitting: boolean }) => void; // notify parent
 }
 
-export const CreatePost = ({ container = "card", hideHeader = false, variant = "default" }: CreatePostProps) => {
+export const CreatePost = ({ container = "card", hideHeader = false, variant = "default", hideBottomBar = false, onStateChange }: CreatePostProps) => {
   const [content, setContent] = useState("");
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -61,17 +63,22 @@ export const CreatePost = ({ container = "card", hideHeader = false, variant = "
     },
   });
 
-  const handleImageSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      setImageFile(file);
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        setImagePreview(e.target?.result as string);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
+// Notify parent on state changes
+useEffect(() => {
+  onStateChange?.({ canPost: Boolean(content.trim() || imageFile), isSubmitting });
+}, [content, imageFile, isSubmitting, onStateChange]);
+
+const handleImageSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const file = event.target.files?.[0];
+  if (file) {
+    setImageFile(file);
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      setImagePreview(e.target?.result as string);
+    };
+    reader.readAsDataURL(file);
+  }
+};
 
   const removeImage = () => {
     setImageFile(null);
@@ -147,12 +154,12 @@ export const CreatePost = ({ container = "card", hideHeader = false, variant = "
         </div>
       )}
 
-      <Textarea
-        placeholder="Worüber möchten Sie sprechen?"
+<Textarea
+        placeholder={variant === 'composer' ? "Worüber möchtest du posten?" : "Worüber möchten Sie sprechen?"}
         value={content}
         onChange={(e) => setContent(e.target.value)}
         className={
-          variant === 'composer' ? 'min-h-[280px] resize-none' : 'min-h-[100px] resize-none'
+          variant === 'composer' ? 'min-h-[280px] resize-none text-base md:text-lg' : 'min-h-[100px] resize-none'
         }
       />
 
@@ -170,36 +177,45 @@ export const CreatePost = ({ container = "card", hideHeader = false, variant = "
         </div>
       )}
 
-      <div className="flex justify-between items-center">
-        <div className="flex items-center space-x-2">
-          <input
-            type="file"
-            accept="image/*"
-            onChange={handleImageSelect}
-            className="hidden"
-            id="image-upload"
-          />
-          <label htmlFor="image-upload">
-            <Button variant="outline" size="sm" asChild className="cursor-pointer">
-              <span>
-                <Image className="h-4 w-4 mr-2" />
-                Bild hinzufügen
-              </span>
-            </Button>
-          </label>
-          <div className="text-sm text-muted-foreground">
-            {content.length}/500 Zeichen
-          </div>
-        </div>
-        <Button 
-          disabled={(!content.trim() && !imageFile) || isSubmitting}
-          onClick={handleSubmit}
-          className="flex items-center gap-2"
-        >
-          <Send className="h-4 w-4" />
-          {isSubmitting ? "Wird veröffentlicht..." : "Posten"}
-        </Button>
+{/* External toolbars can point to this input via htmlFor */}
+<input
+  type="file"
+  accept="image/*"
+  onChange={handleImageSelect}
+  className="hidden"
+  id="image-upload"
+/>
+
+{/* Hidden submit button for external triggers */}
+<button id="createpost-submit" onClick={handleSubmit} className="sr-only" aria-hidden="true">
+  Submit
+</button>
+
+{!hideBottomBar && (
+  <div className="flex justify-between items-center">
+    <label htmlFor="image-upload">
+      <Button variant="outline" size="sm" asChild className="cursor-pointer">
+        <span>
+          <Image className="h-4 w-4 mr-2" />
+          Bild hinzufügen
+        </span>
+      </Button>
+    </label>
+    <div className="flex items-center gap-3">
+      <div className="text-sm text-muted-foreground">
+        {content.length}/500 Zeichen
       </div>
+      <Button 
+        disabled={(!content.trim() && !imageFile) || isSubmitting}
+        onClick={handleSubmit}
+        className="flex items-center gap-2"
+      >
+        <Send className="h-4 w-4" />
+        {isSubmitting ? "Wird veröffentlicht..." : "Posten"}
+      </Button>
+    </div>
+  </div>
+)}
     </div>
   );
 
