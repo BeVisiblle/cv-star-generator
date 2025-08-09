@@ -6,6 +6,8 @@ import { Input } from "@/components/ui/input";
 import SearchAutosuggest from "@/components/marketplace/SearchAutosuggest";
 import ConnectionsDrawer from "@/components/community/ConnectionsDrawer";
 import QuickMessageDialog from "@/components/community/QuickMessageDialog";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import MessagePopoverPanel from "@/components/community/MessagePopoverPanel";
 const titleMap: Record<string, string> = {
   "/community/contacts": "Meine Kontakte",
   "/community/companies": "Unternehmen",
@@ -82,10 +84,17 @@ export default function TopNavBar() {
           <button className="inline-flex items-center justify-center h-9 w-9 rounded-md hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" onClick={() => setDrawerOpen(true)} aria-label="Mein Netzwerk">
             <Users className="h-5 w-5" />
           </button>
-          <button className="inline-flex items-center justify-center h-9 w-9 rounded-md hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" onClick={() => setMsgOpen(true)}>
-            <MessageSquareMore className="h-5 w-5" />
-            <span className="sr-only">Nachrichten</span>
-          </button>
+          <Popover>
+            <PopoverTrigger asChild>
+              <button className="inline-flex items-center justify-center h-9 w-9 rounded-md hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" aria-label="Nachrichten">
+                <MessageSquareMore className="h-5 w-5" />
+                <span className="sr-only">Nachrichten</span>
+              </button>
+            </PopoverTrigger>
+            <PopoverContent align="end" side="bottom" className="p-0 w-[420px]">
+              <MessagePopoverPanel onCompose={() => setMsgOpen(true)} />
+            </PopoverContent>
+          </Popover>
           <button className="relative inline-flex items-center justify-center h-9 w-9 rounded-md hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
             <Bell className="h-5 w-5" />
             <span className="absolute -top-0.5 -right-0.5 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-primary text-primary-foreground text-[10px] leading-none px-1">
