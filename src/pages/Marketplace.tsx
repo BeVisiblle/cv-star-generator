@@ -14,6 +14,9 @@ import { Plus } from 'lucide-react';
 
 const PAGE_SIZE = 16;
 
+// Use an untyped Supabase instance to sidestep missing generated types for marketplace tables
+const sb: any = supabase;
+
 const defaultFilters: LeftFiltersState = {
   type: 'all',
   location: '',
@@ -36,10 +39,10 @@ export default function Marketplace() {
   const [openComposer, setOpenComposer] = React.useState(false);
 
   // Categories for filter pills (from DB)
-  const categoriesQuery = useQuery({
+  const categoriesQuery = useQuery<{ slug: string; label: string }[]>({
     queryKey: ['marketplace-categories'],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await sb
         .from('marketplace_categories')
         .select('slug,label')
         .order('label', { ascending: true });
@@ -49,10 +52,10 @@ export default function Marketplace() {
   });
 
   // Companies for filters (from DB)
-  const companiesQuery = useQuery({
+  const companiesQuery = useQuery<{ id: string; name: string }[]>({
     queryKey: ['marketplace-companies-filter'],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await sb
         .from('companies')
         .select('id,name')
         .order('created_at', { ascending: false })
@@ -62,10 +65,10 @@ export default function Marketplace() {
     },
   });
 
-  const itemsQuery = useQuery({
+  const itemsQuery = useQuery<MarketplaceItem[]>({
     queryKey: ['marketplace-items', appliedQ, filters, sort, visibility, page],
     queryFn: async (): Promise<MarketplaceItem[]> => {
-      let query = supabase
+      let query = sb
         .from('marketplace_items')
         .select('*')
         .order('created_at', { ascending: sort === 'Newest' ? false : true });
@@ -100,12 +103,12 @@ export default function Marketplace() {
 
       if (filters.companies.length > 0) {
         // filter by company names — fetch IDs first
-        const { data: comps, error: compErr } = await supabase
+        const { data: comps, error: compErr } = await sb
           .from('companies')
           .select('id,name')
           .in('name', filters.companies);
         if (compErr) throw compErr;
-        const ids = (comps || []).map((c) => c.id);
+        const ids = (comps || []).map((c: { id: string }) => c.id);
         if (ids.length > 0) query = query.in('company_id', ids);
       }
 

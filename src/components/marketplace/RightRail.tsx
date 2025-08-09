@@ -5,45 +5,67 @@ import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
+// Use an untyped Supabase instance to avoid type errors for tables
+// that are not present in the generated Supabase types yet.
+const sb: any = supabase;
+
+type SponsoredItem = {
+  id: string;
+  title: string;
+  image_url?: string | null;
+};
+
+type CompanyReco = {
+  id: string;
+  name: string;
+  logo_url?: string | null;
+};
+
+type GroupReco = {
+  id: string;
+  name: string;
+  member_count: number;
+};
+
 export function RightRail() {
-  const sponsoredQuery = useQuery({
+  const sponsoredQuery = useQuery<SponsoredItem | null>({
     queryKey: ["marketplace-sponsored"],
     queryFn: async () => {
       // Pick any occupation as "sponsored" for demo
-      const { data, error } = await supabase
+      const { data, error } = await sb
         .from("marketplace_items")
-        .select("*")
+        .select("id,title,image_url")
         .eq("type", "occupation")
         .order("created_at", { ascending: false })
         .limit(1);
       if (error) throw error;
-      return data?.[0] || null;
+      return (data?.[0] as SponsoredItem) || null;
     },
   });
 
-  const companiesQuery = useQuery({
+  const companiesQuery = useQuery<CompanyReco[]>({
     queryKey: ["marketplace-companies-reco"],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await sb
         .from("companies")
         .select("id, name, logo_url")
         .order("created_at", { ascending: false })
         .limit(3);
       if (error) throw error;
-      return data || [];
+      return (data || []) as CompanyReco[];
     },
   });
 
-  const groupsQuery = useQuery({
+  const groupsQuery = useQuery<GroupReco[]>({
     queryKey: ["marketplace-groups-trending"],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await sb
         .from("groups")
-        .select("*")
+        .select("id,name,member_count")
         .order("member_count", { ascending: false })
         .limit(3);
       if (error) throw error;
-      return data || [];
+      return (data || []) as GroupReco[];
     },
   });
 
@@ -85,7 +107,7 @@ export function RightRail() {
       <Card className="p-4 rounded-2xl">
         <div className="text-sm font-medium mb-3">Trending Groups</div>
         <div className="space-y-3">
-          {(groupsQuery.data || []).map((g: any) => (
+          {(groupsQuery.data || []).map((g) => (
             <div key={g.id} className="flex items-center gap-3">
               <div className="h-8 w-8 rounded bg-muted overflow-hidden" />
               <div className="text-sm flex-1 truncate">{g.name}</div>
