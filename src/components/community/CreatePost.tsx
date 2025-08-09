@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { uploadFile } from "@/lib/supabase-storage";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -22,13 +23,28 @@ export interface CreatePostProps {
   celebration?: boolean;
 }
 
-export const CreatePost = ({ container = "card", hideHeader = false, variant = "default", hideBottomBar = false, onStateChange, scheduledAt }: CreatePostProps) => {
+export const CreatePost = ({ container = "card", hideHeader = false, variant = "default", hideBottomBar = false, onStateChange, scheduledAt, showPoll = false, showEvent = false, celebration = false }: CreatePostProps) => {
   const [content, setContent] = useState("");
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [documentFile, setDocumentFile] = useState<File | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const queryClient = useQueryClient();
   const { toast } = useToast();
+
+  // Poll state
+  const [pollQuestion, setPollQuestion] = useState("");
+  const [pollOptions, setPollOptions] = useState<string[]>(["", ""]);
+
+  // Event state
+  const [eventTitle, setEventTitle] = useState("");
+  const [eventStartDate, setEventStartDate] = useState<string>("");
+  const [eventStartTime, setEventStartTime] = useState<string>("");
+  const [eventEndDate, setEventEndDate] = useState<string>("");
+  const [eventEndTime, setEventEndTime] = useState<string>("");
+  const [eventIsOnline, setEventIsOnline] = useState<boolean>(true);
+  const [eventLocation, setEventLocation] = useState<string>("");
+  const [eventLink, setEventLink] = useState<string>("");
 
   const createPostMutation = useMutation({
     mutationFn: async ({ content, imageUrl }: { content: string; imageUrl?: string }) => {
@@ -45,6 +61,7 @@ export const CreatePost = ({ container = "card", hideHeader = false, variant = "
           content,
           image_url: imageUrl,
           user_id: user.user.id,
+          celebration,
           status: scheduledISO ? 'scheduled' : 'published',
           scheduled_at: scheduledISO
         })
@@ -104,22 +121,24 @@ const handleImageSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     setImagePreview(null);
   };
 
+  const handleDocumentSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    const maxBytes = 20 * 1024 * 1024; // 20MB
+    if (file.size > maxBytes) {
+      toast({ title: 'Datei zu groß', description: 'Dokumente dürfen max. 20 MB groß sein.', variant: 'destructive' });
+      return;
+    }
+    setDocumentFile(file);
+  };
+
+  const removeDocument = () => {
+    setDocumentFile(null);
+  };
+
   const uploadImage = async (file: File): Promise<string> => {
-    const fileExt = file.name.split('.').pop();
-    const fileName = `${Math.random()}.${fileExt}`;
-    const filePath = `posts/${fileName}`;
-
-    const { error: uploadError } = await supabase.storage
-      .from('avatars')
-      .upload(filePath, file);
-
-    if (uploadError) throw uploadError;
-
-    const { data: { publicUrl } } = supabase.storage
-      .from('avatars')
-      .getPublicUrl(filePath);
-
-    return publicUrl;
+    const result = await uploadFile(file, 'post-media', 'images');
+    return result.url;
   };
 
   const handleSubmit = async () => {
@@ -184,7 +203,7 @@ const handleImageSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
 
       {imagePreview && (
         <div className="relative inline-block">
-          <img src={imagePreview} alt="Preview" className="max-h-60 rounded-lg border" />
+          <img src={imagePreview} alt="Bildvorschau des Beitrags" className="max-h-60 rounded-lg border" />
           <Button
             variant="destructive"
             size="sm"
@@ -193,6 +212,62 @@ const handleImageSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
           >
             <X className="h-3 w-3" />
           </Button>
+        </div>
+      )}
+
+      {documentFile && (
+        <div className="flex items-center gap-2">
+          <FileText className="h-4 w-4" />
+          <span className="text-sm truncate max-w-[260px]" title={documentFile.name}>{documentFile.name}</span>
+          <Button variant="destructive" size="sm" className="h-6 px-2" onClick={removeDocument}>
+            <X className="h-3 w-3" />
+          </Button>
+        </div>
+      )}
+
+      {showPoll && (
+        <div className="space-y-2">
+          <div className="text-sm font-medium">Umfrage</div>
+          <Input placeholder="Frage" value={pollQuestion} onChange={(e) => setPollQuestion(e.target.value)} />
+          {pollOptions.map((opt, idx) => (
+            <Input
+              key={idx}
+              placeholder={`Option ${idx + 1}`}
+              value={opt}
+              onChange={(e) => {
+                const arr = [...pollOptions];
+                arr[idx] = e.target.value;
+                setPollOptions(arr);
+              }}
+              className="mt-1"
+            />
+          ))}
+          <div className="flex gap-2">
+            <Button type="button" variant="outline" size="sm" onClick={() => setPollOptions((opts) => (opts.length < 4 ? [...opts, ""] : opts))}>Option hinzufügen</Button>
+            <Button type="button" variant="outline" size="sm" onClick={() => setPollOptions((opts) => (opts.length > 2 ? opts.slice(0, -1) : opts))} disabled={pollOptions.length <= 2}>Letzte Option entfernen</Button>
+          </div>
+        </div>
+      )}
+
+      {showEvent && (
+        <div className="space-y-2">
+          <div className="text-sm font-medium">Event</div>
+          <Input placeholder="Titel" value={eventTitle} onChange={(e) => setEventTitle(e.target.value)} />
+          <div className="grid grid-cols-2 gap-2">
+            <Input type="date" value={eventStartDate} onChange={(e) => setEventStartDate(e.target.value)} />
+            <Input type="time" value={eventStartTime} onChange={(e) => setEventStartTime(e.target.value)} />
+            <Input type="date" value={eventEndDate} onChange={(e) => setEventEndDate(e.target.value)} />
+            <Input type="time" value={eventEndTime} onChange={(e) => setEventEndTime(e.target.value)} />
+          </div>
+          <div className="flex items-center gap-2">
+            <Switch checked={eventIsOnline} onCheckedChange={setEventIsOnline} id="is-online" />
+            <label htmlFor="is-online" className="text-sm">Online-Event</label>
+          </div>
+          {!eventIsOnline ? (
+            <Input placeholder="Ort" value={eventLocation} onChange={(e) => setEventLocation(e.target.value)} />
+          ) : (
+            <Input placeholder="Link (optional)" value={eventLink} onChange={(e) => setEventLink(e.target.value)} />
+          )}
         </div>
       )}
 
