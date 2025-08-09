@@ -7,7 +7,8 @@ import {
   Settings,
   FileText,
   LogOut,
-  ChevronRight
+  ChevronRight,
+  Plus
 } from "lucide-react";
 import {
   Sidebar,
@@ -26,6 +27,7 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
+import { openPostComposer } from "@/lib/event-bus";
 
 const navigationItems = [
   {
@@ -158,6 +160,12 @@ export function AppSidebar() {
               </div>
             </div>
 
+            {/* Create Post Button */}
+            <Button className="w-full justify-start" onClick={openPostComposer}>
+              <Plus className="h-4 w-4 mr-2" />
+              Neuer Beitrag
+            </Button>
+
             {/* Sign Out Button */}
             <Button
               variant="ghost"
@@ -178,6 +186,13 @@ export function AppSidebar() {
                   `${profile.vorname[0]}${profile.nachname[0]}` : 'U'}
               </AvatarFallback>
             </Avatar>
+            <Button
+              size="sm"
+              onClick={openPostComposer}
+              className="w-full p-2 justify-center"
+            >
+              <Plus className="h-4 w-4" />
+            </Button>
             <Button
               variant="ghost"
               size="sm"

@@ -3,6 +3,8 @@ import { AppSidebar } from "@/components/AppSidebar";
 import { Outlet, Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import BaseLayout from "@/components/layout/BaseLayout";
+import BottomNav from "@/components/navigation/BottomNav";
+import NewPostComposer from "@/components/community/NewPostComposer";
 
 export function AuthenticatedLayout() {
   const { profile, isLoading, user } = useAuth();
@@ -49,7 +51,12 @@ export function AuthenticatedLayout() {
               <Outlet />
             </BaseLayout>
           </div>
+
+          {/* Global UI */}
+          <NewPostComposer />
+          <BottomNav />
         </main>
+
       </div>
     </SidebarProvider>
   );
