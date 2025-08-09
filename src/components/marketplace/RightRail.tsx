@@ -1,9 +1,9 @@
-
 import React from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import AdCard from "@/components/ads/AdCard";
 
 // Use an untyped Supabase instance to avoid type errors for tables
 // that are not present in the generated Supabase types yet.
@@ -71,30 +71,22 @@ export function RightRail() {
 
   return (
     <div className="space-y-4">
-      {/* Sponsored */}
-      <Card className="p-4 rounded-2xl">
-        <div className="text-sm font-medium mb-3">Anzeige</div>
-        {sponsoredQuery.data ? (
-          <div className="space-y-2">
-            {sponsoredQuery.data.image_url && (
-              <img src={sponsoredQuery.data.image_url} alt="Anzeige" className="w-full h-28 object-cover rounded-lg" />
-            )}
-            <div className="font-semibold text-sm line-clamp-2">{sponsoredQuery.data.title}</div>
-            <Button size="sm" className="mt-2">Jetzt testen</Button>
-          </div>
-        ) : (
-          <div className="text-sm text-muted-foreground">Keine Anzeige</div>
-        )}
-      </Card>
+      {/* Anzeige */}
+      <AdCard
+        title="Entdecke jetzt die Zukunft deiner Karriere"
+        description="Teste unsere Tools für Azubis und Fachkräfte – kostenlos starten!"
+        imageUrl={sponsoredQuery.data?.image_url ?? null}
+        ctaLabel="Jetzt testen"
+      />
 
-      {/* Recommended Companies */}
+      {/* Unternehmen */}
       <Card className="p-4 rounded-2xl">
         <div className="text-sm font-medium mb-3">Interessante Unternehmen</div>
         <div className="space-y-3">
           {(companiesQuery.data || []).map((c) => (
             <div key={c.id} className="flex items-center gap-3">
               <div className="h-8 w-8 rounded bg-muted overflow-hidden">
-                {c.logo_url ? <img src={c.logo_url} alt="" /> : null}
+                {c.logo_url ? <img src={c.logo_url} alt={c.name} /> : null}
               </div>
               <div className="text-sm flex-1 truncate">{c.name}</div>
               <Button size="sm" variant="secondary">Folgen</Button>
@@ -103,7 +95,7 @@ export function RightRail() {
         </div>
       </Card>
 
-      {/* Trending Groups */}
+      {/* Gruppen */}
       <Card className="p-4 rounded-2xl">
         <div className="text-sm font-medium mb-3">Beliebte Gruppen</div>
         <div className="space-y-3">
@@ -117,20 +109,13 @@ export function RightRail() {
         </div>
       </Card>
 
-      <Card className="p-4 rounded-2xl">
-        <div className="text-sm font-medium mb-3">Anzeige</div>
-        {sponsoredQuery.data ? (
-          <div className="space-y-2">
-            {sponsoredQuery.data.image_url && (
-              <img src={sponsoredQuery.data.image_url} alt="Anzeige" className="w-full h-28 object-cover rounded-lg" />
-            )}
-            <div className="font-semibold text-sm line-clamp-2">{sponsoredQuery.data.title}</div>
-            <Button size="sm" className="mt-2">Jetzt testen</Button>
-          </div>
-        ) : (
-          <div className="text-sm text-muted-foreground">Keine Anzeige</div>
-        )}
-      </Card>
+      {/* Anzeige */}
+      <AdCard
+        title="Entdecke jetzt die Zukunft deiner Karriere"
+        description="Teste unsere Tools für Azubis und Fachkräfte – kostenlos starten!"
+        imageUrl={sponsoredQuery.data?.image_url ?? null}
+        ctaLabel="Jetzt testen"
+      />
     </div>
   );
 }
