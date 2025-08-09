@@ -1,25 +1,15 @@
 import React from "react";
-import { Card } from "@/components/ui/card";
+import { RightRailAd } from "@/components/linkedin/right-rail/RightRailAd";
+import { PeopleRecommendations } from "@/components/linkedin/right-rail/PeopleRecommendations";
+import { CompanyRecommendations } from "@/components/linkedin/right-rail/CompanyRecommendations";
 
 export const RightPanel: React.FC = () => {
   return (
     <aside aria-label="Widgets" className="space-y-4">
-      <Card className="p-5">
-        <h3 className="text-sm font-medium mb-3">Vorgeschlagene Themen</h3>
-        <ul className="text-sm text-muted-foreground space-y-2">
-          <li># Karrieretipps</li>
-          <li># Vorstellungsgespräch</li>
-          <li># Weiterbildung</li>
-        </ul>
-      </Card>
-      <Card className="p-5">
-        <h3 className="text-sm font-medium mb-3">Trends</h3>
-        <ul className="text-sm text-muted-foreground space-y-2">
-          <li>• Neue Funktionen im CV Generator</li>
-          <li>• Beliebte Beiträge diese Woche</li>
-          <li>• Community-Events</li>
-        </ul>
-      </Card>
+      <RightRailAd variant="card" size="sm" />
+      <PeopleRecommendations limit={3} showMoreLink="/entdecken/azubis" showMore />
+      <CompanyRecommendations limit={3} showMoreLink="/entdecken/unternehmen" showMore />
+      <RightRailAd variant="banner" size="sm" />
     </aside>
   );
 };
