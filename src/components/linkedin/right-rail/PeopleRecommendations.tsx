@@ -129,17 +129,17 @@ export const PeopleRecommendations: React.FC<PeopleRecommendationsProps> = ({ li
           const st = statusMap[p.id] || "none";
           return (
             <div key={p.id} className="flex items-center gap-3">
-              <Avatar className="h-10 w-10">
+              <Avatar className="h-10 w-10 cursor-pointer" onClick={() => navigate(`/u/${p.id}`)}>
                 <AvatarImage src={p.avatar_url ?? undefined} alt={`${name} Avatar`} />
                 <AvatarFallback>{name.slice(0, 2)}</AvatarFallback>
               </Avatar>
-              <div className="flex-1 min-w-0">
+              <div className="flex-1 min-w-0 cursor-pointer" onClick={() => navigate(`/u/${p.id}`)}>
                 <div className="text-sm font-medium truncate">{name}</div>
                 {subtitle && <div className="text-xs text-muted-foreground truncate">{subtitle}</div>}
                 {infoLine && <div className="text-xs text-muted-foreground truncate">{infoLine}</div>}
               </div>
               {st === "accepted" && (
-                <Button size="sm" onClick={() => navigate("/community/messages")}> 
+                <Button size="sm" onClick={() => navigate(`/community/messages`)}> 
                   <MessageSquareMore className="h-4 w-4 mr-1" /> Nachricht
                 </Button>
               )}

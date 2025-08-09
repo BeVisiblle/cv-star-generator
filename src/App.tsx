@@ -48,6 +48,7 @@ import SeoInsights from "./pages/Admin/SeoInsights";
 import ScheduledPosts from "./pages/Admin/ScheduledPosts";
 import AdminSettings from "./pages/Admin/AdminSettings";
 import PublicPage from "./pages/PublicPage";
+import UserProfilePage from "./pages/UserProfile";
 
 const queryClient = new QueryClient();
 
@@ -179,6 +180,7 @@ const App = () => (
                 <Route path="/settings" element={<Settings />} />
                 <Route path="/entdecken/azubis" element={<DiscoverAzubis />} />
                 <Route path="/entdecken/unternehmen" element={<DiscoverCompanies />} />
+                <Route path="/u/:id" element={<UserProfilePage />} />
               </Route>
 
               {/* Admin routes */}
