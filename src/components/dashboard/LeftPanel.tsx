@@ -11,6 +11,11 @@ function firstWords(text?: string | null, n: number = 20) {
   const slice = words.slice(0, n).join(" ");
   return words.length > n ? `${slice}…` : slice;
 }
+function firstChars(text?: string | null, n: number = 10) {
+  if (!text) return null;
+  const trimmed = text.trim();
+  return trimmed.length > n ? `${trimmed.slice(0, n)}…` : trimmed.slice(0, n);
+}
 function getAbout(profile: any): string | null {
   if (!profile) return null;
   return profile.ueber_mich || profile.ueberMich || profile.uebermich || profile.about || profile.bio || profile.beschreibung || profile.motivation || null;
@@ -21,13 +26,18 @@ export const LeftPanel: React.FC = () => {
   } = useAuth();
   const navigate = useNavigate();
   const about = getAbout(profile);
-  const snippet = firstWords(about, 20);
+  const about10 = firstChars(about, 10);
   return <aside aria-label="Profilübersicht" className="space-y-4">
       {/* Profilkarte mit Titelbild */}
       <Card className="p-0 overflow-hidden">
         {/* Cover + Avatar overlay */}
         <div className="relative">
-          
+          <img
+            src={profile?.cover_url || profile?.titelbild_url || '/images/step1-hero.jpg'}
+            alt="Titelbild"
+            className="h-24 w-full object-cover"
+            loading="lazy"
+          />
           <div className="absolute -bottom-7 left-5">
             <Avatar className="h-16 w-16 ring-2 ring-background shadow">
               <AvatarImage src={profile?.avatar_url || undefined} alt={`${profile?.vorname ?? 'Unbekannt'} Avatar`} />
@@ -44,7 +54,7 @@ export const LeftPanel: React.FC = () => {
             <h2 className="text-xl font-semibold leading-tight truncate">
               {profile?.vorname && profile?.nachname ? `${profile.vorname} ${profile.nachname}` : "Dein Profil"}
             </h2>
-            {(profile?.headline || snippet) && <p className="mt-1 text-sm text-muted-foreground line-clamp-1">{profile?.headline || snippet}</p>}
+            {about10 && <p className="mt-1 text-sm text-muted-foreground line-clamp-1">{about10}</p>}
             {(profile?.ort || profile?.branche) && <div className="mt-1 text-sm text-muted-foreground flex items-center gap-1.5">
                 <MapPin className="h-4 w-4" aria-hidden />
                 <span>
