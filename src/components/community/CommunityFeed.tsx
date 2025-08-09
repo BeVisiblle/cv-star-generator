@@ -38,6 +38,7 @@ export default function CommunityFeed() {
 
       const rows = posts || [];
       const authorIds = Array.from(new Set(rows.map((p: any) => p.user_id).filter(Boolean)));
+      const companyIds = Array.from(new Set(rows.filter((p: any) => p.author_type === 'company' && p.author_id).map((p: any) => p.author_id)));
 
       let profilesMap: Record<string, any> = {};
       if (authorIds.length > 0) {
@@ -51,6 +52,19 @@ export default function CommunityFeed() {
           throw profileErr;
         }
         profilesMap = Object.fromEntries((profiles || []).map((p: any) => [p.id, p]));
+      }
+
+      let companiesMap: Record<string, any> = {};
+      if (companyIds.length > 0) {
+        const { data: companies, error: compErr } = await supabase
+          .from('companies')
+          .select('id, name, logo_url, industry')
+          .in('id', companyIds);
+        if (compErr) {
+          console.error('[feed] companies join error', compErr);
+        } else {
+          companiesMap = Object.fromEntries((companies || []).map((c: any) => [c.id, c]));
+        }
       }
 
       const items: PostWithAuthor[] = rows.map((p: any) => ({

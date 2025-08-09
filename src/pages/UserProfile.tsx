@@ -5,7 +5,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useConnections, type ConnectionState } from "@/hooks/useConnections";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Loader2, UserPlus, Check, X, MessageSquareMore, ArrowLeft } from "lucide-react";
+import { Loader2, UserPlus, Check, X, MessageSquareMore, ArrowLeft, HandHeart } from "lucide-react";
 import { LinkedInProfileHeader } from "@/components/linkedin/LinkedInProfileHeader";
 import { LinkedInProfileMain } from "@/components/linkedin/LinkedInProfileMain";
 import { LinkedInProfileSidebar } from "@/components/linkedin/LinkedInProfileSidebar";
@@ -17,6 +17,7 @@ import { PeopleRecommendations } from "@/components/linkedin/right-rail/PeopleRe
 import { CompanyRecommendations } from "@/components/linkedin/right-rail/CompanyRecommendations";
 import { toast } from "@/hooks/use-toast";
 import { InView } from "@/components/util/InView";
+import { useCompanyInterest } from "@/hooks/useCompanyInterest";
 
 export default function UserProfilePage() {
   const { id } = useParams();
@@ -27,6 +28,8 @@ export default function UserProfilePage() {
   const [profile, setProfile] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
   const [status, setStatus] = useState<ConnectionState>("none");
+  const [isCompanyMember, setIsCompanyMember] = useState(false);
+  const { interested, loading: interestLoading, toggle: toggleInterest } = useCompanyInterest(id);
 
   const isOwner = !!user && user.id === id;
   const isConnected = status === "accepted" || isOwner;
@@ -69,6 +72,15 @@ export default function UserProfilePage() {
       document.title = `${name} – Azubi Community`;
     }
   }, [profile]);
+
+  useEffect(() => {
+    const check = async () => {
+      if (!user) { setIsCompanyMember(false); return; }
+      const { data } = await supabase.rpc('is_company_member');
+      setIsCompanyMember(!!data);
+    };
+    check();
+  }, [user]);
 
   const displayProfile = useMemo(() => {
     if (!profile) return null;
@@ -191,7 +203,14 @@ export default function UserProfilePage() {
           <Button variant="outline" className="flex items-center gap-2 w-fit min-h-[44px]" onClick={() => navigate(-1)}>
             <ArrowLeft className="h-4 w-4" /> Zurück
           </Button>
-          {renderActions()}
+          <div className="flex items-center gap-2">
+            {isCompanyMember && !isOwner && (
+              <Button onClick={toggleInterest} disabled={interestLoading} variant={interested ? 'secondary' : 'default'} className="min-h-[44px]">
+                <HandHeart className="h-4 w-4 mr-1" /> {interested ? 'Interesse gezeigt' : 'Interesse zeigen'}
+              </Button>
+            )}
+            {renderActions()}
+          </div>
         </div>
       </div>
 

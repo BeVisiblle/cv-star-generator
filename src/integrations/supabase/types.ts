@@ -442,6 +442,30 @@ export type Database = {
           },
         ]
       }
+      company_user_interests: {
+        Row: {
+          company_id: string
+          created_at: string
+          created_by: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          created_by: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          created_by?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       company_users: {
         Row: {
           accepted_at: string | null

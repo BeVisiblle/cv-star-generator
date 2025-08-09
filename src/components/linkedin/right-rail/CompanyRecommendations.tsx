@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { ChevronRight } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
 
 interface SimpleCompany {
   id: string;
@@ -22,8 +23,10 @@ interface CompanyRecommendationsProps {
 
 export const CompanyRecommendations: React.FC<CompanyRecommendationsProps> = ({ limit = 3, showMoreLink = "/entdecken/unternehmen", showMore = true }) => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [loading, setLoading] = React.useState(true);
   const [items, setItems] = React.useState<SimpleCompany[]>([]);
+  const [following, setFollowing] = React.useState<Set<string>>(new Set());
 
   React.useEffect(() => {
     const load = async () => {
@@ -48,8 +51,40 @@ export const CompanyRecommendations: React.FC<CompanyRecommendationsProps> = ({ 
     load();
   }, []);
 
-  const followCompany = (id: string) => {
-    toast({ title: "Bald verfügbar", description: "Unternehmen folgen kommt in Kürze." });
+  React.useEffect(() => {
+    const loadFollows = async () => {
+      if (!user || items.length === 0) return;
+      const ids = items.map(i => i.id);
+      const { data, error } = await supabase
+        .from('follows')
+        .select('following_id')
+        .eq('follower_id', user.id)
+        .in('following_id', ids);
+      if (!error && data) {
+        setFollowing(new Set((data as any[]).map((d: any) => d.following_id as string)));
+      }
+    };
+    loadFollows();
+  }, [items, user]);
+
+  const followCompany = async (id: string) => {
+    if (!user) { window.location.href = '/auth'; return; }
+    try {
+      if (following.has(id)) {
+        const { error } = await supabase.from('follows').delete().eq('follower_id', user.id).eq('following_id', id);
+        if (!error) {
+          setFollowing(prev => { const n = new Set(prev); n.delete(id); return n; });
+        }
+      } else {
+        const { error } = await supabase.from('follows').insert({ follower_id: user.id, following_id: id });
+        if (!error) {
+          setFollowing(prev => new Set(prev).add(id));
+        }
+      }
+    } catch (e) {
+      console.error(e);
+      toast({ title: 'Fehler', description: 'Aktion fehlgeschlagen.', variant: 'destructive' });
+    }
   };
 
   return (
