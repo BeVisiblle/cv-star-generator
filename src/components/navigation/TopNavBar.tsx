@@ -82,8 +82,15 @@ export default function TopNavBar() {
           <h1 className="text-sm sm:text-base font-medium truncate">{title}</h1>
         </div>
 
-        {/* Right actions: Messages then Bell */}
+        {/* Right actions: Network, Messages then Bell */}
         <div className="flex items-center gap-1">
+          <button
+            className="inline-flex items-center justify-center h-9 w-9 rounded-md hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            onClick={() => setDrawerOpen(true)}
+            aria-label="Mein Netzwerk"
+          >
+            <Users className="h-5 w-5" />
+          </button>
           <button className="inline-flex items-center justify-center h-9 w-9 rounded-md hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
             <MessageSquareMore className="h-5 w-5" />
             <span className="sr-only">Nachrichten</span>
@@ -96,6 +103,8 @@ export default function TopNavBar() {
             <span className="sr-only">Benachrichtigungen</span>
           </button>
         </div>
+
+        <ConnectionsDrawer open={drawerOpen} onOpenChange={setDrawerOpen} />
       </div>
     </header>
   );
