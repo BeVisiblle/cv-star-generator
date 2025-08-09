@@ -204,7 +204,7 @@ export default function UserProfilePage() {
         </main>
         <aside className="lg:col-span-4">
           <div className="lg:sticky lg:top-24 space-y-4 md:space-y-6">
-            <LinkedInProfileSidebar profile={displayProfile} isEditing={false} onProfileUpdate={() => {}} readOnly={!isOwner} />
+            <LinkedInProfileSidebar profile={displayProfile} isEditing={false} onProfileUpdate={() => {}} readOnly={!isOwner} showLanguagesAndSkills={isOwner} showLicenseAndStats={isOwner} showCVSection={isOwner} />
             <RightRailAd variant="card" size="sm" />
             <PeopleRecommendations limit={5} showMoreLink="/entdecken/azubis" showMore={true} />
             <CompanyRecommendations limit={3} />

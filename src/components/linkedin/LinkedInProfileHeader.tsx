@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
+import { useAuth } from '@/hooks/useAuth';
 
 interface LinkedInProfileHeaderProps {
   profile: any;
@@ -25,6 +26,8 @@ export const LinkedInProfileHeader: React.FC<LinkedInProfileHeaderProps> = ({
   const coverInputRef = useRef<HTMLInputElement>(null);
   const avatarInputRef = useRef<HTMLInputElement>(null);
   const hasHeadline = typeof profile?.headline === 'string' && profile.headline.trim().length > 0;
+  const { user } = useAuth();
+  const isOwner = user?.id === profile?.id;
 
   // Get current position from profile data
   React.useEffect(() => {
@@ -268,14 +271,17 @@ export const LinkedInProfileHeader: React.FC<LinkedInProfileHeaderProps> = ({
         ) : (
           <div className="w-full h-full bg-gradient-to-r from-primary/10 to-accent/20" />
         )}
-        <div className="absolute right-3 bottom-3">
-          <Button size="sm" variant="secondary" asChild disabled={isUploadingCover}>
-            <label htmlFor="cover-upload" className="flex items-center">
-              <Camera className="h-4 w-4 mr-2" />
-              {isUploadingCover ? 'Lädt…' : 'Titelbild ändern'}
-            </label>
-          </Button>
-        </div>
+        {isOwner && (
+          <div className="absolute right-3 bottom-3">
+            <Button size="sm" variant="secondary" asChild disabled={isUploadingCover}>
+              <label htmlFor="cover-upload" className="flex items-center">
+                <Camera className="h-4 w-4 mr-2" />
+                {isUploadingCover ? 'Lädt…' : 'Titelbild ändern'}
+              </label>
+            </Button>
+          </div>
+        )}
+        
         
         <input
           id="cover-upload"
@@ -298,17 +304,19 @@ export const LinkedInProfileHeader: React.FC<LinkedInProfileHeaderProps> = ({
                 {profile?.vorname?.[0]}{profile?.nachname?.[0]}
               </AvatarFallback>
             </Avatar>
-            <Button
-              asChild
-              variant="secondary"
-              size="icon"
-              className="absolute -bottom-1 -right-1 h-8 w-8 rounded-full"
-              disabled={isUploadingAvatar}
-            >
-              <label htmlFor="avatar-upload" aria-label="Profilbild ändern" className="flex items-center justify-center">
-                <Camera className="h-4 w-4" />
-              </label>
-            </Button>
+            {isOwner && (
+              <Button
+                asChild
+                variant="secondary"
+                size="icon"
+                className="absolute -bottom-1 -right-1 h-8 w-8 rounded-full"
+                disabled={isUploadingAvatar}
+              >
+                <label htmlFor="avatar-upload" aria-label="Profilbild ändern" className="flex items-center justify-center">
+                  <Camera className="h-4 w-4" />
+                </label>
+              </Button>
+            )}
           </div>
           
           <input

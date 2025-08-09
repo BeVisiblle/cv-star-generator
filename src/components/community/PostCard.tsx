@@ -95,13 +95,17 @@ export default function PostCard({ post }: PostCardProps) {
       <div className="p-6 space-y-4">
         {/* Post Header */}
         <div className="flex items-start space-x-3">
-          <Avatar className="h-10 w-10">
-            <AvatarImage src={post.author?.avatar_url} />
-            <AvatarFallback>{getInitials()}</AvatarFallback>
-          </Avatar>
+          <div className="cursor-pointer" onClick={() => navigate(`/u/${post.author?.id || post.user_id}`)}>
+            <Avatar className="h-10 w-10">
+              <AvatarImage src={post.author?.avatar_url} />
+              <AvatarFallback>{getInitials()}</AvatarFallback>
+            </Avatar>
+          </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center space-x-2">
-              <h3 className="font-semibold text-sm">{getDisplayName()}</h3>
+              <button className="font-semibold text-sm hover:underline text-left" onClick={() => navigate(`/u/${post.author?.id || post.user_id}`)}>
+                {getDisplayName()}
+              </button>
               <span className="text-xs text-muted-foreground">•</span>
               <span className="text-xs text-muted-foreground">
                 {formatDistanceToNow(new Date(post.created_at), {
@@ -218,12 +222,12 @@ export default function PostCard({ post }: PostCardProps) {
                       : "U";
                   return (
                     <div key={c.id} className="flex items-start gap-2">
-                      <Avatar className="h-8 w-8">
+                      <Avatar className="h-8 w-8 cursor-pointer" onClick={() => navigate(`/u/${c.author?.id || c.user_id}`)}>
                         <AvatarImage src={c.author?.avatar_url ?? undefined} />
                         <AvatarFallback className="text-xs">{initials}</AvatarFallback>
                       </Avatar>
                       <div className="flex-1 bg-muted/40 border rounded-lg p-2">
-                        <div className="text-xs font-medium">{name}</div>
+                        <button className="text-xs font-medium hover:underline" onClick={() => navigate(`/u/${c.author?.id || c.user_id}`)}>{name}</button>
                         <div className="text-sm">{c.content}</div>
                       </div>
                     </div>

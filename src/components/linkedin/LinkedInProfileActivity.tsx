@@ -13,6 +13,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/hooks/useAuth';
 
 interface ActivityPost {
   id: string;
@@ -37,6 +38,8 @@ export const LinkedInProfileActivity: React.FC<LinkedInProfileActivityProps> = (
 const navigate = useNavigate();
 const queryClient = useQueryClient();
 const { toast } = useToast();
+const { user } = useAuth();
+const isOwner = user?.id === profile?.id;
 
   const { data: recentPosts, isLoading } = useQuery({
     queryKey: ['recent-community-posts', profile?.id],
@@ -136,12 +139,14 @@ const { toast } = useToast();
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
         <CardTitle className="text-lg font-semibold">Aktivitäten</CardTitle>
-        <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" onClick={() => openPostComposer()}>Beitrag erstellen</Button>
-          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setPrefOpen(true)} title="Einstellungen">
-            <Pencil className="h-4 w-4" />
-          </Button>
-        </div>
+        {isOwner && (
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" onClick={() => openPostComposer()}>Beitrag erstellen</Button>
+            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setPrefOpen(true)} title="Einstellungen">
+              <Pencil className="h-4 w-4" />
+            </Button>
+          </div>
+        )}
       </CardHeader>
       <CardContent>
         {isLoading ? (
@@ -301,37 +306,39 @@ const { toast } = useToast();
         )}
       </CardContent>
 
-      <Dialog open={prefOpen} onOpenChange={setPrefOpen}>
-        <DialogContent className="sm:max-w-lg">
-          <DialogHeader>
-            <DialogTitle>Welche Inhalte möchten Sie zuerst zeigen?</DialogTitle>
-          </DialogHeader>
-          <div className="text-sm text-muted-foreground mb-4">Ihre letzten Aktivitäten zeigen nur Inhalte der letzten 360 Tage.</div>
-          <RadioGroup defaultValue="posts" className="space-y-3">
-            {[
-              { value: 'posts', label: 'Beiträge' },
-              { value: 'comments', label: 'Kommentare' },
-              { value: 'videos', label: 'Videos', hint: 'Nichts im vergangenen Jahr gepostet' },
-              { value: 'images', label: 'Bilder', hint: 'Nichts im vergangenen Jahr gepostet' },
-              { value: 'articles', label: 'Artikel', hint: 'Nichts im vergangenen Jahr gepostet' },
-              { value: 'newsletter', label: 'Newsletter', hint: 'Nichts im vergangenen Jahr gepostet' },
-              { value: 'events', label: 'Events', hint: 'Nichts im vergangenen Jahr gepostet' },
-              { value: 'docs', label: 'Dokumente', hint: 'Nichts im vergangenen Jahr gepostet' },
-            ].map((o) => (
-              <div key={o.value} className="flex items-center gap-3">
-                <RadioGroupItem id={`pref-${o.value}`} value={o.value} />
-                <Label htmlFor={`pref-${o.value}`} className="flex-1 cursor-pointer">
-                  {o.label}
-                  {o.hint && <span className="ml-2 text-muted-foreground">({o.hint})</span>}
-                </Label>
-              </div>
-            ))}
-          </RadioGroup>
-          <div className="flex justify-end pt-2">
-            <Button onClick={() => setPrefOpen(false)}>Speichern</Button>
-          </div>
-        </DialogContent>
-      </Dialog>
+      {isOwner && (
+        <Dialog open={prefOpen} onOpenChange={setPrefOpen}>
+          <DialogContent className="sm:max-w-lg">
+            <DialogHeader>
+              <DialogTitle>Welche Inhalte möchten Sie zuerst zeigen?</DialogTitle>
+            </DialogHeader>
+            <div className="text-sm text-muted-foreground mb-4">Ihre letzten Aktivitäten zeigen nur Inhalte der letzten 360 Tage.</div>
+            <RadioGroup defaultValue="posts" className="space-y-3">
+              {[
+                { value: 'posts', label: 'Beiträge' },
+                { value: 'comments', label: 'Kommentare' },
+                { value: 'videos', label: 'Videos', hint: 'Nichts im vergangenen Jahr gepostet' },
+                { value: 'images', label: 'Bilder', hint: 'Nichts im vergangenen Jahr gepostet' },
+                { value: 'articles', label: 'Artikel', hint: 'Nichts im vergangenen Jahr gepostet' },
+                { value: 'newsletter', label: 'Newsletter', hint: 'Nichts im vergangenen Jahr gepostet' },
+                { value: 'events', label: 'Events', hint: 'Nichts im vergangenen Jahr gepostet' },
+                { value: 'docs', label: 'Dokumente', hint: 'Nichts im vergangenen Jahr gepostet' },
+              ].map((o) => (
+                <div key={o.value} className="flex items-center gap-3">
+                  <RadioGroupItem id={`pref-${o.value}`} value={o.value} />
+                  <Label htmlFor={`pref-${o.value}`} className="flex-1 cursor-pointer">
+                    {o.label}
+                    {o.hint && <span className="ml-2 text-muted-foreground">({o.hint})</span>}
+                  </Label>
+                </div>
+              ))}
+            </RadioGroup>
+            <div className="flex justify-end pt-2">
+              <Button onClick={() => setPrefOpen(false)}>Speichern</Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
     </Card>
   );
 };
