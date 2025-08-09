@@ -1367,6 +1367,36 @@ export type Database = {
           },
         ]
       }
+      rate_limit_counters: {
+        Row: {
+          action: string
+          count: number
+          created_at: string
+          id: string
+          updated_at: string
+          user_id: string
+          window_start: string
+        }
+        Insert: {
+          action: string
+          count?: number
+          created_at?: string
+          id?: string
+          updated_at?: string
+          user_id: string
+          window_start: string
+        }
+        Update: {
+          action?: string
+          count?: number
+          created_at?: string
+          id?: string
+          updated_at?: string
+          user_id?: string
+          window_start?: string
+        }
+        Relationships: []
+      }
       school_types: {
         Row: {
           category: string | null
