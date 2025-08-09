@@ -14,9 +14,10 @@ export interface CreatePostProps {
   variant?: "default" | "composer"; // adjusts spacing/labels
   hideBottomBar?: boolean;       // hide default bottom actions to allow external toolbar
   onStateChange?: (state: { canPost: boolean; isSubmitting: boolean }) => void; // notify parent
+  scheduledAt?: Date | null;     // optional scheduled time (UTC stored)
 }
 
-export const CreatePost = ({ container = "card", hideHeader = false, variant = "default", hideBottomBar = false, onStateChange }: CreatePostProps) => {
+export const CreatePost = ({ container = "card", hideHeader = false, variant = "default", hideBottomBar = false, onStateChange, scheduledAt }: CreatePostProps) => {
   const [content, setContent] = useState("");
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -29,12 +30,18 @@ export const CreatePost = ({ container = "card", hideHeader = false, variant = "
       const { data: user } = await supabase.auth.getUser();
       if (!user.user) throw new Error("Not authenticated");
 
+      const scheduledISO = scheduledAt && new Date(scheduledAt) > new Date()
+        ? new Date(scheduledAt).toISOString()
+        : null;
+
       const { data, error } = await supabase
         .from("posts")
         .insert({
           content,
           image_url: imageUrl,
           user_id: user.user.id,
+          status: scheduledISO ? 'scheduled' : 'published',
+          scheduled_at: scheduledISO,
           post_type: imageUrl ? "image" : "text"
         })
         .select()

@@ -8,8 +8,13 @@ import { useAuth } from '@/hooks/useAuth';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import { Calendar, Image as ImageIcon, Plus, PartyPopper, FileText, BarChart3, Users, Globe, Lock } from 'lucide-react';
+import { Calendar as CalendarIcon, Image as ImageIcon, Plus, PartyPopper, FileText, BarChart3, Users, Globe, Lock } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Calendar as DateCalendar } from '@/components/ui/calendar';
+import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
 
 export const NewPostComposer: React.FC = () => {
   const isMobile = useIsMobile();
@@ -30,6 +35,25 @@ export const NewPostComposer: React.FC = () => {
   }, []);
 
   const AudienceIcon = audience === 'public' ? Globe : audience === 'connections' ? Users : Lock;
+
+  const [scheduledAt, setScheduledAt] = React.useState<Date | null>(null);
+  const [scheduleOpen, setScheduleOpen] = React.useState(false);
+  const [scheduleDate, setScheduleDate] = React.useState<Date | undefined>(undefined);
+  const [scheduleTime, setScheduleTime] = React.useState<string>('09:00');
+
+  const applySchedule = () => {
+    if (scheduleDate && scheduleTime) {
+      const [hh, mm] = scheduleTime.split(':').map(Number);
+      const d = new Date(scheduleDate);
+      d.setHours(hh || 0, mm || 0, 0, 0);
+      setScheduledAt(d);
+      setScheduleOpen(false);
+    }
+  };
+  const clearSchedule = () => {
+    setScheduledAt(null);
+    setScheduleOpen(false);
+  };
 
   const Header = (
     <div className="px-6 pt-5 pb-3 border-b bg-background">
@@ -58,9 +82,30 @@ export const NewPostComposer: React.FC = () => {
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="ghost" size="icon" className="h-8 w-8" title="Planen">
-            <Calendar className="h-4 w-4" />
-          </Button>
+          <Popover open={scheduleOpen} onOpenChange={setScheduleOpen}>
+            <PopoverTrigger asChild>
+              <Button variant="ghost" size="icon" className="h-8 w-8" title="Planen">
+                <CalendarIcon className="h-4 w-4" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-[320px]" align="end">
+              <div className="space-y-3">
+                <div className="text-sm font-medium">Beitrag planen</div>
+                <DateCalendar mode="single" selected={scheduleDate} onSelect={setScheduleDate as any} />
+                <div className="flex items-center gap-2">
+                  <Input type="time" value={scheduleTime} onChange={(e) => setScheduleTime(e.target.value)} className="h-9" />
+                </div>
+                <div className="flex justify-between gap-2">
+                  <Button variant="outline" size="sm" onClick={clearSchedule}>Löschen</Button>
+                  <Button size="sm" onClick={applySchedule}>Übernehmen</Button>
+                </div>
+                {scheduledAt && (
+                  <div className="text-xs text-muted-foreground">Geplant für: {scheduledAt.toLocaleString()}</div>
+                )}
+              </div>
+            </PopoverContent>
+          </Popover>
+          {scheduledAt && <Badge variant="secondary">Geplant</Badge>}
           <Button disabled={!canPost || isSubmitting} onClick={() => document.getElementById('createpost-submit')?.click()}>
             {isSubmitting ? 'Wird veröffentlicht…' : 'Posten'}
           </Button>
@@ -79,18 +124,31 @@ export const NewPostComposer: React.FC = () => {
           transition={{ type: 'spring', stiffness: 260, damping: 18 }}
           className="absolute -top-16 right-3 flex gap-3"
         >
-          {[{ Icon: ImageIcon, label: 'Medien' }, { Icon: Calendar, label: 'Event' }, { Icon: PartyPopper, label: 'Feier' }, { Icon: FileText, label: 'Dokument' }, { Icon: BarChart3, label: 'Umfrage' }, { Icon: Users, label: 'Gruppe' }].map(({ Icon, label }, i) => (
-            <motion.button
-              key={label}
-              whileTap={{ scale: 0.9 }}
-              className="h-11 w-11 rounded-full bg-muted text-muted-foreground flex items-center justify-center shadow-md"
-              style={{ boxShadow: 'var(--shadow-elegant)' }}
-              onClick={() => setTrayOpen(false)}
-              title={label}
-            >
-              <Icon className="h-5 w-5" />
-            </motion.button>
-          ))}
+          <TooltipProvider>
+            {[
+              { Icon: ImageIcon, label: 'Medien' },
+              { Icon: CalendarIcon, label: 'Event' },
+              { Icon: PartyPopper, label: 'Feier' },
+              { Icon: FileText, label: 'Dokument' },
+              { Icon: BarChart3, label: 'Umfrage' },
+              { Icon: Users, label: 'Gruppe' }
+            ].map(({ Icon, label }) => (
+              <Tooltip key={label} delayDuration={150}>
+                <TooltipTrigger asChild>
+                  <motion.button
+                    whileTap={{ scale: 0.9 }}
+                    className="h-11 w-11 rounded-full bg-muted text-muted-foreground flex items-center justify-center shadow-md focus:outline-none focus:ring-2 focus:ring-primary"
+                    style={{ boxShadow: 'var(--shadow-elegant)' }}
+                    onClick={() => setTrayOpen(false)}
+                    aria-label={label}
+                  >
+                    <Icon className="h-5 w-5" />
+                  </motion.button>
+                </TooltipTrigger>
+                <TooltipContent side="top">{label}</TooltipContent>
+              </Tooltip>
+            ))}
+          </TooltipProvider>
         </motion.div>
       )}
     </AnimatePresence>
