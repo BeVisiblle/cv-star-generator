@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { GraduationCap, Plus, Edit3, Trash2, MapPin, Calendar } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { capitalizeFirst, capitalizeWords, capitalizeSentences } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -115,6 +116,7 @@ export const LinkedInProfileEducation: React.FC<LinkedInProfileEducationProps> =
             id="schulform"
             value={formData.schulform}
             onChange={(e) => setFormData({ ...formData, schulform: e.target.value })}
+            onBlur={(e) => setFormData({ ...formData, schulform: capitalizeWords(e.target.value) })}
             placeholder="z.B. Abitur, Realschulabschluss"
             className="text-sm w-full"
           />
@@ -125,6 +127,7 @@ export const LinkedInProfileEducation: React.FC<LinkedInProfileEducationProps> =
             id="name"
             value={formData.name}
             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+            onBlur={(e) => setFormData({ ...formData, name: capitalizeWords(e.target.value) })}
             placeholder="z.B. Max-Mustermann-Gymnasium"
             className="text-sm w-full"
           />
@@ -138,6 +141,7 @@ export const LinkedInProfileEducation: React.FC<LinkedInProfileEducationProps> =
             id="ort"
             value={formData.ort}
             onChange={(e) => setFormData({ ...formData, ort: e.target.value })}
+            onBlur={(e) => setFormData({ ...formData, ort: capitalizeWords(e.target.value) })}
             placeholder="z.B. München"
             className="text-sm w-full"
           />
@@ -189,6 +193,7 @@ export const LinkedInProfileEducation: React.FC<LinkedInProfileEducationProps> =
           id="beschreibung"
           value={formData.beschreibung}
           onChange={(e) => setFormData({ ...formData, beschreibung: e.target.value })}
+          onBlur={(e) => setFormData({ ...formData, beschreibung: capitalizeSentences(e.target.value) })}
           placeholder="Besondere Leistungen, Schwerpunkte, etc..."
           rows={3}
           className="text-sm w-full resize-none"
@@ -216,9 +221,16 @@ export const LinkedInProfileEducation: React.FC<LinkedInProfileEducationProps> =
           Ausbildung
         </CardTitle>
         {isEditing && (
-          <Dialog open={isAddingNew} onOpenChange={setIsAddingNew}>
+          <Dialog open={isDialogOpen} onOpenChange={(open) => {
+            setIsDialogOpen(open);
+            if (!open) {
+              setIsAddingNew(false);
+              setEditingIndex(null);
+              resetForm();
+            }
+          }}>
             <DialogTrigger asChild>
-              <Button variant="outline" size="sm" onClick={() => setIsDialogOpen(true)}>
+              <Button variant="outline" size="sm" onClick={() => { setIsDialogOpen(true); setIsAddingNew(true); }}>
                 <Plus className="h-4 w-4 mr-2" />
                 Hinzufügen
               </Button>
