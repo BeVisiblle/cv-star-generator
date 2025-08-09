@@ -1,10 +1,10 @@
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { ThumbsUp, MessageCircle, Share2, ArrowRight, Pencil, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ThumbsUp, MessageCircle, Repeat2, Send, ArrowRight, Pencil, ChevronLeft, ChevronRight } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { de } from 'date-fns/locale';
 import { useNavigate } from 'react-router-dom';
@@ -50,9 +50,7 @@ export const LinkedInProfileActivity: React.FC<LinkedInProfileActivityProps> = (
 
       let result = posts || [];
 
-      // Fallback: provide 6 demo posts for testing if none exist
       if (!result.length) {
-        const names = [profile.vorname || 'Alex', profile.nachname || 'M.'];
         const images = [
           'https://images.unsplash.com/photo-1498050108023-c5249f4df085?q=80&w=1200&auto=format&fit=crop',
           'https://images.unsplash.com/photo-1516251193007-45ef944ab0c6?q=80&w=1200&auto=format&fit=crop',
@@ -78,7 +76,6 @@ export const LinkedInProfileActivity: React.FC<LinkedInProfileActivityProps> = (
         } as any));
       }
 
-      // Attach author (current profile) to all
       const postsWithProfiles = result.map((post: any) => ({
         ...post,
         author: {
@@ -115,6 +112,7 @@ export const LinkedInProfileActivity: React.FC<LinkedInProfileActivityProps> = (
   const [activeTab, setActiveTab] = useState<'posts' | 'comments'>('posts');
   const [prefOpen, setPrefOpen] = useState(false);
   const scrollerRef = useRef<HTMLDivElement>(null);
+  const [expanded, setExpanded] = useState<Record<string, boolean>>({});
 
   const getCounts = (post: ActivityPost) => {
     const a = post.id?.charCodeAt(0) || 1;
@@ -126,7 +124,7 @@ export const LinkedInProfileActivity: React.FC<LinkedInProfileActivityProps> = (
     const el = scrollerRef.current;
     if (!el) return;
     const card = el.querySelector<HTMLElement>('.activity-card');
-    const gap = 16; // space-x-4
+    const gap = 16;
     const step = (card?.offsetWidth || 320) + gap;
     el.scrollBy({ left: dir === 'left' ? -step : step, behavior: 'smooth' });
   };
@@ -149,7 +147,6 @@ export const LinkedInProfileActivity: React.FC<LinkedInProfileActivityProps> = (
           </div>
         ) : (
           <>
-            {/* Tabs */}
             <div className="mb-3 flex items-center gap-2">
               <Button variant={activeTab === 'posts' ? 'secondary' : 'ghost'} size="sm" onClick={() => setActiveTab('posts')}>Beiträge</Button>
               <Button variant={activeTab === 'comments' ? 'secondary' : 'ghost'} size="sm" onClick={() => setActiveTab('comments')}>Kommentare</Button>
@@ -158,7 +155,6 @@ export const LinkedInProfileActivity: React.FC<LinkedInProfileActivityProps> = (
             {activeTab === 'posts' ? (
               recentPosts && recentPosts.length > 0 ? (
                 <div className="relative">
-                  {/* Arrows */}
                   <Button variant="secondary" size="icon" className="absolute left-0 top-1/2 -translate-y-1/2 z-10 rounded-full h-8 w-8" onClick={() => scrollByStep('left')} aria-label="Zurück">
                     <ChevronLeft className="h-4 w-4" />
                   </Button>
@@ -170,13 +166,15 @@ export const LinkedInProfileActivity: React.FC<LinkedInProfileActivityProps> = (
                     <div className="flex space-x-4 pb-2 w-max">
                       {recentPosts.map((post) => {
                         const counts = getCounts(post as ActivityPost);
+                        const text = (post as ActivityPost).content || '';
+                        const isExp = expanded[post.id as string];
+                        const isLong = text.length > 200;
                         return (
                           <div
                             key={post.id}
-                            className="activity-card flex-shrink-0 w-[360px] bg-muted/50 rounded-lg p-4 border hover:bg-muted/70 transition-colors cursor-pointer snap-start"
+                            className="activity-card flex-shrink-0 w-[320px] bg-muted/50 rounded-lg p-4 border hover:bg-muted/70 transition-colors cursor-pointer snap-start"
                             onClick={() => navigate('/marketplace')}
                           >
-                            {/* Post Header */}
                             <div className="flex items-center space-x-3 mb-3">
                               <Avatar className="h-8 w-8">
                                 <AvatarImage src={post.author?.avatar_url} />
@@ -197,10 +195,17 @@ export const LinkedInProfileActivity: React.FC<LinkedInProfileActivityProps> = (
                               </span>
                             </div>
 
-                            {/* Post Content */}
                             <div className="space-y-3">
                               <p className="text-sm text-foreground">
-                                {truncateContent((post as ActivityPost).content)}
+                                {isExp ? text : truncateContent(text, 200)}
+                                {!isExp && isLong && (
+                                  <button
+                                    className="ml-1 text-primary hover:underline text-xs"
+                                    onClick={(e) => { e.stopPropagation(); setExpanded((prev) => ({ ...prev, [post.id as string]: true })); }}
+                                  >
+                                    Mehr anzeigen
+                                  </button>
+                                )}
                               </p>
 
                               {post.image_url && (
@@ -209,13 +214,24 @@ export const LinkedInProfileActivity: React.FC<LinkedInProfileActivityProps> = (
                                 </div>
                               )}
 
-                              {/* Counts Row */}
-                              <div className="flex items-center justify-between pt-1 text-xs text-muted-foreground">
-                                <div className="flex items-center gap-4">
-                                  <span className="inline-flex items-center gap-1"><ThumbsUp className="h-3.5 w-3.5" />{counts.likes}</span>
-                                  <span className="inline-flex items-center gap-1"><MessageCircle className="h-3.5 w-3.5" />{counts.comments}</span>
-                                </div>
-                                <Share2 className="h-4 w-4" />
+                              <div className="flex items-center gap-4 pt-1 text-xs text-muted-foreground">
+                                <span className="inline-flex items-center gap-1"><ThumbsUp className="h-3.5 w-3.5" />{counts.likes}</span>
+                                <span className="inline-flex items-center gap-1"><MessageCircle className="h-3.5 w-3.5" />{counts.comments}</span>
+                              </div>
+
+                              <div className="flex items-center justify-between border-t pt-2">
+                                <button onClick={(e)=>e.stopPropagation()} className="h-8 w-8 rounded-md bg-muted flex items-center justify-center" title="Gefällt mir">
+                                  <ThumbsUp className="h-4 w-4" />
+                                </button>
+                                <button onClick={(e)=>e.stopPropagation()} className="h-8 w-8 rounded-md hover:bg-muted flex items-center justify-center" title="Kommentieren">
+                                  <MessageCircle className="h-4 w-4" />
+                                </button>
+                                <button onClick={(e)=>e.stopPropagation()} className="h-8 w-8 rounded-md hover:bg-muted flex items-center justify-center" title="Reposten">
+                                  <Repeat2 className="h-4 w-4" />
+                                </button>
+                                <button onClick={(e)=>e.stopPropagation()} className="h-8 w-8 rounded-md hover:bg-muted flex items-center justify-center" title="Teilen">
+                                  <Send className="h-4 w-4" />
+                                </button>
                               </div>
                             </div>
                           </div>
@@ -245,7 +261,6 @@ export const LinkedInProfileActivity: React.FC<LinkedInProfileActivityProps> = (
         )}
       </CardContent>
 
-      {/* Preferences Dialog */}
       <Dialog open={prefOpen} onOpenChange={setPrefOpen}>
         <DialogContent className="sm:max-w-lg">
           <DialogHeader>
