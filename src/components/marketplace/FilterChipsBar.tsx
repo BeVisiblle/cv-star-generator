@@ -26,18 +26,32 @@ export default function FilterChipsBar({ className }: FilterChipsBarProps) {
   const location = useLocation();
 
   const q = params.get("q") || "";
-  const type = (params.get("type") || "people").toLowerCase();
+  const type = (params.get("type") || "").toLowerCase();
 
   const setType = (t: string) => {
     const sp = new URLSearchParams(params);
     sp.set("type", t);
     navigate(`${location.pathname}?${sp.toString()}`);
   };
+  const clearType = () => {
+    const sp = new URLSearchParams(params);
+    sp.delete("type");
+    navigate(`${location.pathname}?${sp.toString()}`);
+  };
 
   const filters = extraFilters[type] || [];
 
   return (
-    <div className={"w-full flex flex-wrap items-center gap-2 " + (className ?? "")}>      
+    <div className={"w-full flex flex-wrap items-center gap-2 " + (className ?? "")}>
+      {/* Reset */}
+      <Badge
+        variant={type === "" ? "default" : "secondary"}
+        className="cursor-pointer select-none"
+        onClick={clearType}
+      >
+        Alle
+      </Badge>
+
       {/* Primary categories */}
       {categories.map((c) => (
         <Badge
@@ -54,7 +68,7 @@ export default function FilterChipsBar({ className }: FilterChipsBarProps) {
       <span className="mx-1 h-5 w-px bg-border" aria-hidden />
 
       {/* Type‑specific filters (non‑funktional Platzhalter) */}
-      {filters.map((f) => (
+      {type && filters.map((f) => (
         <Badge key={f} variant="secondary" className="cursor-pointer select-none">
           {f}
         </Badge>

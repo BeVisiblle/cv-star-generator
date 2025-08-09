@@ -30,8 +30,9 @@ export default function TopNavBar() {
 
   const handleSubmit = () => {
     const term = q.trim();
-    const type = new URLSearchParams(location.search).get('type') || 'people';
-    navigate(`/marketplace?type=${encodeURIComponent(type)}&q=${encodeURIComponent(term)}`);
+    const sp = new URLSearchParams(location.search);
+    if (term) sp.set('q', term); else sp.delete('q');
+    navigate(`/marketplace?${sp.toString()}`);
   };
 
   return (
@@ -45,7 +46,7 @@ export default function TopNavBar() {
         </div>
 
         {/* Global search next to logo */}
-        <div className="relative flex-1 min-w-[140px] max-w-2xl mx-2 hidden sm:block">
+        <div className="relative w-44 sm:w-64 lg:w-72 mx-2 hidden sm:block">
           <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             value={q}
@@ -53,13 +54,14 @@ export default function TopNavBar() {
             onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
             onFocus={() => setOpen(true)}
             onBlur={() => setTimeout(() => setOpen(false), 120)}
-            placeholder={(new URLSearchParams(location.search).get('type') || 'people') === 'people'
-              ? 'Suche nach Azubis, Schüler:innen, Gesellen…'
-              : (new URLSearchParams(location.search).get('type') === 'companies'
-                  ? 'Suche nach Unternehmen…'
-                  : (new URLSearchParams(location.search).get('type') === 'posts'
-                      ? 'Suche nach Beiträgen…'
-                      : 'Suche nach Gruppen…'))}
+            placeholder={(() => {
+              const t = new URLSearchParams(location.search).get('type') || '';
+              if (t === 'people') return 'Suche nach Azubis, Schüler:innen, Gesellen…';
+              if (t === 'companies') return 'Suche nach Unternehmen…';
+              if (t === 'posts') return 'Suche nach Beiträgen…';
+              if (t === 'groups') return 'Suche nach Gruppen…';
+              return 'Suche in der Community…';
+            })()}
             className="pl-10 h-9"
             aria-label="Globale Suche"
           />

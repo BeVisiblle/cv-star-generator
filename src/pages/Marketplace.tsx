@@ -32,6 +32,7 @@ export default function Marketplace() {
     setQ(qp);
     setAppliedQ(qp);
   }, [searchParams]);
+  const typeParam = (searchParams.get('type') || '').toLowerCase();
 
   const handleSearch = () => setAppliedQ(q.trim());
 
@@ -88,10 +89,14 @@ export default function Marketplace() {
         {/* Center: Sections (filter by type) */}
         <div className="space-y-6">
           {(() => {
-            const type = (new URLSearchParams(window.location.search).get('type') || 'people').toLowerCase();
+            const type = typeParam;
+            const showPeople = !type || type === 'people';
+            const showCompanies = !type || type === 'companies';
+            const showPosts = !type || type === 'posts';
+            const showGroups = !type || type === 'groups';
             return (
               <>
-                {(type === 'people') && (
+                {showPeople && (
                   <section id="personen">
                     <Card className="p-4 rounded-2xl">
                       <div className="flex items-center justify-between mb-3">
@@ -125,7 +130,7 @@ export default function Marketplace() {
                   </section>
                 )}
 
-                {(type === 'companies') && (
+                {showCompanies && (
                   <section id="unternehmen">
                     <Card className="p-4 rounded-2xl">
                       <div className="flex items-center justify-between mb-3">
@@ -155,7 +160,7 @@ export default function Marketplace() {
                   </section>
                 )}
 
-                {(type === 'posts') && (
+                {showPosts && (
                   <section id="beitraege">
                     <Card className="p-4 rounded-2xl">
                       <div className="flex items-center justify-between mb-3">
@@ -180,7 +185,7 @@ export default function Marketplace() {
                   </section>
                 )}
 
-                {(type === 'groups') && (
+                {showGroups && (
                   <section id="gruppen">
                     <Card className="p-4 rounded-2xl">
                       <div className="flex items-center justify-between mb-3">
@@ -196,6 +201,7 @@ export default function Marketplace() {
               </>
             );
           })()}
+
         </div>
 
         {/* Right rail */}
