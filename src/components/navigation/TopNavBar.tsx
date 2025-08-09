@@ -1,8 +1,9 @@
 import React from "react";
 import { SidebarTrigger } from "@/components/ui/sidebar";
-import { Bell } from "lucide-react";
-import { useLocation } from "react-router-dom";
-
+import { Bell, Search as SearchIcon } from "lucide-react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { Input } from "@/components/ui/input";
+import SearchAutosuggest from "@/components/marketplace/SearchAutosuggest";
 const titleMap: Record<string, string> = {
   "/community/contacts": "Meine Kontakte",
   "/community/companies": "Unternehmen",
@@ -19,10 +20,15 @@ const titleMap: Record<string, string> = {
 
 export default function TopNavBar() {
   const location = useLocation();
+  const navigate = useNavigate();
   const path = location.pathname;
-  const title = Object.keys(titleMap).find((p) => path.startsWith(p))
-    ? titleMap[Object.keys(titleMap).find((p) => path.startsWith(p)) as string]
-    : "Home Feed";
+  const [q, setQ] = React.useState("");
+  const [open, setOpen] = React.useState(false);
+
+  const handleSubmit = () => {
+    const term = q.trim();
+    navigate(`/marketplace?q=${encodeURIComponent(term)}`);
+  };
 
   return (
     <header className="sticky top-0 z-40 h-14 flex items-center border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 px-3 sm:px-4">
@@ -33,9 +39,31 @@ export default function TopNavBar() {
             AM
           </div>
         </div>
-        <div className="flex-1 text-center">
-          <h1 className="text-sm sm:text-base font-medium truncate">{title}</h1>
+
+        {/* Global search next to logo */}
+        <div className="relative flex-1 min-w-[140px] max-w-2xl mx-2 hidden sm:block">
+          <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
+            onFocus={() => setOpen(true)}
+            onBlur={() => setTimeout(() => setOpen(false), 120)}
+            placeholder="Suche nach Personen, Unternehmen und Beiträgen…"
+            className="pl-10 h-9"
+            aria-label="Globale Suche"
+          />
+          <SearchAutosuggest
+            query={q}
+            open={open && !!q}
+            onSelect={(_, payload) => {
+              setQ(payload.label);
+              handleSubmit();
+              setOpen(false);
+            }}
+          />
         </div>
+
         <button className="relative inline-flex items-center justify-center h-9 w-9 rounded-md hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
           <Bell className="h-5 w-5" />
           <span className="absolute -top-0.5 -right-0.5 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-primary text-primary-foreground text-[10px] leading-none px-1">

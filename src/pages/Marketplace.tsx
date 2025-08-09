@@ -1,7 +1,7 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import HeaderWithSearch from '@/components/marketplace/HeaderWithSearch';
+
 import LeftOnThisPage from '@/components/marketplace/LeftOnThisPage';
 import FilterChipsBar from '@/components/marketplace/FilterChipsBar';
 import RightRail from '@/components/marketplace/RightRail';
@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import MarketplaceComposer from '@/components/marketplace/MarketplaceComposer';
 import { Plus } from 'lucide-react';
+import { useSearchParams } from 'react-router-dom';
 
 // Simple types for the new sections
 type Person = { id: string; vorname?: string | null; nachname?: string | null; avatar_url?: string | null };
@@ -24,6 +25,13 @@ export default function Marketplace() {
   const [morePeople, setMorePeople] = React.useState(false);
   const [moreCompanies, setMoreCompanies] = React.useState(false);
   const [morePosts, setMorePosts] = React.useState(false);
+
+  const [searchParams] = useSearchParams();
+  React.useEffect(() => {
+    const qp = searchParams.get('q') || '';
+    setQ(qp);
+    setAppliedQ(qp);
+  }, [searchParams]);
 
   const handleSearch = () => setAppliedQ(q.trim());
 
@@ -65,8 +73,6 @@ export default function Marketplace() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      {/* Header with search next to logo (with autosuggest) */}
-      <HeaderWithSearch value={q} onChange={setQ} onSubmit={handleSearch} />
 
       {/* Chips under header */}
       <div className="border-b">
