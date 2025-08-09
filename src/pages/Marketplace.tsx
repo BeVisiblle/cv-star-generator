@@ -207,7 +207,7 @@ React.useEffect(() => {
                         </Button>
                       </div>
                       <div className="space-y-3">
-                        {(peopleQuery.data || []).map((p) => {
+                        {(peopleQuery.data || []).filter((p) => p.id !== user?.id && statusMap[p.id] !== 'accepted').map((p) => {
                           const name = `${p.vorname ?? ''} ${p.nachname ?? ''}`.trim() || 'Unbekannt';
                           return (
                             <div key={p.id} className="flex items-center gap-3">
@@ -216,8 +216,32 @@ React.useEffect(() => {
                                 <AvatarFallback>{name.slice(0,2).toUpperCase()}</AvatarFallback>
                               </Avatar>
                               <div className="text-sm font-medium truncate">{name}</div>
-                              <div className="ml-auto">
-                                <Button size="sm" variant="secondary">Vernetzen</Button>
+                              <div className="ml-auto flex items-center gap-2">
+                                {((statusMap[p.id] ?? 'none') === 'none' || (statusMap[p.id] ?? 'none') === 'declined') && (
+                                  <Button size="sm" variant="secondary" onClick={() => onConnect(p.id)}>
+                                    <UserPlus className="h-4 w-4 mr-1" /> Vernetzen
+                                  </Button>
+                                )}
+                                {(statusMap[p.id] === 'pending') && (
+                                  <>
+                                    <Button size="sm" variant="outline" disabled>
+                                      Ausstehend
+                                    </Button>
+                                    <Button size="sm" variant="ghost" onClick={() => onCancel(p.id)}>
+                                      Zurückziehen
+                                    </Button>
+                                  </>
+                                )}
+                                {(statusMap[p.id] === 'incoming') && (
+                                  <>
+                                    <Button size="sm" variant="secondary" onClick={() => onAccept(p.id)}>
+                                      <Check className="h-4 w-4 mr-1" /> Annehmen
+                                    </Button>
+                                    <Button size="sm" variant="ghost" onClick={() => onDecline(p.id)}>
+                                      <X className="h-4 w-4 mr-1" /> Ablehnen
+                                    </Button>
+                                  </>
+                                )}
                               </div>
                             </div>
                           );

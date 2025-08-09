@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import AdCard from "@/components/ads/AdCard";
-import { PeopleRecommendations } from "@/components/linkedin/right-rail/PeopleRecommendations";
+
 
 // Use an untyped Supabase instance to avoid type errors for tables
 // that are not present in the generated Supabase types yet.
@@ -29,20 +29,7 @@ type GroupReco = {
 };
 
 export function RightRail() {
-  const sponsoredQuery = useQuery<SponsoredItem | null>({
-    queryKey: ["marketplace-sponsored"],
-    queryFn: async () => {
-      // Pick any occupation as "sponsored" for demo
-      const { data, error } = await sb
-        .from("marketplace_items")
-        .select("id,title,image_url")
-        .eq("type", "occupation")
-        .order("created_at", { ascending: false })
-        .limit(1);
-      if (error) throw error;
-      return (data?.[0] as SponsoredItem) || null;
-    },
-  });
+  const sponsoredImageUrl: string | null = null;
 
   const companiesQuery = useQuery<CompanyReco[]>({
     queryKey: ["marketplace-companies-reco"],
@@ -52,23 +39,16 @@ export function RightRail() {
         .select("id, name, logo_url")
         .order("created_at", { ascending: false })
         .limit(3);
-      if (error) throw error;
+      if (error) return [] as CompanyReco[];
       return (data || []) as CompanyReco[];
     },
   });
 
-  const groupsQuery = useQuery<GroupReco[]>({
-    queryKey: ["marketplace-groups-trending"],
-    queryFn: async () => {
-      const { data, error } = await sb
-        .from("groups")
-        .select("id,name,member_count")
-        .order("member_count", { ascending: false })
-        .limit(3);
-      if (error) throw error;
-      return (data || []) as GroupReco[];
-    },
-  });
+  const groups: GroupReco[] = [
+    { id: "g1", name: "Azubis Maschinenbau", member_count: 124 },
+    { id: "g2", name: "IT Ausbildung & Karriere", member_count: 312 },
+    { id: "g3", name: "Handwerk Community DE", member_count: 208 },
+  ];
 
   return (
     <div className="space-y-4">
@@ -76,7 +56,7 @@ export function RightRail() {
       <AdCard
         title="Entdecke jetzt die Zukunft deiner Karriere"
         description="Teste unsere Tools für Azubis und Fachkräfte – kostenlos starten!"
-        imageUrl={sponsoredQuery.data?.image_url ?? null}
+        imageUrl={sponsoredImageUrl}
         ctaLabel="Jetzt testen"
       />
 
@@ -100,7 +80,7 @@ export function RightRail() {
       <Card className="p-4 rounded-2xl">
         <div className="text-sm font-medium mb-3">Beliebte Gruppen</div>
         <div className="space-y-3">
-          {(groupsQuery.data || []).map((g) => (
+          {(groups || []).map((g) => (
             <div key={g.id} className="flex items-center gap-3">
               <div className="h-8 w-8 rounded bg-muted overflow-hidden" />
               <div className="text-sm flex-1 truncate">{g.name}</div>
@@ -114,7 +94,7 @@ export function RightRail() {
       <AdCard
         title="Entdecke jetzt die Zukunft deiner Karriere"
         description="Teste unsere Tools für Azubis und Fachkräfte – kostenlos starten!"
-        imageUrl={sponsoredQuery.data?.image_url ?? null}
+        imageUrl={sponsoredImageUrl}
         ctaLabel="Jetzt testen"
       />
     </div>
