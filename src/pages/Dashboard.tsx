@@ -8,7 +8,7 @@ const Dashboard = () => {
   return (
     <main className="w-full">
       <h1 className="sr-only">Dashboard</h1>
-      <div className="mx-auto max-w-[1200px] px-4 sm:px-6 lg:px-8 py-6">
+      <div className="mx-auto max-w-screen-2xl px-3 sm:px-6 lg:px-8 py-6">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-6">
           {/* Left column */}
           <div className="hidden lg:block lg:col-span-3">
