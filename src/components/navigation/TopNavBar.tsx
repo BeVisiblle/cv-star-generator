@@ -42,9 +42,19 @@ export default function TopNavBar() {
       <div className="flex items-center gap-2 w-full">
         <SidebarTrigger className="mr-1" />
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-primary text-primary-foreground flex items-center justify-center font-bold text-sm">
-            AM
-          </div>
+          <button
+            onClick={() => navigate('/')}
+            className="flex items-center gap-2"
+            aria-label="Ausbildungsbasis Startseite"
+          >
+            <img
+              src="/lovable-uploads/8297f269-1ddb-4b49-a83d-9a561d9e57b4.png"
+              alt="Ausbildungsbasis Logo"
+              className="h-8 w-8 rounded-md object-contain"
+              loading="lazy"
+            />
+            <span className="hidden sm:inline font-semibold">Ausbildungsbasis</span>
+          </button>
         </div>
 
         {/* Global search next to logo */}
@@ -87,6 +97,7 @@ export default function TopNavBar() {
             }}
           />
         </div>
+        <img src="/lovable-uploads/8297f269-1ddb-4b49-a83d-9a561d9e57b4.png" alt="Ausbildungsbasis Logo" className="hidden sm:block h-7 w-auto ml-2" loading="lazy" />
         {/* Center title */}
         <div className="hidden md:block flex-1 text-center">
           <h1 className="text-sm sm:text-base font-medium truncate">{title}</h1>
