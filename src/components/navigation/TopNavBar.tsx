@@ -5,6 +5,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import SearchAutosuggest from "@/components/marketplace/SearchAutosuggest";
 import ConnectionsDrawer from "@/components/community/ConnectionsDrawer";
+import QuickMessageDialog from "@/components/community/QuickMessageDialog";
 const titleMap: Record<string, string> = {
   "/community/contacts": "Meine Kontakte",
   "/community/companies": "Unternehmen",
@@ -26,6 +27,7 @@ export default function TopNavBar() {
   const [q, setQ] = React.useState("");
   const [open, setOpen] = React.useState(false);
   const [drawerOpen, setDrawerOpen] = React.useState(false);
+  const [msgOpen, setMsgOpen] = React.useState(false);
   const handleSubmit = () => {
     const term = q.trim();
     const sp = new URLSearchParams(location.search);
@@ -80,7 +82,7 @@ export default function TopNavBar() {
           <button className="inline-flex items-center justify-center h-9 w-9 rounded-md hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" onClick={() => setDrawerOpen(true)} aria-label="Mein Netzwerk">
             <Users className="h-5 w-5" />
           </button>
-          <button className="inline-flex items-center justify-center h-9 w-9 rounded-md hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+          <button className="inline-flex items-center justify-center h-9 w-9 rounded-md hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" onClick={() => setMsgOpen(true)}>
             <MessageSquareMore className="h-5 w-5" />
             <span className="sr-only">Nachrichten</span>
           </button>
@@ -94,6 +96,7 @@ export default function TopNavBar() {
         </div>
 
         <ConnectionsDrawer open={drawerOpen} onOpenChange={setDrawerOpen} />
+        <QuickMessageDialog open={msgOpen} onOpenChange={setMsgOpen} />
       </div>
     </header>;
 }

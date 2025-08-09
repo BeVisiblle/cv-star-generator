@@ -1,5 +1,5 @@
 import React from 'react';
-import { Home, Users, Plus, Bell, Briefcase } from 'lucide-react';
+import { Home, Users, Plus, Bell, Briefcase, MessageSquareMore } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { openPostComposer } from '@/lib/event-bus';
 import { Button } from '@/components/ui/button';
