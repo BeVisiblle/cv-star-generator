@@ -53,19 +53,26 @@ export function AppSidebar() {
   };
   return <Sidebar className={collapsed ? "w-14" : "w-60"} collapsible="icon">
       <SidebarHeader className={`p-4 ${collapsed ? 'px-2' : ''}`}>
-        {!collapsed ? <div className="flex items-center space-x-2">
-            <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
-              <span className="text-primary-foreground font-bold text-sm"></span>
-            </div>
-            <div>
-              <h2 className="text-lg font-semibold">Ausbildungsbasis
-          </h2>
-            </div>
-          </div> : <div className="flex justify-center">
-            <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
-              <span className="text-primary-foreground font-bold text-sm">AM</span>
-            </div>
-          </div>}
+        {!collapsed ? (
+          <div className="flex items-center space-x-3">
+            <img
+              src="/lovable-uploads/8297f269-1ddb-4b49-a83d-9a561d9e57b4.png"
+              alt="Ausbildungsbasis Logo"
+              className="h-8 w-8 rounded-md object-contain"
+              loading="eager"
+            />
+            <h2 className="text-lg font-semibold">Ausbildungsbasis</h2>
+          </div>
+        ) : (
+          <div className="flex justify-center">
+            <img
+              src="/lovable-uploads/8297f269-1ddb-4b49-a83d-9a561d9e57b4.png"
+              alt="Ausbildungsbasis Logo"
+              className="h-8 w-8 rounded-md object-contain"
+              loading="eager"
+            />
+          </div>
+        )}
       </SidebarHeader>
 
       <SidebarContent>
