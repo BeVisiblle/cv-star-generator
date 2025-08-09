@@ -73,23 +73,23 @@ export function RightRail() {
     <div className="space-y-4">
       {/* Sponsored */}
       <Card className="p-4 rounded-2xl">
-        <div className="text-sm font-medium mb-3">Sponsored</div>
+        <div className="text-sm font-medium mb-3">Anzeige</div>
         {sponsoredQuery.data ? (
           <div className="space-y-2">
             {sponsoredQuery.data.image_url && (
-              <img src={sponsoredQuery.data.image_url} alt="" className="w-full h-28 object-cover rounded-lg" />
+              <img src={sponsoredQuery.data.image_url} alt="Anzeige" className="w-full h-28 object-cover rounded-lg" />
             )}
             <div className="font-semibold text-sm line-clamp-2">{sponsoredQuery.data.title}</div>
-            <Button size="sm" className="mt-2">Learn more</Button>
+            <Button size="sm" className="mt-2">Jetzt testen</Button>
           </div>
         ) : (
-          <div className="text-sm text-muted-foreground">No sponsored item</div>
+          <div className="text-sm text-muted-foreground">Keine Anzeige</div>
         )}
       </Card>
 
       {/* Recommended Companies */}
       <Card className="p-4 rounded-2xl">
-        <div className="text-sm font-medium mb-3">Recommended Companies</div>
+        <div className="text-sm font-medium mb-3">Interessante Unternehmen</div>
         <div className="space-y-3">
           {(companiesQuery.data || []).map((c) => (
             <div key={c.id} className="flex items-center gap-3">
@@ -97,7 +97,7 @@ export function RightRail() {
                 {c.logo_url ? <img src={c.logo_url} alt="" /> : null}
               </div>
               <div className="text-sm flex-1 truncate">{c.name}</div>
-              <Button size="sm" variant="secondary">Follow</Button>
+              <Button size="sm" variant="secondary">Folgen</Button>
             </div>
           ))}
         </div>
@@ -105,16 +105,31 @@ export function RightRail() {
 
       {/* Trending Groups */}
       <Card className="p-4 rounded-2xl">
-        <div className="text-sm font-medium mb-3">Trending Groups</div>
+        <div className="text-sm font-medium mb-3">Beliebte Gruppen</div>
         <div className="space-y-3">
           {(groupsQuery.data || []).map((g) => (
             <div key={g.id} className="flex items-center gap-3">
               <div className="h-8 w-8 rounded bg-muted overflow-hidden" />
               <div className="text-sm flex-1 truncate">{g.name}</div>
-              <Button size="sm" variant="secondary">Join</Button>
+              <Button size="sm" variant="secondary">Beitreten</Button>
             </div>
           ))}
         </div>
+      </Card>
+
+      <Card className="p-4 rounded-2xl">
+        <div className="text-sm font-medium mb-3">Anzeige</div>
+        {sponsoredQuery.data ? (
+          <div className="space-y-2">
+            {sponsoredQuery.data.image_url && (
+              <img src={sponsoredQuery.data.image_url} alt="Anzeige" className="w-full h-28 object-cover rounded-lg" />
+            )}
+            <div className="font-semibold text-sm line-clamp-2">{sponsoredQuery.data.title}</div>
+            <Button size="sm" className="mt-2">Jetzt testen</Button>
+          </div>
+        ) : (
+          <div className="text-sm text-muted-foreground">Keine Anzeige</div>
+        )}
       </Card>
     </div>
   );

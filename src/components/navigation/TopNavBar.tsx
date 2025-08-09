@@ -1,6 +1,6 @@
 import React from "react";
 import { SidebarTrigger } from "@/components/ui/sidebar";
-import { Bell, Search as SearchIcon } from "lucide-react";
+import { Bell, Search as SearchIcon, MessageSquareMore } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import SearchAutosuggest from "@/components/marketplace/SearchAutosuggest";
@@ -22,6 +22,9 @@ export default function TopNavBar() {
   const location = useLocation();
   const navigate = useNavigate();
   const path = location.pathname;
+  const title = Object.keys(titleMap).find((p) => path.startsWith(p))
+    ? titleMap[Object.keys(titleMap).find((p) => path.startsWith(p)) as string]
+    : "Home Feed";
   const [q, setQ] = React.useState("");
   const [open, setOpen] = React.useState(false);
 
@@ -63,14 +66,25 @@ export default function TopNavBar() {
             }}
           />
         </div>
+        {/* Center title */}
+        <div className="hidden md:block flex-1 text-center">
+          <h1 className="text-sm sm:text-base font-medium truncate">{title}</h1>
+        </div>
 
-        <button className="relative inline-flex items-center justify-center h-9 w-9 rounded-md hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
-          <Bell className="h-5 w-5" />
-          <span className="absolute -top-0.5 -right-0.5 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-primary text-primary-foreground text-[10px] leading-none px-1">
-            3
-          </span>
-          <span className="sr-only">Benachrichtigungen</span>
-        </button>
+        {/* Right actions: Messages then Bell */}
+        <div className="flex items-center gap-1">
+          <button className="inline-flex items-center justify-center h-9 w-9 rounded-md hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+            <MessageSquareMore className="h-5 w-5" />
+            <span className="sr-only">Nachrichten</span>
+          </button>
+          <button className="relative inline-flex items-center justify-center h-9 w-9 rounded-md hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+            <Bell className="h-5 w-5" />
+            <span className="absolute -top-0.5 -right-0.5 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-primary text-primary-foreground text-[10px] leading-none px-1">
+              3
+            </span>
+            <span className="sr-only">Benachrichtigungen</span>
+          </button>
+        </div>
       </div>
     </header>
   );
