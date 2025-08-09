@@ -233,11 +233,38 @@ export default function CommunityFeed() {
       )}
 
       {isEmpty ? (
-        <Card className="p-6">
-          <p className="text-center text-muted-foreground">
-            Noch keine Beiträge in deinem Netzwerk. Folge anderen, um Beiträge zu sehen!
-          </p>
-        </Card>
+        <>
+          {Array.from({ length: 10 }).map((_, i) => (
+            <PostCard
+              key={`demo-${i}`}
+              post={{
+                id: `demo-${i}`,
+                content:
+                  [
+                    'Heute habe ich mich für drei neue Ausbildungsstellen beworben – drückt mir die Daumen!',
+                    'Tipps für ein gelungenes Anschreiben: kurz, prägnant und persönlich.',
+                    'Mein Wochenziel: Lebenslauf überarbeiten und ein neues Projekt starten.',
+                    'Wer hat Erfahrungen mit Praktika in Frankfurt? Empfehlungen willkommen!',
+                    'Kleiner Erfolg: Mein erstes Vorstellungsgespräch steht – ich bin gespannt!',
+                    'Ich übe gerade technische Basics täglich 30 Minuten – Kontinuität hilft.',
+                    'Kennt ihr gute Online‑Kurse für Handwerk/IT? Würde mich über Links freuen.',
+                    'Feedback gesucht: Wie wirkt mein Profiltext? Kurze Hinweise sehr willkommen.',
+                    'Community‑Frage: Welche Soft Skills sind euch im Team am wichtigsten?',
+                    'Motivation des Tages: Jeden Tag eine kleine Sache besser machen.'
+                  ][i % 10],
+                created_at: new Date(Date.now() - i * 3600_000).toISOString(),
+                user_id: 'demo',
+                author: {
+                  id: 'demo',
+                  vorname: ['Lena','Max','Sara','Jonas','Mia','Paul','Amira','Leo','Nina','Tom'][i % 10],
+                  nachname: ['K.','M.','S.','J.','B.','P.','A.','L.','N.','T.'][i % 10],
+                  avatar_url: undefined,
+                  ausbildungsberuf: ['Kaufmännische Ausbildung','IT‑Support','Marketing','Handwerk','Technik'][i % 5]
+                }
+              }}
+            />
+          ))}
+        </>
       ) : (
         <>
           <div className="space-y-4">
