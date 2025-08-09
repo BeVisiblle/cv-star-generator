@@ -47,30 +47,30 @@ export const CreatePost = ({ container = "card", hideHeader = false, variant = "
   const [eventLink, setEventLink] = useState<string>("");
 
   const createPostMutation = useMutation({
-    mutationFn: async ({ content, imageUrl }: { content: string; imageUrl?: string }) => {
-      const { data: user } = await supabase.auth.getUser();
-      if (!user.user) throw new Error("Not authenticated");
+    mutationFn: async ({ id, content, imageUrl }: { id: string; content: string; imageUrl?: string }) => {
+      const { data: authData } = await supabase.auth.getUser();
+      const user = authData.user;
+      if (!user) throw new Error("Not authenticated");
 
       const scheduledISO = scheduledAt && new Date(scheduledAt) > new Date()
         ? new Date(scheduledAt).toISOString()
         : null;
 
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from("posts")
         .insert({
+          id,
           content,
           image_url: imageUrl,
-          user_id: user.user.id,
-          author_id: user.user.id,
+          user_id: user.id,
+          author_id: user.id,
           celebration,
           status: scheduledISO ? 'scheduled' : 'published',
           scheduled_at: scheduledISO
-        })
-        .select()
-        .single();
+        });
 
       if (error) throw error;
-      return data;
+      return { id };
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["community-posts"] });
@@ -175,7 +175,8 @@ const handleImageSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
         imageUrl = await uploadImage(imageFile);
       }
 
-      const newPost = await createPostMutation.mutateAsync({ content, imageUrl });
+      const postId = crypto.randomUUID();
+      const newPost = await createPostMutation.mutateAsync({ id: postId, content, imageUrl });
 
       // Upload and attach document if present
       if (documentFile) {
@@ -196,16 +197,15 @@ const handleImageSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
         const options = pollOptions.map(o => o.trim()).filter(Boolean);
         if (options.length >= 2) {
           const endsAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
-          const { data: poll, error: pollErr } = await supabase
+          const pollId = crypto.randomUUID();
+          const { error: pollErr } = await supabase
             .from('post_polls')
-            .insert({ post_id: newPost.id, question: pollQuestion.trim(), ends_at: endsAt })
-            .select()
-            .single();
+            .insert({ id: pollId, post_id: newPost.id, question: pollQuestion.trim(), ends_at: endsAt });
           if (pollErr) throw pollErr;
 
           const { error: optErr } = await supabase
             .from('post_poll_options')
-            .insert(options.map((option_text: string) => ({ poll_id: poll.id, option_text })));
+            .insert(options.map((option_text: string) => ({ poll_id: pollId, option_text })));
           if (optErr) throw optErr;
         }
       }
@@ -374,7 +374,7 @@ const handleImageSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
         {content.length}/500 Zeichen
       </div>
       <Button 
-        disabled={(!content.trim() && !imageFile) || isSubmitting}
+        disabled={(!(content.trim() || imageFile || documentFile || (showPoll && !!pollQuestion.trim() && pollOptions.filter(o=>o.trim()).length>=2) || (showEvent && !!eventTitle.trim() && eventStartDate && eventStartTime && eventEndDate && eventEndTime)) || isSubmitting)}
         onClick={handleSubmit}
         className="flex items-center gap-2"
       >
