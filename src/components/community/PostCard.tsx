@@ -85,14 +85,14 @@ export default function PostCard({ post }: PostCardProps) {
   };
 
   return (
-    <Card id={`post-${post.id}`} className="p-0">
+    <Card id={`post-${post.id}`} className="p-0 w-full max-w-[min(100vw,420px)] mx-auto">
       {post.recent_interaction && (
         <div className="px-4 py-2 text-xs text-muted-foreground border-b">
           {post.recent_interaction}
         </div>
       )}
 
-      <div className="p-6 space-y-4">
+      <div className="p-4 sm:p-5 md:p-6 space-y-4">
         {/* Post Header */}
         <div className="flex items-start space-x-3">
           <div className="cursor-pointer" onClick={() => navigate(`/u/${post.author?.id || post.user_id}`)}>
@@ -139,7 +139,7 @@ export default function PostCard({ post }: PostCardProps) {
             <img
               src={post.image_url}
               alt="Post image"
-              className="rounded-lg max-w-full h-auto"
+              className="rounded-lg w-full h-auto max-h-[52vh] object-cover"
             />
           )}
         </div>
