@@ -521,7 +521,7 @@ export const LinkedInProfileSidebar: React.FC<LinkedInProfileSidebarProps> = ({
       {showCVSection && (
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg font-semibold flex items-center justify-between">
+            <CardTitle className="text-lg font-semibold flex items-center justify-between flex-wrap gap-2">
               Mein Lebenslauf
               {!readOnly && (
                 <div className="flex gap-1">
@@ -535,7 +535,7 @@ export const LinkedInProfileSidebar: React.FC<LinkedInProfileSidebarProps> = ({
           <CardContent className="space-y-3">
             {!readOnly && showCVPreview && !isMobile && profile?.vorname && profile?.nachname ? (
               <div className="border rounded-lg overflow-hidden bg-white">
-                <div className="bg-muted px-3 py-2 text-xs sm:text-sm font-medium flex justify-between items-center">
+                <div className="bg-muted px-3 py-2 text-xs sm:text-sm font-medium flex flex-wrap justify-between items-center gap-2">
                   <span className="truncate">Vorschau: {getLayoutName()}</span>
                   <Button variant="ghost" size="sm" onClick={() => setShowCVPreview(false)} className="h-6 w-6 p-0 min-w-[24px]">
                     <X className="h-3 w-3" />
@@ -600,7 +600,7 @@ export const LinkedInProfileSidebar: React.FC<LinkedInProfileSidebarProps> = ({
                 <p className="text-sm font-medium">
                   {readOnly ? "Verfügbare Dokumente:" : "Gespeicherte Dokumente:"}
                 </p>
-                {userDocuments.map(doc => <div key={doc.id} className="flex items-center justify-between text-xs bg-muted p-2 rounded">
+                {userDocuments.map(doc => <div key={doc.id} className="flex flex-wrap items-center justify-between text-xs bg-muted p-2 rounded">
                     <div className="flex items-center gap-2 flex-1 min-w-0">
                       <FileText className="h-4 w-4 text-muted-foreground flex-shrink-0" />
                       <span className="truncate">{doc.original_name}</span>
@@ -634,7 +634,7 @@ export const LinkedInProfileSidebar: React.FC<LinkedInProfileSidebarProps> = ({
         <div className="space-y-2">
           {profile?.sprachen && profile.sprachen.length > 0 ? (
             profile.sprachen.map((lang: any, index: number) => (
-              <div key={index} className="flex justify-between items-center">
+              <div key={index} className="flex flex-wrap justify-between items-center gap-2">
                 <span className="font-medium">{lang.sprache}</span>
                 <Badge variant="secondary">{lang.niveau}</Badge>
               </div>

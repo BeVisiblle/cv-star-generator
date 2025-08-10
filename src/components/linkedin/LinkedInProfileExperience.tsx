@@ -200,7 +200,7 @@ export const LinkedInProfileExperience: React.FC<LinkedInProfileExperienceProps>
 
   return (
     <Card>
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3 md:pb-4">
+      <CardHeader className="flex flex-row flex-wrap items-center justify-between gap-2 space-y-0 pb-3 md:pb-4">
         <CardTitle className="text-lg md:text-xl font-semibold flex items-center gap-2">
           <Building className="h-4 w-4 md:h-5 md:w-5" />
           <span className="hidden sm:inline">Berufserfahrung</span>

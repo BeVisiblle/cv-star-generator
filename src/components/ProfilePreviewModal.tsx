@@ -97,7 +97,7 @@ export function ProfilePreviewModal({ isOpen, onClose, profileData, onPublish }:
           {/* Company View Card */}
           <Card className="border-2 border-primary/20 bg-gradient-to-br from-background to-muted/30">
             <CardContent className="p-6">
-              <div className="flex items-start gap-4">
+              <div className="flex flex-wrap items-start gap-4">
                 <Avatar className="w-16 h-16 border-2 border-background shadow-md">
                   <AvatarImage 
                     src={typeof profileData.profilbild === 'string' ? profileData.profilbild : undefined} 
@@ -118,7 +118,7 @@ export function ProfilePreviewModal({ isOpen, onClose, profileData, onPublish }:
                     </p>
                   </div>
 
-                  <div className="flex items-center gap-4 text-muted-foreground">
+                  <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-muted-foreground">
                     {profileData.ort && (
                       <div className="flex items-center gap-1">
                         <MapPin className="h-4 w-4" />

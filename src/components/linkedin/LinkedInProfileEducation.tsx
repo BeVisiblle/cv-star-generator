@@ -215,7 +215,7 @@ export const LinkedInProfileEducation: React.FC<LinkedInProfileEducationProps> =
 
   return (
     <Card>
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+      <CardHeader className="flex flex-row flex-wrap items-center justify-between gap-2 space-y-0 pb-4">
         <CardTitle className="text-xl font-semibold flex items-center gap-2">
           <GraduationCap className="h-5 w-5" />
           Ausbildung
@@ -276,7 +276,7 @@ export const LinkedInProfileEducation: React.FC<LinkedInProfileEducationProps> =
                     <GraduationCap className="h-6 w-6 text-accent-foreground" />
                   </div>
                   
-                  <div className="flex-1">
+                  <div className="flex-1 min-w-0">
                     <div className="flex flex-wrap items-start justify-between gap-2">
                       <div>
                         <h3 className="font-semibold text-lg">{edu.schulform}</h3>

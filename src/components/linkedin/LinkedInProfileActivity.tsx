@@ -137,10 +137,10 @@ const isOwner = user?.id === profile?.id;
 
   return (
     <Card>
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+      <CardHeader className="flex flex-row flex-wrap items-center justify-between gap-2 space-y-0 pb-3">
         <CardTitle className="text-lg font-semibold">Aktivitäten</CardTitle>
         {isOwner && (
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <Button variant="outline" size="sm" onClick={() => openPostComposer()}>Beitrag erstellen</Button>
             <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setPrefOpen(true)} title="Einstellungen">
               <Pencil className="h-4 w-4" />

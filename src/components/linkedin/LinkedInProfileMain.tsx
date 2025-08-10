@@ -33,8 +33,8 @@ export const LinkedInProfileMain: React.FC<LinkedInProfileMainProps> = ({
   return <div className="space-y-6">
       {/* About Section */}
       <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
-          <CardTitle className="text-xl font-semibold">{isOwner ? 'Über mich' : `Über ${profile?.vorname || 'diese Person'}`}</CardTitle>
+        <CardHeader className="flex flex-row flex-wrap items-center justify-between gap-2 space-y-0 pb-4">
+          <CardTitle className="text-xl font-semibold truncate">{isOwner ? 'Über mich' : `Über ${profile?.vorname || 'diese Person'}`}</CardTitle>
           {isOwner && !isEditingAbout && (
             <Button variant="ghost" size="sm" onClick={() => setIsEditingAbout(true)} className="opacity-60 hover:opacity-100">
               <Edit3 className="h-4 w-4" />
