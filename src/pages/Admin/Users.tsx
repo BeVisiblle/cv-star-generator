@@ -2,56 +2,76 @@ import React from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useAdminSession } from "@/hooks/useAdminSession";
 import { Navigate } from "react-router-dom";
+import { useUsers } from "@/hooks/useUsers";
+import { UserDrawer } from "@/components/admin/UserDrawer";
 
 export default function UsersPage() {
   const { role } = useAdminSession();
+  const [search, setSearch] = React.useState("");
+  const [status, setStatus] = React.useState<"all" | "published" | "incomplete">("all");
+  const [page, setPage] = React.useState(1);
+  const [selected, setSelected] = React.useState<any | null>(null);
+  const [debounced, setDebounced] = React.useState("");
+  React.useEffect(() => {
+    const t = setTimeout(() => setDebounced(search), 300);
+    return () => clearTimeout(t);
+  }, [search]);
+  const { data, isLoading, error } = useUsers({ search: debounced, status, page, pageSize: 10 });
 
   if (role === "CompanyAdmin") {
     return <Navigate to="/admin" replace />;
   }
 
   const canEdit = role === "SuperAdmin" || role === "SupportAgent";
-
-  const rows = [
-    { name: "Max Mustermann", role: "Azubi", email: "max@example.com", signup: "2025-07-01", status: "active" },
-    { name: "Erika Musterfrau", role: "Schüler", email: "erika@example.com", signup: "2025-07-03", status: "active" },
-  ];
+  const total = data?.total ?? 0;
+  const totalPages = Math.max(1, Math.ceil(total / 10));
 
   return (
     <div className="px-3 sm:px-6 py-6 max-w-[1200px] mx-auto">
       <h1 className="text-2xl font-semibold mb-4">Users</h1>
       <div className="rounded-2xl border bg-card shadow-sm p-4">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
-          <input placeholder="Search users" className="h-9 w-full sm:w-64 rounded-md border px-3 focus:outline-none focus:ring-2 focus:ring-[hsl(var(--accent))]" />
+          <input value={search} onChange={(e) => { setSearch(e.target.value); setPage(1); }} placeholder="Search users" className="h-9 w-full sm:w-64 rounded-md border px-3 focus:outline-none focus:ring-2 focus:ring-[hsl(var(--accent))]" />
           <div className="flex gap-2">
-            <select className="h-9 rounded-md border px-2"><option>All roles</option></select>
-            <select className="h-9 rounded-md border px-2"><option>All status</option></select>
+            <select value={status} onChange={(e) => { setStatus(e.target.value as any); setPage(1); }} className="h-9 rounded-md border px-2">
+              <option value="all">All</option>
+              <option value="published">Published</option>
+              <option value="incomplete">Incomplete</option>
+            </select>
           </div>
         </div>
+
         <div className="w-full overflow-auto">
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>Role</TableHead>
                 <TableHead>Email</TableHead>
                 <TableHead>Signup</TableHead>
-                <TableHead>Status</TableHead>
+                <TableHead>Published</TableHead>
+                <TableHead>Complete</TableHead>
                 {canEdit && <TableHead>Actions</TableHead>}
               </TableRow>
             </TableHeader>
             <TableBody>
-              {rows.map((r) => (
-                <TableRow key={r.email}>
-                  <TableCell>{r.name}</TableCell>
-                  <TableCell>{r.role}</TableCell>
-                  <TableCell>{r.email}</TableCell>
-                  <TableCell>{r.signup}</TableCell>
-                  <TableCell>{r.status}</TableCell>
+              {isLoading && (
+                <TableRow><TableCell colSpan={5} className="py-6 text-muted-foreground">Loading…</TableCell></TableRow>
+              )}
+              {!isLoading && error && (
+                <TableRow><TableCell colSpan={5} className="py-6 text-muted-foreground">No permission or error loading users.</TableCell></TableRow>
+              )}
+              {!isLoading && !error && data && data.users.length === 0 && (
+                <TableRow><TableCell colSpan={5} className="py-6 text-muted-foreground">No users found.</TableCell></TableRow>
+              )}
+              {!isLoading && !error && data && data.users.map((u) => (
+                <TableRow key={u.id}>
+                  <TableCell>{u.email ?? "—"}</TableCell>
+                  <TableCell>{u.created_at ? new Date(u.created_at).toLocaleDateString() : "—"}</TableCell>
+                  <TableCell>{u.profile_published ? "Yes" : "No"}</TableCell>
+                  <TableCell>{u.profile_complete ? "Yes" : "No"}</TableCell>
                   {canEdit && (
                     <TableCell>
                       <div className="flex gap-2">
-                        <button className="text-primary underline">View</button>
+                        <button className="text-primary underline" onClick={() => setSelected(u)}>View</button>
                         <button className="text-primary underline">Impersonate</button>
                       </div>
                     </TableCell>
@@ -61,7 +81,17 @@ export default function UsersPage() {
             </TableBody>
           </Table>
         </div>
+
+        <div className="mt-4 flex items-center justify-between text-sm">
+          <span className="text-muted-foreground">Page {page} of {totalPages}</span>
+          <div className="flex gap-2">
+            <button className="px-3 py-1 rounded-md border disabled:opacity-50" disabled={page <= 1} onClick={() => setPage((p) => Math.max(1, p - 1))}>Previous</button>
+            <button className="px-3 py-1 rounded-md border disabled:opacity-50" disabled={page >= totalPages} onClick={() => setPage((p) => Math.min(totalPages, p + 1))}>Next</button>
+          </div>
+        </div>
       </div>
+
+      <UserDrawer user={selected} open={!!selected} onOpenChange={(v) => !v && setSelected(null)} />
     </div>
   );
 }
