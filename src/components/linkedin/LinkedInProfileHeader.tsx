@@ -158,7 +158,7 @@ export const LinkedInProfileHeader: React.FC<LinkedInProfileHeaderProps> = ({
     let updates: any = {};
     
     switch (profile.status) {
-      case 'schueler':
+      case 'Schueler':
         updates.geplanter_abschluss = newPosition;
         // Update schulbildung if exists
         if (profile.schulbildung && profile.schulbildung.length > 0) {
@@ -168,7 +168,7 @@ export const LinkedInProfileHeader: React.FC<LinkedInProfileHeaderProps> = ({
         }
         break;
         
-      case 'azubi':
+      case 'Azubi':
         updates.ausbildungsberuf = newPosition;
         // Update berufserfahrung if exists
         if (profile.berufserfahrung && profile.berufserfahrung.length > 0) {
@@ -184,7 +184,7 @@ export const LinkedInProfileHeader: React.FC<LinkedInProfileHeaderProps> = ({
         }
         break;
         
-      case 'ausgelernt':
+      case 'Ausgelernt':
         updates.aktueller_beruf = newPosition;
         // Update berufserfahrung if exists
         if (profile.berufserfahrung && profile.berufserfahrung.length > 0) {
@@ -219,10 +219,10 @@ export const LinkedInProfileHeader: React.FC<LinkedInProfileHeaderProps> = ({
 
   const getEmployerOrSchool = (p: any) => {
     if (!p) return '';
-    if (p.status === 'schueler') {
+    if (p.status === 'Schueler') {
       return p.schule || p.schulbildung?.[0]?.institution || '';
     }
-    if (p.status === 'azubi' || p.status === 'ausgelernt') {
+    if (p.status === 'Azubi' || p.status === 'Ausgelernt') {
       const current = p.berufserfahrung?.find((job: any) => !job.bis || new Date(job.bis) > new Date());
       return current?.unternehmen || p.ausbildungsbetrieb || '';
     }
@@ -235,14 +235,14 @@ export const LinkedInProfileHeader: React.FC<LinkedInProfileHeaderProps> = ({
     const currentYear = new Date().getFullYear();
     
     switch (profile.status) {
-      case 'schueler':
+      case 'Schueler':
         const schoolName = profile.schule || profile.schulbildung?.[0]?.institution || 'Schule';
         const graduationYear = profile.abschlussjahr || 
           (profile.schulbildung?.[0]?.bis ? new Date(profile.schulbildung[0].bis).getFullYear() : currentYear + 1);
         const studentPosition = getCurrentPosition(profile);
         return `${studentPosition} an der ${schoolName}, Abschluss voraussichtlich ${graduationYear}`;
       
-      case 'azubi':
+      case 'Azubi':
         const currentJob = profile.berufserfahrung?.find((job: any) => !job.bis || new Date(job.bis) > new Date());
         const company = profile.ausbildungsbetrieb || currentJob?.unternehmen || 'Betrieb';
         const endDate = profile.voraussichtliches_ende || 
@@ -250,7 +250,7 @@ export const LinkedInProfileHeader: React.FC<LinkedInProfileHeaderProps> = ({
         const apprenticePosition = getCurrentPosition(profile);
         return `${apprenticePosition} bei ${company} bis ${endDate}`;
       
-      case 'ausgelernt':
+      case 'Ausgelernt':
         const currentEmployment = profile.berufserfahrung?.find((job: any) => !job.bis || new Date(job.bis) > new Date());
         const employer = currentEmployment?.unternehmen || 'Unternehmen';
         const startYear = profile.abschlussjahr_ausgelernt || 
