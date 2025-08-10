@@ -24,14 +24,14 @@ import { useFollowCompany } from '@/hooks/useFollowCompany';
 const CompanyListItem: React.FC<{ c: Company }> = ({ c }) => {
   const { isFollowing, toggleFollow, loading } = useFollowCompany(c.id);
   return (
-    <div className="flex items-center gap-3">
+    <div className="flex flex-wrap items-center gap-3">
       <Link to={`/companies/${c.id}`} className="h-8 w-8 rounded bg-muted overflow-hidden flex-shrink-0">
         {c.logo_url ? <img src={c.logo_url} alt={c.name} /> : null}
       </Link>
       <Link to={`/companies/${c.id}`} className="text-sm font-medium truncate hover:underline">
         {c.name}
       </Link>
-      <div className="ml-auto">
+      <div className="w-full sm:w-auto sm:ml-auto">
         <Button size="sm" variant={isFollowing ? 'secondary' : 'default'} onClick={toggleFollow} disabled={loading}>
           {isFollowing ? 'Gefolgt' : 'Folgen'}
         </Button>
@@ -221,7 +221,7 @@ React.useEffect(() => {
                 {showPeople && (
                   <section id="personen">
                     <Card className="p-4 rounded-2xl">
-                      <div className="flex items-center justify-between mb-3">
+                      <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
                         <h2 className="text-lg font-semibold">Interessante Personen</h2>
                         <Button variant="ghost" size="sm" onClick={() => setMorePeople((v) => !v)}>
                           {morePeople ? 'Weniger anzeigen' : 'Mehr anzeigen'}
@@ -231,7 +231,7 @@ React.useEffect(() => {
                         {(peopleQuery.data || []).filter((p) => p.id !== user?.id && statusMap[p.id] !== 'accepted').map((p) => {
                           const name = `${p.vorname ?? ''} ${p.nachname ?? ''}`.trim() || 'Unbekannt';
                           return (
-                            <div key={p.id} className="flex items-center gap-3">
+                            <div key={p.id} className="flex flex-wrap items-center gap-3">
                               <Link to={`/u/${p.id}`} className="flex items-center gap-3 min-w-0">
                                 <Avatar className="h-8 w-8">
                                   <AvatarImage src={p.avatar_url ?? undefined} alt={name} />
@@ -239,7 +239,7 @@ React.useEffect(() => {
                                 </Avatar>
                                 <div className="text-sm font-medium truncate hover:underline">{name}</div>
                               </Link>
-                              <div className="ml-auto flex items-center gap-2">
+                              <div className="w-full sm:w-auto sm:ml-auto flex items-center gap-2 flex-wrap">
                                 {((statusMap[p.id] ?? 'none') === 'none' || (statusMap[p.id] ?? 'none') === 'declined') && (
                                   <Button size="sm" variant="secondary" onClick={() => onConnect(p.id)}>
                                     <UserPlus className="h-4 w-4 mr-1" /> Vernetzen
@@ -281,7 +281,7 @@ React.useEffect(() => {
                 {showCompanies && (
                   <section id="unternehmen">
                     <Card className="p-4 rounded-2xl">
-                      <div className="flex items-center justify-between mb-3">
+                      <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
                         <h2 className="text-lg font-semibold">Interessante Unternehmen</h2>
                         <Button variant="ghost" size="sm" onClick={() => setMoreCompanies((v) => !v)}>
                           {moreCompanies ? 'Weniger anzeigen' : 'Mehr anzeigen'}
@@ -303,7 +303,7 @@ React.useEffect(() => {
                 {showPosts && (
                   <section id="beitraege">
                     <Card className="p-4 rounded-2xl">
-                      <div className="flex items-center justify-between mb-3">
+                      <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
                         <h2 className="text-lg font-semibold">Interessante Beiträge</h2>
                         <Button variant="ghost" size="sm" onClick={() => setMorePosts((v) => !v)}>
                           {morePosts ? 'Weniger anzeigen' : 'Mehr anzeigen'}
@@ -328,7 +328,7 @@ React.useEffect(() => {
                 {showGroups && (
                   <section id="gruppen">
                     <Card className="p-4 rounded-2xl">
-                      <div className="flex items-center justify-between mb-3">
+                      <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
                         <h2 className="text-lg font-semibold">Gruppen</h2>
                         <Button variant="ghost" size="sm" disabled>
                           Mehr anzeigen

@@ -154,8 +154,8 @@ export default function PostCard({ post }: PostCardProps) {
         </div>
 
         {/* Post Actions */}
-        <div className="flex items-center justify-between pt-2 border-t">
-          <div className="flex items-center space-x-1 sm:space-x-2">
+        <div className="flex flex-wrap items-center justify-between gap-1 pt-2 border-t">
+          <div className="flex flex-wrap items-center gap-1 sm:gap-2">
             <Button
               variant="ghost"
               size="sm"
@@ -190,12 +190,12 @@ export default function PostCard({ post }: PostCardProps) {
         {/* Comments Section */}
         {showComments && (
           <div className="space-y-3 pt-3 border-t">
-            <div className="flex space-x-2">
+            <div className="flex flex-wrap gap-2">
               <Input
                 placeholder="Schreibe einen Kommentar..."
                 value={newComment}
                 onChange={(e) => setNewComment(e.target.value)}
-                className="flex-1"
+                className="flex-1 min-w-0"
               />
               <Button
                 size="sm"

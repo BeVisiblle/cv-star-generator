@@ -17,7 +17,7 @@ export const ComposerTeaser: React.FC = () => {
       className="p-4 sm:p-5 hover-scale cursor-pointer"
     >
       <div className="flex items-start gap-3">
-        <Avatar className="h-10 w-10">
+        <Avatar className="h-10 w-10 shrink-0">
           <AvatarImage src={profile?.avatar_url || undefined} alt={`${profile?.vorname ?? 'Unbekannt'} Avatar`} />
           <AvatarFallback>
             {profile?.vorname && profile?.nachname
@@ -32,17 +32,17 @@ export const ComposerTeaser: React.FC = () => {
           </div>
 
           {/* Quick actions */}
-          <div className="mt-3 flex items-center gap-2 sm:gap-3">
-            <Button type="button" variant="ghost" size="sm" className="h-8 px-2" onClick={openPostComposer}>
+          <div className="mt-3 flex flex-wrap items-center gap-2 sm:gap-3">
+            <Button type="button" variant="ghost" size="sm" className="h-8 px-2 text-xs" onClick={openPostComposer}>
               <ImageIcon className="h-4 w-4 mr-2" /> Bild/Video
             </Button>
-            <Button type="button" variant="ghost" size="sm" className="h-8 px-2" onClick={openPostComposer}>
+            <Button type="button" variant="ghost" size="sm" className="h-8 px-2 text-xs" onClick={openPostComposer}>
               <Calendar className="h-4 w-4 mr-2" /> Event
             </Button>
-            <Button type="button" variant="ghost" size="sm" className="h-8 px-2" onClick={openPostComposer}>
+            <Button type="button" variant="ghost" size="sm" className="h-8 px-2 text-xs" onClick={openPostComposer}>
               <FileText className="h-4 w-4 mr-2" /> Dokument
             </Button>
-            <Button type="button" variant="ghost" size="sm" className="h-8 px-2" onClick={openPostComposer}>
+            <Button type="button" variant="ghost" size="sm" className="h-8 px-2 text-xs" onClick={openPostComposer}>
               <ChartBar className="h-4 w-4 mr-2" /> Umfrage
             </Button>
           </div>

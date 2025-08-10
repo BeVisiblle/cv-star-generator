@@ -13,14 +13,14 @@ export function CompanyHeader() {
         <SidebarTrigger className="mr-4" />
         
         {company && (
-          <div className="flex items-center space-x-3">
-            <Avatar className="h-8 w-8">
+          <div className="flex items-center space-x-3 min-w-0">
+            <Avatar className="h-8 w-8 shrink-0">
               <AvatarImage src={company.logo_url || ""} alt={company.name} />
               <AvatarFallback>
                 {company.name.charAt(0).toUpperCase()}
               </AvatarFallback>
             </Avatar>
-            <span className="font-medium">{company.name}</span>
+            <span className="font-medium truncate max-w-[50vw] md:max-w-none">{company.name}</span>
           </div>
         )}
       </div>
