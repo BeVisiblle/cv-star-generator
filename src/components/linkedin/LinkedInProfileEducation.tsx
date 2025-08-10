@@ -244,6 +244,27 @@ export const LinkedInProfileEducation: React.FC<LinkedInProfileEducationProps> =
     handleSave();
   };
 
+  const handleSaveAndNewWithValidation = () => {
+    // Validate date range
+    if (formData.zeitraum_von && formData.zeitraum_bis) {
+      const fromYear = parseInt(formData.zeitraum_von);
+      const toYear = parseInt(formData.zeitraum_bis);
+      if (fromYear > toYear) {
+        alert('Das Startjahr muss vor dem Endjahr liegen.');
+        return;
+      }
+    }
+    const toSave: Education = {
+      ...formData,
+      name: capitalizeWords(formData.name),
+      ort: capitalizeWords(formData.ort),
+      beschreibung: formData.beschreibung ? capitalizeSentences(formData.beschreibung) : ''
+    };
+    onEducationUpdate([...education, toSave]);
+    resetForm();
+    setIsAddingNew(true);
+    setEditingIndex(null);
+  };
   const sortedEducation = useMemo(() => {
     return education
       .map((item, i) => ({ item, i }))
@@ -254,139 +275,6 @@ export const LinkedInProfileEducation: React.FC<LinkedInProfileEducationProps> =
         return a.i - b.i; // tie-breaker to keep original order stable
       });
   }, [education]);
-
-  const EducationForm = () => (
-    <div className="space-y-4 w-full max-w-full overflow-hidden">
-      <div className="grid grid-cols-1 gap-4">
-        <div>
-          <Label htmlFor="schulform">Schulform/Abschluss</Label>
-          <Select
-            value={formData.schulform}
-            onValueChange={(v) => setFormData({ ...formData, schulform: v })}
-          >
-            <SelectTrigger className="text-sm w-full">
-              <SelectValue placeholder="z.B. Abitur, Realschulabschluss" />
-            </SelectTrigger>
-            <SelectContent className="z-[70] bg-background">
-              <SelectItem value="Abitur">Abitur</SelectItem>
-              <SelectItem value="Fachabitur">Fachabitur</SelectItem>
-              <SelectItem value="Realschulabschluss">Realschulabschluss</SelectItem>
-              <SelectItem value="Hauptschulabschluss">Hauptschulabschluss</SelectItem>
-              <SelectItem value="Ausbildung">Ausbildung</SelectItem>
-              <SelectItem value="Berufsschule">Berufsschule</SelectItem>
-              <SelectItem value="Bachelor">Bachelor</SelectItem>
-              <SelectItem value="Master">Master</SelectItem>
-              <SelectItem value="Sonstiges">Sonstiges</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-        <div>
-          <Label htmlFor="name">Institution</Label>
-          <Input
-            id="name"
-            value={formData.name}
-            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-            
-            placeholder="z.B. Max-Mustermann-Gymnasium"
-            className="text-sm w-full"
-          />
-        </div>
-      </div>
-      
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="sm:col-span-2">
-          <Label htmlFor="ort">Ort</Label>
-          <Input
-            id="ort"
-            value={formData.ort}
-            onChange={(e) => setFormData({ ...formData, ort: e.target.value })}
-            
-            placeholder="z.B. München"
-            className="text-sm w-full"
-          />
-        </div>
-        <div>
-          <Label htmlFor="plz">PLZ</Label>
-          <Input
-            id="plz"
-            value={formData.plz}
-            onChange={(e) => setFormData({ ...formData, plz: e.target.value })}
-            placeholder="80331"
-            inputMode="numeric"
-            pattern="[0-9]*"
-            className="text-sm w-full"
-          />
-        </div>
-      </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <Label htmlFor="zeitraum_von">Von (Jahr)</Label>
-            <Select
-              value={formData.zeitraum_von}
-              onValueChange={(v) => setFormData({ ...formData, zeitraum_von: v })}
-            >
-              <SelectTrigger className="text-sm w-full">
-                <SelectValue placeholder="z.B. 2020" />
-              </SelectTrigger>
-              <SelectContent className="z-[70] bg-background max-h-64">
-                {years.map((y) => (
-                  <SelectItem key={y} value={y}>{y}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <div>
-            <Label htmlFor="zeitraum_bis">Bis (Jahr)</Label>
-            <Select
-              value={formData.zeitraum_bis}
-              onValueChange={(v) => setFormData({ ...formData, zeitraum_bis: v })}
-            >
-              <SelectTrigger className="text-sm w-full">
-                <SelectValue placeholder="Leer lassen für aktuell" />
-              </SelectTrigger>
-              <SelectContent className="z-[70] bg-background max-h-64">
-                {years.map((y) => (
-                  <SelectItem key={y} value={y}>{y}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
-        <div className="flex items-center gap-2">
-          <Switch
-            id="edu-current"
-            checked={!formData.zeitraum_bis}
-            onCheckedChange={(checked) => setFormData({ ...formData, zeitraum_bis: checked ? '' : String(currentYear) })}
-          />
-          <Label htmlFor="edu-current">Aktuell (bis heute)</Label>
-        </div>
-
-      <div>
-        <Label htmlFor="beschreibung">Beschreibung</Label>
-        <Textarea
-          id="beschreibung"
-          value={formData.beschreibung}
-          onChange={(e) => setFormData({ ...formData, beschreibung: e.target.value })}
-          
-          placeholder="Besondere Leistungen, Schwerpunkte, etc..."
-          rows={3}
-          className="text-sm w-full resize-none"
-        />
-      </div>
-
-      <div className="flex flex-col sm:flex-row gap-2 justify-end pt-4">
-        <Button variant="outline" onClick={handleCancel} className="flex-1 sm:flex-none" size="sm">
-          <span className="hidden sm:inline">Abbrechen</span>
-          <span className="sm:hidden">Cancel</span>
-        </Button>
-        <Button onClick={handleSaveWithValidation} className="flex-1 sm:flex-none" size="sm">
-          <span className="hidden sm:inline">Speichern</span>
-          <span className="sm:hidden">Save</span>
-        </Button>
-      </div>
-    </div>
-  );
 
   return (
     <Card>
@@ -405,7 +293,7 @@ export const LinkedInProfileEducation: React.FC<LinkedInProfileEducationProps> =
       <CardContent className="p-4 md:p-6 pt-0">
         {isAddingNew && (
           <div className="mb-6">
-            <EducationForm />
+            <EducationForm formData={formData} setFormData={setFormData} years={years} currentYear={currentYear} />
           </div>
         )}
         {education.length === 0 ? (
@@ -475,7 +363,7 @@ export const LinkedInProfileEducation: React.FC<LinkedInProfileEducationProps> =
                     )}
                     {editingIndex === i && (
                       <div className="mt-4">
-                        <EducationForm />
+                        <EducationForm formData={formData} setFormData={setFormData} years={years} currentYear={currentYear} />
                       </div>
                     )}
                   </div>
@@ -489,6 +377,19 @@ export const LinkedInProfileEducation: React.FC<LinkedInProfileEducationProps> =
           </div>
         )}
       </CardContent>
+      {isEditing && (isAddingNew || editingIndex !== null) && (
+        <div className="fixed bottom-3 left-0 right-0 z-50">
+          <div className="mx-auto max-w-screen-sm px-4">
+            <div className="bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 border rounded-md shadow-sm p-2 flex gap-2 justify-end">
+              <Button variant="outline" size="sm" onClick={handleCancel}>Abbrechen</Button>
+              <Button size="sm" onClick={handleSaveWithValidation}>Speichern</Button>
+              {isAddingNew && (
+                <Button size="sm" onClick={handleSaveAndNewWithValidation}>Speichern & neu</Button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </Card>
   );
 };
