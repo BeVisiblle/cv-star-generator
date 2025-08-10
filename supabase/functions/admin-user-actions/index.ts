@@ -24,61 +24,99 @@ serve(async (req) => {
       );
     }
 
+    // Read body once (may be needed for bootstrap path)
+    let body: any = {};
+    try {
+      body = await req.json();
+    } catch (_) {
+      body = {};
+    }
+    const action = body?.action as string | undefined;
+
+    const adminClient = createClient(SUPABASE_URL, SERVICE_ROLE_KEY);
+
+    // Bootstrap mode: allow create_admin without auth if no existing 'admin' role
+    let bootstrapAllowed = false;
+    if (action === "create_admin") {
+      const { count, error: countErr } = await adminClient
+        .from("user_roles")
+        .select("id", { count: "exact", head: true })
+        .eq("role", "admin");
+      if (!countErr && (count ?? 0) === 0) {
+        bootstrapAllowed = true;
+      }
+    }
+
     const authHeader = req.headers.get("Authorization");
-    if (!authHeader) {
+    if (!authHeader && !bootstrapAllowed) {
       return new Response(JSON.stringify({ error: "Missing Authorization header" }), {
         status: 401,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    const anonClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-      global: { headers: { Authorization: authHeader } },
-    });
-    const {
-      data: { user: caller },
-      error: userErr,
-    } = await anonClient.auth.getUser();
-    if (userErr || !caller) {
-      return new Response(JSON.stringify({ error: "Unauthorized" }), {
-        status: 401,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
+    let caller: any = null;
+    if (authHeader) {
+      const anonClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+        global: { headers: { Authorization: authHeader } },
       });
+      const {
+        data: { user },
+        error: userErr,
+      } = await anonClient.auth.getUser();
+      if (userErr || !user) {
+        if (!bootstrapAllowed) {
+          return new Response(JSON.stringify({ error: "Unauthorized" }), {
+            status: 401,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
+      } else {
+        caller = user;
+      }
     }
 
-    const adminClient = createClient(SUPABASE_URL, SERVICE_ROLE_KEY);
+    // Check role using service role to avoid RLS recursion issues (skip in bootstrap)
+    if (!bootstrapAllowed) {
+      const { data: roles, error: rolesErr } = await adminClient
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", caller?.id ?? "");
+      if (rolesErr) throw rolesErr;
 
-    // Check role using service role to avoid RLS recursion issues
-    const { data: roles, error: rolesErr } = await adminClient
-      .from("user_roles")
-      .select("role")
-      .eq("user_id", caller.id);
-    if (rolesErr) throw rolesErr;
+      const allowed = (roles || []).some((r: any) => [
+        "admin",
+        "superadmin",
+        "support",
+        "supportagent",
+        "editor",
+      ].includes(String(r.role).toLowerCase()));
 
-    const allowed = (roles || []).some((r: any) => [
-      "admin",
-      "superadmin",
-      "support",
-      "supportagent",
-      "editor",
-    ].includes(String(r.role).toLowerCase()));
-
-    if (!allowed) {
-      return new Response(JSON.stringify({ error: "Forbidden" }), {
-        status: 403,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+      if (!allowed) {
+        return new Response(JSON.stringify({ error: "Forbidden" }), {
+          status: 403,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
     }
 
-    const { action, userId } = await req.json();
-    if (!action || !userId) {
-      return new Response(JSON.stringify({ error: "Missing action or userId" }), {
+    const body = await req.json();
+    const { action } = body || {};
+    if (!action) {
+      return new Response(JSON.stringify({ error: "Missing action" }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
     if (action === "impersonate") {
+      const { userId } = body || {};
+      if (!userId) {
+        return new Response(JSON.stringify({ error: "Missing userId" }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
       // Get target email
       const { data: targetUser, error: targetErr } = await adminClient.auth.admin.getUserById(userId);
       if (targetErr) throw targetErr;
@@ -101,12 +139,55 @@ serve(async (req) => {
     }
 
     if (action === "suspend" || action === "unsuspend") {
+      const { userId } = body || {};
+      if (!userId) {
+        return new Response(JSON.stringify({ error: "Missing userId" }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
       const suspended = action === "suspend";
       const { error: updErr } = await adminClient.auth.admin.updateUserById(userId, {
         app_metadata: { suspended },
       } as any);
       if (updErr) throw updErr;
       return new Response(JSON.stringify({ ok: true, suspended }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    if (action === "create_admin") {
+      const { email, password } = body || {};
+      if (!email || !password) {
+        return new Response(JSON.stringify({ error: "Missing email or password" }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      // Create user with email confirmed
+      const { data: created, error: createErr } = await adminClient.auth.admin.createUser({
+        email,
+        password,
+        email_confirm: true,
+        user_metadata: { created_by: caller.id }
+      } as any);
+      if (createErr) throw createErr;
+      const newUserId = created.user?.id;
+      if (!newUserId) {
+        return new Response(JSON.stringify({ error: "User creation failed" }), {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      // Assign 'admin' role in user_roles (maps to SuperAdmin in app)
+      const { error: roleErr } = await adminClient
+        .from("user_roles")
+        .insert({ user_id: newUserId, role: "admin" as any });
+      if (roleErr) throw roleErr;
+
+      return new Response(JSON.stringify({ ok: true, userId: newUserId }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
