@@ -5,6 +5,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 import BaseLayout from "@/components/layout/BaseLayout";
 import { Button } from "@/components/ui/button";
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { AdminSidebar } from "@/components/admin/AdminSidebar";
+import { Bell, Search } from "lucide-react";
 
 const NavLink = ({ to, label }: { to: string; label: string }) => {
   const location = useLocation();

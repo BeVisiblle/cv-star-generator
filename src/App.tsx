@@ -50,6 +50,16 @@ import AdminSettings from "./pages/Admin/AdminSettings";
 import PublicPage from "./pages/PublicPage";
 import UserProfilePage from "./pages/UserProfile";
 import PublicCompanyView from "./pages/Companies/PublicCompanyView";
+import Overview from "./pages/Admin/Overview";
+import UsersPage from "./pages/Admin/Users";
+import CompaniesPage from "./pages/Admin/Companies";
+import PlansPage from "./pages/Admin/Plans";
+import JobsPage from "./pages/Admin/Jobs";
+import MatchesPage from "./pages/Admin/Matches";
+import AnalyticsPage from "./pages/Admin/Analytics";
+import ContentPage from "./pages/Admin/Content";
+import SupportPage from "./pages/Admin/Support";
+import AdminAuthGate from "@/components/admin/AdminAuthGate";
 
 const queryClient = new QueryClient();
 
@@ -187,7 +197,15 @@ const App = () => (
 
               {/* Admin routes */}
               <Route path="/admin" element={<AdminLayout />}>
-                <Route index element={<PagesList />} />
+                <Route index element={<Overview />} />
+                <Route path="users" element={<UsersPage />} />
+                <Route path="companies" element={<CompaniesPage />} />
+                <Route path="plans" element={<PlansPage />} />
+                <Route path="jobs" element={<JobsPage />} />
+                <Route path="matches" element={<MatchesPage />} />
+                <Route path="analytics" element={<AnalyticsPage />} />
+                <Route path="content" element={<ContentPage />} />
+                {/* Legacy content routes remain accessible */}
                 <Route path="pages" element={<PagesList />} />
                 <Route path="pages/new" element={<PageEditor />} />
                 <Route path="pages/:id" element={<PageEditor />} />
