@@ -32,7 +32,7 @@ export function AuthenticatedLayout() {
   // For users without profiles, let them stay where they are (they might be in CV generator)
 
   return (
-    <SidebarProvider defaultOpen={true}>
+    <SidebarProvider defaultOpen={false}>
       <div className="min-h-screen flex w-full">
         <AppSidebar />
         
