@@ -54,8 +54,8 @@ export const LanguageSelector = ({
 
   return (
     <div className={className}>
-      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-4">
-        <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
+      <div className="flex flex-col sm:flex-row sm:flex-wrap sm:justify-between sm:items-center gap-3 mb-4">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 max-w-full">
           <Label>{label}</Label>
           <span className="text-xs sm:text-sm text-muted-foreground">
             {languages.length}/{maxLanguages} Sprachen
@@ -115,7 +115,7 @@ export const LanguageSelector = ({
                 <SelectTrigger className="w-full sm:w-32">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="z-[60] bg-background">
                   <SelectItem value="Muttersprache">Muttersprache</SelectItem>
                   <SelectItem value="C2">C2</SelectItem>
                   <SelectItem value="C1">C1</SelectItem>

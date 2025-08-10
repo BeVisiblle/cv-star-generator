@@ -68,7 +68,7 @@ export const SkillsLanguagesSidebar: React.FC<SkillsLanguagesSidebarProps> = ({
         <CardHeader>
           <CardTitle className="text-lg font-semibold">Sprachen</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="overflow-hidden">
           {!readOnly && isEditing ? (
             <LanguageSelector
               languages={profile?.sprachen || []}
