@@ -30,7 +30,7 @@ export const LinkedInProfileExperience: React.FC<LinkedInProfileExperienceProps>
 }) => {
   const [isAddingNew, setIsAddingNew] = useState(false);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isAddOpen, setIsAddOpen] = useState(false);
   const [formData, setFormData] = useState<Experience>({
     titel: '',
     unternehmen: '',
@@ -62,15 +62,16 @@ export const LinkedInProfileExperience: React.FC<LinkedInProfileExperienceProps>
       // Add new
       onExperiencesUpdate([...experiences, formData]);
       setIsAddingNew(false);
+      setIsAddOpen(false);
     }
-    setIsDialogOpen(false);
+    // Close any open dialog
+    setIsAddOpen(false);
     resetForm();
   };
 
   const handleEdit = (index: number) => {
     setFormData(experiences[index]);
     setEditingIndex(index);
-    setIsDialogOpen(true);
   };
 
   const handleDelete = (index: number) => {
@@ -81,7 +82,7 @@ export const LinkedInProfileExperience: React.FC<LinkedInProfileExperienceProps>
   const handleCancel = () => {
     setIsAddingNew(false);
     setEditingIndex(null);
-    setIsDialogOpen(false);
+    setIsAddOpen(false);
     resetForm();
   };
 
@@ -116,6 +117,7 @@ export const LinkedInProfileExperience: React.FC<LinkedInProfileExperienceProps>
           <Label htmlFor="titel">Position</Label>
           <Input
             id="titel"
+            autoFocus
             value={formData.titel}
             onChange={(e) => setFormData({ ...formData, titel: e.target.value })}
             onBlur={(e) => setFormData({ ...formData, titel: capitalizeWords(e.target.value) })}
@@ -207,7 +209,7 @@ export const LinkedInProfileExperience: React.FC<LinkedInProfileExperienceProps>
           <span className="sm:hidden">Erfahrung</span>
         </CardTitle>
         {isEditing && (
-          <Dialog open={isDialogOpen} onOpenChange={(open) => {
+          <Dialog open={isAddOpen} onOpenChange={(open) => {
             setIsDialogOpen(open);
             if (!open) {
               setIsAddingNew(false);
@@ -243,7 +245,7 @@ export const LinkedInProfileExperience: React.FC<LinkedInProfileExperienceProps>
                 variant="outline" 
                 className="mt-4"
                 size="sm"
-                onClick={() => setIsAddingNew(true)}
+                onClick={() => { setIsAddOpen(true); setIsAddingNew(true); }}
               >
                 <Plus className="h-4 w-4 mr-2" />
                 <span className="hidden sm:inline">Erste Erfahrung hinzufügen</span>
@@ -286,9 +288,8 @@ export const LinkedInProfileExperience: React.FC<LinkedInProfileExperienceProps>
                       
                       {isEditing && (
                         <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity ml-2">
-                          <Dialog open={isDialogOpen && editingIndex === index} onOpenChange={(open) => {
+                          <Dialog open={editingIndex === index} onOpenChange={(open) => {
                             if (!open) {
-                              setIsDialogOpen(false);
                               setEditingIndex(null);
                               resetForm();
                             }

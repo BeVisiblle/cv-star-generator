@@ -31,7 +31,7 @@ export const LinkedInProfileEducation: React.FC<LinkedInProfileEducationProps> =
 }) => {
   const [isAddingNew, setIsAddingNew] = useState(false);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isAddOpen, setIsAddOpen] = useState(false);
   const [formData, setFormData] = useState<Education>({
     schulform: '',
     name: '',
@@ -65,15 +65,16 @@ export const LinkedInProfileEducation: React.FC<LinkedInProfileEducationProps> =
       // Add new
       onEducationUpdate([...education, formData]);
       setIsAddingNew(false);
+      setIsAddOpen(false);
     }
-    setIsDialogOpen(false);
+    // Close any open dialog
+    setIsAddOpen(false);
     resetForm();
   };
 
   const handleEdit = (index: number) => {
     setFormData(education[index]);
     setEditingIndex(index);
-    setIsDialogOpen(true);
   };
 
   const handleDelete = (index: number) => {
@@ -84,7 +85,7 @@ export const LinkedInProfileEducation: React.FC<LinkedInProfileEducationProps> =
   const handleCancel = () => {
     setIsAddingNew(false);
     setEditingIndex(null);
-    setIsDialogOpen(false);
+    setIsAddOpen(false);
     resetForm();
   };
 
@@ -114,6 +115,7 @@ export const LinkedInProfileEducation: React.FC<LinkedInProfileEducationProps> =
           <Label htmlFor="schulform">Schulform/Abschluss</Label>
           <Input
             id="schulform"
+            autoFocus
             value={formData.schulform}
             onChange={(e) => setFormData({ ...formData, schulform: e.target.value })}
             onBlur={(e) => setFormData({ ...formData, schulform: capitalizeWords(e.target.value) })}
@@ -153,6 +155,8 @@ export const LinkedInProfileEducation: React.FC<LinkedInProfileEducationProps> =
             value={formData.plz}
             onChange={(e) => setFormData({ ...formData, plz: e.target.value })}
             placeholder="80331"
+            inputMode="numeric"
+            pattern="[0-9]*"
             className="text-sm w-full"
           />
         </div>
@@ -169,6 +173,8 @@ export const LinkedInProfileEducation: React.FC<LinkedInProfileEducationProps> =
             value={formData.zeitraum_von}
             onChange={(e) => setFormData({ ...formData, zeitraum_von: e.target.value })}
             placeholder="z.B. 2020"
+            inputMode="numeric"
+            pattern="[0-9]*"
             className="text-sm w-full"
           />
         </div>
@@ -182,6 +188,8 @@ export const LinkedInProfileEducation: React.FC<LinkedInProfileEducationProps> =
             value={formData.zeitraum_bis}
             onChange={(e) => setFormData({ ...formData, zeitraum_bis: e.target.value })}
             placeholder="Leer lassen für aktuell"
+            inputMode="numeric"
+            pattern="[0-9]*"
             className="text-sm w-full"
           />
         </div>
@@ -221,16 +229,15 @@ export const LinkedInProfileEducation: React.FC<LinkedInProfileEducationProps> =
           Ausbildung
         </CardTitle>
         {isEditing && (
-          <Dialog open={isDialogOpen} onOpenChange={(open) => {
-            setIsDialogOpen(open);
+          <Dialog open={isAddOpen} onOpenChange={(open) => {
+            setIsAddOpen(open);
             if (!open) {
               setIsAddingNew(false);
-              setEditingIndex(null);
               resetForm();
             }
           }}>
             <DialogTrigger asChild>
-              <Button variant="outline" size="sm" onClick={() => { setIsDialogOpen(true); setIsAddingNew(true); }}>
+              <Button variant="outline" size="sm" onClick={() => { setIsAddOpen(true); setIsAddingNew(true); }}>
                 <Plus className="h-4 w-4 mr-2" />
                 Hinzufügen
               </Button>
@@ -253,7 +260,7 @@ export const LinkedInProfileEducation: React.FC<LinkedInProfileEducationProps> =
               <Button 
                 variant="outline" 
                 className="mt-4"
-                onClick={() => setIsAddingNew(true)}
+                onClick={() => { setIsAddOpen(true); setIsAddingNew(true); }}
               >
                 <Plus className="h-4 w-4 mr-2" />
                 Erste Ausbildung hinzufügen
@@ -295,9 +302,8 @@ export const LinkedInProfileEducation: React.FC<LinkedInProfileEducationProps> =
                       
                       {isEditing && (
                         <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <Dialog open={isDialogOpen && editingIndex === index} onOpenChange={(open) => {
+                          <Dialog open={editingIndex === index} onOpenChange={(open) => {
                             if (!open) {
-                              setIsDialogOpen(false);
                               setEditingIndex(null);
                               resetForm();
                             }
