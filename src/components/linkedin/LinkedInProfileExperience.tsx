@@ -210,7 +210,7 @@ export const LinkedInProfileExperience: React.FC<LinkedInProfileExperienceProps>
         </CardTitle>
         {isEditing && (
           <Dialog open={isAddOpen} onOpenChange={(open) => {
-            setIsDialogOpen(open);
+            setIsAddOpen(open);
             if (!open) {
               setIsAddingNew(false);
               setEditingIndex(null);
@@ -218,7 +218,7 @@ export const LinkedInProfileExperience: React.FC<LinkedInProfileExperienceProps>
             }
           }}>
             <DialogTrigger asChild>
-              <Button variant="outline" size="sm" onClick={() => { setIsDialogOpen(true); setIsAddingNew(true); }}>
+              <Button variant="outline" size="sm" onClick={() => { setIsAddOpen(true); setIsAddingNew(true); }}>
                 <Plus className="h-4 w-4 mr-1 sm:mr-2" />
                 <span className="hidden sm:inline">Hinzufügen</span>
                 <span className="sm:hidden">+</span>
