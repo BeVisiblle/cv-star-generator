@@ -221,122 +221,124 @@ const Profile = () => {
       </div>
 
       {/* Responsive layout: Mobile stacked with prioritized content, Desktop with sidebar */}
-      <div className="px-3 sm:px-0 flex flex-col lg:grid lg:grid-cols-12 gap-4 md:gap-6">
+      <div className="mx-auto max-w-screen-2xl px-3 sm:px-6 lg:px-8 flex flex-col lg:grid lg:grid-cols-12 gap-4 md:gap-6">
         {/* Main Content Area */}
-        <main className="lg:col-span-8 space-y-4 md:space-y-6">
-          {/* Profile Header with Cover Photo - Always first */}
-          <LinkedInProfileHeader profile={profile} isEditing={isEditing} onProfileUpdate={handleProfileUpdate} />
-          {/* About Section - High priority on mobile */}
-          <LinkedInProfileMain profile={profile} isEditing={isEditing} onProfileUpdate={handleProfileUpdate} />
+        <main className="lg:col-span-8">
+          <div className="w-full max-w-[560px] mx-auto px-4 md:max-w-none md:px-0 space-y-4 md:space-y-6">
+            {/* Profile Header with Cover Photo - Always first */}
+            <LinkedInProfileHeader profile={profile} isEditing={isEditing} onProfileUpdate={handleProfileUpdate} />
+            {/* About Section - High priority on mobile */}
+            <LinkedInProfileMain profile={profile} isEditing={isEditing} onProfileUpdate={handleProfileUpdate} />
 
-          {/* Activity Section (moved above Experience) */}
-          <LinkedInProfileActivity profile={profile} />
+            {/* Activity Section (moved above Experience) */}
+            <LinkedInProfileActivity profile={profile} />
 
-          {/* Experience Section */}
-          <LinkedInProfileExperience experiences={profile?.berufserfahrung || []} isEditing={isEditing} onExperiencesUpdate={handleExperiencesUpdate} />
+            {/* Experience Section */}
+            <LinkedInProfileExperience experiences={profile?.berufserfahrung || []} isEditing={isEditing} onExperiencesUpdate={handleExperiencesUpdate} />
 
-          {/* Education Section */}
-          <LinkedInProfileEducation education={profile?.schulbildung || []} isEditing={isEditing} onEducationUpdate={handleEducationUpdate} />
+            {/* Education Section */}
+            <LinkedInProfileEducation education={profile?.schulbildung || []} isEditing={isEditing} onEducationUpdate={handleEducationUpdate} />
 
-          {/* Small tiles under Education: Contact & Profile Highlights */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <Card className="p-4">
-              <h4 className="text-sm font-semibold mb-2">Kontaktdaten</h4>
-              {isEditing ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div className="space-y-1">
-                    <Label htmlFor="email">E-Mail</Label>
-                    <Input id="email" type="email" value={profile.email || ''} disabled readOnly />
-                  </div>
-                  <div className="space-y-1">
-                    <Label htmlFor="telefon">Telefon</Label>
-                    <Input id="telefon" value={profile.telefon || ''} onChange={(e) => setProfile((p: any) => ({...p, telefon: e.target.value}))} onBlur={(e) => handleProfileUpdateImmediate({ telefon: e.target.value })} />
-                  </div>
-                  <div className="space-y-1">
-                    <Label htmlFor="strasse">Straße</Label>
-                    <Input id="strasse" value={profile.strasse || ''} onChange={(e) => setProfile((p: any) => ({...p, strasse: e.target.value}))} onBlur={(e) => handleProfileUpdateImmediate({ strasse: e.target.value })} />
-                  </div>
-                  <div className="space-y-1">
-                    <Label htmlFor="hausnummer">Hausnummer</Label>
-                    <Input id="hausnummer" value={profile.hausnummer || ''} onChange={(e) => setProfile((p: any) => ({...p, hausnummer: e.target.value}))} onBlur={(e) => handleProfileUpdateImmediate({ hausnummer: e.target.value })} />
-                  </div>
-                  <div className="space-y-1">
-                    <Label htmlFor="plz">PLZ</Label>
-                    <Input id="plz" value={profile.plz || ''} onChange={(e) => setProfile((p: any) => ({...p, plz: e.target.value}))} onBlur={(e) => handleProfileUpdateImmediate({ plz: e.target.value })} />
-                  </div>
-                  <div className="space-y-1">
-                    <Label htmlFor="ort">Ort</Label>
-                    <Input id="ort" value={profile.ort || ''} onChange={(e) => setProfile((p: any) => ({...p, ort: e.target.value}))} onBlur={(e) => handleProfileUpdateImmediate({ ort: e.target.value })} />
-                  </div>
+            {/* Small tiles under Education: Contact & Profile Highlights */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <Card className="p-4">
+                <h4 className="text-sm font-semibold mb-2">Kontaktdaten</h4>
+                {isEditing ? (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="space-y-1">
+                      <Label htmlFor="email">E-Mail</Label>
+                      <Input id="email" type="email" value={profile.email || ''} disabled readOnly />
+                    </div>
+                    <div className="space-y-1">
+                      <Label htmlFor="telefon">Telefon</Label>
+                      <Input id="telefon" value={profile.telefon || ''} onChange={(e) => setProfile((p: any) => ({...p, telefon: e.target.value}))} onBlur={(e) => handleProfileUpdateImmediate({ telefon: e.target.value })} />
+                    </div>
+                    <div className="space-y-1">
+                      <Label htmlFor="strasse">Straße</Label>
+                      <Input id="strasse" value={profile.strasse || ''} onChange={(e) => setProfile((p: any) => ({...p, strasse: e.target.value}))} onBlur={(e) => handleProfileUpdateImmediate({ strasse: e.target.value })} />
+                    </div>
+                    <div className="space-y-1">
+                      <Label htmlFor="hausnummer">Hausnummer</Label>
+                      <Input id="hausnummer" value={profile.hausnummer || ''} onChange={(e) => setProfile((p: any) => ({...p, hausnummer: e.target.value}))} onBlur={(e) => handleProfileUpdateImmediate({ hausnummer: e.target.value })} />
+                    </div>
+                    <div className="space-y-1">
+                      <Label htmlFor="plz">PLZ</Label>
+                      <Input id="plz" value={profile.plz || ''} onChange={(e) => setProfile((p: any) => ({...p, plz: e.target.value}))} onBlur={(e) => handleProfileUpdateImmediate({ plz: e.target.value })} />
+                    </div>
+                    <div className="space-y-1">
+                      <Label htmlFor="ort">Ort</Label>
+                      <Input id="ort" value={profile.ort || ''} onChange={(e) => setProfile((p: any) => ({...p, ort: e.target.value}))} onBlur={(e) => handleProfileUpdateImmediate({ ort: e.target.value })} />
+                    </div>
 
-                  {/* Führerschein unten bei Kontaktdaten */}
-                  <div className="col-span-1 sm:col-span-2 border-t pt-3 mt-1">
-                    <h5 className="text-sm font-semibold mb-2 flex items-center gap-2"><Car className="h-4 w-4" /> Führerschein</h5>
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                      <div className="space-y-1">
-                        <Label>Vorhanden</Label>
-                        <div className="flex items-center gap-3">
-                          <Switch
-                            checked={!!profile?.has_drivers_license}
-                            onCheckedChange={(val) => {
-                              const v = !!val;
-                              setProfile((p: any) => ({ ...p, has_drivers_license: v, driver_license_class: v ? (p.driver_license_class || null) : null }));
-                              handleProfileUpdateImmediate({ has_drivers_license: v, driver_license_class: v ? (profile?.driver_license_class || null) : null });
-                            }}
-                          />
-                          <span className="text-sm text-muted-foreground">{profile?.has_drivers_license ? 'Ja' : 'Nein'}</span>
+                    {/* Führerschein unten bei Kontaktdaten */}
+                    <div className="col-span-1 sm:col-span-2 border-t pt-3 mt-1">
+                      <h5 className="text-sm font-semibold mb-2 flex items-center gap-2"><Car className="h-4 w-4" /> Führerschein</h5>
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div className="space-y-1">
+                          <Label>Vorhanden</Label>
+                          <div className="flex items-center gap-3">
+                            <Switch
+                              checked={!!profile?.has_drivers_license}
+                              onCheckedChange={(val) => {
+                                const v = !!val;
+                                setProfile((p: any) => ({ ...p, has_drivers_license: v, driver_license_class: v ? (p.driver_license_class || null) : null }));
+                                handleProfileUpdateImmediate({ has_drivers_license: v, driver_license_class: v ? (profile?.driver_license_class || null) : null });
+                              }}
+                            />
+                            <span className="text-sm text-muted-foreground">{profile?.has_drivers_license ? 'Ja' : 'Nein'}</span>
+                          </div>
                         </div>
-                      </div>
-                      <div className="space-y-1 sm:col-span-2">
-                        <Label>Klasse</Label>
-                        <Select
-                          value={profile?.driver_license_class || ''}
-                          onValueChange={(val) => {
-                            setProfile((p: any) => ({ ...p, driver_license_class: val, has_drivers_license: true }));
-                            handleProfileUpdateImmediate({ has_drivers_license: true, driver_license_class: val });
-                          }}
-                          disabled={!profile?.has_drivers_license}
-                        >
-                          <SelectTrigger className="w-full">
-                            <SelectValue placeholder="Klasse wählen" />
-                          </SelectTrigger>
-                          <SelectContent className="z-50 bg-background">
-                            {['AM','A1','A2','A','B','BE','C','CE','D','DE','T','L'].map((k) => (
-                              <SelectItem key={k} value={k}>{k}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                        <div className="space-y-1 sm:col-span-2">
+                          <Label>Klasse</Label>
+                          <Select
+                            value={profile?.driver_license_class || ''}
+                            onValueChange={(val) => {
+                              setProfile((p: any) => ({ ...p, driver_license_class: val, has_drivers_license: true }));
+                              handleProfileUpdateImmediate({ has_drivers_license: true, driver_license_class: val });
+                            }}
+                            disabled={!profile?.has_drivers_license}
+                          >
+                            <SelectTrigger className="w-full">
+                              <SelectValue placeholder="Klasse wählen" />
+                            </SelectTrigger>
+                            <SelectContent className="z-50 bg-background">
+                              {['AM','A1','A2','A','B','BE','C','CE','D','DE','T','L'].map((k) => (
+                                <SelectItem key={k} value={k}>{k}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              ) : (
+                ) : (
+                  <div className="space-y-1 text-sm text-muted-foreground">
+                    {profile?.email && (
+                      <div className="flex items-center gap-2"><Mail className="h-4 w-4" /> <span>{profile.email}</span></div>
+                    )}
+                    {profile?.telefon && (
+                      <div className="flex items-center gap-2"><Phone className="h-4 w-4" /> <span>{profile.telefon}</span></div>
+                    )}
+                    {(profile?.ort || profile?.strasse) && (
+                      <div className="flex items-center gap-2"><MapPin className="h-4 w-4" /> <span>{[profile?.strasse && `${profile.strasse} ${profile.hausnummer || ''}`.trim(), profile?.plz && profile?.ort && `${profile.plz} ${profile.ort}`].filter(Boolean).join(' • ') || profile?.ort}</span></div>
+                    )}
+                    {typeof profile?.has_drivers_license === 'boolean' && (
+                      <div className="flex items-center gap-2"><Car className="h-4 w-4" /> <span>Führerschein: {profile.has_drivers_license ? (profile?.driver_license_class ? `Ja, Klasse ${profile.driver_license_class}` : 'Ja') : 'Nein'}</span></div>
+                    )}
+                  </div>
+                )}
+              </Card>
+              <Card className="p-4">
+                <h4 className="text-sm font-semibold mb-2">Profilaktivitäten</h4>
                 <div className="space-y-1 text-sm text-muted-foreground">
-                  {profile?.email && (
-                    <div className="flex items-center gap-2"><Mail className="h-4 w-4" /> <span>{profile.email}</span></div>
-                  )}
-                  {profile?.telefon && (
-                    <div className="flex items-center gap-2"><Phone className="h-4 w-4" /> <span>{profile.telefon}</span></div>
-                  )}
-                  {(profile?.ort || profile?.strasse) && (
-                    <div className="flex items-center gap-2"><MapPin className="h-4 w-4" /> <span>{[profile?.strasse && `${profile.strasse} ${profile.hausnummer || ''}`.trim(), profile?.plz && profile?.ort && `${profile.plz} ${profile.ort}`].filter(Boolean).join(' • ') || profile?.ort}</span></div>
-                  )}
-                  {typeof profile?.has_drivers_license === 'boolean' && (
-                    <div className="flex items-center gap-2"><Car className="h-4 w-4" /> <span>Führerschein: {profile.has_drivers_license ? (profile?.driver_license_class ? `Ja, Klasse ${profile.driver_license_class}` : 'Ja') : 'Nein'}</span></div>
-                  )}
+                  <div>• Profil vollständig: {profile?.profile_complete ? 'Ja' : 'Nein'}</div>
+                  <div>• Öffentlich sichtbar: {profile?.profile_published ? 'Ja' : 'Nein'}</div>
+                  <div>• Erstellt am: {profile?.created_at ? new Date(profile.created_at).toLocaleDateString('de-DE') : '—'}</div>
+                  <div>• Dokumente hochgeladen: {documentsCount > 0 ? 'Ja' : 'Nein'}</div>
+                  <div>• Profilbesuche: {profileVisits}</div>
                 </div>
-              )}
-            </Card>
-            <Card className="p-4">
-              <h4 className="text-sm font-semibold mb-2">Profilaktivitäten</h4>
-              <div className="space-y-1 text-sm text-muted-foreground">
-                <div>• Profil vollständig: {profile?.profile_complete ? 'Ja' : 'Nein'}</div>
-                <div>• Öffentlich sichtbar: {profile?.profile_published ? 'Ja' : 'Nein'}</div>
-                <div>• Erstellt am: {profile?.created_at ? new Date(profile.created_at).toLocaleDateString('de-DE') : '—'}</div>
-                <div>• Dokumente hochgeladen: {documentsCount > 0 ? 'Ja' : 'Nein'}</div>
-                <div>• Profilbesuche: {profileVisits}</div>
-              </div>
-            </Card>
+              </Card>
+            </div>
           </div>
         </main>
 

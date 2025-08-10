@@ -215,13 +215,15 @@ export default function UserProfilePage() {
           </div>
         </div>
 
-        <div className="flex flex-col lg:grid lg:grid-cols-12 gap-4 md:gap-6">
-          <main className="lg:col-span-8 space-y-4 md:space-y-6">
-            <LinkedInProfileHeader profile={displayProfile} isEditing={false} onProfileUpdate={() => {}} />
-            <LinkedInProfileMain profile={displayProfile} isEditing={false} onProfileUpdate={() => {}} readOnly={!isOwner} />
-            <LinkedInProfileExperience experiences={displayProfile?.berufserfahrung || []} isEditing={false} onExperiencesUpdate={() => {}} />
-            <LinkedInProfileEducation education={displayProfile?.schulbildung || []} isEditing={false} onEducationUpdate={() => {}} />
-            <LinkedInProfileActivity profile={displayProfile} />
+        <div className="mx-auto max-w-screen-2xl px-3 sm:px-6 lg:px-8 flex flex-col lg:grid lg:grid-cols-12 gap-4 md:gap-6">
+          <main className="lg:col-span-8">
+            <div className="w-full max-w-[560px] mx-auto px-4 md:max-w-none md:px-0 space-y-4 md:space-y-6">
+              <LinkedInProfileHeader profile={displayProfile} isEditing={false} onProfileUpdate={() => {}} />
+              <LinkedInProfileMain profile={displayProfile} isEditing={false} onProfileUpdate={() => {}} readOnly={!isOwner} />
+              <LinkedInProfileExperience experiences={displayProfile?.berufserfahrung || []} isEditing={false} onExperiencesUpdate={() => {}} />
+              <LinkedInProfileEducation education={displayProfile?.schulbildung || []} isEditing={false} onEducationUpdate={() => {}} />
+              <LinkedInProfileActivity profile={displayProfile} />
+            </div>
           </main>
           <aside className="lg:col-span-4">
             <div className="lg:sticky lg:top-24 space-y-4 md:space-y-6">
