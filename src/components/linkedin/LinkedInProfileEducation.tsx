@@ -277,11 +277,11 @@ export const LinkedInProfileEducation: React.FC<LinkedInProfileEducationProps> =
                   </div>
                   
                   <div className="flex-1">
-                    <div className="flex items-start justify-between">
+                    <div className="flex flex-wrap items-start justify-between gap-2">
                       <div>
                         <h3 className="font-semibold text-lg">{edu.schulform}</h3>
                         <p className="text-primary font-medium">{edu.name}</p>
-                        <div className="flex items-center gap-4 text-sm text-muted-foreground mt-1">
+                        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground mt-1">
                           <span className="flex items-center gap-1">
                             <MapPin className="h-3 w-3" />
                             {edu.ort}{edu.plz && `, ${edu.plz}`}

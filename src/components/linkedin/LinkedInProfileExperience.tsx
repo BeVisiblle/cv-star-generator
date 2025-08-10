@@ -268,7 +268,7 @@ export const LinkedInProfileExperience: React.FC<LinkedInProfileExperienceProps>
                   </div>
                   
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-start justify-between">
+                    <div className="flex flex-wrap items-start justify-between gap-2">
                       <div className="min-w-0 flex-1">
                         <h3 className="font-semibold text-base md:text-lg truncate">{exp.titel}</h3>
                         <p className="text-primary font-medium text-sm md:text-base truncate">{exp.unternehmen}</p>
