@@ -184,7 +184,7 @@ const Profile = () => {
 
   // Early returns after all hooks are declared
 
-  return <div className="px-3 sm:px-6 lg:px-8 py-3 md:py-6 min-h-screen bg-background max-w-full overflow-x-hidden pb-24 pt-safe">{/* Prevent horizontal scroll and reserve for sticky footer */}
+  return <div className={`px-3 sm:px-6 lg:px-8 py-3 md:py-6 min-h-screen bg-background max-w-full overflow-x-hidden ${isEditing ? 'pb-24' : 'pb-6'} pt-safe`}>{/* Prevent horizontal scroll and reserve for sticky footer */}
       {/* Mobile-optimized Profile Actions Header */}
       <div className="sticky top-14 md:top-0 z-30 mb-4 md:mb-6 bg-background/80 supports-[backdrop-filter]:bg-background/60 backdrop-blur border-b">
         <div className="px-3 sm:px-0 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0">

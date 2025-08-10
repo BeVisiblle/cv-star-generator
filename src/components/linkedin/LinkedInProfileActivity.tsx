@@ -170,7 +170,7 @@ const isOwner = user?.id === profile?.id;
                     <ChevronRight className="h-4 w-4" />
                   </Button>
 
-                  <div ref={scrollerRef} className="overflow-x-auto snap-x snap-mandatory">
+                  <div ref={scrollerRef} className="overflow-x-auto snap-x snap-mandatory -mx-3 px-3 md:mx-0 md:px-0">
                     <div className="flex space-x-4 pb-2 w-max">
                       {recentPosts.map((post) => {
                         const counts = getCounts(post as ActivityPost);
@@ -194,7 +194,7 @@ const isOwner = user?.id === profile?.id;
                         return (
                           <div
                             key={post.id}
-                            className="activity-card flex-shrink-0 w-[320px] bg-muted/50 rounded-lg p-4 border hover:bg-muted/70 transition-colors cursor-pointer snap-start"
+                            className="activity-card flex-shrink-0 w-[calc(100vw-2rem)] sm:w-[360px] md:w-[420px] max-w-full bg-muted/50 rounded-lg p-4 border hover:bg-muted/70 transition-colors cursor-pointer snap-start"
                             onClick={() => navigate('/marketplace')}
                           >
                             <div className="flex items-center space-x-3 mb-3">
