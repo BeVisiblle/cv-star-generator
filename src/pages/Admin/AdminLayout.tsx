@@ -73,9 +73,14 @@ export default function AdminLayout() {
         <div className="py-12">
           <h1 className="text-2xl font-semibold text-foreground mb-4">403 – Kein Zugriff</h1>
           <p className="text-muted-foreground mb-6">Dieser Bereich ist nur für Admins/Editoren.</p>
-          <Button asChild>
-            <Link to="/">Zur Startseite</Link>
-          </Button>
+          <div className="flex gap-3">
+            <Button asChild>
+              <Link to="/">Zur Startseite</Link>
+            </Button>
+            <Button asChild variant="outline">
+              <Link to="/bootstrap/create-admin">SuperAdmin anlegen</Link>
+            </Button>
+          </div>
         </div>
       </BaseLayout>
     );

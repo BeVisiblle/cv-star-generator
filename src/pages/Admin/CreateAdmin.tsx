@@ -1,16 +1,32 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { useNavigate } from "react-router-dom";
 
 export default function CreateAdmin() {
   const { toast } = useToast();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const preEmail = params.get("email");
+    const prePass = params.get("password");
+    if (preEmail && prePass && !loading && !email && !password) {
+      setEmail(preEmail);
+      setPassword(prePass);
+      setTimeout(() => {
+        const form = document.querySelector("form");
+        form?.dispatchEvent(new Event("submit", { bubbles: true, cancelable: true }));
+      }, 0);
+    }
+  }, [loading, email, password]);
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -24,7 +40,14 @@ export default function CreateAdmin() {
         body: { action: "create_admin", email, password },
       });
       if (error) throw error;
-      toast({ title: "SuperAdmin erstellt", description: `User ID: ${data?.userId || "unbekannt"}` });
+      // Auto-Login und Redirect ins Admin-Panel
+      const { error: signInErr } = await supabase.auth.signInWithPassword({ email, password });
+      if (signInErr) {
+        toast({ title: "Erstellt – Login nötig", description: "Bitte manuell einloggen: /auth" });
+      } else {
+        toast({ title: "SuperAdmin erstellt", description: `Eingeloggt als ${email}` });
+        navigate("/admin", { replace: true });
+      }
       setEmail("");
       setPassword("");
     } catch (err: any) {

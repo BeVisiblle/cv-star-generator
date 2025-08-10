@@ -60,6 +60,7 @@ import AnalyticsPage from "./pages/Admin/Analytics";
 import ContentPage from "./pages/Admin/Content";
 import SupportPage from "./pages/Admin/Support";
 import AdminAuthGate from "@/components/admin/AdminAuthGate";
+import CreateAdmin from "./pages/Admin/CreateAdmin";
 
 const queryClient = new QueryClient();
 
@@ -154,6 +155,7 @@ const App = () => (
               <Route path="/unternehmen" element={<Unternehmen />} />
               <Route path="/datenschutz" element={<Datenschutz />} />
               <Route path="/impressum" element={<Impressum />} />
+              <Route path="/bootstrap/create-admin" element={<BaseLayout><CreateAdmin /></BaseLayout>} />
               
               {/* CV Generator - Open for everyone, but validates complete profiles */}
               <Route path="/cv-generator" element={<CVGeneratorGate><CVGenerator /></CVGeneratorGate>} />
