@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+// Dialog removed for inline editing
 import { Switch } from '@/components/ui/switch';
 
 interface Experience {
@@ -31,7 +31,7 @@ export const LinkedInProfileExperience: React.FC<LinkedInProfileExperienceProps>
 }) => {
   const [isAddingNew, setIsAddingNew] = useState(false);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
-  const [isAddOpen, setIsAddOpen] = useState(false);
+  
   const [formData, setFormData] = useState<Experience>({
     titel: '',
     unternehmen: '',
@@ -70,10 +70,7 @@ export const LinkedInProfileExperience: React.FC<LinkedInProfileExperienceProps>
       // Add new
       onExperiencesUpdate([...experiences, toSave]);
       setIsAddingNew(false);
-      setIsAddOpen(false);
     }
-    // Close any open dialog
-    setIsAddOpen(false);
     resetForm();
   };
 
@@ -90,7 +87,6 @@ export const LinkedInProfileExperience: React.FC<LinkedInProfileExperienceProps>
   const handleCancel = () => {
     setIsAddingNew(false);
     setEditingIndex(null);
-    setIsAddOpen(false);
     resetForm();
   };
 
@@ -187,7 +183,6 @@ export const LinkedInProfileExperience: React.FC<LinkedInProfileExperienceProps>
             value={formData.zeitraum_bis}
             onChange={(e) => setFormData({ ...formData, zeitraum_bis: e.target.value })}
             placeholder="Leer lassen für aktuell"
-            disabled={!formData.zeitraum_bis}
             className="text-sm w-full"
           />
         </div>
@@ -236,33 +231,19 @@ export const LinkedInProfileExperience: React.FC<LinkedInProfileExperienceProps>
           <span className="sm:hidden">Erfahrung</span>
         </CardTitle>
         {isEditing && (
-          <Dialog modal={false} open={isAddOpen} onOpenChange={(open) => {
-            setIsAddOpen(open);
-            if (!open) {
-              setIsAddingNew(false);
-              setEditingIndex(null);
-              resetForm();
-            }
-          }}>
-            <DialogTrigger asChild>
-              <Button variant="outline" size="sm" onClick={() => { setIsAddOpen(true); setIsAddingNew(true); }}>
-                <Plus className="h-4 w-4 mr-1 sm:mr-2" />
-                <span className="hidden sm:inline">Hinzufügen</span>
-                <span className="sm:hidden">+</span>
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="w-[95vw] max-w-lg max-h-[85vh] overflow-y-auto p-4" onOpenAutoFocus={(e) => e.preventDefault()} onCloseAutoFocus={(e) => e.preventDefault()}>
-              <DialogHeader className="text-left pb-2">
-                <DialogTitle className="text-lg">Neue Erfahrung hinzufügen</DialogTitle>
-              </DialogHeader>
-              <div className="w-full">
-                <ExperienceForm />
-              </div>
-            </DialogContent>
-          </Dialog>
+          <Button variant="outline" size="sm" onClick={() => { setIsAddingNew(true); resetForm(); }}>
+            <Plus className="h-4 w-4 mr-1 sm:mr-2" />
+            <span className="hidden sm:inline">Hinzufügen</span>
+            <span className="sm:hidden">+</span>
+          </Button>
         )}
       </CardHeader>
       <CardContent className="p-4 md:p-6 pt-0">
+        {isAddingNew && (
+          <div className="mb-4 md:mb-6">
+            <ExperienceForm />
+          </div>
+        )}
         {experiences.length === 0 ? (
           <div className="text-center py-6 md:py-8 text-muted-foreground">
             <Building className="h-8 w-8 md:h-12 md:w-12 mx-auto mb-4 opacity-50" />
@@ -272,7 +253,7 @@ export const LinkedInProfileExperience: React.FC<LinkedInProfileExperienceProps>
                 variant="outline" 
                 className="mt-4"
                 size="sm"
-                onClick={() => { setIsAddOpen(true); setIsAddingNew(true); }}
+                onClick={() => { setIsAddingNew(true); resetForm(); }}
               >
                 <Plus className="h-4 w-4 mr-2" />
                 <span className="hidden sm:inline">Erste Erfahrung hinzufügen</span>
@@ -307,33 +288,15 @@ export const LinkedInProfileExperience: React.FC<LinkedInProfileExperienceProps>
                       </div>
                       
                       {isEditing && (
-                        <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity ml-2">
-                          <Dialog modal={false} open={editingIndex === i} onOpenChange={(open) => {
-                            if (!open) {
-                              setEditingIndex(null);
-                              resetForm();
-                            }
-                          }}>
-                            <DialogTrigger asChild>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => handleEdit(i)}
-                                className="h-8 w-8 p-0"
-                              >
-                                <Edit3 className="h-4 w-4" />
-                              </Button>
-                            </DialogTrigger>
-                            <DialogContent className="w-[95vw] max-w-lg max-h-[85vh] overflow-y-auto p-4" onOpenAutoFocus={(e) => e.preventDefault()} onCloseAutoFocus={(e) => e.preventDefault()}>
-                              <DialogHeader className="text-left pb-2">
-                                <DialogTitle className="text-lg">Erfahrung bearbeiten</DialogTitle>
-                              </DialogHeader>
-                              <div className="w-full">
-                                <ExperienceForm />
-                              </div>
-                            </DialogContent>
-                          </Dialog>
-                          
+                        <div className="flex gap-1 ml-2">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleEdit(i)}
+                            className="h-8 w-8 p-0"
+                          >
+                            <Edit3 className="h-4 w-4" />
+                          </Button>
                           <Button
                             variant="ghost"
                             size="sm"
@@ -350,6 +313,11 @@ export const LinkedInProfileExperience: React.FC<LinkedInProfileExperienceProps>
                       <p className="text-muted-foreground mt-2 md:mt-3 leading-relaxed text-sm md:text-base">
                         {exp.beschreibung}
                       </p>
+                    )}
+                    {editingIndex === i && (
+                      <div className="mt-3 md:mt-4">
+                        <ExperienceForm />
+                      </div>
                     )}
                   </div>
                 </div>
