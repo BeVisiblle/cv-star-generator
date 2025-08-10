@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Building, Plus, Edit3, Trash2, MapPin, Calendar } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { capitalizeFirst, capitalizeWords, capitalizeSentences } from '@/lib/utils';
@@ -117,6 +117,17 @@ export const LinkedInProfileExperience: React.FC<LinkedInProfileExperienceProps>
     }
     handleSave();
   };
+
+  const sortedExperiences = useMemo(() => {
+    return experiences
+      .map((item, i) => ({ item, i }))
+      .sort((a, b) => {
+        const aEnd = a.item.zeitraum_bis ? new Date(a.item.zeitraum_bis) : new Date(a.item.zeitraum_von);
+        const bEnd = b.item.zeitraum_bis ? new Date(b.item.zeitraum_bis) : new Date(b.item.zeitraum_von);
+        if (bEnd.getTime() !== aEnd.getTime()) return bEnd.getTime() - aEnd.getTime();
+        return a.i - b.i; // stable tie-breaker
+      });
+  }, [experiences]);
 
   const ExperienceForm = () => (
     <div className="space-y-4 w-full max-w-full overflow-hidden">
@@ -271,15 +282,7 @@ export const LinkedInProfileExperience: React.FC<LinkedInProfileExperienceProps>
           </div>
         ) : (
           <div className="space-y-4 md:space-y-6">
-            {experiences
-              .map((item, i) => ({ item, i }))
-              .sort((a, b) => {
-                // Sort by end date/start date (newest first)
-                const aEnd = a.item.zeitraum_bis ? new Date(a.item.zeitraum_bis) : new Date(a.item.zeitraum_von);
-                const bEnd = b.item.zeitraum_bis ? new Date(b.item.zeitraum_bis) : new Date(b.item.zeitraum_von);
-                return bEnd.getTime() - aEnd.getTime();
-              })
-              .map(({ item: exp, i }, idx) => (
+            {sortedExperiences.map(({ item: exp, i }, idx) => (
               <div key={i} className="relative group">
                 <div className="flex items-start gap-3 md:gap-4">
                   <div className="w-10 h-10 md:w-12 md:h-12 bg-accent/20 rounded-lg flex items-center justify-center flex-shrink-0">
@@ -351,7 +354,7 @@ export const LinkedInProfileExperience: React.FC<LinkedInProfileExperienceProps>
                   </div>
                 </div>
                 
-                {idx < experiences.length - 1 && (
+                {idx < sortedExperiences.length - 1 && (
                   <div className="mt-4 md:mt-6 border-b border-border/50" />
                 )}
               </div>

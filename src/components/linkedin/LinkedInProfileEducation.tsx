@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { GraduationCap, Plus, Edit3, Trash2, MapPin, Calendar } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { capitalizeFirst, capitalizeWords, capitalizeSentences } from '@/lib/utils';
@@ -43,6 +43,7 @@ export const LinkedInProfileEducation: React.FC<LinkedInProfileEducationProps> =
     zeitraum_bis: '',
     beschreibung: ''
   });
+  const [eduCurrent, setEduCurrent] = useState<boolean>(true);
 
   const currentYear = new Date().getFullYear();
   const years = Array.from({ length: 80 }, (_, i) => String(currentYear + 6 - i));
@@ -118,6 +119,17 @@ export const LinkedInProfileEducation: React.FC<LinkedInProfileEducationProps> =
     }
     handleSave();
   };
+
+  const sortedEducation = useMemo(() => {
+    return education
+      .map((item, i) => ({ item, i }))
+      .sort((a, b) => {
+        const aEnd = parseInt(a.item.zeitraum_bis) || parseInt(a.item.zeitraum_von) || 0;
+        const bEnd = parseInt(b.item.zeitraum_bis) || parseInt(b.item.zeitraum_von) || 0;
+        if (bEnd !== aEnd) return bEnd - aEnd;
+        return a.i - b.i; // tie-breaker to keep original order stable
+      });
+  }, [education]);
 
   const EducationForm = () => (
     <div className="space-y-4 w-full max-w-full overflow-hidden">
@@ -301,15 +313,7 @@ export const LinkedInProfileEducation: React.FC<LinkedInProfileEducationProps> =
           </div>
         ) : (
           <div className="space-y-6">
-            {education
-              .map((item, i) => ({ item, i }))
-              .sort((a, b) => {
-                // Sort by end year/start year (newest first)
-                const aEnd = parseInt(a.item.zeitraum_bis) || parseInt(a.item.zeitraum_von) || 0;
-                const bEnd = parseInt(b.item.zeitraum_bis) || parseInt(b.item.zeitraum_von) || 0;
-                return bEnd - aEnd;
-              })
-              .map(({ item: edu, i }, idx) => (
+            {sortedEducation.map(({ item: edu, i }, idx) => (
               <div key={i} className="relative group">
                 <div className="flex items-start gap-4">
                   <div className="w-12 h-12 bg-accent/20 rounded-lg flex items-center justify-center flex-shrink-0">
@@ -380,7 +384,7 @@ export const LinkedInProfileEducation: React.FC<LinkedInProfileEducationProps> =
                   </div>
                 </div>
                 
-                {idx < education.length - 1 && (
+                {idx < sortedEducation.length - 1 && (
                   <div className="mt-6 border-b border-border/50" />
                 )}
               </div>
