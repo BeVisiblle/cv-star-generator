@@ -1,5 +1,5 @@
 import { createRoot } from 'react-dom/client'
-import AppShell from './AppShell'
+import App from './App.tsx'
 import './index.css'
 import './styles/cv-print.css'
 import { MobileViewportOptimizer } from './components/ui/mobile-viewport.tsx'
@@ -12,7 +12,7 @@ createRoot(document.getElementById("root")!).render(
     <MobileViewportOptimizer />
     <OverflowGuard />
     <DevViewportPresets />
-    <AppShell />
+    <App />
   </CVFormProvider>
 );
 
