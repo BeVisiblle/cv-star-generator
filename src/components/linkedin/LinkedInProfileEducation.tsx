@@ -60,15 +60,21 @@ export const LinkedInProfileEducation: React.FC<LinkedInProfileEducationProps> =
   };
 
   const handleSave = () => {
+    const toSave: Education = {
+      ...formData,
+      name: capitalizeWords(formData.name),
+      ort: capitalizeWords(formData.ort),
+      beschreibung: formData.beschreibung ? capitalizeSentences(formData.beschreibung) : ''
+    };
     if (editingIndex !== null) {
       // Edit existing
       const updated = [...education];
-      updated[editingIndex] = formData;
+      updated[editingIndex] = toSave;
       onEducationUpdate(updated);
       setEditingIndex(null);
     } else {
       // Add new
-      onEducationUpdate([...education, formData]);
+      onEducationUpdate([...education, toSave]);
       setIsAddingNew(false);
       setIsAddOpen(false);
     }
@@ -125,7 +131,7 @@ export const LinkedInProfileEducation: React.FC<LinkedInProfileEducationProps> =
             <SelectTrigger className="text-sm w-full">
               <SelectValue placeholder="z.B. Abitur, Realschulabschluss" />
             </SelectTrigger>
-            <SelectContent className="z-[60] bg-popover">
+            <SelectContent className="z-[70] bg-background">
               <SelectItem value="Abitur">Abitur</SelectItem>
               <SelectItem value="Fachabitur">Fachabitur</SelectItem>
               <SelectItem value="Realschulabschluss">Realschulabschluss</SelectItem>
@@ -144,7 +150,7 @@ export const LinkedInProfileEducation: React.FC<LinkedInProfileEducationProps> =
             id="name"
             value={formData.name}
             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-            onBlur={(e) => setFormData({ ...formData, name: capitalizeWords(e.target.value) })}
+            
             placeholder="z.B. Max-Mustermann-Gymnasium"
             className="text-sm w-full"
           />
@@ -158,7 +164,7 @@ export const LinkedInProfileEducation: React.FC<LinkedInProfileEducationProps> =
             id="ort"
             value={formData.ort}
             onChange={(e) => setFormData({ ...formData, ort: e.target.value })}
-            onBlur={(e) => setFormData({ ...formData, ort: capitalizeWords(e.target.value) })}
+            
             placeholder="z.B. München"
             className="text-sm w-full"
           />
@@ -187,7 +193,7 @@ export const LinkedInProfileEducation: React.FC<LinkedInProfileEducationProps> =
               <SelectTrigger className="text-sm w-full">
                 <SelectValue placeholder="z.B. 2020" />
               </SelectTrigger>
-              <SelectContent className="z-[60] bg-popover max-h-64">
+              <SelectContent className="z-[70] bg-background max-h-64">
                 {years.map((y) => (
                   <SelectItem key={y} value={y}>{y}</SelectItem>
                 ))}
@@ -204,7 +210,7 @@ export const LinkedInProfileEducation: React.FC<LinkedInProfileEducationProps> =
               <SelectTrigger className="text-sm w-full">
                 <SelectValue placeholder="Leer lassen für aktuell" />
               </SelectTrigger>
-              <SelectContent className="z-[60] bg-popover max-h-64">
+              <SelectContent className="z-[70] bg-background max-h-64">
                 {years.map((y) => (
                   <SelectItem key={y} value={y}>{y}</SelectItem>
                 ))}
@@ -227,7 +233,7 @@ export const LinkedInProfileEducation: React.FC<LinkedInProfileEducationProps> =
           id="beschreibung"
           value={formData.beschreibung}
           onChange={(e) => setFormData({ ...formData, beschreibung: e.target.value })}
-          onBlur={(e) => setFormData({ ...formData, beschreibung: capitalizeSentences(e.target.value) })}
+          
           placeholder="Besondere Leistungen, Schwerpunkte, etc..."
           rows={3}
           className="text-sm w-full resize-none"
@@ -255,7 +261,7 @@ export const LinkedInProfileEducation: React.FC<LinkedInProfileEducationProps> =
           Ausbildung
         </CardTitle>
         {isEditing && (
-          <Dialog open={isAddOpen} onOpenChange={(open) => {
+          <Dialog modal={false} open={isAddOpen} onOpenChange={(open) => {
             setIsAddOpen(open);
             if (!open) {
               setIsAddingNew(false);
@@ -268,7 +274,7 @@ export const LinkedInProfileEducation: React.FC<LinkedInProfileEducationProps> =
                 Hinzufügen
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-2xl">
+            <DialogContent className="max-w-2xl" onOpenAutoFocus={(e) => e.preventDefault()} onCloseAutoFocus={(e) => e.preventDefault()}>
               <DialogHeader>
                 <DialogTitle>Neue Ausbildung hinzufügen</DialogTitle>
               </DialogHeader>
@@ -295,15 +301,16 @@ export const LinkedInProfileEducation: React.FC<LinkedInProfileEducationProps> =
           </div>
         ) : (
           <div className="space-y-6">
-            {[...education]
+            {education
+              .map((item, i) => ({ item, i }))
               .sort((a, b) => {
                 // Sort by end year/start year (newest first)
-                const aEnd = parseInt(a.zeitraum_bis) || parseInt(a.zeitraum_von) || 0;
-                const bEnd = parseInt(b.zeitraum_bis) || parseInt(b.zeitraum_von) || 0;
+                const aEnd = parseInt(a.item.zeitraum_bis) || parseInt(a.item.zeitraum_von) || 0;
+                const bEnd = parseInt(b.item.zeitraum_bis) || parseInt(b.item.zeitraum_von) || 0;
                 return bEnd - aEnd;
               })
-              .map((edu, index) => (
-              <div key={index} className="relative group">
+              .map(({ item: edu, i }, idx) => (
+              <div key={i} className="relative group">
                 <div className="flex items-start gap-4">
                   <div className="w-12 h-12 bg-accent/20 rounded-lg flex items-center justify-center flex-shrink-0">
                     <GraduationCap className="h-6 w-6 text-accent-foreground" />
@@ -328,7 +335,7 @@ export const LinkedInProfileEducation: React.FC<LinkedInProfileEducationProps> =
                       
                       {isEditing && (
                         <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <Dialog open={editingIndex === index} onOpenChange={(open) => {
+                          <Dialog modal={false} open={editingIndex === i} onOpenChange={(open) => {
                             if (!open) {
                               setEditingIndex(null);
                               resetForm();
@@ -338,12 +345,12 @@ export const LinkedInProfileEducation: React.FC<LinkedInProfileEducationProps> =
                               <Button
                                 variant="ghost"
                                 size="sm"
-                                onClick={() => handleEdit(index)}
+                                onClick={() => handleEdit(i)}
                               >
                                 <Edit3 className="h-4 w-4" />
                               </Button>
                             </DialogTrigger>
-                            <DialogContent className="w-[95vw] max-w-lg max-h-[85vh] overflow-y-auto p-4">
+                            <DialogContent className="w-[95vw] max-w-lg max-h-[85vh] overflow-y-auto p-4" onOpenAutoFocus={(e) => e.preventDefault()} onCloseAutoFocus={(e) => e.preventDefault()}>
                               <DialogHeader className="text-left pb-2">
                                 <DialogTitle className="text-lg">Ausbildung bearbeiten</DialogTitle>
                               </DialogHeader>
@@ -356,7 +363,7 @@ export const LinkedInProfileEducation: React.FC<LinkedInProfileEducationProps> =
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => handleDelete(index)}
+                            onClick={() => handleDelete(i)}
                             className="text-destructive hover:text-destructive"
                           >
                             <Trash2 className="h-4 w-4" />
@@ -373,7 +380,7 @@ export const LinkedInProfileEducation: React.FC<LinkedInProfileEducationProps> =
                   </div>
                 </div>
                 
-                {index < education.length - 1 && (
+                {idx < education.length - 1 && (
                   <div className="mt-6 border-b border-border/50" />
                 )}
               </div>

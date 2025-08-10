@@ -53,15 +53,22 @@ export const LinkedInProfileExperience: React.FC<LinkedInProfileExperienceProps>
   };
 
   const handleSave = () => {
+    const toSave: Experience = {
+      ...formData,
+      titel: capitalizeWords(formData.titel),
+      unternehmen: capitalizeWords(formData.unternehmen),
+      ort: capitalizeWords(formData.ort),
+      beschreibung: formData.beschreibung ? capitalizeSentences(formData.beschreibung) : ''
+    };
     if (editingIndex !== null) {
       // Edit existing
       const updated = [...experiences];
-      updated[editingIndex] = formData;
+      updated[editingIndex] = toSave;
       onExperiencesUpdate(updated);
       setEditingIndex(null);
     } else {
       // Add new
-      onExperiencesUpdate([...experiences, formData]);
+      onExperiencesUpdate([...experiences, toSave]);
       setIsAddingNew(false);
       setIsAddOpen(false);
     }
@@ -120,7 +127,7 @@ export const LinkedInProfileExperience: React.FC<LinkedInProfileExperienceProps>
             id="titel"
             value={formData.titel}
             onChange={(e) => setFormData({ ...formData, titel: e.target.value })}
-            onBlur={(e) => setFormData({ ...formData, titel: capitalizeWords(e.target.value) })}
+            
             placeholder="z.B. Softwareentwickler"
             className="text-sm w-full"
           />
@@ -131,7 +138,7 @@ export const LinkedInProfileExperience: React.FC<LinkedInProfileExperienceProps>
             id="unternehmen"
             value={formData.unternehmen}
             onChange={(e) => setFormData({ ...formData, unternehmen: e.target.value })}
-            onBlur={(e) => setFormData({ ...formData, unternehmen: capitalizeWords(e.target.value) })}
+            
             placeholder="z.B. Tech AG"
             className="text-sm w-full"
           />
@@ -144,7 +151,7 @@ export const LinkedInProfileExperience: React.FC<LinkedInProfileExperienceProps>
           id="ort"
           value={formData.ort}
           onChange={(e) => setFormData({ ...formData, ort: e.target.value })}
-          onBlur={(e) => setFormData({ ...formData, ort: capitalizeWords(e.target.value) })}
+          
           placeholder="z.B. Berlin, Deutschland"
           className="text-sm w-full"
         />
@@ -189,7 +196,7 @@ export const LinkedInProfileExperience: React.FC<LinkedInProfileExperienceProps>
           id="beschreibung"
           value={formData.beschreibung}
           onChange={(e) => setFormData({ ...formData, beschreibung: e.target.value })}
-          onBlur={(e) => setFormData({ ...formData, beschreibung: capitalizeSentences(e.target.value) })}
+          
           placeholder="Beschreiben Sie Ihre Tätigkeiten und Erfolge..."
           rows={3}
           className="text-sm w-full resize-none"
@@ -218,7 +225,7 @@ export const LinkedInProfileExperience: React.FC<LinkedInProfileExperienceProps>
           <span className="sm:hidden">Erfahrung</span>
         </CardTitle>
         {isEditing && (
-          <Dialog open={isAddOpen} onOpenChange={(open) => {
+          <Dialog modal={false} open={isAddOpen} onOpenChange={(open) => {
             setIsAddOpen(open);
             if (!open) {
               setIsAddingNew(false);
@@ -233,7 +240,7 @@ export const LinkedInProfileExperience: React.FC<LinkedInProfileExperienceProps>
                 <span className="sm:hidden">+</span>
               </Button>
             </DialogTrigger>
-            <DialogContent className="w-[95vw] max-w-lg max-h-[85vh] overflow-y-auto p-4">
+            <DialogContent className="w-[95vw] max-w-lg max-h-[85vh] overflow-y-auto p-4" onOpenAutoFocus={(e) => e.preventDefault()} onCloseAutoFocus={(e) => e.preventDefault()}>
               <DialogHeader className="text-left pb-2">
                 <DialogTitle className="text-lg">Neue Erfahrung hinzufügen</DialogTitle>
               </DialogHeader>
@@ -264,15 +271,16 @@ export const LinkedInProfileExperience: React.FC<LinkedInProfileExperienceProps>
           </div>
         ) : (
           <div className="space-y-4 md:space-y-6">
-            {[...experiences]
+            {experiences
+              .map((item, i) => ({ item, i }))
               .sort((a, b) => {
                 // Sort by end date/start date (newest first)
-                const aEnd = a.zeitraum_bis ? new Date(a.zeitraum_bis) : new Date(a.zeitraum_von);
-                const bEnd = b.zeitraum_bis ? new Date(b.zeitraum_bis) : new Date(b.zeitraum_von);
+                const aEnd = a.item.zeitraum_bis ? new Date(a.item.zeitraum_bis) : new Date(a.item.zeitraum_von);
+                const bEnd = b.item.zeitraum_bis ? new Date(b.item.zeitraum_bis) : new Date(b.item.zeitraum_von);
                 return bEnd.getTime() - aEnd.getTime();
               })
-              .map((exp, index) => (
-              <div key={index} className="relative group">
+              .map(({ item: exp, i }, idx) => (
+              <div key={i} className="relative group">
                 <div className="flex items-start gap-3 md:gap-4">
                   <div className="w-10 h-10 md:w-12 md:h-12 bg-accent/20 rounded-lg flex items-center justify-center flex-shrink-0">
                     <Building className="h-5 w-5 md:h-6 md:w-6 text-accent-foreground" />
@@ -297,7 +305,7 @@ export const LinkedInProfileExperience: React.FC<LinkedInProfileExperienceProps>
                       
                       {isEditing && (
                         <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity ml-2">
-                          <Dialog open={editingIndex === index} onOpenChange={(open) => {
+                          <Dialog modal={false} open={editingIndex === i} onOpenChange={(open) => {
                             if (!open) {
                               setEditingIndex(null);
                               resetForm();
@@ -307,13 +315,13 @@ export const LinkedInProfileExperience: React.FC<LinkedInProfileExperienceProps>
                               <Button
                                 variant="ghost"
                                 size="sm"
-                                onClick={() => handleEdit(index)}
+                                onClick={() => handleEdit(i)}
                                 className="h-8 w-8 p-0"
                               >
                                 <Edit3 className="h-4 w-4" />
                               </Button>
                             </DialogTrigger>
-                            <DialogContent className="w-[95vw] max-w-lg max-h-[85vh] overflow-y-auto p-4">
+                            <DialogContent className="w-[95vw] max-w-lg max-h-[85vh] overflow-y-auto p-4" onOpenAutoFocus={(e) => e.preventDefault()} onCloseAutoFocus={(e) => e.preventDefault()}>
                               <DialogHeader className="text-left pb-2">
                                 <DialogTitle className="text-lg">Erfahrung bearbeiten</DialogTitle>
                               </DialogHeader>
@@ -326,7 +334,7 @@ export const LinkedInProfileExperience: React.FC<LinkedInProfileExperienceProps>
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => handleDelete(index)}
+                            onClick={() => handleDelete(i)}
                             className="text-destructive hover:text-destructive h-8 w-8 p-0"
                           >
                             <Trash2 className="h-4 w-4" />
@@ -343,7 +351,7 @@ export const LinkedInProfileExperience: React.FC<LinkedInProfileExperienceProps>
                   </div>
                 </div>
                 
-                {index < experiences.length - 1 && (
+                {idx < experiences.length - 1 && (
                   <div className="mt-4 md:mt-6 border-b border-border/50" />
                 )}
               </div>
