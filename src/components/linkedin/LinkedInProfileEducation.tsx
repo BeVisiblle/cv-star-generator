@@ -6,6 +6,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Switch } from '@/components/ui/switch';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 
 interface Education {
@@ -41,6 +43,9 @@ export const LinkedInProfileEducation: React.FC<LinkedInProfileEducationProps> =
     zeitraum_bis: '',
     beschreibung: ''
   });
+
+  const currentYear = new Date().getFullYear();
+  const years = Array.from({ length: 80 }, (_, i) => String(currentYear + 6 - i));
 
   const resetForm = () => {
     setFormData({
@@ -113,15 +118,25 @@ export const LinkedInProfileEducation: React.FC<LinkedInProfileEducationProps> =
       <div className="grid grid-cols-1 gap-4">
         <div>
           <Label htmlFor="schulform">Schulform/Abschluss</Label>
-          <Input
-            id="schulform"
-            autoFocus
+          <Select
             value={formData.schulform}
-            onChange={(e) => setFormData({ ...formData, schulform: e.target.value })}
-            onBlur={(e) => setFormData({ ...formData, schulform: capitalizeWords(e.target.value) })}
-            placeholder="z.B. Abitur, Realschulabschluss"
-            className="text-sm w-full"
-          />
+            onValueChange={(v) => setFormData({ ...formData, schulform: v })}
+          >
+            <SelectTrigger className="text-sm w-full">
+              <SelectValue placeholder="z.B. Abitur, Realschulabschluss" />
+            </SelectTrigger>
+            <SelectContent className="z-[60] bg-popover">
+              <SelectItem value="Abitur">Abitur</SelectItem>
+              <SelectItem value="Fachabitur">Fachabitur</SelectItem>
+              <SelectItem value="Realschulabschluss">Realschulabschluss</SelectItem>
+              <SelectItem value="Hauptschulabschluss">Hauptschulabschluss</SelectItem>
+              <SelectItem value="Ausbildung">Ausbildung</SelectItem>
+              <SelectItem value="Berufsschule">Berufsschule</SelectItem>
+              <SelectItem value="Bachelor">Bachelor</SelectItem>
+              <SelectItem value="Master">Master</SelectItem>
+              <SelectItem value="Sonstiges">Sonstiges</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
         <div>
           <Label htmlFor="name">Institution</Label>
@@ -162,38 +177,49 @@ export const LinkedInProfileEducation: React.FC<LinkedInProfileEducationProps> =
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div>
-          <Label htmlFor="zeitraum_von">Von (Jahr)</Label>
-          <Input
-            id="zeitraum_von"
-            type="number"
-            min="1950"
-            max="2040"
-            value={formData.zeitraum_von}
-            onChange={(e) => setFormData({ ...formData, zeitraum_von: e.target.value })}
-            placeholder="z.B. 2020"
-            inputMode="numeric"
-            pattern="[0-9]*"
-            className="text-sm w-full"
-          />
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <Label htmlFor="zeitraum_von">Von (Jahr)</Label>
+            <Select
+              value={formData.zeitraum_von}
+              onValueChange={(v) => setFormData({ ...formData, zeitraum_von: v })}
+            >
+              <SelectTrigger className="text-sm w-full">
+                <SelectValue placeholder="z.B. 2020" />
+              </SelectTrigger>
+              <SelectContent className="z-[60] bg-popover max-h-64">
+                {years.map((y) => (
+                  <SelectItem key={y} value={y}>{y}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+            <Label htmlFor="zeitraum_bis">Bis (Jahr)</Label>
+            <Select
+              value={formData.zeitraum_bis}
+              onValueChange={(v) => setFormData({ ...formData, zeitraum_bis: v })}
+              disabled={!formData.zeitraum_bis && true}
+            >
+              <SelectTrigger className="text-sm w-full">
+                <SelectValue placeholder="Leer lassen für aktuell" />
+              </SelectTrigger>
+              <SelectContent className="z-[60] bg-popover max-h-64">
+                {years.map((y) => (
+                  <SelectItem key={y} value={y}>{y}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         </div>
-        <div>
-          <Label htmlFor="zeitraum_bis">Bis (Jahr)</Label>
-          <Input
-            id="zeitraum_bis"
-            type="number"
-            min="1950"
-            max="2040"
-            value={formData.zeitraum_bis}
-            onChange={(e) => setFormData({ ...formData, zeitraum_bis: e.target.value })}
-            placeholder="Leer lassen für aktuell"
-            inputMode="numeric"
-            pattern="[0-9]*"
-            className="text-sm w-full"
+        <div className="flex items-center gap-2">
+          <Switch
+            id="edu-current"
+            checked={!formData.zeitraum_bis}
+            onCheckedChange={(checked) => setFormData({ ...formData, zeitraum_bis: checked ? '' : String(currentYear) })}
           />
+          <Label htmlFor="edu-current">Aktuell (bis heute)</Label>
         </div>
-      </div>
 
       <div>
         <Label htmlFor="beschreibung">Beschreibung</Label>

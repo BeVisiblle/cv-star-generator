@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Switch } from '@/components/ui/switch';
 
 interface Experience {
   titel: string;
@@ -117,7 +118,6 @@ export const LinkedInProfileExperience: React.FC<LinkedInProfileExperienceProps>
           <Label htmlFor="titel">Position</Label>
           <Input
             id="titel"
-            autoFocus
             value={formData.titel}
             onChange={(e) => setFormData({ ...formData, titel: e.target.value })}
             onBlur={(e) => setFormData({ ...formData, titel: capitalizeWords(e.target.value) })}
@@ -169,9 +169,18 @@ export const LinkedInProfileExperience: React.FC<LinkedInProfileExperienceProps>
             value={formData.zeitraum_bis}
             onChange={(e) => setFormData({ ...formData, zeitraum_bis: e.target.value })}
             placeholder="Leer lassen für aktuell"
+            disabled={!formData.zeitraum_bis}
             className="text-sm w-full"
           />
         </div>
+      </div>
+      <div className="flex items-center gap-2">
+        <Switch
+          id="exp-current"
+          checked={!formData.zeitraum_bis}
+          onCheckedChange={(checked) => setFormData({ ...formData, zeitraum_bis: checked ? '' : formData.zeitraum_bis || formData.zeitraum_von })}
+        />
+        <Label htmlFor="exp-current">Aktuell (bis heute)</Label>
       </div>
 
       <div>
