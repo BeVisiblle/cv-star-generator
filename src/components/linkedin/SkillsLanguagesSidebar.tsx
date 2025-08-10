@@ -78,7 +78,7 @@ export const SkillsLanguagesSidebar: React.FC<SkillsLanguagesSidebarProps> = ({
             <div className="space-y-2">
               {profile?.sprachen && profile.sprachen.length > 0 ? (
                 profile.sprachen.map((lang: any, index: number) => (
-                  <div key={index} className="flex justify-between items-center">
+                  <div key={index} className="flex flex-wrap justify-between items-center gap-2">
                     <span className="font-medium">{lang.sprache}</span>
                     <Badge variant="secondary">{lang.niveau}</Badge>
                   </div>

@@ -353,7 +353,7 @@ export const LinkedInProfileHeader: React.FC<LinkedInProfileHeaderProps> = ({
 
         {/* Name and Headline */}
         <div className="space-y-2">
-          <h1 className="text-2xl md:text-3xl font-bold text-foreground">
+          <h1 className="text-xl md:text-3xl font-bold text-foreground leading-tight break-words">
             {profile?.vorname} {profile?.nachname}
           </h1>
           
@@ -380,7 +380,7 @@ export const LinkedInProfileHeader: React.FC<LinkedInProfileHeaderProps> = ({
             {hasHeadline ? headline : '—'}
           </p>
           
-          <p className="text-sm text-muted-foreground flex items-center gap-1.5">
+          <p className="text-sm text-muted-foreground flex flex-wrap items-center gap-x-1.5 gap-y-1">
             <MapPin className="h-4 w-4" aria-hidden />
             <span>{profile?.ort || '—'}</span>
             {profile?.branche && <span> • {profile.branche}</span>}

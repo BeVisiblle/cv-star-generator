@@ -92,9 +92,9 @@ export default function PostCard({ post }: PostCardProps) {
         </div>
       )}
 
-      <div className="p-6 space-y-4">
+      <div className="p-4 md:p-6 space-y-4">
         {/* Post Header */}
-        <div className="flex items-start space-x-3">
+        <div className="flex items-start gap-3">
           <div className="cursor-pointer" onClick={() => navigate(`/u/${post.author?.id || post.user_id}`)}>
             <Avatar className="h-10 w-10">
               <AvatarImage src={post.author?.avatar_url} />
@@ -102,8 +102,8 @@ export default function PostCard({ post }: PostCardProps) {
             </Avatar>
           </div>
           <div className="flex-1 min-w-0">
-            <div className="flex items-center space-x-2">
-              <button className="font-semibold text-sm hover:underline text-left" onClick={() => navigate(`/u/${post.author?.id || post.user_id}`)}>
+            <div className="flex flex-wrap items-center gap-x-2 gap-y-1 min-w-0">
+              <button className="font-semibold text-sm hover:underline text-left truncate" onClick={() => navigate(`/u/${post.author?.id || post.user_id}`)}>
                 {getDisplayName()}
               </button>
               <span className="text-xs text-muted-foreground">•</span>
@@ -124,7 +124,7 @@ export default function PostCard({ post }: PostCardProps) {
 
         {/* Post Content */}
         <div className="space-y-3">
-          <p className="text-sm leading-relaxed">
+          <p className="text-sm leading-relaxed break-words">
             {truncated}
             {!expanded && isLong && (
               <button
@@ -139,7 +139,7 @@ export default function PostCard({ post }: PostCardProps) {
             <img
               src={post.image_url}
               alt="Post image"
-              className="rounded-lg max-w-full h-auto"
+              className="w-full h-auto rounded-lg object-cover"
             />
           )}
         </div>

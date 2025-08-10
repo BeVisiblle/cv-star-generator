@@ -19,12 +19,14 @@ const Dashboard = () => {
           </aside>
 
           {/* Center column (flex grows) */}
-          <section className="flex-1 min-w-0 space-y-4">
-            <ComposerTeaser />
-            <div className="my-2">
-              <FeedSortBar />
+          <section className="flex-1 min-w-0">
+            <div className="w-full max-w-[560px] mx-auto px-4 md:max-w-none md:px-0 space-y-4">
+              <ComposerTeaser />
+              <div className="my-2">
+                <FeedSortBar />
+              </div>
+              <CommunityFeed />
             </div>
-            <CommunityFeed />
           </section>
 
           {/* Right column (fixed width) */}

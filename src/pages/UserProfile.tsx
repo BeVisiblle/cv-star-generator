@@ -198,43 +198,45 @@ export default function UserProfilePage() {
 
   return (
     <div className="px-0 md:px-2 lg:px-4 py-3 md:py-6 min-h-screen bg-background max-w-full overflow-x-hidden">
-      <div className="mb-4 md:mb-6 max-w-full">
-        <div className="flex items-center justify-between gap-3">
-          <Button variant="outline" className="flex items-center gap-2 w-fit min-h-[44px]" onClick={() => navigate(-1)}>
-            <ArrowLeft className="h-4 w-4" /> Zurück
-          </Button>
-          <div className="flex items-center gap-2">
-            {isCompanyMember && !isOwner && (
-              <Button onClick={toggleInterest} disabled={interestLoading} variant={interested ? 'secondary' : 'default'} className="min-h-[44px]">
-                <HandHeart className="h-4 w-4 mr-1" /> {interested ? 'Interesse gezeigt' : 'Interesse zeigen'}
-              </Button>
-            )}
-            {renderActions()}
+      <div className="w-full max-w-[560px] mx-auto px-4 md:max-w-none md:px-0">
+        <div className="mb-4 md:mb-6 max-w-full">
+          <div className="flex items-center justify-between gap-3">
+            <Button variant="outline" className="flex items-center gap-2 w-fit min-h-[44px]" onClick={() => navigate(-1)}>
+              <ArrowLeft className="h-4 w-4" /> Zurück
+            </Button>
+            <div className="flex items-center gap-2">
+              {isCompanyMember && !isOwner && (
+                <Button onClick={toggleInterest} disabled={interestLoading} variant={interested ? 'secondary' : 'default'} className="min-h-[44px]">
+                  <HandHeart className="h-4 w-4 mr-1" /> {interested ? 'Interesse gezeigt' : 'Interesse zeigen'}
+                </Button>
+              )}
+              {renderActions()}
+            </div>
           </div>
         </div>
-      </div>
 
-      <div className="flex flex-col lg:grid lg:grid-cols-12 gap-4 md:gap-6">
-        <main className="lg:col-span-8 space-y-4 md:space-y-6">
-          <LinkedInProfileHeader profile={displayProfile} isEditing={false} onProfileUpdate={() => {}} />
-          <LinkedInProfileMain profile={displayProfile} isEditing={false} onProfileUpdate={() => {}} readOnly={!isOwner} />
-          <LinkedInProfileExperience experiences={displayProfile?.berufserfahrung || []} isEditing={false} onExperiencesUpdate={() => {}} />
-          <LinkedInProfileEducation education={displayProfile?.schulbildung || []} isEditing={false} onEducationUpdate={() => {}} />
-          <LinkedInProfileActivity profile={displayProfile} />
-        </main>
-        <aside className="lg:col-span-4">
-          <div className="lg:sticky lg:top-24 space-y-4 md:space-y-6">
-            <LinkedInProfileSidebar profile={displayProfile} isEditing={false} onProfileUpdate={() => {}} readOnly={!isOwner} showLanguagesAndSkills={isOwner} showLicenseAndStats={isOwner} showCVSection={isOwner} />
-            <RightRailAd variant="card" size="sm" />
-            <InView rootMargin="300px" placeholder={<div className="h-32 rounded-md bg-muted/50 animate-pulse" />}> 
-              <PeopleRecommendations limit={5} showMoreLink="/entdecken/azubis" showMore={true} />
-            </InView>
-            <InView rootMargin="300px" placeholder={<div className="h-32 rounded-md bg-muted/50 animate-pulse" />}> 
-              <CompanyRecommendations limit={3} />
-            </InView>
-            <RightRailAd variant="banner" size="sm" />
-          </div>
-        </aside>
+        <div className="flex flex-col lg:grid lg:grid-cols-12 gap-4 md:gap-6">
+          <main className="lg:col-span-8 space-y-4 md:space-y-6">
+            <LinkedInProfileHeader profile={displayProfile} isEditing={false} onProfileUpdate={() => {}} />
+            <LinkedInProfileMain profile={displayProfile} isEditing={false} onProfileUpdate={() => {}} readOnly={!isOwner} />
+            <LinkedInProfileExperience experiences={displayProfile?.berufserfahrung || []} isEditing={false} onExperiencesUpdate={() => {}} />
+            <LinkedInProfileEducation education={displayProfile?.schulbildung || []} isEditing={false} onEducationUpdate={() => {}} />
+            <LinkedInProfileActivity profile={displayProfile} />
+          </main>
+          <aside className="lg:col-span-4">
+            <div className="lg:sticky lg:top-24 space-y-4 md:space-y-6">
+              <LinkedInProfileSidebar profile={displayProfile} isEditing={false} onProfileUpdate={() => {}} readOnly={!isOwner} showLanguagesAndSkills={isOwner} showLicenseAndStats={isOwner} showCVSection={isOwner} />
+              <RightRailAd variant="card" size="sm" />
+              <InView rootMargin="300px" placeholder={<div className="h-32 rounded-md bg-muted/50 animate-pulse" />}> 
+                <PeopleRecommendations limit={5} showMoreLink="/entdecken/azubis" showMore={true} />
+              </InView>
+              <InView rootMargin="300px" placeholder={<div className="h-32 rounded-md bg-muted/50 animate-pulse" />}> 
+                <CompanyRecommendations limit={3} />
+              </InView>
+              <RightRailAd variant="banner" size="sm" />
+            </div>
+          </aside>
+        </div>
       </div>
     </div>
   );
