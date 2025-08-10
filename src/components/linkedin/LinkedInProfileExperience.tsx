@@ -264,7 +264,7 @@ export const LinkedInProfileExperience: React.FC<LinkedInProfileExperienceProps>
           </div>
         ) : (
           <div className="space-y-4 md:space-y-6">
-            {experiences
+            {[...experiences]
               .sort((a, b) => {
                 // Sort by end date/start date (newest first)
                 const aEnd = a.zeitraum_bis ? new Date(a.zeitraum_bis) : new Date(a.zeitraum_von);

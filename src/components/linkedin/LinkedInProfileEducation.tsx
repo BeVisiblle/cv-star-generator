@@ -295,7 +295,7 @@ export const LinkedInProfileEducation: React.FC<LinkedInProfileEducationProps> =
           </div>
         ) : (
           <div className="space-y-6">
-            {education
+            {[...education]
               .sort((a, b) => {
                 // Sort by end year/start year (newest first)
                 const aEnd = parseInt(a.zeitraum_bis) || parseInt(a.zeitraum_von) || 0;
