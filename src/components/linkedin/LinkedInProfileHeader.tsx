@@ -266,7 +266,7 @@ export const LinkedInProfileHeader: React.FC<LinkedInProfileHeaderProps> = ({
   return (
     <div className="relative bg-background rounded-xl shadow-sm border overflow-visible">
       {/* Cover Photo */}
-      <div className="relative h-32 sm:h-40 md:h-48 lg:h-56 overflow-hidden rounded-t-xl bg-gradient-to-r from-primary/20 to-accent/30">
+      <div className="relative h-28 sm:h-36 md:h-48 lg:h-56 overflow-hidden rounded-t-xl bg-gradient-to-r from-primary/20 to-accent/30">
         {profile?.cover_image_url || profile?.cover_url || profile?.titelbild_url ? (
           <img 
             src={(profile.cover_image_url || profile.cover_url || profile.titelbild_url) as string}
@@ -320,7 +320,7 @@ export const LinkedInProfileHeader: React.FC<LinkedInProfileHeaderProps> = ({
         {/* Avatar */}
         <div className="relative -mt-12 sm:-mt-16 mb-3 md:mb-4">
           <div className="relative inline-block">
-            <Avatar className="w-20 h-20 sm:w-24 sm:h-24 md:w-32 md:h-32 border-4 border-background shadow-lg">
+            <Avatar className="w-16 h-16 sm:w-24 sm:h-24 md:w-32 md:h-32 border-4 border-background shadow-lg">
               <AvatarImage src={profile?.avatar_url} alt="Profilbild" loading="lazy" decoding="async" />
               <AvatarFallback className="text-lg md:text-2xl font-bold bg-primary/10">
                 {profile?.vorname?.[0]}{profile?.nachname?.[0]}

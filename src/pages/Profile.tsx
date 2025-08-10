@@ -360,12 +360,12 @@ const Profile = () => {
       </div>
 
       {/* Sticky bottom Save Bar (mobile) */}
-      {isEditing && <div className="fixed inset-x-0 bottom-0 z-40 border-t bg-background/95 supports-[backdrop-filter]:bg-background/80 backdrop-blur px-4 py-3 pb-safe md:hidden">
-          <div className="container mx-auto flex items-center justify-end gap-2">
-            <Button variant="outline" onClick={() => setIsEditing(false)} disabled={isSaving} size="sm" className="min-h-[44px]">
+      {isEditing && <div className="fixed inset-x-0 bottom-0 z-40 border-t bg-background/95 supports-[backdrop-filter]:bg-background/80 backdrop-blur px-3 py-2 pb-safe md:hidden">
+          <div className="max-w-[560px] mx-auto px-4 flex items-center justify-end gap-2">
+            <Button variant="outline" onClick={() => setIsEditing(false)} disabled={isSaving} size="sm" className="min-h-[38px] md:min-h-[44px]">
               Abbrechen
             </Button>
-            <Button onClick={handleSave} disabled={isSaving} size="sm" className="min-h-[44px]">
+            <Button onClick={handleSave} disabled={isSaving} size="sm" className="min-h-[38px] md:min-h-[44px]">
               {isSaving ? <Clock className="h-4 w-4 mr-2 animate-spin" /> : <Check className="h-4 w-4 mr-2" />}
               Speichern
             </Button>

@@ -33,7 +33,7 @@ export const LinkedInProfileMain: React.FC<LinkedInProfileMainProps> = ({
   return <div className="space-y-6">
       {/* About Section */}
       <Card>
-        <CardHeader className="flex flex-row flex-wrap items-center justify-between gap-2 space-y-0 pb-4">
+        <CardHeader className="p-4 md:p-6 flex flex-row flex-wrap items-center justify-between gap-2 space-y-0 pb-3 md:pb-4">
           <CardTitle className="text-xl font-semibold truncate">{isOwner ? 'Über mich' : `Über ${profile?.vorname || 'diese Person'}`}</CardTitle>
           {isOwner && !isEditingAbout && (
             <Button variant="ghost" size="sm" onClick={() => setIsEditingAbout(true)} className="opacity-60 hover:opacity-100">
@@ -41,9 +41,9 @@ export const LinkedInProfileMain: React.FC<LinkedInProfileMainProps> = ({
             </Button>
           )}
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-4 md:p-6 pt-0">
           {!readOnly && isEditingAbout ? <div className="space-y-4">
-              <Textarea value={aboutText} onChange={e => setAboutText(e.target.value)} placeholder="Erzählen Sie etwas über sich, Ihre Erfahrungen und Ziele..." className="min-h-[120px] md:min-h-[150px] resize-none text-sm md:text-base break-words" />
+              <Textarea value={aboutText} onChange={e => setAboutText(e.target.value)} placeholder="Erzählen Sie etwas über sich, Ihre Erfahrungen und Ziele..." className="min-h-[100px] md:min-h-[150px] resize-none text-sm md:text-base break-words" />
               <div className="flex flex-col sm:flex-row gap-2">
                 <Button onClick={handleSaveAbout} size="sm" className="flex-1 sm:flex-none min-h-[44px]">
                   <Save className="h-4 w-4 mr-2" />

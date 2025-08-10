@@ -200,7 +200,7 @@ export const LinkedInProfileExperience: React.FC<LinkedInProfileExperienceProps>
 
   return (
     <Card>
-      <CardHeader className="flex flex-row flex-wrap items-center justify-between gap-2 space-y-0 pb-3 md:pb-4">
+      <CardHeader className="p-4 md:p-6 flex flex-row flex-wrap items-center justify-between gap-2 space-y-0 pb-3 md:pb-4">
         <CardTitle className="text-lg md:text-xl font-semibold flex items-center gap-2">
           <Building className="h-4 w-4 md:h-5 md:w-5" />
           <span className="hidden sm:inline">Berufserfahrung</span>
@@ -233,7 +233,7 @@ export const LinkedInProfileExperience: React.FC<LinkedInProfileExperienceProps>
           </Dialog>
         )}
       </CardHeader>
-      <CardContent>
+      <CardContent className="p-4 md:p-6 pt-0">
         {experiences.length === 0 ? (
           <div className="text-center py-6 md:py-8 text-muted-foreground">
             <Building className="h-8 w-8 md:h-12 md:w-12 mx-auto mb-4 opacity-50" />

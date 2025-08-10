@@ -137,7 +137,7 @@ const isOwner = user?.id === profile?.id;
 
   return (
     <Card>
-      <CardHeader className="flex flex-row flex-wrap items-center justify-between gap-2 space-y-0 pb-3">
+      <CardHeader className="p-4 md:p-6 flex flex-row flex-wrap items-center justify-between gap-2 space-y-0 pb-2 md:pb-3">
         <CardTitle className="text-lg font-semibold">Aktivitäten</CardTitle>
         {isOwner && (
           <div className="flex flex-wrap items-center gap-2">
@@ -148,7 +148,7 @@ const isOwner = user?.id === profile?.id;
           </div>
         )}
       </CardHeader>
-      <CardContent>
+      <CardContent className="p-4 md:p-6 pt-0">
         {isLoading ? (
           <div className="flex items-center justify-center py-8">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>

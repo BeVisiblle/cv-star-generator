@@ -215,7 +215,7 @@ export const LinkedInProfileEducation: React.FC<LinkedInProfileEducationProps> =
 
   return (
     <Card>
-      <CardHeader className="flex flex-row flex-wrap items-center justify-between gap-2 space-y-0 pb-4">
+      <CardHeader className="p-4 md:p-6 flex flex-row flex-wrap items-center justify-between gap-2 space-y-0 pb-4">
         <CardTitle className="text-xl font-semibold flex items-center gap-2">
           <GraduationCap className="h-5 w-5" />
           Ausbildung
@@ -244,7 +244,7 @@ export const LinkedInProfileEducation: React.FC<LinkedInProfileEducationProps> =
           </Dialog>
         )}
       </CardHeader>
-      <CardContent>
+      <CardContent className="p-4 md:p-6 pt-0">
         {education.length === 0 ? (
           <div className="text-center py-8 text-muted-foreground">
             <GraduationCap className="h-12 w-12 mx-auto mb-4 opacity-50" />
