@@ -9,14 +9,13 @@ export default function UsersPage() {
   const { role } = useAdminSession();
   const [search, setSearch] = React.useState("");
   const [status, setStatus] = React.useState<"all" | "published" | "incomplete">("all");
+  const [region, setRegion] = React.useState("");
+  const [dateStart, setDateStart] = React.useState<string | undefined>(undefined);
+  const [dateEnd, setDateEnd] = React.useState<string | undefined>(undefined);
   const [page, setPage] = React.useState(1);
   const [selected, setSelected] = React.useState<any | null>(null);
-  const [debounced, setDebounced] = React.useState("");
-  React.useEffect(() => {
-    const t = setTimeout(() => setDebounced(search), 300);
-    return () => clearTimeout(t);
-  }, [search]);
-  const { data, isLoading, error } = useUsers({ search: debounced, status, page, pageSize: 10 });
+
+  const { data, isLoading, error } = useUsers({ search, status, region, dateStart, dateEnd, page, pageSize: 10 });
 
   if (role === "CompanyAdmin") {
     return <Navigate to="/admin" replace />;
@@ -30,14 +29,17 @@ export default function UsersPage() {
     <div className="px-3 sm:px-6 py-6 max-w-[1200px] mx-auto">
       <h1 className="text-2xl font-semibold mb-4">Users</h1>
       <div className="rounded-2xl border bg-card shadow-sm p-4">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
-          <input value={search} onChange={(e) => { setSearch(e.target.value); setPage(1); }} placeholder="Search users" className="h-9 w-full sm:w-64 rounded-md border px-3 focus:outline-none focus:ring-2 focus:ring-[hsl(var(--accent))]" />
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mb-4">
+          <input value={search} onChange={(e) => { setSearch(e.target.value); setPage(1); }} placeholder="Search users" className="h-9 w-full rounded-md border px-3 focus:outline-none focus:ring-2 focus:ring-[hsl(var(--accent))]" />
+          <select value={status} onChange={(e) => { setStatus(e.target.value as any); setPage(1); }} className="h-9 rounded-md border px-2">
+            <option value="all">All</option>
+            <option value="published">Published</option>
+            <option value="incomplete">Incomplete</option>
+          </select>
+          <input type="text" value={region} onChange={(e) => { setRegion(e.target.value); setPage(1); }} placeholder="Region (Bundesland)" className="h-9 w-full rounded-md border px-3 focus:outline-none focus:ring-2 focus:ring-[hsl(var(--accent))]" />
           <div className="flex gap-2">
-            <select value={status} onChange={(e) => { setStatus(e.target.value as any); setPage(1); }} className="h-9 rounded-md border px-2">
-              <option value="all">All</option>
-              <option value="published">Published</option>
-              <option value="incomplete">Incomplete</option>
-            </select>
+            <input type="date" value={dateStart ?? ""} onChange={(e) => { setDateStart(e.target.value || undefined); setPage(1); }} className="h-9 rounded-md border px-2" />
+            <input type="date" value={dateEnd ?? ""} onChange={(e) => { setDateEnd(e.target.value || undefined); setPage(1); }} className="h-9 rounded-md border px-2" />
           </div>
         </div>
 

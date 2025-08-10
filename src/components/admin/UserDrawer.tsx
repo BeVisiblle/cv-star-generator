@@ -5,7 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { AdminUser } from "@/hooks/useUsers";
 import { useAdminSession } from "@/hooks/useAdminSession";
-import { toast } from "sonner";
+import { toast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 export function UserDrawer({ user, open, onOpenChange }: { user: AdminUser | null; open: boolean; onOpenChange: (v: boolean) => void; }) {
   const { role } = useAdminSession();
@@ -19,6 +20,40 @@ export function UserDrawer({ user, open, onOpenChange }: { user: AdminUser | nul
       {user.profile_complete ? <Badge>Complete</Badge> : <Badge variant="destructive">Incomplete</Badge>}
     </div>
   );
+
+  const handleResetPassword = async () => {
+    if (!user.email) return;
+    const { error } = await supabase.auth.resetPasswordForEmail(user.email, { redirectTo: `${window.location.origin}/auth` });
+    if (error) {
+      toast({ title: "Reset failed", description: error.message, variant: "destructive" });
+    } else {
+      toast({ title: "Reset link sent", description: `Email sent to ${user.email}` });
+    }
+  };
+
+  const callAdminAction = async (action: "suspend" | "unsuspend" | "impersonate") => {
+    const { data, error } = await supabase.functions.invoke("admin-user-actions", {
+      body: { action, userId: user.id },
+    });
+    if (error) {
+      toast({ title: `Action failed`, description: error.message, variant: "destructive" });
+      return null;
+    }
+    return data as any;
+  };
+
+  const handleSuspend = async () => {
+    const res = await callAdminAction("suspend");
+    if (res) toast({ title: "User suspended" });
+  };
+  const handleImpersonate = async () => {
+    const res = await callAdminAction("impersonate");
+    if (res?.url) {
+      window.location.href = res.url as string;
+    } else {
+      toast({ title: "Impersonation link not available", variant: "destructive" });
+    }
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -48,11 +83,11 @@ export function UserDrawer({ user, open, onOpenChange }: { user: AdminUser | nul
           <TabsContent value="security" className="mt-3">
             <div className="flex flex-wrap gap-2">
               {canSupport && (
-                <Button variant="default" onClick={() => toast.success("Impersonation started (stub)")}>Impersonate</Button>
+                <Button variant="default" onClick={handleImpersonate}>Impersonate</Button>
               )}
-              <Button variant="secondary" onClick={() => toast.message("Reset password link sent (stub)")}>Reset password</Button>
+              <Button variant="secondary" onClick={handleResetPassword}>Reset password</Button>
               {canSupport && (
-                <Button variant="destructive" onClick={() => toast.error("User suspended (stub)")}>Suspend</Button>
+                <Button variant="destructive" onClick={handleSuspend}>Suspend</Button>
               )}
             </div>
           </TabsContent>
