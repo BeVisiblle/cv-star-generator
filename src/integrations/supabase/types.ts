@@ -1366,6 +1366,7 @@ export type Database = {
           hausnummer: string | null
           headline: string | null
           id: string
+          job_search_preferences: string[]
           kenntnisse: string | null
           layout: number | null
           location_id: number | null
@@ -1416,6 +1417,7 @@ export type Database = {
           hausnummer?: string | null
           headline?: string | null
           id: string
+          job_search_preferences?: string[]
           kenntnisse?: string | null
           layout?: number | null
           location_id?: number | null
@@ -1466,6 +1468,7 @@ export type Database = {
           hausnummer?: string | null
           headline?: string | null
           id?: string
+          job_search_preferences?: string[]
           kenntnisse?: string | null
           layout?: number | null
           location_id?: number | null
@@ -2571,6 +2574,7 @@ export type Database = {
           hausnummer: string | null
           headline: string | null
           id: string
+          job_search_preferences: string[]
           kenntnisse: string | null
           layout: number | null
           location_id: number | null

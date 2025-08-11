@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Eye, Shield, Bell, Trash2 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -21,7 +22,8 @@ const Settings = () => {
     weekly_summary: true,
     marketplace_updates: false,
     regional_visibility: true,
-    visibility_industry: [] as string[]
+    visibility_industry: [] as string[],
+    job_search_preferences: [] as string[],
   });
 
   useEffect(() => {
@@ -29,7 +31,8 @@ const Settings = () => {
       setSettings(prev => ({
         ...prev,
         profile_published: profile.profile_published || false,
-        visibility_industry: profile.visibility_industry || []
+        visibility_industry: profile.visibility_industry || [],
+        job_search_preferences: (profile as any).job_search_preferences || [],
       }));
     }
   }, [profile]);
@@ -70,6 +73,19 @@ const Settings = () => {
     
     updateSetting('visibility_industry', newIndustries);
   };
+
+  const toggleJobPref = (opt: string) => {
+    const current = settings.job_search_preferences || [];
+    const has = current.includes(opt);
+    let next = has ? current.filter(o => o !== opt) : [...current, opt];
+    if (!has && opt === 'Praktikum') {
+      next = next.filter(o => o !== 'Ausbildung');
+    }
+    if (!has && opt === 'Ausbildung') {
+      next = next.filter(o => o !== 'Praktikum');
+    }
+    updateSetting('job_search_preferences', next);
+  };
   return (
     <div className="p-3 md:p-6 min-h-screen bg-background max-w-full overflow-x-hidden pb-24 pt-safe space-y-6">
       {/* Header */}
@@ -105,6 +121,26 @@ const Settings = () => {
                 checked={settings.profile_published}
                 onCheckedChange={(checked) => updateSetting('profile_published', checked)}
               />
+            </div>
+
+            <Separator />
+
+            <div className="space-y-4">
+              <h4 className="text-sm font-medium">Sichtbarkeits‑Ziele</h4>
+              <p className="text-sm text-muted-foreground">Was suchst du? (Mehrfachauswahl möglich)</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {["Praktikum","Ausbildung","Nach der Ausbildung einen Job","Ausbildungsplatzwechsel"].map((opt) => (
+                  <label key={opt} className="flex items-center gap-3 rounded-md border p-3 cursor-pointer hover:bg-accent/40">
+                    <Checkbox
+                      checked={settings.job_search_preferences.includes(opt)}
+                      onCheckedChange={() => toggleJobPref(opt)}
+                      aria-label={opt}
+                    />
+                    <span className="text-sm">{opt}</span>
+                  </label>
+                ))}
+              </div>
+              <p className="text-xs text-muted-foreground">Hinweis: „Praktikum“ und „Ausbildung“ können nicht gleichzeitig gewählt werden.</p>
             </div>
 
             <Separator />

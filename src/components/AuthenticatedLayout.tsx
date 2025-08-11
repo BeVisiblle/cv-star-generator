@@ -5,6 +5,7 @@ import { useAuth } from "@/hooks/useAuth";
 import BaseLayout from "@/components/layout/BaseLayout";
 import TopNavBar from "@/components/navigation/TopNavBar";
 import NewPostComposer from "@/components/community/NewPostComposer";
+import { VisibilityPrompt } from "@/components/modals/VisibilityPrompt";
 
 export function AuthenticatedLayout() {
   const { profile, isLoading, user } = useAuth();
@@ -48,6 +49,7 @@ export function AuthenticatedLayout() {
           </div>
 
           {/* Global UI */}
+          <VisibilityPrompt />
           <NewPostComposer />
         </main>
 
