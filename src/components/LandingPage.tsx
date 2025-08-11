@@ -179,7 +179,7 @@ export default function LandingPage() {
                   <img 
                     src={step1HeroImage} 
                     alt="CV Generator Interface - Erstelle deinen Lebenslauf in 5 Minuten"
-                    className="w-full rounded-2xl shadow-2xl border border-border"
+                    className="w-full rounded-2xl shadow-2xl border border-border -mt-6 md:-mt-8"
                     loading="eager"
                   />
                   <div className="absolute -bottom-4 -right-4 bg-green-500 text-white px-4 py-2 rounded-xl shadow-lg">
