@@ -26,10 +26,7 @@ export const NewPostComposer: React.FC = () => {
   const { profile } = useAuth();
 
   React.useEffect(() => {
-    return subscribeOpenPostComposer(() => {
-      resetComposer();
-      setOpen(true);
-    });
+    return subscribeOpenPostComposer(() => setOpen(true));
   }, []);
 
   const handleStateChange = React.useCallback((s: { canPost: boolean; isSubmitting: boolean }) => {
@@ -46,19 +43,6 @@ export const NewPostComposer: React.FC = () => {
   const [showPoll, setShowPoll] = React.useState(false);
   const [showEvent, setShowEvent] = React.useState(false);
   const [celebration, setCelebration] = React.useState(false);
-  const [resetToken, setResetToken] = React.useState(0);
-
-  const resetComposer = React.useCallback(() => {
-    setScheduledAt(null);
-    setScheduleOpen(false);
-    setScheduleDate(undefined);
-    setScheduleTime('09:00');
-    setShowPoll(false);
-    setShowEvent(false);
-    setCelebration(false);
-    setTrayOpen(false);
-    setResetToken((t) => t + 1);
-  }, []);
 
   const applySchedule = () => {
     if (scheduleDate && scheduleTime) {
@@ -160,20 +144,16 @@ export const NewPostComposer: React.FC = () => {
                     onClick={() => {
                       if (label === 'Medien') {
                         document.getElementById('image-upload')?.click();
-                        setTrayOpen(false);
                       } else if (label === 'Dokument') {
                         document.getElementById('document-upload')?.click();
-                        setTrayOpen(false);
                       } else if (label === 'Umfrage') {
                         setShowPoll(true);
-                        setTrayOpen(false);
                       } else if (label === 'Event') {
-                        // Disabled: hover only, no action
-                        return;
+                        setShowEvent(true);
                       } else if (label === 'Feier') {
                         setCelebration((v) => !v);
-                        setTrayOpen(false);
                       }
+                      setTrayOpen(false);
                     }}
                     aria-label={label}
                   >
@@ -207,14 +187,14 @@ export const NewPostComposer: React.FC = () => {
 
   if (isMobile) {
     return (
-      <Sheet open={open} onOpenChange={(v) => { if (v) resetComposer(); setOpen(v); setTrayOpen(false); }}>
+      <Sheet open={open} onOpenChange={(v) => { setOpen(v); setTrayOpen(false); }}>
         <SheetContent side="bottom" className="h-[92vh] p-0 flex flex-col">
           <SheetHeader className="px-6 pt-4 pb-2">
             <SheetTitle>Neuer Beitrag</SheetTitle>
           </SheetHeader>
           {Header}
           <div className="flex-1 overflow-y-auto px-6 pb-6">
-            <CreatePost container="none" hideHeader variant="composer" hideBottomBar onStateChange={handleStateChange} scheduledAt={scheduledAt} showPoll={showPoll} showEvent={showEvent} celebration={celebration} visibility={audience} resetToken={resetToken} />
+            <CreatePost container="none" hideHeader variant="composer" hideBottomBar onStateChange={handleStateChange} scheduledAt={scheduledAt} showPoll={showPoll} showEvent={showEvent} celebration={celebration} visibility={audience} />
           </div>
           <div className="sticky bottom-0">{BottomToolbar}</div>
         </SheetContent>
@@ -223,13 +203,13 @@ export const NewPostComposer: React.FC = () => {
   }
 
   return (
-    <Dialog open={open} onOpenChange={(v) => { if (v) resetComposer(); setOpen(v); setTrayOpen(false); }}>
+    <Dialog open={open} onOpenChange={(v) => { setOpen(v); setTrayOpen(false); }}>
       <DialogContent className="md:max-w-3xl w-full p-0 rounded-xl overflow-hidden">
         <DialogTitle className="sr-only">Neuer Beitrag</DialogTitle>
         <DialogDescription className="sr-only">Verfasse und veröffentliche einen neuen Beitrag.</DialogDescription>
         {Header}
         <div className="px-6 py-5">
-          <CreatePost container="none" hideHeader variant="composer" hideBottomBar onStateChange={handleStateChange} scheduledAt={scheduledAt} showPoll={showPoll} showEvent={showEvent} celebration={celebration} visibility={audience} resetToken={resetToken} />
+          <CreatePost container="none" hideHeader variant="composer" hideBottomBar onStateChange={handleStateChange} scheduledAt={scheduledAt} showPoll={showPoll} showEvent={showEvent} celebration={celebration} visibility={audience} />
         </div>
         {BottomToolbar}
       </DialogContent>

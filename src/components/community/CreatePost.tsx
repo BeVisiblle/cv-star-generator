@@ -22,10 +22,9 @@ export interface CreatePostProps {
   showEvent?: boolean;
   celebration?: boolean;
   visibility?: 'public' | 'connections' | 'private';
-  resetToken?: number;           // increment to reset local add-on selections
 }
 
-export const CreatePost = ({ container = "card", hideHeader = false, variant = "default", hideBottomBar = false, onStateChange, scheduledAt, showPoll = false, showEvent = false, celebration = false, visibility = 'public', resetToken }: CreatePostProps) => {
+export const CreatePost = ({ container = "card", hideHeader = false, variant = "default", hideBottomBar = false, onStateChange, scheduledAt, showPoll = false, showEvent = false, celebration = false, visibility = 'public' }: CreatePostProps) => {
   const [content, setContent] = useState("");
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -103,22 +102,6 @@ export const CreatePost = ({ container = "card", hideHeader = false, variant = "
       });
     },
   });
-
-  // Reset selection fields when requested (opening composer)
-  useEffect(() => {
-    if (resetToken === undefined) return;
-    setPollQuestion("");
-    setPollOptions(["", ""]);
-    setPollDurationDays(7);
-    setEventTitle("");
-    setEventStartDate("");
-    setEventStartTime("");
-    setEventEndDate("");
-    setEventEndTime("");
-    setEventIsOnline(true);
-    setEventLocation("");
-    setEventLink("");
-  }, [resetToken]);
 
   // Notify parent on state changes
   useEffect(() => {
