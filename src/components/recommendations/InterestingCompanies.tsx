@@ -1,6 +1,7 @@
 import { supabase } from "@/integrations/supabase/client";
 import { SuggestionList } from "./SuggestionList";
 import { useAuth } from "@/hooks/useAuth";
+const AnySuggestionList = SuggestionList as unknown as any;
 
 type Company = {
   id: string;
@@ -17,7 +18,7 @@ export function InterestingCompanies() {
   if (!viewerId) return null;
 
   return (
-    <SuggestionList<Company>
+    <AnySuggestionList
       title="Interesting Companies"
       fetchFn={() =>
         (supabase as any).rpc("suggest_companies", { p_viewer: viewerId, p_limit: 3 }) as Promise<{
