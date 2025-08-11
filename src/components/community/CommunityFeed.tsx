@@ -14,6 +14,26 @@ const PAGE_SIZE = 20;
 
 type FeedSortOption = "relevant" | "newest";
 
+type FeedPost = {
+  id: string;
+  user_id: string;
+  author_type: string;
+  author_id: string | null;
+  content: string;
+  image_url: string | null;
+  published_at: string;
+  visibility: string;
+  status: string;
+  created_at: string;
+  updated_at: string;
+  celebration: boolean;
+  link_url: string | null;
+  scheduled_at: string | null;
+  like_count: number;
+  comment_count: number;
+  repost_count: number;
+};
+
 export default function CommunityFeed() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
@@ -33,22 +53,22 @@ export default function CommunityFeed() {
     queryFn: async ({ pageParam }) => {
       console.log('[feed] fetching page', pageParam, sort);
 
-      const { data: posts, error } = await supabase.rpc('get_feed_sorted', {
+      const { data: posts, error } = await (supabase as any).rpc('get_feed_sorted', {
         viewer_id: viewerId as string,
         after_published: pageParam.after_published,
         after_id: pageParam.after_id,
         limit_count: PAGE_SIZE,
-        sort: sort,
-      });
+        sort,
+      }) as { data: FeedPost[] | null; error: any };
 
       if (error) {
         console.error('[feed] get_feed error', error);
         throw error;
       }
 
-      const rows = posts || [];
-      const authorIds = Array.from(new Set(rows.map((p: any) => p.user_id).filter(Boolean)));
-      const companyIds = Array.from(new Set(rows.filter((p: any) => p.author_type === 'company' && p.author_id).map((p: any) => p.author_id)));
+      const rows: FeedPost[] = (posts || []) as FeedPost[];
+      const authorIds: string[] = Array.from(new Set(rows.map((p) => p.user_id))).filter(Boolean) as string[];
+      const companyIds: string[] = Array.from(new Set(rows.filter((p) => p.author_type === 'company' && p.author_id).map((p) => p.author_id as string)));
 
       let profilesMap: Record<string, any> = {};
       if (authorIds.length > 0) {
@@ -96,7 +116,7 @@ export default function CommunityFeed() {
   });
 
   const posts: PostWithAuthor[] = useMemo(
-    () => (feedQuery.data?.pages || []).flatMap((p: any) => p.items) as PostWithAuthor[],
+    () => ((feedQuery.data?.pages || []) as Array<{ items: PostWithAuthor[] }>).flatMap((p) => p.items),
     [feedQuery.data]
   );
 
@@ -186,7 +206,7 @@ export default function CommunityFeed() {
   const mergeIncoming = () => {
     if (!incoming.length) return;
 
-    queryClient.setQueryData(['home-feed', viewerId], (oldData: any) => {
+    queryClient.setQueryData(['home-feed', viewerId, sort], (oldData: any) => {
       if (!oldData?.pages?.length) return oldData;
 
       const existingIds = new Set(
