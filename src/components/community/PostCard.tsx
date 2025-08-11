@@ -277,24 +277,6 @@ export default function PostCard({ post }: PostCardProps) {
                       </Avatar>
                       <div className="flex-1 bg-muted/40 border rounded-lg p-2">
                         <button className="text-xs font-medium hover:underline" onClick={() => navigate(`/u/${c.author?.id || c.user_id}`)}>{name}</button>
-                        {(() => {
-                          const a = c.author as any;
-                          if (!a) return null;
-                          let text = '';
-                          if (a.status === 'schueler' && a.schule) text = `Schüler @ ${a.schule}`;
-                          else if (a.status === 'azubi') {
-                            const job = a.ausbildungsberuf ? `im Bereich ${a.ausbildungsberuf}` : '';
-                            const company = a.ausbildungsbetrieb ? ` @ ${a.ausbildungsbetrieb}` : '';
-                            text = `Auszubildender ${job}${company}`.trim();
-                          } else if (a.status === 'ausgelernt') {
-                            const job = a.aktueller_beruf || a.ausbildungsberuf || 'Mitarbeiter';
-                            const company = a.ausbildungsbetrieb ? ` @ ${a.ausbildungsbetrieb}` : '';
-                            text = `${job}${company}`;
-                          } else {
-                            text = a?.ausbildungsberuf || '';
-                          }
-                          return text ? (<p className="text-[11px] text-muted-foreground">{text}</p>) : null;
-                        })()}
                         <div className="text-sm whitespace-pre-wrap">{c.content}</div>
                         <div className="mt-1">
                           <Button
