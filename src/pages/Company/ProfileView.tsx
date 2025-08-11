@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { KeyValueRow } from '@/components/ui/key-value-row';
 import { ArrowLeft, Loader2 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
@@ -108,6 +109,17 @@ const CompanyProfileView = () => {
     hausnummer: null
   };
 
+  const displayEmail = displayProfile?.email || null;
+  const displayPhone = displayProfile?.telefon || null;
+  const addressParts = [
+    displayProfile?.strasse
+      ? `${displayProfile.strasse}${displayProfile.hausnummer ? ' ' + displayProfile.hausnummer : ''}`
+      : null,
+    displayProfile?.plz || null,
+    displayProfile?.ort || null,
+  ].filter(Boolean) as string[];
+  const displayAddress = addressParts.length ? addressParts.join(', ') : null;
+
   return (
     <div className="p-3 md:p-6 min-h-screen bg-background max-w-full overflow-x-hidden">
       {/* Breadcrumb Header */}
@@ -190,6 +202,48 @@ const CompanyProfileView = () => {
               readOnly={true}
             />
             
+            {/* Kontaktdaten Box */}
+            <Card className="p-4">
+              <h3 className="font-semibold mb-3">Kontaktdaten</h3>
+              <div className="space-y-2">
+                <KeyValueRow
+                  label="E-Mail"
+                  value={
+                    displayEmail ? (
+                      <a href={`mailto:${displayEmail}`} className="underline">{displayEmail}</a>
+                    ) : (
+                      <span className="text-muted-foreground">{isUnlocked ? 'Keine Angabe' : 'Verdeckt'}</span>
+                    )
+                  }
+                />
+                <KeyValueRow
+                  label="Telefon"
+                  value={
+                    displayPhone ? (
+                      <a href={`tel:${displayPhone}`} className="underline">{displayPhone}</a>
+                    ) : (
+                      <span className="text-muted-foreground">{isUnlocked ? 'Keine Angabe' : 'Verdeckt'}</span>
+                    )
+                  }
+                />
+                <KeyValueRow
+                  label="Adresse"
+                  value={
+                    displayAddress ? (
+                      displayAddress
+                    ) : (
+                      <span className="text-muted-foreground">{isUnlocked ? 'Keine Angabe' : 'Verdeckt'}</span>
+                    )
+                  }
+                />
+              </div>
+              {!isUnlocked && (
+                <p className="mt-3 text-xs text-muted-foreground">
+                  Profil freischalten, um vollständige Kontaktdaten zu sehen.
+                </p>
+              )}
+            </Card>
+
             {/* Contact Action Card for Unlocked Profiles */}
             {isUnlocked && (profile.email || profile.telefon) && (
               <Card className="p-4">
