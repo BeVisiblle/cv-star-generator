@@ -16,6 +16,7 @@ import {
   Building2
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { KpiCard } from "@/components/admin/KpiCard";
 
 interface Profile {
   id: string;
@@ -49,7 +50,18 @@ export default function CompanyDashboard() {
   const [loading, setLoading] = useState(true);
   const [demoMode, setDemoMode] = useState(false);
   const [demoCompanyData, setDemoCompanyData] = useState<any>(null);
-  const navigate = useNavigate();
+const navigate = useNavigate();
+
+const [highlightIndex, setHighlightIndex] = useState(0);
+
+useEffect(() => {
+  if (bestMatches.length <= 1) return;
+  setHighlightIndex(0);
+  const id = setInterval(() => {
+    setHighlightIndex((i) => (i + 1) % Math.min(bestMatches.length, 4));
+  }, 4000);
+  return () => clearInterval(id);
+}, [bestMatches]);
 
   useEffect(() => {
     // Check for demo mode
@@ -247,7 +259,7 @@ export default function CompanyDashboard() {
         <CardHeader>
           <CardTitle className="flex items-center">
             <TrendingUp className="h-5 w-5 mr-2" />
-            Beste Matches
+            Interessante Azubis
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -297,57 +309,10 @@ export default function CompanyDashboard() {
 
       {/* Stats Overview */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Tokens übrig</CardTitle>
-            <Coins className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{demoMode ? '50' : company?.active_tokens}</div>
-            <p className="text-xs text-muted-foreground">
-              von {demoMode ? '100' : (company?.seats * 10)} verfügbar
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Matches</CardTitle>
-            <Heart className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.monthlyMatches}</div>
-            <p className="text-xs text-muted-foreground">
-              {stats.totalMatches} insgesamt
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Freigeschaltet</CardTitle>
-            <Eye className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.unlockedProfiles}</div>
-            <p className="text-xs text-muted-foreground">
-              Profile angesehen
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Team Größe</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{demoMode ? '5' : company?.seats}</div>
-            <p className="text-xs text-muted-foreground">
-              aktive Mitglieder
-            </p>
-          </CardContent>
-        </Card>
+        <KpiCard title="Tokens übrig" value={demoMode ? 50 : (company?.active_tokens ?? 0)} hint="Aktualisiert in Echtzeit" />
+        <KpiCard title="Matches (Monat)" value={stats.monthlyMatches} hint={`${stats.totalMatches} insgesamt`} />
+        <KpiCard title="Freigeschaltet" value={stats.unlockedProfiles} hint="Profile angesehen" />
+        <KpiCard title="Team Größe" value={demoMode ? 5 : (company?.seats ?? 0)} hint="aktive Mitglieder" />
       </div>
 
       {/* Recently Unlocked */}
