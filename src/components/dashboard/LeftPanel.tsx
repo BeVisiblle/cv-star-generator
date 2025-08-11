@@ -5,13 +5,13 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { MapPin } from "lucide-react";
-function firstWords(text?: string | null, n: number = 20) {
+function firstWords(text?: string | null, n: number = 40) {
   if (!text) return null;
   const words = text.trim().split(/\s+/);
   const slice = words.slice(0, n).join(" ");
   return words.length > n ? `${slice}…` : slice;
 }
-function firstChars(text?: string | null, n: number = 10) {
+function firstChars(text?: string | null, n: number = 40) {
   if (!text) return null;
   const trimmed = text.trim();
   return trimmed.length > n ? `${trimmed.slice(0, n)}…` : trimmed.slice(0, n);
