@@ -74,7 +74,7 @@ export default function CommunityFeed() {
       if (authorIds.length > 0) {
         const { data: profiles, error: profileErr } = await supabase
           .from('profiles')
-          .select('id, vorname, nachname, avatar_url, ausbildungsberuf')
+          .select('id, vorname, nachname, avatar_url, schulbildung, berufserfahrung, ausbildungsberuf, schule, ausbildungsbetrieb, aktueller_beruf, company_id')
           .in('id', authorIds);
 
         if (profileErr) {

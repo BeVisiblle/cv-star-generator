@@ -16,6 +16,14 @@ export interface PostComment {
     vorname?: string | null;
     nachname?: string | null;
     avatar_url?: string | null;
+    // Derived fields for display
+    status?: 'schueler' | 'azubi' | 'ausgelernt' | string;
+    schule?: string | null;
+    ausbildungsberuf?: string | null;
+    ausbildungsbetrieb?: string | null;
+    aktueller_beruf?: string | null;
+    job_title?: string | null;
+    company_id?: string | null;
   } | null;
 }
 
@@ -120,7 +128,7 @@ export const usePostComments = (postId: string) => {
       if (userIds.length) {
         const { data: profiles, error: profErr } = await supabase
           .from("profiles")
-          .select("id, vorname, nachname, avatar_url")
+          .select("id, vorname, nachname, avatar_url, schulbildung, berufserfahrung, ausbildungsberuf, schule, ausbildungsbetrieb, aktueller_beruf, company_id")
           .in("id", userIds as any);
         if (profErr) throw profErr;
         profilesMap = Object.fromEntries(
@@ -128,10 +136,46 @@ export const usePostComments = (postId: string) => {
         );
       }
 
-      return items.map((c: any) => ({
-        ...c,
-        author: profilesMap[c.user_id] ?? null,
-      })) as PostComment[];
+      // Helpers to derive role/status from profile JSON
+      const pickStr = (o: any, keys: string[]) => {
+        for (const k of keys) {
+          const v = o?.[k];
+          if (typeof v === 'string' && v.trim()) return v as string;
+        }
+        return null;
+      };
+
+      const deriveFromProfile = (p: any) => {
+        const edu = Array.isArray(p?.schulbildung) ? p.schulbildung : [];
+        const exp = Array.isArray(p?.berufserfahrung) ? p.berufserfahrung : [];
+        const ausbildung = exp.find((e: any) => String(e?.type || e?.art || '').toLowerCase().includes('ausbildung') && (!e?.end && !e?.bis)) || null;
+
+        let status: 'schueler' | 'azubi' | 'ausgelernt' | string | undefined;
+        if (ausbildung) status = 'azubi';
+        else if (exp.length > 0) status = 'ausgelernt';
+        else if (edu.length > 0) status = 'schueler';
+
+        const firstEdu = edu[0] || {};
+        const firstExp = ausbildung || exp[0] || {};
+
+        const schule = pickStr(firstEdu, ['schule', 'school_name', 'name']) || p?.schule || null;
+        const ausbildungsberuf = p?.ausbildungsberuf ?? pickStr(firstExp, ['beruf', 'ausbildungsberuf', 'job_title', 'position']);
+        const ausbildungsbetrieb = p?.ausbildungsbetrieb ?? pickStr(firstExp, ['betrieb', 'company', 'company_name']);
+        const aktueller_beruf = p?.aktueller_beruf ?? pickStr(firstExp, ['job_title', 'position', 'beruf']);
+        const job_title = aktueller_beruf || ausbildungsberuf || null;
+        const company_id = firstExp?.company_id ?? p?.company_id ?? null;
+
+        return { status, schule, ausbildungsberuf: ausbildungsberuf ?? null, ausbildungsbetrieb: ausbildungsbetrieb ?? null, aktueller_beruf: aktueller_beruf ?? null, job_title, company_id };
+      };
+
+      return items.map((c: any) => {
+        const base = profilesMap[c.user_id] ?? null;
+        const derived = base ? deriveFromProfile(base) : {};
+        return {
+          ...c,
+          author: base ? { ...base, ...derived } : null,
+        } as PostComment;
+      });
     },
   });
 

@@ -48,18 +48,6 @@ export const NewPostComposer: React.FC = () => {
   const [celebration, setCelebration] = React.useState(false);
   const [resetToken, setResetToken] = React.useState(0);
 
-  const resetComposer = React.useCallback(() => {
-    setScheduledAt(null);
-    setScheduleOpen(false);
-    setScheduleDate(undefined);
-    setScheduleTime('09:00');
-    setShowPoll(false);
-    setShowEvent(false);
-    setCelebration(false);
-    setTrayOpen(false);
-    setResetToken((t) => t + 1);
-  }, []);
-
   const applySchedule = () => {
     if (scheduleDate && scheduleTime) {
       const [hh, mm] = scheduleTime.split(':').map(Number);
@@ -73,6 +61,19 @@ export const NewPostComposer: React.FC = () => {
     setScheduledAt(null);
     setScheduleOpen(false);
   };
+
+  const resetComposer = React.useCallback(() => {
+    setAudience('public');
+    setScheduledAt(null);
+    setScheduleOpen(false);
+    setScheduleDate(undefined);
+    setScheduleTime('09:00');
+    setShowPoll(false);
+    setShowEvent(false);
+    setCelebration(false);
+    setTrayOpen(false);
+    setResetToken((t) => t + 1);
+  }, []);
 
   const Header = (
     <div className="px-6 pt-5 pb-3 border-b bg-background">
