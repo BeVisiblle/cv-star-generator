@@ -9,9 +9,10 @@ import { useToast } from "@/hooks/use-toast";
 interface QuickMessageDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  initialContent?: string;
 }
 
-export const QuickMessageDialog: React.FC<QuickMessageDialogProps> = ({ open, onOpenChange }) => {
+export const QuickMessageDialog: React.FC<QuickMessageDialogProps> = ({ open, onOpenChange, initialContent }) => {
   const { listAcceptedConnections, sendMessage } = useMessaging();
   const { toast } = useToast();
 
@@ -37,6 +38,13 @@ export const QuickMessageDialog: React.FC<QuickMessageDialogProps> = ({ open, on
     })();
     return () => { mounted = false; };
   }, [open, listAcceptedConnections]);
+
+  // Prefill text when dialog opens
+  React.useEffect(() => {
+    if (open) {
+      setContent((prev) => (initialContent !== undefined ? initialContent : prev));
+    }
+  }, [open, initialContent]);
 
   const onSend = async () => {
     try {
