@@ -17,7 +17,7 @@ const JOB_OPTIONS = [
 type JobOption = typeof JOB_OPTIONS[number]["value"];
 
 export function VisibilityPrompt() {
-  const { profile, isLoading, refetchProfile } = useAuth();
+  const { profile, isLoading, refetchProfile, session } = useAuth();
   const { toast } = useToast();
   const [open, setOpen] = useState(false);
   const [selected, setSelected] = useState<JobOption[]>([]);
@@ -26,12 +26,43 @@ export function VisibilityPrompt() {
   useEffect(() => {
     if (!isLoading && profile) {
       setSelected((profile as any)?.job_search_preferences ?? []);
+
       if (!profile.profile_published) {
-        // Slight defer to avoid layout shifts
-        setTimeout(() => setOpen(true), 0);
+        const uid = profile.id;
+        const token = session?.access_token || "";
+        const tokenKey = `visibility_prompt_last_token:${uid}`;
+        const declineKey = `visibility_prompt_declined:${uid}`;
+        const counterKey = `visibility_prompt_counter:${uid}`;
+
+        const declined = localStorage.getItem(declineKey) === "1";
+
+        // Detect new login via token change
+        if (token) {
+          const lastToken = localStorage.getItem(tokenKey);
+          if (lastToken !== token) {
+            localStorage.setItem(tokenKey, token);
+            if (declined) {
+              const n = parseInt(localStorage.getItem(counterKey) || "0", 10) + 1;
+              localStorage.setItem(counterKey, String(n));
+            }
+          }
+        }
+
+        // Decide if we open the prompt
+        if (!declined) {
+          setTimeout(() => setOpen(true), 0);
+        } else {
+          const n = parseInt(localStorage.getItem(counterKey) || "0", 10);
+          if (n >= 3) {
+            setTimeout(() => {
+              setOpen(true);
+              localStorage.setItem(counterKey, "0");
+            }, 0);
+          }
+        }
       }
     }
-  }, [isLoading, profile]);
+  }, [isLoading, profile, session]);
 
   const summary = useMemo(() => {
     if (!selected?.length) return "dein Profil";
@@ -39,18 +70,31 @@ export function VisibilityPrompt() {
   }, [selected]);
 
   const toggle = (value: JobOption) => {
-    setSelected(prev => {
-      const has = prev.includes(value);
-      let next = has ? prev.filter(v => v !== value) : [...prev, value];
+    const DUAL_ALLOWED: JobOption[] = ["Praktikum", "Ausbildung"];
+    const SINGLE_ONLY: JobOption[] = [
+      "Nach der Ausbildung einen Job",
+      "Ausbildungsplatzwechsel",
+    ];
 
-      // Logic: "Praktikum" und "Ausbildung" nicht gleichzeitig
-      if (!has && value === "Praktikum") {
-        next = next.filter(v => v !== "Ausbildung");
+    setSelected((prev) => {
+      const isDual = DUAL_ALLOWED.includes(value);
+      const isSingle = SINGLE_ONLY.includes(value);
+
+      let next: JobOption[] = [];
+      if (isSingle) {
+        // Single options are exclusive
+        next = prev.length === 1 && prev[0] === value ? [] : [value];
+      } else {
+        // Dual options can be combined only with each other
+        if (prev.some((p) => SINGLE_ONLY.includes(p))) {
+          next = [value];
+        } else if (prev.includes(value)) {
+          next = prev.filter((v) => v !== value) as JobOption[];
+        } else {
+          next = [...prev, value].filter((v) => DUAL_ALLOWED.includes(v)) as JobOption[];
+        }
       }
-      if (!has && value === "Ausbildung") {
-        next = next.filter(v => v !== "Praktikum");
-      }
-      return next as JobOption[];
+      return next;
     });
   };
 
@@ -80,11 +124,26 @@ export function VisibilityPrompt() {
     }
 
     await refetchProfile();
+    // Clear decline throttling since user is now visible
+    try {
+      const uid = profile.id;
+      localStorage.removeItem(`visibility_prompt_declined:${uid}`);
+      localStorage.removeItem(`visibility_prompt_counter:${uid}`);
+    } catch {}
     setOpen(false);
     toast({
       title: "Sichtbarkeit aktiviert",
       description: `Du bist jetzt für Unternehmen sichtbar, die nach ${summary} suchen.`,
     });
+  };
+  const stayHidden = () => {
+    if (!profile) return;
+    try {
+      const uid = profile.id;
+      localStorage.setItem(`visibility_prompt_declined:${uid}`, "1");
+      localStorage.setItem(`visibility_prompt_counter:${uid}`, "0");
+    } catch {}
+    setOpen(false);
   };
 
   if (isLoading || !profile) return null;
@@ -101,7 +160,7 @@ export function VisibilityPrompt() {
 
         <div className="space-y-4">
           <div className="space-y-2">
-            <Label>Was suchst du? (Mehrfachauswahl möglich)</Label>
+            <Label>Was suchst du? (Mehrfachauswahl nur bei Praktikum & Ausbildung)</Label>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {JOB_OPTIONS.map(opt => (
                 <label key={opt.value} className="flex items-center gap-3 rounded-md border p-3 cursor-pointer hover:bg-accent/40">
@@ -115,7 +174,7 @@ export function VisibilityPrompt() {
               ))}
             </div>
             <p className="text-xs text-muted-foreground">
-              Hinweis: „Praktikum“ und „Ausbildung“ können nicht gleichzeitig gewählt werden.
+              Mehrfachauswahl ist nur bei „Praktikum“ und „Ausbildung“ möglich. Andere Optionen sind Einzelwahl.
             </p>
           </div>
 
@@ -126,6 +185,7 @@ export function VisibilityPrompt() {
 
         <DialogFooter className="gap-2">
           <Button variant="outline" onClick={() => setOpen(false)}>Später</Button>
+          <Button variant="outline" onClick={stayHidden}>Nicht sichtbar bleiben</Button>
           <Button onClick={makeVisibleNow} disabled={selected.length === 0}>Jetzt sichtbar machen</Button>
         </DialogFooter>
       </DialogContent>

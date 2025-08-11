@@ -76,14 +76,25 @@ const Settings = () => {
 
   const toggleJobPref = (opt: string) => {
     const current = settings.job_search_preferences || [];
-    const has = current.includes(opt);
-    let next = has ? current.filter(o => o !== opt) : [...current, opt];
-    if (!has && opt === 'Praktikum') {
-      next = next.filter(o => o !== 'Ausbildung');
+    const DUAL_ALLOWED = ["Praktikum", "Ausbildung"];
+    const SINGLE_ONLY = ["Nach der Ausbildung einen Job", "Ausbildungsplatzwechsel"];
+
+    const isDual = DUAL_ALLOWED.includes(opt);
+    const isSingle = SINGLE_ONLY.includes(opt);
+
+    let next: string[] = [];
+    if (isSingle) {
+      next = current.length === 1 && current[0] === opt ? [] : [opt];
+    } else {
+      if (current.some((c) => SINGLE_ONLY.includes(c))) {
+        next = [opt];
+      } else if (current.includes(opt)) {
+        next = current.filter((c) => c !== opt);
+      } else {
+        next = [...current, opt].filter((v) => DUAL_ALLOWED.includes(v));
+      }
     }
-    if (!has && opt === 'Ausbildung') {
-      next = next.filter(o => o !== 'Praktikum');
-    }
+
     updateSetting('job_search_preferences', next);
   };
   return (
@@ -127,7 +138,7 @@ const Settings = () => {
 
             <div className="space-y-4">
               <h4 className="text-sm font-medium">Sichtbarkeits‑Ziele</h4>
-              <p className="text-sm text-muted-foreground">Was suchst du? (Mehrfachauswahl möglich)</p>
+              <p className="text-sm text-muted-foreground">Was suchst du? (Mehrfachauswahl nur bei Praktikum & Ausbildung)</p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {["Praktikum","Ausbildung","Nach der Ausbildung einen Job","Ausbildungsplatzwechsel"].map((opt) => (
                   <label key={opt} className="flex items-center gap-3 rounded-md border p-3 cursor-pointer hover:bg-accent/40">
@@ -140,7 +151,7 @@ const Settings = () => {
                   </label>
                 ))}
               </div>
-              <p className="text-xs text-muted-foreground">Hinweis: „Praktikum“ und „Ausbildung“ können nicht gleichzeitig gewählt werden.</p>
+              <p className="text-xs text-muted-foreground">Mehrfachauswahl ist nur bei „Praktikum“ und „Ausbildung“ möglich. Andere Optionen sind Einzelwahl.</p>
             </div>
 
             <Separator />
