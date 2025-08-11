@@ -33,22 +33,22 @@ export default function CommunityFeed() {
     queryFn: async ({ pageParam }) => {
       console.log('[feed] fetching page', pageParam, sort);
 
-      const { data: posts, error } = await supabase.rpc('get_feed_sorted', {
+      const { data: posts, error } = await (supabase as any).rpc('get_feed_sorted', {
         viewer_id: viewerId as string,
         after_published: pageParam.after_published,
         after_id: pageParam.after_id,
         limit_count: PAGE_SIZE,
         sort: sort,
-      });
+      }) as { data: any[] | null; error: any };
 
       if (error) {
         console.error('[feed] get_feed error', error);
         throw error;
       }
 
-      const rows = posts || [];
-      const authorIds = Array.from(new Set(rows.map((p: any) => p.user_id).filter(Boolean)));
-      const companyIds = Array.from(new Set(rows.filter((p: any) => p.author_type === 'company' && p.author_id).map((p: any) => p.author_id)));
+      const rows: any[] = (posts as any[]) || [];
+      const authorIds = Array.from(new Set(rows.map((p: any) => p.user_id).filter(Boolean))) as string[];
+      const companyIds = Array.from(new Set(rows.filter((p: any) => p.author_type === 'company' && p.author_id).map((p: any) => p.author_id))) as string[];
 
       let profilesMap: Record<string, any> = {};
       if (authorIds.length > 0) {

@@ -1741,6 +1741,27 @@ export type Database = {
           },
         ]
       }
+      suggestions_history: {
+        Row: {
+          last_seen_at: string
+          profile_id: string
+          target_id: string
+          target_type: string
+        }
+        Insert: {
+          last_seen_at?: string
+          profile_id: string
+          target_id: string
+          target_type: string
+        }
+        Update: {
+          last_seen_at?: string
+          profile_id?: string
+          target_id?: string
+          target_type?: string
+        }
+        Relationships: []
+      }
       token_ledger: {
         Row: {
           client_request_id: string | null
@@ -3949,6 +3970,33 @@ export type Database = {
       st_zmin: {
         Args: { "": unknown }
         Returns: number
+      }
+      suggest_companies: {
+        Args: { p_viewer: string; p_limit?: number }
+        Returns: {
+          id: string
+          name: string
+          logo_url: string
+          industry: string
+          main_location: string
+          score: number
+        }[]
+      }
+      suggest_people: {
+        Args: { p_viewer: string; p_limit?: number }
+        Returns: {
+          id: string
+          display_name: string
+          avatar_url: string
+          status: string
+          branche: string
+          ort: string
+          score: number
+        }[]
+      }
+      suggestions_touch: {
+        Args: { p_viewer: string; p_type: string; p_target: string }
+        Returns: undefined
       }
       text: {
         Args: { "": unknown }

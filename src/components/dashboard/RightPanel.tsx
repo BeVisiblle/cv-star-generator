@@ -1,14 +1,14 @@
 import React from "react";
 import { RightRailAd } from "@/components/linkedin/right-rail/RightRailAd";
-import { PeopleRecommendations } from "@/components/linkedin/right-rail/PeopleRecommendations";
-import { CompanyRecommendations } from "@/components/linkedin/right-rail/CompanyRecommendations";
+import { InterestingPeople } from "@/components/recommendations/InterestingPeople";
+import { InterestingCompanies } from "@/components/recommendations/InterestingCompanies";
 
 export const RightPanel: React.FC = () => {
   return (
     <aside aria-label="Widgets" className="space-y-4">
       <RightRailAd variant="card" size="sm" />
-      <PeopleRecommendations limit={3} showMoreLink="/entdecken/azubis" showMore />
-      <CompanyRecommendations limit={3} showMoreLink="/entdecken/unternehmen" showMore />
+      <InterestingPeople />
+      <InterestingCompanies />
       <RightRailAd variant="banner" size="sm" />
     </aside>
   );
