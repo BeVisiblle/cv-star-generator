@@ -1,4 +1,3 @@
-
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -166,5 +165,72 @@ export const usePostComments = (postId: string) => {
     addComment: (content: string, parentId?: string | null) =>
       addCommentMutation.mutate({ content, parentId }),
     isAdding: addCommentMutation.isPending,
+  };
+};
+
+// Reposts ("Teilen") helper hook
+export const usePostReposts = (postId: string) => {
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+  const sb: any = supabase;
+
+  const { data, isLoading } = useQuery<{ count: number; hasReposted: boolean}>({
+    queryKey: ["post-reposts", postId, user?.id ?? "anon"],
+    queryFn: async (): Promise<{ count: number; hasReposted: boolean }> => {
+      console.debug("[reposts] fetch", { postId });
+      const { count, error } = await sb
+        .from("post_reposts")
+        .select("*", { count: "exact", head: true })
+        .eq("post_id", postId);
+      if (error) throw error;
+
+      let hasReposted = false;
+      if (user?.id) {
+        const { data: mine, error: mineErr } = await sb
+          .from("post_reposts")
+          .select("id")
+          .eq("post_id", postId)
+          .eq("reposter_id", user.id)
+          .maybeSingle();
+        if (mineErr && (mineErr as any).code !== "PGRST116") throw mineErr;
+        hasReposted = Boolean(mine);
+      }
+      return { count: count ?? 0, hasReposted };
+    },
+  });
+
+  const repostMutation = useMutation({
+    mutationFn: async () => {
+      if (!user?.id) {
+        toast({
+          title: "Anmeldung erforderlich",
+          description: "Melde dich an, um Beiträge zu teilen.",
+          variant: "destructive",
+        });
+        return { changed: false };
+      }
+      if (data?.hasReposted) {
+        toast({ title: "Bereits geteilt", description: "Du hast diesen Beitrag schon geteilt." });
+        return { changed: false };
+      }
+      const { error } = await sb.from("post_reposts").insert({
+        post_id: postId,
+        reposter_id: user.id,
+      });
+      if (error) throw error;
+      return { changed: true };
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["post-reposts", postId] });
+    },
+  });
+
+  return {
+    count: data?.count ?? 0,
+    hasReposted: data?.hasReposted ?? false,
+    isLoading,
+    repost: () => repostMutation.mutate(),
+    isReposting: repostMutation.isPending,
   };
 };

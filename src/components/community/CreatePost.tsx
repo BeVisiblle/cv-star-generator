@@ -36,6 +36,7 @@ export const CreatePost = ({ container = "card", hideHeader = false, variant = "
   // Poll state
   const [pollQuestion, setPollQuestion] = useState("");
   const [pollOptions, setPollOptions] = useState<string[]>(["", ""]);
+  const [pollDurationDays, setPollDurationDays] = useState<number>(7);
 
   // Event state
   const [eventTitle, setEventTitle] = useState("");
@@ -102,32 +103,41 @@ export const CreatePost = ({ container = "card", hideHeader = false, variant = "
     },
   });
 
-// Notify parent on state changes
-useEffect(() => {
-  const pollValid = showPoll ? Boolean(pollQuestion.trim() && pollOptions.filter(o => o.trim()).length >= 2) : false;
-  const eventValid = showEvent ? Boolean(eventTitle.trim() && eventStartDate && eventStartTime && eventEndDate && eventEndTime) : false;
-  onStateChange?.({ canPost: Boolean(content.trim() || imageFile || documentFile || pollValid || eventValid), isSubmitting });
-}, [content, imageFile, documentFile, pollQuestion, pollOptions, eventTitle, eventStartDate, eventStartTime, eventEndDate, eventEndTime, showPoll, showEvent, isSubmitting, onStateChange]);
+  // Notify parent on state changes
+  useEffect(() => {
+    const pollValid = showPoll ? Boolean(pollQuestion.trim() && pollOptions.filter(o => o.trim()).length >= 2) : false;
+    const eventValid = showEvent ? Boolean(eventTitle.trim() && eventStartDate && eventStartTime && eventEndDate && eventEndTime) : false;
 
-const handleImageSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
-  const file = event.target.files?.[0];
-  if (!file) return;
+    // Min. 10 Zeichen, wenn Umfrage oder Dokument vorhanden ist
+    const needsMinText = (showPoll && pollValid) || !!documentFile;
+    const hasMinText = content.trim().length >= 10;
 
-  if (!file.type.startsWith('image/')) {
-    toast({ title: 'Ungültiger Dateityp', description: 'Bitte ein Bild auswählen.', variant: 'destructive' });
-    return;
-  }
-  const maxBytes = 10 * 1024 * 1024; // 10MB
-  if (file.size > maxBytes) {
-    toast({ title: 'Datei zu groß', description: 'Bilder dürfen max. 10 MB groß sein.', variant: 'destructive' });
-    return;
-  }
+    const canPost = needsMinText
+      ? hasMinText
+      : Boolean(content.trim() || imageFile || documentFile || pollValid || eventValid);
 
-  setImageFile(file);
-  const reader = new FileReader();
-  reader.onload = (e) => setImagePreview(e.target?.result as string);
-  reader.readAsDataURL(file);
-};
+    onStateChange?.({ canPost, isSubmitting });
+  }, [content, imageFile, documentFile, pollQuestion, pollOptions, eventTitle, eventStartDate, eventStartTime, eventEndDate, eventEndTime, showPoll, showEvent, isSubmitting, onStateChange]);
+
+  const handleImageSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      toast({ title: 'Ungültiger Dateityp', description: 'Bitte ein Bild auswählen.', variant: 'destructive' });
+      return;
+    }
+    const maxBytes = 10 * 1024 * 1024; // 10MB
+    if (file.size > maxBytes) {
+      toast({ title: 'Datei zu groß', description: 'Bilder dürfen max. 10 MB groß sein.', variant: 'destructive' });
+      return;
+    }
+
+    setImageFile(file);
+    const reader = new FileReader();
+    reader.onload = (e) => setImagePreview(e.target?.result as string);
+    reader.readAsDataURL(file);
+  };
 
   const removeImage = () => {
     setImageFile(null);
@@ -137,9 +147,13 @@ const handleImageSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
   const handleDocumentSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
+    if (file.type !== 'application/pdf') {
+      toast({ title: 'Nur PDF erlaubt', description: 'Bitte lade ein PDF-Dokument hoch.', variant: 'destructive' });
+      return;
+    }
     const maxBytes = 20 * 1024 * 1024; // 20MB
     if (file.size > maxBytes) {
-      toast({ title: 'Datei zu groß', description: 'Dokumente dürfen max. 20 MB groß sein.', variant: 'destructive' });
+      toast({ title: 'Datei zu groß', description: 'PDFs dürfen max. 20 MB groß sein.', variant: 'destructive' });
       return;
     }
     setDocumentFile(file);
@@ -155,7 +169,16 @@ const handleImageSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
   };
 
   const handleSubmit = async () => {
-    if (!content.trim() && !imageFile) return;
+    // Pflichttext bei Umfrage oder Dokument
+    const needsMinText = (showPoll && Boolean(pollQuestion.trim() && pollOptions.filter(o => o.trim()).length >= 2)) || !!documentFile;
+    if (needsMinText && content.trim().length < 10) {
+      toast({ title: 'Bitte mehr schreiben', description: 'Du musst mind. 10 Zeichen zum Beitrag schreiben.', variant: 'destructive' });
+      return;
+    }
+
+    if (!content.trim() && !imageFile && !documentFile && !(showPoll && pollQuestion.trim() && pollOptions.filter(o=>o.trim()).length>=2) && !(showEvent && eventTitle.trim() && eventStartDate && eventStartTime && eventEndDate && eventEndTime)) {
+      return;
+    }
 
     setIsSubmitting(true);
     try {
@@ -206,7 +229,7 @@ const handleImageSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
       if (showPoll && pollQuestion.trim()) {
         const options = pollOptions.map(o => o.trim()).filter(Boolean);
         if (options.length >= 2) {
-          const endsAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
+          const endsAt = new Date(Date.now() + pollDurationDays * 24 * 60 * 60 * 1000).toISOString();
           const pollId = crypto.randomUUID();
           const { error: pollErr } = await supabase
             .from('post_polls')
@@ -242,6 +265,7 @@ const handleImageSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
       setDocumentFile(null);
       setPollQuestion("");
       setPollOptions(["", ""]);
+      setPollDurationDays(7);
       setEventTitle("");
       setEventStartDate("");
       setEventStartTime("");
@@ -269,7 +293,7 @@ const handleImageSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
         </div>
       )}
 
-<Textarea
+      <Textarea
         placeholder={variant === 'composer' ? "Worüber möchtest du posten?" : "Worüber möchten Sie sprechen?"}
         value={content}
         onChange={(e) => setContent(e.target.value)}
@@ -303,26 +327,41 @@ const handleImageSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
       )}
 
       {showPoll && (
-        <div className="space-y-2">
-          <div className="text-sm font-medium">Umfrage</div>
-          <Input placeholder="Frage" value={pollQuestion} onChange={(e) => setPollQuestion(e.target.value)} />
+        <div className="space-y-3">
+          <div className="text-sm font-medium">Umfrage erstellen</div>
+          <div>
+            <Input placeholder="Ihre Frage* (z. B.: Wie kommen Sie zur Arbeit?)" value={pollQuestion} onChange={(e) => setPollQuestion(e.target.value)} />
+            <div className="text-[11px] text-muted-foreground mt-1">{pollQuestion.length}/140</div>
+          </div>
           {pollOptions.map((opt, idx) => (
-            <Input
-              key={idx}
-              placeholder={`Option ${idx + 1}`}
-              value={opt}
-              onChange={(e) => {
-                const arr = [...pollOptions];
-                arr[idx] = e.target.value;
-                setPollOptions(arr);
-              }}
-              className="mt-1"
-            />
+            <div key={idx}>
+              <Input
+                placeholder={idx === 0 ? "Option 1* (z. B.: mit öffentlichen Verkehrsmitteln)" : `Option ${idx + 1}${idx<2?' *':''}`}
+                value={opt}
+                onChange={(e) => {
+                  const arr = [...pollOptions];
+                  arr[idx] = e.target.value;
+                  setPollOptions(arr);
+                }}
+                className="mt-1"
+              />
+              <div className="text-[11px] text-muted-foreground mt-1">{opt.length}/30</div>
+            </div>
           ))}
           <div className="flex gap-2">
-            <Button type="button" variant="outline" size="sm" onClick={() => setPollOptions((opts) => (opts.length < 4 ? [...opts, ""] : opts))}>Option hinzufügen</Button>
+            <Button type="button" variant="outline" size="sm" onClick={() => setPollOptions((opts) => (opts.length < 4 ? [...opts, ""] : opts))}>+ Option hinzufügen</Button>
             <Button type="button" variant="outline" size="sm" onClick={() => setPollOptions((opts) => (opts.length > 2 ? opts.slice(0, -1) : opts))} disabled={pollOptions.length <= 2}>Letzte Option entfernen</Button>
           </div>
+          <div>
+            <div className="text-sm font-medium">Dauer der Umfrage</div>
+            <select className="mt-1 h-9 border rounded-md px-2 bg-background" value={pollDurationDays} onChange={(e)=>setPollDurationDays(parseInt(e.target.value))}>
+              <option value={1}>1 Tag</option>
+              <option value={3}>3 Tage</option>
+              <option value={7}>1 Woche</option>
+              <option value={14}>2 Wochen</option>
+            </select>
+          </div>
+          <p className="text-[11px] text-muted-foreground">Umfragen, mit denen sensible Daten abgefragt werden, sind nicht gestattet.</p>
         </div>
       )}
 
@@ -348,52 +387,52 @@ const handleImageSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
         </div>
       )}
 
-{/* External toolbars can point to these inputs via htmlFor */}
-<input
-  type="file"
-  accept="image/*"
-  onChange={handleImageSelect}
-  className="hidden"
-  id="image-upload"
-/>
-<input
-  type="file"
-  accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.txt"
-  onChange={handleDocumentSelect}
-  className="hidden"
-  id="document-upload"
-/>
+      {/* External toolbars can point to these inputs via htmlFor */}
+      <input
+        type="file"
+        accept="image/*"
+        onChange={handleImageSelect}
+        className="hidden"
+        id="image-upload"
+      />
+      <input
+        type="file"
+        accept="application/pdf"
+        onChange={handleDocumentSelect}
+        className="hidden"
+        id="document-upload"
+      />
 
-{/* Hidden submit button for external triggers */}
-<button id="createpost-submit" onClick={handleSubmit} className="sr-only" aria-hidden="true">
-  Submit
-</button>
+      {/* Hidden submit button for external triggers */}
+      <button id="createpost-submit" onClick={handleSubmit} className="sr-only" aria-hidden="true">
+        Submit
+      </button>
 
-{!hideBottomBar && (
-  <div className="flex justify-between items-center">
-    <label htmlFor="image-upload">
-      <Button variant="outline" size="sm" asChild className="cursor-pointer">
-        <span>
-          <Image className="h-4 w-4 mr-2" />
-          Bild hinzufügen
-        </span>
-      </Button>
-    </label>
-    <div className="flex items-center gap-3">
-      <div className="text-sm text-muted-foreground">
-        {content.length}/500 Zeichen
-      </div>
-      <Button 
-        disabled={(!(content.trim() || imageFile || documentFile || (showPoll && !!pollQuestion.trim() && pollOptions.filter(o=>o.trim()).length>=2) || (showEvent && !!eventTitle.trim() && eventStartDate && eventStartTime && eventEndDate && eventEndTime)) || isSubmitting)}
-        onClick={handleSubmit}
-        className="flex items-center gap-2"
-      >
-        <Send className="h-4 w-4" />
-        {isSubmitting ? "Wird veröffentlicht..." : "Posten"}
-      </Button>
-    </div>
-  </div>
-)}
+      {!hideBottomBar && (
+        <div className="flex justify-between items-center">
+          <label htmlFor="image-upload">
+            <Button variant="outline" size="sm" asChild className="cursor-pointer">
+              <span>
+                <Image className="h-4 w-4 mr-2" />
+                Bild hinzufügen
+              </span>
+            </Button>
+          </label>
+          <div className="flex items-center gap-3">
+            <div className="text-sm text-muted-foreground">
+              {content.length}/500 Zeichen
+            </div>
+            <Button 
+              disabled={isSubmitting || !((() => { const pollValid = showPoll && !!pollQuestion.trim() && pollOptions.filter(o=>o.trim()).length>=2; const eventValid = showEvent && !!eventTitle.trim() && eventStartDate && eventStartTime && eventEndDate && eventEndTime; const needsMinText = pollValid || !!documentFile; return needsMinText ? content.trim().length >= 10 : Boolean(content.trim() || imageFile || documentFile || pollValid || eventValid); })())}
+              onClick={handleSubmit}
+              className="flex items-center gap-2"
+            >
+              <Send className="h-4 w-4" />
+              {isSubmitting ? "Wird veröffentlicht..." : "Posten"}
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 
