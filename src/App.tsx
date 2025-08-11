@@ -154,7 +154,7 @@ const App = () => (
               <Route path="/blog/:slug" element={<PublicPage />} />
               <Route path="/p/:slug" element={<PublicPage />} />
               <Route path="/unternehmen" element={<Unternehmen />} />
-              <Route path="/talent" element={<BaseLayout><(await import('./pages/Talent')).default /></BaseLayout>} />
+              <Route path="/talent" element={<BaseLayout><Talent /></BaseLayout>} />
               <Route path="/datenschutz" element={<Datenschutz />} />
               <Route path="/impressum" element={<Impressum />} />
               <Route path="/bootstrap/create-admin" element={<BaseLayout><CreateAdmin /></BaseLayout>} />
