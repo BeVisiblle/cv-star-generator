@@ -25,10 +25,7 @@ export function AuthenticatedLayout() {
     return <Navigate to="/auth" replace />;
   }
 
-  // Only redirect users with complete profiles that are not published yet, but not if already on profile page
-  if (profile && !profile.profile_published && profile.profile_complete && location.pathname !== "/profile") {
-    return <Navigate to="/profile" replace />;
-  }
+  // Removed redirect gate for unpublished profiles to allow free navigation
 
   // For users without profiles, let them stay where they are (they might be in CV generator)
 

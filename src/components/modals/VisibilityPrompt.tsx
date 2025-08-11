@@ -22,10 +22,40 @@ export function VisibilityPrompt() {
   const [open, setOpen] = useState(false);
   const [selected, setSelected] = useState<JobOption[]>([]);
 
-  // Open dialog on login if profile exists and is not published
+  const allowedOptions = useMemo<JobOption[]>(() => {
+    const status = (profile as any)?.status;
+    switch (status) {
+      case "schueler":
+        return ["Praktikum", "Ausbildung"];
+      case "azubi":
+        return ["Ausbildungsplatzwechsel", "Nach der Ausbildung einen Job"];
+      case "ausgelernt":
+      case "geselle":
+        return ["Nach der Ausbildung einen Job"];
+      default:
+        return JOB_OPTIONS.map(o => o.value as JobOption);
+    }
+  }, [profile]);
+
+  const defaultByStatus = useMemo<Record<string, JobOption[]>>(() => ({
+    schueler: ["Praktikum", "Ausbildung"],
+    azubi: ["Ausbildungsplatzwechsel"],
+    ausgelernt: ["Nach der Ausbildung einen Job"],
+    geselle: ["Nach der Ausbildung einen Job"],
+  }), []);
+
   useEffect(() => {
     if (!isLoading && profile) {
-      setSelected((profile as any)?.job_search_preferences ?? []);
+      const existing = ((profile as any)?.job_search_preferences ?? []) as JobOption[];
+      const filteredExisting = existing.filter(v => allowedOptions.includes(v));
+      if (filteredExisting.length > 0) {
+        setSelected(filteredExisting);
+      } else {
+        const status = (profile as any)?.status as string | undefined;
+        const defaults = status ? defaultByStatus[status] ?? [] : [];
+        const validDefaults = (defaults || []).filter(v => allowedOptions.includes(v)) as JobOption[];
+        setSelected(validDefaults);
+      }
 
       if (!profile.profile_published) {
         const uid = profile.id;
@@ -62,7 +92,7 @@ export function VisibilityPrompt() {
         }
       }
     }
-  }, [isLoading, profile, session]);
+  }, [isLoading, profile, session, allowedOptions, defaultByStatus]);
 
   const summary = useMemo(() => {
     if (!selected?.length) return "dein Profil";
@@ -152,26 +182,30 @@ export function VisibilityPrompt() {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Für Unternehmen sichtbar werden</DialogTitle>
-          <DialogDescription>
-            Dein Profil ist aktuell nicht für Unternehmen sichtbar. Wähle, wonach du suchst – das hilft beim Matching.
-          </DialogDescription>
+            <DialogTitle>Vorschau: Für Unternehmen sichtbar werden</DialogTitle>
+            <DialogDescription>
+              Wähle, wonach du suchst. So sehen Unternehmen deine Sichtbarkeits‑Einstellungen.
+            </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4">
           <div className="space-y-2">
             <Label>Was suchst du? (Mehrfachauswahl nur bei Praktikum & Ausbildung)</Label>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {JOB_OPTIONS.map(opt => (
-                <label key={opt.value} className="flex items-center gap-3 rounded-md border p-3 cursor-pointer hover:bg-accent/40">
-                  <Checkbox
-                    checked={selected.includes(opt.value)}
-                    onCheckedChange={() => toggle(opt.value)}
-                    aria-label={opt.label}
-                  />
-                  <span className="text-sm">{opt.label}</span>
-                </label>
-              ))}
+              {allowedOptions.map((value) => {
+                const opt = JOB_OPTIONS.find(o => o.value === value)!;
+                return (
+                  <label key={opt.value} className="flex items-center gap-3 rounded-md border p-3 cursor-pointer hover:bg-accent/40">
+                    <Checkbox
+                      checked={selected.includes(opt.value)}
+                      onCheckedChange={() => toggle(opt.value)}
+                      aria-label={opt.label}
+                    />
+                    <span className="text-sm">{opt.label}</span>
+                  </label>
+                );
+              })}
+
             </div>
             <p className="text-xs text-muted-foreground">
               Mehrfachauswahl ist nur bei „Praktikum“ und „Ausbildung“ möglich. Andere Optionen sind Einzelwahl.

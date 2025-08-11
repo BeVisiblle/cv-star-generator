@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
@@ -97,6 +97,20 @@ const Settings = () => {
 
     updateSetting('job_search_preferences', next);
   };
+  const allowedOptions = useMemo(() => {
+    const status = (profile as any)?.status;
+    switch (status) {
+      case 'schueler':
+        return ["Praktikum","Ausbildung"];
+      case 'azubi':
+        return ["Ausbildungsplatzwechsel","Nach der Ausbildung einen Job"];
+      case 'ausgelernt':
+      case 'geselle':
+        return ["Nach der Ausbildung einen Job"];
+      default:
+        return ["Praktikum","Ausbildung","Nach der Ausbildung einen Job","Ausbildungsplatzwechsel"];
+    }
+  }, [profile]);
   return (
     <div className="p-3 md:p-6 min-h-screen bg-background max-w-full overflow-x-hidden pb-24 pt-safe space-y-6">
       {/* Header */}
@@ -140,7 +154,7 @@ const Settings = () => {
               <h4 className="text-sm font-medium">Sichtbarkeits‑Ziele</h4>
               <p className="text-sm text-muted-foreground">Was suchst du? (Mehrfachauswahl nur bei Praktikum & Ausbildung)</p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {["Praktikum","Ausbildung","Nach der Ausbildung einen Job","Ausbildungsplatzwechsel"].map((opt) => (
+                {allowedOptions.map((opt) => (
                   <label key={opt} className="flex items-center gap-3 rounded-md border p-3 cursor-pointer hover:bg-accent/40">
                     <Checkbox
                       checked={settings.job_search_preferences.includes(opt)}
