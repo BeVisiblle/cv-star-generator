@@ -15,7 +15,8 @@ export const FeedSortBar: React.FC = () => {
   const onChange = (value: FeedSortOption) => {
     setSort(value);
     localStorage.setItem("feed_sort", value);
-    // Hinweis: Sortierung ist aktuell nur UI – Serverabfrage bleibt unverändert
+    window.dispatchEvent(new CustomEvent('feed-sort-changed', { detail: value }));
+    // Hinweis: Sortierung war bisher nur UI – jetzt wird sie serverseitig genutzt
   };
 
   return (

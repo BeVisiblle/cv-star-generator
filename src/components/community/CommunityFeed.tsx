@@ -12,23 +12,33 @@ type PostWithAuthor = any;
 
 const PAGE_SIZE = 20;
 
+type FeedSortOption = "relevant" | "newest";
+
 export default function CommunityFeed() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const viewerId = user?.id || null;
+  const [sort, setSort] = useState<FeedSortOption>((localStorage.getItem('feed_sort') as FeedSortOption) || 'relevant');
+
+  useEffect(() => {
+    const handler = (e: any) => setSort(e.detail as FeedSortOption);
+    window.addEventListener('feed-sort-changed', handler);
+    return () => window.removeEventListener('feed-sort-changed', handler);
+  }, []);
 
   const feedQuery = useInfiniteQuery({
-    queryKey: ['home-feed', viewerId],
+    queryKey: ['home-feed', viewerId, sort],
     enabled: !!viewerId,
     initialPageParam: { after_published: null as string | null, after_id: null as string | null },
     queryFn: async ({ pageParam }) => {
-      console.log('[feed] fetching page', pageParam);
+      console.log('[feed] fetching page', pageParam, sort);
 
-      const { data: posts, error } = await supabase.rpc('get_feed', {
+      const { data: posts, error } = await supabase.rpc('get_feed_sorted', {
         viewer_id: viewerId as string,
         after_published: pageParam.after_published,
         after_id: pageParam.after_id,
         limit_count: PAGE_SIZE,
+        sort: sort,
       });
 
       if (error) {

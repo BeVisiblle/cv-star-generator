@@ -281,7 +281,7 @@ export default function PostCard({ post }: PostCardProps) {
                         <div className="mt-1">
                           <Button
                             variant="ghost"
-                            size="xs"
+                            size="sm"
                             className="h-6 text-[11px] px-2"
                             onClick={() => {
                               setReplyTo({ id: c.id, name });
