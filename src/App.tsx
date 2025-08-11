@@ -42,6 +42,7 @@ import CompanyPosts from "@/pages/Company/Posts";
 import CompanyProfileView from "@/pages/Company/ProfileView";
 import CompanyBilling from "@/pages/Company/Billing";
 import CompanyUnlocked from "@/pages/Company/Unlocked";
+import CompanyComingSoon from "@/pages/Company/ComingSoon";
 import AdminLayout from "./pages/Admin/AdminLayout";
 import PagesList from "./pages/Admin/PagesList";
 import PageEditor from "./pages/Admin/PageEditor";
@@ -181,6 +182,33 @@ const App = () => (
                 <Route path="settings" element={<CompanySettings />} />
                 <Route path="posts" element={<CompanyPosts />} />
                 <Route path="profile/:id" element={<CompanyProfileView />} />
+
+                {/* Coming Soon routes */}
+                <Route path="candidates/pipeline" element={<CompanyComingSoon />} />
+                <Route path="candidates/saved" element={<CompanyComingSoon />} />
+                <Route path="candidates/token-history" element={<CompanyComingSoon />} />
+
+                <Route path="community/groups" element={<CompanyComingSoon />} />
+                <Route path="community/events" element={<CompanyComingSoon />} />
+
+                <Route path="media/photos" element={<CompanyComingSoon />} />
+                <Route path="media/videos" element={<CompanyComingSoon />} />
+
+                <Route path="jobs" element={<CompanyComingSoon />} />
+                <Route path="jobs/new" element={<CompanyComingSoon />} />
+                <Route path="jobs/:id/applicants" element={<CompanyComingSoon />} />
+
+                <Route path="insights/views" element={<CompanyComingSoon />} />
+                <Route path="insights/reach" element={<CompanyComingSoon />} />
+                <Route path="insights/engagement" element={<CompanyComingSoon />} />
+                <Route path="insights/followers" element={<CompanyComingSoon />} />
+
+                <Route path="settings/team" element={<CompanyComingSoon />} />
+                <Route path="settings/notifications" element={<CompanyComingSoon />} />
+
+                <Route path="help/center" element={<CompanyComingSoon />} />
+                <Route path="help/support" element={<CompanyComingSoon />} />
+                <Route path="help/feedback" element={<CompanyComingSoon />} />
               </Route>
               
               {/* Authenticated routes */}
