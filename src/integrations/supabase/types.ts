@@ -2529,6 +2529,34 @@ export type Database = {
           visibility: string
         }[]
       }
+      get_feed_sorted: {
+        Args: {
+          viewer_id: string
+          after_published?: string
+          after_id?: string
+          limit_count?: number
+          sort?: string
+        }
+        Returns: {
+          id: string
+          user_id: string
+          author_type: string
+          author_id: string
+          content: string
+          image_url: string
+          published_at: string
+          visibility: string
+          status: string
+          created_at: string
+          updated_at: string
+          celebration: boolean
+          link_url: string
+          scheduled_at: string
+          like_count: number
+          comment_count: number
+          repost_count: number
+        }[]
+      }
       get_proj4_from_srid: {
         Args: { "": number }
         Returns: string
