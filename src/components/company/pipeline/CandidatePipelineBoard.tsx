@@ -8,9 +8,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useCompany } from "@/hooks/useCompany";
 import { supabase } from "@/integrations/supabase/client";
 import { CandidatePipelineCard, CompanyCandidateItem } from "./CandidatePipelineCard";
-import { Download } from "lucide-react";
+import { CandidatePipelineTable } from "./CandidatePipelineTable";
+import { Download, LayoutGrid, List } from "lucide-react";
 
 const STAGES: { key: string; title: string }[] = [
+  { key: "unlocked", title: "Freigeschaltet" },
   { key: "contact", title: "Kontaktieren" },
   { key: "scheduled", title: "Gespräch geplant" },
   { key: "offer", title: "Angebot" },
@@ -43,12 +45,14 @@ export const CandidatePipelineBoard: React.FC = () => {
   const { company } = useCompany();
   const [items, setItems] = useState<CompanyCandidateItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [view, setView] = useState<"cards" | "rows">("cards");
 
   const grouped = useMemo(() => {
     const map: Record<string, CompanyCandidateItem[]> = {};
     STAGES.forEach(s => (map[s.key] = []));
     for (const it of items) {
-      const key = STAGES.some(s => s.key === it.stage) ? it.stage : "contact";
+      let key = STAGES.some(s => s.key === it.stage) ? it.stage : undefined;
+      if (!key) key = it.unlocked_at ? "unlocked" : "unlocked";
       map[key].push(it);
     }
     return map;
@@ -93,6 +97,16 @@ export const CandidatePipelineBoard: React.FC = () => {
       .eq("company_id", company.id);
   };
 
+  const handleStageChange = async (rowId: string, newStage: string) => {
+    if (!company) return;
+    setItems(prev => prev.map(i => (i.id === rowId ? { ...i, stage: newStage } : i)));
+    await supabase
+      .from("company_candidates")
+      .update({ stage: newStage, last_touched_at: new Date().toISOString() })
+      .eq("id", rowId)
+      .eq("company_id", company.id);
+  };
+
   const exportCSV = () => {
     const rows = [["Name", "Ort", "Bereich", "Stage", "Unlocked"]];
     for (const it of items) {
@@ -130,18 +144,28 @@ export const CandidatePipelineBoard: React.FC = () => {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-semibold">Pipeline</h2>
-        <Button size="sm" onClick={exportCSV}>
-          <Download className="h-4 w-4 mr-2" /> Export (CSV)
-        </Button>
+        <div className="flex items-center gap-2">
+          <div className="inline-flex rounded-md border border-input p-0.5">
+            <Button size="sm" variant={view === 'cards' ? 'default' : 'ghost'} onClick={() => setView('cards')} className="gap-1">
+              <LayoutGrid className="h-4 w-4" /> Karten
+            </Button>
+            <Button size="sm" variant={view === 'rows' ? 'default' : 'ghost'} onClick={() => setView('rows')} className="gap-1">
+              <List className="h-4 w-4" /> Liste
+            </Button>
+          </div>
+          <Button size="sm" onClick={exportCSV}>
+            <Download className="h-4 w-4 mr-2" /> Export (CSV)
+          </Button>
+        </div>
       </div>
 
-      {loading ? (
+  {loading ? (
         <div className="flex items-center justify-center py-20">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
         </div>
-      ) : (
+      ) : view === 'cards' ? (
         <DndContext onDragEnd={handleDragEnd}>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
             {STAGES.map(stage => (
               <Card key={stage.key}>
                 <CardHeader>
@@ -167,6 +191,23 @@ export const CandidatePipelineBoard: React.FC = () => {
             ))}
           </div>
         </DndContext>
+      ) : (
+        <Card>
+          <CardContent>
+            {/* Flatten items sorted by stage order */}
+            <CandidatePipelineTable
+              items={[...items].sort((a, b) => {
+                const ai = STAGES.findIndex(s => s.key === (STAGES.some(s=>s.key===a.stage)?a.stage:'unlocked'));
+                const bi = STAGES.findIndex(s => s.key === (STAGES.some(s=>s.key===b.stage)?b.stage:'unlocked'));
+                return ai - bi;
+              })}
+              stages={STAGES}
+              onStageChange={handleStageChange}
+              onOpen={openProfile}
+              onRemove={removeFromPipeline}
+            />
+          </CardContent>
+        </Card>
       )}
     </div>
   );

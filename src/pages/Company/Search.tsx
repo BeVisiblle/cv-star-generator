@@ -188,16 +188,37 @@ export default function CompanySearch() {
 
       const result = await useToken(selectedProfile.id);
       if (result.success) {
-        // Add to pipeline (contact stage)
+        // Add to pipeline in 'unlocked' stage
         try {
           if (company) {
-            await supabase.from('company_candidates').insert({
-              company_id: company.id,
-              candidate_id: selectedProfile.id,
-              stage: 'contact',
-              unlocked_by_user_id: user?.id ?? null,
-              owner_user_id: user?.id ?? null,
-            });
+            const { data: existing } = await supabase
+              .from('company_candidates')
+              .select('id')
+              .eq('company_id', company.id)
+              .eq('candidate_id', selectedProfile.id)
+              .maybeSingle();
+
+            if (existing) {
+              await supabase
+                .from('company_candidates')
+                .update({
+                  stage: 'unlocked',
+                  unlocked_at: new Date().toISOString(),
+                  unlocked_by_user_id: user?.id ?? null,
+                  last_touched_at: new Date().toISOString(),
+                })
+                .eq('id', existing.id)
+                .eq('company_id', company.id);
+            } else {
+              await supabase.from('company_candidates').insert({
+                company_id: company.id,
+                candidate_id: selectedProfile.id,
+                stage: 'unlocked',
+                unlocked_at: new Date().toISOString(),
+                unlocked_by_user_id: user?.id ?? null,
+                owner_user_id: user?.id ?? null,
+              });
+            }
           }
         } catch (e) {
           console.error('Failed to add to pipeline', e);
