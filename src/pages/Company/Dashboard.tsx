@@ -47,6 +47,8 @@ export default function CompanyDashboard() {
   });
   const [bestMatches, setBestMatches] = useState<Profile[]>([]);
   const [recentlyUnlocked, setRecentlyUnlocked] = useState<Profile[]>([]);
+  const [recentlyViewed, setRecentlyViewed] = useState<Profile[]>([]);
+  const [activeRecentTab, setActiveRecentTab] = useState<'unlocked' | 'viewed'>('unlocked');
   const [loading, setLoading] = useState(true);
   const [demoMode, setDemoMode] = useState(false);
   const [demoCompanyData, setDemoCompanyData] = useState<any>(null);
@@ -134,6 +136,27 @@ useEffect(() => {
       setRecentlyUnlocked(
         recentUnlocked?.map(item => item.profiles).filter(Boolean) || []
       );
+
+      // Load recently viewed profiles
+      const { data: views } = await supabase
+        .from('company_activity')
+        .select('payload')
+        .eq('company_id', company.id)
+        .eq('type', 'profile_view')
+        .order('created_at', { ascending: false })
+        .limit(12);
+
+      const ids = Array.from(new Set((views || []).map((v: any) => v.payload?.profile_id).filter(Boolean)));
+      if (ids.length) {
+        const { data: viewProfiles } = await supabase
+          .from('profiles')
+          .select('*')
+          .in('id', ids)
+          .limit(6);
+        setRecentlyViewed(viewProfiles || []);
+      } else {
+        setRecentlyViewed([]);
+      }
 
     } catch (error) {
       console.error('Error loading dashboard data:', error);
@@ -315,44 +338,84 @@ useEffect(() => {
         <KpiCard title="Team Größe" value={demoMode ? 5 : (company?.seats ?? 0)} hint="aktive Mitglieder" />
       </div>
 
-      {/* Recently Unlocked */}
+      {/* Recently Unlocked / Viewed */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center">
             <Eye className="h-5 w-5 mr-2" />
-            Kürzlich freigeschaltet
+            Kürzlich
           </CardTitle>
+          <div className="mt-2 flex gap-2">
+            <Button size="sm" variant={activeRecentTab === 'unlocked' ? 'default' : 'outline'} onClick={() => setActiveRecentTab('unlocked')}>
+              Freigeschaltet
+            </Button>
+            <Button size="sm" variant={activeRecentTab === 'viewed' ? 'default' : 'outline'} onClick={() => setActiveRecentTab('viewed')}>
+              Angeschaut
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
-            {recentlyUnlocked.length === 0 ? (
-              <p className="text-muted-foreground text-center py-4">
-                Noch keine Profile freigeschaltet
-              </p>
-            ) : (
-              recentlyUnlocked.map((profile) => (
-                <div key={profile.id} className="flex items-center space-x-3 p-3 border rounded-lg">
-                  <Avatar className="h-10 w-10">
-                    <AvatarImage src={profile.avatar_url || ""} />
-                    <AvatarFallback>
-                      {profile.vorname?.charAt(0)}{profile.nachname?.charAt(0)}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="flex-1">
-                    <p className="font-medium">
-                      {profile.vorname} {profile.nachname}
-                    </p>
-                    <p className="text-sm text-muted-foreground">
-                      {profile.headline || profile.branche}
-                    </p>
+          {activeRecentTab === 'unlocked' ? (
+            <div className="space-y-4">
+              {recentlyUnlocked.length === 0 ? (
+                <p className="text-muted-foreground text-center py-4">
+                  Noch keine Profile freigeschaltet
+                </p>
+              ) : (
+                recentlyUnlocked.map((profile) => (
+                  <div key={profile.id} className="flex items-center space-x-3 p-3 border rounded-lg">
+                    <Avatar className="h-10 w-10">
+                      <AvatarImage src={profile.avatar_url || ""} />
+                      <AvatarFallback>
+                        {profile.vorname?.charAt(0)}{profile.nachname?.charAt(0)}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1">
+                      <p className="font-medium">
+                        {profile.vorname} {profile.nachname}
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        {profile.headline || profile.branche}
+                      </p>
+                    </div>
+                    <Button size="sm" variant="ghost" onClick={() => navigate('/company/unlocked')}>
+                      Anzeigen
+                    </Button>
                   </div>
-                  <Button size="sm" variant="ghost" onClick={() => navigate('/company/unlocked')}>
-                    Anzeigen
-                  </Button>
-                </div>
-              ))
-            )}
-          </div>
+                ))
+              )}
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {recentlyViewed.length === 0 ? (
+                <p className="text-muted-foreground text-center py-4">
+                  Noch keine Profile angesehen
+                </p>
+              ) : (
+                recentlyViewed.map((profile) => (
+                  <div key={profile.id} className="flex items-center space-x-3 p-3 border rounded-lg">
+                    <Avatar className="h-10 w-10">
+                      <AvatarImage src={profile.avatar_url || ""} />
+                      <AvatarFallback>
+                        {profile.vorname?.charAt(0)}{profile.nachname?.charAt(0)}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1">
+                      <p className="font-medium">
+                        {profile.vorname} {profile.nachname}
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        {profile.headline || profile.branche}
+                      </p>
+                    </div>
+                    <Button size="sm" variant="ghost" onClick={() => navigate(`/company/profile/${profile.id}`)}>
+                      Öffnen
+                    </Button>
+                  </div>
+                ))
+              )}
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>

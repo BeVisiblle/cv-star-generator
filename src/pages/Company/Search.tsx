@@ -15,12 +15,12 @@ import { SearchHeader } from "@/components/Company/SearchHeader";
 import { ProfileCard } from "@/components/Company/ProfileCard";
 import { UnlockProfileModal } from "@/components/Company/UnlockProfileModal";
 import { FullProfileModal } from "@/components/Company/FullProfileModal";
-import { 
-  Search as SearchIcon, 
-  Filter, 
-  MapPin, 
-  Briefcase, 
-  Coins, 
+import {
+  Search as SearchIcon,
+  Filter,
+  MapPin,
+  Briefcase,
+  Coins,
   Heart,
   Eye,
   Download,
@@ -28,6 +28,7 @@ import {
   Mail,
   Users
 } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
 
 interface Profile {
   id: string;
@@ -57,6 +58,7 @@ interface SearchFilters {
 export default function CompanySearch() {
   const navigate = useNavigate();
   const { company, useToken, hasUsedToken } = useCompany();
+  const { user } = useAuth();
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [loading, setLoading] = useState(false);
   const [unlockedProfiles, setUnlockedProfiles] = useState<Set<string>>(new Set());
@@ -149,7 +151,19 @@ export default function CompanySearch() {
     }
   };
 
-  const handlePreviewProfile = (profile: Profile) => {
+  const handlePreviewProfile = async (profile: Profile) => {
+    if (company && user) {
+      try {
+        await supabase.from('company_activity').insert({
+          company_id: company.id,
+          type: 'profile_view',
+          actor_user_id: user.id,
+          payload: { profile_id: profile.id }
+        });
+      } catch (e) {
+        console.error('Failed to log profile view', e);
+      }
+    }
     navigate(`/company/profile/${profile.id}`);
   };
 
@@ -174,10 +188,28 @@ export default function CompanySearch() {
 
       const result = await useToken(selectedProfile.id);
       if (result.success) {
+        // Add to pipeline (contact stage)
+        try {
+          if (company) {
+            await supabase.from('company_candidates').insert({
+              company_id: company.id,
+              candidate_id: selectedProfile.id,
+              stage: 'contact',
+              unlocked_by_user_id: user?.id ?? null,
+              owner_user_id: user?.id ?? null,
+            });
+          }
+        } catch (e) {
+          console.error('Failed to add to pipeline', e);
+        }
+
         setUnlockedProfiles(prev => new Set([...prev, selectedProfile.id]));
         toast({ title: "Profil erfolgreich freigeschaltet!" });
         setIsUnlockModalOpen(false);
+        const openedId = selectedProfile.id;
         setSelectedProfile(null);
+        // Open profile immediately
+        navigate(`/company/profile/${openedId}`);
       } else {
         toast({ 
           title: "Fehler beim Freischalten", 

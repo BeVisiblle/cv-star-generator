@@ -8,6 +8,7 @@ import { useCompany } from "@/hooks/useCompany";
 import { supabase } from "@/integrations/supabase/client";
 import { Eye, Coins } from "lucide-react";
 import { ProfileCard } from "@/components/Company/ProfileCard";
+import { useAuth } from "@/hooks/useAuth";
 
 interface Profile {
   id: string;
@@ -27,8 +28,11 @@ interface Profile {
 
 export default function CompanyUnlocked() {
   const { company } = useCompany();
+  const { user } = useAuth();
   const navigate = useNavigate();
   const [profiles, setProfiles] = useState<Profile[]>([]);
+  const [recentlyViewed, setRecentlyViewed] = useState<Profile[]>([]);
+  const [activeRecentTab, setActiveRecentTab] = useState<'unlocked' | 'viewed'>('unlocked');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -57,6 +61,50 @@ export default function CompanyUnlocked() {
     load();
   }, [company]);
 
+  useEffect(() => {
+    if (!company) return;
+    const loadViews = async () => {
+      try {
+        const { data: views } = await supabase
+          .from('company_activity')
+          .select('payload')
+          .eq('company_id', company.id)
+          .eq('type', 'profile_view')
+          .order('created_at', { ascending: false })
+          .limit(24);
+        const ids = Array.from(new Set((views || []).map((v: any) => v.payload?.profile_id).filter(Boolean)));
+        if (ids.length) {
+          const { data: viewProfiles } = await supabase
+            .from('profiles')
+            .select('*')
+            .in('id', ids)
+            .limit(12);
+          setRecentlyViewed(viewProfiles || []);
+        } else {
+          setRecentlyViewed([]);
+        }
+      } catch (e) {
+        console.error('Error loading recently viewed profiles', e);
+      }
+    };
+    loadViews();
+  }, [company]);
+  const handlePreview = async (p: Profile) => {
+    if (company && user) {
+      try {
+        await supabase.from('company_activity').insert({
+          company_id: company.id,
+          type: 'profile_view',
+          actor_user_id: user.id,
+          payload: { profile_id: p.id }
+        });
+      } catch (e) {
+        console.error('Failed to log profile view', e);
+      }
+    }
+    navigate(`/company/profile/${p.id}`);
+  };
+
   return (
     <div className="p-3 md:p-6 min-h-screen bg-background max-w-full overflow-x-hidden space-y-6">
       <div className="flex items-center justify-between mb-2">
@@ -68,36 +116,66 @@ export default function CompanyUnlocked() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Kürzlich freigeschaltet</CardTitle>
+          <CardTitle>Kürzlich</CardTitle>
+          <div className="mt-2 flex gap-2">
+            <Button size="sm" variant={activeRecentTab === 'unlocked' ? 'default' : 'outline'} onClick={() => setActiveRecentTab('unlocked')}>
+              Freigeschaltet
+            </Button>
+            <Button size="sm" variant={activeRecentTab === 'viewed' ? 'default' : 'outline'} onClick={() => setActiveRecentTab('viewed')}>
+              Angeschaut
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
           {loading ? (
             <div className="flex items-center justify-center py-16">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
             </div>
-          ) : profiles.length === 0 ? (
-            <div className="text-center py-16 text-muted-foreground">
-              Noch keine Profile freigeschaltet.
-              <div className="mt-4">
-                <Button onClick={() => navigate('/company/search')}>
-                  <Coins className="h-4 w-4 mr-2" /> Kandidaten suchen
-                </Button>
+          ) : activeRecentTab === 'unlocked' ? (
+            profiles.length === 0 ? (
+              <div className="text-center py-16 text-muted-foreground">
+                Noch keine Profile freigeschaltet.
+                <div className="mt-4">
+                  <Button onClick={() => navigate('/company/search')}>
+                    <Coins className="h-4 w-4 mr-2" /> Kandidaten suchen
+                  </Button>
+                </div>
               </div>
-            </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {profiles.map((p) => (
+                  <ProfileCard
+                    key={p.id}
+                    profile={p}
+                    isUnlocked={true}
+                    matchPercentage={75}
+                    onUnlock={() => {}}
+                    onSave={() => {}}
+                    onPreview={() => handlePreview(p)}
+                  />
+                ))}
+              </div>
+            )
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {profiles.map((p) => (
-                <ProfileCard
-                  key={p.id}
-                  profile={p}
-                  isUnlocked={true}
-                  matchPercentage={75}
-                  onUnlock={() => {}}
-                  onSave={() => {}}
-                  onPreview={() => navigate(`/company/profile/${p.id}`)}
-                />
-              ))}
-            </div>
+            recentlyViewed.length === 0 ? (
+              <div className="text-center py-16 text-muted-foreground">
+                Noch keine Profile angesehen.
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {recentlyViewed.map((p) => (
+                  <ProfileCard
+                    key={p.id}
+                    profile={p}
+                    isUnlocked={true}
+                    matchPercentage={75}
+                    onUnlock={() => {}}
+                    onSave={() => {}}
+                    onPreview={() => handlePreview(p)}
+                  />
+                ))}
+              </div>
+            )
           )}
         </CardContent>
       </Card>
