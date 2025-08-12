@@ -11,7 +11,6 @@ import { Building2 } from "lucide-react";
 import { BranchSelector } from "@/components/Company/BranchSelector";
 import { TargetGroupSelector } from "@/components/Company/TargetGroupSelector";
 import { PriceCalculator } from "@/components/Company/PriceCalculator";
-import { PLZOrtSelector } from "@/components/shared/PLZOrtSelector";
 
 interface OnboardingData {
   // Company Info
@@ -52,10 +51,7 @@ export default function CompanyOnboarding() {
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [agreedToPrivacy, setAgreedToPrivacy] = useState(false);
   const { toast } = useToast();
-const navigate = useNavigate();
-
-  const [plz, setPlz] = useState("");
-  const [ort, setOrt] = useState("");
+  const navigate = useNavigate();
 
   const companySizes = [
     "1-10",
@@ -306,24 +302,6 @@ const navigate = useNavigate();
                           placeholder="Stadt, Land (z.B. Berlin, Deutschland)"
                           className={errors.location ? "border-destructive" : ""}
                         />
-                        <div className="pt-2">
-                          <PLZOrtSelector
-                            plz={plz}
-                            ort={ort}
-                            onPLZChange={(newPlz, newOrt) => {
-                              setPlz(newPlz);
-                              setOrt(newOrt);
-                              updateData('location', newOrt ? `${newOrt}, Deutschland` : '');
-                            }}
-                            onOrtChange={(newOrt) => {
-                              setOrt(newOrt);
-                              updateData('location', newOrt ? `${newOrt}, Deutschland` : '');
-                            }}
-                            plzLabel="PLZ (optional)"
-                            ortLabel="Ort (optional)"
-                          />
-                          <p className="text-xs text-muted-foreground mt-1">Tipp: Wähle PLZ/Ort – wir füllen „Stadt, Land“ automatisch mit „Deutschland“.</p>
-                        </div>
                         {errors.location && (
                           <p className="text-sm text-destructive">{errors.location}</p>
                         )}

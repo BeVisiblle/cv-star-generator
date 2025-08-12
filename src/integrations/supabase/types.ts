@@ -2208,14 +2208,6 @@ export type Database = {
         }
         Returns: number
       }
-      coords_for_plz: {
-        Args: { plz_input: string }
-        Returns: {
-          city: string
-          lat: number
-          lon: number
-        }[]
-      }
       create_company_account: {
         Args: {
           p_name: string
@@ -2908,25 +2900,6 @@ export type Database = {
         Returns: {
           new_balance: number
           paid_cents: number
-        }[]
-      }
-      search_candidates_within_radius: {
-        Args: { lat_input: number; lon_input: number; radius_km: number }
-        Returns: {
-          profile_id: string
-          city: string
-          postal_code: string
-          distance_km: number
-        }[]
-      }
-      search_companies_within_radius: {
-        Args: { lat_input: number; lon_input: number; radius_km: number }
-        Returns: {
-          company_id: string
-          name: string
-          city: string
-          postal_code: string
-          distance_km: number
         }[]
       }
       spheroid_in: {
