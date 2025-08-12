@@ -65,7 +65,7 @@ const groups = [
     label: "Community",
     icon: MessageSquare,
     items: [
-      { label: "Feed", to: "/dashboard" },
+      { label: "Feed", to: "/company/feed" },
       { label: "Eigene Beiträge", to: "/company/posts" },
       { label: "Gruppen", to: "/company/community/groups" },
       { label: "Veranstaltungen", to: "/company/community/events" },

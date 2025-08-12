@@ -43,6 +43,7 @@ import CompanyProfileView from "@/pages/Company/ProfileView";
 import CompanyBilling from "@/pages/Company/Billing";
 import CompanyUnlocked from "@/pages/Company/Unlocked";
 import CompanyComingSoon from "@/pages/Company/ComingSoon";
+import CompanyFeed from "@/pages/Company/Feed";
 import AdminLayout from "./pages/Admin/AdminLayout";
 import PagesList from "./pages/Admin/PagesList";
 import PageEditor from "./pages/Admin/PageEditor";
@@ -181,6 +182,7 @@ const App = () => (
                 <Route path="billing" element={<CompanyBilling />} />
                 <Route path="settings" element={<CompanySettings />} />
                 <Route path="posts" element={<CompanyPosts />} />
+                <Route path="feed" element={<CompanyFeed />} />
                 <Route path="profile/:id" element={<CompanyProfileView />} />
 
                 {/* Coming Soon routes */}

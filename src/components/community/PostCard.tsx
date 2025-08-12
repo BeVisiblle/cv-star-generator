@@ -22,6 +22,8 @@ interface PostCardProps {
     image_url?: string;
     created_at: string;
     user_id: string;
+    author_type?: 'user' | 'company';
+    author_id?: string;
     recent_interaction?: string;
     author?: {
       id: string;
@@ -33,6 +35,12 @@ interface PostCardProps {
       ausbildungsbetrieb?: string;
       aktueller_beruf?: string;
       status?: string;
+    } | null;
+    company?: {
+      id: string;
+      name?: string;
+      logo_url?: string;
+      industry?: string;
     } | null;
   };
 }
@@ -53,36 +61,43 @@ export default function PostCard({ post }: PostCardProps) {
   const { comments, commentsCount, isLoading: commentsLoading, addComment, isAdding } = usePostComments(post.id);
   const { count: shareCount, hasReposted, repost, isReposting } = usePostReposts(post.id);
 
-  const getDisplayName = () => {
-    if (post.author?.vorname && post.author?.nachname) {
-      return `${post.author.vorname} ${post.author.nachname}`;
-    }
-    return 'Unbekannter Nutzer';
-  };
+const getDisplayName = () => {
+  if (post.author_type === 'company' && post.company?.name) {
+    return post.company.name;
+  }
+  if (post.author?.vorname && post.author?.nachname) {
+    return `${post.author.vorname} ${post.author.nachname}`;
+  }
+  return 'Unbekannter Nutzer';
+};
 
-  const getInitials = () => {
-    if (post.author?.vorname && post.author?.nachname) {
-      return `${post.author.vorname[0]}${post.author.nachname[0]}`;
-    }
-    return 'U';
-  };
+const getInitials = () => {
+  if (post.author_type === 'company' && post.company?.name) {
+    return post.company.name.slice(0, 2).toUpperCase();
+  }
+  if (post.author?.vorname && post.author?.nachname) {
+    return `${post.author.vorname[0]}${post.author.nachname[0]}`;
+  }
+  return 'U';
+};
 
-  const authorSubtitle = useMemo(() => {
-    const a = post.author;
-    if (!a) return '';
-    if (a.status === 'schueler' && a.schule) return `Schüler @ ${a.schule}`;
-    if (a.status === 'azubi') {
-      const job = a.ausbildungsberuf ? `im Bereich ${a.ausbildungsberuf}` : '';
-      const company = a.ausbildungsbetrieb ? ` @ ${a.ausbildungsbetrieb}` : '';
-      return `Auszubildender ${job}${company}`.trim();
-    }
-    if (a.status === 'ausgelernt') {
-      const job = a.aktueller_beruf || a.ausbildungsberuf || 'Mitarbeiter';
-      const company = a.ausbildungsbetrieb ? ` @ ${a.ausbildungsbetrieb}` : '';
-      return `${job}${company}`;
-    }
-    return a.ausbildungsberuf || '';
-  }, [post.author]);
+const authorSubtitle = useMemo(() => {
+  if (post.author_type === 'company') return '';
+  const a = post.author;
+  if (!a) return '';
+  if (a.status === 'schueler' && a.schule) return `Schüler @ ${a.schule}`;
+  if (a.status === 'azubi') {
+    const job = a.ausbildungsberuf ? `im Bereich ${a.ausbildungsberuf}` : '';
+    const company = a.ausbildungsbetrieb ? ` @ ${a.ausbildungsbetrieb}` : '';
+    return `Auszubildender ${job}${company}`.trim();
+  }
+  if (a.status === 'ausgelernt') {
+    const job = a.aktueller_beruf || a.ausbildungsberuf || 'Mitarbeiter';
+    const company = a.ausbildungsbetrieb ? ` @ ${a.ausbildungsbetrieb}` : '';
+    return `${job}${company}`;
+  }
+  return a.ausbildungsberuf || '';
+}, [post.author, post.author_type]);
 
   const truncated = useMemo(() => {
     const maxLen = 240;
@@ -116,7 +131,7 @@ export default function PostCard({ post }: PostCardProps) {
     setTimeout(() => commentInputRef.current?.focus(), 0);
   };
 
-  const profileRoute = user?.id && (post.author?.id === user.id || post.user_id === user.id) ? '/profile' : `/u/${post.author?.id || post.user_id}`;
+  const profileRoute = post.author_type === 'company' && post.company?.id ? `/companies/${post.company.id}` : (user?.id && (post.author?.id === user.id || post.user_id === user.id) ? '/profile' : `/u/${post.author?.id || post.user_id}`);
 
   const postLink = `${window.location.origin}/marketplace#post-${post.id}`;
 
@@ -132,10 +147,10 @@ export default function PostCard({ post }: PostCardProps) {
         {/* Post Header */}
         <div className="flex items-start gap-3">
           <div className="cursor-pointer" onClick={() => navigate(profileRoute)}>
-            <Avatar className="h-10 w-10">
-              <AvatarImage src={post.author?.avatar_url} />
-              <AvatarFallback>{getInitials()}</AvatarFallback>
-            </Avatar>
+<Avatar className="h-10 w-10">
+  <AvatarImage src={post.author_type === 'company' ? (post.company?.logo_url || undefined) : (post.author?.avatar_url || undefined)} />
+  <AvatarFallback>{getInitials()}</AvatarFallback>
+</Avatar>
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex flex-wrap items-center gap-x-2 gap-y-1 min-w-0">

@@ -22,9 +22,12 @@ export interface CreatePostProps {
   showEvent?: boolean;
   celebration?: boolean;
   visibility?: 'public' | 'connections' | 'private';
+  // NEW: posting context (user vs. company)
+  context?: 'user' | 'company';
+  companyId?: string;            // required when context==='company'
 }
 
-export const CreatePost = ({ container = "card", hideHeader = false, variant = "default", hideBottomBar = false, onStateChange, scheduledAt, showPoll = false, showEvent = false, celebration = false, visibility = 'public' }: CreatePostProps) => {
+export const CreatePost = ({ container = "card", hideHeader = false, variant = "default", hideBottomBar = false, onStateChange, scheduledAt, showPoll = false, showEvent = false, celebration = false, visibility = 'public', context = 'user', companyId }: CreatePostProps) => {
   const [content, setContent] = useState("");
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -73,7 +76,8 @@ export const CreatePost = ({ container = "card", hideHeader = false, variant = "
           content,
           image_url: imageUrl,
           user_id: user.id,
-          author_id: user.id,
+          author_id: context === 'company' ? (companyId as string) : user.id,
+          author_type: context === 'company' ? 'company' : 'user',
           celebration,
           visibility: dbVisibility,
           status: scheduledISO ? 'scheduled' : 'published',

@@ -26,7 +26,7 @@ const Auth = () => {
   // Redirect if already authenticated
   useEffect(() => {
     if (user && !isLoading) {
-      navigate('/profile');
+      navigate('/dashboard');
     }
   }, [user, isLoading, navigate]);
 
@@ -123,9 +123,9 @@ const Auth = () => {
         const { data: isCompany, error: roleErr } = await supabase.rpc('is_company_member');
         if (roleErr) {
           console.warn('Rollenprüfung fehlgeschlagen, fallback auf Profil:', roleErr);
-          window.location.href = '/profile';
+          window.location.href = '/dashboard';
         } else {
-          window.location.href = isCompany ? '/company/dashboard' : '/profile';
+          window.location.href = isCompany ? '/company/dashboard' : '/dashboard';
         }
       }
     } catch (error) {
