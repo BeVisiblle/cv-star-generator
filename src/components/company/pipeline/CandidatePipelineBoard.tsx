@@ -143,7 +143,18 @@ export const CandidatePipelineBoard: React.FC = () => {
         currentItems = (refreshed as any) || currentItems;
       }
 
-      if (!ccErr) setItems(currentItems);
+      if (!ccErr) {
+        // Deduplicate by candidate_id (keep first occurrence due to updated_at DESC order)
+        const seen = new Set<string>();
+        const deduped: CompanyCandidateItem[] = [] as any;
+        for (const it of currentItems as any[]) {
+          if (!seen.has(it.candidate_id)) {
+            seen.add(it.candidate_id);
+            deduped.push(it as any);
+          }
+        }
+        setItems(deduped);
+      }
       setLoading(false);
     };
     load();

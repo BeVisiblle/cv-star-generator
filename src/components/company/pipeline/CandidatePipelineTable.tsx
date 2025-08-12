@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { CompanyCandidateItem } from "./CandidatePipelineCard";
+import { CandidateNotesDialog } from "./CandidateNotesDialog";
 
 interface StageDef { key: string; title: string }
 
@@ -24,6 +25,7 @@ interface Props {
 }
 
 export const CandidatePipelineTable: React.FC<Props> = ({ items, stages, onStageChange, onOpen, onRemove }) => {
+  const [notesFor, setNotesFor] = useState<string | null>(null);
   return (
     <div className="w-full">
       <Table>
@@ -71,12 +73,8 @@ export const CandidatePipelineTable: React.FC<Props> = ({ items, stages, onStage
                 <TableCell className="truncate">{p.ort || "-"}</TableCell>
                 <TableCell>
                   <div className="flex gap-2">
-                    {it.unlocked_at ? (
-                      <Badge variant="secondary">Freigeschaltet</Badge>
-                    ) : (
-                      <Badge variant="outline">Gesperrt</Badge>
-                    )}
                     <Button size="sm" variant="outline" onClick={() => onOpen(p.id)}>Profil</Button>
+                    <Button size="sm" variant="secondary" onClick={() => setNotesFor(it.candidate_id)}>Notizen</Button>
                     <Button size="sm" variant="ghost" onClick={() => onRemove(it.id)}>Entfernen</Button>
                   </div>
                 </TableCell>
@@ -85,6 +83,9 @@ export const CandidatePipelineTable: React.FC<Props> = ({ items, stages, onStage
           })}
         </TableBody>
       </Table>
+      {notesFor && (
+        <CandidateNotesDialog open={!!notesFor} onOpenChange={(o) => !o && setNotesFor(null)} candidateId={notesFor} />
+      )}
     </div>
   );
 };

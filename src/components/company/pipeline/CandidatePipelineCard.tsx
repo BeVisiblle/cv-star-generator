@@ -7,6 +7,7 @@ import { Mail, Phone, FileText } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { CandidateNotesDialog } from "./CandidateNotesDialog";
 export interface PipelineProfile {
   id: string;
   vorname: string;
@@ -41,6 +42,7 @@ interface Props {
 export const CandidatePipelineCard: React.FC<Props> = ({ item, onOpen, onRemove, onStageChange, stages }) => {
   const p = item.profiles;
   const [selectedStage, setSelectedStage] = useState<string>(item.stage);
+  const [notesOpen, setNotesOpen] = useState(false);
   if (!p) return null;
   const initials = `${p.vorname?.[0] ?? "?"}${p.nachname?.[0] ?? ""}`;
 
@@ -141,6 +143,7 @@ export const CandidatePipelineCard: React.FC<Props> = ({ item, onOpen, onRemove,
           </Select>
         )}
 
+        <Button size="sm" variant="secondary" onClick={() => setNotesOpen(true)}>Notizen</Button>
         <Button size="sm" onClick={() => onOpen(p.id)}>Profil öffnen</Button>
 
         {onRemove && (
@@ -186,6 +189,8 @@ export const CandidatePipelineCard: React.FC<Props> = ({ item, onOpen, onRemove,
           </AlertDialog>
         )}
       </div>
+
+      <CandidateNotesDialog open={notesOpen} onOpenChange={setNotesOpen} candidateId={item.candidate_id} />
     </Card>
   );
 };
