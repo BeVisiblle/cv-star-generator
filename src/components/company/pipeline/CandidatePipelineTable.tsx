@@ -33,9 +33,9 @@ export const CandidatePipelineTable: React.FC<Props> = ({ items, stages, onStage
   const [selected, setSelected] = useState<string[]>([]);
   useEffect(() => { onSelectionChange?.(selected); }, [selected, onSelectionChange]);
   return (
-    <div className="w-full max-h[calc(100vh-220px)] overflow-auto">
+    <div className="w-full">
       <div className="w-full overflow-x-auto">
-        <Table className="min-w-[1400px]">
+        <Table className="min-w-[1000px]">
           <TableHeader className="sticky top-0 z-10 bg-background">
             <TableRow>
               <TableHead className="sticky left-0 z-20 bg-background" style={{ width: 84 }}>
