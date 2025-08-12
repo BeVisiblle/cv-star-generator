@@ -282,7 +282,7 @@ export const CandidatePipelineBoard: React.FC = () => {
   const filtersActive = (selectedStages.length !== STAGES.length) || unlockedOnly || !!jobTitleFilter || !!industryFilter || !!locationFilter || (searchKinds.length !== STATUS_KINDS.length);
   return (
     <div className="space-y-4">
-      <div className="sticky top-0 z-40 bg-background border-b border-border py-2">
+      <div className="sticky top-14 z-40 bg-background border-b border-border py-2">
         <div className="flex flex-wrap items-center gap-2">
           <h1 className="text-xl font-semibold mr-2">Pipeline</h1>
           <div className="w-full sm:w-auto">
@@ -500,17 +500,6 @@ export const CandidatePipelineBoard: React.FC = () => {
       ) : (
         <Card>
           <CardContent className="space-y-4">
-            <ScrollArea>
-              <div className="flex items-center gap-4 min-w-max">
-                {STAGES.map(s => (
-                  <div key={s.key} className="flex items-center gap-2 px-3 py-2 rounded-md border bg-muted/40">
-                    <span className="text-sm font-medium">{s.title}</span>
-                    <span className="text-xs text-muted-foreground">{grouped[s.key]?.length || 0}</span>
-                  </div>
-                ))}
-              </div>
-            </ScrollArea>
-
             {/* Flatten items sorted by stage order */}
             <CandidatePipelineTable
               items={[...filteredItems].sort((a, b) => {
