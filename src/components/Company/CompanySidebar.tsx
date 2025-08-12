@@ -19,16 +19,22 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Progress } from "@/components/ui/progress";
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import {
   Home,
-  Users,
+  Search,
+  Columns3,
   MessageSquare,
-  Image as ImageIcon,
-  Briefcase,
-  BarChart2,
   Settings as SettingsIcon,
-  HelpCircle,
-  Plus,
-  ChevronDown,
   LogOut,
   X,
 } from "lucide-react";
@@ -36,93 +42,15 @@ import { NavLink, useLocation } from "react-router-dom";
 import { useCompany } from "@/hooks/useCompany";
 import { supabase } from "@/integrations/supabase/client";
 
-// Struktur für Gruppen & Unterpunkte
-const groups = [
-  {
-    key: "overview",
-    label: "Übersicht",
-    icon: Home,
-    items: [
-      { label: "Statistiken", to: "/company/dashboard" },
-      { label: "Insights zu Posts", to: "/company/posts" },
-      { label: "Schnellaktionen", to: "/company/profile" },
-      { label: "Interessante Azubis", to: "/company/search" },
-    ],
-  },
-  {
-    key: "candidates",
-    label: "Kandidaten",
-    icon: Users,
-    items: [
-      { label: "Suchen & Filtern", to: "/company/search" },
-      { label: "Pipeline", to: "/company/candidates/pipeline" },
-      { label: "Gespeicherte Kandidaten", to: "/company/candidates/saved" },
-      { label: "Token-Historie", to: "/company/candidates/token-history" },
-    ],
-  },
-  {
-    key: "community",
-    label: "Community",
-    icon: MessageSquare,
-    items: [
-      { label: "Feed", to: "/company/feed" },
-      { label: "Eigene Beiträge", to: "/company/posts" },
-      { label: "Gruppen", to: "/company/community/groups" },
-      { label: "Veranstaltungen", to: "/company/community/events" },
-    ],
-  },
-  {
-    key: "media",
-    label: "Medien",
-    icon: ImageIcon,
-    items: [
-      { label: "Fotogalerie", to: "/company/media/photos" },
-      { label: "Videogalerie", to: "/company/media/videos" },
-    ],
-  },
-  {
-    key: "jobs",
-    label: "Stellenangebote",
-    icon: Briefcase,
-    items: [
-      { label: "Meine Anzeigen", to: "/company/jobs" },
-      { label: "Neue Anzeige erstellen", to: "/company/jobs/new" },
-      { label: "Bewerber pro Anzeige", to: "/company/jobs/:id/applicants" },
-    ],
-  },
-  {
-    key: "insights",
-    label: "Insights",
-    icon: BarChart2,
-    items: [
-      { label: "Kandidaten-Ansichten", to: "/company/insights/views" },
-      { label: "Beitragsreichweite", to: "/company/insights/reach" },
-      { label: "Engagement", to: "/company/insights/engagement" },
-      { label: "Follower-Wachstum", to: "/company/insights/followers" },
-    ],
-  },
-  {
-    key: "settings",
-    label: "Einstellungen",
-    icon: SettingsIcon,
-    items: [
-      { label: "Unternehmensprofil", to: "/company/profile" },
-      { label: "Team & Rollen", to: "/company/settings/team" },
-      { label: "Abrechnung & Abo", to: "/company/billing" },
-      { label: "Benachrichtigungen", to: "/company/settings/notifications" },
-    ],
-  },
-  {
-    key: "help",
-    label: "Hilfe & Support",
-    icon: HelpCircle,
-    items: [
-      { label: "Hilfe-Center", to: "/company/help/center" },
-      { label: "Support kontaktieren", to: "/company/help/support" },
-      { label: "Feedback geben", to: "/company/help/feedback" },
-    ],
-  },
+// Hauptnavigation: exakt 5 Punkte
+const navItems = [
+  { to: "/company/dashboard", label: "Dashboard", icon: Home },
+  { to: "/company/search", label: "Kandidatensuche", icon: Search },
+  { to: "/company/candidates/pipeline", label: "Pipeline", icon: Columns3 },
+  { to: "/company/feed", label: "Community", icon: MessageSquare },
+  { to: "/company/settings", label: "Einstellungen", icon: SettingsIcon },
 ] as const;
+
 
 export function CompanySidebar() {
   const { state, isMobile, setOpenMobile } = useSidebar();
@@ -133,24 +61,7 @@ export function CompanySidebar() {
   const isActive = (to: string) =>
     location.pathname === to || location.pathname.startsWith(to.replace(":id", ""));
 
-  const activeGroupKeys = useMemo(() => {
-    return groups
-      .filter((g) => g.items.some((it) => isActive(it.to)))
-      .map((g) => g.key);
-  }, [location.pathname]);
-
-  const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({});
-  useEffect(() => {
-    // Open the group that matches current path
-    setOpenGroups((prev) => {
-      const next = { ...prev };
-      activeGroupKeys.forEach((k) => (next[k] = true));
-      return next;
-    });
-  }, [activeGroupKeys]);
-
-  const toggleGroup = (key: string) =>
-    setOpenGroups((prev) => ({ ...prev, [key]: !prev[key] }));
+// simplified sidebar: no grouped accordion state
 
   const maxTokens = Math.max(1, (company?.seats ?? 0) * 10);
   const tokens = company?.active_tokens ?? 0;
@@ -175,12 +86,7 @@ export function CompanySidebar() {
               <div className="text-sm font-medium truncate" title={company?.name}>
                 {company?.name || "Company"}
               </div>
-              <div className="mt-1">
-                <Progress value={tokenPct} className="h-1" />
-                <div className="mt-1 text-[10px] text-muted-foreground">
-                  {tokens} / {maxTokens} Tokens
-                </div>
-              </div>
+              <div className="text-[11px] text-muted-foreground">Unternehmensbereich</div>
             </div>
           )}
           {isMobile && (
