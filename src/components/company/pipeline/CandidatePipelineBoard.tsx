@@ -26,6 +26,7 @@ const STAGES: { key: string; title: string }[] = [
   { key: "rejected", title: "Abgelehnt" },
 ];
 
+const STATUS_KINDS = ["praktikum", "ausbildung", "vollzeit", "praktikum_ausbildung"] as const;
 function DroppableColumn({ id, children }: { id: string; children: React.ReactNode }) {
   const { setNodeRef } = useDroppable({ id });
   return (
@@ -65,12 +66,15 @@ export const CandidatePipelineBoard: React.FC = () => {
     }
   });
   const [unlockedOnly, setUnlockedOnly] = useState<boolean>(() => localStorage.getItem("pipeline_unlocked_only") === "true");
+  const [jobTitleFilter, setJobTitleFilter] = useState<string>("");
+  const [industryFilter, setIndustryFilter] = useState<string>("");
+  const [locationFilter, setLocationFilter] = useState<string>("");
+  const [searchKinds, setSearchKinds] = useState<string[]>([...STATUS_KINDS]);
   const scrollRef = useRef<HTMLDivElement>(null);
   const topScrollRef = useRef<HTMLDivElement>(null);
   const railContentRef = useRef<HTMLDivElement>(null);
   const [railWidth, setRailWidth] = useState(0);
   const [selectedRowIds, setSelectedRowIds] = useState<string[]>([]);
-
   useEffect(() => { localStorage.setItem("pipeline_view", view); }, [view]);
   useEffect(() => { localStorage.setItem("pipeline_query", query); }, [query]);
   useEffect(() => { localStorage.setItem("pipeline_stages", JSON.stringify(selectedStages)); }, [selectedStages]);
@@ -94,8 +98,28 @@ export const CandidatePipelineBoard: React.FC = () => {
       const allowed = new Set(selectedStages);
       list = list.filter((it) => allowed.has(STAGES.some(s=>s.key===it.stage) ? it.stage : 'unlocked'));
     }
+    const jt = jobTitleFilter.trim().toLowerCase();
+    if (jt) {
+      list = list.filter((it) => it.profiles && (it.profiles.headline || "").toLowerCase().includes(jt));
+    }
+    const ind = industryFilter.trim().toLowerCase();
+    if (ind) {
+      list = list.filter((it) => it.profiles && (it.profiles.branche || "").toLowerCase().includes(ind));
+    }
+    const loc = locationFilter.trim().toLowerCase();
+    if (loc) {
+      list = list.filter((it) => it.profiles && (it.profiles.ort || "").toLowerCase().includes(loc));
+    }
+    if (searchKinds.length && searchKinds.length !== STATUS_KINDS.length) {
+      const allowedKinds = new Set(searchKinds);
+      list = list.filter((it) => {
+        const p = it.profiles;
+        if (!p) return false;
+        return p.search_status ? allowedKinds.has(p.search_status) : false;
+      });
+    }
     return list;
-  }, [items, query, unlockedOnly, selectedStages]);
+  }, [items, query, unlockedOnly, selectedStages, jobTitleFilter, industryFilter, locationFilter, searchKinds]);
 
   const grouped = useMemo(() => {
     const map: Record<string, CompanyCandidateItem[]> = {};
@@ -255,8 +279,7 @@ export const CandidatePipelineBoard: React.FC = () => {
   };
 
   const allStageKeys = React.useMemo(() => STAGES.map(s => s.key), []);
-  const filtersActive = (selectedStages.length !== STAGES.length) || unlockedOnly;
-
+  const filtersActive = (selectedStages.length !== STAGES.length) || unlockedOnly || !!jobTitleFilter || !!industryFilter || !!locationFilter || (searchKinds.length !== STATUS_KINDS.length);
   return (
     <div className="space-y-4">
       <div className="sticky top-0 z-40 bg-background border-b border-border py-2">
@@ -289,8 +312,9 @@ export const CandidatePipelineBoard: React.FC = () => {
                 )}
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-72 z-[60] bg-popover">
-              <div className="space-y-3">
+            <PopoverContent className="w-[520px] z-[60] bg-popover">
+              <div className="space-y-4">
+                {/* Stage filter */}
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-medium">Stages</span>
                   <div className="flex gap-2">
@@ -298,7 +322,7 @@ export const CandidatePipelineBoard: React.FC = () => {
                     <Button variant="ghost" size="sm" onClick={() => setSelectedStages([])}>Keine</Button>
                   </div>
                 </div>
-                <div className="grid grid-cols-1 gap-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   {STAGES.map((s) => (
                     <label key={s.key} className="flex items-center gap-2">
                       <Checkbox
@@ -315,12 +339,70 @@ export const CandidatePipelineBoard: React.FC = () => {
                     </label>
                   ))}
                 </div>
+
+                {/* Attribute filters */}
+                <div className="pt-2 border-t">
+                  <span className="text-sm font-medium">Weitere Filter</span>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-3">
+                    <div className="space-y-1">
+                      <Label htmlFor="filter-job">Jobtitel</Label>
+                      <Input id="filter-job" value={jobTitleFilter} onChange={(e) => setJobTitleFilter(e.target.value)} placeholder="z. B. Azubi im Handwerk" />
+                    </div>
+                    <div className="space-y-1">
+                      <Label htmlFor="filter-industry">Branche</Label>
+                      <Input id="filter-industry" value={industryFilter} onChange={(e) => setIndustryFilter(e.target.value)} placeholder="z. B. Bau, IT" />
+                    </div>
+                    <div className="space-y-1">
+                      <Label htmlFor="filter-location">Standort</Label>
+                      <Input id="filter-location" value={locationFilter} onChange={(e) => setLocationFilter(e.target.value)} placeholder="z. B. Berlin" />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Search kind filter */}
+                <div className="pt-2 border-t">
+                  <span className="text-sm font-medium">Art der Suche</span>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-2">
+                    {([
+                      { key: 'praktikum', label: 'Praktikum' },
+                      { key: 'ausbildung', label: 'Ausbildung' },
+                      { key: 'vollzeit', label: 'Vollzeit Job' },
+                      { key: 'praktikum_ausbildung', label: 'Praktikum & Ausbildung' },
+                    ] as const).map((opt) => {
+                      const checked = searchKinds.includes(opt.key);
+                      return (
+                        <label key={opt.key} className="flex items-center gap-2">
+                          <Checkbox
+                            checked={checked}
+                            onCheckedChange={(c) => {
+                              setSearchKinds((prev) => {
+                                const set = new Set(prev);
+                                if (c === true) set.add(opt.key); else set.delete(opt.key);
+                                return Array.from(set);
+                              });
+                            }}
+                          />
+                          <span className="text-sm">{opt.label}</span>
+                        </label>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Misc */}
                 <div className="flex items-center justify-between pt-2 border-t">
                   <Label htmlFor="unlocked-only" className="text-sm">Nur freigeschaltete</Label>
                   <Switch id="unlocked-only" checked={unlockedOnly} onCheckedChange={setUnlockedOnly} />
                 </div>
                 <div className="flex justify-end">
-                  <Button variant="ghost" size="sm" onClick={() => { setSelectedStages(allStageKeys); setUnlockedOnly(false); }}>Zurücksetzen</Button>
+                  <Button variant="ghost" size="sm" onClick={() => { 
+                    setSelectedStages(allStageKeys); 
+                    setUnlockedOnly(false); 
+                    setJobTitleFilter("");
+                    setIndustryFilter("");
+                    setLocationFilter("");
+                    setSearchKinds([...STATUS_KINDS]);
+                  }}>Zurücksetzen</Button>
                 </div>
               </div>
             </PopoverContent>
