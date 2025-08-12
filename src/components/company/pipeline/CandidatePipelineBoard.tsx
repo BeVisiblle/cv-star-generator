@@ -186,11 +186,11 @@ export const CandidatePipelineBoard: React.FC = () => {
         <h2 className="text-xl font-semibold">Pipeline</h2>
         <div className="flex items-center gap-2">
           <div className="inline-flex rounded-md border border-input p-0.5">
-            <Button size="sm" variant={view === 'cards' ? 'default' : 'ghost'} onClick={() => setView('cards')} className="gap-1">
-              <LayoutGrid className="h-4 w-4" /> Karten
+            <Button size="icon" variant={view === 'cards' ? 'default' : 'ghost'} onClick={() => setView('cards')} aria-label="Kartenansicht">
+              <LayoutGrid className="h-4 w-4" />
             </Button>
-            <Button size="sm" variant={view === 'rows' ? 'default' : 'ghost'} onClick={() => setView('rows')} className="gap-1">
-              <List className="h-4 w-4" /> Liste
+            <Button size="icon" variant={view === 'rows' ? 'default' : 'ghost'} onClick={() => setView('rows')} aria-label="Listenansicht">
+              <List className="h-4 w-4" />
             </Button>
           </div>
           <Button size="sm" onClick={exportCSV}>
@@ -235,7 +235,19 @@ export const CandidatePipelineBoard: React.FC = () => {
         </DndContext>
       ) : (
         <Card>
-          <CardContent>
+          <CardContent className="space-y-4">
+            {/* Stage summary bar */}
+            <div className="w-full overflow-x-auto">
+              <div className="flex items-center gap-4 min-w-max">
+                {STAGES.map(s => (
+                  <div key={s.key} className="flex items-center gap-2 px-3 py-2 rounded-md border bg-muted/40">
+                    <span className="text-sm font-medium">{s.title}</span>
+                    <span className="text-xs text-muted-foreground">{grouped[s.key]?.length || 0}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
             {/* Flatten items sorted by stage order */}
             <CandidatePipelineTable
               items={[...items].sort((a, b) => {

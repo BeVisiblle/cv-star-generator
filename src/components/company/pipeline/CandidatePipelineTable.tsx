@@ -24,20 +24,17 @@ interface Props {
 }
 
 export const CandidatePipelineTable: React.FC<Props> = ({ items, stages, onStageChange, onOpen, onRemove }) => {
-  const stageByKey = Object.fromEntries(stages.map(s => [s.key, s.title]));
-
   return (
     <div className="w-full">
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead style={{ width: 56 }}>Profil</TableHead>
+            <TableHead style={{ width: 56 }}></TableHead>
             <TableHead>Name</TableHead>
-            <TableHead>Ort</TableHead>
-            <TableHead>Bereich</TableHead>
-            <TableHead>Stage</TableHead>
-            <TableHead>Freigeschaltet</TableHead>
-            <TableHead style={{ width: 200 }}>Aktionen</TableHead>
+            <TableHead>Job Title</TableHead>
+            <TableHead>Job Stage</TableHead>
+            <TableHead>Location</TableHead>
+            <TableHead style={{ width: 220 }}>Aktionen</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -54,31 +51,32 @@ export const CandidatePipelineTable: React.FC<Props> = ({ items, stages, onStage
                   </Avatar>
                 </TableCell>
                 <TableCell>
-                  <div className="font-medium truncate">{p.vorname} {p.nachname}</div>
-                  <div className="text-sm text-muted-foreground truncate">{p.headline || p.branche || "Ausbildungsbereich"}</div>
+                  <button className="text-primary hover:underline font-medium truncate" onClick={() => onOpen(p.id)}>
+                    {p.vorname} {p.nachname}
+                  </button>
                 </TableCell>
-                <TableCell>{p.ort || "-"}</TableCell>
-                <TableCell>{p.branche || "-"}</TableCell>
+                <TableCell className="text-muted-foreground truncate">{p.headline || p.branche || "-"}</TableCell>
                 <TableCell>
                   <Select value={it.stage} onValueChange={(v) => onStageChange(it.id, v)}>
-                    <SelectTrigger className="w-[180px]"><SelectValue /></SelectTrigger>
-                    <SelectContent>
+                    <SelectTrigger className="w-[180px]">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="z-[60] bg-popover">
                       {stages.map(s => (
                         <SelectItem key={s.key} value={s.key}>{s.title}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                 </TableCell>
-                <TableCell>
-                  {it.unlocked_at ? (
-                    <Badge variant="secondary">Ja</Badge>
-                  ) : (
-                    <Badge variant="outline">Nein</Badge>
-                  )}
-                </TableCell>
+                <TableCell className="truncate">{p.ort || "-"}</TableCell>
                 <TableCell>
                   <div className="flex gap-2">
-                    <Button size="sm" onClick={() => onOpen(p.id)}>Profil</Button>
+                    {it.unlocked_at ? (
+                      <Badge variant="secondary">Freigeschaltet</Badge>
+                    ) : (
+                      <Badge variant="outline">Gesperrt</Badge>
+                    )}
+                    <Button size="sm" variant="outline" onClick={() => onOpen(p.id)}>Profil</Button>
                     <Button size="sm" variant="ghost" onClick={() => onRemove(it.id)}>Entfernen</Button>
                   </div>
                 </TableCell>
