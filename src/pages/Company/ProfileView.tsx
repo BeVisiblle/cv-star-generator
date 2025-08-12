@@ -31,20 +31,26 @@ const CompanyProfileView = () => {
 
   useEffect(() => {
     const fetchProfile = async () => {
-      if (!id) return;
+      if (!id || !company?.id) return; // wait until we have company context
 
       try {
         setIsLoading(true);
         
-        // Check if profile is unlocked for this company
-        const { data: tokenUsage } = await supabase
-          .from('tokens_used')
-          .select('*')
-          .eq('profile_id', id)
-          .eq('company_id', company?.id || '')
+        // Check if profile is unlocked for this company via company_candidates
+        const { data: pipelineRow, error: pipelineError } = await supabase
+          .from('company_candidates')
+          .select('stage, unlocked_at')
+          .eq('candidate_id', id)
+          .eq('company_id', company.id)
+          .limit(1)
           .maybeSingle();
 
-        setIsUnlocked(!!tokenUsage);
+        if (pipelineError && pipelineError.code !== 'PGRST116') {
+          console.error('Pipeline check error:', pipelineError);
+        }
+
+        const unlocked = !!pipelineRow && (!!pipelineRow.unlocked_at || pipelineRow.stage !== 'new');
+        setIsUnlocked(unlocked);
 
         // Fetch profile data
         const { data: profileData, error } = await supabase
@@ -56,9 +62,9 @@ const CompanyProfileView = () => {
         if (error) {
           console.error('Error fetching profile:', error);
           toast({
-            title: "Fehler",
-            description: "Profil konnte nicht geladen werden.",
-            variant: "destructive"
+            title: 'Fehler',
+            description: 'Profil konnte nicht geladen werden.',
+            variant: 'destructive'
           });
           navigate('/company/search');
           return;
@@ -68,9 +74,9 @@ const CompanyProfileView = () => {
       } catch (error) {
         console.error('Error:', error);
         toast({
-          title: "Fehler",
-          description: "Ein unerwarteter Fehler ist aufgetreten.",
-          variant: "destructive"
+          title: 'Fehler',
+          description: 'Ein unerwarteter Fehler ist aufgetreten.',
+          variant: 'destructive'
         });
         navigate('/company/search');
       } finally {
@@ -79,7 +85,7 @@ const CompanyProfileView = () => {
     };
 
     fetchProfile();
-  }, [id, navigate]);
+  }, [id, company?.id, navigate]);
 
   if (isLoading) {
     return (
