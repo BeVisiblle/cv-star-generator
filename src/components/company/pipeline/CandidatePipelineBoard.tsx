@@ -10,8 +10,13 @@ import { useCompany } from "@/hooks/useCompany";
 import { supabase } from "@/integrations/supabase/client";
 import { CandidatePipelineCard, CompanyCandidateItem } from "./CandidatePipelineCard";
 import { CandidatePipelineTable } from "./CandidatePipelineTable";
-import { Download, LayoutGrid, List, ChevronLeft, ChevronRight } from "lucide-react";
+import { Download, LayoutGrid, List, ChevronLeft, ChevronRight, Filter } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Badge } from "@/components/ui/badge";
+import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 
 const STAGES: { key: string; title: string }[] = [
   { key: "unlocked", title: "Freigeschaltet" },
@@ -47,41 +52,52 @@ export const CandidatePipelineBoard: React.FC = () => {
   const { company } = useCompany();
   const [items, setItems] = useState<CompanyCandidateItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const [view, setView] = useState<"cards" | "rows">("cards");
-  const [query, setQuery] = useState("");
+  const [view, setView] = useState<"cards" | "rows">(() => (localStorage.getItem("pipeline_view") as "cards" | "rows") || "cards");
+  const [query, setQuery] = useState<string>(() => localStorage.getItem("pipeline_query") || "");
+  const [selectedStages, setSelectedStages] = useState<string[]>(() => {
+    try {
+      const raw = localStorage.getItem("pipeline_stages");
+      const arr = raw ? JSON.parse(raw) : null;
+      const all = STAGES.map(s => s.key);
+      return Array.isArray(arr) && arr.length ? (arr as string[]).filter((a) => all.includes(a)) : all;
+    } catch {
+      return STAGES.map(s => s.key);
+    }
+  });
+  const [unlockedOnly, setUnlockedOnly] = useState<boolean>(() => localStorage.getItem("pipeline_unlocked_only") === "true");
   const scrollRef = useRef<HTMLDivElement>(null);
 
+  useEffect(() => { localStorage.setItem("pipeline_view", view); }, [view]);
+  useEffect(() => { localStorage.setItem("pipeline_query", query); }, [query]);
+  useEffect(() => { localStorage.setItem("pipeline_stages", JSON.stringify(selectedStages)); }, [selectedStages]);
+  useEffect(() => { localStorage.setItem("pipeline_unlocked_only", unlockedOnly ? "true" : "false"); }, [unlockedOnly]);
+
   const filteredItems = useMemo(() => {
-    if (!query.trim()) return items;
-    const q = query.toLowerCase();
-    return items.filter((it) => {
-      const p = it.profiles;
-      if (!p) return false;
-      const hay = [
-        `${p.vorname ?? ""} ${p.nachname ?? ""}`,
-        p.headline ?? "",
-        p.branche ?? "",
-        p.ort ?? "",
-      ].join(" ").toLowerCase();
-      return hay.includes(q);
-    });
-  }, [items, query]);
+    let list = items;
+    if (query.trim()) {
+      const q = query.toLowerCase();
+      list = list.filter((it) => {
+        const p = it.profiles;
+        if (!p) return false;
+        const hay = `${p.vorname ?? ""} ${p.nachname ?? ""} ${p.headline ?? ""} ${p.branche ?? ""} ${p.ort ?? ""}`.toLowerCase();
+        return hay.includes(q);
+      });
+    }
+    if (unlockedOnly) {
+      list = list.filter((it) => !!it.unlocked_at);
+    }
+    if (selectedStages.length && selectedStages.length !== STAGES.length) {
+      const allowed = new Set(selectedStages);
+      list = list.filter((it) => allowed.has(STAGES.some(s=>s.key===it.stage) ? it.stage : 'unlocked'));
+    }
+    return list;
+  }, [items, query, unlockedOnly, selectedStages]);
 
   const grouped = useMemo(() => {
     const map: Record<string, CompanyCandidateItem[]> = {};
     STAGES.forEach((s) => (map[s.key] = []));
     for (const it of filteredItems) {
-      let key: string;
-      if (STAGES.some((s) => s.key === it.stage)) {
-        // Route newly unlocked entries to "Freigeschaltet" until moved further
-        if (it.unlocked_at && (it.stage === 'new' || it.stage === 'contact')) {
-          key = 'unlocked';
-        } else {
-          key = it.stage;
-        }
-      } else {
-        key = it.unlocked_at ? 'unlocked' : 'unlocked';
-      }
+      const key = STAGES.some((s) => s.key === it.stage) ? it.stage : 'unlocked';
       map[key].push(it);
     }
     return map;
@@ -200,11 +216,14 @@ export const CandidatePipelineBoard: React.FC = () => {
     window.location.href = `/company/profile/${profileId}`;
   };
 
+  const allStageKeys = React.useMemo(() => STAGES.map(s => s.key), []);
+  const filtersActive = (selectedStages.length !== STAGES.length) || unlockedOnly;
+
   return (
     <div className="space-y-4">
       <div className="sticky top-0 z-30 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 border-b border-border py-2">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-          <h2 className="text-xl font-semibold">Pipeline</h2>
+          <h1 className="text-xl font-semibold">Pipeline</h1>
           <div className="flex items-center gap-2">
             <div className="hidden sm:block">
               <Input
@@ -223,6 +242,52 @@ export const CandidatePipelineBoard: React.FC = () => {
                 <List className="h-4 w-4" />
               </Button>
             </div>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button size="sm" variant="outline" aria-label="Filter">
+                  <Filter className="h-4 w-4 mr-2" />
+                  Filter
+                  {filtersActive && (
+                    <Badge variant="secondary" className="ml-2">{unlockedOnly ? "•" : null}{selectedStages.length !== STAGES.length ? selectedStages.length : null}</Badge>
+                  )}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-72 z-[60] bg-popover">
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium">Stages</span>
+                    <div className="flex gap-2">
+                      <Button variant="ghost" size="sm" onClick={() => setSelectedStages(allStageKeys)}>Alle</Button>
+                      <Button variant="ghost" size="sm" onClick={() => setSelectedStages([])}>Keine</Button>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 gap-2">
+                    {STAGES.map((s) => (
+                      <label key={s.key} className="flex items-center gap-2">
+                        <Checkbox
+                          checked={selectedStages.includes(s.key)}
+                          onCheckedChange={(c) => {
+                            setSelectedStages((prev) => {
+                              const set = new Set(prev);
+                              if (c === true) set.add(s.key); else set.delete(s.key);
+                              return Array.from(set);
+                            });
+                          }}
+                        />
+                        <span className="text-sm">{s.title}</span>
+                      </label>
+                    ))}
+                  </div>
+                  <div className="flex items-center justify-between pt-2 border-t">
+                    <Label htmlFor="unlocked-only" className="text-sm">Nur freigeschaltete</Label>
+                    <Switch id="unlocked-only" checked={unlockedOnly} onCheckedChange={setUnlockedOnly} />
+                  </div>
+                  <div className="flex justify-end">
+                    <Button variant="ghost" size="sm" onClick={() => { setSelectedStages(allStageKeys); setUnlockedOnly(false); }}>Zurücksetzen</Button>
+                  </div>
+                </div>
+              </PopoverContent>
+            </Popover>
             <Button size="sm" onClick={exportCSV}>
               <Download className="h-4 w-4 mr-2" /> Export (CSV)
             </Button>
@@ -245,7 +310,7 @@ export const CandidatePipelineBoard: React.FC = () => {
       ) : view === 'cards' ? (
         <DndContext onDragEnd={handleDragEnd}>
           <div className="relative">
-            <div ref={scrollRef} className="overflow-x-auto pb-2 -mx-3 px-3">
+            <div ref={scrollRef} className="overflow-x-auto overflow-y-hidden pb-3 show-scrollbar -mx-3 px-3">
               <div className="flex gap-4 w-max">
                 {STAGES.map(stage => (
                   <Card key={stage.key} className="min-w-[520px] shrink-0">

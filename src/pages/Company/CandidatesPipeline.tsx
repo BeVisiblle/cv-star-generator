@@ -4,15 +4,8 @@ import { CandidatePipelineBoard } from "@/components/company/pipeline/CandidateP
 
 const CandidatesPipelinePage: React.FC = () => {
   return (
-    <div className="p-3 md:p-6 min-h-screen bg-background max-w-full space-y-6 overflow-x-hidden">
-      <Card>
-        <CardHeader>
-          <CardTitle>Candidate Pipeline</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <CandidatePipelineBoard />
-        </CardContent>
-      </Card>
+    <div className="p-3 md:p-6 min-h-screen bg-background max-w-full space-y-6">
+      <CandidatePipelineBoard />
     </div>
   );
 };

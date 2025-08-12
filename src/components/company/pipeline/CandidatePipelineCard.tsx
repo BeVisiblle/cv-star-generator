@@ -54,7 +54,11 @@ export const CandidatePipelineCard: React.FC<Props> = ({ item, onOpen, onRemove,
     if (p.telefon) window.location.href = `tel:${p.telefon}`;
   };
   const handleCV = () => {
-    window.location.href = `/company/profile/${p.id}#cv`;
+    if (p.cv_url) {
+      window.open(p.cv_url, "_blank", "noopener");
+    } else {
+      window.location.href = `/company/profile/${p.id}#cv`;
+    }
   };
 
   return (
@@ -129,7 +133,7 @@ export const CandidatePipelineCard: React.FC<Props> = ({ item, onOpen, onRemove,
             <SelectTrigger className="h-8 w-[180px]">
               <SelectValue placeholder="Stage wählen" />
             </SelectTrigger>
-            <SelectContent className="z-50 bg-popover">
+            <SelectContent className="z-[60] bg-popover border border-border shadow-md">
               {stages.map((s) => (
                 <SelectItem key={s.key} value={s.key}>{s.title}</SelectItem>
               ))}
@@ -158,7 +162,7 @@ export const CandidatePipelineCard: React.FC<Props> = ({ item, onOpen, onRemove,
                     <SelectTrigger className="h-9 w-full">
                       <SelectValue placeholder="Stage wählen" />
                     </SelectTrigger>
-                    <SelectContent className="z-50 bg-popover">
+                    <SelectContent className="z-[60] bg-popover border border-border shadow-md">
                       {stages.map((s) => (
                         <SelectItem key={s.key} value={s.key}>{s.title}</SelectItem>
                       ))}

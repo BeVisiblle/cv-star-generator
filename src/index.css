@@ -227,3 +227,9 @@ html.overflow-fix, .overflow-fix body {
 .overflow-fix th, .overflow-fix td { word-break: break-word; overflow-wrap: anywhere; hyphens: auto; }
 .overflow-fix h1, .overflow-fix h2 { overflow-wrap: anywhere; word-break: break-word; hyphens: auto; }
 .overflow-fix img, .overflow-fix iframe, .overflow-fix canvas, .overflow-fix svg { max-width: 100%; height: auto; }
+
+/* Visible scrollbar helper for horizontal stage list */
+.show-scrollbar { scrollbar-gutter: stable both-edges; }
+.show-scrollbar::-webkit-scrollbar { height: 10px; }
+.show-scrollbar::-webkit-scrollbar-thumb { background-color: hsl(var(--muted-foreground) / 0.4); border-radius: 9999px; }
+.show-scrollbar::-webkit-scrollbar-track { background-color: hsl(var(--muted) / 0.5); }

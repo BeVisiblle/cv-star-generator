@@ -27,7 +27,7 @@ export const CandidatePipelineTable: React.FC<Props> = ({ items, stages, onStage
   return (
     <div className="w-full">
       <Table>
-        <TableHeader>
+        <TableHeader className="sticky top-0 z-10 bg-background">
           <TableRow>
             <TableHead style={{ width: 56 }}></TableHead>
             <TableHead>Name</TableHead>
