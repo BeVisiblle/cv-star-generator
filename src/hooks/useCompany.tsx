@@ -24,6 +24,12 @@ interface Company {
   subscription_status: string;
   created_at: string;
   updated_at: string;
+  // Matching profile fields
+  matching_about?: string;
+  matching_benefits_text?: string;
+  matching_must_text?: string;
+  matching_nice_text?: string;
+  location_radius_km?: number;
 }
 
 interface CompanyUser {

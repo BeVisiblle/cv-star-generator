@@ -45,6 +45,7 @@ import CompanyUnlocked from "@/pages/Company/Unlocked";
 import CompanyComingSoon from "@/pages/Company/ComingSoon";
 import CompanyFeed from "@/pages/Company/Feed";
 import CandidatesPipelinePage from "@/pages/Company/CandidatesPipeline";
+import MatchingProfilePage from "@/pages/Company/MatchingProfile";
 import AdminLayout from "./pages/Admin/AdminLayout";
 import PagesList from "./pages/Admin/PagesList";
 import PageEditor from "./pages/Admin/PageEditor";
@@ -182,6 +183,7 @@ const App = () => (
                 <Route path="unlocked" element={<CompanyUnlocked />} />
                 <Route path="billing" element={<CompanyBilling />} />
                 <Route path="settings" element={<CompanySettings />} />
+                <Route path="matching-profile" element={<MatchingProfilePage />} />
                 <Route path="posts" element={<CompanyPosts />} />
                 <Route path="feed" element={<CompanyFeed />} />
                 <Route path="profile/:id" element={<CompanyProfileView />} />

@@ -139,8 +139,13 @@ export type Database = {
           instagram_url: string | null
           linkedin_url: string | null
           location_id: number | null
+          location_radius_km: number | null
           logo_url: string | null
           main_location: string | null
+          matching_about: string | null
+          matching_benefits_text: string | null
+          matching_must_text: string | null
+          matching_nice_text: string | null
           mission_statement: string | null
           name: string
           phone: string | null
@@ -168,8 +173,13 @@ export type Database = {
           instagram_url?: string | null
           linkedin_url?: string | null
           location_id?: number | null
+          location_radius_km?: number | null
           logo_url?: string | null
           main_location?: string | null
+          matching_about?: string | null
+          matching_benefits_text?: string | null
+          matching_must_text?: string | null
+          matching_nice_text?: string | null
           mission_statement?: string | null
           name: string
           phone?: string | null
@@ -197,8 +207,13 @@ export type Database = {
           instagram_url?: string | null
           linkedin_url?: string | null
           location_id?: number | null
+          location_radius_km?: number | null
           logo_url?: string | null
           main_location?: string | null
+          matching_about?: string | null
+          matching_benefits_text?: string | null
+          matching_must_text?: string | null
+          matching_nice_text?: string | null
           mission_statement?: string | null
           name?: string
           phone?: string | null
@@ -438,6 +453,39 @@ export type Database = {
             columns: ["plan_id"]
             isOneToOne: false
             referencedRelation: "plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      company_tags: {
+        Row: {
+          company_id: string
+          created_at: string
+          tag_id: string
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          tag_id: string
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          tag_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "company_tags_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "company_tags_tag_id_fkey"
+            columns: ["tag_id"]
+            isOneToOne: false
+            referencedRelation: "vocab_tags"
             referencedColumns: ["id"]
           },
         ]
@@ -1340,6 +1388,39 @@ export type Database = {
           },
         ]
       }
+      profile_tags: {
+        Row: {
+          created_at: string
+          profile_id: string
+          tag_id: string
+        }
+        Insert: {
+          created_at?: string
+          profile_id: string
+          tag_id: string
+        }
+        Update: {
+          created_at?: string
+          profile_id?: string
+          tag_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profile_tags_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "profile_tags_tag_id_fkey"
+            columns: ["tag_id"]
+            isOneToOne: false
+            referencedRelation: "vocab_tags"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           abschlussjahr: string | null
@@ -1932,6 +2013,30 @@ export type Database = {
         }
         Relationships: []
       }
+      vocab_tags: {
+        Row: {
+          created_at: string
+          id: string
+          key: string
+          label: string
+          type: Database["public"]["Enums"]["tag_type"]
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          key: string
+          label: string
+          type: Database["public"]["Enums"]["tag_type"]
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          key?: string
+          label?: string
+          type?: Database["public"]["Enums"]["tag_type"]
+        }
+        Relationships: []
+      }
     }
     Views: {
       geography_columns: {
@@ -2207,6 +2312,14 @@ export type Database = {
           _client_request_id?: string
         }
         Returns: number
+      }
+      coords_for_plz: {
+        Args: { plz_input: string }
+        Returns: {
+          city: string
+          lat: number
+          lon: number
+        }[]
       }
       create_company_account: {
         Args: {
@@ -2705,6 +2818,15 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: boolean
       }
+      match_candidates_for_company: {
+        Args: { p_company: string; p_limit?: number }
+        Returns: {
+          profile_id: string
+          display_name: string
+          score: number
+          reasons: string[]
+        }[]
+      }
       path: {
         Args: { "": unknown }
         Returns: unknown
@@ -2900,6 +3022,25 @@ export type Database = {
         Returns: {
           new_balance: number
           paid_cents: number
+        }[]
+      }
+      search_candidates_within_radius: {
+        Args: { lat_input: number; lon_input: number; radius_km: number }
+        Returns: {
+          profile_id: string
+          city: string
+          postal_code: string
+          distance_km: number
+        }[]
+      }
+      search_companies_within_radius: {
+        Args: { lat_input: number; lon_input: number; radius_km: number }
+        Returns: {
+          company_id: string
+          name: string
+          city: string
+          postal_code: string
+          distance_km: number
         }[]
       }
       spheroid_in: {
@@ -4038,6 +4179,13 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "editor" | "viewer"
+      tag_type:
+        | "profession"
+        | "target_group"
+        | "benefit"
+        | "must"
+        | "nice"
+        | "work_env"
     }
     CompositeTypes: {
       geometry_dump: {
@@ -4174,6 +4322,14 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "editor", "viewer"],
+      tag_type: [
+        "profession",
+        "target_group",
+        "benefit",
+        "must",
+        "nice",
+        "work_env",
+      ],
     },
   },
 } as const
