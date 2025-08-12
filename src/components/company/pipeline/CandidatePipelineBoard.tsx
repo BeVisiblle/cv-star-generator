@@ -66,6 +66,7 @@ export const CandidatePipelineBoard: React.FC = () => {
   });
   const [unlockedOnly, setUnlockedOnly] = useState<boolean>(() => localStorage.getItem("pipeline_unlocked_only") === "true");
   const scrollRef = useRef<HTMLDivElement>(null);
+  const [selectedRowIds, setSelectedRowIds] = useState<string[]>([]);
 
   useEffect(() => { localStorage.setItem("pipeline_view", view); }, [view]);
   useEffect(() => { localStorage.setItem("pipeline_query", query); }, [query]);
@@ -195,8 +196,11 @@ export const CandidatePipelineBoard: React.FC = () => {
   };
 
   const exportCSV = () => {
+    const source = selectedRowIds.length
+      ? filteredItems.filter(it => selectedRowIds.includes(it.id))
+      : filteredItems;
     const rows = [["Name", "Ort", "Bereich", "Stage", "Unlocked"]];
-    for (const it of items) {
+    for (const it of source) {
       const p = it.profiles;
       if (!p) continue;
       rows.push([
@@ -324,31 +328,33 @@ export const CandidatePipelineBoard: React.FC = () => {
             <div ref={scrollRef} className="overflow-x-auto overflow-y-hidden pb-3 show-scrollbar -mx-3 px-3">
               <div className="flex gap-4 w-max">
                 {STAGES.map(stage => (
-                  <Card key={stage.key} className="min-w-[520px] shrink-0">
-                    <CardHeader>
+                  <Card key={stage.key} className="min-w-[360px] shrink-0">
+                    <CardHeader className="sticky top-0 z-10 bg-background">
                       <CardTitle className="flex items-center justify-between">
                         <span>{stage.title}</span>
                         <span className="text-sm text-muted-foreground">{grouped[stage.key]?.length || 0}</span>
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <DroppableColumn id={stage.key}>
-                        <SortableContext items={(grouped[stage.key] || []).map(i => i.id)} strategy={verticalListSortingStrategy}>
-                          <div className="space-y-3">
-                            {(grouped[stage.key] || []).map(it => (
-                              <SortableItem key={it.id} id={it.id}>
-                                <CandidatePipelineCard
-                                  item={it}
-                                  onOpen={openProfile}
-                                  onRemove={removeFromPipeline}
-                                  onStageChange={handleStageChange}
-                                  stages={STAGES}
-                                />
-                              </SortableItem>
-                            ))}
-                          </div>
-                        </SortableContext>
-                      </DroppableColumn>
+                      <div className="max-h-[calc(100vh-220px)] overflow-y-auto pr-1">
+                        <DroppableColumn id={stage.key}>
+                          <SortableContext items={(grouped[stage.key] || []).map(i => i.id)} strategy={verticalListSortingStrategy}>
+                            <div className="space-y-3">
+                              {(grouped[stage.key] || []).map(it => (
+                                <SortableItem key={it.id} id={it.id}>
+                                  <CandidatePipelineCard
+                                    item={it}
+                                    onOpen={openProfile}
+                                    onRemove={removeFromPipeline}
+                                    onStageChange={handleStageChange}
+                                    stages={STAGES}
+                                  />
+                                </SortableItem>
+                              ))}
+                            </div>
+                          </SortableContext>
+                        </DroppableColumn>
+                      </div>
                     </CardContent>
                   </Card>
                 ))}
@@ -393,6 +399,7 @@ export const CandidatePipelineBoard: React.FC = () => {
               onStageChange={handleStageChange}
               onOpen={openProfile}
               onRemove={removeFromPipeline}
+              onSelectionChange={setSelectedRowIds}
             />
           </CardContent>
         </Card>
