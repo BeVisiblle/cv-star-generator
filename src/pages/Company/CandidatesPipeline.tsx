@@ -4,7 +4,7 @@ import { CandidatePipelineBoard } from "@/components/company/pipeline/CandidateP
 
 const CandidatesPipelinePage: React.FC = () => {
   return (
-    <div className="p-3 md:p-6 min-h-screen bg-background max-w-full overflow-x-hidden space-y-6">
+    <div className="p-3 md:p-6 min-h-screen bg-background max-w-full overflow-x-auto space-y-6">
       <Card>
         <CardHeader>
           <CardTitle>Candidate Pipeline</CardTitle>

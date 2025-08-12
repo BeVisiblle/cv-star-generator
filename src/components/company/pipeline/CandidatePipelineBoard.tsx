@@ -208,7 +208,7 @@ export const CandidatePipelineBoard: React.FC = () => {
           <div className="overflow-x-auto -mx-3 px-3 pb-2">
             <div className="flex gap-4">
               {STAGES.map(stage => (
-                <Card key={stage.key} className="min-w-[420px] shrink-0">
+                <Card key={stage.key} className="min-w-[520px] shrink-0">
                   <CardHeader>
                     <CardTitle className="flex items-center justify-between">
                       <span>{stage.title}</span>
