@@ -66,6 +66,9 @@ export const CandidatePipelineBoard: React.FC = () => {
   });
   const [unlockedOnly, setUnlockedOnly] = useState<boolean>(() => localStorage.getItem("pipeline_unlocked_only") === "true");
   const scrollRef = useRef<HTMLDivElement>(null);
+  const topScrollRef = useRef<HTMLDivElement>(null);
+  const railContentRef = useRef<HTMLDivElement>(null);
+  const [railWidth, setRailWidth] = useState(0);
   const [selectedRowIds, setSelectedRowIds] = useState<string[]>([]);
 
   useEffect(() => { localStorage.setItem("pipeline_view", view); }, [view]);
@@ -103,6 +106,26 @@ export const CandidatePipelineBoard: React.FC = () => {
     }
     return map;
   }, [filteredItems]);
+
+  useEffect(() => {
+    const main = scrollRef.current;
+    const top = topScrollRef.current;
+    if (!main || !top) return;
+    const onMain = () => { if (top.scrollLeft !== main.scrollLeft) top.scrollLeft = main.scrollLeft; };
+    const onTop = () => { if (main.scrollLeft !== top.scrollLeft) main.scrollLeft = top.scrollLeft; };
+    main.addEventListener('scroll', onMain);
+    top.addEventListener('scroll', onTop);
+    return () => { main.removeEventListener('scroll', onMain); top.removeEventListener('scroll', onTop); };
+  }, []);
+
+  useEffect(() => {
+    const el = railContentRef.current;
+    if (!el) return;
+    const ro = new ResizeObserver(() => setRailWidth(el.scrollWidth));
+    ro.observe(el);
+    setRailWidth(el.scrollWidth);
+    return () => ro.disconnect();
+  }, []);
 
   useEffect(() => {
     if (!company) return;
@@ -315,8 +338,11 @@ export const CandidatePipelineBoard: React.FC = () => {
       ) : view === 'cards' ? (
         <DndContext onDragEnd={handleDragEnd}>
           <div className="relative">
+            <div ref={topScrollRef} className="overflow-x-auto show-scrollbar -mx-3 px-3 mb-1" aria-hidden="true">
+              <div style={{ width: railWidth }} className="h-3" />
+            </div>
             <div ref={scrollRef} className="overflow-x-auto overflow-y-hidden pb-3 show-scrollbar -mx-3 px-3">
-              <div className="flex gap-4 w-max">
+              <div ref={railContentRef} className="flex gap-4 w-max">
                 {STAGES.map(stage => (
                   <Card key={stage.key} className="min-w-[360px] shrink-0">
                     <CardHeader className="sticky top-0 z-10 bg-background">
