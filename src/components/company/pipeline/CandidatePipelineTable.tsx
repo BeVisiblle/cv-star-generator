@@ -15,6 +15,7 @@ import { CompanyCandidateItem } from "./CandidatePipelineCard";
 import { CandidateNotesDialog } from "./CandidateNotesDialog";
 import { Checkbox } from "@/components/ui/checkbox";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { MoreHorizontal } from "lucide-react";
 
 interface StageDef { key: string; title: string }
@@ -52,6 +53,7 @@ export const CandidatePipelineTable: React.FC<Props> = ({ items, stages, onStage
               <TableHead>Job Title</TableHead>
               <TableHead>Job Stage</TableHead>
               <TableHead>Location</TableHead>
+              <TableHead>Status</TableHead>
               <TableHead style={{ width: 220 }}>Aktionen</TableHead>
             </TableRow>
           </TableHeader>
@@ -96,6 +98,58 @@ export const CandidatePipelineTable: React.FC<Props> = ({ items, stages, onStage
                     </Select>
                   </TableCell>
                   <TableCell className="truncate">{p.ort || "-"}</TableCell>
+                  <TableCell>
+                    {(() => {
+                      switch (p.search_status) {
+                        case "praktikum":
+                          return (
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <div className="h-3.5 w-3.5 rounded-full ring-2 ring-background bg-destructive" aria-label="Sucht: Praktikum" />
+                                </TooltipTrigger>
+                                <TooltipContent>Sucht: Praktikum</TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                          );
+                        case "ausbildung":
+                          return (
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <div className="h-3.5 w-3.5 rounded-full ring-2 ring-background bg-green-500" aria-label="Sucht: Ausbildung" />
+                                </TooltipTrigger>
+                                <TooltipContent>Sucht: Ausbildung</TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                          );
+                        case "vollzeit":
+                          return (
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <div className="h-3.5 w-3.5 rounded-full ring-2 ring-background bg-blue-500" aria-label="Sucht: Vollzeit" />
+                                </TooltipTrigger>
+                                <TooltipContent>Sucht: Vollzeit</TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                          );
+                        case "praktikum_ausbildung":
+                          return (
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <div className="h-3.5 w-3.5 rounded-full ring-2 ring-background bg-amber-500" aria-label="Sucht: Praktikum & Ausbildung" />
+                                </TooltipTrigger>
+                                <TooltipContent>Sucht: Praktikum & Ausbildung</TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                          );
+                        default:
+                          return <span className="text-muted-foreground">-</span>;
+                      }
+                    })()}
+                  </TableCell>
                   <TableCell>
                     <div className="flex gap-2">
                       <Button size="sm" variant="secondary" onClick={() => setNotesFor(it.candidate_id)}>Notizen</Button>

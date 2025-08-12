@@ -329,7 +329,32 @@ export const CandidatePipelineBoard: React.FC = () => {
             <Download className="h-4 w-4 mr-2" /> Export (CSV)
           </Button>
         </div>
+        {/* Sticky quick stage filters */}
+        <div className="mt-2 -mx-3 px-3 overflow-x-auto show-scrollbar">
+          <div className="flex items-center gap-2 min-w-max">
+            {STAGES.map(s => {
+              const active = selectedStages.includes(s.key);
+              return (
+                <Button
+                  key={s.key}
+                  size="sm"
+                  variant={active ? 'secondary' : 'outline'}
+                  onClick={() => setSelectedStages(prev => {
+                    const set = new Set(prev);
+                    if (active) set.delete(s.key); else set.add(s.key);
+                    return Array.from(set);
+                  })}
+                  className="whitespace-nowrap"
+                >
+                  {s.title}
+                  <Badge variant={active ? 'default' : 'secondary'} className="ml-2">{grouped[s.key]?.length || 0}</Badge>
+                </Button>
+              );
+            })}
+          </div>
+        </div>
       </div>
+
 
   {loading ? (
         <div className="flex items-center justify-center py-20">
