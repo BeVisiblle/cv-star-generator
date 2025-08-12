@@ -67,7 +67,6 @@ export const CandidatePipelineBoard: React.FC = () => {
   const [unlockedOnly, setUnlockedOnly] = useState<boolean>(() => localStorage.getItem("pipeline_unlocked_only") === "true");
   const scrollRef = useRef<HTMLDivElement>(null);
   const topScrollRef = useRef<HTMLDivElement>(null);
-  const bottomScrollRef = useRef<HTMLDivElement>(null);
   const railContentRef = useRef<HTMLDivElement>(null);
   const [railWidth, setRailWidth] = useState(0);
   const [selectedRowIds, setSelectedRowIds] = useState<string[]>([]);
@@ -111,24 +110,12 @@ export const CandidatePipelineBoard: React.FC = () => {
   useEffect(() => {
     const main = scrollRef.current;
     const top = topScrollRef.current;
-    const bottom = bottomScrollRef.current;
-    if (!main) return;
-    const sync = (src: HTMLElement, targets: (HTMLElement | null)[]) => () => {
-      targets.forEach(t => { if (t && t.scrollLeft !== src.scrollLeft) t.scrollLeft = src.scrollLeft; });
-    };
-    const onMain = sync(main, [top, bottom]);
-    const onTop = top ? sync(top, [main, bottom]) : undefined;
-    const onBottom = bottom ? sync(bottom, [main, top]) : undefined;
-
+    if (!main || !top) return;
+    const onMain = () => { if (top.scrollLeft !== main.scrollLeft) top.scrollLeft = main.scrollLeft; };
+    const onTop = () => { if (main.scrollLeft !== top.scrollLeft) main.scrollLeft = top.scrollLeft; };
     main.addEventListener('scroll', onMain);
-    top && top.addEventListener('scroll', onTop!);
-    bottom && bottom.addEventListener('scroll', onBottom!);
-
-    return () => {
-      main.removeEventListener('scroll', onMain);
-      top && onTop && top.removeEventListener('scroll', onTop);
-      bottom && onBottom && bottom.removeEventListener('scroll', onBottom);
-    };
+    top.addEventListener('scroll', onTop);
+    return () => { main.removeEventListener('scroll', onMain); top.removeEventListener('scroll', onTop); };
   }, []);
 
   useEffect(() => {
@@ -400,9 +387,6 @@ export const CandidatePipelineBoard: React.FC = () => {
               <Button variant="secondary" size="icon" className="shadow" onClick={() => scrollRef.current?.scrollBy({ left: 400, behavior: 'smooth' })} aria-label="Nach rechts scrollen">
                 <ChevronRight className="h-5 w-5" />
               </Button>
-            </div>
-            <div ref={bottomScrollRef} className="overflow-x-auto show-scrollbar -mx-3 px-3 mt-1" aria-hidden="true">
-              <div style={{ width: railWidth }} className="h-3" />
             </div>
           </div>
         </DndContext>
