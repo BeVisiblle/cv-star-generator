@@ -237,84 +237,74 @@ export const CandidatePipelineBoard: React.FC = () => {
   return (
     <div className="space-y-4">
       <div className="sticky top-0 z-40 bg-background border-b border-border py-2">
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-          <h1 className="text-xl font-semibold">Pipeline</h1>
-          <div className="flex items-center gap-2">
-            <div className="hidden sm:block">
-              <Input
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder="Suchen nach Name, Ort, Branche..."
-                className="w-[260px]"
-                aria-label="Kandidaten suchen"
-              />
-            </div>
-            <div className="inline-flex rounded-md border border-input p-0.5">
-              <Button size="icon" variant={view === 'cards' ? 'default' : 'ghost'} onClick={() => setView('cards')} aria-label="Kartenansicht">
-                <LayoutGrid className="h-4 w-4" />
-              </Button>
-              <Button size="icon" variant={view === 'rows' ? 'default' : 'ghost'} onClick={() => setView('rows')} aria-label="Listenansicht">
-                <List className="h-4 w-4" />
-              </Button>
-            </div>
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button size="sm" variant="outline" aria-label="Filter">
-                  <Filter className="h-4 w-4 mr-2" />
-                  Filter
-                  {filtersActive && (
-                    <Badge variant="secondary" className="ml-2">{unlockedOnly ? "•" : null}{selectedStages.length !== STAGES.length ? selectedStages.length : null}</Badge>
-                  )}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-72 z-[60] bg-popover">
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium">Stages</span>
-                    <div className="flex gap-2">
-                      <Button variant="ghost" size="sm" onClick={() => setSelectedStages(allStageKeys)}>Alle</Button>
-                      <Button variant="ghost" size="sm" onClick={() => setSelectedStages([])}>Keine</Button>
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-1 gap-2">
-                    {STAGES.map((s) => (
-                      <label key={s.key} className="flex items-center gap-2">
-                        <Checkbox
-                          checked={selectedStages.includes(s.key)}
-                          onCheckedChange={(c) => {
-                            setSelectedStages((prev) => {
-                              const set = new Set(prev);
-                              if (c === true) set.add(s.key); else set.delete(s.key);
-                              return Array.from(set);
-                            });
-                          }}
-                        />
-                        <span className="text-sm">{s.title}</span>
-                      </label>
-                    ))}
-                  </div>
-                  <div className="flex items-center justify-between pt-2 border-t">
-                    <Label htmlFor="unlocked-only" className="text-sm">Nur freigeschaltete</Label>
-                    <Switch id="unlocked-only" checked={unlockedOnly} onCheckedChange={setUnlockedOnly} />
-                  </div>
-                  <div className="flex justify-end">
-                    <Button variant="ghost" size="sm" onClick={() => { setSelectedStages(allStageKeys); setUnlockedOnly(false); }}>Zurücksetzen</Button>
-                  </div>
-                </div>
-              </PopoverContent>
-            </Popover>
-            <Button size="sm" onClick={exportCSV}>
-              <Download className="h-4 w-4 mr-2" /> Export (CSV)
+        <div className="flex flex-wrap items-center gap-2">
+          <h1 className="text-xl font-semibold mr-2">Pipeline</h1>
+          <div className="w-full sm:w-auto">
+            <Input
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Suchen nach Name, Ort, Branche..."
+              className="w-full sm:w-[300px]"
+              aria-label="Kandidaten suchen"
+            />
+          </div>
+          <div className="inline-flex rounded-md border border-input p-0.5">
+            <Button size="icon" variant={view === 'cards' ? 'default' : 'ghost'} onClick={() => setView('cards')} aria-label="Kartenansicht">
+              <LayoutGrid className="h-4 w-4" />
+            </Button>
+            <Button size="icon" variant={view === 'rows' ? 'default' : 'ghost'} onClick={() => setView('rows')} aria-label="Listenansicht">
+              <List className="h-4 w-4" />
             </Button>
           </div>
-        </div>
-        <div className="sm:hidden mt-2">
-          <Input
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Suchen..."
-            aria-label="Kandidaten suchen"
-          />
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button size="sm" variant="outline" aria-label="Filter">
+                <Filter className="h-4 w-4 mr-2" />
+                Filter
+                {filtersActive && (
+                  <Badge variant="secondary" className="ml-2">{unlockedOnly ? "•" : null}{selectedStages.length !== STAGES.length ? selectedStages.length : null}</Badge>
+                )}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-72 z-[60] bg-popover">
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium">Stages</span>
+                  <div className="flex gap-2">
+                    <Button variant="ghost" size="sm" onClick={() => setSelectedStages(allStageKeys)}>Alle</Button>
+                    <Button variant="ghost" size="sm" onClick={() => setSelectedStages([])}>Keine</Button>
+                  </div>
+                </div>
+                <div className="grid grid-cols-1 gap-2">
+                  {STAGES.map((s) => (
+                    <label key={s.key} className="flex items-center gap-2">
+                      <Checkbox
+                        checked={selectedStages.includes(s.key)}
+                        onCheckedChange={(c) => {
+                          setSelectedStages((prev) => {
+                            const set = new Set(prev);
+                            if (c === true) set.add(s.key); else set.delete(s.key);
+                            return Array.from(set);
+                          });
+                        }}
+                      />
+                      <span className="text-sm">{s.title}</span>
+                    </label>
+                  ))}
+                </div>
+                <div className="flex items-center justify-between pt-2 border-t">
+                  <Label htmlFor="unlocked-only" className="text-sm">Nur freigeschaltete</Label>
+                  <Switch id="unlocked-only" checked={unlockedOnly} onCheckedChange={setUnlockedOnly} />
+                </div>
+                <div className="flex justify-end">
+                  <Button variant="ghost" size="sm" onClick={() => { setSelectedStages(allStageKeys); setUnlockedOnly(false); }}>Zurücksetzen</Button>
+                </div>
+              </div>
+            </PopoverContent>
+          </Popover>
+          <Button size="sm" onClick={exportCSV}>
+            <Download className="h-4 w-4 mr-2" /> Export (CSV)
+          </Button>
         </div>
       </div>
 
@@ -336,7 +326,7 @@ export const CandidatePipelineBoard: React.FC = () => {
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <div className="max-h-[calc(100vh-220px)] overflow-y-auto pr-1">
+                      <div className="max-h-[calc(100vh-220px)] overflow-y-auto pr-1 show-scrollbar-y">
                         <DroppableColumn id={stage.key}>
                           <SortableContext items={(grouped[stage.key] || []).map(i => i.id)} strategy={verticalListSortingStrategy}>
                             <div className="space-y-3">
