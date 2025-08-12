@@ -2,13 +2,14 @@ import React from 'react';
 import { Card } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { Image as ImageIcon, Calendar as CalendarIcon, FileText, BarChart3 } from 'lucide-react';
+import { Image as ImageIcon, Calendar as CalendarIcon, FileText, BarChart3, Briefcase } from 'lucide-react';
 import { useCompany } from '@/hooks/useCompany';
 import CompanyNewPostComposer from '@/components/community/CompanyNewPostComposer';
-
+import CompanyJobPostDialog from '@/components/company/jobs/CompanyJobPostDialog';
 const CompanyComposerTeaser: React.FC = () => {
   const { company } = useCompany();
   const [open, setOpen] = React.useState(false);
+  const [jobOpen, setJobOpen] = React.useState(false);
 
   const initials = company?.name ? company.name.slice(0, 2).toUpperCase() : 'C';
 
@@ -40,11 +41,15 @@ const CompanyComposerTeaser: React.FC = () => {
             <Button variant="ghost" size="sm" onClick={() => setOpen(true)}>
               <BarChart3 className="h-4 w-4 mr-1" /> Umfrage
             </Button>
+            <Button variant="ghost" size="sm" onClick={() => setJobOpen(true)}>
+              <Briefcase className="h-4 w-4 mr-1" /> Job
+            </Button>
           </div>
         </div>
       </Card>
 
       <CompanyNewPostComposer open={open} onOpenChange={setOpen} />
+      <CompanyJobPostDialog open={jobOpen} onOpenChange={setJobOpen} />
     </>
   );
 };

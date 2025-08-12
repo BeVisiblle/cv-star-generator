@@ -1,7 +1,7 @@
 import React from 'react';
 import CommunityFeed from '@/components/community/CommunityFeed';
-import { LeftPanel } from '@/components/dashboard/LeftPanel';
-import { RightPanel } from '@/components/dashboard/RightPanel';
+import CompanyFeedLeft from '@/components/company/feed/CompanyFeedLeft';
+import CompanyFeedRight from '@/components/company/feed/CompanyFeedRight';
 import FeedSortBar from '@/components/community/FeedSortBar';
 import CompanyComposerTeaser from '@/components/dashboard/CompanyComposerTeaser';
 
@@ -14,7 +14,7 @@ const CompanyFeed: React.FC = () => {
           {/* Linke Spalte */}
           <aside className="hidden lg:block w-[280px] xl:w-[320px] shrink-0">
             <div className="sticky top-20 space-y-4">
-              <LeftPanel />
+              <CompanyFeedLeft />
             </div>
           </aside>
 
@@ -32,7 +32,7 @@ const CompanyFeed: React.FC = () => {
           {/* Rechte Spalte */}
           <aside className="hidden xl:block w-[320px] shrink-0">
             <div className="sticky top-20 space-y-4">
-              <RightPanel />
+              <CompanyFeedRight />
             </div>
           </aside>
         </div>
