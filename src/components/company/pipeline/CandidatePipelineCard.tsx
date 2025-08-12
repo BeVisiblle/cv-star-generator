@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Mail, Phone, FileText } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { CandidateNotesDialog } from "./CandidateNotesDialog";
 export interface PipelineProfile {
@@ -39,7 +39,7 @@ interface Props {
   stages?: StageDef[];
 }
 
-export const CandidatePipelineCard: React.FC<Props> = ({ item, onOpen, onRemove, onStageChange, stages }) => {
+export const CandidatePipelineCard: React.FC<Props> = ({ item, onOpen, onRemove: _onRemove, onStageChange, stages }) => {
   const p = item.profiles;
   const [selectedStage, setSelectedStage] = useState<string>(item.stage);
   const [notesOpen, setNotesOpen] = useState(false);
@@ -79,37 +79,6 @@ export const CandidatePipelineCard: React.FC<Props> = ({ item, onOpen, onRemove,
         </div>
       </div>
 
-      {/* Quick actions */}
-      <TooltipProvider>
-        <div className="flex items-center gap-2">
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button size="icon" variant="secondary" className="h-8 w-8" aria-label="E-Mail" onClick={handleEmail} disabled={!hasEmail}>
-                <Mail className="h-4 w-4" />
-              </Button>
-            </TooltipTrigger>
-            {!hasEmail && <TooltipContent>Keine E-Mail hinterlegt</TooltipContent>}
-          </Tooltip>
-
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button size="icon" variant="secondary" className="h-8 w-8" aria-label="Telefon" onClick={handlePhone} disabled={!hasPhone}>
-                <Phone className="h-4 w-4" />
-              </Button>
-            </TooltipTrigger>
-            {!hasPhone && <TooltipContent>Keine Telefonnummer hinterlegt</TooltipContent>}
-          </Tooltip>
-
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button size="icon" variant="secondary" className="h-8 w-8" aria-label="CV" onClick={handleCV}>
-                <FileText className="h-4 w-4" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>CV ansehen/downloaden</TooltipContent>
-          </Tooltip>
-        </div>
-      </TooltipProvider>
 
       {/* Meta */}
       <div className="flex items-center gap-2 flex-wrap">
@@ -144,53 +113,41 @@ export const CandidatePipelineCard: React.FC<Props> = ({ item, onOpen, onRemove,
         )}
 
         <Button size="sm" variant="secondary" onClick={() => setNotesOpen(true)}>Notizen</Button>
-        <Button size="sm" onClick={() => onOpen(p.id)}>Profil öffnen</Button>
 
-        {onRemove && (
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <Button size="sm" variant="ghost">Aus Pipeline entfernen</Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Aus Pipeline entfernen?</AlertDialogTitle>
-                <AlertDialogDescription>
-                  Dieser Kandidat wird aus Ihrer Pipeline gelöscht. Sie können zuvor noch die Stage anpassen.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
+        <div className="ml-auto flex items-center gap-2">
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button size="icon" variant="secondary" className="h-8 w-8" aria-label="E-Mail" onClick={handleEmail} disabled={!hasEmail}>
+                  <Mail className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              {!hasEmail && <TooltipContent>Keine E-Mail hinterlegt</TooltipContent>}
+            </Tooltip>
 
-              {stages && (
-                <div className="py-2">
-                  <Select value={selectedStage} onValueChange={(v) => setSelectedStage(v)}>
-                    <SelectTrigger className="h-9 w-full">
-                      <SelectValue placeholder="Stage wählen" />
-                    </SelectTrigger>
-                    <SelectContent className="z-[60] bg-popover border border-border shadow-md">
-                      {stages.map((s) => (
-                        <SelectItem key={s.key} value={s.key}>{s.title}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              )}
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button size="icon" variant="secondary" className="h-8 w-8" aria-label="Telefon" onClick={handlePhone} disabled={!hasPhone}>
+                  <Phone className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              {!hasPhone && <TooltipContent>Keine Telefonnummer hinterlegt</TooltipContent>}
+            </Tooltip>
 
-              <AlertDialogFooter>
-                <AlertDialogCancel>Abbrechen</AlertDialogCancel>
-                {onStageChange && (
-                  <AlertDialogAction asChild>
-                    <Button variant="secondary" onClick={() => onStageChange(item.id, selectedStage)}>Stage speichern</Button>
-                  </AlertDialogAction>
-                )}
-                <AlertDialogAction asChild>
-                  <Button variant="destructive" onClick={() => onRemove(item.id)}>Entfernen</Button>
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
-        )}
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button size="icon" variant="secondary" className="h-8 w-8" aria-label="CV" onClick={handleCV}>
+                  <FileText className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>CV ansehen/downloaden</TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
       </div>
 
       <CandidateNotesDialog open={notesOpen} onOpenChange={setNotesOpen} candidateId={item.candidate_id} />
+
     </Card>
   );
 };
