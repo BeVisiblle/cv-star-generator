@@ -107,44 +107,17 @@ export function CompanySidebar() {
           <SidebarGroupLabel>Navigation</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {groups.map((group, idx) => {
-                const Icon = group.icon;
-                const groupActive = group.items.some((it) => isActive(it.to));
-                const open = !!openGroups[group.key];
+              {navItems.map((item) => {
+                const Icon = item.icon;
                 return (
-                  <React.Fragment key={group.key}>
-                    {idx > 0 && <SidebarSeparator />}
-                    <SidebarMenuItem>
-                      <SidebarMenuButton
-                        tooltip={group.label}
-                        isActive={groupActive}
-                        onClick={() => toggleGroup(group.key)}
-                        className="relative before:absolute before:left-0 before:top-0 before:h-full before:w-1 before:bg-accent before:opacity-0 data-[active=true]:before:opacity-100"
-                      >
+                  <SidebarMenuItem key={item.to}>
+                    <SidebarMenuButton asChild isActive={isActive(item.to)} tooltip={item.label}>
+                      <NavLink to={item.to} end>
                         <Icon className="h-4 w-4" />
-                        {!collapsed && <span>{group.label}</span>}
-                        {!collapsed && (
-                          <ChevronDown
-                            className={`ml-auto h-4 w-4 transition-transform ${open ? "rotate-180" : ""}`}
-                          />
-                        )}
-                      </SidebarMenuButton>
-
-                      {open && (
-                        <SidebarMenuSub>
-                          {group.items.map((item) => (
-                            <SidebarMenuSubItem key={item.to}>
-                              <SidebarMenuSubButton asChild isActive={isActive(item.to)}>
-                                <NavLink to={item.to} end>
-                                  <span>{item.label}</span>
-                                </NavLink>
-                              </SidebarMenuSubButton>
-                            </SidebarMenuSubItem>
-                          ))}
-                        </SidebarMenuSub>
-                      )}
-                    </SidebarMenuItem>
-                  </React.Fragment>
+                        {!collapsed && <span>{item.label}</span>}
+                      </NavLink>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
                 );
               })}
             </SidebarMenu>
@@ -155,14 +128,6 @@ export function CompanySidebar() {
       {/* Footer – Teammitglied einladen & Logout */}
       <SidebarFooter>
         <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton asChild tooltip="Teammitglied einladen" size="sm">
-              <NavLink to="/company/settings">
-                <Plus className="h-4 w-4" />
-                {!collapsed && <span>Teammitglied einladen</span>}
-              </NavLink>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
           <SidebarMenuItem>
             <SidebarMenuButton onClick={handleSignOut} tooltip="Abmelden" size="sm">
               <LogOut className="h-4 w-4" />
