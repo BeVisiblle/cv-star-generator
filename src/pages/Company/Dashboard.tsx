@@ -133,9 +133,22 @@ useEffect(() => {
         .order('used_at', { ascending: false })
         .limit(4);
 
-      setRecentlyUnlocked(
-        recentUnlocked?.map(item => item.profiles).filter(Boolean) || []
-      );
+      let unlockedProfilesList = recentUnlocked?.map(item => item.profiles).filter(Boolean) || [];
+
+      // Fallback/merge from pipeline
+      const { data: ccRows } = await supabase
+        .from('company_candidates')
+        .select('*, profiles(*)')
+        .eq('company_id', company.id)
+        .order('updated_at', { ascending: false })
+        .limit(8);
+
+      const fromPipeline = (ccRows || []).map((r: any) => r.profiles).filter(Boolean) as any[];
+      const map = new Map<string, any>();
+      [...unlockedProfilesList, ...fromPipeline].forEach((p: any) => { if (p && !map.has(p.id)) map.set(p.id, p); });
+      unlockedProfilesList = Array.from(map.values()).slice(0, 4);
+
+      setRecentlyUnlocked(unlockedProfilesList);
 
       // Load recently viewed profiles
       const { data: views } = await supabase

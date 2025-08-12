@@ -40,18 +40,34 @@ export default function CompanyUnlocked() {
     const load = async () => {
       setLoading(true);
       try {
-        const { data, error } = await supabase
+        // Primary source: tokens_used
+        const { data: tokenRows, error: tuErr } = await supabase
           .from('tokens_used')
           .select(`*, profiles (*)`)
           .eq('company_id', company.id)
           .order('used_at', { ascending: false });
-        if (error) throw error;
-        const list = (data || []).map((row: any) => {
-          const p = row.profiles;
-          if (!p) return null;
-          return { ...p, plz: p.plz ?? '' };
-        }).filter(Boolean) as Profile[];
-        setProfiles(list);
+        if (tuErr) throw tuErr;
+        const fromTokens = (tokenRows || [])
+          .map((row: any) => row.profiles)
+          .filter(Boolean) as Profile[];
+
+        // Fallback/merge: company_candidates
+        const { data: ccRows } = await supabase
+          .from('company_candidates')
+          .select(`*, profiles (*)`)
+          .eq('company_id', company.id)
+          .order('updated_at', { ascending: false });
+        const fromPipeline = (ccRows || [])
+          .map((row: any) => row.profiles)
+          .filter(Boolean) as Profile[];
+
+        // Merge unique by id, tokens first
+        const map = new Map<string, Profile>();
+        [...fromTokens, ...fromPipeline].forEach((p) => {
+          if (p && !map.has(p.id)) map.set(p.id, { ...p, plz: (p as any).plz ?? '' });
+        });
+
+        setProfiles(Array.from(map.values()));
       } catch (e) {
         console.error('Error loading unlocked profiles', e);
       } finally {

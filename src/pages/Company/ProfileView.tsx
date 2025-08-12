@@ -36,12 +36,13 @@ const CompanyProfileView = () => {
       try {
         setIsLoading(true);
         
-        // Check if profile is unlocked (from tokens_used table)
+        // Check if profile is unlocked for this company
         const { data: tokenUsage } = await supabase
           .from('tokens_used')
           .select('*')
           .eq('profile_id', id)
-          .single();
+          .eq('company_id', company?.id || '')
+          .maybeSingle();
 
         setIsUnlocked(!!tokenUsage);
 

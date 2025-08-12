@@ -205,6 +205,28 @@ export default function CompanySearch() {
 
         setUnlockedProfiles(prev => new Set([...prev, selectedProfile.id]));
         toast({ title: "Profil erfolgreich freigeschaltet!" });
+
+        // Ensure tokens_used row exists (fallback if RPC didn't create it)
+        try {
+          if (company) {
+            const { data: existing } = await supabase
+              .from('tokens_used')
+              .select('id')
+              .eq('company_id', company.id)
+              .eq('profile_id', selectedProfile.id)
+              .maybeSingle();
+            if (!existing) {
+              await supabase.from('tokens_used').insert({
+                company_id: company.id,
+                profile_id: selectedProfile.id,
+                used_at: new Date().toISOString()
+              });
+            }
+          }
+        } catch (e) {
+          console.warn('Konnte tokens_used Fallback nicht schreiben (optional):', e);
+        }
+
         setIsUnlockModalOpen(false);
         const openedId = selectedProfile.id;
         setSelectedProfile(null);
