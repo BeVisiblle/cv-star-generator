@@ -10,6 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { CandidatePipelineCard, CompanyCandidateItem } from "./CandidatePipelineCard";
 import { CandidatePipelineTable } from "./CandidatePipelineTable";
 import { Download, LayoutGrid, List } from "lucide-react";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 const STAGES: { key: string; title: string }[] = [
   { key: "unlocked", title: "Freigeschaltet" },
@@ -205,8 +206,8 @@ export const CandidatePipelineBoard: React.FC = () => {
         </div>
       ) : view === 'cards' ? (
         <DndContext onDragEnd={handleDragEnd}>
-          <div className="overflow-x-auto -mx-3 px-3 pb-2">
-            <div className="flex gap-4">
+          <ScrollArea className="-mx-3 px-3 pb-2">
+            <div className="flex gap-4 w-max">
               {STAGES.map(stage => (
                 <Card key={stage.key} className="min-w-[520px] shrink-0">
                   <CardHeader>
@@ -231,13 +232,12 @@ export const CandidatePipelineBoard: React.FC = () => {
                 </Card>
               ))}
             </div>
-          </div>
+          </ScrollArea>
         </DndContext>
       ) : (
         <Card>
           <CardContent className="space-y-4">
-            {/* Stage summary bar */}
-            <div className="w-full overflow-x-auto">
+            <ScrollArea>
               <div className="flex items-center gap-4 min-w-max">
                 {STAGES.map(s => (
                   <div key={s.key} className="flex items-center gap-2 px-3 py-2 rounded-md border bg-muted/40">
@@ -246,7 +246,7 @@ export const CandidatePipelineBoard: React.FC = () => {
                   </div>
                 ))}
               </div>
-            </div>
+            </ScrollArea>
 
             {/* Flatten items sorted by stage order */}
             <CandidatePipelineTable
