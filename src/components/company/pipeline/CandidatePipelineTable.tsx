@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
+
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -28,7 +28,7 @@ interface Props {
   onSelectionChange?: (selected: string[]) => void;
 }
 
-export const CandidatePipelineTable: React.FC<Props> = ({ items, stages, onStageChange, onOpen, onRemove, onSelectionChange }) => {
+export const CandidatePipelineTable: React.FC<Props> = ({ items, stages, onStageChange, onOpen, onRemove: _onRemove, onSelectionChange }) => {
   const [notesFor, setNotesFor] = useState<string | null>(null);
   const [selected, setSelected] = useState<string[]>([]);
   useEffect(() => { onSelectionChange?.(selected); }, [selected, onSelectionChange]);
@@ -98,9 +98,7 @@ export const CandidatePipelineTable: React.FC<Props> = ({ items, stages, onStage
                   <TableCell className="truncate">{p.ort || "-"}</TableCell>
                   <TableCell>
                     <div className="flex gap-2">
-                      <Button size="sm" variant="outline" onClick={() => onOpen(p.id)}>Profil</Button>
                       <Button size="sm" variant="secondary" onClick={() => setNotesFor(it.candidate_id)}>Notizen</Button>
-                      <Button size="sm" variant="ghost" onClick={() => onRemove(it.id)}>Entfernen</Button>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <Button size="icon" variant="ghost" aria-label="Weitere Aktionen">
@@ -109,7 +107,6 @@ export const CandidatePipelineTable: React.FC<Props> = ({ items, stages, onStage
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" className="z-[70] bg-popover">
                           <DropdownMenuLabel>Aktionen</DropdownMenuLabel>
-                          <DropdownMenuItem onClick={() => onOpen(p.id)}>Profil öffnen</DropdownMenuItem>
                           <DropdownMenuSeparator />
                           <DropdownMenuLabel>Stage wechseln</DropdownMenuLabel>
                           {stages.map(s => (
@@ -117,9 +114,7 @@ export const CandidatePipelineTable: React.FC<Props> = ({ items, stages, onStage
                               {s.title}
                             </DropdownMenuItem>
                           ))}
-                          <DropdownMenuSeparator />
                           <DropdownMenuItem onClick={() => setNotesFor(it.candidate_id)}>Notizen anzeigen</DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => onRemove(it.id)}>Entfernen</DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </div>
