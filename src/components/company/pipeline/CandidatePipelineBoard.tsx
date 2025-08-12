@@ -232,7 +232,7 @@ export const CandidatePipelineBoard: React.FC = () => {
 
   return (
     <div className="space-y-4">
-      <div className="sticky top-0 z-30 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 border-b border-border py-2">
+      <div className="sticky top-0 z-40 bg-background border-b border-border py-2">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <h1 className="text-xl font-semibold">Pipeline</h1>
           <div className="flex items-center gap-2">
