@@ -123,7 +123,7 @@ export const CandidatePipelineCard: React.FC<Props> = ({ item, onOpen, onRemove,
       </div>
 
       {/* Footer */}
-      <div className="flex items-center gap-2 flex-wrap">
+      <div className="flex flex-col gap-2">
         {stages && onStageChange && (
           <Select
             value={selectedStage}
@@ -143,51 +143,29 @@ export const CandidatePipelineCard: React.FC<Props> = ({ item, onOpen, onRemove,
           </Select>
         )}
 
-        <Button size="sm" variant="secondary" onClick={() => setNotesOpen(true)}>Notizen</Button>
-        <Button size="sm" onClick={() => onOpen(p.id)}>Profil öffnen</Button>
+        <div className="flex items-center gap-2 flex-wrap">
+          <Button size="sm" variant="secondary" onClick={() => setNotesOpen(true)}>Notizen</Button>
+        </div>
 
-        {onRemove && (
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <Button size="sm" variant="ghost">Aus Pipeline entfernen</Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Aus Pipeline entfernen?</AlertDialogTitle>
-                <AlertDialogDescription>
-                  Dieser Kandidat wird aus Ihrer Pipeline gelöscht. Sie können zuvor noch die Stage anpassen.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-
-              {stages && (
-                <div className="py-2">
-                  <Select value={selectedStage} onValueChange={(v) => setSelectedStage(v)}>
-                    <SelectTrigger className="h-9 w-full">
-                      <SelectValue placeholder="Stage wählen" />
-                    </SelectTrigger>
-                    <SelectContent className="z-[60] bg-popover border border-border shadow-md">
-                      {stages.map((s) => (
-                        <SelectItem key={s.key} value={s.key}>{s.title}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              )}
-
-              <AlertDialogFooter>
-                <AlertDialogCancel>Abbrechen</AlertDialogCancel>
-                {onStageChange && (
-                  <AlertDialogAction asChild>
-                    <Button variant="secondary" onClick={() => onStageChange(item.id, selectedStage)}>Stage speichern</Button>
-                  </AlertDialogAction>
-                )}
-                <AlertDialogAction asChild>
-                  <Button variant="destructive" onClick={() => onRemove(item.id)}>Entfernen</Button>
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
-        )}
+        {/* Contact + CV row */}
+        <div className="mt-1 flex items-center gap-4 flex-wrap text-sm text-muted-foreground">
+          {hasEmail && (
+            <a href={`mailto:${p.email}`} className="inline-flex items-center gap-1 hover:underline">
+              <Mail className="h-3 w-3" />
+              <span className="truncate max-w-[160px]">{p.email}</span>
+            </a>
+          )}
+          {hasPhone && (
+            <a href={`tel:${p.telefon}`} className="inline-flex items-center gap-1 hover:underline">
+              <Phone className="h-3 w-3" />
+              <span className="truncate max-w-[120px]">{p.telefon}</span>
+            </a>
+          )}
+          <button type="button" onClick={handleCV} className="inline-flex items-center gap-1 hover:underline">
+            <FileText className="h-3 w-3" />
+            <span>CV</span>
+          </button>
+        </div>
       </div>
 
       <CandidateNotesDialog open={notesOpen} onOpenChange={setNotesOpen} candidateId={item.candidate_id} />
