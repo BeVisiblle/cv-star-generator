@@ -51,8 +51,17 @@ export const CandidatePipelineBoard: React.FC = () => {
     const map: Record<string, CompanyCandidateItem[]> = {};
     STAGES.forEach(s => (map[s.key] = []));
     for (const it of items) {
-      let key = STAGES.some(s => s.key === it.stage) ? it.stage : undefined;
-      if (!key) key = it.unlocked_at ? "unlocked" : "unlocked";
+      let key: string;
+      if (STAGES.some(s => s.key === it.stage)) {
+        // Route newly unlocked entries to "Freigeschaltet" until moved further
+        if (it.unlocked_at && (it.stage === 'new' || it.stage === 'contact')) {
+          key = 'unlocked';
+        } else {
+          key = it.stage;
+        }
+      } else {
+        key = it.unlocked_at ? 'unlocked' : 'unlocked';
+      }
       map[key].push(it);
     }
     return map;
@@ -62,12 +71,43 @@ export const CandidatePipelineBoard: React.FC = () => {
     if (!company) return;
     const load = async () => {
       setLoading(true);
-      const { data, error } = await supabase
+
+      // Load current pipeline rows
+      const { data: ccData, error: ccErr } = await supabase
         .from("company_candidates")
         .select("*, profiles(*)")
         .eq("company_id", company.id)
         .order("updated_at", { ascending: false });
-      if (!error) setItems((data as any) || []);
+
+      let currentItems: CompanyCandidateItem[] = (ccData as any) || [];
+
+      // Sync unlocked tokens to pipeline (ensure presence in 'unlocked' stage)
+      const { data: tokenRows } = await supabase
+        .from("tokens_used")
+        .select("profile_id, used_at")
+        .eq("company_id", company.id);
+
+      const existingIds = new Set(currentItems.map(i => i.candidate_id));
+      const inserts = (tokenRows || [])
+        .filter(tr => tr.profile_id && !existingIds.has(tr.profile_id))
+        .map(tr => ({
+          company_id: company.id,
+          candidate_id: tr.profile_id,
+          stage: "unlocked",
+          unlocked_at: tr.used_at,
+        }));
+
+      if (inserts.length > 0) {
+        await supabase.from("company_candidates").insert(inserts);
+        const { data: refreshed } = await supabase
+          .from("company_candidates")
+          .select("*, profiles(*)")
+          .eq("company_id", company.id)
+          .order("updated_at", { ascending: false });
+        currentItems = (refreshed as any) || currentItems;
+      }
+
+      if (!ccErr) setItems(currentItems);
       setLoading(false);
     };
     load();
@@ -165,30 +205,32 @@ export const CandidatePipelineBoard: React.FC = () => {
         </div>
       ) : view === 'cards' ? (
         <DndContext onDragEnd={handleDragEnd}>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-            {STAGES.map(stage => (
-              <Card key={stage.key}>
-                <CardHeader>
-                  <CardTitle className="flex items-center justify-between">
-                    <span>{stage.title}</span>
-                    <span className="text-sm text-muted-foreground">{grouped[stage.key]?.length || 0}</span>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <DroppableColumn id={stage.key}>
-                    <SortableContext items={(grouped[stage.key] || []).map(i => i.id)} strategy={verticalListSortingStrategy}>
-                      <div className="space-y-3">
-                        {(grouped[stage.key] || []).map(it => (
-                          <SortableItem key={it.id} id={it.id}>
-                            <CandidatePipelineCard item={it} onOpen={openProfile} onRemove={removeFromPipeline} />
-                          </SortableItem>
-                        ))}
-                      </div>
-                    </SortableContext>
-                  </DroppableColumn>
-                </CardContent>
-              </Card>
-            ))}
+          <div className="overflow-x-auto -mx-3 px-3 pb-2">
+            <div className="flex gap-4">
+              {STAGES.map(stage => (
+                <Card key={stage.key} className="min-w-[420px] shrink-0">
+                  <CardHeader>
+                    <CardTitle className="flex items-center justify-between">
+                      <span>{stage.title}</span>
+                      <span className="text-sm text-muted-foreground">{grouped[stage.key]?.length || 0}</span>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <DroppableColumn id={stage.key}>
+                      <SortableContext items={(grouped[stage.key] || []).map(i => i.id)} strategy={verticalListSortingStrategy}>
+                        <div className="space-y-3">
+                          {(grouped[stage.key] || []).map(it => (
+                            <SortableItem key={it.id} id={it.id}>
+                              <CandidatePipelineCard item={it} onOpen={openProfile} onRemove={removeFromPipeline} />
+                            </SortableItem>
+                          ))}
+                        </div>
+                      </SortableContext>
+                    </DroppableColumn>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
           </div>
         </DndContext>
       ) : (
