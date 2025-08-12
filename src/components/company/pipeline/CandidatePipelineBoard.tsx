@@ -1,15 +1,16 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { DndContext, DragEndEvent } from "@dnd-kit/core";
 import { useDroppable } from "@dnd-kit/core";
 import { useSortable, SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { useCompany } from "@/hooks/useCompany";
 import { supabase } from "@/integrations/supabase/client";
 import { CandidatePipelineCard, CompanyCandidateItem } from "./CandidatePipelineCard";
 import { CandidatePipelineTable } from "./CandidatePipelineTable";
-import { Download, LayoutGrid, List } from "lucide-react";
+import { Download, LayoutGrid, List, ChevronLeft, ChevronRight } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 const STAGES: { key: string; title: string }[] = [
@@ -47,13 +48,31 @@ export const CandidatePipelineBoard: React.FC = () => {
   const [items, setItems] = useState<CompanyCandidateItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [view, setView] = useState<"cards" | "rows">("cards");
+  const [query, setQuery] = useState("");
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  const filteredItems = useMemo(() => {
+    if (!query.trim()) return items;
+    const q = query.toLowerCase();
+    return items.filter((it) => {
+      const p = it.profiles;
+      if (!p) return false;
+      const hay = [
+        `${p.vorname ?? ""} ${p.nachname ?? ""}`,
+        p.headline ?? "",
+        p.branche ?? "",
+        p.ort ?? "",
+      ].join(" ").toLowerCase();
+      return hay.includes(q);
+    });
+  }, [items, query]);
 
   const grouped = useMemo(() => {
     const map: Record<string, CompanyCandidateItem[]> = {};
-    STAGES.forEach(s => (map[s.key] = []));
-    for (const it of items) {
+    STAGES.forEach((s) => (map[s.key] = []));
+    for (const it of filteredItems) {
       let key: string;
-      if (STAGES.some(s => s.key === it.stage)) {
+      if (STAGES.some((s) => s.key === it.stage)) {
         // Route newly unlocked entries to "Freigeschaltet" until moved further
         if (it.unlocked_at && (it.stage === 'new' || it.stage === 'contact')) {
           key = 'unlocked';
@@ -66,7 +85,7 @@ export const CandidatePipelineBoard: React.FC = () => {
       map[key].push(it);
     }
     return map;
-  }, [items]);
+  }, [filteredItems]);
 
   useEffect(() => {
     if (!company) return;
@@ -183,20 +202,39 @@ export const CandidatePipelineBoard: React.FC = () => {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h2 className="text-xl font-semibold">Pipeline</h2>
-        <div className="flex items-center gap-2">
-          <div className="inline-flex rounded-md border border-input p-0.5">
-            <Button size="icon" variant={view === 'cards' ? 'default' : 'ghost'} onClick={() => setView('cards')} aria-label="Kartenansicht">
-              <LayoutGrid className="h-4 w-4" />
-            </Button>
-            <Button size="icon" variant={view === 'rows' ? 'default' : 'ghost'} onClick={() => setView('rows')} aria-label="Listenansicht">
-              <List className="h-4 w-4" />
+      <div className="sticky top-0 z-30 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 border-b border-border py-2">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <h2 className="text-xl font-semibold">Pipeline</h2>
+          <div className="flex items-center gap-2">
+            <div className="hidden sm:block">
+              <Input
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Suchen nach Name, Ort, Branche..."
+                className="w-[260px]"
+                aria-label="Kandidaten suchen"
+              />
+            </div>
+            <div className="inline-flex rounded-md border border-input p-0.5">
+              <Button size="icon" variant={view === 'cards' ? 'default' : 'ghost'} onClick={() => setView('cards')} aria-label="Kartenansicht">
+                <LayoutGrid className="h-4 w-4" />
+              </Button>
+              <Button size="icon" variant={view === 'rows' ? 'default' : 'ghost'} onClick={() => setView('rows')} aria-label="Listenansicht">
+                <List className="h-4 w-4" />
+              </Button>
+            </div>
+            <Button size="sm" onClick={exportCSV}>
+              <Download className="h-4 w-4 mr-2" /> Export (CSV)
             </Button>
           </div>
-          <Button size="sm" onClick={exportCSV}>
-            <Download className="h-4 w-4 mr-2" /> Export (CSV)
-          </Button>
+        </div>
+        <div className="sm:hidden mt-2">
+          <Input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Suchen..."
+            aria-label="Kandidaten suchen"
+          />
         </div>
       </div>
 
@@ -206,33 +244,53 @@ export const CandidatePipelineBoard: React.FC = () => {
         </div>
       ) : view === 'cards' ? (
         <DndContext onDragEnd={handleDragEnd}>
-          <ScrollArea className="-mx-3 px-3 pb-2">
-            <div className="flex gap-4 w-max">
-              {STAGES.map(stage => (
-                <Card key={stage.key} className="min-w-[520px] shrink-0">
-                  <CardHeader>
-                    <CardTitle className="flex items-center justify-between">
-                      <span>{stage.title}</span>
-                      <span className="text-sm text-muted-foreground">{grouped[stage.key]?.length || 0}</span>
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <DroppableColumn id={stage.key}>
-                      <SortableContext items={(grouped[stage.key] || []).map(i => i.id)} strategy={verticalListSortingStrategy}>
-                        <div className="space-y-3">
-                          {(grouped[stage.key] || []).map(it => (
-                            <SortableItem key={it.id} id={it.id}>
-                              <CandidatePipelineCard item={it} onOpen={openProfile} onRemove={removeFromPipeline} />
-                            </SortableItem>
-                          ))}
-                        </div>
-                      </SortableContext>
-                    </DroppableColumn>
-                  </CardContent>
-                </Card>
-              ))}
+          <div className="relative">
+            <div ref={scrollRef} className="overflow-x-auto pb-2 -mx-3 px-3">
+              <div className="flex gap-4 w-max">
+                {STAGES.map(stage => (
+                  <Card key={stage.key} className="min-w-[520px] shrink-0">
+                    <CardHeader>
+                      <CardTitle className="flex items-center justify-between">
+                        <span>{stage.title}</span>
+                        <span className="text-sm text-muted-foreground">{grouped[stage.key]?.length || 0}</span>
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <DroppableColumn id={stage.key}>
+                        <SortableContext items={(grouped[stage.key] || []).map(i => i.id)} strategy={verticalListSortingStrategy}>
+                          <div className="space-y-3">
+                            {(grouped[stage.key] || []).map(it => (
+                              <SortableItem key={it.id} id={it.id}>
+                                <CandidatePipelineCard
+                                  item={it}
+                                  onOpen={openProfile}
+                                  onRemove={removeFromPipeline}
+                                  onStageChange={handleStageChange}
+                                  stages={STAGES}
+                                />
+                              </SortableItem>
+                            ))}
+                          </div>
+                        </SortableContext>
+                      </DroppableColumn>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
             </div>
-          </ScrollArea>
+            <div className="pointer-events-none absolute inset-y-0 left-0 w-12 bg-gradient-to-r from-background to-transparent" />
+            <div className="pointer-events-none absolute inset-y-0 right-0 w-12 bg-gradient-to-l from-background to-transparent" />
+            <div className="absolute inset-y-0 left-2 flex items-center">
+              <Button variant="secondary" size="icon" className="shadow" onClick={() => scrollRef.current?.scrollBy({ left: -400, behavior: 'smooth' })} aria-label="Nach links scrollen">
+                <ChevronLeft className="h-5 w-5" />
+              </Button>
+            </div>
+            <div className="absolute inset-y-0 right-2 flex items-center">
+              <Button variant="secondary" size="icon" className="shadow" onClick={() => scrollRef.current?.scrollBy({ left: 400, behavior: 'smooth' })} aria-label="Nach rechts scrollen">
+                <ChevronRight className="h-5 w-5" />
+              </Button>
+            </div>
+          </div>
         </DndContext>
       ) : (
         <Card>
@@ -250,7 +308,7 @@ export const CandidatePipelineBoard: React.FC = () => {
 
             {/* Flatten items sorted by stage order */}
             <CandidatePipelineTable
-              items={[...items].sort((a, b) => {
+              items={[...filteredItems].sort((a, b) => {
                 const ai = STAGES.findIndex(s => s.key === (STAGES.some(s=>s.key===a.stage)?a.stage:'unlocked'));
                 const bi = STAGES.findIndex(s => s.key === (STAGES.some(s=>s.key===b.stage)?b.stage:'unlocked'));
                 return ai - bi;
