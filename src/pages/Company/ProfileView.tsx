@@ -12,13 +12,22 @@ import { LinkedInProfileSidebar } from '@/components/linkedin/LinkedInProfileSid
 import { LinkedInProfileExperience } from '@/components/linkedin/LinkedInProfileExperience';
 import { LinkedInProfileEducation } from '@/components/linkedin/LinkedInProfileEducation';
 import { LinkedInProfileActivity } from '@/components/linkedin/LinkedInProfileActivity';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { Textarea } from '@/components/ui/textarea';
+import { useCompany } from '@/hooks/useCompany';
+import { useAuth } from '@/hooks/useAuth';
 
 const CompanyProfileView = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { company } = useCompany();
+  const { user } = useAuth();
   const [profile, setProfile] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isUnlocked, setIsUnlocked] = useState(false);
+  const [notes, setNotes] = useState<any[]>([]);
+  const [newNote, setNewNote] = useState("");
+  const [history, setHistory] = useState<any[]>([]);
 
   useEffect(() => {
     const fetchProfile = async () => {

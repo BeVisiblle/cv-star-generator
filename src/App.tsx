@@ -44,6 +44,7 @@ import CompanyBilling from "@/pages/Company/Billing";
 import CompanyUnlocked from "@/pages/Company/Unlocked";
 import CompanyComingSoon from "@/pages/Company/ComingSoon";
 import CompanyFeed from "@/pages/Company/Feed";
+import CandidatesPipelinePage from "@/pages/Company/CandidatesPipeline";
 import AdminLayout from "./pages/Admin/AdminLayout";
 import PagesList from "./pages/Admin/PagesList";
 import PageEditor from "./pages/Admin/PageEditor";
@@ -185,8 +186,7 @@ const App = () => (
                 <Route path="feed" element={<CompanyFeed />} />
                 <Route path="profile/:id" element={<CompanyProfileView />} />
 
-                {/* Coming Soon routes */}
-                <Route path="candidates/pipeline" element={<CompanyComingSoon />} />
+                <Route path="candidates/pipeline" element={<CandidatesPipelinePage />} />
                 <Route path="candidates/saved" element={<CompanyComingSoon />} />
                 <Route path="candidates/token-history" element={<CompanyComingSoon />} />
 

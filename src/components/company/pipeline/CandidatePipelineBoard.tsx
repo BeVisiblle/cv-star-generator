@@ -1,0 +1,173 @@
+import React, { useEffect, useMemo, useState } from "react";
+import { DndContext, DragEndEvent } from "@dnd-kit/core";
+import { useDroppable } from "@dnd-kit/core";
+import { useSortable, SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useCompany } from "@/hooks/useCompany";
+import { supabase } from "@/integrations/supabase/client";
+import { CandidatePipelineCard, CompanyCandidateItem } from "./CandidatePipelineCard";
+import { Download } from "lucide-react";
+
+const STAGES: { key: string; title: string }[] = [
+  { key: "contact", title: "Kontaktieren" },
+  { key: "scheduled", title: "Gespräch geplant" },
+  { key: "offer", title: "Angebot" },
+  { key: "rejected", title: "Abgelehnt" },
+];
+
+function DroppableColumn({ id, children }: { id: string; children: React.ReactNode }) {
+  const { setNodeRef } = useDroppable({ id });
+  return (
+    <div ref={setNodeRef} className="min-h-24">
+      {children}
+    </div>
+  );
+}
+
+function SortableItem({ id, children }: { id: string; children: React.ReactNode }) {
+  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id });
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  } as React.CSSProperties;
+  return (
+    <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
+      {children}
+    </div>
+  );
+}
+
+export const CandidatePipelineBoard: React.FC = () => {
+  const { company } = useCompany();
+  const [items, setItems] = useState<CompanyCandidateItem[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const grouped = useMemo(() => {
+    const map: Record<string, CompanyCandidateItem[]> = {};
+    STAGES.forEach(s => (map[s.key] = []));
+    for (const it of items) {
+      const key = STAGES.some(s => s.key === it.stage) ? it.stage : "contact";
+      map[key].push(it);
+    }
+    return map;
+  }, [items]);
+
+  useEffect(() => {
+    if (!company) return;
+    const load = async () => {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from("company_candidates")
+        .select("*, profiles(*)")
+        .eq("company_id", company.id)
+        .order("updated_at", { ascending: false });
+      if (!error) setItems((data as any) || []);
+      setLoading(false);
+    };
+    load();
+  }, [company]);
+
+  const handleDragEnd = async (event: DragEndEvent) => {
+    const activeId = event.active.id as string;
+    const overId = (event.over?.id as string) || null;
+    if (!overId || !company) return;
+
+    let newStage: string | undefined = STAGES.find(s => s.key === overId)?.key;
+    if (!newStage) {
+      // if dropped over another item, infer its stage
+      const overItem = items.find(i => i.id === overId);
+      if (overItem) newStage = overItem.stage;
+    }
+    if (!newStage) return;
+
+    const item = items.find(i => i.id === activeId);
+    if (!item || item.stage === newStage) return;
+
+    setItems(prev => prev.map(i => (i.id === item.id ? { ...i, stage: newStage! } : i)));
+    await supabase
+      .from("company_candidates")
+      .update({ stage: newStage, last_touched_at: new Date().toISOString() })
+      .eq("id", item.id)
+      .eq("company_id", company.id);
+  };
+
+  const exportCSV = () => {
+    const rows = [["Name", "Ort", "Bereich", "Stage", "Unlocked"]];
+    for (const it of items) {
+      const p = it.profiles;
+      if (!p) continue;
+      rows.push([
+        `${p.vorname} ${p.nachname}`,
+        p.ort || "",
+        p.branche || "",
+        it.stage,
+        it.unlocked_at ? "true" : "false",
+      ]);
+    }
+    const csv = rows.map(r => r.map(field => `"${String(field).replace(/"/g, '""')}"`).join(",")).join("\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "pipeline.csv";
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const removeFromPipeline = async (rowId: string) => {
+    if (!company) return;
+    await supabase.from("company_candidates").delete().eq("id", rowId).eq("company_id", company.id);
+    setItems(prev => prev.filter(i => i.id !== rowId));
+  };
+
+  const openProfile = (profileId: string) => {
+    window.location.href = `/company/profile/${profileId}`;
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <h2 className="text-xl font-semibold">Pipeline</h2>
+        <Button size="sm" onClick={exportCSV}>
+          <Download className="h-4 w-4 mr-2" /> Export (CSV)
+        </Button>
+      </div>
+
+      {loading ? (
+        <div className="flex items-center justify-center py-20">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+        </div>
+      ) : (
+        <DndContext onDragEnd={handleDragEnd}>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {STAGES.map(stage => (
+              <Card key={stage.key}>
+                <CardHeader>
+                  <CardTitle className="flex items-center justify-between">
+                    <span>{stage.title}</span>
+                    <span className="text-sm text-muted-foreground">{grouped[stage.key]?.length || 0}</span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <DroppableColumn id={stage.key}>
+                    <SortableContext items={(grouped[stage.key] || []).map(i => i.id)} strategy={verticalListSortingStrategy}>
+                      <div className="space-y-3">
+                        {(grouped[stage.key] || []).map(it => (
+                          <SortableItem key={it.id} id={it.id}>
+                            <CandidatePipelineCard item={it} onOpen={openProfile} onRemove={removeFromPipeline} />
+                          </SortableItem>
+                        ))}
+                      </div>
+                    </SortableContext>
+                  </DroppableColumn>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </DndContext>
+      )}
+    </div>
+  );
+};
