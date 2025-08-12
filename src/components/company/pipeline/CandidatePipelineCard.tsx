@@ -19,6 +19,8 @@ export interface PipelineProfile {
   email?: string;
   telefon?: string;
   cv_url?: string;
+  skills?: string[];
+  search_status?: "praktikum" | "ausbildung" | "vollzeit" | "praktikum_ausbildung";
 }
 
 export interface CompanyCandidateItem {
@@ -46,8 +48,24 @@ export const CandidatePipelineCard: React.FC<Props> = ({ item, onOpen, onRemove:
   if (!p) return null;
   const initials = `${p.vorname?.[0] ?? "?"}${p.nachname?.[0] ?? ""}`;
 
-  const hasEmail = !!p.email;
-  const hasPhone = !!p.telefon;
+const hasEmail = !!p.email;
+const hasPhone = !!p.telefon;
+
+const statusInfo = useMemo(() => {
+  switch (p.search_status) {
+    case "praktikum":
+      return { label: "Sucht: Praktikum", colorClass: "bg-destructive" };
+    case "ausbildung":
+      return { label: "Sucht: Ausbildung", colorClass: "bg-green-500" };
+    case "vollzeit":
+      return { label: "Sucht: Vollzeit", colorClass: "bg-blue-500" };
+    case "praktikum_ausbildung":
+      return { label: "Sucht: Praktikum & Ausbildung", colorClass: "bg-amber-500" };
+    default:
+      return null;
+  }
+}, [p.search_status]);
+
 
   const handleEmail = () => {
     if (p.email) window.location.href = `mailto:${p.email}`;
@@ -64,7 +82,19 @@ export const CandidatePipelineCard: React.FC<Props> = ({ item, onOpen, onRemove:
   };
 
   return (
-    <Card className="p-3 space-y-3 cursor-grab select-none rounded-xl border border-border/70 shadow-sm bg-card">
+    <Card className="relative p-3 space-y-3 cursor-grab select-none rounded-xl border border-border/70 shadow-sm bg-card">
+      {/* Status indicator */}
+      {statusInfo && (
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div className={`absolute top-2 right-2 h-3.5 w-3.5 rounded-full ring-2 ring-background ${statusInfo.colorClass}`} />
+            </TooltipTrigger>
+            <TooltipContent>{statusInfo.label}</TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      )}
+
       {/* Header */}
       <div className="flex items-center gap-3">
         <Avatar className="h-10 w-10">
@@ -80,16 +110,51 @@ export const CandidatePipelineCard: React.FC<Props> = ({ item, onOpen, onRemove:
       </div>
 
 
+      {/* Quick actions */}
+      <TooltipProvider>
+        <div className="flex items-center gap-2">
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button size="icon" variant="secondary" className="h-8 w-8" aria-label="E-Mail" onClick={handleEmail} disabled={!hasEmail}>
+                <Mail className="h-4 w-4" />
+              </Button>
+            </TooltipTrigger>
+            {!hasEmail && <TooltipContent>Keine E-Mail hinterlegt</TooltipContent>}
+          </Tooltip>
+
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button size="icon" variant="secondary" className="h-8 w-8" aria-label="Telefon" onClick={handlePhone} disabled={!hasPhone}>
+                <Phone className="h-4 w-4" />
+              </Button>
+            </TooltipTrigger>
+            {!hasPhone && <TooltipContent>Keine Telefonnummer hinterlegt</TooltipContent>}
+          </Tooltip>
+
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button size="icon" variant="secondary" className="h-8 w-8" aria-label="CV" onClick={handleCV}>
+                <FileText className="h-4 w-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>CV ansehen/downloaden</TooltipContent>
+          </Tooltip>
+        </div>
+      </TooltipProvider>
+
       {/* Meta */}
       <div className="flex items-center gap-2 flex-wrap">
-        {item.unlocked_at ? (
-          <Badge variant="secondary">Freigeschaltet</Badge>
-        ) : (
-          <Badge variant="outline">Gesperrt</Badge>
-        )}
         {p.ort && <Badge variant="outline">{p.ort}</Badge>}
         {p.branche && <Badge variant="outline">{p.branche}</Badge>}
       </div>
+      {Array.isArray(p.skills) && p.skills.length > 0 && (
+        <div className="flex items-center gap-2 flex-wrap">
+          {p.skills.slice(0, 8).map((skill) => (
+            <Badge key={skill} variant="secondary">{skill}</Badge>
+          ))}
+        </div>
+      )}
+
 
       {/* Footer */}
       <div className="flex items-center gap-2 flex-wrap">
@@ -114,40 +179,9 @@ export const CandidatePipelineCard: React.FC<Props> = ({ item, onOpen, onRemove:
 
         <Button size="sm" variant="secondary" onClick={() => setNotesOpen(true)}>Notizen</Button>
 
-        <div className="ml-auto flex items-center gap-2">
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button size="icon" variant="secondary" className="h-8 w-8" aria-label="E-Mail" onClick={handleEmail} disabled={!hasEmail}>
-                  <Mail className="h-4 w-4" />
-                </Button>
-              </TooltipTrigger>
-              {!hasEmail && <TooltipContent>Keine E-Mail hinterlegt</TooltipContent>}
-            </Tooltip>
-
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button size="icon" variant="secondary" className="h-8 w-8" aria-label="Telefon" onClick={handlePhone} disabled={!hasPhone}>
-                  <Phone className="h-4 w-4" />
-                </Button>
-              </TooltipTrigger>
-              {!hasPhone && <TooltipContent>Keine Telefonnummer hinterlegt</TooltipContent>}
-            </Tooltip>
-
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button size="icon" variant="secondary" className="h-8 w-8" aria-label="CV" onClick={handleCV}>
-                  <FileText className="h-4 w-4" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>CV ansehen/downloaden</TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        </div>
       </div>
 
       <CandidateNotesDialog open={notesOpen} onOpenChange={setNotesOpen} candidateId={item.candidate_id} />
-
     </Card>
   );
 };
