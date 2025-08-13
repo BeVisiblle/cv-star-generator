@@ -95,7 +95,11 @@ export default function TopNavBar() {
               <MessagePopoverPanel onCompose={() => setMsgOpen(true)} />
             </PopoverContent>
           </Popover>
-          <button className="relative inline-flex items-center justify-center h-9 w-9 rounded-md hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+          <button 
+            className="relative inline-flex items-center justify-center h-9 w-9 rounded-md hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            onClick={() => navigate('/notifications')}
+            aria-label="Benachrichtigungen"
+          >
             <Bell className="h-5 w-5" />
             <span className="absolute -top-0.5 -right-0.5 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-primary text-primary-foreground text-[10px] leading-none px-1">
               3

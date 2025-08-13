@@ -10,7 +10,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import ProfileTagsPanel from "@/components/settings/ProfileTagsPanel";
+import NotifSettingsPanel from '@/components/notifications/NotifSettingsPanel';
 
 const Settings = () => {
   const { profile, refetchProfile } = useAuth();
@@ -127,6 +127,7 @@ const Settings = () => {
         <TabsList className="mb-4">
           <TabsTrigger value="general">Allgemein</TabsTrigger>
           <TabsTrigger value="profile">Profil</TabsTrigger>
+          <TabsTrigger value="notifications">Benachrichtigungen</TabsTrigger>
         </TabsList>
 
         <TabsContent value="general">
@@ -334,9 +335,9 @@ const Settings = () => {
           </div>
         </TabsContent>
 
-        <TabsContent value="profile">
+        <TabsContent value="notifications">
           <div className="max-w-3xl">
-            <ProfileTagsPanel />
+            <NotifSettingsPanel userId={profile?.id ?? null} />
           </div>
         </TabsContent>
       </Tabs>
