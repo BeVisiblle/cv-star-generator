@@ -11,6 +11,7 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { uploadFile, deleteFile } from '@/lib/supabase-storage';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { subscribeOpenCvDownload, subscribeOpenCvEdit, subscribeOpenDocUpload } from '@/lib/event-bus';
 
 // Import CV layout components
 import ModernLayout from '@/components/cv-layouts/ModernLayout';
@@ -219,6 +220,27 @@ export const LinkedInProfileSidebar: React.FC<LinkedInProfileSidebarProps> = ({
       loadUserDocuments();
     }
   }, [profile?.id]);
+
+  // Subscribe to mobile quick actions
+  useEffect(() => {
+    const unsubDownload = subscribeOpenCvDownload(() => {
+      if (!readOnly) handleDownloadCV();
+    });
+    const unsubEdit = subscribeOpenCvEdit(() => {
+      if (!readOnly) handleEditCV();
+    });
+    const unsubUpload = subscribeOpenDocUpload(() => {
+      if (!readOnly) {
+        const input = document.getElementById('document-upload') as HTMLInputElement | null;
+        input?.click();
+      }
+    });
+    return () => {
+      unsubDownload();
+      unsubEdit();
+      unsubUpload();
+    };
+  }, [readOnly, profile?.id]);
   const loadUserDocuments = async () => {
     setIsLoadingDocuments(true);
     try {
