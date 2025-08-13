@@ -16,14 +16,14 @@ export default function CommunityCompanies() {
 
   const acceptFollowRequest = async (followId: string, followerCompanyId: string) => {
     try {
-      const { error } = await supabase.functions.invoke('accept-follow', {
-        body: { 
-          follower_type: 'company', 
-          follower_id: followerCompanyId, 
-          followee_type: 'profile', 
-          followee_id: profileId 
-        }
-      });
+      const { error } = await supabase
+        .from('follows')
+        .update({ status: 'accepted' })
+        .eq('id', followId)
+        .eq('follower_id', followerCompanyId)
+        .eq('followee_id', profileId)
+        .eq('follower_type', 'company')
+        .eq('followee_type', 'profile');
       
       if (error) throw error;
       
@@ -40,14 +40,14 @@ export default function CommunityCompanies() {
 
   const declineFollowRequest = async (followId: string, followerCompanyId: string) => {
     try {
-      const { error } = await supabase.functions.invoke('decline-follow', {
-        body: { 
-          follower_type: 'company', 
-          follower_id: followerCompanyId, 
-          followee_type: 'profile', 
-          followee_id: profileId 
-        }
-      });
+      const { error } = await supabase
+        .from('follows')
+        .delete()
+        .eq('id', followId)
+        .eq('follower_id', followerCompanyId)
+        .eq('followee_id', profileId)
+        .eq('follower_type', 'company')
+        .eq('followee_type', 'profile');
       
       if (error) throw error;
       
