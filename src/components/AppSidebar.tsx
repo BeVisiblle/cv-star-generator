@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { NavLink, useLocation } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { LayoutDashboard, User, Users, Settings, FileText, LogOut, ChevronRight, Plus, MessageSquare, Briefcase, Building2 } from "lucide-react";
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarMenuSub, SidebarMenuSubItem, SidebarMenuSubButton, SidebarHeader, SidebarFooter, useSidebar } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
@@ -21,37 +21,71 @@ const navigationItems = [{
   icon: Settings
 }];
 export function AppSidebar() {
-  const {
-    state
-  } = useSidebar();
+  const { state, setOpen } = useSidebar();
   const collapsed = state === "collapsed";
   const location = useLocation();
+  const navigate = useNavigate();
   const currentPath = location.pathname;
-  const {
-    data: profile
-  } = useQuery({
+
+  const { data: profile } = useQuery({
     queryKey: ['profile'],
     queryFn: async () => {
-      const {
-        data: {
-          user
-        }
-      } = await supabase.auth.getUser();
+      const { data: { user } } = await supabase.auth.getUser();
       if (!user) return null;
-      const {
-        data,
-        error
-      } = await supabase.from('profiles').select('*').eq('id', user.id).single();
+      const { data, error } = await supabase.from('profiles').select('*').eq('id', user.id).single();
       if (error) throw error;
       return data;
     }
   });
+
   const isActive = (path: string) => currentPath === path;
+
   const handleSignOut = async () => {
     await supabase.auth.signOut();
     window.location.href = '/auth';
   };
-  return <Sidebar className={collapsed ? "w-14" : "w-60"} collapsible="icon">
+
+  // Auto-close sidebar on navigation
+  const handleNavigation = (to: string) => {
+    navigate(to);
+    setOpen(false);
+  };
+
+  // Handle clicks outside sidebar to close it
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const sidebar = document.querySelector('[data-sidebar="sidebar"]');
+      const trigger = document.querySelector('[data-sidebar="trigger"]');
+      
+      if (sidebar && !sidebar.contains(event.target as Node) && 
+          trigger && !trigger.contains(event.target as Node)) {
+        setOpen(false);
+      }
+    };
+
+    if (!collapsed) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }
+  }, [collapsed, setOpen]);
+
+  return (
+    <>
+      {/* Backdrop overlay */}
+      {!collapsed && (
+        <div 
+          className="fixed inset-0 bg-black/20 z-40 lg:hidden"
+          onClick={() => setOpen(false)}
+        />
+      )}
+      
+      <Sidebar 
+        className={`fixed left-0 top-14 h-[calc(100vh-3.5rem)] z-50 transition-transform duration-200 ${
+          collapsed ? '-translate-x-full' : 'translate-x-0'
+        } ${collapsed ? "w-14" : "w-60"}`} 
+        collapsible="icon"
+        data-sidebar="sidebar"
+      >
       <SidebarHeader className={`p-4 ${collapsed ? 'px-2' : ''}`}>
         {!collapsed ? (
           <div className="flex items-center space-x-3">
@@ -82,68 +116,92 @@ export function AppSidebar() {
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {navigationItems.map(item => <SidebarMenuItem key={item.title}>
+              {navigationItems.map(item => (
+                <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
-                    <NavLink to={item.url} className={({
-                  isActive
-                }) => `flex items-center gap-3 rounded-lg px-3 py-2 transition-all ${isActive ? "bg-sidebar-accent text-sidebar-accent-foreground" : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"}`}>
+                    <button
+                      onClick={() => handleNavigation(item.url)}
+                      className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-all w-full text-left ${
+                        isActive(item.url) 
+                          ? "bg-sidebar-accent text-sidebar-accent-foreground" 
+                          : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                      }`}
+                    >
                       <item.icon className="h-4 w-4" />
                       {!collapsed && <span>{item.title}</span>}
                       {!collapsed && isActive(item.url) && <ChevronRight className="ml-auto h-4 w-4" />}
-                    </NavLink>
+                    </button>
                   </SidebarMenuButton>
-                </SidebarMenuItem>)}
+                </SidebarMenuItem>
+              ))}
 
               {/* Community with subpages */}
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
-                  <NavLink to="/marketplace" className={({
-                  isActive
-                }) => `flex items-center gap-3 rounded-lg px-3 py-2 transition-all ${isActive || currentPath.startsWith('/community') ? "bg-sidebar-accent text-sidebar-accent-foreground" : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"}`}>
+                  <button
+                    onClick={() => handleNavigation("/marketplace")}
+                    className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-all w-full text-left ${
+                      currentPath === "/marketplace" || currentPath.startsWith('/community')
+                        ? "bg-sidebar-accent text-sidebar-accent-foreground" 
+                        : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                    }`}
+                  >
                     <Users className="h-4 w-4" />
                     {!collapsed && <span>Community</span>}
                     {!collapsed && (currentPath === "/marketplace" || currentPath.startsWith("/community")) && <ChevronRight className="ml-auto h-4 w-4" />}
-                  </NavLink>
+                  </button>
                 </SidebarMenuButton>
                 <SidebarMenuSub>
                   <SidebarMenuSubItem>
                     <SidebarMenuSubButton asChild>
-                      <NavLink to="/community/contacts" className={({
-                      isActive
-                    }) => isActive ? "text-primary" : ""}>
+                      <button
+                        onClick={() => handleNavigation("/community/contacts")}
+                        className={`flex items-center gap-3 w-full text-left ${
+                          currentPath === "/community/contacts" ? "text-primary" : ""
+                        }`}
+                      >
                         <Users className="h-4 w-4" />
                         {!collapsed && <span>Meine Freunde / Kontakte</span>}
-                      </NavLink>
+                      </button>
                     </SidebarMenuSubButton>
                   </SidebarMenuSubItem>
                   <SidebarMenuSubItem>
                     <SidebarMenuSubButton asChild>
-                      <NavLink to="/community/companies" className={({
-                      isActive
-                    }) => isActive ? "text-primary" : ""}>
+                      <button
+                        onClick={() => handleNavigation("/community/companies")}
+                        className={`flex items-center gap-3 w-full text-left ${
+                          currentPath === "/community/companies" ? "text-primary" : ""
+                        }`}
+                      >
                         <Building2 className="h-4 w-4" />
                         {!collapsed && <span>Unternehmen</span>}
-                      </NavLink>
+                      </button>
                     </SidebarMenuSubButton>
                   </SidebarMenuSubItem>
                   <SidebarMenuSubItem>
                     <SidebarMenuSubButton asChild>
-                      <NavLink to="/community/messages" className={({
-                      isActive
-                    }) => isActive ? "text-primary" : ""}>
+                      <button
+                        onClick={() => handleNavigation("/community/messages")}
+                        className={`flex items-center gap-3 w-full text-left ${
+                          currentPath === "/community/messages" ? "text-primary" : ""
+                        }`}
+                      >
                         <MessageSquare className="h-4 w-4" />
                         {!collapsed && <span>Nachrichten</span>}
-                      </NavLink>
+                      </button>
                     </SidebarMenuSubButton>
                   </SidebarMenuSubItem>
                   <SidebarMenuSubItem>
                     <SidebarMenuSubButton asChild>
-                      <NavLink to="/community/jobs" className={({
-                      isActive
-                    }) => isActive ? "text-primary" : ""}>
+                      <button
+                        onClick={() => handleNavigation("/community/jobs")}
+                        className={`flex items-center gap-3 w-full text-left ${
+                          currentPath === "/community/jobs" ? "text-primary" : ""
+                        }`}
+                      >
                         <Briefcase className="h-4 w-4" />
                         {!collapsed && <span>Jobs</span>}
-                      </NavLink>
+                      </button>
                     </SidebarMenuSubButton>
                   </SidebarMenuSubItem>
                 </SidebarMenuSub>
@@ -174,7 +232,7 @@ export function AppSidebar() {
             </div>
 
             {/* Create Post Button */}
-            <Button className="w-full justify-start" onClick={openPostComposer}>
+            <Button className="w-full justify-start" onClick={() => { openPostComposer(); setOpen(false); }}>
               <Plus className="h-4 w-4 mr-2" />
               Neuer Beitrag
             </Button>
@@ -191,13 +249,15 @@ export function AppSidebar() {
                 {profile?.vorname && profile?.nachname ? `${profile.vorname[0]}${profile.nachname[0]}` : 'U'}
               </AvatarFallback>
             </Avatar>
-            <Button size="sm" onClick={openPostComposer} className="w-full p-2 justify-center">
+            <Button size="sm" onClick={() => { openPostComposer(); setOpen(false); }} className="w-full p-2 justify-center">
               <Plus className="h-4 w-4" />
             </Button>
             <Button variant="ghost" size="sm" onClick={handleSignOut} className="w-full p-2 justify-center">
               <LogOut className="h-4 w-4" />
             </Button>
-          </div>}
+        </div>}
       </SidebarFooter>
-    </Sidebar>;
+    </Sidebar>
+    </>
+  );
 }

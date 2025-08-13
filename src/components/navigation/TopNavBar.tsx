@@ -1,5 +1,5 @@
 import React from "react";
-import { SidebarTrigger, useSidebar } from "@/components/ui/sidebar";
+import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Bell, Search as SearchIcon, MessageSquareMore, Users } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui/input";
@@ -31,14 +31,6 @@ export default function TopNavBar() {
   const [drawerOpen, setDrawerOpen] = React.useState(false);
   const [msgOpen, setMsgOpen] = React.useState(false);
 
-  // Use sidebar context to adjust navbar positioning
-  let sidebarState = null;
-  try {
-    sidebarState = useSidebar();
-  } catch {
-    // Not in sidebar context, that's ok
-  }
-
   const handleSubmit = () => {
     const term = q.trim();
     const sp = new URLSearchParams(location.search);
@@ -46,23 +38,12 @@ export default function TopNavBar() {
     navigate(`/marketplace?${sp.toString()}`);
   };
 
-  // Calculate left margin based on sidebar state
-  const getLeftMargin = () => {
-    if (!sidebarState) return "0px";
-    if (sidebarState.isMobile) return "0px";
-    if (sidebarState.open) return "16rem"; // SIDEBAR_WIDTH
-    return "3rem"; // SIDEBAR_WIDTH_ICON
-  };
-
+  // Fixed navbar that spans full width
   return <header 
-    className="fixed top-0 z-50 h-14 flex items-center border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 px-3 sm:px-4 transition-all duration-200"
-    style={{ 
-      left: getLeftMargin(),
-      right: "0px"
-    }}
+    className="fixed top-0 left-0 right-0 z-50 h-14 flex items-center border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 px-3 sm:px-4"
   >
       <div className="flex items-center gap-2 w-full">
-        <SidebarTrigger className="mr-1" />
+        <SidebarTrigger className="mr-1" data-sidebar="trigger" />
         <div className="flex items-center gap-2">
           <button onClick={() => navigate('/')} className="flex items-center gap-2" aria-label="Ausbildungsbasis Startseite">
             
