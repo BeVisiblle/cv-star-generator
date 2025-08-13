@@ -236,7 +236,7 @@ const isOwner = user?.id === profile?.id;
 
                             {post.image_url && (
                               <div className="rounded-lg overflow-hidden">
-                                <img src={post.image_url} alt="Post" className="w-full h-20 object-cover" />
+                                <img src={post.image_url} alt="Post" className="w-full h-32 object-cover" />
                               </div>
                             )}
 
@@ -345,7 +345,7 @@ const isOwner = user?.id === profile?.id;
 
                               {post.image_url && (
                                 <div className="rounded-lg overflow-hidden">
-                                  <img src={post.image_url} alt="Post" className="w-full h-20 object-cover" />
+                                  <img src={post.image_url} alt="Post" className="w-full h-32 object-cover" />
                                 </div>
                               )}
 
