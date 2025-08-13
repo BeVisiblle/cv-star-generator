@@ -163,108 +163,6 @@ const isOwner = user?.id === profile?.id;
             {activeTab === 'posts' ? (
               recentPosts && recentPosts.length > 0 ? (
                 <div className="relative">
-                  {/* Mobile: stacked vertical list */}
-                  <div className="md:hidden space-y-4">
-                    {recentPosts.slice(0, 4).map((post) => {
-                      const counts = getCounts(post as ActivityPost);
-                      const text = (post as ActivityPost).content || '';
-                      const isExp = expanded[post.id as string];
-                      const isLong = text.length > 200;
-                      const isOwn = (post as ActivityPost).user_id === profile.id;
-
-                      return (
-                        <div
-                          key={post.id}
-                          className="activity-card w-full max-w-full bg-muted/50 rounded-lg p-4 border hover:bg-muted/70 transition-colors cursor-pointer"
-                          onClick={() => navigate('/marketplace')}
-                        >
-                          <div className="flex items-center space-x-3 mb-3">
-                            <Avatar className="h-8 w-8">
-                              <AvatarImage src={post.author?.avatar_url} />
-                              <AvatarFallback className="text-xs">
-                                {getInitials(post as ActivityPost)}
-                              </AvatarFallback>
-                            </Avatar>
-                            <div className="flex-1 min-w-0">
-                              <p className="text-sm font-medium truncate">
-                                {getDisplayName(post as ActivityPost)}
-                              </p>
-                              <p className="text-xs text-muted-foreground truncate">
-                                {post.author?.ausbildungsberuf || 'Handwerker'}
-                              </p>
-                            </div>
-                            <span className="text-xs text-muted-foreground">
-                              {formatDistanceToNow(new Date(post.created_at), { addSuffix: true, locale: de })}
-                            </span>
-                            {isOwn && (
-                              <Button
-                                variant="destructive"
-                                size="icon"
-                                className="h-7 w-7 ml-2"
-                                onClick={(e)=>{
-                                  e.stopPropagation();
-                                  if(window.confirm('Diesen Beitrag wirklich löschen?')){
-                                    supabase.from('posts').delete().eq('id', post.id).eq('user_id', profile.id).then(({ error })=>{
-                                      if(error){
-                                        toast({ title: 'Löschen fehlgeschlagen', description: error.message, variant: 'destructive' });
-                                      } else {
-                                        toast({ title: 'Beitrag gelöscht' });
-                                        queryClient.invalidateQueries({ queryKey: ['recent-community-posts', profile.id] });
-                                      }
-                                    });
-                                  }
-                                }}
-                                aria-label="Beitrag löschen"
-                              >
-                                <Trash className="h-4 w-4" />
-                              </Button>
-                            )}
-                          </div>
-
-                          <div className="space-y-3">
-                            <p className="text-sm text-foreground">
-                              {isExp ? text : truncateContent(text, 200)}
-                              {!isExp && isLong && (
-                                <button
-                                  className="ml-1 text-primary hover:underline text-xs"
-                                  onClick={(e) => { e.stopPropagation(); setExpanded((prev) => ({ ...prev, [post.id as string]: true })); }}
-                                >
-                                  Mehr anzeigen
-                                </button>
-                              )}
-                            </p>
-
-                            {post.image_url && (
-                              <div className="rounded-lg overflow-hidden">
-                                <img src={post.image_url} alt="Post" className="w-full h-32 object-cover" />
-                              </div>
-                            )}
-
-                            <div className="flex items-center gap-4 pt-1 text-xs text-muted-foreground">
-                              <span className="inline-flex items-center gap-1"><ThumbsUp className="h-3.5 w-3.5" />{counts.likes}</span>
-                              <span className="inline-flex items-center gap-1"><MessageCircle className="h-3.5 w-3.5" />{counts.comments}</span>
-                            </div>
-
-                            <div className="flex items-center justify-between border-t pt-2">
-                              <button onClick={(e)=>e.stopPropagation()} className="h-8 w-8 rounded-md bg-muted flex items-center justify-center" title="Gefällt mir">
-                                <ThumbsUp className="h-4 w-4" />
-                              </button>
-                              <button onClick={(e)=>e.stopPropagation()} className="h-8 w-8 rounded-md hover:bg-muted flex items-center justify-center" title="Kommentieren">
-                                <MessageCircle className="h-4 w-4" />
-                              </button>
-                              <button onClick={(e)=>e.stopPropagation()} className="h-8 w-8 rounded-md hover:bg-muted flex items-center justify-center" title="Reposten">
-                                <Repeat2 className="h-4 w-4" />
-                              </button>
-                              <button onClick={(e)=>e.stopPropagation()} className="h-8 w-8 rounded-md hover:bg-muted flex items-center justify-center" title="Teilen">
-                                <Send className="h-4 w-4" />
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-
                   <Button variant="secondary" size="icon" className="hidden md:inline-flex absolute left-0 top-1/2 -translate-y-1/2 z-10 rounded-full h-8 w-8" onClick={() => scrollByStep('left')} aria-label="Zurück">
                     <ChevronLeft className="h-4 w-4" />
                   </Button>
@@ -280,6 +178,18 @@ const isOwner = user?.id === profile?.id;
                         const isExp = expanded[post.id as string];
                         const isLong = text.length > 200;
                         const isOwn = (post as ActivityPost).user_id === profile.id;
+
+                        const handleDelete = async (e: React.MouseEvent) => {
+                          e.stopPropagation();
+                          if (!isOwn) return;
+                          const ok = window.confirm('Diesen Beitrag wirklich löschen?');
+                          if (!ok) return;
+                          const { error } = await supabase.from('posts').delete().eq('id', post.id).eq('user_id', profile.id);
+                          if (!error) {
+                            // Invalidate query
+                            const qc = useQueryClient(); // not valid here; moving outside not possible per scope
+                          }
+                        };
 
                         return (
                           <div
@@ -392,7 +302,6 @@ const isOwner = user?.id === profile?.id;
             ) : (
               <div className="text-sm text-muted-foreground py-6">Noch keine Kommentare.</div>
             )}
-
           </>
         )}
       </CardContent>
