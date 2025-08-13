@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Edit3, Check, Clock, X, Loader2, Mail, Phone, MapPin, Car, Eye, Download, Upload } from 'lucide-react';
+import { Edit3, Check, Clock, X, Loader2, Mail, Phone, MapPin, Car } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { LinkedInProfileHeader } from '@/components/linkedin/LinkedInProfileHeader';
@@ -23,7 +23,6 @@ import { SkillsLanguagesSidebar } from '@/components/linkedin/SkillsLanguagesSid
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { InView } from '@/components/util/InView';
-import { openCvDownload, openCvEdit, openDocUpload } from '@/lib/event-bus';
 const Profile = () => {
   const navigate = useNavigate();
   const {
@@ -199,7 +198,7 @@ const Profile = () => {
 
   // Early returns after all hooks are declared
 
-  return <div className={`px-3 sm:px-6 lg:px-8 py-3 md:py-6 min-h-screen bg-background max-w-full overflow-x-hidden ${isEditing ? 'pb-24' : 'pb-24 md:pb-6'} pt-safe`}>{/* Prevent horizontal scroll and reserve for sticky footer */}
+  return <div className={`px-3 sm:px-6 lg:px-8 py-3 md:py-6 min-h-screen bg-background max-w-full overflow-x-hidden ${isEditing ? 'pb-24' : 'pb-6'} pt-safe`}>{/* Prevent horizontal scroll and reserve for sticky footer */}
       {/* Mobile-optimized Profile Actions Header */}
       <div className="sticky top-14 md:top-0 z-30 mb-4 md:mb-6 bg-background/80 supports-[backdrop-filter]:bg-background/60 backdrop-blur border-b">
         <div className="px-3 sm:px-0 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0">
@@ -359,7 +358,7 @@ const Profile = () => {
 
         {/* Right Sidebar - Desktop: sidebar, Mobile: after main content */}
         <aside className="lg:col-span-4">
-          <div className="w-full max-w-[560px] mx-auto px-4 md:max-w-none md:px-0 lg:sticky lg:top-24 space-y-4 md:space-y-6">
+          <div className="lg:sticky lg:top-24 space-y-4 md:space-y-6">
             <LinkedInProfileSidebar profile={profile} isEditing={isEditing} onProfileUpdate={handleProfileUpdate} showLanguagesAndSkills={false} showLicenseAndStats={false} />
             <RightRailAd variant="card" size="sm" />
             <SkillsLanguagesSidebar profile={profile} isEditing={isEditing} onProfileUpdate={handleProfileUpdate} />
@@ -375,7 +374,7 @@ const Profile = () => {
       </div>
 
       {/* Sticky bottom Save Bar (mobile) */}
-      {isEditing && <div className="fixed inset-x-0 bottom-0 z-[61] border-t bg-background/95 supports-[backdrop-filter]:bg-background/80 backdrop-blur px-3 py-2 pb-safe md:hidden">
+      {isEditing && <div className="fixed inset-x-0 bottom-0 z-40 border-t bg-background/95 supports-[backdrop-filter]:bg-background/80 backdrop-blur px-3 py-2 pb-safe md:hidden">
           <div className="max-w-[560px] mx-auto px-4 flex items-center justify-end gap-2">
             <Button variant="outline" onClick={() => setIsEditing(false)} disabled={isSaving} size="sm" className="min-h-[38px] md:min-h-[44px]">
               Abbrechen
@@ -386,29 +385,6 @@ const Profile = () => {
             </Button>
           </div>
         </div>}
-
-      {/* Mobile Quick Actions Bar (visible when not editing) */}
-      {!isEditing && (
-        <div className="fixed inset-x-0 bottom-0 z-[61] border-t bg-background/95 supports-[backdrop-filter]:bg-background/80 backdrop-blur px-3 py-2 pb-safe md:hidden">
-          <div className="max-w-[560px] mx-auto px-4 grid grid-cols-5 gap-2">
-            <Button size="sm" variant="outline" className="min-h-[44px]" onClick={() => setIsEditing(true)} aria-label="Profil bearbeiten">
-              <Edit3 className="h-4 w-4" />
-            </Button>
-            <Button size="sm" variant="outline" className="min-h-[44px]" onClick={() => setShowPreview(true)} aria-label="Vorschau">
-              <Eye className="h-4 w-4" />
-            </Button>
-            <Button size="sm" className="min-h-[44px]" onClick={() => openCvDownload()} aria-label="CV herunterladen">
-              <Download className="h-4 w-4" />
-            </Button>
-            <Button size="sm" variant="secondary" className="min-h-[44px]" onClick={() => openCvEdit()} aria-label="CV bearbeiten">
-              <Edit3 className="h-4 w-4" />
-            </Button>
-            <Button size="sm" variant="outline" className="min-h-[44px]" onClick={() => openDocUpload()} aria-label="Dokumente hochladen">
-              <Upload className="h-4 w-4" />
-            </Button>
-          </div>
-        </div>
-      )}
 
       {/* Preview Modal */}
       {showPreview && <ProfilePreviewModal isOpen={showPreview} profileData={profile} onPublish={async () => {
