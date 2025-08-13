@@ -7,20 +7,25 @@ import { Bell, UserMinus } from 'lucide-react';
 type Props = {
   companyId: string;
   profileId: string;
+  mode?: 'profile-to-company' | 'company-to-profile';
   initialFollowing?: boolean;
+  initialStatus?: 'pending' | 'accepted';
   initialBell?: 'off' | 'highlights' | 'all';
-  onChange?: (state: { following: boolean; bell: 'off' | 'highlights' | 'all' }) => void;
+  onChange?: (state: { following: boolean; status?: 'pending' | 'accepted'; bell: 'off' | 'highlights' | 'all' }) => void;
 };
 
 export default function FollowButton({
   companyId,
   profileId,
+  mode = 'profile-to-company',
   initialFollowing = false,
+  initialStatus = 'accepted',
   initialBell = 'highlights',
   onChange
 }: Props) {
   const { toast } = useToast();
   const [following, setFollowing] = useState(initialFollowing);
+  const [status, setStatus] = useState<'pending' | 'accepted'>(initialStatus);
   const [bellOpen, setBellOpen] = useState(false);
   const [bell, setBell] = useState<'off' | 'highlights' | 'all'>(initialBell);
   const [loading, setLoading] = useState(false);
@@ -31,16 +36,19 @@ export default function FollowButton({
       try {
         const { data, error } = await supabase
           .from('follows')
-          .select('id')
-          .eq('follower_id', profileId)
-          .eq('followee_id', companyId)
-          .eq('follower_type', 'profile')
-          .eq('followee_type', 'company')
-          .eq('status', 'accepted')
+          .select('id, status')
+          .eq('follower_id', mode === 'profile-to-company' ? profileId : companyId)
+          .eq('followee_id', mode === 'profile-to-company' ? companyId : profileId)
+          .eq('follower_type', mode === 'profile-to-company' ? 'profile' : 'company')
+          .eq('followee_type', mode === 'profile-to-company' ? 'company' : 'profile')
           .maybeSingle();
         
-        if (!error) {
-          setFollowing(!!data);
+        if (!error && data) {
+          setFollowing(true);
+          setStatus(data.status as 'pending' | 'accepted');
+        } else {
+          setFollowing(false);
+          setStatus('accepted');
         }
       } catch (error) {
         console.error('Error checking follow status:', error);
@@ -48,32 +56,37 @@ export default function FollowButton({
     };
 
     checkFollowStatus();
-  }, [profileId, companyId]);
+  }, [profileId, companyId, mode]);
 
   const follow = async () => {
     if (loading) return;
     setLoading(true);
     try {
-      // Profile -> Company = immediate accepted
       const { error } = await supabase.functions.invoke('request-follow', {
         body: {
-          follower_type: 'profile',
-          follower_id: profileId,
-          followee_type: 'company',
-          followee_id: companyId
+          follower_type: mode === 'profile-to-company' ? 'profile' : 'company',
+          follower_id: mode === 'profile-to-company' ? profileId : companyId,
+          followee_type: mode === 'profile-to-company' ? 'company' : 'profile',
+          followee_id: mode === 'profile-to-company' ? companyId : profileId
         }
       });
       
       if (error) throw error;
       
       setFollowing(true);
-      onChange?.({ following: true, bell });
-      toast({ description: 'Unternehmen folgen erfolgreich!' });
+      const newStatus = mode === 'company-to-profile' ? 'pending' : 'accepted';
+      setStatus(newStatus);
+      onChange?.({ following: true, status: newStatus, bell });
+      
+      const message = mode === 'company-to-profile' 
+        ? 'Folge-Anfrage an Azubi gesendet!'
+        : 'Unternehmen folgen erfolgreich!';
+      toast({ description: message });
     } catch (error) {
-      console.error('Error following company:', error);
+      console.error('Error following:', error);
       toast({ 
         variant: 'destructive',
-        description: 'Fehler beim Folgen des Unternehmens'
+        description: 'Fehler beim Folgen'
       });
     } finally {
       setLoading(false);
@@ -84,18 +97,26 @@ export default function FollowButton({
     if (loading) return;
     setLoading(true);
     try {
-      const { error } = await supabase.rpc('unfollow_company', { 
-        p_profile_id: profileId, 
-        p_company_id: companyId 
-      });
+      const { error } = await supabase
+        .from('follows')
+        .delete()
+        .eq('follower_id', mode === 'profile-to-company' ? profileId : companyId)
+        .eq('followee_id', mode === 'profile-to-company' ? companyId : profileId)
+        .eq('follower_type', mode === 'profile-to-company' ? 'profile' : 'company')
+        .eq('followee_type', mode === 'profile-to-company' ? 'company' : 'profile');
       
       if (error) throw error;
       
       setFollowing(false);
-      onChange?.({ following: false, bell });
-      toast({ description: 'Unternehmen entfolgt' });
+      setStatus('accepted');
+      onChange?.({ following: false, status: 'accepted', bell });
+      
+      const message = mode === 'company-to-profile' 
+        ? 'Folge-Anfrage zurückgezogen'
+        : 'Unternehmen entfolgt';
+      toast({ description: message });
     } catch (error) {
-      console.error('Error unfollowing company:', error);
+      console.error('Error unfollowing:', error);
       toast({ 
         variant: 'destructive',
         description: 'Fehler beim Entfolgen'
@@ -114,7 +135,7 @@ export default function FollowButton({
       
       if (error) throw error;
       
-      onChange?.({ following, bell: next });
+      onChange?.({ following, status, bell: next });
       toast({ description: 'Benachrichtigungseinstellungen aktualisiert' });
     } catch (error) {
       console.error('Error setting bell preference:', error);
@@ -128,14 +149,45 @@ export default function FollowButton({
   };
 
   if (!following) {
+    const buttonText = mode === 'company-to-profile' 
+      ? (loading ? 'Sende Anfrage...' : 'Folgen') 
+      : (loading ? 'Folge …' : 'Folgen');
+    
     return (
       <Button
         onClick={follow}
         disabled={loading}
         className="bg-gradient-to-r from-primary to-primary-foreground text-primary-foreground hover:opacity-90"
       >
-        {loading ? 'Folge …' : 'Folgen'}
+        {buttonText}
       </Button>
+    );
+  }
+
+  // Show status for company-to-profile follows
+  if (mode === 'company-to-profile' && status === 'pending') {
+    return (
+      <div className="relative inline-flex items-center gap-2">
+        <Button
+          variant="outline"
+          size="sm"
+          disabled
+          className="gap-2"
+        >
+          <Bell className="h-4 w-4" />
+          Anfrage gesendet
+        </Button>
+        
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={unfollow}
+          className="gap-2"
+        >
+          <UserMinus className="h-4 w-4" />
+          Zurückziehen
+        </Button>
+      </div>
     );
   }
 
@@ -158,7 +210,7 @@ export default function FollowButton({
         className="gap-2"
       >
         <UserMinus className="h-4 w-4" />
-        Entfolgen
+        {mode === 'company-to-profile' ? 'Entfolgen' : 'Entfolgen'}
       </Button>
 
       {bellOpen && (

@@ -16,6 +16,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
 import { useCompany } from '@/hooks/useCompany';
 import { useAuth } from '@/hooks/useAuth';
+import FollowButton from '@/components/company/FollowButton';
 
 const CompanyProfileView = () => {
   const { id } = useParams();
@@ -259,6 +260,18 @@ const CompanyProfileView = () => {
                 </p>
               )}
             </Card>
+
+            {/* Follow Action Card */}
+            {company?.id && (
+              <Card className="p-4">
+                <h3 className="font-semibold mb-3">Azubi folgen</h3>
+                <FollowButton
+                  companyId={company.id}
+                  profileId={id!}
+                  mode="company-to-profile"
+                />
+              </Card>
+            )}
 
             {/* Contact Action Card for Unlocked Profiles */}
             {isUnlocked && (profile.email || profile.telefon) && (
