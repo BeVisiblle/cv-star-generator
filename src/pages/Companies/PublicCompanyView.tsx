@@ -7,8 +7,8 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { useFollowCompany } from '@/hooks/useFollowCompany';
-import { ExternalLink, MapPin, Globe, ArrowLeft, Linkedin, Instagram } from 'lucide-react';
-
+import { ExternalLink, MapPin, Globe, ArrowLeft, Linkedin, Instagram, ChevronDown } from 'lucide-react';
+import { Collapsible, CollapsibleTrigger, CollapsibleContent } from '@/components/ui/collapsible';
 // Minimal shape mapped to existing DB columns
 type Company = {
   id: string;
@@ -155,87 +155,141 @@ const c = companyQuery.data;
           {/* Left */}
           <div className="space-y-4 md:space-y-6">
             <Card className="p-4 sm:p-5 md:p-6">
-              <h2 className="text-lg font-semibold">Über uns</h2>
-              <p className="mt-2 whitespace-pre-line text-sm leading-relaxed text-muted-foreground">
-                {c?.description || 'Dieses Unternehmen hat noch keine Beschreibung hinzugefügt.'}
-              </p>
+              <Collapsible defaultOpen>
+                <div className="flex items-center justify-between">
+                  <h2 className="text-lg font-semibold">Über uns</h2>
+                  <CollapsibleTrigger className="ml-2 inline-flex items-center text-muted-foreground hover:text-foreground [&[data-state=open]>.chev]:rotate-180">
+                    <ChevronDown className="chev h-4 w-4 transition-transform" />
+                  </CollapsibleTrigger>
+                </div>
+                <CollapsibleContent>
+                  <p className="mt-2 whitespace-pre-line text-sm leading-relaxed text-muted-foreground">
+                    {c?.description || 'Dieses Unternehmen hat noch keine Beschreibung hinzugefügt.'}
+                  </p>
+                </CollapsibleContent>
+              </Collapsible>
             </Card>
 
             {c?.mission_statement && (
               <Card className="p-4 sm:p-5 md:p-6">
-                <h2 className="text-lg font-semibold">Mission</h2>
-                <p className="mt-2 whitespace-pre-line text-sm leading-relaxed text-muted-foreground">
-                  {c.mission_statement}
-                </p>
+                <Collapsible defaultOpen>
+                  <div className="flex items-center justify-between">
+                    <h2 className="text-lg font-semibold">Mission</h2>
+                    <CollapsibleTrigger className="ml-2 inline-flex items-center text-muted-foreground hover:text-foreground [&[data-state=open]>.chev]:rotate-180">
+                      <ChevronDown className="chev h-4 w-4 transition-transform" />
+                    </CollapsibleTrigger>
+                  </div>
+                  <CollapsibleContent>
+                    <p className="mt-2 whitespace-pre-line text-sm leading-relaxed text-muted-foreground">
+                      {c.mission_statement}
+                    </p>
+                  </CollapsibleContent>
+                </Collapsible>
               </Card>
             )}
 
             {tagsQuery.data && Object.keys(tagsQuery.data).length > 0 && (
               <Card className="p-4 sm:p-5 md:p-6">
-                <h2 className="text-lg font-semibold">Profil-Tags</h2>
-                <div className="mt-2 space-y-3 text-sm">
-                  {tagsQuery.data.profession?.length ? (
-                    <div>
-                      <Label>Berufe/Professionen</Label>
-                      <p className="text-muted-foreground mt-1">{tagsQuery.data.profession.join(', ')}</p>
+                <Collapsible defaultOpen>
+                  <div className="flex items-center justify-between">
+                    <h2 className="text-lg font-semibold">Profil-Tags</h2>
+                    <CollapsibleTrigger className="ml-2 inline-flex items-center text-muted-foreground hover:text-foreground [&[data-state=open]>.chev]:rotate-180">
+                      <ChevronDown className="chev h-4 w-4 transition-transform" />
+                    </CollapsibleTrigger>
+                  </div>
+                  <CollapsibleContent>
+                    <div className="mt-2 space-y-3 text-sm">
+                      {tagsQuery.data.profession?.length ? (
+                        <div>
+                          <Label>Berufe/Professionen</Label>
+                          <p className="text-muted-foreground mt-1">{tagsQuery.data.profession.join(', ')}</p>
+                        </div>
+                      ) : null}
+                      {tagsQuery.data.must?.length ? (
+                        <div>
+                          <Label>Must-Haves</Label>
+                          <p className="text-muted-foreground mt-1">{tagsQuery.data.must.join(', ')}</p>
+                        </div>
+                      ) : null}
+                      {tagsQuery.data.nice?.length ? (
+                        <div>
+                          <Label>Nice-to-Haves</Label>
+                          <p className="text-muted-foreground mt-1">{tagsQuery.data.nice.join(', ')}</p>
+                        </div>
+                      ) : null}
+                      {tagsQuery.data.benefit?.length ? (
+                        <div>
+                          <Label>Benefits</Label>
+                          <p className="text-muted-foreground mt-1">{tagsQuery.data.benefit.join(', ')}</p>
+                        </div>
+                      ) : null}
+                      {tagsQuery.data.work_env?.length ? (
+                        <div>
+                          <Label>Arbeitsumfeld</Label>
+                          <p className="text-muted-foreground mt-1">{tagsQuery.data.work_env.join(', ')}</p>
+                        </div>
+                      ) : null}
+                      {tagsQuery.data.target_group?.length ? (
+                        <div>
+                          <Label>Zielgruppen</Label>
+                          <p className="text-muted-foreground mt-1">{tagsQuery.data.target_group.join(', ')}</p>
+                        </div>
+                      ) : null}
                     </div>
-                  ) : null}
-                  {tagsQuery.data.must?.length ? (
-                    <div>
-                      <Label>Must-Haves</Label>
-                      <p className="text-muted-foreground mt-1">{tagsQuery.data.must.join(', ')}</p>
-                    </div>
-                  ) : null}
-                  {tagsQuery.data.nice?.length ? (
-                    <div>
-                      <Label>Nice-to-Haves</Label>
-                      <p className="text-muted-foreground mt-1">{tagsQuery.data.nice.join(', ')}</p>
-                    </div>
-                  ) : null}
-                  {tagsQuery.data.benefit?.length ? (
-                    <div>
-                      <Label>Benefits</Label>
-                      <p className="text-muted-foreground mt-1">{tagsQuery.data.benefit.join(', ')}</p>
-                    </div>
-                  ) : null}
-                  {tagsQuery.data.work_env?.length ? (
-                    <div>
-                      <Label>Arbeitsumfeld</Label>
-                      <p className="text-muted-foreground mt-1">{tagsQuery.data.work_env.join(', ')}</p>
-                    </div>
-                  ) : null}
-                  {tagsQuery.data.target_group?.length ? (
-                    <div>
-                      <Label>Zielgruppen</Label>
-                      <p className="text-muted-foreground mt-1">{tagsQuery.data.target_group.join(', ')}</p>
-                    </div>
-                  ) : null}
-                </div>
+                  </CollapsibleContent>
+                </Collapsible>
               </Card>
             )}
 
             <Card className="p-4 sm:p-5 md:p-6">
-              <h2 className="text-lg font-semibold">Kontakt</h2>
-              <div className="mt-2 text-sm space-y-1">
-                {c?.contact_person && <div>Kontaktperson: {c.contact_person}</div>}
-                {c?.primary_email && <div>E-Mail: <a className="underline" href={`mailto:${c.primary_email}`}>{c.primary_email}</a></div>}
-                {c?.phone && <div>Telefon: <a className="underline" href={`tel:${c.phone}`}>{c.phone}</a></div>}
-              </div>
+              <Collapsible defaultOpen>
+                <div className="flex items-center justify-between">
+                  <h2 className="text-lg font-semibold">Kontakt</h2>
+                  <CollapsibleTrigger className="ml-2 inline-flex items-center text-muted-foreground hover:text-foreground [&[data-state=open]>.chev]:rotate-180">
+                    <ChevronDown className="chev h-4 w-4 transition-transform" />
+                  </CollapsibleTrigger>
+                </div>
+                <CollapsibleContent>
+                  <div className="mt-2 text-sm space-y-1">
+                    {c?.contact_person && <div>Kontaktperson: {c.contact_person}</div>}
+                    {c?.primary_email && <div>E-Mail: <a className="underline" href={`mailto:${c.primary_email}`}>{c.primary_email}</a></div>}
+                    {c?.phone && <div>Telefon: <a className="underline" href={`tel:${c.phone}`}>{c.phone}</a></div>}
+                  </div>
+                </CollapsibleContent>
+              </Collapsible>
             </Card>
 
             <Card className="p-4 sm:p-5 md:p-6">
-              <h2 className="text-lg font-semibold">Standort</h2>
-              <div className="mt-2 text-sm text-muted-foreground">
-                {c?.main_location ? `${c.main_location}${c.country ? `, ${c.country}` : ''}` : '—'}
-              </div>
-              <div className="mt-3 h-40 rounded-lg bg-muted/60 border flex items-center justify-center text-xs text-muted-foreground">
-                Kartenansicht (bald verfügbar)
-              </div>
+              <Collapsible defaultOpen>
+                <div className="flex items-center justify-between">
+                  <h2 className="text-lg font-semibold">Standort</h2>
+                  <CollapsibleTrigger className="ml-2 inline-flex items-center text-muted-foreground hover:text-foreground [&[data-state=open]>.chev]:rotate-180">
+                    <ChevronDown className="chev h-4 w-4 transition-transform" />
+                  </CollapsibleTrigger>
+                </div>
+                <CollapsibleContent>
+                  <div className="mt-2 text-sm text-muted-foreground">
+                    {c?.main_location ? `${c.main_location}${c.country ? `, ${c.country}` : ''}` : '—'}
+                  </div>
+                  <div className="mt-3 h-40 rounded-lg bg-muted/60 border flex items-center justify-center text-xs text-muted-foreground">
+                    Kartenansicht (bald verfügbar)
+                  </div>
+                </CollapsibleContent>
+              </Collapsible>
             </Card>
 
             <Card className="p-4 sm:p-5 md:p-6 border-dashed">
-              <h2 className="text-lg font-semibold">Jobs (Bald verfügbar)</h2>
-              <p className="mt-2 text-sm text-muted-foreground">Wir arbeiten daran, hier Stellenangebote anzuzeigen.</p>
+              <Collapsible defaultOpen>
+                <div className="flex items-center justify-between">
+                  <h2 className="text-lg font-semibold">Jobs (Bald verfügbar)</h2>
+                  <CollapsibleTrigger className="ml-2 inline-flex items-center text-muted-foreground hover:text-foreground [&[data-state=open]>.chev]:rotate-180">
+                    <ChevronDown className="chev h-4 w-4 transition-transform" />
+                  </CollapsibleTrigger>
+                </div>
+                <CollapsibleContent>
+                  <p className="mt-2 text-sm text-muted-foreground">Wir arbeiten daran, hier Stellenangebote anzuzeigen.</p>
+                </CollapsibleContent>
+              </Collapsible>
             </Card>
           </div>
 

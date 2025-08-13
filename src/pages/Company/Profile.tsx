@@ -20,11 +20,12 @@ import {
   Users, 
   Eye,
   Camera,
-  Save
+  Save,
+  ChevronDown
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { TagType } from "@/components/company/matching/TagPicker";
-
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 interface CompanyProfile {
   name: string;
   description: string;
@@ -323,176 +324,190 @@ const { toast } = useToast();
             </CardContent>
           </Card>
 
-          {/* Company Information */}
           <Card>
-            <CardHeader>
-              <CardTitle>Unternehmensinformationen</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="description">Beschreibung</Label>
-                {editing ? (
-                  <Textarea
-                    id="description"
-                    value={profileData.description}
-                    onChange={(e) => updateField('description', e.target.value)}
-                    placeholder="Beschreiben Sie Ihr Unternehmen..."
-                    rows={4}
-                  />
-                ) : (
-                  <p className="text-muted-foreground">
-                    {profileData.description || "Noch keine Beschreibung verfügbar."}
-                  </p>
-                )}
-              </div>
+            <Collapsible defaultOpen>
+              <CardHeader className="flex flex-row items-center justify-between">
+                <CardTitle>Unternehmensinformationen</CardTitle>
+                <CollapsibleTrigger className="inline-flex items-center text-muted-foreground hover:text-foreground [&[data-state=open]>.chev]:rotate-180">
+                  <ChevronDown className="chev h-4 w-4 transition-transform" />
+                </CollapsibleTrigger>
+              </CardHeader>
+              </CardHeader>
+              <CollapsibleContent>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="description">Beschreibung</Label>
+                    {editing ? (
+                      <Textarea
+                        id="description"
+                        value={profileData.description}
+                        onChange={(e) => updateField('description', e.target.value)}
+                        placeholder="Beschreiben Sie Ihr Unternehmen..."
+                        rows={4}
+                      />
+                    ) : (
+                      <p className="text-muted-foreground">
+                        {profileData.description || "Noch keine Beschreibung verfügbar."}
+                      </p>
+                    )}
+                  </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="mission_statement">Mission</Label>
-                {editing ? (
-                  <Textarea
-                    id="mission_statement"
-                    value={profileData.mission_statement}
-                    onChange={(e) => updateField('mission_statement', e.target.value)}
-                    placeholder="Wofür steht Ihr Unternehmen?"
-                    rows={3}
-                  />
-                ) : (
-                  <p className="text-muted-foreground">
-                    {profileData.mission_statement || "Noch keine Mission angegeben."}
-                  </p>
-                )}
-              </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="mission_statement">Mission</Label>
+                    {editing ? (
+                      <Textarea
+                        id="mission_statement"
+                        value={profileData.mission_statement}
+                        onChange={(e) => updateField('mission_statement', e.target.value)}
+                        placeholder="Wofür steht Ihr Unternehmen?"
+                        rows={3}
+                      />
+                    ) : (
+                      <p className="text-muted-foreground">
+                        {profileData.mission_statement || "Noch keine Mission angegeben."}
+                      </p>
+                    )}
+                  </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="industry">Branche</Label>
-                  {editing ? (
-                    <Input
-                      id="industry"
-                      value={profileData.industry}
-                      onChange={(e) => updateField('industry', e.target.value)}
-                      placeholder="z.B. IT, Handwerk"
-                    />
-                  ) : (
-                    <p className="text-muted-foreground">{profileData.industry}</p>
-                  )}
-                </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="industry">Branche</Label>
+                      {editing ? (
+                        <Input
+                          id="industry"
+                          value={profileData.industry}
+                          onChange={(e) => updateField('industry', e.target.value)}
+                          placeholder="z.B. IT, Handwerk"
+                        />
+                      ) : (
+                        <p className="text-muted-foreground">{profileData.industry}</p>
+                      )}
+                    </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="founded_year">Gründungsjahr</Label>
-                  {editing ? (
-                    <Input
-                      id="founded_year"
-                      type="number"
-                      value={profileData.founded_year || ""}
-                      onChange={(e) => updateField('founded_year', e.target.value ? parseInt(e.target.value) : null)}
-                      placeholder="z.B. 2010"
-                    />
-                  ) : (
-                    <p className="text-muted-foreground">{profileData.founded_year || "Nicht angegeben"}</p>
-                  )}
-                </div>
-              </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="founded_year">Gründungsjahr</Label>
+                      {editing ? (
+                        <Input
+                          id="founded_year"
+                          type="number"
+                          value={profileData.founded_year || ""}
+                          onChange={(e) => updateField('founded_year', e.target.value ? parseInt(e.target.value) : null)}
+                          placeholder="z.B. 2010"
+                        />
+                      ) : (
+                        <p className="text-muted-foreground">{profileData.founded_year || "Nicht angegeben"}</p>
+                      )}
+                    </div>
+                  </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="main_location">Hauptsitz</Label>
-                  {editing ? (
-                    <Input
-                      id="main_location"
-                      value={profileData.main_location}
-                      onChange={(e) => updateField('main_location', e.target.value)}
-                      placeholder="Stadt, Land"
-                    />
-                  ) : (
-                    <p className="text-muted-foreground">{profileData.main_location}</p>
-                  )}
-                </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="main_location">Hauptsitz</Label>
+                      {editing ? (
+                        <Input
+                          id="main_location"
+                          value={profileData.main_location}
+                          onChange={(e) => updateField('main_location', e.target.value)}
+                          placeholder="Stadt, Land"
+                        />
+                      ) : (
+                        <p className="text-muted-foreground">{profileData.main_location}</p>
+                      )}
+                    </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="website_url">Website</Label>
-                  {editing ? (
-                    <Input
-                      id="website_url"
-                      value={profileData.website_url}
-                      onChange={(e) => updateField('website_url', e.target.value)}
-                      placeholder="https://www.ihr-unternehmen.de"
-                    />
-                  ) : (
-                    <p className="text-muted-foreground">{profileData.website_url || "Nicht angegeben"}</p>
-                  )}
-                </div>
-              </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="website_url">Website</Label>
+                      {editing ? (
+                        <Input
+                          id="website_url"
+                          value={profileData.website_url}
+                          onChange={(e) => updateField('website_url', e.target.value)}
+                          placeholder="https://www.ihr-unternehmen.de"
+                        />
+                      ) : (
+                        <p className="text-muted-foreground">{profileData.website_url || "Nicht angegeben"}</p>
+                      )}
+                    </div>
+                  </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="employee_count">Mitarbeiterzahl</Label>
-                {editing ? (
-                  <Input
-                    id="employee_count"
-                    type="number"
-                    min={0}
-                    value={profileData.employee_count ?? ""}
-                    onChange={(e) => updateField('employee_count', e.target.value === '' ? null : parseInt(e.target.value))}
-                    placeholder="z.B. 42"
-                  />
-                ) : (
-                  <p className="text-muted-foreground">{profileData.employee_count ?? "Nicht angegeben"}</p>
-                )}
-              </div>
-            </CardContent>
+                  <div className="space-y-2">
+                    <Label htmlFor="employee_count">Mitarbeiterzahl</Label>
+                    {editing ? (
+                      <Input
+                        id="employee_count"
+                        type="number"
+                        min={0}
+                        value={profileData.employee_count ?? ""}
+                        onChange={(e) => updateField('employee_count', e.target.value === '' ? null : parseInt(e.target.value))}
+                        placeholder="z.B. 42"
+                      />
+                    ) : (
+                      <p className="text-muted-foreground">{profileData.employee_count ?? "Nicht angegeben"}</p>
+                    )}
+                  </div>
+                </CardContent>
+              </CollapsibleContent>
+            </Collapsible>
           </Card>
 
           <Card>
-            <CardHeader>
-              <CardTitle>Profil-Tags</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {loadingTags ? (
-                <p className="text-muted-foreground">Lade Tags…</p>
-              ) : (
-                <>
-                  {tagsByType.profession.length > 0 && (
-                    <div>
-                      <Label>Berufe/Professionen</Label>
-                      <p className="text-sm text-muted-foreground mt-1">{tagsByType.profession.join(", ")}</p>
-                    </div>
+            <Collapsible defaultOpen>
+              <CardHeader className="flex flex-row items-center justify-between">
+                <CardTitle>Profil-Tags</CardTitle>
+                <CollapsibleTrigger className="inline-flex items-center text-muted-foreground hover:text-foreground [&[data-state=open]>.chev]:rotate-180">
+                  <ChevronDown className="chev h-4 w-4 transition-transform" />
+                </CollapsibleTrigger>
+              </CardHeader>
+              <CollapsibleContent>
+                <CardContent className="space-y-4">
+                  {loadingTags ? (
+                    <p className="text-muted-foreground">Lade Tags…</p>
+                  ) : (
+                    <>
+                      {tagsByType.profession.length > 0 && (
+                        <div>
+                          <Label>Berufe/Professionen</Label>
+                          <p className="text-sm text-muted-foreground mt-1">{tagsByType.profession.join(", ")}</p>
+                        </div>
+                      )}
+                      {tagsByType.must.length > 0 && (
+                        <div>
+                          <Label>Must-Haves</Label>
+                          <p className="text-sm text-muted-foreground mt-1">{tagsByType.must.join(", ")}</p>
+                        </div>
+                      )}
+                      {tagsByType.nice.length > 0 && (
+                        <div>
+                          <Label>Nice-to-Haves</Label>
+                          <p className="text-sm text-muted-foreground mt-1">{tagsByType.nice.join(", ")}</p>
+                        </div>
+                      )}
+                      {tagsByType.benefit.length > 0 && (
+                        <div>
+                          <Label>Benefits</Label>
+                          <p className="text-sm text-muted-foreground mt-1">{tagsByType.benefit.join(", ")}</p>
+                        </div>
+                      )}
+                      {tagsByType.work_env.length > 0 && (
+                        <div>
+                          <Label>Arbeitsumfeld</Label>
+                          <p className="text-sm text-muted-foreground mt-1">{tagsByType.work_env.join(", ")}</p>
+                        </div>
+                      )}
+                      {tagsByType.target_group.length > 0 && (
+                        <div>
+                          <Label>Zielgruppen</Label>
+                          <p className="text-sm text-muted-foreground mt-1">{tagsByType.target_group.join(", ")}</p>
+                        </div>
+                      )}
+                      {Object.values(tagsByType).every((arr) => arr.length === 0) && (
+                        <p className="text-sm text-muted-foreground">Noch keine Profil-Tags. Pflege sie unter Einstellungen &gt; Profil.</p>
+                      )}
+                    </>
                   )}
-                  {tagsByType.must.length > 0 && (
-                    <div>
-                      <Label>Must-Haves</Label>
-                      <p className="text-sm text-muted-foreground mt-1">{tagsByType.must.join(", ")}</p>
-                    </div>
-                  )}
-                  {tagsByType.nice.length > 0 && (
-                    <div>
-                      <Label>Nice-to-Haves</Label>
-                      <p className="text-sm text-muted-foreground mt-1">{tagsByType.nice.join(", ")}</p>
-                    </div>
-                  )}
-                  {tagsByType.benefit.length > 0 && (
-                    <div>
-                      <Label>Benefits</Label>
-                      <p className="text-sm text-muted-foreground mt-1">{tagsByType.benefit.join(", ")}</p>
-                    </div>
-                  )}
-                  {tagsByType.work_env.length > 0 && (
-                    <div>
-                      <Label>Arbeitsumfeld</Label>
-                      <p className="text-sm text-muted-foreground mt-1">{tagsByType.work_env.join(", ")}</p>
-                    </div>
-                  )}
-                  {tagsByType.target_group.length > 0 && (
-                    <div>
-                      <Label>Zielgruppen</Label>
-                      <p className="text-sm text-muted-foreground mt-1">{tagsByType.target_group.join(", ")}</p>
-                    </div>
-                  )}
-                  {Object.values(tagsByType).every((arr) => arr.length === 0) && (
-                    <p className="text-sm text-muted-foreground">Noch keine Profil-Tags. Pflege sie unter Einstellungen &gt; Profil.</p>
-                  )}
-                </>
-              )}
-            </CardContent>
+                </CardContent>
+              </CollapsibleContent>
+            </Collapsible>
           </Card>
         </TabsContent>
 
