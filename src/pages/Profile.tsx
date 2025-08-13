@@ -375,7 +375,7 @@ const Profile = () => {
       </div>
 
       {/* Sticky bottom Save Bar (mobile) */}
-      {isEditing && <div className="fixed inset-x-0 bottom-0 z-40 border-t bg-background/95 supports-[backdrop-filter]:bg-background/80 backdrop-blur px-3 py-2 pb-safe md:hidden">
+      {isEditing && <div className="fixed inset-x-0 bottom-0 z-[61] border-t bg-background/95 supports-[backdrop-filter]:bg-background/80 backdrop-blur px-3 py-2 pb-safe md:hidden">
           <div className="max-w-[560px] mx-auto px-4 flex items-center justify-end gap-2">
             <Button variant="outline" onClick={() => setIsEditing(false)} disabled={isSaving} size="sm" className="min-h-[38px] md:min-h-[44px]">
               Abbrechen
@@ -389,7 +389,7 @@ const Profile = () => {
 
       {/* Mobile Quick Actions Bar (visible when not editing) */}
       {!isEditing && (
-        <div className="fixed inset-x-0 bottom-0 z-40 border-t bg-background/95 supports-[backdrop-filter]:bg-background/80 backdrop-blur px-3 py-2 pb-safe md:hidden">
+        <div className="fixed inset-x-0 bottom-0 z-[61] border-t bg-background/95 supports-[backdrop-filter]:bg-background/80 backdrop-blur px-3 py-2 pb-safe md:hidden">
           <div className="max-w-[560px] mx-auto px-4 grid grid-cols-5 gap-2">
             <Button size="sm" variant="outline" className="min-h-[44px]" onClick={() => setIsEditing(true)} aria-label="Profil bearbeiten">
               <Edit3 className="h-4 w-4" />
