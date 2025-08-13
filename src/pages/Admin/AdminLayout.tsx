@@ -43,8 +43,9 @@ export default function AdminLayout() {
         .eq("user_id", user.id);
       if (mounted) {
         if (error) console.warn("user_roles fetch error", error);
-        const roles = (data as { role: string }[]) || [];
-        const isAllowed = roles.some((r) => r.role === "admin" || r.role === "editor");
+        const roles = ((data as { role: string }[]) || []).map((r) => String(r.role).toLowerCase());
+        const allowedRoles = new Set(["admin", "superadmin", "editor", "contenteditor", "support", "supportagent", "companyadmin"]);
+        const isAllowed = roles.some((r) => allowedRoles.has(r));
         setAllowed(isAllowed);
         setLoading(false);
       }
@@ -87,23 +88,31 @@ export default function AdminLayout() {
   }
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      <header className="border-b">
-        <div className="mx-auto max-w-[1200px] px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <Link to="/admin" className="font-semibold">Admin</Link>
-          <nav className="flex items-center gap-2">
-            <NavLink to="/admin/pages" label="Pages" />
-            <NavLink to="/admin/seo" label="SEO Insights" />
-            <NavLink to="/admin/scheduled" label="Geplant" />
-            <NavLink to="/admin/settings" label="Einstellungen" />
-          </nav>
+    <SidebarProvider>
+      <div className="min-h-screen bg-background text-foreground w-full flex flex-col">
+        <header className="border-b">
+          <div className="mx-auto max-w-[1200px] px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <SidebarTrigger className="mr-1" />
+              <Link to="/admin" className="font-semibold">Admin</Link>
+            </div>
+            <nav className="flex items-center gap-2">
+              <NavLink to="/admin/pages" label="Pages" />
+              <NavLink to="/admin/seo" label="SEO Insights" />
+              <NavLink to="/admin/scheduled" label="Geplant" />
+              <NavLink to="/admin/settings" label="Einstellungen" />
+            </nav>
+          </div>
+        </header>
+        <div className="flex w-full flex-1">
+          <AdminSidebar />
+          <main className="flex-1">
+            <BaseLayout>
+              <Outlet />
+            </BaseLayout>
+          </main>
         </div>
-      </header>
-      <main>
-        <BaseLayout>
-          <Outlet />
-        </BaseLayout>
-      </main>
-    </div>
+      </div>
+    </SidebarProvider>
   );
 }
