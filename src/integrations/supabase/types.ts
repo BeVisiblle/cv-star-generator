@@ -782,6 +782,98 @@ export type Database = {
           },
         ]
       }
+      notification_prefs: {
+        Row: {
+          created_at: string
+          email: boolean
+          id: string
+          in_app: boolean
+          type: Database["public"]["Enums"]["notif_type"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          email?: boolean
+          id?: string
+          in_app?: boolean
+          type: Database["public"]["Enums"]["notif_type"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          email?: boolean
+          id?: string
+          in_app?: boolean
+          type?: Database["public"]["Enums"]["notif_type"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notification_prefs_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notifications: {
+        Row: {
+          actor_id: string | null
+          actor_type: Database["public"]["Enums"]["notif_recipient"] | null
+          body: string | null
+          channels: Database["public"]["Enums"]["notif_channel"][] | null
+          created_at: string
+          group_key: string | null
+          id: string
+          payload: Json | null
+          priority: number | null
+          read_at: string | null
+          recipient_id: string
+          recipient_type: Database["public"]["Enums"]["notif_recipient"]
+          seen_at: string | null
+          title: string
+          type: Database["public"]["Enums"]["notif_type"]
+        }
+        Insert: {
+          actor_id?: string | null
+          actor_type?: Database["public"]["Enums"]["notif_recipient"] | null
+          body?: string | null
+          channels?: Database["public"]["Enums"]["notif_channel"][] | null
+          created_at?: string
+          group_key?: string | null
+          id?: string
+          payload?: Json | null
+          priority?: number | null
+          read_at?: string | null
+          recipient_id: string
+          recipient_type: Database["public"]["Enums"]["notif_recipient"]
+          seen_at?: string | null
+          title: string
+          type: Database["public"]["Enums"]["notif_type"]
+        }
+        Update: {
+          actor_id?: string | null
+          actor_type?: Database["public"]["Enums"]["notif_recipient"] | null
+          body?: string | null
+          channels?: Database["public"]["Enums"]["notif_channel"][] | null
+          created_at?: string
+          group_key?: string | null
+          id?: string
+          payload?: Json | null
+          priority?: number | null
+          read_at?: string | null
+          recipient_id?: string
+          recipient_type?: Database["public"]["Enums"]["notif_recipient"]
+          seen_at?: string | null
+          title?: string
+          type?: Database["public"]["Enums"]["notif_type"]
+        }
+        Relationships: []
+      }
       page_revisions: {
         Row: {
           changed_at: string
@@ -4208,6 +4300,23 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "editor" | "viewer"
+      notif_channel: "in_app" | "email"
+      notif_recipient: "profile" | "company"
+      notif_type:
+        | "company_unlocked_you"
+        | "follow_request_received"
+        | "pipeline_move_for_you"
+        | "post_interaction"
+        | "profile_incomplete_reminder"
+        | "weekly_digest_user"
+        | "new_matches_available"
+        | "follow_accepted_chat_unlocked"
+        | "candidate_response_to_unlock"
+        | "pipeline_activity_team"
+        | "low_tokens"
+        | "weekly_digest_company"
+        | "billing_update"
+        | "product_update"
       tag_type:
         | "profession"
         | "target_group"
@@ -4351,6 +4460,24 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "editor", "viewer"],
+      notif_channel: ["in_app", "email"],
+      notif_recipient: ["profile", "company"],
+      notif_type: [
+        "company_unlocked_you",
+        "follow_request_received",
+        "pipeline_move_for_you",
+        "post_interaction",
+        "profile_incomplete_reminder",
+        "weekly_digest_user",
+        "new_matches_available",
+        "follow_accepted_chat_unlocked",
+        "candidate_response_to_unlock",
+        "pipeline_activity_team",
+        "low_tokens",
+        "weekly_digest_company",
+        "billing_update",
+        "product_update",
+      ],
       tag_type: [
         "profession",
         "target_group",

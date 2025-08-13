@@ -15,7 +15,7 @@ export function useNotifications(recipientType: RecipientType, recipientId: stri
     setLoading(true);
 
     const q = supabase
-      .from('notifications')
+      .from('notifications' as any)
       .select('*')
       .eq('recipient_type', recipientType)
       .eq('recipient_id', recipientId)
@@ -35,8 +35,8 @@ export function useNotifications(recipientType: RecipientType, recipientId: stri
     }
 
     if (data && data.length) {
-      setItems(prev => [...prev, ...(data as NotificationRow[])]);
-      cursorRef.current = data[data.length - 1].created_at;
+      setItems(prev => [...prev, ...(data as any[] as NotificationRow[])]);
+      cursorRef.current = (data[data.length - 1] as any).created_at;
       if (data.length < PAGE_SIZE) setHasMore(false);
     } else {
       setHasMore(false);
@@ -72,7 +72,7 @@ export function useNotifications(recipientType: RecipientType, recipientId: stri
       setItems(prev =>
         prev.map(n => (n.id === id ? { ...n, read_at: new Date().toISOString() } : n))
       );
-      const { error } = await supabase.from('notifications').update({ read_at: new Date().toISOString() }).eq('id', id);
+      const { error } = await supabase.from('notifications' as any).update({ read_at: new Date().toISOString() }).eq('id', id);
       if (error) console.error('markRead failed', error);
     },
     []
@@ -87,7 +87,7 @@ export function useNotifications(recipientType: RecipientType, recipientId: stri
 
     // Server
     const { error } = await supabase
-      .from('notifications')
+      .from('notifications' as any)
       .update({ read_at: now })
       .eq('recipient_type', recipientType)
       .eq('recipient_id', recipientId)

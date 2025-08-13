@@ -30,6 +30,7 @@ import CommunityContacts from "./pages/Community/Contacts";
 import CommunityCompanies from "./pages/Community/Companies";
 import CommunityMessages from "./pages/Community/Messages";
 import CommunityJobs from "./pages/Community/Jobs";
+import NotificationsPage from "./pages/Notifications";
 
 // Company components
 import { CompanyLayout } from "@/components/Company/CompanyLayout";
@@ -226,6 +227,7 @@ const App = () => (
                 <Route path="/community/companies" element={<CommunityCompanies />} />
                 <Route path="/community/messages" element={<CommunityMessages />} />
                 <Route path="/community/jobs" element={<CommunityJobs />} />
+                <Route path="/notifications" element={<NotificationsPage />} />
                 <Route path="/settings" element={<Settings />} />
                 <Route path="/entdecken/azubis" element={<DiscoverAzubis />} />
                 <Route path="/entdecken/unternehmen" element={<DiscoverCompanies />} />

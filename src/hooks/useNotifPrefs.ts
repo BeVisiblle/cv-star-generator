@@ -27,7 +27,7 @@ export function useNotifPrefs(userId: string | null) {
     (async () => {
       if (!userId) return;
       setLoading(true);
-      const { data, error } = await supabase.from('notification_prefs').select('*').eq('user_id', userId);
+      const { data, error } = await supabase.from('notification_prefs' as any).select('*').eq('user_id', userId);
       if (!error && data) setRows(data as any);
       setLoading(false);
     })();
@@ -46,7 +46,7 @@ export function useNotifPrefs(userId: string | null) {
       const next = prev.filter(p => p.type !== type);
       return [...next, { ...(existing as any), ...payload } as any];
     });
-    const { error } = await supabase.from('notification_prefs').upsert(payload, { onConflict: 'user_id,type' });
+    const { error } = await supabase.from('notification_prefs' as any).upsert(payload, { onConflict: 'user_id,type' });
     if (error) console.error(error);
   };
 
