@@ -333,6 +333,48 @@ export type Database = {
           },
         ]
       }
+      company_follow_prefs: {
+        Row: {
+          bell: string
+          company_id: string
+          created_at: string
+          id: string
+          profile_id: string
+          updated_at: string
+        }
+        Insert: {
+          bell?: string
+          company_id: string
+          created_at?: string
+          id?: string
+          profile_id: string
+          updated_at?: string
+        }
+        Update: {
+          bell?: string
+          company_id?: string
+          created_at?: string
+          id?: string
+          profile_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "company_follow_prefs_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "company_follow_prefs_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       company_posts: {
         Row: {
           company_id: string | null
@@ -594,6 +636,68 @@ export type Database = {
           created_at?: string
           id?: string
           last_message_at?: string | null
+        }
+        Relationships: []
+      }
+      follow_request_counters: {
+        Row: {
+          company_id: string
+          count: number
+          day: string
+          updated_at: string
+        }
+        Insert: {
+          company_id: string
+          count?: number
+          day?: string
+          updated_at?: string
+        }
+        Update: {
+          company_id?: string
+          count?: number
+          day?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "follow_request_counters_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: true
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      follows: {
+        Row: {
+          created_at: string
+          followee_id: string
+          followee_type: Database["public"]["Enums"]["follow_entity"]
+          follower_id: string
+          follower_type: Database["public"]["Enums"]["follow_entity"]
+          id: string
+          status: Database["public"]["Enums"]["follow_status"]
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          followee_id: string
+          followee_type: Database["public"]["Enums"]["follow_entity"]
+          follower_id: string
+          follower_type: Database["public"]["Enums"]["follow_entity"]
+          id?: string
+          status?: Database["public"]["Enums"]["follow_status"]
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          followee_id?: string
+          followee_type?: Database["public"]["Enums"]["follow_entity"]
+          follower_id?: string
+          follower_type?: Database["public"]["Enums"]["follow_entity"]
+          id?: string
+          status?: Database["public"]["Enums"]["follow_status"]
+          updated_at?: string
         }
         Relationships: []
       }
@@ -4261,6 +4365,8 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "editor" | "viewer"
+      follow_entity: "profile" | "company"
+      follow_status: "pending" | "accepted" | "rejected" | "blocked"
       notif_channel: "in_app" | "email"
       notif_recipient: "profile" | "company"
       notif_type:
@@ -4421,6 +4527,8 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "editor", "viewer"],
+      follow_entity: ["profile", "company"],
+      follow_status: ["pending", "accepted", "rejected", "blocked"],
       notif_channel: ["in_app", "email"],
       notif_recipient: ["profile", "company"],
       notif_type: [
