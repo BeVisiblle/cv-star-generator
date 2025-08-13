@@ -332,7 +332,6 @@ const { toast } = useToast();
                   <ChevronDown className="chev h-4 w-4 transition-transform" />
                 </CollapsibleTrigger>
               </CardHeader>
-              </CardHeader>
               <CollapsibleContent>
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
