@@ -221,7 +221,16 @@ const CompanyProfileView = () => {
             
             {/* Kontaktdaten Box */}
             <Card className="p-4">
-              <h3 className="font-semibold mb-3">Kontaktdaten</h3>
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="font-semibold">Kontaktdaten</h3>
+                {company?.id && (
+                  <FollowButton
+                    companyId={company.id}
+                    profileId={id!}
+                    mode="company-to-profile"
+                  />
+                )}
+              </div>
               <div className="space-y-2">
                 <KeyValueRow
                   label="E-Mail"
@@ -260,18 +269,6 @@ const CompanyProfileView = () => {
                 </p>
               )}
             </Card>
-
-            {/* Follow Action Card */}
-            {company?.id && (
-              <Card className="p-4">
-                <h3 className="font-semibold mb-3">Azubi folgen</h3>
-                <FollowButton
-                  companyId={company.id}
-                  profileId={id!}
-                  mode="company-to-profile"
-                />
-              </Card>
-            )}
 
             {/* Contact Action Card for Unlocked Profiles */}
             {isUnlocked && (profile.email || profile.telefon) && (

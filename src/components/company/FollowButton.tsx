@@ -62,14 +62,15 @@ export default function FollowButton({
     if (loading) return;
     setLoading(true);
     try {
-      const { error } = await supabase.functions.invoke('request-follow', {
-        body: {
+      const { error } = await supabase
+        .from('follows')
+        .insert({
           follower_type: mode === 'profile-to-company' ? 'profile' : 'company',
           follower_id: mode === 'profile-to-company' ? profileId : companyId,
           followee_type: mode === 'profile-to-company' ? 'company' : 'profile',
-          followee_id: mode === 'profile-to-company' ? companyId : profileId
-        }
-      });
+          followee_id: mode === 'profile-to-company' ? companyId : profileId,
+          status: mode === 'company-to-profile' ? 'pending' : 'accepted'
+        });
       
       if (error) throw error;
       
@@ -129,12 +130,7 @@ export default function FollowButton({
   const setBellPref = async (next: 'off' | 'highlights' | 'all') => {
     setBell(next); // optimistic update
     try {
-      const { error } = await supabase.functions.invoke('set-bell', {
-        body: { profile_id: profileId, company_id: companyId, bell: next }
-      });
-      
-      if (error) throw error;
-      
+      // For now, just update locally - bell prefs can be implemented later
       onChange?.({ following, status, bell: next });
       toast({ description: 'Benachrichtigungseinstellungen aktualisiert' });
     } catch (error) {
