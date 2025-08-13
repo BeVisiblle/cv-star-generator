@@ -6,7 +6,8 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Edit3, Check, Clock, X, Loader2, Mail, Phone, MapPin, Car, Eye, Download, Upload } from 'lucide-react';
+import { Edit3, Check, Clock, X, Loader2, Mail, Phone, MapPin, Car, Eye, Download, Upload, Edit, Save } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 import { toast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { LinkedInProfileHeader } from '@/components/linkedin/LinkedInProfileHeader';
@@ -37,6 +38,14 @@ const Profile = () => {
   const [profile, setProfile] = useState<any>(null);
   const [documentsCount, setDocumentsCount] = useState<number>(0);
   const [profileVisits, setProfileVisits] = useState<number>(0);
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+  
+  const handleCancel = () => {
+    if (authProfile) {
+      setProfile({ ...authProfile });
+    }
+    setIsEditing(false);
+  };
 
   // All hooks must be called before any conditional returns
   const handleProfileUpdateImmediate = useCallback(async (updates: any) => {
@@ -199,47 +208,47 @@ const Profile = () => {
 
   // Early returns after all hooks are declared
 
-  return <div className={`px-4 sm:px-6 lg:px-8 py-3 md:py-6 min-h-screen bg-background max-w-full overflow-x-hidden ${isEditing ? 'pb-24' : 'pb-24 md:pb-6'} pt-safe`}>{/* Prevent horizontal scroll and reserve for sticky footer */}
-      {/* Mobile-optimized Profile Actions Header */}
-      <div className="hidden md:block sticky top-0 z-30 mb-4 md:mb-6 bg-background/80 supports-[backdrop-filter]:bg-background/60 backdrop-blur border-b">
-        <div className="px-3 sm:px-0 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0">
-          <div className="min-w-0 flex-1">
-            <h1 className="text-xl md:text-2xl font-bold truncate">
-              {profile.vorname} {profile.nachname}
-            </h1>
-            
-          </div>
-          
-          <div className="flex flex-wrap gap-2 w-full sm:w-auto">
-            {!profile.profile_published && <Button variant="outline" onClick={() => setShowPreview(true)} size="sm" className="flex-1 sm:flex-none min-h-[44px]">
-                Vorschau
-              </Button>}
-            
-            {isEditing ? <div className="hidden md:flex gap-2 flex-1 sm:flex-none">
-                <Button variant="outline" onClick={() => setIsEditing(false)} disabled={isSaving} size="sm" className="flex-1 sm:flex-none min-h-[44px]">
-                  <X className="h-4 w-4 mr-1 sm:mr-2" />
-                  <span className="hidden sm:inline">Abbrechen</span>
-                  <span className="sm:hidden">Abbr.</span>
-                </Button>
-                <Button onClick={handleSave} disabled={isSaving} size="sm" className="flex-1 sm:flex-none min-h-[44px]">
-                  {isSaving ? <Clock className="h-4 w-4 mr-1 sm:mr-2 animate-spin" /> : <Check className="h-4 w-4 mr-1 sm:mr-2" />}
-                  <span className="hidden sm:inline">Speichern</span>
-                  <span className="sm:hidden">Save</span>
-                </Button>
-              </div> : <Button onClick={() => setIsEditing(true)} size="sm" className="flex-1 sm:flex-none min-h-[44px]">
-                <Edit3 className="h-4 w-4 mr-1 sm:mr-2" />
-                <span className="hidden sm:inline">Bearbeiten</span>
-                <span className="sm:hidden">Edit</span>
-              </Button>}
+  return <div className="w-full overflow-x-hidden">
+      <main className="mx-auto max-w-screen-2xl px-3 sm:px-6 lg:px-8 py-6">
+        {/* Mobile-optimized Profile Actions Header */}
+        <div className="hidden md:block sticky top-0 z-30 mb-4 md:mb-6 bg-background/80 supports-[backdrop-filter]:bg-background/60 backdrop-blur border-b">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0">
+            <div className="flex items-center gap-2 md:gap-3">
+              <h1 className="text-xl md:text-2xl lg:text-3xl font-bold">Profil</h1>
+              {profile?.published && <Badge variant="outline" className="text-xs hidden md:inline-flex">Öffentlich</Badge>}
+            </div>
+            <div className="flex flex-wrap items-center gap-2 md:gap-3">
+              {!isEditing ? (
+                <>
+                  <Button variant="outline" size="sm" onClick={() => setIsPreviewOpen(true)} className="flex items-center gap-1.5">
+                    <Eye className="h-3.5 w-3.5" />
+                    Vorschau
+                  </Button>
+                  <Button onClick={() => setIsEditing(true)} className="flex items-center gap-1.5">
+                    <Edit className="h-3.5 w-3.5" />
+                    Bearbeiten
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Button variant="ghost" onClick={handleCancel} className="flex items-center gap-1.5">
+                    <X className="h-3.5 w-3.5" />
+                    Abbrechen
+                  </Button>
+                  <Button onClick={handleSave} disabled={isSaving} className="flex items-center gap-1.5">
+                    {isSaving ? <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" /> : <Save className="h-3.5 w-3.5" />}
+                    Speichern
+                  </Button>
+                </>
+              )}
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* Responsive layout: Mobile stacked with prioritized content, Desktop with sidebar */}
-      <div className="mx-auto max-w-screen-2xl flex flex-col lg:grid lg:grid-cols-12 gap-4 md:gap-6">
-        {/* Main Content Area */}
-        <main className="lg:col-span-8">
-          <div className="w-full max-w-[560px] mx-auto px-4 md:max-w-none md:px-0 space-y-3 md:space-y-4">
+        <div className="flex gap-4 lg:gap-6">
+          {/* Main Content */}
+          <section className="flex-1 min-w-0">
+            <div className="w-full max-w-[560px] mx-auto px-4 md:max-w-none md:px-0 space-y-4">
             {/* Profile Header with Cover Photo - Always first */}
             <LinkedInProfileHeader profile={profile} isEditing={isEditing} onProfileUpdate={handleProfileUpdate} />
             {/* About Section - High priority on mobile */}
@@ -354,25 +363,26 @@ const Profile = () => {
                 </div>
               </Card>
             </div>
-          </div>
-        </main>
-
-        {/* Right Sidebar - Desktop: sidebar, Mobile: after main content */}
-        <aside className="lg:col-span-4">
-          <div className="w-full max-w-[560px] mx-auto px-4 md:max-w-none md:px-0 lg:sticky lg:top-24 space-y-4 md:space-y-6">
-            <LinkedInProfileSidebar profile={profile} isEditing={isEditing} onProfileUpdate={handleProfileUpdate} showLanguagesAndSkills={false} showLicenseAndStats={false} />
-            <RightRailAd variant="card" size="sm" />
-            <SkillsLanguagesSidebar profile={profile} isEditing={isEditing} onProfileUpdate={handleProfileUpdate} />
-            <InView rootMargin="300px" placeholder={<div className="h-32 rounded-md bg-muted/50 animate-pulse" />}> 
-              <PeopleRecommendations limit={3} showMoreLink="/entdecken/azubis" showMore />
-            </InView>
-            <InView rootMargin="300px" placeholder={<div className="h-32 rounded-md bg-muted/50 animate-pulse" />}> 
-              <CompanyRecommendations limit={3} showMoreLink="/entdecken/unternehmen" showMore />
-            </InView>
-            <RightRailAd variant="banner" size="sm" />
-          </div>
-        </aside>
-      </div>
+            </div>
+          </section>
+          
+          {/* Right Sidebar - Desktop: sidebar, Mobile: after main content */}
+          <aside className="hidden lg:block w-[320px] shrink-0">
+            <div className="sticky top-24 space-y-4">
+              <LinkedInProfileSidebar profile={profile} isEditing={isEditing} onProfileUpdate={handleProfileUpdate} showLanguagesAndSkills={false} showLicenseAndStats={false} />
+              <RightRailAd variant="card" size="sm" />
+              <SkillsLanguagesSidebar profile={profile} isEditing={isEditing} onProfileUpdate={handleProfileUpdate} />
+              <InView rootMargin="300px" placeholder={<div className="h-32 rounded-md bg-muted/50 animate-pulse" />}> 
+                <PeopleRecommendations limit={3} showMoreLink="/entdecken/azubis" showMore />
+              </InView>
+              <InView rootMargin="300px" placeholder={<div className="h-32 rounded-md bg-muted/50 animate-pulse" />}> 
+                <CompanyRecommendations limit={3} showMoreLink="/entdecken/unternehmen" showMore />
+              </InView>
+              <RightRailAd variant="banner" size="sm" />
+            </div>
+          </aside>
+        </div>
+      </main>
 
       {/* Sticky bottom Save Bar (mobile) */}
       {isEditing && <div className="fixed inset-x-0 bottom-0 z-[61] border-t bg-background/95 supports-[backdrop-filter]:bg-background/80 backdrop-blur px-3 py-2 pb-safe md:hidden">
