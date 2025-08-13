@@ -53,11 +53,13 @@ export const CompanyRecommendations: React.FC<CompanyRecommendationsProps> = ({ 
       const ids = items.map(i => i.id);
       const { data, error } = await supabase
         .from('follows')
-        .select('following_id')
+        .select('followee_id')
         .eq('follower_id', user.id)
-        .in('following_id', ids);
+        .eq('follower_type', 'profile')
+        .eq('followee_type', 'company')
+        .in('followee_id', ids);
       if (!error && data) {
-        setFollowing(new Set((data as any[]).map((d: any) => d.following_id as string)));
+        setFollowing(new Set((data as any[]).map((d: any) => d.followee_id as string)));
       }
     };
     loadFollows();
@@ -67,12 +69,23 @@ export const CompanyRecommendations: React.FC<CompanyRecommendationsProps> = ({ 
     if (!user) { window.location.href = '/auth'; return; }
     try {
       if (following.has(id)) {
-        const { error } = await supabase.from('follows').delete().eq('follower_id', user.id).eq('following_id', id);
+        const { error } = await supabase.from('follows')
+          .delete()
+          .eq('follower_id', user.id)
+          .eq('followee_id', id)
+          .eq('follower_type', 'profile')
+          .eq('followee_type', 'company');
         if (!error) {
           setFollowing(prev => { const n = new Set(prev); n.delete(id); return n; });
         }
       } else {
-        const { error } = await supabase.from('follows').insert({ follower_id: user.id, following_id: id });
+        const { error } = await supabase.from('follows').insert({ 
+          follower_id: user.id, 
+          followee_id: id,
+          follower_type: 'profile',
+          followee_type: 'company',
+          status: 'accepted' 
+        });
         if (!error) {
           setFollowing(prev => new Set(prev).add(id));
         }

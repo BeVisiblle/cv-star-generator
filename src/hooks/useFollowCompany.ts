@@ -13,7 +13,9 @@ export function useFollowCompany(companyId?: string) {
       .from('follows')
       .select('id')
       .eq('follower_id', user.id)
-      .eq('following_id', companyId)
+      .eq('followee_id', companyId)
+      .eq('follower_type', 'profile')
+      .eq('followee_type', 'company')
       .maybeSingle();
     if (!error) setIsFollowing(!!data);
   }, [user, companyId]);
@@ -36,12 +38,20 @@ export function useFollowCompany(companyId?: string) {
           .from('follows')
           .delete()
           .eq('follower_id', user.id)
-          .eq('following_id', companyId);
+          .eq('followee_id', companyId)
+          .eq('follower_type', 'profile')
+          .eq('followee_type', 'company');
         if (!error) setIsFollowing(false);
       } else {
         const { error } = await supabase
           .from('follows')
-          .insert({ follower_id: user.id, following_id: companyId });
+          .insert({ 
+            follower_id: user.id, 
+            followee_id: companyId,
+            follower_type: 'profile',
+            followee_type: 'company',
+            status: 'accepted'
+          });
         if (!error) setIsFollowing(true);
       }
     } finally {

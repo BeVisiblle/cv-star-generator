@@ -29,7 +29,7 @@ export const CommunityFriends = () => {
       if (error) throw error;
 
       // Get profile data for each connection
-      const connectionIds = data?.map(conn => conn.following_id) || [];
+      const connectionIds = data?.map(conn => conn.followee_id) || [];
       if (connectionIds.length === 0) return [];
 
       const { data: profiles, error: profileError } = await supabase
@@ -42,7 +42,7 @@ export const CommunityFriends = () => {
       // Combine connections with profiles
       const connectionsWithProfiles = data?.map(conn => ({
         ...conn,
-        following: profiles?.find(p => p.id === conn.following_id)
+        following: profiles?.find(p => p.id === conn.followee_id)
       })) || [];
 
       return connectionsWithProfiles;
@@ -80,7 +80,10 @@ export const CommunityFriends = () => {
         .from("follows")
         .insert({
           follower_id: user.user.id,
-          following_id: targetUserId,
+          followee_id: targetUserId,
+          follower_type: 'profile',
+          followee_type: 'profile',
+          status: 'pending'
         });
 
       if (error) throw error;
@@ -113,11 +116,11 @@ export const CommunityFriends = () => {
   });
 
   const isFollowing = (userId: string) => {
-    return connections?.some(conn => conn.following_id === userId);
+    return connections?.some(conn => conn.followee_id === userId);
   };
 
   const getConnectionId = (userId: string) => {
-    return connections?.find(conn => conn.following_id === userId)?.id;
+    return connections?.find(conn => conn.followee_id === userId)?.id;
   };
 
   return (

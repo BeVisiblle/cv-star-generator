@@ -4298,6 +4298,17 @@ export type Database = {
           score: number
         }[]
       }
+      suggest_companies_for_profile: {
+        Args: { p_profile_id: string; p_limit?: number }
+        Returns: {
+          id: string
+          name: string
+          logo_url: string
+          industry: string
+          city: string
+          reasons: string[]
+        }[]
+      }
       suggest_people: {
         Args: { p_viewer: string; p_limit?: number }
         Returns: {
@@ -4317,6 +4328,10 @@ export type Database = {
       text: {
         Args: { "": unknown }
         Returns: string
+      }
+      unfollow_company: {
+        Args: { p_profile_id: string; p_company_id: string }
+        Returns: undefined
       }
       unlockrows: {
         Args: { "": string }
