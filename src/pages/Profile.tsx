@@ -370,7 +370,6 @@ const Profile = () => {
               <div className="lg:sticky lg:top-24 space-y-4 md:space-y-6">
                 <LinkedInProfileSidebar profile={profile} isEditing={isEditing} onProfileUpdate={handleProfileUpdate} showLanguagesAndSkills={true} showLicenseAndStats={true} showCVSection={true} />
                 <RightRailAd variant="card" size="sm" />
-                <SkillsLanguagesSidebar profile={profile} isEditing={isEditing} onProfileUpdate={handleProfileUpdate} />
                 <InView rootMargin="300px" placeholder={<div className="h-32 rounded-md bg-muted/50 animate-pulse" />}> 
                   <PeopleRecommendations limit={3} showMoreLink="/entdecken/azubis" showMore />
                 </InView>
