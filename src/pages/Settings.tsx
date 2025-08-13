@@ -9,6 +9,8 @@ import { Eye, Shield, Bell, Trash2 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import ProfileTagsPanel from "@/components/settings/ProfileTagsPanel";
 
 const Settings = () => {
   const { profile, refetchProfile } = useAuth();
