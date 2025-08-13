@@ -21,6 +21,7 @@ import {
   Coins,
   Package
 } from "lucide-react";
+import { TagPicker, TagType } from "@/components/company/matching/TagPicker";
 
 interface TeamMember {
   id: string;
@@ -59,10 +60,22 @@ export default function CompanySettings() {
   const [saving, setSaving] = useState(false);
   const { toast } = useToast();
 
+  type SelectedByType = Record<TagType, string[]>;
+  const [selectedTags, setSelectedTags] = useState<SelectedByType>({
+    profession: [],
+    target_group: [],
+    benefit: [],
+    must: [],
+    nice: [],
+    work_env: [],
+  });
+  const [savingTags, setSavingTags] = useState(false);
+
   useEffect(() => {
     if (company) {
       loadTeamMembers();
       loadCompanySettings();
+      loadCompanyTags();
     }
   }, [company]);
 
@@ -114,6 +127,51 @@ export default function CompanySettings() {
       }
     } catch (error) {
       console.error('Error loading company settings:', error);
+    }
+  };
+
+  // Profil-Tags laden und speichern
+  const loadCompanyTags = async () => {
+    if (!company) return;
+    try {
+      const { data: tagLinks } = await supabase
+        .from('company_tags')
+        .select('tag_id')
+        .eq('company_id', company.id);
+      const ids = (tagLinks || []).map((r: any) => r.tag_id);
+      if (!ids.length) {
+        setSelectedTags({ profession: [], target_group: [], benefit: [], must: [], nice: [], work_env: [] });
+        return;
+      }
+      const { data: vocab } = await supabase
+        .from('vocab_tags')
+        .select('id,type')
+        .in('id', ids);
+      const next: SelectedByType = { profession: [], target_group: [], benefit: [], must: [], nice: [], work_env: [] };
+      (vocab || []).forEach((t: any) => { (next as any)[t.type]?.push(t.id); });
+      setSelectedTags(next);
+    } catch (e) {
+      console.error('Error loading company tags:', e);
+    }
+  };
+
+  const saveCompanyTags = async () => {
+    if (!company) return;
+    setSavingTags(true);
+    try {
+      // Clear and re-insert selections
+      await supabase.from('company_tags').delete().eq('company_id', company.id);
+      const allIds = Object.values(selectedTags).flat();
+      if (allIds.length) {
+        const inserts = allIds.map((id) => ({ company_id: company.id, tag_id: id }));
+        const { error } = await supabase.from('company_tags').insert(inserts);
+        if (error) throw error;
+      }
+      toast({ title: 'Profil-Tags gespeichert' });
+    } catch (error: any) {
+      toast({ title: 'Fehler beim Speichern', description: error.message, variant: 'destructive' });
+    } finally {
+      setSavingTags(false);
     }
   };
 
@@ -209,10 +267,11 @@ export default function CompanySettings() {
       </div>
 
       <Tabs defaultValue="general" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-5">
+        <TabsList className="grid w-full grid-cols-6">
           <TabsTrigger value="general">Allgemein</TabsTrigger>
           <TabsTrigger value="team">Team & Sitze</TabsTrigger>
           <TabsTrigger value="targeting">Zielgruppen</TabsTrigger>
+          <TabsTrigger value="profile">Profil</TabsTrigger>
           <TabsTrigger value="billing">Tokens & Abrechnung</TabsTrigger>
           <TabsTrigger value="notifications">Benachrichtigungen</TabsTrigger>
         </TabsList>
@@ -402,6 +461,71 @@ export default function CompanySettings() {
                     placeholder="Berlin, München, Hamburg"
                   />
                 </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="profile">
+          <Card>
+            <CardHeader>
+              <CardTitle>Profil-Tags</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <p className="text-sm text-muted-foreground">Wähle aus, wofür euer Unternehmen steht und welche Talente ihr sucht. Diese Tags erscheinen im Unternehmensprofil und helfen beim Matching.</p>
+
+              <TagPicker
+                type="profession"
+                title="Berufe/Professionen"
+                description="Welche Ausbildungsberufe sucht ihr?"
+                selected={selectedTags.profession}
+                onChange={(ids) => setSelectedTags((prev) => ({ ...prev, profession: ids }))}
+              />
+
+              <TagPicker
+                type="must"
+                title="Must-Haves"
+                description="Welche Voraussetzungen sind ein Muss?"
+                selected={selectedTags.must}
+                onChange={(ids) => setSelectedTags((prev) => ({ ...prev, must: ids }))}
+              />
+
+              <TagPicker
+                type="nice"
+                title="Nice-to-Haves"
+                description="Schön, wenn Kandidat:innen diese mitbringen."
+                selected={selectedTags.nice}
+                onChange={(ids) => setSelectedTags((prev) => ({ ...prev, nice: ids }))}
+              />
+
+              <TagPicker
+                type="benefit"
+                title="Benefits"
+                description="Welche Vorteile bietet ihr?"
+                selected={selectedTags.benefit}
+                onChange={(ids) => setSelectedTags((prev) => ({ ...prev, benefit: ids }))}
+              />
+
+              <TagPicker
+                type="work_env"
+                title="Arbeitsumfeld"
+                description="Wie ist das Arbeitsumfeld/Arbeitsweise bei euch?"
+                selected={selectedTags.work_env}
+                onChange={(ids) => setSelectedTags((prev) => ({ ...prev, work_env: ids }))}
+              />
+
+              <TagPicker
+                type="target_group"
+                title="Zielgruppen"
+                description="Für wen ist euer Angebot gedacht?"
+                selected={selectedTags.target_group}
+                onChange={(ids) => setSelectedTags((prev) => ({ ...prev, target_group: ids }))}
+              />
+
+              <div className="flex justify-end">
+                <Button onClick={saveCompanyTags} disabled={savingTags}>
+                  {savingTags ? 'Speichern…' : 'Profil-Tags speichern'}
+                </Button>
               </div>
             </CardContent>
           </Card>
