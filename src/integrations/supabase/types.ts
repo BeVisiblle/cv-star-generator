@@ -2367,6 +2367,20 @@ export type Database = {
         Args: { geom1: unknown; geom2: unknown }
         Returns: boolean
       }
+      find_locations_within_radius: {
+        Args: { p_center_location_id: number; p_radius_km: number }
+        Returns: {
+          location_id: number
+          distance_km: number
+        }[]
+      }
+      find_profile_ids_within_radius: {
+        Args: { p_center_location_id: number; p_radius_km: number }
+        Returns: {
+          profile_id: string
+          distance_km: number
+        }[]
+      }
       geography: {
         Args: { "": string } | { "": unknown }
         Returns: unknown
@@ -3023,6 +3037,10 @@ export type Database = {
           new_balance: number
           paid_cents: number
         }[]
+      }
+      resolve_location_id: {
+        Args: { p_postal_code: string; p_city: string; p_country_code?: string }
+        Returns: number
       }
       search_candidates_within_radius: {
         Args: { lat_input: number; lon_input: number; radius_km: number }
@@ -4156,6 +4174,17 @@ export type Database = {
           new_srid_in: number
         }
         Returns: string
+      }
+      upsert_location_with_coords: {
+        Args: {
+          p_postal_code: string
+          p_city: string
+          p_state: string
+          p_country_code: string
+          p_lat: number
+          p_lon: number
+        }
+        Returns: number
       }
       use_token: {
         Args: { p_profile_id: string }
