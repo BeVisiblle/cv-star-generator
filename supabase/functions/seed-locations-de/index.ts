@@ -46,8 +46,11 @@ Deno.serve(async (req: Request) => {
     const { url, country_code = 'DE', dry_run = false, limit = 0 } = await req.json().catch(() => ({}));
 
     const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!;
-    const SERVICE_ROLE = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const supabase = createClient(SUPABASE_URL, SERVICE_ROLE);
+    const SERVICE_ROLE = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+    const ANON = Deno.env.get('SUPABASE_ANON_KEY');
+    const key = SERVICE_ROLE || ANON;
+    if (!SUPABASE_URL || !key) throw new Error('Missing Supabase URL or API key');
+    const supabase = createClient(SUPABASE_URL, key);
 
     // Download CSV once
     const csvUrl = url || DEFAULT_CSV;
