@@ -208,47 +208,46 @@ const Profile = () => {
 
   // Early returns after all hooks are declared
 
-  return <div className="w-full overflow-x-hidden">
-      <main className="mx-auto max-w-screen-2xl px-3 sm:px-6 lg:px-8 py-6">
-        {/* Mobile-optimized Profile Actions Header */}
-        <div className="hidden md:block sticky top-0 z-30 mb-4 md:mb-6 bg-background/80 supports-[backdrop-filter]:bg-background/60 backdrop-blur border-b">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0">
-            <div className="flex items-center gap-2 md:gap-3">
-              <h1 className="text-xl md:text-2xl lg:text-3xl font-bold">Profil</h1>
-              {profile?.published && <Badge variant="outline" className="text-xs hidden md:inline-flex">Öffentlich</Badge>}
-            </div>
-            <div className="flex flex-wrap items-center gap-2 md:gap-3">
-              {!isEditing ? (
-                <>
-                  <Button variant="outline" size="sm" onClick={() => setIsPreviewOpen(true)} className="flex items-center gap-1.5">
-                    <Eye className="h-3.5 w-3.5" />
-                    Vorschau
-                  </Button>
-                  <Button onClick={() => setIsEditing(true)} className="flex items-center gap-1.5">
-                    <Edit className="h-3.5 w-3.5" />
-                    Bearbeiten
-                  </Button>
+  return <div className="w-full overflow-x-hidden px-3 sm:px-6 lg:px-8 py-6">
+      {/* Mobile-optimized Profile Actions Header */}
+      <div className="hidden md:block sticky top-0 z-30 mb-4 md:mb-6 bg-background/80 supports-[backdrop-filter]:bg-background/60 backdrop-blur border-b">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0">
+          <div className="flex items-center gap-2 md:gap-3">
+            <h1 className="text-xl md:text-2xl lg:text-3xl font-bold">Profil</h1>
+            {profile?.published && <Badge variant="outline" className="text-xs hidden md:inline-flex">Öffentlich</Badge>}
+          </div>
+          <div className="flex flex-wrap items-center gap-2 md:gap-3">
+            {!isEditing ? (
+              <>
+                <Button variant="outline" size="sm" onClick={() => setIsPreviewOpen(true)} className="flex items-center gap-1.5">
+                  <Eye className="h-3.5 w-3.5" />
+                  Vorschau
+                </Button>
+                <Button onClick={() => setIsEditing(true)} className="flex items-center gap-1.5">
+                  <Edit className="h-3.5 w-3.5" />
+                  Bearbeiten
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button variant="ghost" onClick={handleCancel} className="flex items-center gap-1.5">
+                  <X className="h-3.5 w-3.5" />
+                  Abbrechen
+                </Button>
+                <Button onClick={handleSave} disabled={isSaving} className="flex items-center gap-1.5">
+                  {isSaving ? <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" /> : <Save className="h-3.5 w-3.5" />}
+                  Speichern
+                </Button>
                 </>
-              ) : (
-                <>
-                  <Button variant="ghost" onClick={handleCancel} className="flex items-center gap-1.5">
-                    <X className="h-3.5 w-3.5" />
-                    Abbrechen
-                  </Button>
-                  <Button onClick={handleSave} disabled={isSaving} className="flex items-center gap-1.5">
-                    {isSaving ? <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" /> : <Save className="h-3.5 w-3.5" />}
-                    Speichern
-                  </Button>
-                </>
-              )}
-            </div>
+            )}
           </div>
         </div>
+      </div>
 
-        <div className="flex gap-4 lg:gap-6">
-          {/* Main Content */}
-          <section className="flex-1 min-w-0">
-            <div className="w-full max-w-[560px] mx-auto px-4 md:max-w-none md:px-0 space-y-4">
+      <div className="flex gap-4 lg:gap-6">
+        {/* Main Content */}
+        <section className="flex-1 min-w-0">
+          <div className="w-full max-w-[560px] mx-auto px-4 md:max-w-none md:px-0 space-y-4">
             {/* Profile Header with Cover Photo - Always first */}
             <LinkedInProfileHeader profile={profile} isEditing={isEditing} onProfileUpdate={handleProfileUpdate} />
             {/* About Section - High priority on mobile */}
@@ -382,7 +381,6 @@ const Profile = () => {
             </div>
           </aside>
         </div>
-      </main>
 
       {/* Sticky bottom Save Bar (mobile) */}
       {isEditing && <div className="fixed inset-x-0 bottom-0 z-[61] border-t bg-background/95 supports-[backdrop-filter]:bg-background/80 backdrop-blur px-3 py-2 pb-safe md:hidden">
@@ -427,6 +425,20 @@ const Profile = () => {
       });
       setShowPreview(false);
     }} onClose={() => setShowPreview(false)} />}
+
+      {isPreviewOpen && (
+        <ProfilePreviewModal 
+          isOpen={isPreviewOpen} 
+          profileData={profile} 
+          onPublish={async () => {
+            await handleProfileUpdate({
+              profile_published: true
+            });
+            setIsPreviewOpen(false);
+          }} 
+          onClose={() => setIsPreviewOpen(false)} 
+        />
+      )}
     </div>;
 };
 export default Profile;
