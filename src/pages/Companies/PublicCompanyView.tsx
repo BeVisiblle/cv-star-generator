@@ -1,8 +1,10 @@
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/useAuth';
+import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
@@ -32,6 +34,14 @@ type Company = {
 
 export default function PublicCompanyView() {
   const { id } = useParams();
+  const { profile } = useAuth();
+  const { toast } = useToast();
+  const pid = profile?.id;
+
+  // Review gate state
+  const [pendingFromCompany, setPendingFromCompany] = useState<boolean>(false);
+  const [reviewReady, setReviewReady] = useState<boolean>(false);
+  const [aboutExpanded, setAboutExpanded] = useState<boolean>(false);
 
   const companyQuery = useQuery<Company | null>({
     queryKey: ['public-company', id],
@@ -46,7 +56,101 @@ export default function PublicCompanyView() {
     enabled: !!id,
   });
 
+  // Check for pending follow request from this company to current profile
+  const pendingQuery = useQuery({
+    queryKey: ['pending-follow-request', id, pid],
+    queryFn: async () => {
+      if (!id || !pid) return false;
+      const { data } = await supabase
+        .from('follows')
+        .select('id')
+        .eq('follower_type', 'company')
+        .eq('follower_id', id)
+        .eq('followee_type', 'profile')
+        .eq('followee_id', pid)
+        .eq('status', 'pending')
+        .maybeSingle();
+      return Boolean(data);
+    },
+    enabled: !!id && !!pid,
+  });
+
+  useEffect(() => {
+    setPendingFromCompany(pendingQuery.data || false);
+  }, [pendingQuery.data]);
+
   const { isFollowing, loading, toggleFollow } = useFollowCompany(id);
+
+  // Review gate: Scroll >= 60% or expand "About us"
+  useEffect(() => {
+    const onScroll = () => {
+      const h = document.documentElement;
+      const scrolled = h.scrollTop / (h.scrollHeight - h.clientHeight);
+      if (scrolled >= 0.6) {
+        setReviewReady(true);
+      }
+    };
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
+  const markAboutSeen = () => {
+    setReviewReady(true);
+    setAboutExpanded(true);
+  };
+
+  const acceptFollowRequest = async () => {
+    if (!pid || !reviewReady || !id) return;
+    
+    try {
+      const { error } = await supabase
+        .from('follows')
+        .update({ status: 'accepted' })
+        .eq('follower_type', 'company')
+        .eq('follower_id', id)
+        .eq('followee_type', 'profile')
+        .eq('followee_id', pid)
+        .eq('status', 'pending');
+
+      if (error) throw error;
+
+      setPendingFromCompany(false);
+      toast({ description: 'Follow-Anfrage angenommen!' });
+    } catch (error) {
+      console.error('Error accepting follow request:', error);
+      toast({ 
+        variant: 'destructive', 
+        description: 'Fehler beim Annehmen der Anfrage' 
+      });
+    }
+  };
+
+  const declineFollowRequest = async () => {
+    if (!pid || !id) return;
+    
+    try {
+      const { error } = await supabase
+        .from('follows')
+        .delete()
+        .eq('follower_type', 'company')
+        .eq('follower_id', id)
+        .eq('followee_type', 'profile')
+        .eq('followee_id', pid)
+        .eq('status', 'pending');
+
+      if (error) throw error;
+
+      setPendingFromCompany(false);
+      toast({ description: 'Follow-Anfrage abgelehnt' });
+    } catch (error) {
+      console.error('Error declining follow request:', error);
+      toast({ 
+        variant: 'destructive', 
+        description: 'Fehler beim Ablehnen der Anfrage' 
+      });
+    }
+  };
 
   // Basic SEO
   useEffect(() => {
@@ -141,11 +245,35 @@ const c = companyQuery.data;
                 )}
               </div>
             </div>
-            {/* Desktop follow */}
+            {/* Desktop actions */}
             <div className="hidden md:flex items-center gap-2">
-              <Button onClick={toggleFollow} disabled={loading} variant={isFollowing ? 'secondary' : 'default'}>
-                {isFollowing ? 'Gefolgt' : 'Folgen'}
-              </Button>
+              {/* Review-gated Actions (only if pending) */}
+              {pendingFromCompany && (
+                <>
+                  <Button
+                    onClick={acceptFollowRequest}
+                    disabled={!reviewReady}
+                    size="sm"
+                    className="bg-primary hover:bg-primary/90"
+                    title={!reviewReady ? 'Bitte Profil ansehen (scrollen/öffnen), um anzunehmen' : 'Anfrage annehmen'}
+                  >
+                    Anfrage annehmen
+                  </Button>
+                  <Button
+                    onClick={declineFollowRequest}
+                    variant="outline"
+                    size="sm"
+                  >
+                    Ablehnen
+                  </Button>
+                </>
+              )}
+              {/* Regular follow button */}
+              {!pendingFromCompany && (
+                <Button onClick={toggleFollow} disabled={loading} variant={isFollowing ? 'secondary' : 'default'}>
+                  {isFollowing ? 'Gefolgt' : 'Folgen'}
+                </Button>
+              )}
             </div>
           </div>
         </section>
@@ -155,12 +283,28 @@ const c = companyQuery.data;
           {/* Left */}
           <div className="space-y-4 md:space-y-6">
             <Card className="p-4 sm:p-5 md:p-6">
-              <Collapsible defaultOpen>
+              <Collapsible defaultOpen={aboutExpanded} onOpenChange={(open) => {
+                if (open && !aboutExpanded) {
+                  markAboutSeen();
+                }
+              }}>
                 <div className="flex items-center justify-between">
                   <h2 className="text-lg font-semibold">Über uns</h2>
-                  <CollapsibleTrigger className="ml-2 inline-flex items-center text-muted-foreground hover:text-foreground [&[data-state=open]>.chev]:rotate-180">
-                    <ChevronDown className="chev h-4 w-4 transition-transform" />
-                  </CollapsibleTrigger>
+                  <div className="flex items-center gap-2">
+                    {!aboutExpanded && pendingFromCompany && (
+                      <Button 
+                        onClick={markAboutSeen}
+                        variant="link" 
+                        size="sm"
+                        className="text-xs p-0 h-auto text-primary"
+                      >
+                        Gelesen
+                      </Button>
+                    )}
+                    <CollapsibleTrigger className="ml-2 inline-flex items-center text-muted-foreground hover:text-foreground [&[data-state=open]>.chev]:rotate-180">
+                      <ChevronDown className="chev h-4 w-4 transition-transform" />
+                    </CollapsibleTrigger>
+                  </div>
                 </div>
                 <CollapsibleContent>
                   <p className="mt-2 whitespace-pre-line text-sm leading-relaxed text-muted-foreground">
@@ -319,12 +463,32 @@ const c = companyQuery.data;
         </section>
       </main>
 
-      {/* Mobile sticky follow */}
+      {/* Mobile sticky actions */}
       <div className="md:hidden fixed bottom-0 left-0 right-0 border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 p-3">
         <div className="max-w-6xl mx-auto">
-          <Button className="w-full" onClick={toggleFollow} disabled={loading}>
-            {isFollowing ? 'Gefolgt' : 'Folgen'}
-          </Button>
+          {pendingFromCompany ? (
+            <div className="flex gap-2">
+              <Button 
+                className="flex-1" 
+                onClick={acceptFollowRequest} 
+                disabled={!reviewReady}
+                title={!reviewReady ? 'Bitte Profil ansehen (scrollen/öffnen), um anzunehmen' : 'Anfrage annehmen'}
+              >
+                Anfrage annehmen
+              </Button>
+              <Button 
+                variant="outline" 
+                onClick={declineFollowRequest}
+                className="px-4"
+              >
+                Ablehnen
+              </Button>
+            </div>
+          ) : (
+            <Button className="w-full" onClick={toggleFollow} disabled={loading}>
+              {isFollowing ? 'Gefolgt' : 'Folgen'}
+            </Button>
+          )}
         </div>
       </div>
     </div>
