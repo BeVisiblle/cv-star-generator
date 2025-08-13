@@ -30,20 +30,10 @@ export function useCompaniesViews(profileId: string | null) {
     setLoading(true);
     
     try {
-      // 1) Follow requests (Company -> Profile pending)
+      // 1) Follow requests (Company -> Profile pending) - get company IDs first, then fetch company details
       const { data: reqs, error: reqsError } = await supabase
         .from('follows')
-        .select(`
-          id,
-          companies:follower_id (
-            id, 
-            name, 
-            logo_url, 
-            industry, 
-            main_location, 
-            employee_count
-          )
-        `)
+        .select('id, follower_id')
         .eq('followee_type', 'profile')
         .eq('followee_id', profileId)
         .eq('follower_type', 'company')
@@ -54,20 +44,22 @@ export function useCompaniesViews(profileId: string | null) {
         console.error('Error fetching follow requests:', reqsError);
       }
 
-      // 2) Followed companies (Profile -> Company accepted)
+      // Get company details for follow requests
+      let pendingCompanies: CompanyLite[] = [];
+      if (reqs && reqs.length > 0) {
+        const companyIds = reqs.map(r => r.follower_id);
+        const { data: companies } = await supabase
+          .from('companies')
+          .select('id, name, logo_url, industry, main_location, employee_count')
+          .in('id', companyIds);
+        
+        pendingCompanies = companies || [];
+      }
+
+      // 2) Followed companies (Profile -> Company accepted) - get company IDs first, then fetch company details
       const { data: fol, error: folError } = await supabase
         .from('follows')
-        .select(`
-          id,
-          companies:followee_id (
-            id, 
-            name, 
-            logo_url, 
-            industry, 
-            main_location, 
-            employee_count
-          )
-        `)
+        .select('id, followee_id')
         .eq('follower_type', 'profile')
         .eq('follower_id', profileId)
         .eq('followee_type', 'company')
@@ -76,6 +68,18 @@ export function useCompaniesViews(profileId: string | null) {
 
       if (folError) {
         console.error('Error fetching followed companies:', folError);
+      }
+
+      // Get company details for followed companies
+      let followedCompanies: CompanyLite[] = [];
+      if (fol && fol.length > 0) {
+        const companyIds = fol.map(f => f.followee_id);
+        const { data: companies } = await supabase
+          .from('companies')
+          .select('id, name, logo_url, industry, main_location, employee_count')
+          .in('id', companyIds);
+        
+        followedCompanies = companies || [];
       }
 
       // 3) Suggested companies
@@ -89,8 +93,8 @@ export function useCompaniesViews(profileId: string | null) {
         console.error('Error fetching suggestions:', suggError);
       }
 
-      setPending((reqs ?? []).map((r: any) => r.companies as CompanyLite).filter(Boolean));
-      setFollowing((fol ?? []).map((r: any) => r.companies as CompanyLite).filter(Boolean));
+      setPending(pendingCompanies);
+      setFollowing(followedCompanies);
       setSuggested((sugg as SuggestedCompany[]) ?? []);
     } catch (error) {
       console.error('Error loading companies data:', error);
