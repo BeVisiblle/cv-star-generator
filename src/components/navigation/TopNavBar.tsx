@@ -65,7 +65,8 @@ export default function TopNavBar() {
             return;
           }
           if (type === "company") {
-            navigate(`/unternehmen`);
+            navigate(`/companies/${payload.id}`);
+            setQ("");
             return;
           }
           // default: search page with query
