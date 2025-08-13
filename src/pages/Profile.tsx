@@ -359,7 +359,7 @@ const Profile = () => {
 
         {/* Right Sidebar - Desktop: sidebar, Mobile: after main content */}
         <aside className="lg:col-span-4">
-          <div className="lg:sticky lg:top-24 space-y-4 md:space-y-6">
+          <div className="w-full max-w-[560px] mx-auto px-4 md:max-w-none md:px-0 lg:sticky lg:top-24 space-y-4 md:space-y-6">
             <LinkedInProfileSidebar profile={profile} isEditing={isEditing} onProfileUpdate={handleProfileUpdate} showLanguagesAndSkills={false} showLicenseAndStats={false} />
             <RightRailAd variant="card" size="sm" />
             <SkillsLanguagesSidebar profile={profile} isEditing={isEditing} onProfileUpdate={handleProfileUpdate} />

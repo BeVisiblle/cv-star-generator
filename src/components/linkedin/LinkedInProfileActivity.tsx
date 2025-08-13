@@ -163,10 +163,10 @@ const isOwner = user?.id === profile?.id;
             {activeTab === 'posts' ? (
               recentPosts && recentPosts.length > 0 ? (
                 <div className="relative">
-                  <Button variant="secondary" size="icon" className="absolute left-0 top-1/2 -translate-y-1/2 z-10 rounded-full h-8 w-8" onClick={() => scrollByStep('left')} aria-label="Zurück">
+                  <Button variant="secondary" size="icon" className="hidden md:inline-flex absolute left-0 top-1/2 -translate-y-1/2 z-10 rounded-full h-8 w-8" onClick={() => scrollByStep('left')} aria-label="Zurück">
                     <ChevronLeft className="h-4 w-4" />
                   </Button>
-                  <Button variant="secondary" size="icon" className="absolute right-0 top-1/2 -translate-y-1/2 z-10 rounded-full h-8 w-8" onClick={() => scrollByStep('right')} aria-label="Weiter">
+                  <Button variant="secondary" size="icon" className="hidden md:inline-flex absolute right-0 top-1/2 -translate-y-1/2 z-10 rounded-full h-8 w-8" onClick={() => scrollByStep('right')} aria-label="Weiter">
                     <ChevronRight className="h-4 w-4" />
                   </Button>
 
