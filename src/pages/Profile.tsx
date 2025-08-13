@@ -199,7 +199,7 @@ const Profile = () => {
 
   // Early returns after all hooks are declared
 
-  return <div className={`px-3 sm:px-6 lg:px-8 py-3 md:py-6 min-h-screen bg-background max-w-full overflow-x-hidden ${isEditing ? 'pb-24' : 'pb-24 md:pb-6'} pt-safe`}>{/* Prevent horizontal scroll and reserve for sticky footer */}
+  return <div className={`px-2 sm:px-6 lg:px-8 py-3 md:py-6 min-h-screen bg-background max-w-full overflow-x-hidden ${isEditing ? 'pb-24' : 'pb-24 md:pb-6'} pt-safe`}>{/* Prevent horizontal scroll and reserve for sticky footer */}
       {/* Mobile-optimized Profile Actions Header */}
       <div className="hidden md:block sticky top-0 z-30 mb-4 md:mb-6 bg-background/80 supports-[backdrop-filter]:bg-background/60 backdrop-blur border-b">
         <div className="px-3 sm:px-0 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0">
@@ -236,10 +236,10 @@ const Profile = () => {
       </div>
 
       {/* Responsive layout: Mobile stacked with prioritized content, Desktop with sidebar */}
-      <div className="mx-auto max-w-screen-2xl px-3 sm:px-6 lg:px-8 flex flex-col lg:grid lg:grid-cols-12 gap-4 md:gap-6">
+      <div className="mx-auto max-w-screen-2xl px-0 sm:px-6 lg:px-8 flex flex-col lg:grid lg:grid-cols-12 gap-4 md:gap-6">
         {/* Main Content Area */}
         <main className="lg:col-span-8">
-          <div className="w-full max-w-[560px] mx-auto px-4 md:max-w-none md:px-0 space-y-4 md:space-y-6">
+          <div className="w-full px-2 sm:max-w-[560px] sm:mx-auto sm:px-4 md:max-w-none md:px-0 space-y-4 md:space-y-6">
             {/* Profile Header with Cover Photo - Always first */}
             <LinkedInProfileHeader profile={profile} isEditing={isEditing} onProfileUpdate={handleProfileUpdate} />
             {/* About Section - High priority on mobile */}
