@@ -1,0 +1,127 @@
+import { timeAgo } from '@/utils/timeAgo';
+import type { NotificationRow, NotifType } from '@/types/notifications';
+
+type Props = {
+  n: NotificationRow;
+  onRead: (id: string) => void;
+  onAction?: (n: NotificationRow, action: string) => void; // e.g. 'accept', 'decline', 'allow_contact'
+};
+
+const typeIcon: Record<NotifType, string> = {
+  company_unlocked_you: '🔓',
+  follow_request_received: '➕',
+  pipeline_move_for_you: '📌',
+  post_interaction: '💬',
+  profile_incomplete_reminder: '⚠️',
+  weekly_digest_user: '📈',
+  new_matches_available: '✨',
+  follow_accepted_chat_unlocked: '✉️',
+  candidate_response_to_unlock: '✅',
+  pipeline_activity_team: '🗂️',
+  low_tokens: '🪙',
+  weekly_digest_company: '📊',
+  billing_update: '🧾',
+  product_update: '🧩',
+};
+
+export default function NotificationCard({ n, onRead, onAction }: Props) {
+  const unread = !n.read_at;
+  const icon = typeIcon[n.type] || '🔔';
+
+  const ActionButtons = () => {
+    switch (n.type) {
+      case 'company_unlocked_you':
+        return (
+          <div className="mt-3 flex gap-2">
+            <button
+              onClick={() => onAction?.(n, 'allow_contact')}
+              className="h-9 rounded-lg px-3 text-sm text-white"
+              style={{ backgroundColor: '#5CE1E6' }}
+            >
+              Kontakt erlauben
+            </button>
+            <button
+              onClick={() => onAction?.(n, 'not_interested')}
+              className="h-9 rounded-lg px-3 text-sm border hover:bg-gray-50"
+            >
+              Kein Interesse
+            </button>
+          </div>
+        );
+      case 'follow_request_received':
+        return (
+          <div className="mt-3 flex gap-2">
+            <button
+              onClick={() => onAction?.(n, 'accept')}
+              className="h-9 rounded-lg px-3 text-sm text-white"
+              style={{ backgroundColor: '#5CE1E6' }}
+            >
+              Annehmen
+            </button>
+            <button
+              onClick={() => onAction?.(n, 'decline')}
+              className="h-9 rounded-lg px-3 text-sm border hover:bg-gray-50"
+            >
+              Ablehnen
+            </button>
+          </div>
+        );
+      case 'pipeline_move_for_you':
+        if (n.payload?.interview_at) {
+          return (
+            <div className="mt-3">
+              <a
+                href={`/calendar/add?ref=${n.id}`}
+                className="text-sm underline"
+              >
+                Zum Kalender hinzufügen
+              </a>
+            </div>
+          );
+        }
+        return null;
+      case 'new_matches_available':
+        return (
+          <div className="mt-3">
+            <a href="/company/search" className="text-sm underline">
+              Jetzt ansehen
+            </a>
+          </div>
+        );
+      case 'low_tokens':
+        return (
+          <div className="mt-3">
+            <a href="/company/settings#upgrade" className="text-sm underline">
+              Tokens nachkaufen
+            </a>
+          </div>
+        );
+      default:
+        return null;
+    }
+  };
+
+  return (
+    <article
+      className={`rounded-2xl border bg-card p-4 shadow-sm transition hover:shadow ${
+        unread ? 'border-[#5CE1E6]/50' : 'border-border'
+      }`}
+      onClick={() => unread && onRead(n.id)}
+    >
+      <div className="flex items-start gap-3">
+        <div className="mt-0.5 text-xl" aria-hidden>{icon}</div>
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-2">
+            <h3 className={`truncate text-sm ${unread ? 'font-semibold' : 'font-medium'}`}>
+              {n.title}
+            </h3>
+            {unread && <span className="h-2 w-2 rounded-full bg-[#5CE1E6]" aria-label="ungelesen" />}
+          </div>
+          {n.body && <p className="mt-1 text-sm text-muted-foreground">{n.body}</p>}
+          <div className="mt-1 text-xs text-muted-foreground">{timeAgo(n.created_at)}</div>
+          <ActionButtons />
+        </div>
+      </div>
+    </article>
+  );
+}
