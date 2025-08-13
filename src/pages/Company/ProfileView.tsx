@@ -161,12 +161,27 @@ const CompanyProfileView = () => {
         </div>
         
         <div className="mt-4">
-          <h1 className="text-lg sm:text-xl md:text-2xl font-bold truncate">
-            {isUnlocked ? `${profile.vorname} ${profile.nachname}` : profile.vorname}
-          </h1>
-          <p className="text-muted-foreground text-xs md:text-sm">
-            Profil-Details
-          </p>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <div>
+              <h1 className="text-lg sm:text-xl md:text-2xl font-bold truncate">
+                {isUnlocked ? `${profile.vorname} ${profile.nachname}` : profile.vorname}
+              </h1>
+              <p className="text-muted-foreground text-xs md:text-sm">
+                Profil-Details
+              </p>
+            </div>
+            
+            {/* Follow Button */}
+            {company?.id && (
+              <div className="sm:ml-auto">
+                <FollowButton
+                  companyId={company.id}
+                  profileId={id!}
+                  mode="company-to-profile"
+                />
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
@@ -221,16 +236,7 @@ const CompanyProfileView = () => {
             
             {/* Kontaktdaten Box */}
             <Card className="p-4">
-              <div className="flex items-center justify-between mb-3">
-                <h3 className="font-semibold">Kontaktdaten</h3>
-                {company?.id && (
-                  <FollowButton
-                    companyId={company.id}
-                    profileId={id!}
-                    mode="company-to-profile"
-                  />
-                )}
-              </div>
+              <h3 className="font-semibold mb-3">Kontaktdaten</h3>
               <div className="space-y-2">
                 <KeyValueRow
                   label="E-Mail"
