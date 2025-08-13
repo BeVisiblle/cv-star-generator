@@ -9,6 +9,7 @@ const SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
 
 serve(async (req) => {
@@ -100,8 +101,6 @@ serve(async (req) => {
       }
     }
 
-    const body = await req.json();
-    const { action } = body || {};
     if (!action) {
       return new Response(JSON.stringify({ error: "Missing action" }), {
         status: 400,
@@ -170,7 +169,7 @@ serve(async (req) => {
         email,
         password,
         email_confirm: true,
-        user_metadata: { created_by: caller.id }
+        user_metadata: { created_by: caller?.id || "bootstrap" }
       } as any);
       if (createErr) throw createErr;
       const newUserId = created.user?.id;
