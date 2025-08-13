@@ -42,13 +42,53 @@ const { user } = useAuth();
 const isOwner = user?.id === profile?.id;
 
   const { data: recentPosts, isLoading } = useQuery({
-    queryKey: ['recent-community-posts', profile?.id],
+    queryKey: ['recent-community-posts', profile?.id, user?.id],
     queryFn: async () => {
       if (!profile?.id) return [];
+      
+      // If viewing own profile, show all posts
+      if (user?.id === profile?.id) {
+        const { data: posts, error } = await supabase
+          .from('posts')
+          .select('*')
+          .eq('user_id', profile.id)
+          .order('created_at', { ascending: false })
+          .limit(6);
+
+        if (error) throw error;
+        return posts || [];
+      }
+
+      // Check if current user is a company user
+      const { data: companyUser } = await supabase
+        .from('company_users')
+        .select('company_id')
+        .eq('user_id', user?.id || '')
+        .maybeSingle();
+
+      if (companyUser) {
+        // User is from a company - check follow relationship
+        const { data: followRelation } = await supabase
+          .from('follows')
+          .select('id')
+          .or(`and(follower_type.eq.company,follower_id.eq.${companyUser.company_id},followee_type.eq.profile,followee_id.eq.${profile.id},status.eq.accepted),and(follower_type.eq.profile,follower_id.eq.${profile.id},followee_type.eq.company,followee_id.eq.${companyUser.company_id},status.eq.accepted)`)
+          .maybeSingle();
+
+        if (!followRelation) {
+          // No follow relationship - return empty array (no activities visible)
+          return [];
+        }
+      }
+
+      // If we get here, either:
+      // 1. User is not from a company (profile-to-profile view)
+      // 2. User is from a company with accepted follow relationship
+      // Show the posts
       const { data: posts, error } = await supabase
         .from('posts')
         .select('*')
         .eq('user_id', profile.id)
+        .eq('status', 'published')
         .order('created_at', { ascending: false })
         .limit(6);
 
@@ -95,6 +135,7 @@ const isOwner = user?.id === profile?.id;
 
       return postsWithProfiles;
     },
+    enabled: !!profile?.id,
   });
 
   const getDisplayName = (post: ActivityPost) => {
