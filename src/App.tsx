@@ -156,8 +156,8 @@ function UniversalLayout({ children }: { children: React.ReactNode }) {
         {/* Fixed TopNavBar on all pages */}
         <TopNavBar />
         
-        {/* Main content area */}
-        <div className="flex-1">
+        {/* Main content area with top padding to account for fixed navbar */}
+        <div className="flex-1 pt-14">
           {children}
         </div>
       </div>

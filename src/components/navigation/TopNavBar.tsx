@@ -1,5 +1,5 @@
 import React from "react";
-import { SidebarTrigger } from "@/components/ui/sidebar";
+import { SidebarTrigger, useSidebar } from "@/components/ui/sidebar";
 import { Bell, Search as SearchIcon, MessageSquareMore, Users } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui/input";
@@ -30,13 +30,37 @@ export default function TopNavBar() {
   const [open, setOpen] = React.useState(false);
   const [drawerOpen, setDrawerOpen] = React.useState(false);
   const [msgOpen, setMsgOpen] = React.useState(false);
+
+  // Use sidebar context to adjust navbar positioning
+  let sidebarState = null;
+  try {
+    sidebarState = useSidebar();
+  } catch {
+    // Not in sidebar context, that's ok
+  }
+
   const handleSubmit = () => {
     const term = q.trim();
     const sp = new URLSearchParams(location.search);
     if (term) sp.set('q', term);else sp.delete('q');
     navigate(`/marketplace?${sp.toString()}`);
   };
-  return <header className="sticky top-0 z-40 h-14 flex items-center border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 px-3 sm:px-4">
+
+  // Calculate left margin based on sidebar state
+  const getLeftMargin = () => {
+    if (!sidebarState) return "0px";
+    if (sidebarState.isMobile) return "0px";
+    if (sidebarState.open) return "16rem"; // SIDEBAR_WIDTH
+    return "3rem"; // SIDEBAR_WIDTH_ICON
+  };
+
+  return <header 
+    className="fixed top-0 z-50 h-14 flex items-center border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 px-3 sm:px-4 transition-all duration-200"
+    style={{ 
+      left: getLeftMargin(),
+      right: "0px"
+    }}
+  >
       <div className="flex items-center gap-2 w-full">
         <SidebarTrigger className="mr-1" />
         <div className="flex items-center gap-2">

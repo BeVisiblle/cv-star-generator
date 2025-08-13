@@ -1,4 +1,3 @@
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { CompanySidebar } from "@/components/Company/CompanySidebar";
 import { CompanyHeader } from "@/components/Company/CompanyHeader";
 import { Outlet, Navigate } from "react-router-dom";
@@ -30,21 +29,19 @@ export function CompanyLayout() {
   }
 
   return (
-    <SidebarProvider defaultOpen={true}>
-      <div className="min-h-screen flex w-full">
-        <CompanySidebar />
+    <div className="min-h-screen flex w-full">
+      <CompanySidebar />
+      
+      <main className="flex-1 flex flex-col">
+        <CompanyHeader />
         
-        <main className="flex-1 flex flex-col">
-          <CompanyHeader />
-          
-          {/* Main Content */}
-          <div className="flex-1 p-0">
-            <BaseLayout>
-              <Outlet />
-            </BaseLayout>
-          </div>
-        </main>
-      </div>
-    </SidebarProvider>
+        {/* Main Content */}
+        <div className="flex-1 p-0">
+          <BaseLayout>
+            <Outlet />
+          </BaseLayout>
+        </div>
+      </main>
+    </div>
   );
 }

@@ -5,9 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 import BaseLayout from "@/components/layout/BaseLayout";
 import { Button } from "@/components/ui/button";
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
-import { Bell, Search } from "lucide-react";
 
 const NavLink = ({ to, label }: { to: string; label: string }) => {
   const location = useLocation();
@@ -88,31 +86,15 @@ export default function AdminLayout() {
   }
 
   return (
-    <SidebarProvider>
-      <div className="min-h-screen bg-background text-foreground w-full flex flex-col">
-        <header className="border-b">
-          <div className="mx-auto max-w-[1200px] px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <SidebarTrigger className="mr-1" />
-              <Link to="/admin" className="font-semibold">Admin</Link>
-            </div>
-            <nav className="flex items-center gap-2">
-              <NavLink to="/admin/pages" label="Pages" />
-              <NavLink to="/admin/seo" label="SEO Insights" />
-              <NavLink to="/admin/scheduled" label="Geplant" />
-              <NavLink to="/admin/settings" label="Einstellungen" />
-            </nav>
-          </div>
-        </header>
-        <div className="flex w-full flex-1">
-          <AdminSidebar />
-          <main className="flex-1">
-            <BaseLayout>
-              <Outlet />
-            </BaseLayout>
-          </main>
-        </div>
+    <div className="min-h-screen bg-background text-foreground w-full flex flex-col">
+      <div className="flex w-full flex-1">
+        <AdminSidebar />
+        <main className="flex-1">
+          <BaseLayout>
+            <Outlet />
+          </BaseLayout>
+        </main>
       </div>
-    </SidebarProvider>
+    </div>
   );
 }
