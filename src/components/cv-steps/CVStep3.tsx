@@ -1,20 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import { useCVForm } from '@/contexts/CVFormContext';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
-import { Card } from '@/components/ui/card';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Button } from '@/components/ui/button';
+import { useDebounce } from '@/hooks/useDebounce';
 import { LanguageSelector } from '@/components/shared/LanguageSelector';
 import { SkillSelector } from '@/components/shared/SkillSelector';
+import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Card } from '@/components/ui/card';
 import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
-import { Sparkles, Loader2 } from 'lucide-react';
-import { useDebounce } from '@/hooks/useDebounce';
+import { Loader2, Sparkles, Edit3 } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import { FormFieldError } from '@/components/ui/form-field-error';
 
 const CVStep3 = () => {
-  const { formData, updateFormData } = useCVForm();
+  const { formData, updateFormData, validationErrors } = useCVForm();
+  const { toast } = useToast();
   const [isGenerating, setIsGenerating] = useState(false);
+  const [writeMode, setWriteMode] = useState<'ai' | 'manual'>('ai');
   
   // Local states for textareas to prevent focus loss
   const [localTextareas, setLocalTextareas] = useState({
@@ -49,7 +52,6 @@ const CVStep3 = () => {
   const handleTextareaBlur = (field: string, value: string) => {
     updateFormData({ [field]: value });
   };
-
 
   const getBrancheTitle = () => {
     switch (formData.branche) {
@@ -405,7 +407,11 @@ const CVStep3 = () => {
 
   const handleGenerateAboutMe = async () => {
     if (!formData.motivation && !formData.kenntnisse) {
-      toast.error('Bitte beantworte zuerst mindestens eine der branchenspezifischen Fragen.');
+      toast({
+        title: "Fehler",
+        description: "Bitte beantworte zuerst mindestens eine der branchenspezifischen Fragen.",
+        variant: "destructive"
+      });
       return;
     }
 
@@ -419,13 +425,20 @@ const CVStep3 = () => {
 
       if (data.success) {
         updateFormData({ ueberMich: data.summary });
-        toast.success('Dein "Über mich"-Text wurde erfolgreich generiert!');
+        toast({
+          title: "Erfolg",
+          description: "Dein 'Über mich'-Text wurde erfolgreich generiert!"
+        });
       } else {
         throw new Error(data.error || 'Unbekannter Fehler');
       }
     } catch (error) {
       console.error('Error generating CV summary:', error);
-      toast.error('Fehler beim Generieren des Textes. Bitte versuche es später erneut.');
+      toast({
+        title: "Fehler",
+        description: "Fehler beim Generieren des Textes. Bitte versuche es später erneut.",
+        variant: "destructive"
+      });
     } finally {
       setIsGenerating(false);
     }
@@ -443,27 +456,31 @@ const CVStep3 = () => {
       </div>
 
       {/* Languages Section */}
-      <Card className="p-6">
-        <LanguageSelector
-          languages={formData.sprachen || []}
-          onLanguagesChange={(languages) => updateFormData({ sprachen: languages })}
-          maxLanguages={formData.status === 'schueler' ? 3 : 10}
-          label="Sprachen"
-        />
-      </Card>
+      <FormFieldError error={validationErrors.sprachen}>
+        <Card className="p-6">
+          <LanguageSelector
+            languages={formData.sprachen || []}
+            onLanguagesChange={(languages) => updateFormData({ sprachen: languages })}
+            maxLanguages={formData.status === 'schueler' ? 3 : 10}
+            label="Sprachen *"
+          />
+        </Card>
+      </FormFieldError>
 
       {/* Skills Section (only for azubi/ausgelernt) */}
       {showFaehigkeiten && (
-        <Card className="p-6">
-          <SkillSelector
-            selectedSkills={formData.faehigkeiten || []}
-            onSkillsChange={(skills) => updateFormData({ faehigkeiten: skills })}
-            branch={formData.branche}
-            statusLevel={formData.status}
-            maxSkills={5}
-            label="Fähigkeiten (max. 5)"
-          />
-        </Card>
+        <FormFieldError error={validationErrors.faehigkeiten}>
+          <Card className="p-6">
+            <SkillSelector
+              selectedSkills={formData.faehigkeiten || []}
+              onSkillsChange={(skills) => updateFormData({ faehigkeiten: skills })}
+              branch={formData.branche}
+              statusLevel={formData.status}
+              maxSkills={5}
+              label="Fähigkeiten * (max. 5)"
+            />
+          </Card>
+        </FormFieldError>
       )}
 
       {/* Branch-specific questions */}
@@ -474,68 +491,113 @@ const CVStep3 = () => {
         </div>
       </Card>
 
-      {/* Generated About Me Section */}
-      {formData.ueberMich && (
+      {/* About Me Section */}
+      <FormFieldError error={validationErrors.ueberMich}>
         <Card className="p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="font-semibold text-lg">Dein "Über mich"-Text</h3>
-            <Button
-              onClick={handleGenerateAboutMe}
-              disabled={isGenerating}
-              variant="outline"
-              size="sm"
-            >
-              {isGenerating ? (
-                <Loader2 className="h-4 w-4 animate-spin mr-2" />
-              ) : (
-                <Sparkles className="h-4 w-4 mr-2" />
-              )}
-              Neu generieren
-            </Button>
-          </div>
-          <Textarea
-            value={localTextareas.ueberMich}
-            onChange={(e) => handleTextareaChange('ueberMich', e.target.value)}
-            onBlur={(e) => handleTextareaBlur('ueberMich', e.target.value)}
-            rows={4}
-            className="mb-2"
-          />
-          <p className="text-xs text-muted-foreground">
-            Du kannst den Text hier noch anpassen oder komplett neu schreiben.
-          </p>
-        </Card>
-      )}
-
-      {/* Auto-generate Button */}
-      {!formData.ueberMich && (formData.motivation || formData.kenntnisse) && (
-        <Card className="p-6">
-          <div className="text-center">
-            <Sparkles className="h-12 w-12 mx-auto mb-4 text-primary" />
-            <h3 className="font-semibold text-lg mb-2">Über mich-Text automatisch erstellen</h3>
-            <p className="text-muted-foreground mb-4">
-              Lass KI einen personalisierten "Über mich"-Text für deinen Lebenslauf erstellen, 
-              basierend auf deinen Angaben oben.
-            </p>
-            <Button
-              onClick={handleGenerateAboutMe}
-              disabled={isGenerating}
-              size="lg"
-            >
-              {isGenerating ? (
-                <>
-                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                  Erstelle Text...
-                </>
-              ) : (
-                <>
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="font-semibold text-lg">Über mich-Text *</h3>
+              <div className="flex gap-2">
+                <Button
+                  onClick={() => setWriteMode('ai')}
+                  variant={writeMode === 'ai' ? 'default' : 'outline'}
+                  size="sm"
+                >
                   <Sparkles className="h-4 w-4 mr-2" />
-                  Über mich-Text generieren
-                </>
-              )}
-            </Button>
+                  KI
+                </Button>
+                <Button
+                  onClick={() => setWriteMode('manual')}
+                  variant={writeMode === 'manual' ? 'default' : 'outline'}
+                  size="sm"
+                >
+                  <Edit3 className="h-4 w-4 mr-2" />
+                  Selbst schreiben
+                </Button>
+              </div>
+            </div>
+
+            {writeMode === 'ai' ? (
+              <div className="space-y-4">
+                {!formData.ueberMich ? (
+                  <div className="text-center py-8">
+                    <Sparkles className="h-12 w-12 mx-auto mb-4 text-primary" />
+                    <h4 className="font-semibold mb-2">Über mich-Text automatisch erstellen</h4>
+                    <p className="text-muted-foreground mb-4">
+                      Lass KI einen personalisierten "Über mich"-Text für deinen Lebenslauf erstellen, 
+                      basierend auf deinen Angaben oben.
+                    </p>
+                    <Button
+                      onClick={handleGenerateAboutMe}
+                      disabled={isGenerating || !formData.motivation}
+                      size="lg"
+                    >
+                      {isGenerating ? (
+                        <>
+                          <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                          Erstelle Text...
+                        </>
+                      ) : (
+                        <>
+                          <Sparkles className="h-4 w-4 mr-2" />
+                          Über mich-Text generieren
+                        </>
+                      )}
+                    </Button>
+                    {!formData.motivation && (
+                      <p className="text-xs text-muted-foreground mt-2">
+                        Beantworte zuerst die Fragen oben, um einen personalisierten Text zu erhalten.
+                      </p>
+                    )}
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <Label>Generierter Text:</Label>
+                      <Button
+                        onClick={handleGenerateAboutMe}
+                        disabled={isGenerating}
+                        variant="outline"
+                        size="sm"
+                      >
+                        {isGenerating ? (
+                          <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                        ) : (
+                          <Sparkles className="h-4 w-4 mr-2" />
+                        )}
+                        Neu generieren
+                      </Button>
+                    </div>
+                    <Textarea
+                      value={localTextareas.ueberMich}
+                      onChange={(e) => handleTextareaChange('ueberMich', e.target.value)}
+                      onBlur={(e) => handleTextareaBlur('ueberMich', e.target.value)}
+                      rows={4}
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Du kannst den generierten Text hier noch anpassen.
+                    </p>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="space-y-3">
+                <Label>Schreibe deinen eigenen Text:</Label>
+                <Textarea
+                  value={localTextareas.ueberMich}
+                  onChange={(e) => handleTextareaChange('ueberMich', e.target.value)}
+                  onBlur={(e) => handleTextareaBlur('ueberMich', e.target.value)}
+                  rows={4}
+                  placeholder="Erzähl uns über dich, deine Motivation und was dich auszeichnet..."
+                />
+                <p className="text-xs text-muted-foreground">
+                  Schreibe 2-4 Sätze über dich, deine Motivation und deine Stärken.
+                </p>
+              </div>
+            )}
           </div>
         </Card>
-      )}
+      </FormFieldError>
 
       <div className="p-4 bg-accent/20 rounded-lg">
         <p className="text-sm text-muted-foreground">

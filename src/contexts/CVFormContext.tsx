@@ -243,6 +243,15 @@ export const CVFormProvider = ({ children }: { children: ReactNode }) => {
         if (!formData.sprachen || formData.sprachen.length === 0) {
           errors.sprachen = 'Mindestens eine Sprache ist erforderlich';
         }
+        // Skills are required for azubi and ausgelernt
+        if ((formData.status === 'azubi' || formData.status === 'ausgelernt') && 
+            (!formData.faehigkeiten || formData.faehigkeiten.length === 0)) {
+          errors.faehigkeiten = 'Mindestens eine Fähigkeit ist erforderlich';
+        }
+        // About me text is required
+        if (!formData.ueberMich || formData.ueberMich.trim() === '') {
+          errors.ueberMich = 'Ein "Über mich"-Text ist erforderlich';
+        }
         break;
       case 4:
         if (!formData.schulbildung || formData.schulbildung.length === 0) {
