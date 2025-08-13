@@ -10,6 +10,8 @@ import { CVGeneratorGate } from "@/components/CVGeneratorGate";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect, useState } from "react";
+import TopNavBar from "@/components/navigation/TopNavBar";
+import { SidebarProvider } from "@/components/ui/sidebar";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Blog from "./pages/Blog";
@@ -146,6 +148,23 @@ function CompanyProtectedRoute({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
+// Universal layout wrapper that includes TopNavBar on all pages
+function UniversalLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <SidebarProvider defaultOpen={false}>
+      <div className="min-h-screen flex flex-col w-full">
+        {/* Fixed TopNavBar on all pages */}
+        <TopNavBar />
+        
+        {/* Main content area */}
+        <div className="flex-1">
+          {children}
+        </div>
+      </div>
+    </SidebarProvider>
+  );
+}
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
@@ -153,6 +172,7 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
+          <UniversalLayout>
             <Routes>
               <Route path="/" element={<BaseLayout><Index /></BaseLayout>} />
               <Route path="/auth" element={<Auth />} />
@@ -260,6 +280,7 @@ const App = () => (
               {/* 404 */}
               <Route path="*" element={<NotFound />} />
             </Routes>
+          </UniversalLayout>
         </BrowserRouter>
       </AuthProvider>
     </TooltipProvider>
