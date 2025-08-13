@@ -23,6 +23,7 @@ import { SkillsLanguagesSidebar } from '@/components/linkedin/SkillsLanguagesSid
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { InView } from '@/components/util/InView';
+
 const Profile = () => {
   const navigate = useNavigate();
   const {
@@ -198,183 +199,194 @@ const Profile = () => {
 
   // Early returns after all hooks are declared
 
-  return <div className={`px-3 sm:px-6 lg:px-8 py-3 md:py-6 min-h-screen bg-background max-w-full overflow-x-hidden ${isEditing ? 'pb-24' : 'pb-6'} pt-safe`}>{/* Prevent horizontal scroll and reserve for sticky footer */}
-      {/* Mobile-optimized Profile Actions Header */}
-      <div className="sticky top-14 md:top-0 z-30 mb-4 md:mb-6 bg-background/80 supports-[backdrop-filter]:bg-background/60 backdrop-blur border-b">
-        <div className="px-3 sm:px-0 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0">
-          <div className="min-w-0 flex-1">
-            <h1 className="text-xl md:text-2xl font-bold truncate">
-              {profile.vorname} {profile.nachname}
-            </h1>
+  return (
+    <div className="min-h-screen bg-background">
+      {/* Header */}
+      <div className="sticky top-14 md:top-0 z-30 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b">
+        <div className="px-3 sm:px-6 lg:px-8 py-4">
+          <div className="flex items-center justify-between gap-4">
+            <div className="min-w-0 flex-1">
+              <h1 className="text-xl md:text-2xl font-bold truncate">
+                {profile.vorname} {profile.nachname}
+              </h1>
+            </div>
             
-          </div>
-          
-          <div className="flex flex-wrap gap-2 w-full sm:w-auto">
-            {!profile.profile_published && <Button variant="outline" onClick={() => setShowPreview(true)} size="sm" className="flex-1 sm:flex-none min-h-[44px]">
-                Vorschau
-              </Button>}
-            
-            {isEditing ? <div className="hidden md:flex gap-2 flex-1 sm:flex-none">
-                <Button variant="outline" onClick={() => setIsEditing(false)} disabled={isSaving} size="sm" className="flex-1 sm:flex-none min-h-[44px]">
-                  <X className="h-4 w-4 mr-1 sm:mr-2" />
-                  <span className="hidden sm:inline">Abbrechen</span>
-                  <span className="sm:hidden">Abbr.</span>
+            <div className="flex items-center gap-2">
+              {!profile.profile_published && (
+                <Button variant="outline" onClick={() => setShowPreview(true)} size="sm">
+                  Vorschau
                 </Button>
-                <Button onClick={handleSave} disabled={isSaving} size="sm" className="flex-1 sm:flex-none min-h-[44px]">
-                  {isSaving ? <Clock className="h-4 w-4 mr-1 sm:mr-2 animate-spin" /> : <Check className="h-4 w-4 mr-1 sm:mr-2" />}
-                  <span className="hidden sm:inline">Speichern</span>
-                  <span className="sm:hidden">Save</span>
+              )}
+              
+              {isEditing ? (
+                <div className="hidden md:flex gap-2">
+                  <Button variant="outline" onClick={() => setIsEditing(false)} disabled={isSaving} size="sm">
+                    <X className="h-4 w-4 mr-2" />
+                    Abbrechen
+                  </Button>
+                  <Button onClick={handleSave} disabled={isSaving} size="sm">
+                    {isSaving ? <Clock className="h-4 w-4 mr-2 animate-spin" /> : <Check className="h-4 w-4 mr-2" />}
+                    Speichern
+                  </Button>
+                </div>
+              ) : (
+                <Button onClick={() => setIsEditing(true)} size="sm">
+                  <Edit3 className="h-4 w-4 mr-2" />
+                  Bearbeiten
                 </Button>
-              </div> : <Button onClick={() => setIsEditing(true)} size="sm" className="flex-1 sm:flex-none min-h-[44px]">
-                <Edit3 className="h-4 w-4 mr-1 sm:mr-2" />
-                <span className="hidden sm:inline">Bearbeiten</span>
-                <span className="sm:hidden">Edit</span>
-              </Button>}
+              )}
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Responsive layout: Mobile stacked with prioritized content, Desktop with sidebar */}
-      <div className="mx-auto max-w-screen-2xl px-3 sm:px-6 lg:px-8 flex flex-col lg:grid lg:grid-cols-12 gap-4 md:gap-6">
-        {/* Main Content Area */}
-        <main className="lg:col-span-8">
-          <div className="w-full max-w-[560px] mx-auto px-4 md:max-w-none md:px-0 space-y-4 md:space-y-6">
-            {/* Profile Header with Cover Photo - Always first */}
-            <LinkedInProfileHeader profile={profile} isEditing={isEditing} onProfileUpdate={handleProfileUpdate} />
-            {/* About Section - High priority on mobile */}
-            <LinkedInProfileMain profile={profile} isEditing={isEditing} onProfileUpdate={handleProfileUpdate} />
+      {/* Main Content */}
+      <div className="px-3 sm:px-6 lg:px-8 py-6">
+        <div className="max-w-screen-2xl mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            {/* Main Content */}
+            <main className="lg:col-span-8">
+              <div className="max-w-[560px] mx-auto lg:max-w-none space-y-6">
+                {/* Profile Header with Cover Photo - Always first */}
+                <LinkedInProfileHeader profile={profile} isEditing={isEditing} onProfileUpdate={handleProfileUpdate} />
+                
+                {/* About Section - High priority on mobile */}
+                <LinkedInProfileMain profile={profile} isEditing={isEditing} onProfileUpdate={handleProfileUpdate} />
 
-            {/* Activity Section (moved above Experience) */}
-            <LinkedInProfileActivity profile={profile} />
+                {/* Activity Section (moved above Experience) */}
+                <LinkedInProfileActivity profile={profile} />
 
-            {/* Experience Section */}
-            <LinkedInProfileExperience experiences={profile?.berufserfahrung || []} isEditing={isEditing} onExperiencesUpdate={handleExperiencesUpdate} />
+                {/* Experience Section */}
+                <LinkedInProfileExperience experiences={profile?.berufserfahrung || []} isEditing={isEditing} onExperiencesUpdate={handleExperiencesUpdate} />
 
-            {/* Education Section */}
-            <LinkedInProfileEducation education={profile?.schulbildung || []} isEditing={isEditing} onEducationUpdate={handleEducationUpdate} />
+                {/* Education Section */}
+                <LinkedInProfileEducation education={profile?.schulbildung || []} isEditing={isEditing} onEducationUpdate={handleEducationUpdate} />
 
-            {/* Small tiles under Education: Contact & Profile Highlights */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <Card className="p-4">
-                <h4 className="text-sm font-semibold mb-2">Kontaktdaten</h4>
-                {isEditing ? (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div className="space-y-1">
-                      <Label htmlFor="email">E-Mail</Label>
-                      <Input id="email" type="email" value={profile.email || ''} disabled readOnly />
-                    </div>
-                    <div className="space-y-1">
-                      <Label htmlFor="telefon">Telefon</Label>
-                      <Input id="telefon" value={profile.telefon || ''} onChange={(e) => setProfile((p: any) => ({...p, telefon: e.target.value}))} onBlur={(e) => handleProfileUpdateImmediate({ telefon: e.target.value })} />
-                    </div>
-                    <div className="space-y-1">
-                      <Label htmlFor="strasse">Straße</Label>
-                      <Input id="strasse" value={profile.strasse || ''} onChange={(e) => setProfile((p: any) => ({...p, strasse: e.target.value}))} onBlur={(e) => handleProfileUpdateImmediate({ strasse: e.target.value })} />
-                    </div>
-                    <div className="space-y-1">
-                      <Label htmlFor="hausnummer">Hausnummer</Label>
-                      <Input id="hausnummer" value={profile.hausnummer || ''} onChange={(e) => setProfile((p: any) => ({...p, hausnummer: e.target.value}))} onBlur={(e) => handleProfileUpdateImmediate({ hausnummer: e.target.value })} />
-                    </div>
-                    <div className="space-y-1">
-                      <Label htmlFor="plz">PLZ</Label>
-                      <Input id="plz" value={profile.plz || ''} onChange={(e) => setProfile((p: any) => ({...p, plz: e.target.value}))} onBlur={(e) => handleProfileUpdateImmediate({ plz: e.target.value })} />
-                    </div>
-                    <div className="space-y-1">
-                      <Label htmlFor="ort">Ort</Label>
-                      <Input id="ort" value={profile.ort || ''} onChange={(e) => setProfile((p: any) => ({...p, ort: e.target.value}))} onBlur={(e) => handleProfileUpdateImmediate({ ort: e.target.value })} />
-                    </div>
-
-                    {/* Führerschein unten bei Kontaktdaten */}
-                    <div className="col-span-1 sm:col-span-2 border-t pt-3 mt-1">
-                      <h5 className="text-sm font-semibold mb-2 flex items-center gap-2"><Car className="h-4 w-4" /> Führerschein</h5>
-                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                {/* Small tiles under Education: Contact & Profile Highlights */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <Card className="p-4">
+                    <h4 className="text-sm font-semibold mb-2">Kontaktdaten</h4>
+                    {isEditing ? (
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div className="space-y-1">
-                          <Label>Vorhanden</Label>
-                          <div className="flex items-center gap-3">
-                            <Switch
-                              checked={!!profile?.has_drivers_license}
-                              onCheckedChange={(val) => {
-                                const v = !!val;
-                                setProfile((p: any) => ({ ...p, has_drivers_license: v, driver_license_class: v ? (p.driver_license_class || null) : null }));
-                                handleProfileUpdateImmediate({ has_drivers_license: v, driver_license_class: v ? (profile?.driver_license_class || null) : null });
-                              }}
-                            />
-                            <span className="text-sm text-muted-foreground">{profile?.has_drivers_license ? 'Ja' : 'Nein'}</span>
+                          <Label htmlFor="email">E-Mail</Label>
+                          <Input id="email" type="email" value={profile.email || ''} disabled readOnly />
+                        </div>
+                        <div className="space-y-1">
+                          <Label htmlFor="telefon">Telefon</Label>
+                          <Input id="telefon" value={profile.telefon || ''} onChange={(e) => setProfile((p: any) => ({...p, telefon: e.target.value}))} onBlur={(e) => handleProfileUpdateImmediate({ telefon: e.target.value })} />
+                        </div>
+                        <div className="space-y-1">
+                          <Label htmlFor="strasse">Straße</Label>
+                          <Input id="strasse" value={profile.strasse || ''} onChange={(e) => setProfile((p: any) => ({...p, strasse: e.target.value}))} onBlur={(e) => handleProfileUpdateImmediate({ strasse: e.target.value })} />
+                        </div>
+                        <div className="space-y-1">
+                          <Label htmlFor="hausnummer">Hausnummer</Label>
+                          <Input id="hausnummer" value={profile.hausnummer || ''} onChange={(e) => setProfile((p: any) => ({...p, hausnummer: e.target.value}))} onBlur={(e) => handleProfileUpdateImmediate({ hausnummer: e.target.value })} />
+                        </div>
+                        <div className="space-y-1">
+                          <Label htmlFor="plz">PLZ</Label>
+                          <Input id="plz" value={profile.plz || ''} onChange={(e) => setProfile((p: any) => ({...p, plz: e.target.value}))} onBlur={(e) => handleProfileUpdateImmediate({ plz: e.target.value })} />
+                        </div>
+                        <div className="space-y-1">
+                          <Label htmlFor="ort">Ort</Label>
+                          <Input id="ort" value={profile.ort || ''} onChange={(e) => setProfile((p: any) => ({...p, ort: e.target.value}))} onBlur={(e) => handleProfileUpdateImmediate({ ort: e.target.value })} />
+                        </div>
+
+                        {/* Führerschein unten bei Kontaktdaten */}
+                        <div className="col-span-1 sm:col-span-2 border-t pt-3 mt-1">
+                          <h5 className="text-sm font-semibold mb-2 flex items-center gap-2"><Car className="h-4 w-4" /> Führerschein</h5>
+                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                            <div className="space-y-1">
+                              <Label>Vorhanden</Label>
+                              <div className="flex items-center gap-3">
+                                <Switch
+                                  checked={!!profile?.has_drivers_license}
+                                  onCheckedChange={(val) => {
+                                    const v = !!val;
+                                    setProfile((p: any) => ({ ...p, has_drivers_license: v, driver_license_class: v ? (p.driver_license_class || null) : null }));
+                                    handleProfileUpdateImmediate({ has_drivers_license: v, driver_license_class: v ? (profile?.driver_license_class || null) : null });
+                                  }}
+                                />
+                                <span className="text-sm text-muted-foreground">{profile?.has_drivers_license ? 'Ja' : 'Nein'}</span>
+                              </div>
+                            </div>
+                            <div className="space-y-1 sm:col-span-2">
+                              <Label>Klasse</Label>
+                              <Select
+                                value={profile?.driver_license_class || ''}
+                                onValueChange={(val) => {
+                                  setProfile((p: any) => ({ ...p, driver_license_class: val, has_drivers_license: true }));
+                                  handleProfileUpdateImmediate({ has_drivers_license: true, driver_license_class: val });
+                                }}
+                                disabled={!profile?.has_drivers_license}
+                              >
+                                <SelectTrigger className="w-full">
+                                  <SelectValue placeholder="Klasse wählen" />
+                                </SelectTrigger>
+                                <SelectContent className="z-50 bg-background">
+                                  {['AM','A1','A2','A','B','BE','C','CE','D','DE','T','L'].map((k) => (
+                                    <SelectItem key={k} value={k}>{k}</SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </div>
                           </div>
                         </div>
-                        <div className="space-y-1 sm:col-span-2">
-                          <Label>Klasse</Label>
-                          <Select
-                            value={profile?.driver_license_class || ''}
-                            onValueChange={(val) => {
-                              setProfile((p: any) => ({ ...p, driver_license_class: val, has_drivers_license: true }));
-                              handleProfileUpdateImmediate({ has_drivers_license: true, driver_license_class: val });
-                            }}
-                            disabled={!profile?.has_drivers_license}
-                          >
-                            <SelectTrigger className="w-full">
-                              <SelectValue placeholder="Klasse wählen" />
-                            </SelectTrigger>
-                            <SelectContent className="z-50 bg-background">
-                              {['AM','A1','A2','A','B','BE','C','CE','D','DE','T','L'].map((k) => (
-                                <SelectItem key={k} value={k}>{k}</SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </div>
                       </div>
+                    ) : (
+                      <div className="space-y-1 text-sm text-muted-foreground">
+                        {profile?.email && (
+                          <div className="flex items-center gap-2"><Mail className="h-4 w-4" /> <span>{profile.email}</span></div>
+                        )}
+                        {profile?.telefon && (
+                          <div className="flex items-center gap-2"><Phone className="h-4 w-4" /> <span>{profile.telefon}</span></div>
+                        )}
+                        {(profile?.ort || profile?.strasse) && (
+                          <div className="flex items-center gap-2"><MapPin className="h-4 w-4" /> <span>{[profile?.strasse && `${profile.strasse} ${profile.hausnummer || ''}`.trim(), profile?.plz && profile?.ort && `${profile.plz} ${profile.ort}`].filter(Boolean).join(' • ') || profile?.ort}</span></div>
+                        )}
+                        {typeof profile?.has_drivers_license === 'boolean' && (
+                          <div className="flex items-center gap-2"><Car className="h-4 w-4" /> <span>Führerschein: {profile.has_drivers_license ? (profile?.driver_license_class ? `Ja, Klasse ${profile.driver_license_class}` : 'Ja') : 'Nein'}</span></div>
+                        )}
+                      </div>
+                    )}
+                  </Card>
+                  <Card className="p-4">
+                    <h4 className="text-sm font-semibold mb-2">Profilaktivitäten</h4>
+                    <div className="space-y-1 text-sm text-muted-foreground">
+                      <div>• Profil vollständig: {profile?.profile_complete ? 'Ja' : 'Nein'}</div>
+                      <div>• Öffentlich sichtbar: {profile?.profile_published ? 'Ja' : 'Nein'}</div>
+                      <div>• Erstellt am: {profile?.created_at ? new Date(profile.created_at).toLocaleDateString('de-DE') : '—'}</div>
+                      <div>• Dokumente hochgeladen: {documentsCount > 0 ? 'Ja' : 'Nein'}</div>
+                      <div>• Profilbesuche: {profileVisits}</div>
                     </div>
-                  </div>
-                ) : (
-                  <div className="space-y-1 text-sm text-muted-foreground">
-                    {profile?.email && (
-                      <div className="flex items-center gap-2"><Mail className="h-4 w-4" /> <span>{profile.email}</span></div>
-                    )}
-                    {profile?.telefon && (
-                      <div className="flex items-center gap-2"><Phone className="h-4 w-4" /> <span>{profile.telefon}</span></div>
-                    )}
-                    {(profile?.ort || profile?.strasse) && (
-                      <div className="flex items-center gap-2"><MapPin className="h-4 w-4" /> <span>{[profile?.strasse && `${profile.strasse} ${profile.hausnummer || ''}`.trim(), profile?.plz && profile?.ort && `${profile.plz} ${profile.ort}`].filter(Boolean).join(' • ') || profile?.ort}</span></div>
-                    )}
-                    {typeof profile?.has_drivers_license === 'boolean' && (
-                      <div className="flex items-center gap-2"><Car className="h-4 w-4" /> <span>Führerschein: {profile.has_drivers_license ? (profile?.driver_license_class ? `Ja, Klasse ${profile.driver_license_class}` : 'Ja') : 'Nein'}</span></div>
-                    )}
-                  </div>
-                )}
-              </Card>
-              <Card className="p-4">
-                <h4 className="text-sm font-semibold mb-2">Profilaktivitäten</h4>
-                <div className="space-y-1 text-sm text-muted-foreground">
-                  <div>• Profil vollständig: {profile?.profile_complete ? 'Ja' : 'Nein'}</div>
-                  <div>• Öffentlich sichtbar: {profile?.profile_published ? 'Ja' : 'Nein'}</div>
-                  <div>• Erstellt am: {profile?.created_at ? new Date(profile.created_at).toLocaleDateString('de-DE') : '—'}</div>
-                  <div>• Dokumente hochgeladen: {documentsCount > 0 ? 'Ja' : 'Nein'}</div>
-                  <div>• Profilbesuche: {profileVisits}</div>
+                  </Card>
                 </div>
-              </Card>
-            </div>
-          </div>
-        </main>
+              </div>
+            </main>
 
-        {/* Right Sidebar - Desktop: sidebar, Mobile: after main content */}
-        <aside className="lg:col-span-4">
-          <div className="lg:sticky lg:top-24 space-y-4 md:space-y-6">
-            <LinkedInProfileSidebar profile={profile} isEditing={isEditing} onProfileUpdate={handleProfileUpdate} showLanguagesAndSkills={false} showLicenseAndStats={false} />
-            <RightRailAd variant="card" size="sm" />
-            <SkillsLanguagesSidebar profile={profile} isEditing={isEditing} onProfileUpdate={handleProfileUpdate} />
-            <InView rootMargin="300px" placeholder={<div className="h-32 rounded-md bg-muted/50 animate-pulse" />}> 
-              <PeopleRecommendations limit={3} showMoreLink="/entdecken/azubis" showMore />
-            </InView>
-            <InView rootMargin="300px" placeholder={<div className="h-32 rounded-md bg-muted/50 animate-pulse" />}> 
-              <CompanyRecommendations limit={3} showMoreLink="/entdecken/unternehmen" showMore />
-            </InView>
-            <RightRailAd variant="banner" size="sm" />
+            {/* Right Sidebar - Desktop: sidebar, Mobile: after main content */}
+            <aside className="lg:col-span-4">
+              <div className="lg:sticky lg:top-24 space-y-4 md:space-y-6">
+                <LinkedInProfileSidebar profile={profile} isEditing={isEditing} onProfileUpdate={handleProfileUpdate} showLanguagesAndSkills={false} showLicenseAndStats={false} />
+                <RightRailAd variant="card" size="sm" />
+                <SkillsLanguagesSidebar profile={profile} isEditing={isEditing} onProfileUpdate={handleProfileUpdate} />
+                <InView rootMargin="300px" placeholder={<div className="h-32 rounded-md bg-muted/50 animate-pulse" />}> 
+                  <PeopleRecommendations limit={3} showMoreLink="/entdecken/azubis" showMore />
+                </InView>
+                <InView rootMargin="300px" placeholder={<div className="h-32 rounded-md bg-muted/50 animate-pulse" />}> 
+                  <CompanyRecommendations limit={3} showMoreLink="/entdecken/unternehmen" showMore />
+                </InView>
+                <RightRailAd variant="banner" size="sm" />
+              </div>
+            </aside>
           </div>
-        </aside>
+        </div>
       </div>
 
       {/* Sticky bottom Save Bar (mobile) */}
-      {isEditing && <div className="fixed inset-x-0 bottom-0 z-40 border-t bg-background/95 supports-[backdrop-filter]:bg-background/80 backdrop-blur px-3 py-2 pb-safe md:hidden">
+      {isEditing && (
+        <div className="fixed inset-x-0 bottom-0 z-40 border-t bg-background/95 supports-[backdrop-filter]:bg-background/80 backdrop-blur px-3 py-2 pb-safe md:hidden">
           <div className="max-w-[560px] mx-auto px-4 flex items-center justify-end gap-2">
             <Button variant="outline" onClick={() => setIsEditing(false)} disabled={isSaving} size="sm" className="min-h-[38px] md:min-h-[44px]">
               Abbrechen
@@ -384,15 +396,24 @@ const Profile = () => {
               Speichern
             </Button>
           </div>
-        </div>}
+        </div>
+      )}
 
       {/* Preview Modal */}
-      {showPreview && <ProfilePreviewModal isOpen={showPreview} profileData={profile} onPublish={async () => {
-      await handleProfileUpdate({
-        profile_published: true
-      });
-      setShowPreview(false);
-    }} onClose={() => setShowPreview(false)} />}
-    </div>;
+      {showPreview && (
+        <ProfilePreviewModal 
+          isOpen={showPreview} 
+          profileData={profile} 
+          onPublish={async () => {
+            await handleProfileUpdate({
+              profile_published: true
+            });
+            setShowPreview(false);
+          }} 
+          onClose={() => setShowPreview(false)} 
+        />
+      )}
+    </div>
+  );
 };
 export default Profile;
