@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
@@ -24,6 +24,31 @@ export default function FollowButton({
   const [bellOpen, setBellOpen] = useState(false);
   const [bell, setBell] = useState<'off' | 'highlights' | 'all'>(initialBell);
   const [loading, setLoading] = useState(false);
+
+  // Check actual follow status on mount
+  useEffect(() => {
+    const checkFollowStatus = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('follows')
+          .select('id')
+          .eq('follower_id', profileId)
+          .eq('followee_id', companyId)
+          .eq('follower_type', 'profile')
+          .eq('followee_type', 'company')
+          .eq('status', 'accepted')
+          .maybeSingle();
+        
+        if (!error) {
+          setFollowing(!!data);
+        }
+      } catch (error) {
+        console.error('Error checking follow status:', error);
+      }
+    };
+
+    checkFollowStatus();
+  }, [profileId, companyId]);
 
   const follow = async () => {
     if (loading) return;

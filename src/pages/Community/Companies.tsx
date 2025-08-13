@@ -158,7 +158,7 @@ export default function CommunityCompanies() {
                     profileId={profileId} 
                     initialFollowing={true} 
                     initialBell="highlights"
-                    onChange={refetch}
+                    onChange={() => refetch()}
                   />
                 </div>
               </div>
@@ -198,7 +198,7 @@ export default function CommunityCompanies() {
                       companyId={company.id} 
                       profileId={profileId} 
                       initialFollowing={false}
-                      onChange={refetch}
+                      onChange={() => refetch()}
                     />
                   </div>
                 </div>
