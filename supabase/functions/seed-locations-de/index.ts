@@ -37,19 +37,42 @@ Deno.serve(async (req: Request) => {
   }
 
   try {
-    const token = req.headers.get('x-seed-token');
-    const expected = Deno.env.get('SEED_LOCATIONS_TOKEN');
-    if (!expected || token !== expected) {
-      return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401, headers: { 'Content-Type': 'application/json', ...corsHeaders } });
-    }
-
     const { url, country_code = 'DE', dry_run = false, limit = 0 } = await req.json().catch(() => ({}));
 
     const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!;
     const SERVICE_ROLE = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
     const ANON = Deno.env.get('SUPABASE_ANON_KEY');
     const key = SERVICE_ROLE || ANON;
-    if (!SUPABASE_URL || !key) throw new Error('Missing Supabase URL or API key');
+    if (!SUPABASE_URL || !key || !ANON) throw new Error('Missing Supabase URL or API key');
+
+    // Authorization: allow either seed token or admin/editor JWT
+    let authorized = false;
+    const seedToken = req.headers.get('x-seed-token');
+    const expected = Deno.env.get('SEED_LOCATIONS_TOKEN');
+    if (expected && seedToken === expected) {
+      authorized = true;
+    } else {
+      const authHeader = req.headers.get('Authorization');
+      if (authHeader) {
+        try {
+          const supabaseUser = createClient(SUPABASE_URL, ANON, { global: { headers: { Authorization: authHeader } } });
+          const { data: { user } } = await supabaseUser.auth.getUser();
+          if (user) {
+            const { data: rolesData } = await supabaseUser.from('user_roles').select('role').eq('user_id', user.id);
+            const roles = (rolesData || []).map((r: any) => String(r.role).toLowerCase());
+            if (roles.includes('admin') || roles.includes('superadmin') || roles.includes('editor') || roles.includes('contenteditor') || roles.includes('support') || roles.includes('supportagent')) {
+              authorized = true;
+            }
+          }
+        } catch (_e) {
+          // ignore, will fall through to unauthorized
+        }
+      }
+    }
+    if (!authorized) {
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401, headers: { 'Content-Type': 'application/json', ...corsHeaders } });
+    }
+
     const supabase = createClient(SUPABASE_URL, key);
 
     // Download CSV once

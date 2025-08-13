@@ -64,6 +64,7 @@ import MatchesPage from "./pages/Admin/Matches";
 import AnalyticsPage from "./pages/Admin/Analytics";
 import ContentPage from "./pages/Admin/Content";
 import SupportPage from "./pages/Admin/Support";
+import AdminTools from "./pages/Admin/Tools";
 import AdminAuthGate from "@/components/admin/AdminAuthGate";
 import CreateAdmin from "./pages/Admin/CreateAdmin";
 
@@ -247,6 +248,7 @@ const App = () => (
                 <Route path="pages/:id" element={<PageEditor />} />
                 <Route path="seo" element={<SeoInsights />} />
                 <Route path="scheduled" element={<ScheduledPosts />} />
+                <Route path="tools" element={<AdminTools />} />
                 <Route path="settings" element={<AdminSettings />} />
               </Route>
                 
