@@ -1,218 +1,422 @@
-import React from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
+import { useDebounce } from '@/hooks/useDebounce';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Edit3, MapPin, Mail, Phone, Briefcase, GraduationCap, Users } from 'lucide-react';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Badge } from '@/components/ui/badge';
-
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Edit3, Check, Clock, X, Loader2, Mail, Phone, MapPin, Car, Eye, Download, Upload } from 'lucide-react';
+import { toast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
+import { LinkedInProfileHeader } from '@/components/linkedin/LinkedInProfileHeader';
+import { LinkedInProfileMain } from '@/components/linkedin/LinkedInProfileMain';
+import { LinkedInProfileSidebar } from '@/components/linkedin/LinkedInProfileSidebar';
+import { LinkedInProfileExperience } from '@/components/linkedin/LinkedInProfileExperience';
+import { LinkedInProfileEducation } from '@/components/linkedin/LinkedInProfileEducation';
+import { LinkedInProfileActivity } from '@/components/linkedin/LinkedInProfileActivity';
+import { RightRailAd } from '@/components/linkedin/right-rail/RightRailAd';
+import { PeopleRecommendations } from '@/components/linkedin/right-rail/PeopleRecommendations';
+import { CompanyRecommendations } from '@/components/linkedin/right-rail/CompanyRecommendations';
+import { ProfilePreviewModal } from '@/components/ProfilePreviewModal';
+import { SkillsLanguagesSidebar } from '@/components/linkedin/SkillsLanguagesSidebar';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Switch } from '@/components/ui/switch';
+import { InView } from '@/components/util/InView';
+import { openCvDownload, openCvEdit, openDocUpload } from '@/lib/event-bus';
 const Profile = () => {
   const navigate = useNavigate();
-  const { profile, isLoading } = useAuth();
+  const {
+    profile: authProfile,
+    isLoading,
+    refetchProfile
+  } = useAuth();
+  const [isEditing, setIsEditing] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
+  const [profile, setProfile] = useState<any>(null);
+  const [documentsCount, setDocumentsCount] = useState<number>(0);
+  const [profileVisits, setProfileVisits] = useState<number>(0);
 
-  // Mock data for demonstration - replace with real data from profile
-  const mockExperience = [
-    {
-      title: "Senior Software Developer",
-      company: "Tech Company GmbH",
-      period: "2022 - Present",
-      location: "Berlin, Deutschland",
-      description: "Entwicklung von Web-Applikationen mit React und TypeScript"
-    },
-    {
-      title: "Frontend Developer",
-      company: "Digital Agency",
-      period: "2020 - 2022",
-      location: "Hamburg, Deutschland",
-      description: "UI/UX Entwicklung für verschiedene Kunden"
+  // All hooks must be called before any conditional returns
+  const handleProfileUpdateImmediate = useCallback(async (updates: any) => {
+    if (!profile?.id) return;
+    setIsSaving(true);
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({
+          ...updates,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', profile.id);
+      if (error) throw error;
+
+      // Update local profile state
+      setProfile((prev) => ({
+        ...prev,
+        ...updates,
+      }));
+
+      // Ensure latest data is fetched from server
+      refetchProfile?.();
+
+      toast({
+        title: "Profil aktualisiert",
+        description: "Ihre Änderungen wurden gespeichert.",
+      });
+    } catch (error) {
+      console.error('Update error:', error);
+      toast({
+        title: "Fehler beim Speichern",
+        description: "Ihre Änderungen konnten nicht gespeichert werden.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSaving(false);
     }
-  ];
+  }, [profile?.id, refetchProfile]);
 
-  const mockEducation = [
-    {
-      degree: "Bachelor of Science Informatik",
-      school: "Technische Universität Berlin",
-      period: "2016 - 2020",
-      grade: "1.8"
+  // Simple profile update without debouncing for form submissions
+  const handleProfileUpdate = handleProfileUpdateImmediate;
+  const handleExperiencesUpdate = useCallback((experiences: any[]) => {
+    handleProfileUpdateImmediate({
+      berufserfahrung: experiences
+    });
+  }, [handleProfileUpdateImmediate]);
+  const handleEducationUpdate = useCallback((education: any[]) => {
+    handleProfileUpdateImmediate({
+      schulbildung: education
+    });
+  }, [handleProfileUpdateImmediate]);
+  const handleSave = async () => {
+    if (!profile?.id) return;
+    setIsSaving(true);
+    try {
+      // Resolve canonical location_id from PLZ + Ort
+      let locationId: number | null = null;
+      if (profile.plz && profile.ort) {
+        const { data: locId, error: locErr } = await supabase.rpc('resolve_location_id', {
+          p_postal_code: String(profile.plz),
+          p_city: String(profile.ort),
+          p_country_code: 'DE',
+        });
+        if (locErr) {
+          console.warn('resolve_location_id error', locErr);
+        } else if (typeof locId === 'number') {
+          locationId = locId;
+        }
+      }
+
+      const { error } = await supabase.from('profiles').update({
+        vorname: profile.vorname,
+        nachname: profile.nachname,
+        telefon: profile.telefon,
+        strasse: profile.strasse,
+        hausnummer: profile.hausnummer,
+        plz: profile.plz,
+        ort: profile.ort,
+        location_id: locationId,
+        uebermich: profile.uebermich,
+        kenntnisse: profile.kenntnisse,
+        motivation: profile.motivation,
+        faehigkeiten: profile.faehigkeiten,
+        sprachen: profile.sprachen,
+        berufserfahrung: profile.berufserfahrung,
+        schulbildung: profile.schulbildung,
+        avatar_url: profile.avatar_url,
+        cover_image_url: profile.cover_image_url,
+        updated_at: new Date().toISOString()
+      }).eq('id', profile.id);
+      if (error) throw error;
+      toast({
+        title: "Profil gespeichert",
+        description: "Ihre Änderungen wurden erfolgreich gespeichert."
+      });
+      refetchProfile?.();
+      setIsEditing(false);
+    } catch (error) {
+      console.error('Save error:', error);
+      toast({
+        title: "Fehler beim Speichern",
+        description: "Ihre Änderungen konnten nicht gespeichert werden.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSaving(false);
     }
-  ];
+  };
+  useEffect(() => {
+    if (authProfile) {
+      setProfile({
+        ...authProfile
+      });
+    }
+  }, [authProfile]);
 
-  const mockSkills = [
-    "React", "TypeScript", "JavaScript", "HTML/CSS", "Node.js", 
-    "Python", "Git", "Agile", "Scrum", "UI/UX Design"
-  ];
-
+  useEffect(() => {
+    const loadCounts = async () => {
+      if (!profile?.id) return;
+      try {
+        const { count: docsCount, error: docsError } = await supabase
+          .from('user_documents')
+          .select('*', { count: 'exact', head: true })
+          .eq('user_id', profile.id);
+        if (!docsError) setDocumentsCount(docsCount ?? 0);
+      } catch (e) {
+        console.warn('Dokumente zählen fehlgeschlagen:', e);
+      }
+      try {
+        const { count: visitsCount, error: visitsError } = await supabase
+          .from('tokens_used')
+          .select('*', { count: 'exact', head: true })
+          .eq('profile_id', profile.id);
+        if (!visitsError) setProfileVisits(visitsCount ?? 0);
+      } catch (e) {
+        console.warn('Profilbesuche zählen fehlgeschlagen:', e);
+      }
+    };
+    loadCounts();
+  }, [profile?.id]);
   if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-      </div>
-    );
+    return <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
+      </div>;
   }
-
   if (!profile) {
-    return (
-      <div className="px-4 py-6">
-        <Card className="p-6 text-center rounded-xl shadow-md">
-          <h1 className="text-lg font-semibold mb-4">Willkommen!</h1>
-          <p className="text-sm text-muted-foreground mb-4">
+    return <div className="container mx-auto p-6">
+        <Card className="p-6 text-center">
+          <h1 className="text-2xl font-bold mb-4">Willkommen!</h1>
+          <p className="text-muted-foreground mb-4">
             Erstellen Sie jetzt Ihren ersten Lebenslauf, um von Unternehmen gefunden zu werden.
           </p>
           <Button onClick={() => navigate('/cv-generator')}>
             Jetzt Lebenslauf erstellen
           </Button>
         </Card>
-      </div>
-    );
+      </div>;
   }
 
-  return (
-    <div className="min-h-screen bg-background">
-      {/* Mobile-first profile layout with full-width cards */}
-      <div className="px-4 py-6 space-y-4 max-w-md mx-auto sm:max-w-2xl">
-        
-        {/* Profile Header Card */}
-        <Card className="rounded-xl shadow-md overflow-hidden">
-          <div className="p-6">
-            <div className="flex items-start gap-4 mb-4">
-              <Avatar className="h-16 w-16">
-                <AvatarImage src={profile.avatar_url} alt={`${profile.vorname} ${profile.nachname}`} />
-                <AvatarFallback className="text-lg">
-                  {profile.vorname?.[0]}{profile.nachname?.[0]}
-                </AvatarFallback>
-              </Avatar>
-              <div className="flex-1 min-w-0">
-                <h1 className="text-lg font-semibold text-foreground truncate">
-                  {profile.vorname} {profile.nachname}
-                </h1>
-                <p className="text-sm text-muted-foreground">
-                  {profile.berufserfahrung?.[0]?.position || "Software Developer"}
-                </p>
-                <div className="flex items-center gap-1 mt-1">
-                  <MapPin className="h-3 w-3 text-muted-foreground" />
-                  <span className="text-xs text-muted-foreground">
-                    {profile.ort || "Berlin, Deutschland"}
-                  </span>
-                </div>
-              </div>
-            </div>
+  // Early returns after all hooks are declared
+
+  return <div className={`px-3 sm:px-6 lg:px-8 py-3 md:py-6 min-h-screen bg-background max-w-full overflow-x-hidden ${isEditing ? 'pb-24' : 'pb-24 md:pb-6'} pt-safe`}>{/* Prevent horizontal scroll and reserve for sticky footer */}
+      {/* Mobile-optimized Profile Actions Header */}
+      <div className="hidden md:block sticky top-0 z-30 mb-4 md:mb-6 bg-background/80 supports-[backdrop-filter]:bg-background/60 backdrop-blur border-b">
+        <div className="px-3 sm:px-0 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0">
+          <div className="min-w-0 flex-1">
+            <h1 className="text-xl md:text-2xl font-bold truncate">
+              {profile.vorname} {profile.nachname}
+            </h1>
             
-            <div className="flex gap-2">
-              <Button size="sm" className="flex-1">
-                <Users className="h-4 w-4 mr-2" />
-                Vernetzen
-              </Button>
-              <Button variant="outline" size="sm" className="flex-1">
-                <Mail className="h-4 w-4 mr-2" />
-                Nachricht
-              </Button>
-              <Button variant="outline" size="sm">
-                <Edit3 className="h-4 w-4" />
-              </Button>
-            </div>
           </div>
-        </Card>
-
-        {/* About/Info Card */}
-        <Card className="rounded-xl shadow-md">
-          <div className="p-6">
-            <h2 className="text-lg font-semibold mb-3">Über mich</h2>
-            <p className="text-sm text-muted-foreground leading-relaxed">
-              {profile.uebermich || "Leidenschaftlicher Software-Entwickler mit über 5 Jahren Erfahrung in der Entwicklung von Web-Applikationen. Spezialisiert auf React, TypeScript und moderne Frontend-Technologien."}
-            </p>
+          
+          <div className="flex flex-wrap gap-2 w-full sm:w-auto">
+            {!profile.profile_published && <Button variant="outline" onClick={() => setShowPreview(true)} size="sm" className="flex-1 sm:flex-none min-h-[44px]">
+                Vorschau
+              </Button>}
+            
+            {isEditing ? <div className="hidden md:flex gap-2 flex-1 sm:flex-none">
+                <Button variant="outline" onClick={() => setIsEditing(false)} disabled={isSaving} size="sm" className="flex-1 sm:flex-none min-h-[44px]">
+                  <X className="h-4 w-4 mr-1 sm:mr-2" />
+                  <span className="hidden sm:inline">Abbrechen</span>
+                  <span className="sm:hidden">Abbr.</span>
+                </Button>
+                <Button onClick={handleSave} disabled={isSaving} size="sm" className="flex-1 sm:flex-none min-h-[44px]">
+                  {isSaving ? <Clock className="h-4 w-4 mr-1 sm:mr-2 animate-spin" /> : <Check className="h-4 w-4 mr-1 sm:mr-2" />}
+                  <span className="hidden sm:inline">Speichern</span>
+                  <span className="sm:hidden">Save</span>
+                </Button>
+              </div> : <Button onClick={() => setIsEditing(true)} size="sm" className="flex-1 sm:flex-none min-h-[44px]">
+                <Edit3 className="h-4 w-4 mr-1 sm:mr-2" />
+                <span className="hidden sm:inline">Bearbeiten</span>
+                <span className="sm:hidden">Edit</span>
+              </Button>}
           </div>
-        </Card>
-
-        {/* Experience Card */}
-        <Card className="rounded-xl shadow-md">
-          <div className="p-6">
-            <div className="flex items-center gap-2 mb-4">
-              <Briefcase className="h-5 w-5 text-muted-foreground" />
-              <h2 className="text-lg font-semibold">Berufserfahrung</h2>
-            </div>
-            <div className="space-y-4">
-              {mockExperience.map((exp, index) => (
-                <div key={index} className="border-l-2 border-border pl-4 pb-4 last:pb-0">
-                  <h3 className="text-sm font-medium text-foreground">{exp.title}</h3>
-                  <p className="text-sm text-muted-foreground">{exp.company}</p>
-                  <p className="text-xs text-muted-foreground mb-2">{exp.period} • {exp.location}</p>
-                  <p className="text-sm text-muted-foreground">{exp.description}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </Card>
-
-        {/* Education Card */}
-        <Card className="rounded-xl shadow-md">
-          <div className="p-6">
-            <div className="flex items-center gap-2 mb-4">
-              <GraduationCap className="h-5 w-5 text-muted-foreground" />
-              <h2 className="text-lg font-semibold">Ausbildung</h2>
-            </div>
-            <div className="space-y-4">
-              {mockEducation.map((edu, index) => (
-                <div key={index} className="border-l-2 border-border pl-4">
-                  <h3 className="text-sm font-medium text-foreground">{edu.degree}</h3>
-                  <p className="text-sm text-muted-foreground">{edu.school}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {edu.period} • Note: {edu.grade}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </Card>
-
-        {/* Skills Card */}
-        <Card className="rounded-xl shadow-md">
-          <div className="p-6">
-            <h2 className="text-lg font-semibold mb-4">Fähigkeiten & Kenntnisse</h2>
-            <div className="flex flex-wrap gap-2">
-              {mockSkills.map((skill, index) => (
-                <Badge 
-                  key={index} 
-                  variant="secondary" 
-                  className="text-xs px-3 py-1 rounded-full"
-                >
-                  {skill}
-                </Badge>
-              ))}
-            </div>
-          </div>
-        </Card>
-
-        {/* Contact Info Card */}
-        <Card className="rounded-xl shadow-md">
-          <div className="p-6">
-            <h2 className="text-lg font-semibold mb-4">Kontaktinformationen</h2>
-            <div className="space-y-3">
-              {profile.email && (
-                <div className="flex items-center gap-3">
-                  <Mail className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                  <span className="text-sm text-muted-foreground">{profile.email}</span>
-                </div>
-              )}
-              {profile.telefon && (
-                <div className="flex items-center gap-3">
-                  <Phone className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                  <span className="text-sm text-muted-foreground">{profile.telefon}</span>
-                </div>
-              )}
-              <div className="flex items-center gap-3">
-                <MapPin className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                <span className="text-sm text-muted-foreground">
-                  {profile.ort || "Berlin, Deutschland"}
-                </span>
-              </div>
-            </div>
-          </div>
-        </Card>
-
+        </div>
       </div>
-    </div>
-  );
-};
 
+      {/* Responsive layout: Mobile stacked with prioritized content, Desktop with sidebar */}
+      <div className="mx-auto max-w-screen-2xl px-3 sm:px-6 lg:px-8 flex flex-col lg:grid lg:grid-cols-12 gap-4 md:gap-6">
+        {/* Main Content Area */}
+        <main className="lg:col-span-8">
+          <div className="w-full max-w-[560px] mx-auto px-4 md:max-w-none md:px-0 space-y-4 md:space-y-6">
+            {/* Profile Header with Cover Photo - Always first */}
+            <LinkedInProfileHeader profile={profile} isEditing={isEditing} onProfileUpdate={handleProfileUpdate} />
+            {/* About Section - High priority on mobile */}
+            <LinkedInProfileMain profile={profile} isEditing={isEditing} onProfileUpdate={handleProfileUpdate} />
+
+            {/* Activity Section (moved above Experience) */}
+            <LinkedInProfileActivity profile={profile} />
+
+            {/* Experience Section */}
+            <LinkedInProfileExperience experiences={profile?.berufserfahrung || []} isEditing={isEditing} onExperiencesUpdate={handleExperiencesUpdate} />
+
+            {/* Education Section */}
+            <LinkedInProfileEducation education={profile?.schulbildung || []} isEditing={isEditing} onEducationUpdate={handleEducationUpdate} />
+
+            {/* Small tiles under Education: Contact & Profile Highlights */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <Card className="p-4">
+                <h4 className="text-sm font-semibold mb-2">Kontaktdaten</h4>
+                {isEditing ? (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="space-y-1">
+                      <Label htmlFor="email">E-Mail</Label>
+                      <Input id="email" type="email" value={profile.email || ''} disabled readOnly />
+                    </div>
+                    <div className="space-y-1">
+                      <Label htmlFor="telefon">Telefon</Label>
+                      <Input id="telefon" value={profile.telefon || ''} onChange={(e) => setProfile((p: any) => ({...p, telefon: e.target.value}))} onBlur={(e) => handleProfileUpdateImmediate({ telefon: e.target.value })} />
+                    </div>
+                    <div className="space-y-1">
+                      <Label htmlFor="strasse">Straße</Label>
+                      <Input id="strasse" value={profile.strasse || ''} onChange={(e) => setProfile((p: any) => ({...p, strasse: e.target.value}))} onBlur={(e) => handleProfileUpdateImmediate({ strasse: e.target.value })} />
+                    </div>
+                    <div className="space-y-1">
+                      <Label htmlFor="hausnummer">Hausnummer</Label>
+                      <Input id="hausnummer" value={profile.hausnummer || ''} onChange={(e) => setProfile((p: any) => ({...p, hausnummer: e.target.value}))} onBlur={(e) => handleProfileUpdateImmediate({ hausnummer: e.target.value })} />
+                    </div>
+                    <div className="space-y-1">
+                      <Label htmlFor="plz">PLZ</Label>
+                      <Input id="plz" value={profile.plz || ''} onChange={(e) => setProfile((p: any) => ({...p, plz: e.target.value}))} onBlur={(e) => handleProfileUpdateImmediate({ plz: e.target.value })} />
+                    </div>
+                    <div className="space-y-1">
+                      <Label htmlFor="ort">Ort</Label>
+                      <Input id="ort" value={profile.ort || ''} onChange={(e) => setProfile((p: any) => ({...p, ort: e.target.value}))} onBlur={(e) => handleProfileUpdateImmediate({ ort: e.target.value })} />
+                    </div>
+
+                    {/* Führerschein unten bei Kontaktdaten */}
+                    <div className="col-span-1 sm:col-span-2 border-t pt-3 mt-1">
+                      <h5 className="text-sm font-semibold mb-2 flex items-center gap-2"><Car className="h-4 w-4" /> Führerschein</h5>
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div className="space-y-1">
+                          <Label>Vorhanden</Label>
+                          <div className="flex items-center gap-3">
+                            <Switch
+                              checked={!!profile?.has_drivers_license}
+                              onCheckedChange={(val) => {
+                                const v = !!val;
+                                setProfile((p: any) => ({ ...p, has_drivers_license: v, driver_license_class: v ? (p.driver_license_class || null) : null }));
+                                handleProfileUpdateImmediate({ has_drivers_license: v, driver_license_class: v ? (profile?.driver_license_class || null) : null });
+                              }}
+                            />
+                            <span className="text-sm text-muted-foreground">{profile?.has_drivers_license ? 'Ja' : 'Nein'}</span>
+                          </div>
+                        </div>
+                        <div className="space-y-1 sm:col-span-2">
+                          <Label>Klasse</Label>
+                          <Select
+                            value={profile?.driver_license_class || ''}
+                            onValueChange={(val) => {
+                              setProfile((p: any) => ({ ...p, driver_license_class: val, has_drivers_license: true }));
+                              handleProfileUpdateImmediate({ has_drivers_license: true, driver_license_class: val });
+                            }}
+                            disabled={!profile?.has_drivers_license}
+                          >
+                            <SelectTrigger className="w-full">
+                              <SelectValue placeholder="Klasse wählen" />
+                            </SelectTrigger>
+                            <SelectContent className="z-50 bg-background">
+                              {['AM','A1','A2','A','B','BE','C','CE','D','DE','T','L'].map((k) => (
+                                <SelectItem key={k} value={k}>{k}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-1 text-sm text-muted-foreground">
+                    {profile?.email && (
+                      <div className="flex items-center gap-2"><Mail className="h-4 w-4" /> <span>{profile.email}</span></div>
+                    )}
+                    {profile?.telefon && (
+                      <div className="flex items-center gap-2"><Phone className="h-4 w-4" /> <span>{profile.telefon}</span></div>
+                    )}
+                    {(profile?.ort || profile?.strasse) && (
+                      <div className="flex items-center gap-2"><MapPin className="h-4 w-4" /> <span>{[profile?.strasse && `${profile.strasse} ${profile.hausnummer || ''}`.trim(), profile?.plz && profile?.ort && `${profile.plz} ${profile.ort}`].filter(Boolean).join(' • ') || profile?.ort}</span></div>
+                    )}
+                    {typeof profile?.has_drivers_license === 'boolean' && (
+                      <div className="flex items-center gap-2"><Car className="h-4 w-4" /> <span>Führerschein: {profile.has_drivers_license ? (profile?.driver_license_class ? `Ja, Klasse ${profile.driver_license_class}` : 'Ja') : 'Nein'}</span></div>
+                    )}
+                  </div>
+                )}
+              </Card>
+              <Card className="p-4">
+                <h4 className="text-sm font-semibold mb-2">Profilaktivitäten</h4>
+                <div className="space-y-1 text-sm text-muted-foreground">
+                  <div>• Profil vollständig: {profile?.profile_complete ? 'Ja' : 'Nein'}</div>
+                  <div>• Öffentlich sichtbar: {profile?.profile_published ? 'Ja' : 'Nein'}</div>
+                  <div>• Erstellt am: {profile?.created_at ? new Date(profile.created_at).toLocaleDateString('de-DE') : '—'}</div>
+                  <div>• Dokumente hochgeladen: {documentsCount > 0 ? 'Ja' : 'Nein'}</div>
+                  <div>• Profilbesuche: {profileVisits}</div>
+                </div>
+              </Card>
+            </div>
+          </div>
+        </main>
+
+        {/* Right Sidebar - Desktop: sidebar, Mobile: after main content */}
+        <aside className="lg:col-span-4">
+          <div className="w-full max-w-[560px] mx-auto px-4 md:max-w-none md:px-0 lg:sticky lg:top-24 space-y-4 md:space-y-6">
+            <LinkedInProfileSidebar profile={profile} isEditing={isEditing} onProfileUpdate={handleProfileUpdate} showLanguagesAndSkills={false} showLicenseAndStats={false} />
+            <RightRailAd variant="card" size="sm" />
+            <SkillsLanguagesSidebar profile={profile} isEditing={isEditing} onProfileUpdate={handleProfileUpdate} />
+            <InView rootMargin="300px" placeholder={<div className="h-32 rounded-md bg-muted/50 animate-pulse" />}> 
+              <PeopleRecommendations limit={3} showMoreLink="/entdecken/azubis" showMore />
+            </InView>
+            <InView rootMargin="300px" placeholder={<div className="h-32 rounded-md bg-muted/50 animate-pulse" />}> 
+              <CompanyRecommendations limit={3} showMoreLink="/entdecken/unternehmen" showMore />
+            </InView>
+            <RightRailAd variant="banner" size="sm" />
+          </div>
+        </aside>
+      </div>
+
+      {/* Sticky bottom Save Bar (mobile) */}
+      {isEditing && <div className="fixed inset-x-0 bottom-0 z-[61] border-t bg-background/95 supports-[backdrop-filter]:bg-background/80 backdrop-blur px-3 py-2 pb-safe md:hidden">
+          <div className="max-w-[560px] mx-auto px-4 flex items-center justify-end gap-2">
+            <Button variant="outline" onClick={() => setIsEditing(false)} disabled={isSaving} size="sm" className="min-h-[38px] md:min-h-[44px]">
+              Abbrechen
+            </Button>
+            <Button onClick={handleSave} disabled={isSaving} size="sm" className="min-h-[38px] md:min-h-[44px]">
+              {isSaving ? <Clock className="h-4 w-4 mr-2 animate-spin" /> : <Check className="h-4 w-4 mr-2" />}
+              Speichern
+            </Button>
+          </div>
+        </div>}
+
+      {/* Mobile Quick Actions Bar (visible when not editing) */}
+      {!isEditing && (
+        <div className="fixed inset-x-0 bottom-0 z-[61] border-t bg-background/95 supports-[backdrop-filter]:bg-background/80 backdrop-blur px-3 py-2 pb-safe md:hidden">
+          <div className="max-w-[560px] mx-auto px-4 grid grid-cols-5 gap-2">
+            <Button size="sm" variant="outline" className="min-h-[44px]" onClick={() => setIsEditing(true)} aria-label="Profil bearbeiten">
+              <Edit3 className="h-4 w-4" />
+            </Button>
+            <Button size="sm" variant="outline" className="min-h-[44px]" onClick={() => setShowPreview(true)} aria-label="Vorschau">
+              <Eye className="h-4 w-4" />
+            </Button>
+            <Button size="sm" className="min-h-[44px]" onClick={() => openCvDownload()} aria-label="CV herunterladen">
+              <Download className="h-4 w-4" />
+            </Button>
+            <Button size="sm" variant="secondary" className="min-h-[44px]" onClick={() => openCvEdit()} aria-label="CV bearbeiten">
+              <Edit3 className="h-4 w-4" />
+            </Button>
+            <Button size="sm" variant="outline" className="min-h-[44px]" onClick={() => openDocUpload()} aria-label="Dokumente hochladen">
+              <Upload className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {/* Preview Modal */}
+      {showPreview && <ProfilePreviewModal isOpen={showPreview} profileData={profile} onPublish={async () => {
+      await handleProfileUpdate({
+        profile_published: true
+      });
+      setShowPreview(false);
+    }} onClose={() => setShowPreview(false)} />}
+    </div>;
+};
 export default Profile;
