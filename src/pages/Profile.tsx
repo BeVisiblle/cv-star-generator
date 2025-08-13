@@ -92,9 +92,22 @@ const Profile = () => {
     if (!profile?.id) return;
     setIsSaving(true);
     try {
-      const { 
-        error
-      } = await supabase.from('profiles').update({
+      // Resolve canonical location_id from PLZ + Ort
+      let locationId: number | null = null;
+      if (profile.plz && profile.ort) {
+        const { data: locId, error: locErr } = await supabase.rpc('resolve_location_id', {
+          p_postal_code: String(profile.plz),
+          p_city: String(profile.ort),
+          p_country_code: 'DE',
+        });
+        if (locErr) {
+          console.warn('resolve_location_id error', locErr);
+        } else if (typeof locId === 'number') {
+          locationId = locId;
+        }
+      }
+
+      const { error } = await supabase.from('profiles').update({
         vorname: profile.vorname,
         nachname: profile.nachname,
         telefon: profile.telefon,
@@ -102,6 +115,7 @@ const Profile = () => {
         hausnummer: profile.hausnummer,
         plz: profile.plz,
         ort: profile.ort,
+        location_id: locationId,
         uebermich: profile.uebermich,
         kenntnisse: profile.kenntnisse,
         motivation: profile.motivation,

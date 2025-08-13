@@ -26,6 +26,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { TagType } from "@/components/company/matching/TagPicker";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { PLZOrtSelector } from "@/components/shared/PLZOrtSelector";
 interface CompanyProfile {
   name: string;
   description: string;
@@ -63,6 +64,10 @@ const [showPreview, setShowPreview] = useState(false);
 const [saving, setSaving] = useState(false);
 const { toast } = useToast();
 
+// Canonical PLZ/Ort for Hauptsitz
+const [companyPlz, setCompanyPlz] = useState<string>("");
+const [companyOrt, setCompanyOrt] = useState<string>("");
+
   type TagsByType = Record<TagType, string[]>;
   const [tagsByType, setTagsByType] = useState<TagsByType>({
     profession: [], target_group: [], benefit: [], must: [], nice: [], work_env: []
@@ -85,6 +90,13 @@ const { toast } = useToast();
         mission_statement: company.mission_statement || "",
         employee_count: company.employee_count ?? null,
       });
+      // Try to parse "PLZ Ort" pattern from main_location
+      const ml = company.main_location || "";
+      const m = ml.match(/^(\d{5})\s+(.+)$/);
+      if (m) {
+        setCompanyPlz(m[1]);
+        setCompanyOrt(m[2]);
+      }
     }
   }, [company]);
 
@@ -118,7 +130,23 @@ const { toast } = useToast();
   const handleSave = async () => {
     setSaving(true);
     try {
-      const result = await updateCompany(profileData);
+      // If PLZ/Ort provided, resolve canonical location_id and sync main_location
+      let updates: any = { ...profileData };
+      if (companyPlz && companyOrt) {
+        const { data: locId, error: locErr } = await supabase.rpc('resolve_location_id', {
+          p_postal_code: companyPlz,
+          p_city: companyOrt,
+          p_country_code: 'DE',
+        });
+        if (locErr) {
+          console.warn('resolve_location_id (company) error', locErr);
+        } else if (typeof locId === 'number') {
+          updates.location_id = locId;
+        }
+        updates.main_location = `${companyPlz} ${companyOrt}`;
+      }
+
+      const result = await updateCompany(updates);
       if (result?.success) {
         toast({ title: "Profil erfolgreich aktualisiert" });
         setEditing(false);
@@ -401,13 +429,15 @@ const { toast } = useToast();
 
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="main_location">Hauptsitz</Label>
+                      <Label htmlFor="main_location">Hauptsitz (PLZ/Ort)</Label>
                       {editing ? (
-                        <Input
-                          id="main_location"
-                          value={profileData.main_location}
-                          onChange={(e) => updateField('main_location', e.target.value)}
-                          placeholder="Stadt, Land"
+                        <PLZOrtSelector
+                          plz={companyPlz}
+                          ort={companyOrt}
+                          onPLZChange={(v) => setCompanyPlz(v)}
+                          onOrtChange={(v) => setCompanyOrt(v)}
+                          plzLabel="Postleitzahl"
+                          ortLabel="Ort"
                         />
                       ) : (
                         <p className="text-muted-foreground">{profileData.main_location}</p>

@@ -30,6 +30,7 @@ interface Company {
   matching_must_text?: string;
   matching_nice_text?: string;
   location_radius_km?: number;
+  location_id?: number;
 }
 
 interface CompanyUser {

@@ -18,3 +18,5 @@ verify_jwt = false
 [functions.partners]
 verify_jwt = false
 
+[functions.seed-locations-de]
+verify_jwt = false
