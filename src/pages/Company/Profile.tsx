@@ -22,6 +22,8 @@ import {
   Camera,
   Save
 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { TagType } from "@/components/company/matching/TagPicker";
 
 interface CompanyProfile {
   name: string;
@@ -60,6 +62,12 @@ const [showPreview, setShowPreview] = useState(false);
 const [saving, setSaving] = useState(false);
 const { toast } = useToast();
 
+  type TagsByType = Record<TagType, string[]>;
+  const [tagsByType, setTagsByType] = useState<TagsByType>({
+    profession: [], target_group: [], benefit: [], must: [], nice: [], work_env: []
+  });
+  const [loadingTags, setLoadingTags] = useState(false);
+
   useEffect(() => {
     if (company) {
       setProfileData({
@@ -77,6 +85,33 @@ const { toast } = useToast();
         employee_count: company.employee_count ?? null,
       });
     }
+  }, [company]);
+
+  useEffect(() => {
+    if (!company) return;
+    const run = async () => {
+      try {
+        setLoadingTags(true);
+        const { data: links } = await supabase
+          .from('company_tags')
+          .select('tag_id')
+          .eq('company_id', company.id);
+        const ids = (links || []).map((r: any) => r.tag_id);
+        const empty: TagsByType = { profession: [], target_group: [], benefit: [], must: [], nice: [], work_env: [] };
+        if (!ids.length) { setTagsByType(empty); setLoadingTags(false); return; }
+        const { data: vocab } = await supabase
+          .from('vocab_tags')
+          .select('id,label,type')
+          .in('id', ids);
+        const map: TagsByType = { profession: [], target_group: [], benefit: [], must: [], nice: [], work_env: [] };
+        (vocab || []).forEach((t: any) => { (map as any)[t.type]?.push(t.label); });
+        (Object.keys(map) as TagType[]).forEach((k) => map[k].sort((a, b) => a.localeCompare(b)));
+        setTagsByType(map);
+      } finally {
+        setLoadingTags(false);
+      }
+    };
+    run();
   }, [company]);
 
   const handleSave = async () => {
@@ -404,6 +439,59 @@ const { toast } = useToast();
                   <p className="text-muted-foreground">{profileData.employee_count ?? "Nicht angegeben"}</p>
                 )}
               </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Profil-Tags</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {loadingTags ? (
+                <p className="text-muted-foreground">Lade Tags…</p>
+              ) : (
+                <>
+                  {tagsByType.profession.length > 0 && (
+                    <div>
+                      <Label>Berufe/Professionen</Label>
+                      <p className="text-sm text-muted-foreground mt-1">{tagsByType.profession.join(", ")}</p>
+                    </div>
+                  )}
+                  {tagsByType.must.length > 0 && (
+                    <div>
+                      <Label>Must-Haves</Label>
+                      <p className="text-sm text-muted-foreground mt-1">{tagsByType.must.join(", ")}</p>
+                    </div>
+                  )}
+                  {tagsByType.nice.length > 0 && (
+                    <div>
+                      <Label>Nice-to-Haves</Label>
+                      <p className="text-sm text-muted-foreground mt-1">{tagsByType.nice.join(", ")}</p>
+                    </div>
+                  )}
+                  {tagsByType.benefit.length > 0 && (
+                    <div>
+                      <Label>Benefits</Label>
+                      <p className="text-sm text-muted-foreground mt-1">{tagsByType.benefit.join(", ")}</p>
+                    </div>
+                  )}
+                  {tagsByType.work_env.length > 0 && (
+                    <div>
+                      <Label>Arbeitsumfeld</Label>
+                      <p className="text-sm text-muted-foreground mt-1">{tagsByType.work_env.join(", ")}</p>
+                    </div>
+                  )}
+                  {tagsByType.target_group.length > 0 && (
+                    <div>
+                      <Label>Zielgruppen</Label>
+                      <p className="text-sm text-muted-foreground mt-1">{tagsByType.target_group.join(", ")}</p>
+                    </div>
+                  )}
+                  {Object.values(tagsByType).every((arr) => arr.length === 0) && (
+                    <p className="text-sm text-muted-foreground">Noch keine Profil-Tags. Pflege sie unter Einstellungen &gt; Profil.</p>
+                  )}
+                </>
+              )}
             </CardContent>
           </Card>
         </TabsContent>

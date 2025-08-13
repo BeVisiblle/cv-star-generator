@@ -5,6 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { Label } from '@/components/ui/label';
 import { useFollowCompany } from '@/hooks/useFollowCompany';
 import { ExternalLink, MapPin, Globe, ArrowLeft, Linkedin, Instagram } from 'lucide-react';
 
@@ -72,7 +73,32 @@ export default function PublicCompanyView() {
     linkEl.href = canonicalHref;
   }, [companyQuery.data]);
 
-  const c = companyQuery.data;
+const c = companyQuery.data;
+
+  const tagsQuery = useQuery<Record<string, string[]>>({
+    queryKey: ['company-tags', id],
+    queryFn: async () => {
+      if (!id) return {};
+      const { data: links } = await supabase
+        .from('company_tags')
+        .select('tag_id')
+        .eq('company_id', id);
+      const ids = (links || []).map((r: any) => r.tag_id);
+      if (!ids.length) return {};
+      const { data: vocab } = await supabase
+        .from('vocab_tags')
+        .select('id,label,type')
+        .in('id', ids);
+      const map: Record<string, string[]> = {};
+      (vocab || []).forEach((t: any) => {
+        if (!map[t.type]) map[t.type] = [];
+        map[t.type].push(t.label);
+      });
+      Object.keys(map).forEach((k) => map[k].sort((a, b) => a.localeCompare(b)));
+      return map;
+    },
+    enabled: !!id,
+  });
 
   return (
     <div className="min-h-screen w-full overflow-x-hidden">
@@ -141,6 +167,50 @@ export default function PublicCompanyView() {
                 <p className="mt-2 whitespace-pre-line text-sm leading-relaxed text-muted-foreground">
                   {c.mission_statement}
                 </p>
+              </Card>
+            )}
+
+            {tagsQuery.data && Object.keys(tagsQuery.data).length > 0 && (
+              <Card className="p-4 sm:p-5 md:p-6">
+                <h2 className="text-lg font-semibold">Profil-Tags</h2>
+                <div className="mt-2 space-y-3 text-sm">
+                  {tagsQuery.data.profession?.length ? (
+                    <div>
+                      <Label>Berufe/Professionen</Label>
+                      <p className="text-muted-foreground mt-1">{tagsQuery.data.profession.join(', ')}</p>
+                    </div>
+                  ) : null}
+                  {tagsQuery.data.must?.length ? (
+                    <div>
+                      <Label>Must-Haves</Label>
+                      <p className="text-muted-foreground mt-1">{tagsQuery.data.must.join(', ')}</p>
+                    </div>
+                  ) : null}
+                  {tagsQuery.data.nice?.length ? (
+                    <div>
+                      <Label>Nice-to-Haves</Label>
+                      <p className="text-muted-foreground mt-1">{tagsQuery.data.nice.join(', ')}</p>
+                    </div>
+                  ) : null}
+                  {tagsQuery.data.benefit?.length ? (
+                    <div>
+                      <Label>Benefits</Label>
+                      <p className="text-muted-foreground mt-1">{tagsQuery.data.benefit.join(', ')}</p>
+                    </div>
+                  ) : null}
+                  {tagsQuery.data.work_env?.length ? (
+                    <div>
+                      <Label>Arbeitsumfeld</Label>
+                      <p className="text-muted-foreground mt-1">{tagsQuery.data.work_env.join(', ')}</p>
+                    </div>
+                  ) : null}
+                  {tagsQuery.data.target_group?.length ? (
+                    <div>
+                      <Label>Zielgruppen</Label>
+                      <p className="text-muted-foreground mt-1">{tagsQuery.data.target_group.join(', ')}</p>
+                    </div>
+                  ) : null}
+                </div>
               </Card>
             )}
 
