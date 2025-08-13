@@ -11,6 +11,7 @@ import { ProfileDetailsStep } from './steps/ProfileDetailsStep';
 import { SkillsStep } from './steps/SkillsStep';
 import { ExperienceStep } from './steps/ExperienceStep';
 import { CVStep } from './steps/CVStep';
+import { TagsStep } from './steps/TagsStep';
 import { toast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -123,6 +124,8 @@ export const ProfileCreationFlow: React.FC = () => {
             onUpdate={updateProfileData}
           />
         );
+      case 7:
+        return <TagsStep />;
       default:
         return null;
     }

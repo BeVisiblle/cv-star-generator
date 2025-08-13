@@ -102,6 +102,13 @@ export const PROFILE_STEPS: ProfileCreationStep[] = [
     description: 'CV Upload oder Generierung',
     required: true,
     fields: ['cv_url', 'has_generated_cv']
+  },
+  {
+    id: 7,
+    title: 'Profil‑Tags',
+    description: 'Wähle Interessen & Stärken',
+    required: false,
+    fields: []
   }
 ];
 
