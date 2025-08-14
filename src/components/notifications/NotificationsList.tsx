@@ -1,7 +1,10 @@
 import { useEffect } from 'react';
-import NotificationCard from './NotificationCard';
+import { EmptyState } from '@/components/shared/EmptyState';
+import { LoadingSkeleton } from '@/components/shared/LoadingSkeleton';
 import { useNotifications } from '@/hooks/useNotifications';
+import type { NotificationRow } from '@/types/notifications';
 import type { RecipientType } from '@/types/notifications';
+import NotificationCard from './NotificationCard';
 
 type Props = {
   recipientType: RecipientType;
@@ -10,7 +13,7 @@ type Props = {
 };
 
 export default function NotificationsList({ recipientType, recipientId, onAction }: Props) {
-  const { items, loading, hasMore, fetchPage, markRead, reset } =
+  const { items, loading, hasMore, error, fetchPage, markRead, reset } =
     useNotifications(recipientType, recipientId);
 
   useEffect(() => {
@@ -22,18 +25,32 @@ export default function NotificationsList({ recipientType, recipientId, onAction
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [recipientId]);
 
+  if (error) {
+    return (
+      <div className="space-y-3">
+        <EmptyState 
+          text={`Fehler beim Laden der Benachrichtigungen: ${error}`}
+          icon="⚠️"
+          action={
+            <button 
+              onClick={fetchPage}
+              className="text-sm text-primary hover:underline"
+            >
+              Erneut versuchen
+            </button>
+          }
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-3">
       {items.map(n => (
         <NotificationCard key={n.id} n={n} onRead={markRead} onAction={onAction} />
       ))}
 
-      {loading && (
-        <div className="rounded-2xl border bg-card p-4">
-          <div className="h-4 w-40 animate-pulse rounded bg-muted" />
-          <div className="mt-2 h-4 w-64 animate-pulse rounded bg-muted" />
-        </div>
-      )}
+      {loading && <LoadingSkeleton rows={2} showAvatar={false} />}
 
       {!loading && hasMore && (
         <button
@@ -44,10 +61,11 @@ export default function NotificationsList({ recipientType, recipientId, onAction
         </button>
       )}
 
-      {!loading && !items.length && (
-        <div className="rounded-2xl border bg-card p-8 text-center text-sm text-muted-foreground">
-          Keine Benachrichtigungen.
-        </div>
+      {!loading && items.length === 0 && (
+        <EmptyState 
+          text="Keine Benachrichtigungen." 
+          icon="🔔"
+        />
       )}
     </div>
   );

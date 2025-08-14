@@ -1,34 +1,16 @@
 import { useAuth } from '@/hooks/useAuth';
-import { useCompaniesViews, type CompanyLite, type SuggestedCompany } from '@/hooks/useCompaniesViews';
+import { useCompaniesViews } from '@/hooks/useCompaniesViews';
+import { CompanyCard, formatCompanySubtitle } from '@/components/shared/CompanyCard';
+import { LoadingSkeleton } from '@/components/shared/LoadingSkeleton';
+import { EmptyState } from '@/components/shared/EmptyState';
 import FollowButton from '@/components/company/FollowButton';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Skeleton } from '@/components/ui/skeleton';
-
-function CompanyCardRow({ c, right }: { c: CompanyLite | SuggestedCompany; right?: React.ReactNode }) {
-  return (
-    <div className="flex items-center justify-between rounded-xl border p-3 hover:bg-muted/50 transition-colors">
-      <a href={`/companies/${c.id}`} className="flex min-w-0 items-center gap-3 flex-1">
-        <img 
-          src={c.logo_url || '/placeholder.svg'} 
-          alt={c.name}
-          className="h-10 w-10 rounded-md bg-muted object-cover flex-shrink-0" 
-        />
-        <div className="min-w-0 flex-1">
-          <div className="text-sm font-medium truncate">{c.name}</div>
-          <div className="text-xs text-muted-foreground truncate">
-            {c.main_location || (c as SuggestedCompany).city || '—'} • {c.industry || '—'} • {c.employee_count ? `${c.employee_count} MA` : '—'}
-          </div>
-        </div>
-      </a>
-      {right && <div className="flex-shrink-0 ml-3">{right}</div>}
-    </div>
-  );
-}
+import type { CompanyLite, SuggestedCompany } from '@/types/company';
 
 export default function CommunityCompanies() {
   const { profile } = useAuth();
-  const { loading, pending, following, suggested, refetch } = useCompaniesViews(profile?.id ?? null);
+  const { loading, pending, following, suggested, error, refetch } = useCompaniesViews(profile?.id ?? null);
   const profileId = profile?.id;
 
   if (!profileId) {
@@ -40,29 +22,48 @@ export default function CommunityCompanies() {
     );
   }
 
+  if (error) {
+    return (
+      <div className="mx-auto max-w-[1100px] p-3 md:p-6">
+        <h1 className="text-xl font-semibold mb-6">Unternehmen</h1>
+        <EmptyState 
+          text={`Fehler beim Laden: ${error}`} 
+          icon="⚠️"
+          action={
+            <Button onClick={refetch} variant="outline" size="sm">
+              Erneut versuchen
+            </Button>
+          }
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="mx-auto max-w-[1100px] p-3 md:p-6">
       <h1 className="text-xl font-semibold mb-6">Unternehmen</h1>
       
       <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-        {/* Follow Requests - Only "View" button */}
+        {/* Follow Requests */}
         <Card className="p-4">
           <h2 className="text-sm font-semibold mb-1">Follow‑Anfragen</h2>
-          <p className="text-xs text-muted-foreground mb-4">Unternehmen möchten dir folgen. Du kannst nur im Profil annehmen/ablehnen.</p>
+          <p className="text-xs text-muted-foreground mb-4">
+            Unternehmen möchten dir folgen. Du kannst nur im Profil annehmen/ablehnen.
+          </p>
           
           <div className="space-y-3">
-            {loading && <LoadingSkeleton />}
-            {!loading && !pending.length && <EmptyState text="Keine Anfragen" />}
+            {loading && <LoadingSkeleton rows={3} />}
+            {!loading && pending.length === 0 && (
+              <EmptyState text="Keine Anfragen" icon="📭" />
+            )}
             {pending.map((company) => (
-              <CompanyCardRow 
-                key={company.id} 
-                c={company} 
-                right={
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    asChild
-                  >
+              <CompanyCard
+                key={company.id}
+                company={company}
+                subtitle={formatCompanySubtitle(company)}
+                href={`/companies/${company.id}`}
+                action={
+                  <Button size="sm" variant="outline" asChild>
                     <a href={`/companies/${company.id}`}>Ansehen</a>
                   </Button>
                 }
@@ -71,19 +72,25 @@ export default function CommunityCompanies() {
           </div>
         </Card>
 
-        {/* Following Companies - With metadata and follow button */}
+        {/* Following Companies */}
         <Card className="p-4">
           <h2 className="text-sm font-semibold mb-1">Gefolgte Unternehmen</h2>
-          <p className="text-xs text-muted-foreground mb-4">Updates im Feed • Glocke für Benachrichtigungen</p>
+          <p className="text-xs text-muted-foreground mb-4">
+            Updates im Feed • Glocke für Benachrichtigungen
+          </p>
           
           <div className="space-y-3">
-            {loading && <LoadingSkeleton />}
-            {!loading && !following.length && <EmptyState text="Du folgst noch keinen Unternehmen" />}
+            {loading && <LoadingSkeleton rows={3} />}
+            {!loading && following.length === 0 && (
+              <EmptyState text="Du folgst noch keinen Unternehmen" icon="🏢" />
+            )}
             {following.map((company) => (
-              <CompanyCardRow 
-                key={company.id} 
-                c={company} 
-                right={
+              <CompanyCard
+                key={company.id}
+                company={company}
+                subtitle={formatCompanySubtitle(company)}
+                href={`/companies/${company.id}`}
+                action={
                   <FollowButton 
                     companyId={company.id} 
                     profileId={profileId} 
@@ -100,16 +107,22 @@ export default function CommunityCompanies() {
         {/* Suggested Companies */}
         <Card className="p-4">
           <h2 className="text-sm font-semibold mb-1">Interessante Unternehmen</h2>
-          <p className="text-xs text-muted-foreground mb-4">Basierend auf Branche, Ort und deinem Netzwerk</p>
+          <p className="text-xs text-muted-foreground mb-4">
+            Basierend auf Branche, Ort und deinem Netzwerk
+          </p>
           
           <div className="space-y-3">
-            {loading && <LoadingSkeleton />}
-            {!loading && !suggested.length && <EmptyState text="Aktuell keine Vorschläge" />}
+            {loading && <LoadingSkeleton rows={3} />}
+            {!loading && suggested.length === 0 && (
+              <EmptyState text="Aktuell keine Vorschläge" icon="🔍" />
+            )}
             {suggested.map((company) => (
               <div key={company.id} className="space-y-2">
-                <CompanyCardRow 
-                  c={company} 
-                  right={
+                <CompanyCard
+                  company={company}
+                  subtitle={formatCompanySubtitle(company)}
+                  href={`/companies/${company.id}`}
+                  action={
                     <FollowButton 
                       companyId={company.id} 
                       profileId={profileId} 
@@ -136,32 +149,6 @@ export default function CommunityCompanies() {
           </div>
         </Card>
       </div>
-    </div>
-  );
-}
-
-function LoadingSkeleton() {
-  return (
-    <div className="space-y-3">
-      {[1, 2, 3].map(i => (
-        <div key={i} className="rounded-xl border p-3">
-          <div className="flex items-center gap-3">
-            <Skeleton className="h-10 w-10 rounded-md" />
-            <div className="space-y-2 flex-1">
-              <Skeleton className="h-4 w-32" />
-              <Skeleton className="h-3 w-48" />
-            </div>
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-function EmptyState({ text }: { text: string }) {
-  return (
-    <div className="rounded-xl border bg-muted/20 p-6 text-center">
-      <p className="text-sm text-muted-foreground">{text}</p>
     </div>
   );
 }

@@ -1,105 +1,119 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { NotificationService } from '@/services/notificationService';
 import type { NotificationRow, RecipientType } from '@/types/notifications';
 
-const PAGE_SIZE = 20;
+export interface UseNotificationsReturn {
+  items: NotificationRow[];
+  loading: boolean;
+  hasMore: boolean;
+  error?: string;
+  fetchPage: () => Promise<void>;
+  markRead: (id: string) => Promise<void>;
+  markAllRead: () => Promise<void>;
+  reset: () => void;
+}
 
-export function useNotifications(recipientType: RecipientType, recipientId: string | null) {
+/**
+ * Hook for managing notifications with pagination and real-time updates
+ * @param recipientType - Type of recipient (profile or company)
+ * @param recipientId - ID of the recipient
+ * @returns Notification data and management functions
+ */
+export function useNotifications(
+  recipientType: RecipientType, 
+  recipientId: string | null
+): UseNotificationsReturn {
   const [items, setItems] = useState<NotificationRow[]>([]);
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
-  const cursorRef = useRef<string | null>(null); // created_at cursor (ISO)
+  const [error, setError] = useState<string | undefined>();
+  const cursorRef = useRef<string | null>(null);
 
   const fetchPage = useCallback(async () => {
     if (!recipientId || loading || !hasMore) return;
+    
     setLoading(true);
+    setError(undefined);
 
-    const q = supabase
-      .from('notifications' as any)
-      .select('*')
-      .eq('recipient_type', recipientType)
-      .eq('recipient_id', recipientId)
-      .order('created_at', { ascending: false })
-      .limit(PAGE_SIZE);
+    const result = await NotificationService.fetchPage({
+      recipientType,
+      recipientId,
+      cursor: cursorRef.current || undefined,
+    });
 
-    if (cursorRef.current) {
-      // naive pagination: fetch older than cursor
-      q.lt('created_at', cursorRef.current);
-    }
-
-    const { data, error } = await q;
-    if (error) {
-      console.error(error);
-      setLoading(false);
-      return;
-    }
-
-    if (data && data.length) {
-      setItems(prev => [...prev, ...(data as any[] as NotificationRow[])]);
-      cursorRef.current = (data[data.length - 1] as any).created_at;
-      if (data.length < PAGE_SIZE) setHasMore(false);
+    if (result.error) {
+      setError(result.error);
     } else {
-      setHasMore(false);
+      setItems(prev => [...prev, ...result.data]);
+      cursorRef.current = result.nextCursor || null;
+      setHasMore(result.hasMore);
     }
+
     setLoading(false);
   }, [recipientId, recipientType, loading, hasMore]);
 
-  // Realtime: prepend newest
+  // Real-time subscription for new notifications
   useEffect(() => {
     if (!recipientId) return;
-    const channel = supabase
-      .channel(`notif-${recipientType}-${recipientId}`)
-      .on(
-        'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'notifications',
-          filter: `recipient_type=eq.${recipientType},recipient_id=eq.${recipientId}`,
-        },
-        (payload: any) => {
-          setItems(prev => [payload.new as NotificationRow, ...prev]);
-        }
-      )
-      .subscribe();
-    return () => {
-      supabase.removeChannel(channel);
-    };
+
+    const unsubscribe = NotificationService.subscribeToUpdates(
+      recipientType,
+      recipientId,
+      (newNotification) => {
+        setItems(prev => [newNotification, ...prev]);
+      }
+    );
+
+    return unsubscribe;
   }, [recipientId, recipientType]);
 
-  const markRead = useCallback(
-    async (id: string) => {
+  const markRead = useCallback(async (id: string) => {
+    // Optimistic update
+    setItems(prev =>
+      prev.map(n => (n.id === id ? { ...n, read_at: new Date().toISOString() } : n))
+    );
+
+    // Server update
+    const result = await NotificationService.markAsRead(id);
+    if (!result.success && result.error) {
+      setError(result.error);
+      // Revert optimistic update on error
       setItems(prev =>
-        prev.map(n => (n.id === id ? { ...n, read_at: new Date().toISOString() } : n))
+        prev.map(n => (n.id === id ? { ...n, read_at: null } : n))
       );
-      const { error } = await supabase.from('notifications' as any).update({ read_at: new Date().toISOString() }).eq('id', id);
-      if (error) console.error('markRead failed', error);
-    },
-    []
-  );
+    }
+  }, []);
 
   const markAllRead = useCallback(async () => {
     if (!recipientId) return;
+    
     const now = new Date().toISOString();
 
-    // Optimistisch im Client
+    // Optimistic update
     setItems(prev => prev.map(n => ({ ...n, read_at: n.read_at ?? now })));
 
-    // Server
-    const { error } = await supabase
-      .from('notifications' as any)
-      .update({ read_at: now })
-      .eq('recipient_type', recipientType)
-      .eq('recipient_id', recipientId)
-      .is('read_at', null);
-    if (error) console.error('markAllRead failed', error);
+    // Server update
+    const result = await NotificationService.markAllAsRead(recipientType, recipientId);
+    if (!result.success && result.error) {
+      setError(result.error);
+    }
   }, [recipientId, recipientType]);
 
   const reset = useCallback(() => {
     setItems([]);
     setHasMore(true);
+    setError(undefined);
     cursorRef.current = null;
   }, []);
 
-  return { items, loading, hasMore, fetchPage, markRead, markAllRead, reset };
+  return { 
+    items, 
+    loading, 
+    hasMore, 
+    error,
+    fetchPage, 
+    markRead, 
+    markAllRead, 
+    reset 
+  };
 }
