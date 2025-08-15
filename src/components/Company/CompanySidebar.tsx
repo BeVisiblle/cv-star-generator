@@ -64,8 +64,9 @@ export function CompanySidebar() {
 // simplified sidebar: no grouped accordion state
 
   const maxTokens = Math.max(1, (company?.seats ?? 0) * 10);
-  const tokens = company?.active_tokens ?? 0;
-  const tokenPct = Math.min(100, Math.round((tokens / maxTokens) * 100));
+  const remainingTokens = company?.active_tokens ?? 0;
+  const usedTokens = maxTokens - remainingTokens;
+  const tokenPct = Math.min(100, Math.round((usedTokens / maxTokens) * 100));
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
@@ -140,7 +141,7 @@ export function CompanySidebar() {
                   {company?.name || "Company"}
                 </div>
                 <div className="text-xs text-muted-foreground">
-                  {tokens} / {maxTokens} Token verwendet
+                  {usedTokens} / {maxTokens} Token verwendet
                 </div>
               </div>
             </div>
