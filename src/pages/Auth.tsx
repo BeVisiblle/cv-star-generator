@@ -202,7 +202,10 @@ const Auth = () => {
         email,
         password,
         options: {
-          emailRedirectTo: `${window.location.origin}/profile`
+          emailRedirectTo: `${window.location.origin}/profile`,
+          data: {
+            role: role
+          }
         }
       });
 
@@ -233,35 +236,6 @@ const Auth = () => {
       }
 
       if (data.user) {
-        // Check if profile already exists, if not create one
-        const { data: existingProfile } = await supabase
-          .from('profiles')
-          .select('id')
-          .eq('id', data.user.id)
-          .maybeSingle();
-
-        if (!existingProfile) {
-          const { error: profileError } = await supabase
-            .from('profiles')
-            .insert({
-              id: data.user.id,
-              email: email,
-              account_created: true,
-              profile_complete: false,
-              profile_published: false
-            });
-
-          if (profileError) {
-            console.error('Profile creation error:', profileError);
-            toast({
-              title: "Profil-Erstellung fehlgeschlagen",
-              description: "Es gab einen Fehler beim Erstellen Ihres Profils.",
-              variant: "destructive"
-            });
-            return;
-          }
-        }
-
         // Success message for registration
         if (data.user.email_confirmed_at) {
           // User is immediately confirmed - redirect to selected flow
