@@ -214,6 +214,7 @@ const App = () => (
                 <Route path="search" element={<CompanySearch />} />
                 <Route path="unlocked" element={<CompanyUnlocked />} />
                 <Route path="billing" element={<CompanyBilling />} />
+                <Route path="notifications" element={<CompanyComingSoon />} />
                 <Route path="settings" element={<CompanySettings />} />
                 <Route path="matching-profile" element={<MatchingProfilePage />} />
                 <Route path="posts" element={<CompanyPosts />} />

@@ -36,6 +36,7 @@ import {
   MessageSquare,
   Settings as SettingsIcon,
   Building2,
+  Bell,
   LogOut,
   X,
 } from "lucide-react";
@@ -43,13 +44,14 @@ import { NavLink, useLocation } from "react-router-dom";
 import { useCompany } from "@/hooks/useCompany";
 import { supabase } from "@/integrations/supabase/client";
 
-// Hauptnavigation: 6 Punkte
+// Hauptnavigation: 7 Punkte
 const navItems = [
   { to: "/company/dashboard", label: "Dashboard", icon: Home },
   { to: "/company/profile", label: "Unternehmensprofil", icon: Building2 },
   { to: "/company/search", label: "Kandidatensuche", icon: Search },
   { to: "/company/candidates/pipeline", label: "Pipeline", icon: Columns3 },
   { to: "/company/feed", label: "Community", icon: MessageSquare },
+  { to: "/company/notifications", label: "Benachrichtigungen", icon: Bell },
   { to: "/company/settings", label: "Einstellungen", icon: SettingsIcon },
 ] as const;
 
