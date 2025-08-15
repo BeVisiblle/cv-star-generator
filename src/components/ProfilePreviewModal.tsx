@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { MapPin, Briefcase, Eye, Car } from "lucide-react";
+import { MapPin, Briefcase, Eye, Car, Search } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -19,6 +19,7 @@ interface ProfileData {
   ueber_mich?: string;
   has_drivers_license?: boolean;
   driver_license_class?: string;
+  job_search_preferences?: string[];
 }
 
 interface ProfilePreviewModalProps {
@@ -134,6 +135,16 @@ export function ProfilePreviewModal({ isOpen, onClose, profileData, onPublish }:
                       </div>
                     )}
                   </div>
+
+                  {/* Job Search Status - prominently displayed */}
+                  {profileData.job_search_preferences && profileData.job_search_preferences.length > 0 && (
+                    <div className="flex items-center gap-2 mt-2 p-2 bg-green-50 rounded-lg border border-green-200">
+                      <Search className="h-4 w-4 text-green-600" />
+                      <span className="text-sm text-green-700 font-medium">
+                        Sucht: {profileData.job_search_preferences.join(', ')}
+                      </span>
+                    </div>
+                  )}
 
                   {profileData.ueber_mich && (
                     <p className="text-sm text-foreground line-clamp-2 mt-2">

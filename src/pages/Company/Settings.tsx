@@ -411,31 +411,49 @@ export default function CompanySettings() {
             <CardContent className="space-y-6">
               <div className="space-y-4">
                 <div>
-                  <Label>Zielstatus</Label>
-                  <div className="grid grid-cols-3 gap-2 mt-2">
-                    {["azubi", "schueler", "ausgelernt"].map((status) => (
-                      <label key={status} className="flex items-center space-x-2">
-                        <input
-                          type="checkbox"
-                          checked={settings.target_status.includes(status)}
-                          onChange={(e) => {
-                            if (e.target.checked) {
-                              setSettings(prev => ({
-                                ...prev,
-                                target_status: [...prev.target_status, status]
-                              }));
-                            } else {
-                              setSettings(prev => ({
-                                ...prev,
-                                target_status: prev.target_status.filter(s => s !== status)
-                              }));
-                            }
-                          }}
-                        />
-                        <span className="capitalize">{status}</span>
-                      </label>
+                  <Label className="text-base font-medium">Was suchen Sie? (Mindestens eine Auswahl erforderlich)</Label>
+                  <p className="text-sm text-muted-foreground mb-3">
+                    Wählen Sie aus, welche Art von Kandidaten Sie suchen. Nur Personen, die entsprechende Suchpräferenzen haben, werden Ihnen angezeigt.
+                  </p>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    {[
+                      { key: "azubi", label: "Azubis", description: "Auszubildende suchen" },
+                      { key: "schueler", label: "Schüler:innen", description: "Praktikant:innen suchen" },
+                      { key: "ausgelernt", label: "Fachkräfte", description: "Fertige Gesellen/Fachkräfte" }
+                    ].map((option) => (
+                      <div key={option.key} className="border rounded-lg p-3">
+                        <label className="flex items-start space-x-3 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={settings.target_status.includes(option.key)}
+                            onChange={(e) => {
+                              if (e.target.checked) {
+                                setSettings(prev => ({
+                                  ...prev,
+                                  target_status: [...prev.target_status, option.key]
+                                }));
+                              } else {
+                                setSettings(prev => ({
+                                  ...prev,
+                                  target_status: prev.target_status.filter(s => s !== option.key)
+                                }));
+                              }
+                            }}
+                            className="mt-0.5"
+                          />
+                          <div>
+                            <span className="font-medium">{option.label}</span>
+                            <p className="text-sm text-muted-foreground">{option.description}</p>
+                          </div>
+                        </label>
+                      </div>
                     ))}
                   </div>
+                  {settings.target_status.length === 0 && (
+                    <p className="text-sm text-red-600 mt-2">
+                      ⚠️ Sie müssen mindestens eine Zielgruppe auswählen
+                    </p>
+                  )}
                 </div>
 
                 <div className="space-y-2">

@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { MapPin, Briefcase, GraduationCap, Heart, Coins, Phone, Mail, Download, User } from "lucide-react";
+import { MapPin, Briefcase, GraduationCap, Heart, Coins, Phone, Mail, Download, User, Car, Search } from "lucide-react";
 import { generatePDF } from "@/lib/pdf-generator";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -32,6 +32,9 @@ interface Profile {
   ausbildung?: any[];
   sprachen?: any[];
   zertifikate?: any[];
+  job_search_preferences?: string[];
+  has_drivers_license?: boolean;
+  driver_license_class?: string;
 }
 
 interface ProfileCardProps {
@@ -76,27 +79,33 @@ const getMatchColor = (percentage: number) => {
 };
 
 const calculateMatchPercentage = (profile: Profile, companySettings?: any) => {
-  // Simple matching algorithm based on industry, location, and skills
+  // Enhanced matching algorithm based on industry, location, skills, and job search preferences
   let score = 0;
   let totalWeight = 0;
 
-  // Industry match (40% weight)
+  // Industry match (30% weight)
   if (profile.branche && companySettings?.target_industries?.includes(profile.branche)) {
-    score += 40;
-  }
-  totalWeight += 40;
-
-  // Location proximity (30% weight) - simplified
-  if (profile.ort && companySettings?.target_locations?.includes(profile.ort)) {
     score += 30;
   }
   totalWeight += 30;
 
-  // Skills match (30% weight) - simplified
-  if (profile.faehigkeiten && Array.isArray(profile.faehigkeiten) && profile.faehigkeiten.length > 0) {
-    score += Math.min(30, profile.faehigkeiten.length * 5);
+  // Location proximity (25% weight) - simplified
+  if (profile.ort && companySettings?.target_locations?.includes(profile.ort)) {
+    score += 25;
   }
-  totalWeight += 30;
+  totalWeight += 25;
+
+  // Status match (25% weight) - check if user's status matches what company is looking for
+  if (profile.status && companySettings?.target_status?.includes(profile.status)) {
+    score += 25;
+  }
+  totalWeight += 25;
+
+  // Skills match (20% weight) - simplified
+  if (profile.faehigkeiten && Array.isArray(profile.faehigkeiten) && profile.faehigkeiten.length > 0) {
+    score += Math.min(20, profile.faehigkeiten.length * 3);
+  }
+  totalWeight += 20;
 
   return Math.round((score / totalWeight) * 100) || 65; // Default fallback
 };
@@ -356,7 +365,24 @@ export function ProfileCard({
                     <MapPin className="h-3 w-3 flex-shrink-0" />
                     <span className="truncate">{profile.ort}</span>
                   </div>
+                  {profile.has_drivers_license && (
+                    <div className="flex items-center gap-1 flex-shrink-0">
+                      <Car className="h-3 w-3" />
+                      <span className="text-xs">{profile.driver_license_class || 'FS'}</span>
+                    </div>
+                  )}
                 </div>
+                
+                {/* Job Search Status - prominently displayed */}
+                {profile.job_search_preferences && profile.job_search_preferences.length > 0 && (
+                  <div className="flex items-center gap-1 mt-1">
+                    <Search className="h-3 w-3 text-green-600" />
+                    <span className="text-xs text-green-600 font-medium">
+                      Sucht: {profile.job_search_preferences.slice(0, 2).join(', ')}
+                      {profile.job_search_preferences.length > 2 && ` +${profile.job_search_preferences.length - 2}`}
+                    </span>
+                  </div>
+                )}
               </div>
             </div>
             

@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { KeyValueRow } from '@/components/ui/key-value-row';
-import { ArrowLeft, Loader2 } from 'lucide-react';
+import { ArrowLeft, Loader2, Search, Car } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { LinkedInProfileHeader } from '@/components/linkedin/LinkedInProfileHeader';
@@ -166,9 +166,27 @@ const CompanyProfileView = () => {
               <h1 className="text-lg sm:text-xl md:text-2xl font-bold truncate">
                 {isUnlocked ? `${profile.vorname} ${profile.nachname}` : profile.vorname}
               </h1>
-              <p className="text-muted-foreground text-xs md:text-sm">
-                Profil-Details
-              </p>
+              <div className="flex flex-col gap-1">
+                <p className="text-muted-foreground text-xs md:text-sm">
+                  Profil-Details
+                </p>
+                {/* Job Search Status - prominently displayed */}
+                {profile.job_search_preferences && profile.job_search_preferences.length > 0 && (
+                  <div className="flex items-center gap-2 bg-green-50 px-2 py-1 rounded-md w-fit">
+                    <Search className="h-3 w-3 text-green-600" />
+                    <span className="text-xs text-green-700 font-medium">
+                      Sucht: {profile.job_search_preferences.join(', ')}
+                    </span>
+                  </div>
+                )}
+                {/* Driver's License */}
+                {profile.has_drivers_license && (
+                  <div className="flex items-center gap-1 text-xs text-muted-foreground w-fit">
+                    <Car className="h-3 w-3" />
+                    <span>Führerschein {profile.driver_license_class || ''}</span>
+                  </div>
+                )}
+              </div>
             </div>
             
             {/* Follow Button */}
