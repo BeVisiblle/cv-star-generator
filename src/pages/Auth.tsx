@@ -119,12 +119,18 @@ const Auth = () => {
           title: "Erfolgreich angemeldet",
           description: "Willkommen zurück!",
         });
-        // Ermittele Rolle anhand der Datenbank (kein Umschalten per UI)
-        const { data: isCompany, error: roleErr } = await supabase.rpc('is_company_member');
+        // Ermittele Rolle anhand der Datenbank - prüfe company_users Tabelle direkt
+        const { data: companyUsers, error: roleErr } = await supabase
+          .from('company_users')
+          .select('company_id, role')
+          .eq('user_id', data.user.id)
+          .limit(1);
+        
         if (roleErr) {
           console.warn('Rollenprüfung fehlgeschlagen, fallback auf Profil:', roleErr);
           window.location.href = '/dashboard';
         } else {
+          const isCompany = companyUsers && companyUsers.length > 0;
           window.location.href = isCompany ? '/company/dashboard' : '/dashboard';
         }
       }
