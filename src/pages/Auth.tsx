@@ -26,7 +26,27 @@ const Auth = () => {
   // Redirect if already authenticated
   useEffect(() => {
     if (user && !isLoading) {
-      navigate('/dashboard');
+      // Check if user is a company user and redirect accordingly
+      const checkUserTypeAndRedirect = async () => {
+        try {
+          const { data: companyUser } = await supabase
+            .from('company_users')
+            .select('company_id')
+            .eq('user_id', user.id)
+            .single();
+
+          if (companyUser) {
+            navigate('/company/dashboard');
+          } else {
+            navigate('/dashboard');
+          }
+        } catch (error) {
+          // If error checking company status, default to user dashboard
+          navigate('/dashboard');
+        }
+      };
+
+      checkUserTypeAndRedirect();
     }
   }, [user, isLoading, navigate]);
 
