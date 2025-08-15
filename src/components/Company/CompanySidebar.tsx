@@ -64,8 +64,8 @@ export function CompanySidebar() {
 // simplified sidebar: no grouped accordion state
 
   const maxTokens = Math.max(1, (company?.seats ?? 0) * 10);
-  const remainingTokens = company?.active_tokens ?? 0;
-  const usedTokens = maxTokens - remainingTokens;
+  const usedTokens = company?.active_tokens ?? 0;
+  const remainingTokens = maxTokens - usedTokens;
   const tokenPct = Math.min(100, Math.round((usedTokens / maxTokens) * 100));
 
   const handleSignOut = async () => {
