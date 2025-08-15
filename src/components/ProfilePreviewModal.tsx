@@ -136,15 +136,15 @@ export function ProfilePreviewModal({ isOpen, onClose, profileData, onPublish }:
                     )}
                   </div>
 
-                  {/* Job Search Status - prominently displayed */}
-                  {profileData.job_search_preferences && profileData.job_search_preferences.length > 0 && (
-                    <div className="flex items-center gap-2 mt-2 p-2 bg-green-50 rounded-lg border border-green-200">
-                      <Search className="h-4 w-4 text-green-600" />
-                      <span className="text-sm text-green-700 font-medium">
-                        Sucht: {profileData.job_search_preferences.join(', ')}
-                      </span>
-                    </div>
-                  )}
+                   {/* Job Search Status - prominently displayed */}
+                   {profileData.job_search_preferences && profileData.job_search_preferences.length > 0 && (
+                     <div className="flex items-center gap-2 mt-2 p-2 bg-green-50 dark:bg-green-950 rounded-lg border border-green-200 dark:border-green-800">
+                       <Search className="h-4 w-4 text-green-600 dark:text-green-400" />
+                       <span className="text-sm text-green-700 dark:text-green-300 font-medium">
+                         Sucht: {profileData.job_search_preferences.join(', ')}
+                       </span>
+                     </div>
+                   )}
 
                   {profileData.ueber_mich && (
                     <p className="text-sm text-foreground line-clamp-2 mt-2">

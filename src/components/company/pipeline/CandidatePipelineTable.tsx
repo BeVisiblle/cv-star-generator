@@ -100,38 +100,61 @@ export const CandidatePipelineTable: React.FC<Props> = ({ items, stages, onStage
                   <TableCell className="truncate">{p.ort || "-"}</TableCell>
                   <TableCell>
                     {(() => {
-                      switch (p.search_status) {
-                        case "praktikum":
-                          return (
-                            <div className="flex items-center gap-2 p-1.5 bg-red-50 dark:bg-red-950 rounded-md border border-red-200 dark:border-red-800 min-w-fit">
-                              <div className="h-2 w-2 rounded-full bg-red-500" />
-                              <span className="text-xs font-medium text-red-700 dark:text-red-300 whitespace-nowrap">Praktikum</span>
-                            </div>
-                          );
-                        case "ausbildung":
-                          return (
-                            <div className="flex items-center gap-2 p-1.5 bg-green-50 dark:bg-green-950 rounded-md border border-green-200 dark:border-green-800 min-w-fit">
-                              <div className="h-2 w-2 rounded-full bg-green-500" />
-                              <span className="text-xs font-medium text-green-700 dark:text-green-300 whitespace-nowrap">Ausbildung</span>
-                            </div>
-                          );
-                        case "vollzeit":
-                          return (
-                            <div className="flex items-center gap-2 p-1.5 bg-blue-50 dark:bg-blue-950 rounded-md border border-blue-200 dark:border-blue-800 min-w-fit">
-                              <div className="h-2 w-2 rounded-full bg-blue-500" />
-                              <span className="text-xs font-medium text-blue-700 dark:text-blue-300 whitespace-nowrap">Vollzeit</span>
-                            </div>
-                          );
-                        case "praktikum_ausbildung":
-                          return (
-                            <div className="flex items-center gap-2 p-1.5 bg-amber-50 dark:bg-amber-950 rounded-md border border-amber-200 dark:border-amber-800 min-w-fit">
-                              <div className="h-2 w-2 rounded-full bg-amber-500" />
-                              <span className="text-xs font-medium text-amber-700 dark:text-amber-300 whitespace-nowrap">Praktikum & Ausbildung</span>
-                            </div>
-                          );
-                        default:
-                          return <span className="text-muted-foreground text-sm">Nicht angegeben</span>;
+                      if (!p.job_search_preferences || p.job_search_preferences.length === 0) {
+                        return <span className="text-muted-foreground text-sm">Nicht angegeben</span>;
                       }
+                      
+                      const prefs = p.job_search_preferences;
+                      let label = "";
+                      let bgClass = "";
+                      let textClass = "";
+                      let borderClass = "";
+                      let dotColor = "";
+                      
+                      if (prefs.includes("Praktikum") && prefs.includes("Ausbildung")) {
+                        label = "Praktikum & Ausbildung";
+                        bgClass = "bg-amber-50 dark:bg-amber-950";
+                        textClass = "text-amber-700 dark:text-amber-300";
+                        borderClass = "border-amber-200 dark:border-amber-800";
+                        dotColor = "bg-amber-500";
+                      } else if (prefs.includes("Ausbildung")) {
+                        label = "Ausbildung";
+                        bgClass = "bg-green-50 dark:bg-green-950";
+                        textClass = "text-green-700 dark:text-green-300";
+                        borderClass = "border-green-200 dark:border-green-800";
+                        dotColor = "bg-green-500";
+                      } else if (prefs.includes("Praktikum")) {
+                        label = "Praktikum";
+                        bgClass = "bg-red-50 dark:bg-red-950";
+                        textClass = "text-red-700 dark:text-red-300";
+                        borderClass = "border-red-200 dark:border-red-800";
+                        dotColor = "bg-red-500";
+                      } else if (prefs.includes("Nach der Ausbildung einen Job")) {
+                        label = "Job nach Ausbildung";
+                        bgClass = "bg-blue-50 dark:bg-blue-950";
+                        textClass = "text-blue-700 dark:text-blue-300";
+                        borderClass = "border-blue-200 dark:border-blue-800";
+                        dotColor = "bg-blue-500";
+                      } else if (prefs.includes("Ausbildungsplatzwechsel")) {
+                        label = "Ausbildungsplatzwechsel";
+                        bgClass = "bg-purple-50 dark:bg-purple-950";
+                        textClass = "text-purple-700 dark:text-purple-300";
+                        borderClass = "border-purple-200 dark:border-purple-800";
+                        dotColor = "bg-purple-500";
+                      } else {
+                        label = prefs.join(", ");
+                        bgClass = "bg-slate-50 dark:bg-slate-950";
+                        textClass = "text-slate-700 dark:text-slate-300";
+                        borderClass = "border-slate-200 dark:border-slate-800";
+                        dotColor = "bg-slate-500";
+                      }
+                      
+                      return (
+                        <div className={`flex items-center gap-2 p-1.5 rounded-md border min-w-fit ${bgClass} ${borderClass}`}>
+                          <div className={`h-2 w-2 rounded-full ${dotColor}`} />
+                          <span className={`text-xs font-medium whitespace-nowrap ${textClass}`}>{label}</span>
+                        </div>
+                      );
                     })()}
                   </TableCell>
                   <TableCell>

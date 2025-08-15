@@ -20,7 +20,7 @@ export interface PipelineProfile {
   telefon?: string;
   cv_url?: string;
   skills?: string[];
-  search_status?: "praktikum" | "ausbildung" | "vollzeit" | "praktikum_ausbildung";
+  job_search_preferences?: string[];
 }
 
 export interface CompanyCandidateItem {
@@ -52,39 +52,51 @@ const hasEmail = !!p.email;
 const hasPhone = !!p.telefon;
 
 const statusInfo = useMemo(() => {
-  switch (p.search_status) {
-    case "praktikum":
-      return { 
-        label: "Sucht: Praktikum", 
-        bgClass: "bg-red-50 dark:bg-red-950", 
-        textClass: "text-red-700 dark:text-red-300",
-        borderClass: "border-red-200 dark:border-red-800"
-      };
-    case "ausbildung":
-      return { 
-        label: "Sucht: Ausbildung", 
-        bgClass: "bg-green-50 dark:bg-green-950", 
-        textClass: "text-green-700 dark:text-green-300",
-        borderClass: "border-green-200 dark:border-green-800"
-      };
-    case "vollzeit":
-      return { 
-        label: "Sucht: Vollzeit Job", 
-        bgClass: "bg-blue-50 dark:bg-blue-950", 
-        textClass: "text-blue-700 dark:text-blue-300",
-        borderClass: "border-blue-200 dark:border-blue-800"
-      };
-    case "praktikum_ausbildung":
-      return { 
-        label: "Sucht: Praktikum & Ausbildung", 
-        bgClass: "bg-amber-50 dark:bg-amber-950", 
-        textClass: "text-amber-700 dark:text-amber-300",
-        borderClass: "border-amber-200 dark:border-amber-800"
-      };
-    default:
-      return null;
+  if (!p.job_search_preferences || p.job_search_preferences.length === 0) {
+    return null;
   }
-}, [p.search_status]);
+  
+  const prefs = p.job_search_preferences;
+  let label = "Sucht: ";
+  let bgClass = "";
+  let textClass = "";
+  let borderClass = "";
+  
+  if (prefs.includes("Praktikum") && prefs.includes("Ausbildung")) {
+    label += "Praktikum & Ausbildung";
+    bgClass = "bg-amber-50 dark:bg-amber-950";
+    textClass = "text-amber-700 dark:text-amber-300";
+    borderClass = "border-amber-200 dark:border-amber-800";
+  } else if (prefs.includes("Ausbildung")) {
+    label += "Ausbildung";
+    bgClass = "bg-green-50 dark:bg-green-950";
+    textClass = "text-green-700 dark:text-green-300";
+    borderClass = "border-green-200 dark:border-green-800";
+  } else if (prefs.includes("Praktikum")) {
+    label += "Praktikum";
+    bgClass = "bg-red-50 dark:bg-red-950";
+    textClass = "text-red-700 dark:text-red-300";
+    borderClass = "border-red-200 dark:border-red-800";
+  } else if (prefs.includes("Nach der Ausbildung einen Job")) {
+    label += "Job nach Ausbildung";
+    bgClass = "bg-blue-50 dark:bg-blue-950";
+    textClass = "text-blue-700 dark:text-blue-300";
+    borderClass = "border-blue-200 dark:border-blue-800";
+  } else if (prefs.includes("Ausbildungsplatzwechsel")) {
+    label += "Ausbildungsplatzwechsel";
+    bgClass = "bg-purple-50 dark:bg-purple-950";
+    textClass = "text-purple-700 dark:text-purple-300";
+    borderClass = "border-purple-200 dark:border-purple-800";
+  } else {
+    // Join all preferences if none of the specific combinations
+    label += prefs.join(", ");
+    bgClass = "bg-slate-50 dark:bg-slate-950";
+    textClass = "text-slate-700 dark:text-slate-300";
+    borderClass = "border-slate-200 dark:border-slate-800";
+  }
+  
+  return { label, bgClass, textClass, borderClass };
+}, [p.job_search_preferences]);
 
 
   const handleEmail = () => {

@@ -26,7 +26,7 @@ const STAGES: { key: string; title: string }[] = [
   { key: "rejected", title: "Abgelehnt" },
 ];
 
-const STATUS_KINDS = ["praktikum", "ausbildung", "vollzeit", "praktikum_ausbildung"] as const;
+const STATUS_KINDS = ["Praktikum", "Ausbildung", "Nach der Ausbildung einen Job", "Ausbildungsplatzwechsel"] as const;
 function DroppableColumn({ id, children }: { id: string; children: React.ReactNode }) {
   const { setNodeRef } = useDroppable({ id });
   return (
@@ -114,8 +114,8 @@ export const CandidatePipelineBoard: React.FC = () => {
       const allowedKinds = new Set(searchKinds);
       list = list.filter((it) => {
         const p = it.profiles;
-        if (!p) return false;
-        return p.search_status ? allowedKinds.has(p.search_status) : false;
+        if (!p || !p.job_search_preferences) return false;
+        return p.job_search_preferences.some(pref => allowedKinds.has(pref));
       });
     }
     return list;
@@ -363,12 +363,12 @@ export const CandidatePipelineBoard: React.FC = () => {
                 <div className="pt-2 border-t">
                   <span className="text-sm font-medium">Art der Suche</span>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-2">
-                    {([
-                      { key: 'praktikum', label: 'Praktikum' },
-                      { key: 'ausbildung', label: 'Ausbildung' },
-                      { key: 'vollzeit', label: 'Vollzeit Job' },
-                      { key: 'praktikum_ausbildung', label: 'Praktikum & Ausbildung' },
-                    ] as const).map((opt) => {
+                     {([
+                       { key: 'Praktikum', label: 'Praktikum' },
+                       { key: 'Ausbildung', label: 'Ausbildung' },
+                       { key: 'Nach der Ausbildung einen Job', label: 'Nach der Ausbildung Job' },
+                       { key: 'Ausbildungsplatzwechsel', label: 'Ausbildungsplatzwechsel' },
+                     ] as const).map((opt) => {
                       const checked = searchKinds.includes(opt.key);
                       return (
                         <label key={opt.key} className="flex items-center gap-2">
