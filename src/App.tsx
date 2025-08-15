@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { AuthenticatedLayout } from "@/components/AuthenticatedLayout";
 import { AuthProvider } from "@/hooks/useAuth";
 import { CVFormProvider } from "@/contexts/CVFormContext";
@@ -148,19 +148,29 @@ function CompanyProtectedRoute({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
-// Universal layout wrapper that includes TopNavBar on all pages
+// Layout wrapper that conditionally shows TopNavBar
+function LayoutContent({ children }: { children: React.ReactNode }) {
+  const location = useLocation();
+  const isCompanyRoute = location.pathname.startsWith('/company/') && location.pathname !== '/company/onboarding';
+  
+  return (
+    <div className="min-h-screen flex flex-col w-full">
+      {/* Fixed TopNavBar on all pages except company routes */}
+      {!isCompanyRoute && <TopNavBar />}
+      
+      {/* Main content area with top padding only for non-company routes */}
+      <div className={isCompanyRoute ? "flex-1" : "flex-1 pt-14"}>
+        {children}
+      </div>
+    </div>
+  );
+}
+
+// Universal layout wrapper
 function UniversalLayout({ children }: { children: React.ReactNode }) {
   return (
     <SidebarProvider defaultOpen={false}>
-      <div className="min-h-screen flex flex-col w-full">
-        {/* Fixed TopNavBar on all pages */}
-        <TopNavBar />
-        
-        {/* Main content area with top padding to account for fixed navbar */}
-        <div className="flex-1 pt-14">
-          {children}
-        </div>
-      </div>
+      <LayoutContent>{children}</LayoutContent>
     </SidebarProvider>
   );
 }
