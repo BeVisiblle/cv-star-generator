@@ -125,8 +125,37 @@ export function CompanySidebar() {
         </SidebarGroup>
       </SidebarContent>
 
-      {/* Footer – Teammitglied einladen & Logout */}
+      {/* Footer – Company Info & Token Usage */}
       <SidebarFooter>
+        {!collapsed && (
+          <div className="p-3 border-t border-sidebar-border">
+            {/* Company Info */}
+            <div className="flex items-center gap-2 mb-3">
+              <Avatar className="h-8 w-8 shrink-0">
+                <AvatarImage src={company?.logo_url || ""} alt={company?.name || "Company"} />
+                <AvatarFallback>{company?.name?.[0]?.toUpperCase() || "C"}</AvatarFallback>
+              </Avatar>
+              <div className="min-w-0 flex-1">
+                <div className="text-sm font-medium truncate" title={company?.name}>
+                  {company?.name || "Company"}
+                </div>
+                <div className="text-xs text-muted-foreground">
+                  {tokens} / {maxTokens} Token verwendet
+                </div>
+              </div>
+            </div>
+            
+            {/* Token Usage Bar */}
+            <div className="space-y-1">
+              <div className="flex justify-between text-xs text-muted-foreground">
+                <span>Token-Verbrauch</span>
+                <span>{tokenPct}%</span>
+              </div>
+              <Progress value={tokenPct} className="h-2" />
+            </div>
+          </div>
+        )}
+        
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton onClick={handleSignOut} tooltip="Abmelden" size="sm">
