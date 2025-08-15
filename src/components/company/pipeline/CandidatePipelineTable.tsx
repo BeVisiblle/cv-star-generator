@@ -53,7 +53,7 @@ export const CandidatePipelineTable: React.FC<Props> = ({ items, stages, onStage
               <TableHead>Job Title</TableHead>
               <TableHead>Job Stage</TableHead>
               <TableHead>Location</TableHead>
-              <TableHead>Status</TableHead>
+              <TableHead>Sucht</TableHead>
               <TableHead style={{ width: 220 }}>Aktionen</TableHead>
             </TableRow>
           </TableHeader>
@@ -103,50 +103,34 @@ export const CandidatePipelineTable: React.FC<Props> = ({ items, stages, onStage
                       switch (p.search_status) {
                         case "praktikum":
                           return (
-                            <TooltipProvider>
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <div className="h-3.5 w-3.5 rounded-full ring-2 ring-background bg-destructive" aria-label="Sucht: Praktikum" />
-                                </TooltipTrigger>
-                                <TooltipContent>Sucht: Praktikum</TooltipContent>
-                              </Tooltip>
-                            </TooltipProvider>
+                            <div className="flex items-center gap-2 p-1.5 bg-red-50 dark:bg-red-950 rounded-md border border-red-200 dark:border-red-800 min-w-fit">
+                              <div className="h-2 w-2 rounded-full bg-red-500" />
+                              <span className="text-xs font-medium text-red-700 dark:text-red-300 whitespace-nowrap">Praktikum</span>
+                            </div>
                           );
                         case "ausbildung":
                           return (
-                            <TooltipProvider>
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <div className="h-3.5 w-3.5 rounded-full ring-2 ring-background bg-green-500" aria-label="Sucht: Ausbildung" />
-                                </TooltipTrigger>
-                                <TooltipContent>Sucht: Ausbildung</TooltipContent>
-                              </Tooltip>
-                            </TooltipProvider>
+                            <div className="flex items-center gap-2 p-1.5 bg-green-50 dark:bg-green-950 rounded-md border border-green-200 dark:border-green-800 min-w-fit">
+                              <div className="h-2 w-2 rounded-full bg-green-500" />
+                              <span className="text-xs font-medium text-green-700 dark:text-green-300 whitespace-nowrap">Ausbildung</span>
+                            </div>
                           );
                         case "vollzeit":
                           return (
-                            <TooltipProvider>
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <div className="h-3.5 w-3.5 rounded-full ring-2 ring-background bg-blue-500" aria-label="Sucht: Vollzeit" />
-                                </TooltipTrigger>
-                                <TooltipContent>Sucht: Vollzeit</TooltipContent>
-                              </Tooltip>
-                            </TooltipProvider>
+                            <div className="flex items-center gap-2 p-1.5 bg-blue-50 dark:bg-blue-950 rounded-md border border-blue-200 dark:border-blue-800 min-w-fit">
+                              <div className="h-2 w-2 rounded-full bg-blue-500" />
+                              <span className="text-xs font-medium text-blue-700 dark:text-blue-300 whitespace-nowrap">Vollzeit</span>
+                            </div>
                           );
                         case "praktikum_ausbildung":
                           return (
-                            <TooltipProvider>
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <div className="h-3.5 w-3.5 rounded-full ring-2 ring-background bg-amber-500" aria-label="Sucht: Praktikum & Ausbildung" />
-                                </TooltipTrigger>
-                                <TooltipContent>Sucht: Praktikum & Ausbildung</TooltipContent>
-                              </Tooltip>
-                            </TooltipProvider>
+                            <div className="flex items-center gap-2 p-1.5 bg-amber-50 dark:bg-amber-950 rounded-md border border-amber-200 dark:border-amber-800 min-w-fit">
+                              <div className="h-2 w-2 rounded-full bg-amber-500" />
+                              <span className="text-xs font-medium text-amber-700 dark:text-amber-300 whitespace-nowrap">Praktikum & Ausbildung</span>
+                            </div>
                           );
                         default:
-                          return <span className="text-muted-foreground">-</span>;
+                          return <span className="text-muted-foreground text-sm">Nicht angegeben</span>;
                       }
                     })()}
                   </TableCell>

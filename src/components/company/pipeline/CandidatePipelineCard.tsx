@@ -3,7 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Mail, Phone, FileText } from "lucide-react";
+import { Mail, Phone, FileText, Search } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -54,13 +54,33 @@ const hasPhone = !!p.telefon;
 const statusInfo = useMemo(() => {
   switch (p.search_status) {
     case "praktikum":
-      return { label: "Sucht: Praktikum", colorClass: "bg-destructive" };
+      return { 
+        label: "Sucht: Praktikum", 
+        bgClass: "bg-red-50 dark:bg-red-950", 
+        textClass: "text-red-700 dark:text-red-300",
+        borderClass: "border-red-200 dark:border-red-800"
+      };
     case "ausbildung":
-      return { label: "Sucht: Ausbildung", colorClass: "bg-green-500" };
+      return { 
+        label: "Sucht: Ausbildung", 
+        bgClass: "bg-green-50 dark:bg-green-950", 
+        textClass: "text-green-700 dark:text-green-300",
+        borderClass: "border-green-200 dark:border-green-800"
+      };
     case "vollzeit":
-      return { label: "Sucht: Vollzeit", colorClass: "bg-blue-500" };
+      return { 
+        label: "Sucht: Vollzeit Job", 
+        bgClass: "bg-blue-50 dark:bg-blue-950", 
+        textClass: "text-blue-700 dark:text-blue-300",
+        borderClass: "border-blue-200 dark:border-blue-800"
+      };
     case "praktikum_ausbildung":
-      return { label: "Sucht: Praktikum & Ausbildung", colorClass: "bg-amber-500" };
+      return { 
+        label: "Sucht: Praktikum & Ausbildung", 
+        bgClass: "bg-amber-50 dark:bg-amber-950", 
+        textClass: "text-amber-700 dark:text-amber-300",
+        borderClass: "border-amber-200 dark:border-amber-800"
+      };
     default:
       return null;
   }
@@ -83,16 +103,14 @@ const statusInfo = useMemo(() => {
 
   return (
     <Card className="relative p-3 space-y-3 cursor-grab select-none rounded-xl border border-border/70 shadow-sm bg-card">
-      {/* Status indicator */}
+      {/* Prominent Job Search Status Banner */}
       {statusInfo && (
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <div className={`absolute top-2 right-2 h-3.5 w-3.5 rounded-full ring-2 ring-background ${statusInfo.colorClass}`} />
-            </TooltipTrigger>
-            <TooltipContent>{statusInfo.label}</TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
+        <div className={`flex items-center gap-2 p-2 rounded-lg border ${statusInfo.bgClass} ${statusInfo.borderClass}`}>
+          <Search className={`h-4 w-4 ${statusInfo.textClass}`} />
+          <span className={`text-sm font-medium ${statusInfo.textClass}`}>
+            {statusInfo.label}
+          </span>
+        </div>
       )}
 
       {/* Header */}
