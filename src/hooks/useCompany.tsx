@@ -22,6 +22,9 @@ interface Company {
   active_tokens: number;
   seats: number;
   subscription_status: string;
+  primary_email?: string;
+  phone?: string;
+  contact_person?: string;
   created_at: string;
   updated_at: string;
   // Matching profile fields

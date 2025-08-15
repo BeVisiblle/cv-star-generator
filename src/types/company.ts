@@ -33,6 +33,9 @@ export interface CompanyProfile extends CompanyBase {
   account_status?: string | null;
   active_tokens?: number | null;
   seats?: number | null;
+  primary_email?: string | null;
+  phone?: string | null;
+  contact_person?: string | null;
   created_at?: string;
   updated_at?: string;
 }

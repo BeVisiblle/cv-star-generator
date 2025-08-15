@@ -40,6 +40,7 @@ import CompanyOnboarding from "@/pages/Company/Onboarding";
 import CompanyDashboardNew from "@/pages/Company/Dashboard";
 import CompanyProfile from "@/pages/Company/Profile";
 import CompanySearch from "@/pages/Company/Search";
+import CompanyNotifications from "@/pages/Company/Notifications";
 import CompanySettings from "@/pages/Company/Settings";
 import CompanyPosts from "@/pages/Company/Posts";
 import CompanyProfileView from "@/pages/Company/ProfileView";
@@ -214,7 +215,7 @@ const App = () => (
                 <Route path="search" element={<CompanySearch />} />
                 <Route path="unlocked" element={<CompanyUnlocked />} />
                 <Route path="billing" element={<CompanyBilling />} />
-                <Route path="notifications" element={<CompanyComingSoon />} />
+                <Route path="notifications" element={<CompanyNotifications />} />
                 <Route path="settings" element={<CompanySettings />} />
                 <Route path="matching-profile" element={<MatchingProfilePage />} />
                 <Route path="posts" element={<CompanyPosts />} />
