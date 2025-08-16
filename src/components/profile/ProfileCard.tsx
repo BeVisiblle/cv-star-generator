@@ -1,5 +1,5 @@
 import React from "react";
-import { Heart, Eye, Download, MapPin, Car, Briefcase } from "lucide-react";
+import { Heart, Eye, Download, MapPin, Car, Briefcase, User } from "lucide-react";
 
 export type Profile = {
   id: string;
@@ -34,14 +34,13 @@ export function ProfileCard({
 
   return (
     <article className="ab-card flex h-full w-full max-w-[280px] flex-col rounded-xl border bg-white p-3 shadow-sm">
-      {/* 1) Header */}
+      {/* 1) Header - Anonymous (no avatar, only first name) */}
       <div className="flex min-h-[48px] items-start justify-between gap-2">
         <div className="flex items-center gap-2">
-          <img
-            src={p.avatar_url || "/placeholder.svg"}
-            alt=""
-            className="h-10 w-10 rounded-lg object-cover"
-          />
+          {/* Anonymous avatar placeholder */}
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gray-100">
+            <User className="h-5 w-5 text-gray-400" />
+          </div>
           <div className="min-w-0">
             <h3 className="truncate text-sm font-semibold">{p.name}</h3>
             {p.role && <div className="truncate text-xs text-gray-600">{p.role}</div>}
@@ -118,7 +117,7 @@ export function ProfileCard({
 
       <div className="flex-1" />
 
-      {/* 5) Actions */}
+      {/* 5) Actions - Same for dashboard and search variants now */}
       <div className="mt-2 flex h-[44px] items-center gap-2">
         {variant === "unlocked" && (
           <>
@@ -138,20 +137,12 @@ export function ProfileCard({
             </button>
           </>
         )}
-        {variant === "search" && (
+        {(variant === "search" || variant === "dashboard") && (
           <button 
             onClick={onUnlock} 
             className="w-full rounded-lg bg-blue-600 px-3 py-2 text-center text-xs text-white hover:bg-blue-700"
           >
             Freischalten (1 Token)
-          </button>
-        )}
-        {variant === "dashboard" && (
-          <button 
-            onClick={onUnlock} 
-            className="w-full rounded-lg border border-blue-200 bg-blue-50 px-3 py-2 text-xs text-blue-700 hover:bg-blue-100"
-          >
-            Freischalten
           </button>
         )}
       </div>

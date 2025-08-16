@@ -414,8 +414,8 @@ export default function CompanySearch() {
                   key={profile.id}
                   profile={{
                     id: profile.id,
-                    name: `${profile.vorname} ${profile.nachname}`,
-                    avatar_url: profile.avatar_url,
+                    name: profile.vorname, // Only first name for anonymity
+                    avatar_url: null, // No avatar for anonymity
                     role: profile.branche,
                     city: profile.ort,
                     fs: true, // Default for search results

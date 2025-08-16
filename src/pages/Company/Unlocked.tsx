@@ -260,8 +260,8 @@ export default function CompanyUnlocked() {
                      <ProfileCard
                        profile={{
                          id: p.id,
-                         name: `${p.vorname} ${p.nachname}`,
-                         avatar_url: p.avatar_url,
+                         name: p.vorname, // Only first name for anonymity
+                         avatar_url: null, // No avatar for anonymity
                          role: p.branche,
                          city: p.ort,
                          fs: true,
@@ -304,8 +304,8 @@ export default function CompanyUnlocked() {
                      <ProfileCard
                        profile={{
                          id: p.id,
-                         name: `${p.vorname} ${p.nachname}`,
-                         avatar_url: p.avatar_url,
+                         name: p.vorname, // Only first name for anonymity
+                         avatar_url: null, // No avatar for anonymity
                          role: p.branche,
                          city: p.ort,
                          fs: true,
