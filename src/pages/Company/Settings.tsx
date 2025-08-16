@@ -22,6 +22,7 @@ import {
   Package
 } from "lucide-react";
 import { TagPicker, TagType } from "@/components/company/matching/TagPicker";
+import { BranchSelector } from "@/components/Company/BranchSelector";
 
 interface TeamMember {
   id: string;
@@ -457,15 +458,16 @@ export default function CompanySettings() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label>Zielbranchen (kommagetrennt)</Label>
-                  <Input
-                    value={settings.target_industries.join(", ")}
-                    onChange={(e) => setSettings(prev => ({
+                  <BranchSelector
+                    selectedBranches={settings.target_industries}
+                    onSelectionChange={(branches) => setSettings(prev => ({
                       ...prev,
-                      target_industries: e.target.value.split(",").map(s => s.trim()).filter(Boolean)
+                      target_industries: branches
                     }))}
-                    placeholder="IT, Handwerk, Einzelhandel"
                   />
+                  <p className="text-sm text-muted-foreground">
+                    Wählen Sie alle Branchen aus, in denen Sie Kandidaten suchen möchten.
+                  </p>
                 </div>
 
                 <div className="space-y-2">
