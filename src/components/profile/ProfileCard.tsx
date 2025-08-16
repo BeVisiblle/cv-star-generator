@@ -1,5 +1,6 @@
 import React from "react";
 import { Heart, Eye, Download, MapPin, Car, Briefcase, User, Mail, Phone } from "lucide-react";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
 export type Profile = {
   id: string;
@@ -40,18 +41,16 @@ export function ProfileCard({
       {/* 1) Header - Anonymous for locked, full for unlocked */}
       <div className="flex min-h-[48px] items-start justify-between gap-2">
         <div className="flex items-center gap-2">
-          {variant === "unlocked" && p.avatar_url ? (
-            <img
-              src={p.avatar_url}
-              alt={`${p.name}`}
-              className="h-12 w-12 rounded-full object-cover"
-              loading="lazy"
-            />
-          ) : (
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gray-100">
-              <User className="h-5 w-5 text-gray-400" />
-            </div>
-          )}
+          <Avatar className="h-12 w-12">
+            <AvatarImage src={p.avatar_url || ""} />
+            <AvatarFallback className="bg-gradient-to-br from-blue-100 to-blue-200">
+              {variant === "unlocked" && p.name ? (
+                p.name.split(' ').map(n => n.charAt(0)).join('').substring(0, 2)
+              ) : (
+                <User className="h-5 w-5 text-blue-600" />
+              )}
+            </AvatarFallback>
+          </Avatar>
           <div className="min-w-0">
             <h3 className="truncate text-sm font-semibold">{p.name}</h3>
             {(p.role || p.status) && (
