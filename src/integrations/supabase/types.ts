@@ -2550,6 +2550,14 @@ export type Database = {
           token_balance: number
         }[]
       }
+      compute_match_percent: {
+        Args: {
+          candidate_city: string
+          candidate_skills: Json
+          company_id: string
+        }
+        Returns: number
+      }
       consume_tokens: {
         Args: {
           _client_request_id?: string
@@ -3279,6 +3287,25 @@ export type Database = {
       postgis_wagyu_version: {
         Args: Record<PropertyKey, never>
         Returns: string
+      }
+      profiles_with_match: {
+        Args: {
+          p_company_id: string
+          p_limit?: number
+          p_offset?: number
+          p_variant: string
+        }
+        Returns: {
+          avatar_url: string
+          city: string
+          fs: boolean
+          id: string
+          match: number
+          name: string
+          role: string
+          seeking: string
+          skills: string[]
+        }[]
       }
       purchase_tokens: {
         Args: { _client_request_id?: string; _company_id: string; _qty: number }
