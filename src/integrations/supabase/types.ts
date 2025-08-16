@@ -333,6 +333,55 @@ export type Database = {
           },
         ]
       }
+      company_employment_requests: {
+        Row: {
+          company_id: string
+          confirmed_by: string | null
+          created_at: string
+          id: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          company_id: string
+          confirmed_by?: string | null
+          created_at?: string
+          id?: string
+          status?: string
+          user_id: string
+        }
+        Update: {
+          company_id?: string
+          confirmed_by?: string | null
+          created_at?: string
+          id?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "company_employment_requests_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "company_employment_requests_confirmed_by_fkey"
+            columns: ["confirmed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "company_employment_requests_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       company_follow_prefs: {
         Row: {
           bell: string
@@ -1592,6 +1641,7 @@ export type Database = {
           branche: string | null
           cover_image_url: string | null
           created_at: string | null
+          current_company_id: string | null
           cv_url: string | null
           driver_license_class: string | null
           einwilligung: boolean | null
@@ -1610,6 +1660,7 @@ export type Database = {
           location_id: number | null
           motivation: string | null
           nachname: string | null
+          open_to_work: boolean | null
           ort: string | null
           plz: string | null
           praktische_erfahrung: string | null
@@ -1643,6 +1694,7 @@ export type Database = {
           branche?: string | null
           cover_image_url?: string | null
           created_at?: string | null
+          current_company_id?: string | null
           cv_url?: string | null
           driver_license_class?: string | null
           einwilligung?: boolean | null
@@ -1661,6 +1713,7 @@ export type Database = {
           location_id?: number | null
           motivation?: string | null
           nachname?: string | null
+          open_to_work?: boolean | null
           ort?: string | null
           plz?: string | null
           praktische_erfahrung?: string | null
@@ -1694,6 +1747,7 @@ export type Database = {
           branche?: string | null
           cover_image_url?: string | null
           created_at?: string | null
+          current_company_id?: string | null
           cv_url?: string | null
           driver_license_class?: string | null
           einwilligung?: boolean | null
@@ -1712,6 +1766,7 @@ export type Database = {
           location_id?: number | null
           motivation?: string | null
           nachname?: string | null
+          open_to_work?: boolean | null
           ort?: string | null
           plz?: string | null
           praktische_erfahrung?: string | null
@@ -1733,6 +1788,13 @@ export type Database = {
           vorname?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "profiles_current_company_id_fkey"
+            columns: ["current_company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "profiles_location_id_fkey"
             columns: ["location_id"]
@@ -2196,6 +2258,25 @@ export type Database = {
       }
     }
     Views: {
+      company_conversion: {
+        Row: {
+          company_id: string | null
+          conversion_rate_percent: number | null
+          total_accepted: number | null
+          total_declined: number | null
+          total_pending: number | null
+          total_requests: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "company_employment_requests_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       geography_columns: {
         Row: {
           coord_dimension: number | null
@@ -2895,6 +2976,7 @@ export type Database = {
           branche: string | null
           cover_image_url: string | null
           created_at: string | null
+          current_company_id: string | null
           cv_url: string | null
           driver_license_class: string | null
           einwilligung: boolean | null
@@ -2913,6 +2995,7 @@ export type Database = {
           location_id: number | null
           motivation: string | null
           nachname: string | null
+          open_to_work: boolean | null
           ort: string | null
           plz: string | null
           praktische_erfahrung: string | null

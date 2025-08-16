@@ -1,5 +1,7 @@
 import { timeAgo } from '@/utils/timeAgo';
 import type { NotificationRow, NotifType } from '@/types/notifications';
+import { useAcceptEmployment, useDeclineEmployment } from '@/hooks/useEmployment';
+import { useState } from 'react';
 
 type Props = {
   n: NotificationRow;
@@ -22,14 +24,78 @@ const typeIcon: Record<NotifType, string> = {
   weekly_digest_company: '📊',
   billing_update: '🧾',
   product_update: '🧩',
+  employment_request: '👋',
+  employment_accepted: '✅',
+  employment_declined: 'ℹ️',
 };
 
 export default function NotificationCard({ n, onRead, onAction }: Props) {
+  const [busy, setBusy] = useState(false);
+  const accept = useAcceptEmployment();
+  const decline = useDeclineEmployment();
+  
   const unread = !n.read_at;
   const icon = typeIcon[n.type] || '🔔';
 
+  // Handle employment request actions
+  const handleAcceptEmployment = async () => {
+    if (!n.payload?.request_id || busy) return;
+    setBusy(true);
+    try {
+      await accept.mutateAsync({ request_id: n.payload.request_id });
+      onAction?.(n, 'accept');
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const handleDeclineEmployment = async () => {
+    if (!n.payload?.request_id || busy) return;
+    setBusy(true);
+    try {
+      await decline.mutateAsync({ request_id: n.payload.request_id });
+      onAction?.(n, 'decline');
+    } finally {
+      setBusy(false);
+    }
+  };
+
   const ActionButtons = () => {
     switch (n.type) {
+      case 'employment_request':
+        return (
+          <div className="mt-3 flex gap-2">
+            <button
+              onClick={handleAcceptEmployment}
+              disabled={busy}
+              className="h-9 rounded-lg px-3 text-sm text-white disabled:opacity-60"
+              style={{ backgroundColor: '#5CE1E6' }}
+              title="Beschäftigung bestätigen"
+            >
+              {busy && accept.isPending ? 'Bestätige…' : 'Annehmen'}
+            </button>
+            <button
+              onClick={handleDeclineEmployment}
+              disabled={busy}
+              className="h-9 rounded-lg border px-3 text-sm hover:bg-gray-50 disabled:opacity-60"
+              title="Beschäftigung ablehnen"
+            >
+              {busy && decline.isPending ? 'Lehne ab…' : 'Ablehnen'}
+            </button>
+            {n.payload?.user_id && (
+              <a
+                href={`/profile/${n.payload.user_id}`}
+                className="h-9 rounded-lg border px-3 text-sm hover:bg-gray-50 flex items-center"
+                title="Profil ansehen"
+              >
+                Profil ansehen
+              </a>
+            )}
+          </div>
+        );
+      case 'employment_accepted':
+      case 'employment_declined':
+        return null; // Info-only notifications
       case 'company_unlocked_you':
         return (
           <div className="mt-3 flex gap-2">
@@ -118,6 +184,20 @@ export default function NotificationCard({ n, onRead, onAction }: Props) {
             {unread && <span className="h-2 w-2 rounded-full bg-[#5CE1E6]" aria-label="ungelesen" />}
           </div>
           {n.body && <p className="mt-1 text-sm text-muted-foreground">{n.body}</p>}
+          
+          {/* Employment request meta info */}
+          {n.type === 'employment_request' && n.payload && (
+            <div className="mt-2 text-xs text-muted-foreground">
+              Anfrage von{' '}
+              <span className="font-medium">
+                {n.payload.user_name ?? 'Mitarbeiter:in'}
+              </span>
+              {n.payload.company_name && (
+                <span> für {n.payload.company_name}</span>
+              )}
+            </div>
+          )}
+
           <div className="mt-1 text-xs text-muted-foreground">{timeAgo(n.created_at)}</div>
           <ActionButtons />
         </div>

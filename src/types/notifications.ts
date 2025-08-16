@@ -14,7 +14,10 @@ export type NotifType =
   | 'low_tokens'
   | 'weekly_digest_company'
   | 'billing_update'
-  | 'product_update';
+  | 'product_update'
+  | 'employment_request'
+  | 'employment_accepted'
+  | 'employment_declined';
 
 export type NotifChannel = 'in_app' | 'email';
 

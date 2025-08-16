@@ -19,6 +19,9 @@ const LABELS: Record<NotifType, string> = {
   weekly_digest_company: 'Wöchentlicher Überblick (Unternehmen)',
   billing_update: 'Rechnungen / Plan-Updates',
   product_update: 'Produkt-Updates',
+  employment_request: 'Neue Beschäftigungsanfrage',
+  employment_accepted: 'Beschäftigung bestätigt',
+  employment_declined: 'Beschäftigung abgelehnt',
 };
 
 export default function NotifSettingsPanel({ userId }: Props) {
