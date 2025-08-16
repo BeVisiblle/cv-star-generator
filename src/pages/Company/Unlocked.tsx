@@ -3,16 +3,17 @@ import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useCompany } from "@/hooks/useCompany";
 import { supabase } from "@/integrations/supabase/client";
 import { Eye, Coins } from "lucide-react";
-import { ProfileCard } from "@/components/Company/ProfileCard";
 import { useAuth } from "@/hooks/useAuth";
 import { SelectionBar } from "@/components/Company/SelectionBar";
 import { useBulkStageUpdate, useExportCandidates } from "@/hooks/useUnlockedBulk";
 import { toast } from "sonner";
+import { CandidateCard } from "@/components/unlocked/CandidateCard";
+import { useEqualizeCards } from "@/components/unlocked/useEqualizeCards";
 
 interface Profile {
   id: string;
@@ -39,6 +40,8 @@ export default function CompanyUnlocked() {
   const [activeRecentTab, setActiveRecentTab] = useState<'unlocked' | 'viewed'>('unlocked');
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState<string[]>([]);
+  const [search, setSearch] = useState("");
+  const gridRef = useEqualizeCards();
 
   // Bulk operations hooks
   const bulkStage = useBulkStageUpdate(company?.id || '');
@@ -173,13 +176,35 @@ export default function CompanyUnlocked() {
     }
   };
 
+  // Filter profiles based on search
+  const filteredProfiles = profiles.filter(p =>
+    `${p.vorname} ${p.nachname}`.toLowerCase().includes(search.toLowerCase()) ||
+    p.ort?.toLowerCase().includes(search.toLowerCase()) ||
+    p.branche?.toLowerCase().includes(search.toLowerCase())
+  );
+
+  const filteredRecentlyViewed = recentlyViewed.filter(p =>
+    `${p.vorname} ${p.nachname}`.toLowerCase().includes(search.toLowerCase()) ||
+    p.ort?.toLowerCase().includes(search.toLowerCase()) ||
+    p.branche?.toLowerCase().includes(search.toLowerCase())
+  );
+
   return (
-    <div className="p-3 md:p-6 min-h-screen bg-background max-w-full overflow-x-hidden space-y-6">
-      <div className="flex items-center justify-between mb-2">
-        <h1 className="text-2xl sm:text-3xl font-bold">Freigeschaltete Kontakte</h1>
-        <Badge variant="secondary" className="px-3 py-1">
-          <Eye className="h-4 w-4 mr-1" /> {profiles.length}
-        </Badge>
+    <div className="mx-auto max-w-[1200px] p-4 md:p-6">
+      {/* Header */}
+      <div className="mb-4 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <h1 className="text-2xl font-bold">Freigeschaltete Azubis</h1>
+        <div className="flex items-center gap-2">
+          <Input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Suche nach Name, Ort, Branche..."
+            className="w-72"
+          />
+          <Badge variant="secondary" className="px-3 py-1">
+            <Eye className="h-4 w-4 mr-1" /> {activeRecentTab === 'unlocked' ? filteredProfiles.length : filteredRecentlyViewed.length}
+          </Badge>
+        </div>
       </div>
 
       {/* Selection Bar */}
@@ -212,9 +237,9 @@ export default function CompanyUnlocked() {
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
             </div>
           ) : activeRecentTab === 'unlocked' ? (
-            profiles.length === 0 ? (
+            filteredProfiles.length === 0 ? (
               <div className="text-center py-16 text-muted-foreground">
-                Noch keine Profile freigeschaltet.
+                {search ? "Keine Treffer für deine Suche." : "Noch keine Profile freigeschaltet."}
                 <div className="mt-4">
                   <Button onClick={() => navigate('/company/search')}>
                     <Coins className="h-4 w-4 mr-2" /> Kandidaten suchen
@@ -222,8 +247,8 @@ export default function CompanyUnlocked() {
                 </div>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {profiles.map((p) => (
+              <div ref={gridRef} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {filteredProfiles.map((p) => (
                   <div key={p.id} className="relative">
                     <Checkbox
                       checked={selected.includes(p.id)}
@@ -231,26 +256,42 @@ export default function CompanyUnlocked() {
                       className="absolute left-3 top-3 z-10 bg-white shadow-sm"
                       aria-label={`${p.vorname} ${p.nachname} auswählen`}
                     />
-                    <ProfileCard
-                      profile={p}
-                      isUnlocked={true}
-                      matchPercentage={75}
-                      onUnlock={() => {}}
-                      onSave={() => {}}
-                      onPreview={() => handlePreview(p)}
+                    <CandidateCard
+                      name={`${p.vorname} ${p.nachname}`}
+                      matchPercent={75}
+                      avatarUrl={p.avatar_url}
+                      role={p.branche}
+                      city={p.ort}
+                      hasLicense={true}
+                      seeking={p.status === 'job_seeking' ? 'Ausbildungsplatzwechsel' : undefined}
+                      skills={p.faehigkeiten ? (Array.isArray(p.faehigkeiten) ? p.faehigkeiten : []) : []}
+                      email={p.email}
+                      phone={p.telefon}
+                      profileHref={`/company/profile/${p.id}`}
+                      onDownloadCV={() => {
+                        if (p.cv_url) {
+                          window.open(p.cv_url, '_blank');
+                        } else {
+                          toast.error('Kein CV verfügbar');
+                        }
+                      }}
+                      onToggleFavorite={() => {
+                        // TODO: Implement favorite functionality
+                        toast.success('Favorit-Funktion wird bald verfügbar sein');
+                      }}
                     />
                   </div>
                 ))}
               </div>
             )
           ) : (
-            recentlyViewed.length === 0 ? (
+            filteredRecentlyViewed.length === 0 ? (
               <div className="text-center py-16 text-muted-foreground">
-                Noch keine Profile angesehen.
+                {search ? "Keine Treffer für deine Suche." : "Noch keine Profile angesehen."}
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {recentlyViewed.map((p) => (
+              <div ref={gridRef} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {filteredRecentlyViewed.map((p) => (
                   <div key={p.id} className="relative">
                     <Checkbox
                       checked={selected.includes(p.id)}
@@ -258,13 +299,29 @@ export default function CompanyUnlocked() {
                       className="absolute left-3 top-3 z-10 bg-white shadow-sm"
                       aria-label={`${p.vorname} ${p.nachname} auswählen`}
                     />
-                    <ProfileCard
-                      profile={p}
-                      isUnlocked={true}
-                      matchPercentage={75}
-                      onUnlock={() => {}}
-                      onSave={() => {}}
-                      onPreview={() => handlePreview(p)}
+                    <CandidateCard
+                      name={`${p.vorname} ${p.nachname}`}
+                      matchPercent={75}
+                      avatarUrl={p.avatar_url}
+                      role={p.branche}
+                      city={p.ort}
+                      hasLicense={true}
+                      seeking={p.status === 'job_seeking' ? 'Ausbildungsplatzwechsel' : undefined}
+                      skills={p.faehigkeiten ? (Array.isArray(p.faehigkeiten) ? p.faehigkeiten : []) : []}
+                      email={p.email}
+                      phone={p.telefon}
+                      profileHref={`/company/profile/${p.id}`}
+                      onDownloadCV={() => {
+                        if (p.cv_url) {
+                          window.open(p.cv_url, '_blank');
+                        } else {
+                          toast.error('Kein CV verfügbar');
+                        }
+                      }}
+                      onToggleFavorite={() => {
+                        // TODO: Implement favorite functionality
+                        toast.success('Favorit-Funktion wird bald verfügbar sein');
+                      }}
                     />
                   </div>
                 ))}
