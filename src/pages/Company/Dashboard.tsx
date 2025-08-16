@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { KpiCard } from "@/components/admin/KpiCard";
+import { TopMatchedCandidates } from "@/components/dashboard/TopMatchedCandidates";
 
 interface Profile {
   id: string;
@@ -290,58 +291,12 @@ useEffect(() => {
         </div>
       </div>
 
-      {/* Best Matches (moved up) */}
-      <Card className="">
-        <CardHeader>
-          <CardTitle className="flex items-center">
-            <TrendingUp className="h-5 w-5 mr-2" />
-            Interessante Azubis
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {bestMatches.length === 0 ? (
-              <p className="text-muted-foreground text-center py-4">
-                Noch keine Matches gefunden
-              </p>
-            ) : (
-              bestMatches.slice(0, 4).map((profile) => (
-                <div key={profile.id} className="flex items-center justify-between p-3 border rounded-lg">
-                  <div className="flex items-center space-x-3">
-                    <Avatar className="h-10 w-10">
-                      <AvatarImage src={profile.avatar_url || ""} />
-                      <AvatarFallback>
-                        {profile.vorname?.charAt(0)}{profile.nachname?.charAt(0)}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div>
-                      <p className="font-medium">
-                        {profile.vorname} {profile.nachname}
-                      </p>
-                      <div className="flex items-center space-x-2">
-                        <Badge variant="secondary" className="text-xs">
-                          {profile.status}
-                        </Badge>
-                        <span className="text-sm text-muted-foreground">
-                          {profile.ort}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                  <Button size="sm" variant="outline" onClick={() => navigate('/company/search')}>
-                    Freischalten
-                  </Button>
-                </div>
-              ))
-            )}
-          </div>
-          {bestMatches.length > 4 && (
-            <Button variant="ghost" className="w-full mt-4" onClick={() => navigate('/company/search')}>
-              Alle anzeigen
-            </Button>
-          )}
-        </CardContent>
-      </Card>
+      {/* Top Matched Candidates */}
+      {(company || demoMode) && (
+        <div className="mb-6">
+          <TopMatchedCandidates companyId={company?.id || 'demo'} />
+        </div>
+      )}
 
       {/* Stats Overview */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">

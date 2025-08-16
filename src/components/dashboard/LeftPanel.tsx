@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { MapPin } from "lucide-react";
+import { TopMatchedCandidates } from "./TopMatchedCandidates";
+import { useCompany } from "@/hooks/useCompany";
 function firstWords(text?: string | null, n: number = 40) {
   if (!text) return null;
   const words = text.trim().split(/\s+/);
@@ -36,6 +38,7 @@ export const LeftPanel: React.FC = () => {
     profile
   } = useAuth();
   const navigate = useNavigate();
+  const { company } = useCompany();
   const about = getAbout(profile);
   const about10 = firstChars(about, 10);
   return <aside aria-label="Profilübersicht" className="space-y-4">
@@ -111,6 +114,11 @@ export const LeftPanel: React.FC = () => {
           </Button>
         </div>
       </Card>
+
+      {/* Top Matched Candidates */}
+      {company && (
+        <TopMatchedCandidates companyId={company.id} />
+      )}
 
       {/* Schnellzugriff */}
       <Card className="p-5">
