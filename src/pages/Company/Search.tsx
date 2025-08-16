@@ -12,7 +12,7 @@ import { useCompany } from "@/hooks/useCompany";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { SearchHeader } from "@/components/Company/SearchHeader";
-import { ProfileCard } from "@/components/Company/ProfileCard";
+import { ProfileCard } from "@/components/profile/ProfileCard";
 import { UnlockProfileModal } from "@/components/Company/UnlockProfileModal";
 import { FullProfileModal } from "@/components/Company/FullProfileModal";
 import { useProfiles } from "@/hooks/useProfiles";
@@ -27,8 +27,7 @@ import {
   Download,
   Phone,
   Mail,
-  Users,
-  X
+  Users
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import {
@@ -54,18 +53,6 @@ interface Profile {
   email?: string;
   telefon?: string;
   cv_url?: string;
-  job_search_preferences?: string[];
-  has_drivers_license?: boolean;
-  driver_license_class?: string;
-  schule?: string;
-  ausbildungsberuf?: string;
-  aktueller_beruf?: string;
-  layout?: number;
-  geburtsdatum?: string;
-  berufserfahrung?: any[];
-  ausbildung?: any[];
-  sprachen?: any[];
-  zertifikate?: any[];
 }
 
 interface SearchFilters {
@@ -75,7 +62,6 @@ interface SearchFilters {
   radius: number;
   industry: string;
   availability: string;
-  jobSearchPreferences: string[];
 }
 
 const ITEMS_PER_PAGE = 20;
@@ -100,7 +86,6 @@ export default function CompanySearch() {
     radius: 50,
     industry: "",
     availability: "",
-    jobSearchPreferences: [],
   });
   const [totalCount, setTotalCount] = useState(0);
   const { toast } = useToast();
@@ -157,8 +142,8 @@ export default function CompanySearch() {
       if (filters.location) {
         query = query.ilike('ort', `%${filters.location}%`);
       }
-      if (filters.jobSearchPreferences.length > 0) {
-        query = query.overlaps('job_search_preferences', filters.jobSearchPreferences);
+      if (filters.keywords) {
+        query = query.or(`vorname.ilike.%${filters.keywords}%,nachname.ilike.%${filters.keywords}%,headline.ilike.%${filters.keywords}%`);
       }
 
       const { data, error, count } = await query
@@ -409,41 +394,6 @@ export default function CompanySearch() {
         resultsCount={totalCount}
       />
 
-      {/* Job Search Preference Filters */}
-      <Card className="mb-6">
-        <CardContent className="p-4">
-          <div className="space-y-3">
-            <h3 className="text-sm font-medium">Sucht nach:</h3>
-            <div className="flex flex-wrap gap-2">
-              {[
-                { key: 'Praktikum', label: 'Praktikum', color: 'bg-red-50 dark:bg-red-950 text-red-700 dark:text-red-300 border-red-200 dark:border-red-800' },
-                { key: 'Ausbildung', label: 'Ausbildung', color: 'bg-green-50 dark:bg-green-950 text-green-700 dark:text-green-300 border-green-200 dark:border-green-800' },
-                { key: 'Nach der Ausbildung einen Job', label: 'Job nach Ausbildung', color: 'bg-blue-50 dark:bg-blue-950 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800' },
-                { key: 'Ausbildungsplatzwechsel', label: 'Ausbildungsplatzwechsel', color: 'bg-purple-50 dark:bg-purple-950 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-800' },
-              ].map((pref) => (
-                <Button
-                  key={pref.key}
-                  variant={filters.jobSearchPreferences.includes(pref.key) ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => {
-                    const newPrefs = filters.jobSearchPreferences.includes(pref.key)
-                      ? filters.jobSearchPreferences.filter(p => p !== pref.key)
-                      : [...filters.jobSearchPreferences, pref.key];
-                    setFilters(prev => ({ ...prev, jobSearchPreferences: newPrefs }));
-                  }}
-                  className={`text-xs ${!filters.jobSearchPreferences.includes(pref.key) ? pref.color : ''}`}
-                >
-                  {pref.label}
-                  {filters.jobSearchPreferences.includes(pref.key) && (
-                    <X className="h-3 w-3 ml-1" />
-                  )}
-                </Button>
-              ))}
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
       {/* Advanced Filters Sidebar (conditionally shown) */}
       {filters.targetGroup === "filter" && (
         <Card className="mb-6">
@@ -512,12 +462,20 @@ export default function CompanySearch() {
                 return (
                   <ProfileCard
                     key={profile.id}
-                    profile={profile}
-                    isUnlocked={unlocked}
-                    matchPercentage={matchPercentage}
+                    profile={{
+                      id: profile.id,
+                      name: profile.vorname, // Only first name for anonymity
+                      avatar_url: null, // No avatar for anonymity
+                      role: profile.branche,
+                      city: profile.ort,
+                      fs: true, // Default for search results
+                      seeking: profile.status,
+                      skills: Array.isArray(profile.faehigkeiten) ? profile.faehigkeiten : [],
+                      match: matchPercentage,
+                    }}
+                    variant="search"
                     onUnlock={() => handleUnlockProfile(profile)}
-                    onSave={() => handleSaveMatch(profile)}
-                    onPreview={() => navigate(`/company/profile/${profile.id}`)}
+                    onToggleFavorite={() => handleSaveMatch(profile)}
                   />
                 );
               })}

@@ -13,7 +13,6 @@ interface SearchFilters {
   radius: number;
   industry: string;
   availability: string;
-  jobSearchPreferences: string[];
 }
 
 interface SearchHeaderProps {
@@ -110,7 +109,6 @@ export function SearchHeader({ filters, onFiltersChange, resultsCount }: SearchH
                   radius: 50,
                   industry: "",
                   availability: "",
-                  jobSearchPreferences: [],
                 })}
                 className="text-xs whitespace-nowrap"
               >
