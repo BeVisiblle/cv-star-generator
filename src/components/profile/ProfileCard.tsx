@@ -1,16 +1,19 @@
 import React from "react";
-import { Heart, Eye, Download, MapPin, Car, Briefcase, User } from "lucide-react";
+import { Heart, Eye, Download, MapPin, Car, Briefcase, User, Mail, Phone } from "lucide-react";
 
 export type Profile = {
   id: string;
-  name: string;
+  name: string;                 // Display name (first name in search/dashboard, full name in unlocked)
   avatar_url?: string | null;
-  role?: string | null;              // e.g. "Azubi in IT"
+  role?: string | null;         // e.g. "IT", "Handwerk"
   city?: string | null;
-  fs?: boolean | null;               // Führerschein
-  seeking?: string | null;           // "Ausbildungsplatzwechsel"
-  skills: string[];                  // show all
-  match?: number | null;             // 0..100
+  fs?: boolean | null;          // Führerschein
+  seeking?: string | null;      // e.g. "Ausbildungsplatzwechsel"
+  status?: string | null;       // schüler | azubi | geselle (o.ä.)
+  email?: string | null;        // only shown when unlocked
+  phone?: string | null;        // only shown when unlocked
+  skills: string[];             // show all
+  match?: number | null;        // 0..100
 };
 
 type Props = {
@@ -34,16 +37,26 @@ export function ProfileCard({
 
   return (
     <article className="ab-card flex h-full w-full max-w-[280px] flex-col rounded-xl border bg-white p-3 shadow-sm">
-      {/* 1) Header - Anonymous (no avatar, only first name) */}
+      {/* 1) Header - Anonymous for locked, full for unlocked */}
       <div className="flex min-h-[48px] items-start justify-between gap-2">
         <div className="flex items-center gap-2">
-          {/* Anonymous avatar placeholder */}
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gray-100">
-            <User className="h-5 w-5 text-gray-400" />
-          </div>
+          {variant === "unlocked" && p.avatar_url ? (
+            <img
+              src={p.avatar_url}
+              alt={`${p.name}`}
+              className="h-10 w-10 rounded-lg object-cover"
+              loading="lazy"
+            />
+          ) : (
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gray-100">
+              <User className="h-5 w-5 text-gray-400" />
+            </div>
+          )}
           <div className="min-w-0">
             <h3 className="truncate text-sm font-semibold">{p.name}</h3>
-            {p.role && <div className="truncate text-xs text-gray-600">{p.role}</div>}
+            {(p.role || p.status) && (
+              <div className="truncate text-xs text-gray-600">{p.status ?? p.role}</div>
+            )}
           </div>
         </div>
         <div className="flex shrink-0 items-center gap-1">
@@ -66,10 +79,10 @@ export function ProfileCard({
 
       {/* 2) Meta */}
       <div className="mt-1 grid min-h-[48px] grid-cols-1 gap-1 text-[12px] text-gray-700">
-        {p.role && (
+        {(p.status || p.role) && (
           <div className="flex items-center gap-1">
             <Briefcase className="h-3 w-3 text-gray-400" />
-            <span>Azubi</span>
+            <span className="truncate">{p.status ?? p.role}</span>
           </div>
         )}
         {p.city && (
@@ -114,6 +127,24 @@ export function ProfileCard({
           )}
         </div>
       </div>
+
+      {/* 4.5) Contact info (only when unlocked) */}
+      {variant === "unlocked" && (p.email || p.phone) && (
+        <div className="mt-2 space-y-1 text-[12px]">
+          {p.email && (
+            <div className="flex items-center gap-1 text-gray-700">
+              <Mail className="h-3 w-3 text-gray-400" />
+              <a href={`mailto:${p.email}`} className="truncate hover:underline">{p.email}</a>
+            </div>
+          )}
+          {p.phone && (
+            <div className="flex items-center gap-1 text-gray-700">
+              <Phone className="h-3 w-3 text-gray-400" />
+              <a href={`tel:${p.phone}`} className="truncate hover:underline">{p.phone}</a>
+            </div>
+          )}
+        </div>
+      )}
 
       <div className="flex-1" />
 

@@ -260,12 +260,15 @@ export default function CompanyUnlocked() {
                      <ProfileCard
                        profile={{
                          id: p.id,
-                         name: p.vorname, // Only first name for anonymity
-                         avatar_url: null, // No avatar for anonymity
+                         name: `${p.vorname} ${p.nachname}`.trim(),
+                         avatar_url: p.avatar_url || null,
                          role: p.branche,
                          city: p.ort,
                          fs: true,
                          seeking: p.status === 'job_seeking' ? 'Ausbildungsplatzwechsel' : undefined,
+                         status: p.status,
+                         email: p.email || null,
+                         phone: p.telefon || null,
                          skills: p.faehigkeiten ? (Array.isArray(p.faehigkeiten) ? p.faehigkeiten : []) : [],
                          match: 75,
                        }}
@@ -304,12 +307,15 @@ export default function CompanyUnlocked() {
                      <ProfileCard
                        profile={{
                          id: p.id,
-                         name: p.vorname, // Only first name for anonymity
-                         avatar_url: null, // No avatar for anonymity
+                         name: `${p.vorname} ${p.nachname}`.trim(),
+                         avatar_url: p.avatar_url || null,
                          role: p.branche,
                          city: p.ort,
                          fs: true,
                          seeking: p.status === 'job_seeking' ? 'Ausbildungsplatzwechsel' : undefined,
+                         status: p.status,
+                         email: p.email || null,
+                         phone: p.telefon || null,
                          skills: p.faehigkeiten ? (Array.isArray(p.faehigkeiten) ? p.faehigkeiten : []) : [],
                          match: 75,
                        }}
