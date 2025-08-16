@@ -188,21 +188,23 @@ export default function CompanySearch() {
 
       const result = await useToken(selectedProfile.id);
       if (result.success) {
-        // Add to pipeline in 'unlocked' stage
+        // Add to pipeline in 'new' stage (but mark as unlocked)
         try {
           if (company) {
             const { data: existing } = await supabase
               .from('company_candidates')
-              .select('id')
+              .select('id, stage')
               .eq('company_id', company.id)
               .eq('candidate_id', selectedProfile.id)
               .maybeSingle();
 
             if (existing) {
+              // Only update if not already in a later stage
+              const shouldUpdateStage = existing.stage === 'new' || !existing.stage;
               await supabase
                 .from('company_candidates')
                 .update({
-                  stage: 'unlocked',
+                  ...(shouldUpdateStage && { stage: 'new' }),
                   unlocked_at: new Date().toISOString(),
                   unlocked_by_user_id: user?.id ?? null,
                   last_touched_at: new Date().toISOString(),
@@ -213,7 +215,7 @@ export default function CompanySearch() {
               await supabase.from('company_candidates').insert({
                 company_id: company.id,
                 candidate_id: selectedProfile.id,
-                stage: 'unlocked',
+                stage: 'new',
                 unlocked_at: new Date().toISOString(),
                 unlocked_by_user_id: user?.id ?? null,
                 owner_user_id: user?.id ?? null,

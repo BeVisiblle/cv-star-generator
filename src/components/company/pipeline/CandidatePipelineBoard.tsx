@@ -19,10 +19,11 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 
 const STAGES: { key: string; title: string }[] = [
-  { key: "unlocked", title: "Freigeschaltet" },
-  { key: "contact", title: "Kontaktieren" },
-  { key: "scheduled", title: "Gespräch geplant" },
+  { key: "new", title: "Freigeschaltet" },
+  { key: "contacted", title: "Kontaktiert" },
+  { key: "interview", title: "Gespräch geplant" },
   { key: "offer", title: "Angebot" },
+  { key: "hired", title: "Eingestellt" },
   { key: "rejected", title: "Abgelehnt" },
 ];
 
