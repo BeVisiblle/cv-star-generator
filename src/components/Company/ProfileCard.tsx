@@ -356,11 +356,18 @@ export function ProfileCard({
                   {getJobTitle()}
                 </p>
                 
-                <div className="flex items-center gap-1 sm:gap-2 text-xs text-muted-foreground flex-wrap">
-                  <div className="flex items-center gap-1 flex-shrink-0">
-                    {getStatusIcon(profile.status)}
-                    <span className="truncate">{getStatusLabel(profile.status)}</span>
+                {/* Job Search Status - prominently displayed */}
+                {profile.job_search_preferences && profile.job_search_preferences.length > 0 && (
+                  <div className="flex items-center gap-1 mb-2">
+                    <Search className="h-3 w-3 text-blue-600" />
+                    <span className="text-xs text-blue-600 font-semibold">
+                      Sucht: {profile.job_search_preferences.slice(0, 2).join(', ')}
+                      {profile.job_search_preferences.length > 2 && ` +${profile.job_search_preferences.length - 2}`}
+                    </span>
                   </div>
+                )}
+                
+                <div className="flex items-center gap-1 sm:gap-2 text-xs text-muted-foreground flex-wrap">
                   <div className="flex items-center gap-1 min-w-0">
                     <MapPin className="h-3 w-3 flex-shrink-0" />
                     <span className="truncate">{profile.ort}</span>
@@ -371,18 +378,11 @@ export function ProfileCard({
                       <span className="text-xs">{profile.driver_license_class || 'FS'}</span>
                     </div>
                   )}
-                </div>
-                
-                {/* Job Search Status - prominently displayed */}
-                {profile.job_search_preferences && profile.job_search_preferences.length > 0 && (
-                  <div className="flex items-center gap-1 mt-1">
-                    <Search className="h-3 w-3 text-green-600" />
-                    <span className="text-xs text-green-600 font-medium">
-                      Sucht: {profile.job_search_preferences.slice(0, 2).join(', ')}
-                      {profile.job_search_preferences.length > 2 && ` +${profile.job_search_preferences.length - 2}`}
-                    </span>
+                  <div className="flex items-center gap-1 flex-shrink-0">
+                    {getStatusIcon(profile.status)}
+                    <span className="truncate">{getStatusLabel(profile.status)}</span>
                   </div>
-                )}
+                </div>
               </div>
             </div>
             

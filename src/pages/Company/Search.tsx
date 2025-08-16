@@ -62,6 +62,8 @@ interface SearchFilters {
   radius: number;
   industry: string;
   availability: string;
+  jobTitle: string;
+  jobSearchType: string[];
 }
 
 const ITEMS_PER_PAGE = 20;
@@ -86,7 +88,10 @@ export default function CompanySearch() {
     radius: 50,
     industry: "",
     availability: "",
+    jobTitle: "",
+    jobSearchType: [],
   });
+  const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
   const [totalCount, setTotalCount] = useState(0);
   const { toast } = useToast();
 
@@ -141,6 +146,15 @@ export default function CompanySearch() {
       }
       if (filters.location) {
         query = query.ilike('ort', `%${filters.location}%`);
+      }
+      if (filters.jobTitle) {
+        query = query.or(`ausbildungsberuf.ilike.%${filters.jobTitle}%,aktueller_beruf.ilike.%${filters.jobTitle}%,headline.ilike.%${filters.jobTitle}%`);
+      }
+      if (filters.jobSearchType && filters.jobSearchType.length > 0) {
+        const jobSearchConditions = filters.jobSearchType.map(type => 
+          `job_search_preferences.cs.["${type}"]`
+        ).join(',');
+        query = query.or(jobSearchConditions);
       }
       if (filters.keywords) {
         query = query.or(`vorname.ilike.%${filters.keywords}%,nachname.ilike.%${filters.keywords}%,headline.ilike.%${filters.keywords}%`);
@@ -392,46 +406,95 @@ export default function CompanySearch() {
         filters={filters}
         onFiltersChange={setFilters}
         resultsCount={totalCount}
+        showAdvancedFilters={showAdvancedFilters}
+        onToggleAdvancedFilters={() => setShowAdvancedFilters(!showAdvancedFilters)}
       />
 
-      {/* Advanced Filters Sidebar (conditionally shown) */}
-      {filters.targetGroup === "filter" && (
+      {/* Advanced Filters - Pipeline Style */}
+      {showAdvancedFilters && (
         <Card className="mb-6">
           <CardHeader>
             <CardTitle className="flex items-center">
               <Filter className="h-5 w-5 mr-2" />
-              Erweiterte Filter
+              Filter
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="location-detailed">Standort</Label>
-                <Input
-                  id="location-detailed"
-                  placeholder="Stadt oder PLZ"
-                  value={filters.location}
-                  onChange={(e) => updateFilter('location', e.target.value)}
-                />
+            <div className="space-y-6">
+              {/* Art der Suche */}
+              <div>
+                <Label className="text-sm font-medium mb-3 block">Art der Suche</Label>
+                <div className="flex flex-wrap gap-2">
+                  {['Praktikum', 'Ausbildung', 'Nach der Ausbildung Job', 'Ausbildungsplatzwechsel'].map((type) => (
+                    <Button
+                      key={type}
+                      variant={filters.jobSearchType.includes(type) ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => {
+                        const newTypes = filters.jobSearchType.includes(type)
+                          ? filters.jobSearchType.filter(t => t !== type)
+                          : [...filters.jobSearchType, type];
+                        setFilters({ ...filters, jobSearchType: newTypes });
+                      }}
+                      className="h-8"
+                    >
+                      {type}
+                    </Button>
+                  ))}
+                </div>
               </div>
-              <div className="space-y-2">
-                <Label>Umkreis: {filters.radius}km</Label>
-                <Slider
-                  value={[filters.radius]}
-                  onValueChange={(value) => updateFilter('radius', value[0])}
-                  max={200}
-                  min={10}
-                  step={10}
-                />
+
+              {/* Weitere Filter */}
+              <div>
+                <Label className="text-sm font-medium mb-3 block">Weitere Filter</Label>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="job-title">Jobtitel</Label>
+                    <Input
+                      id="job-title"
+                      placeholder="z. B. Azubi im Handwerk"
+                      value={filters.jobTitle}
+                      onChange={(e) => updateFilter('jobTitle', e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="industry-detailed">Branche</Label>
+                    <Input
+                      id="industry-detailed"
+                      placeholder="z. B. Bau, IT"
+                      value={filters.industry}
+                      onChange={(e) => updateFilter('industry', e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="location-detailed">Standort</Label>
+                    <Input
+                      id="location-detailed"
+                      placeholder="z. B. Berlin"
+                      value={filters.location}
+                      onChange={(e) => updateFilter('location', e.target.value)}
+                    />
+                  </div>
+                </div>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="industry-detailed">Branche</Label>
-                <Input
-                  id="industry-detailed"
-                  placeholder="z.B. IT, Handwerk"
-                  value={filters.industry}
-                  onChange={(e) => updateFilter('industry', e.target.value)}
-                />
+
+              {/* Reset Button */}
+              <div className="flex justify-end pt-4">
+                <Button
+                  variant="outline"
+                  onClick={() => setFilters({
+                    keywords: filters.keywords,
+                    targetGroup: filters.targetGroup,
+                    location: "",
+                    radius: 50,
+                    industry: "",
+                    availability: "",
+                    jobTitle: "",
+                    jobSearchType: [],
+                  })}
+                >
+                  Zurücksetzen
+                </Button>
               </div>
             </div>
           </CardContent>

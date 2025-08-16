@@ -13,15 +13,19 @@ interface SearchFilters {
   radius: number;
   industry: string;
   availability: string;
+  jobTitle: string;
+  jobSearchType: string[];
 }
 
 interface SearchHeaderProps {
   filters: SearchFilters;
   onFiltersChange: (filters: SearchFilters) => void;
   resultsCount: number;
+  showAdvancedFilters: boolean;
+  onToggleAdvancedFilters: () => void;
 }
 
-export function SearchHeader({ filters, onFiltersChange, resultsCount }: SearchHeaderProps) {
+export function SearchHeader({ filters, onFiltersChange, resultsCount, showAdvancedFilters, onToggleAdvancedFilters }: SearchHeaderProps) {
   const [searchValue, setSearchValue] = useState(filters.keywords);
   
   const debouncedSearch = useDebounce((value: string) => {
@@ -44,27 +48,38 @@ export function SearchHeader({ filters, onFiltersChange, resultsCount }: SearchH
     onFiltersChange({ ...filters, [filterKey]: "" });
   };
 
-  const hasActiveFilters = filters.location || filters.industry || filters.targetGroup;
+  const hasActiveFilters = filters.location || filters.industry || filters.targetGroup || filters.jobTitle || filters.jobSearchType.length > 0;
 
   return (
     <div className="space-y-4 max-w-full overflow-hidden">
       {/* Main Search Bar - LinkedIn Style */}
       <div className="bg-card border rounded-lg p-3 md:p-4 shadow-sm">
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
-          <div className="relative flex-1 min-w-0">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Suche nach Kandidaten..."
-              value={searchValue}
-              onChange={(e) => handleSearchChange(e.target.value)}
-              className="pl-10 h-10 sm:h-12 text-sm sm:text-base border-0 shadow-none focus-visible:ring-1"
-            />
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
+            <div className="relative flex-1 min-w-0">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Suche nach Kandidaten..."
+                value={searchValue}
+                onChange={(e) => handleSearchChange(e.target.value)}
+                className="pl-10 h-10 sm:h-12 text-sm sm:text-base border-0 shadow-none focus-visible:ring-1"
+              />
+            </div>
+            <div className="flex gap-2">
+              <Button 
+                variant={showAdvancedFilters ? "default" : "outline"}
+                size="sm" 
+                className="h-10 sm:h-12 px-4 sm:px-6"
+                onClick={onToggleAdvancedFilters}
+              >
+                <SlidersHorizontal className="h-4 w-4 mr-2" />
+                Filter
+              </Button>
+              <Button size="sm" className="h-10 sm:h-12 px-4 sm:px-6">
+                <Search className="h-4 w-4 mr-2" />
+                <span className="sm:inline">Suchen</span>
+              </Button>
+            </div>
           </div>
-          <Button size="sm" className="h-10 sm:h-12 px-4 sm:px-6 w-full sm:w-auto">
-            <Search className="h-4 w-4 mr-2" />
-            <span className="sm:inline">Suchen</span>
-          </Button>
-        </div>
 
         {/* Filter Pills */}
         {hasActiveFilters && (
@@ -99,6 +114,38 @@ export function SearchHeader({ filters, onFiltersChange, resultsCount }: SearchH
                   </Button>
                 </Badge>
               )}
+              {filters.jobTitle && (
+                <Badge variant="secondary" className="gap-1 text-xs">
+                  <Users className="h-3 w-3" />
+                  <span className="truncate max-w-[100px]">{filters.jobTitle}</span>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-4 w-4 p-0 hover:bg-transparent"
+                    onClick={() => clearFilter('jobTitle')}
+                  >
+                    <X className="h-3 w-3" />
+                  </Button>
+                </Badge>
+              )}
+              {filters.jobSearchType.length > 0 && (
+                <Badge variant="secondary" className="gap-1 text-xs">
+                  <Search className="h-3 w-3" />
+                  <span className="truncate max-w-[100px]">
+                    {filters.jobSearchType.length === 1 
+                      ? filters.jobSearchType[0] 
+                      : `${filters.jobSearchType.length} Sucharten`}
+                  </span>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-4 w-4 p-0 hover:bg-transparent"
+                    onClick={() => onFiltersChange({ ...filters, jobSearchType: [] })}
+                  >
+                    <X className="h-3 w-3" />
+                  </Button>
+                </Badge>
+              )}
               <Button
                 variant="ghost"
                 size="sm"
@@ -109,6 +156,8 @@ export function SearchHeader({ filters, onFiltersChange, resultsCount }: SearchH
                   radius: 50,
                   industry: "",
                   availability: "",
+                  jobTitle: "",
+                  jobSearchType: [],
                 })}
                 className="text-xs whitespace-nowrap"
               >
@@ -141,10 +190,6 @@ export function SearchHeader({ filters, onFiltersChange, resultsCount }: SearchH
             </TabsTrigger>
             <TabsTrigger value="ausgelernt" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm p-2 sm:p-3">
               <span>Gesellen</span>
-            </TabsTrigger>
-            <TabsTrigger value="filter" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm p-2 sm:p-3 col-span-2">
-              <SlidersHorizontal className="h-3 w-3 sm:h-4 sm:w-4" />
-              <span>Alle Filter</span>
             </TabsTrigger>
           </TabsList>
         </Tabs>
