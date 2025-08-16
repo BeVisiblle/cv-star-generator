@@ -349,18 +349,29 @@ export function ProfileCard({
                   <h3 className="font-semibold text-sm sm:text-base truncate">
                     {displayName}
                   </h3>
+                  <div className="flex items-center gap-1 flex-shrink-0">
+                    {getStatusIcon(profile.status)}
+                    <span className="text-xs font-medium text-muted-foreground">{getStatusLabel(profile.status)}</span>
+                  </div>
                   <div className={`w-2 h-2 sm:w-3 sm:h-3 rounded-full ${getMatchColor(matchPercentage)} flex-shrink-0`} />
                 </div>
+                
+                {/* Job Search Status - prominently displayed at top */}
+                {profile.job_search_preferences && profile.job_search_preferences.length > 0 && (
+                  <div className="flex items-center gap-1 mb-2">
+                    <Search className="h-3 w-3 text-green-600" />
+                    <span className="text-xs text-green-600 font-medium">
+                      Sucht: {profile.job_search_preferences.slice(0, 2).join(', ')}
+                      {profile.job_search_preferences.length > 2 && ` +${profile.job_search_preferences.length - 2}`}
+                    </span>
+                  </div>
+                )}
                 
                 <p className="text-xs sm:text-sm text-muted-foreground mb-2 line-clamp-1">
                   {getJobTitle()}
                 </p>
                 
                 <div className="flex items-center gap-1 sm:gap-2 text-xs text-muted-foreground flex-wrap">
-                  <div className="flex items-center gap-1 flex-shrink-0">
-                    {getStatusIcon(profile.status)}
-                    <span className="truncate">{getStatusLabel(profile.status)}</span>
-                  </div>
                   <div className="flex items-center gap-1 min-w-0">
                     <MapPin className="h-3 w-3 flex-shrink-0" />
                     <span className="truncate">{profile.ort}</span>
@@ -372,17 +383,6 @@ export function ProfileCard({
                     </div>
                   )}
                 </div>
-                
-                {/* Job Search Status - prominently displayed */}
-                {profile.job_search_preferences && profile.job_search_preferences.length > 0 && (
-                  <div className="flex items-center gap-1 mt-1">
-                    <Search className="h-3 w-3 text-green-600" />
-                    <span className="text-xs text-green-600 font-medium">
-                      Sucht: {profile.job_search_preferences.slice(0, 2).join(', ')}
-                      {profile.job_search_preferences.length > 2 && ` +${profile.job_search_preferences.length - 2}`}
-                    </span>
-                  </div>
-                )}
               </div>
             </div>
             
