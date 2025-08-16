@@ -109,13 +109,28 @@ export default function CompanySearch() {
   const loadProfiles = async () => {
     setLoading(true);
     try {
+      if (!company) return;
+
       const from = (currentPage - 1) * ITEMS_PER_PAGE;
       const to = from + ITEMS_PER_PAGE - 1;
+
+      // First get unlocked profile IDs
+      const { data: unlockedData } = await supabase
+        .from('tokens_used')
+        .select('profile_id')
+        .eq('company_id', company.id);
+
+      const unlockedIds = unlockedData?.map(item => item.profile_id) || [];
 
       let query = supabase
         .from('profiles')
         .select('*', { count: 'exact' })
         .eq('profile_published', true);
+
+      // Exclude already unlocked profiles
+      if (unlockedIds.length > 0) {
+        query = query.not('id', 'in', `(${unlockedIds.map(id => `"${id}"`).join(',')})`);
+      }
 
       // Apply filters
       if (filters.targetGroup) {
@@ -354,8 +369,7 @@ export default function CompanySearch() {
     return Math.round((score / totalWeight) * 100) || Math.floor(Math.random() * 40) + 60; // Default fallback with some randomness
   };
 
-  // Filter current page results to hide already unlocked
-  const currentProfiles = profiles.filter((p) => !isProfileUnlocked(p.id));
+  // Use profiles directly since filtering is done at database level
   const totalPages = Math.max(1, Math.ceil(totalCount / ITEMS_PER_PAGE));
 
   return (
@@ -430,7 +444,7 @@ export default function CompanySearch() {
           <div className="flex items-center justify-center py-20">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
           </div>
-        ) : currentProfiles.length === 0 ? (
+        ) : profiles.length === 0 ? (
           <div className="text-center py-20">
             <Users className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
             <h3 className="text-xl font-semibold mb-2">Keine Kandidaten gefunden</h3>
@@ -441,7 +455,7 @@ export default function CompanySearch() {
         ) : (
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {currentProfiles.map((profile) => {
+              {profiles.map((profile) => {
                 const unlocked = isProfileUnlocked(profile.id);
                 const matchPercentage = calculateMatchPercentage(profile);
                 
