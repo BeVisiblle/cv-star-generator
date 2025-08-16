@@ -30,6 +30,14 @@ import {
   Users
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 
 interface Profile {
   id: string;
@@ -56,6 +64,8 @@ interface SearchFilters {
   availability: string;
 }
 
+const ITEMS_PER_PAGE = 20;
+
 export default function CompanySearch() {
   const navigate = useNavigate();
   const { company, useToken, hasUsedToken } = useCompany();
@@ -68,6 +78,7 @@ export default function CompanySearch() {
   const [isUnlockModalOpen, setIsUnlockModalOpen] = useState(false);
   const [isFullProfileModalOpen, setIsFullProfileModalOpen] = useState(false);
   const [isUnlocking, setIsUnlocking] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
   const [filters, setFilters] = useState<SearchFilters>({
     keywords: "",
     targetGroup: "",
@@ -82,6 +93,7 @@ export default function CompanySearch() {
     loadProfiles();
     loadUnlockedProfiles();
     loadSavedMatches();
+    setCurrentPage(1); // Reset to first page when filters change
   }, [company, filters]);
 
   const loadProfiles = async () => {
@@ -326,18 +338,28 @@ export default function CompanySearch() {
     return Math.round((score / totalWeight) * 100) || Math.floor(Math.random() * 40) + 60; // Default fallback with some randomness
   };
 
+  // Filter and paginate profiles
+  const availableProfiles = profiles.filter((p) => !isProfileUnlocked(p.id));
+  const totalPages = Math.ceil(availableProfiles.length / ITEMS_PER_PAGE);
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const endIndex = startIndex + ITEMS_PER_PAGE;
+  const currentProfiles = availableProfiles.slice(startIndex, endIndex);
+
   return (
     <div className="p-3 md:p-6 min-h-screen bg-background max-w-full overflow-x-hidden space-y-6">
       {/* LinkedIn-style Search Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-3">
-        <h1 className="text-2xl sm:text-3xl font-bold">Kandidatensuche</h1>
-        <div className="flex items-center space-x-2">
-          <Badge variant="secondary" className="px-3 py-1">
-            <Coins className="h-4 w-4 mr-1" />
-            {company?.active_tokens || 0} Tokens
-          </Badge>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-3">
+          <h1 className="text-2xl sm:text-3xl font-bold">Kandidatensuche</h1>
+          <div className="flex items-center space-x-2">
+            <Badge variant="secondary" className="px-3 py-1">
+              <Coins className="h-4 w-4 mr-1" />
+              {company?.active_tokens || 0} Tokens
+            </Badge>
+            <Badge variant="outline" className="px-3 py-1">
+              {availableProfiles.length} Kandidaten
+            </Badge>
+          </div>
         </div>
-      </div>
 
       <SearchHeader 
         filters={filters}
@@ -395,7 +417,7 @@ export default function CompanySearch() {
           <div className="flex items-center justify-center py-20">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
           </div>
-        ) : profiles.length === 0 ? (
+        ) : availableProfiles.length === 0 ? (
           <div className="text-center py-20">
             <Users className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
             <h3 className="text-xl font-semibold mb-2">Keine Kandidaten gefunden</h3>
@@ -404,32 +426,69 @@ export default function CompanySearch() {
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {profiles.filter((p) => !isProfileUnlocked(p.id)).map((profile) => {
-              const unlocked = isProfileUnlocked(profile.id);
-              const matchPercentage = calculateMatchPercentage(profile);
-              
-              return (
-                <ProfileCard
-                  key={profile.id}
-                  profile={{
-                    id: profile.id,
-                    name: profile.vorname, // Only first name for anonymity
-                    avatar_url: null, // No avatar for anonymity
-                    role: profile.branche,
-                    city: profile.ort,
-                    fs: true, // Default for search results
-                    seeking: profile.status,
-                    skills: Array.isArray(profile.faehigkeiten) ? profile.faehigkeiten : [],
-                    match: matchPercentage,
-                  }}
-                  variant="search"
-                  onUnlock={() => handleUnlockProfile(profile)}
-                  onToggleFavorite={() => handleSaveMatch(profile)}
-                />
-              );
-            })}
-          </div>
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {currentProfiles.map((profile) => {
+                const unlocked = isProfileUnlocked(profile.id);
+                const matchPercentage = calculateMatchPercentage(profile);
+                
+                return (
+                  <ProfileCard
+                    key={profile.id}
+                    profile={{
+                      id: profile.id,
+                      name: profile.vorname, // Only first name for anonymity
+                      avatar_url: null, // No avatar for anonymity
+                      role: profile.branche,
+                      city: profile.ort,
+                      fs: true, // Default for search results
+                      seeking: profile.status,
+                      skills: Array.isArray(profile.faehigkeiten) ? profile.faehigkeiten : [],
+                      match: matchPercentage,
+                    }}
+                    variant="search"
+                    onUnlock={() => handleUnlockProfile(profile)}
+                    onToggleFavorite={() => handleSaveMatch(profile)}
+                  />
+                );
+              })}
+            </div>
+            
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div className="mt-8 flex justify-center">
+                <Pagination>
+                  <PaginationContent>
+                    <PaginationItem>
+                      <PaginationPrevious 
+                        onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                        className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                      />
+                    </PaginationItem>
+                    
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                      <PaginationItem key={page}>
+                        <PaginationLink
+                          onClick={() => setCurrentPage(page)}
+                          isActive={currentPage === page}
+                          className="cursor-pointer"
+                        >
+                          {page}
+                        </PaginationLink>
+                      </PaginationItem>
+                    ))}
+                    
+                    <PaginationItem>
+                      <PaginationNext 
+                        onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                        className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                      />
+                    </PaginationItem>
+                  </PaginationContent>
+                </Pagination>
+              </div>
+            )}
+          </>
         )}
       </div>
 

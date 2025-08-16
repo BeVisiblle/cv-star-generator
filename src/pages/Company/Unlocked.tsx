@@ -15,6 +15,14 @@ import { toast } from "sonner";
 import { ProfileCard } from "@/components/profile/ProfileCard";
 import { useEqualizeCards } from "@/components/unlocked/useEqualizeCards";
 import { useProfiles } from "@/hooks/useProfiles";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 
 interface Profile {
   id: string;
@@ -32,6 +40,8 @@ interface Profile {
   cv_url?: string;
 }
 
+const ITEMS_PER_PAGE = 20;
+
 export default function CompanyUnlocked() {
   const { company } = useCompany();
   const { user } = useAuth();
@@ -42,6 +52,7 @@ export default function CompanyUnlocked() {
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState<string[]>([]);
   const [search, setSearch] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
   const gridRef = useEqualizeCards();
 
   // Bulk operations hooks
@@ -190,6 +201,16 @@ export default function CompanyUnlocked() {
     p.branche?.toLowerCase().includes(search.toLowerCase())
   );
 
+  // Pagination for filtered profiles
+  const totalPages = Math.ceil(filteredProfiles.length / ITEMS_PER_PAGE);
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const endIndex = startIndex + ITEMS_PER_PAGE;
+  const currentProfiles = filteredProfiles.slice(startIndex, endIndex);
+
+  // Pagination for recently viewed
+  const totalPagesViewed = Math.ceil(filteredRecentlyViewed.length / ITEMS_PER_PAGE);
+  const currentRecentlyViewed = filteredRecentlyViewed.slice(startIndex, endIndex);
+
   return (
     <div className="mx-auto max-w-[1200px] p-4 md:p-6">
       {/* Header */}
@@ -202,9 +223,9 @@ export default function CompanyUnlocked() {
             placeholder="Suche nach Name, Ort, Branche..."
             className="w-72"
           />
-          <Badge variant="secondary" className="px-3 py-1">
-            <Eye className="h-4 w-4 mr-1" /> {activeRecentTab === 'unlocked' ? filteredProfiles.length : filteredRecentlyViewed.length}
-          </Badge>
+            <Badge variant="secondary" className="px-3 py-1">
+              <Eye className="h-4 w-4 mr-1" /> {activeRecentTab === 'unlocked' ? filteredProfiles.length : filteredRecentlyViewed.length}
+            </Badge>
         </div>
       </div>
 
@@ -224,10 +245,16 @@ export default function CompanyUnlocked() {
         <CardHeader>
           <CardTitle>Kürzlich</CardTitle>
           <div className="mt-2 flex gap-2">
-            <Button size="sm" variant={activeRecentTab === 'unlocked' ? 'default' : 'outline'} onClick={() => setActiveRecentTab('unlocked')}>
+            <Button size="sm" variant={activeRecentTab === 'unlocked' ? 'default' : 'outline'} onClick={() => {
+              setActiveRecentTab('unlocked');
+              setCurrentPage(1);
+            }}>
               Freigeschaltet
             </Button>
-            <Button size="sm" variant={activeRecentTab === 'viewed' ? 'default' : 'outline'} onClick={() => setActiveRecentTab('viewed')}>
+            <Button size="sm" variant={activeRecentTab === 'viewed' ? 'default' : 'outline'} onClick={() => {
+              setActiveRecentTab('viewed');
+              setCurrentPage(1);
+            }}>
               Angeschaut
             </Button>
           </div>
@@ -248,46 +275,83 @@ export default function CompanyUnlocked() {
                 </div>
               </div>
             ) : (
-              <div ref={gridRef} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {filteredProfiles.map((p) => (
-                  <div key={p.id} className="relative">
-                    <Checkbox
-                      checked={selected.includes(p.id)}
-                      onCheckedChange={() => toggleSelection(p.id)}
-                      className="absolute left-3 top-3 z-10 bg-white shadow-sm"
-                      aria-label={`${p.vorname} ${p.nachname} auswählen`}
-                    />
-                     <ProfileCard
-                       profile={{
-                         id: p.id,
-                         name: `${p.vorname} ${p.nachname}`.trim(),
-                         avatar_url: p.avatar_url || null,
-                         role: p.branche,
-                         city: p.ort,
-                         fs: (p as any).has_drivers_license || false,
-                         seeking: (p as any).job_search_preferences ? (Array.isArray((p as any).job_search_preferences) ? (p as any).job_search_preferences.join(', ') : (p as any).job_search_preferences) : null,
-                         status: p.status,
-                         email: p.email || null,
-                         phone: p.telefon || null,
-                         skills: p.faehigkeiten ? (Array.isArray(p.faehigkeiten) ? p.faehigkeiten : []) : [],
-                         match: 75,
-                       }}
-                       variant="unlocked"
-                       onView={() => handlePreview(p)}
-                       onDownload={() => {
-                         if (p.cv_url) {
-                           window.open(p.cv_url, '_blank');
-                         } else {
-                           toast.error('Kein CV verfügbar');
-                         }
-                       }}
-                       onToggleFavorite={() => {
-                         toast.success('Favorit-Funktion wird bald verfügbar sein');
-                       }}
-                     />
+              <>
+                <div ref={gridRef} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                  {currentProfiles.map((p) => (
+                    <div key={p.id} className="relative">
+                      <Checkbox
+                        checked={selected.includes(p.id)}
+                        onCheckedChange={() => toggleSelection(p.id)}
+                        className="absolute left-3 top-3 z-10 bg-white shadow-sm"
+                        aria-label={`${p.vorname} ${p.nachname} auswählen`}
+                      />
+                       <ProfileCard
+                         profile={{
+                           id: p.id,
+                           name: `${p.vorname} ${p.nachname}`.trim(),
+                           avatar_url: p.avatar_url || null,
+                           role: p.branche,
+                           city: p.ort,
+                           fs: (p as any).has_drivers_license || false,
+                           seeking: (p as any).job_search_preferences ? (Array.isArray((p as any).job_search_preferences) ? (p as any).job_search_preferences.join(', ') : (p as any).job_search_preferences) : null,
+                           status: p.status,
+                           email: p.email || null,
+                           phone: p.telefon || null,
+                           skills: p.faehigkeiten ? (Array.isArray(p.faehigkeiten) ? p.faehigkeiten : []) : [],
+                           match: 75,
+                         }}
+                         variant="unlocked"
+                         onView={() => handlePreview(p)}
+                         onDownload={() => {
+                           if (p.cv_url) {
+                             window.open(p.cv_url, '_blank');
+                           } else {
+                             toast.error('Kein CV verfügbar');
+                           }
+                         }}
+                         onToggleFavorite={() => {
+                           toast.success('Favorit-Funktion wird bald verfügbar sein');
+                         }}
+                       />
+                    </div>
+                  ))}
+                </div>
+                
+                {/* Pagination */}
+                {totalPages > 1 && (
+                  <div className="mt-8 flex justify-center">
+                    <Pagination>
+                      <PaginationContent>
+                        <PaginationItem>
+                          <PaginationPrevious 
+                            onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                            className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                          />
+                        </PaginationItem>
+                        
+                        {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                          <PaginationItem key={page}>
+                            <PaginationLink
+                              onClick={() => setCurrentPage(page)}
+                              isActive={currentPage === page}
+                              className="cursor-pointer"
+                            >
+                              {page}
+                            </PaginationLink>
+                          </PaginationItem>
+                        ))}
+                        
+                        <PaginationItem>
+                          <PaginationNext 
+                            onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                            className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                          />
+                        </PaginationItem>
+                      </PaginationContent>
+                    </Pagination>
                   </div>
-                ))}
-              </div>
+                )}
+              </>
             )
           ) : (
             filteredRecentlyViewed.length === 0 ? (
@@ -295,46 +359,83 @@ export default function CompanyUnlocked() {
                 {search ? "Keine Treffer für deine Suche." : "Noch keine Profile angesehen."}
               </div>
             ) : (
-              <div ref={gridRef} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {filteredRecentlyViewed.map((p) => (
-                  <div key={p.id} className="relative">
-                    <Checkbox
-                      checked={selected.includes(p.id)}
-                      onCheckedChange={() => toggleSelection(p.id)}
-                      className="absolute left-3 top-3 z-10 bg-white shadow-sm"
-                      aria-label={`${p.vorname} ${p.nachname} auswählen`}
-                    />
-                     <ProfileCard
-                       profile={{
-                         id: p.id,
-                         name: `${p.vorname} ${p.nachname}`.trim(),
-                         avatar_url: p.avatar_url || null,
-                         role: p.branche,
-                         city: p.ort,
-                         fs: (p as any).has_drivers_license || false,
-                         seeking: (p as any).job_search_preferences ? (Array.isArray((p as any).job_search_preferences) ? (p as any).job_search_preferences.join(', ') : (p as any).job_search_preferences) : null,
-                         status: p.status,
-                         email: p.email || null,
-                         phone: p.telefon || null,
-                         skills: p.faehigkeiten ? (Array.isArray(p.faehigkeiten) ? p.faehigkeiten : []) : [],
-                         match: 75,
-                       }}
-                       variant="unlocked"
-                       onView={() => handlePreview(p)}
-                       onDownload={() => {
-                         if (p.cv_url) {
-                           window.open(p.cv_url, '_blank');
-                         } else {
-                           toast.error('Kein CV verfügbar');
-                         }
-                       }}
-                       onToggleFavorite={() => {
-                         toast.success('Favorit-Funktion wird bald verfügbar sein');
-                       }}
-                     />
+              <>
+                <div ref={gridRef} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                  {currentRecentlyViewed.map((p) => (
+                    <div key={p.id} className="relative">
+                      <Checkbox
+                        checked={selected.includes(p.id)}
+                        onCheckedChange={() => toggleSelection(p.id)}
+                        className="absolute left-3 top-3 z-10 bg-white shadow-sm"
+                        aria-label={`${p.vorname} ${p.nachname} auswählen`}
+                      />
+                       <ProfileCard
+                         profile={{
+                           id: p.id,
+                           name: `${p.vorname} ${p.nachname}`.trim(),
+                           avatar_url: p.avatar_url || null,
+                           role: p.branche,
+                           city: p.ort,
+                           fs: (p as any).has_drivers_license || false,
+                           seeking: (p as any).job_search_preferences ? (Array.isArray((p as any).job_search_preferences) ? (p as any).job_search_preferences.join(', ') : (p as any).job_search_preferences) : null,
+                           status: p.status,
+                           email: p.email || null,
+                           phone: p.telefon || null,
+                           skills: p.faehigkeiten ? (Array.isArray(p.faehigkeiten) ? p.faehigkeiten : []) : [],
+                           match: 75,
+                         }}
+                         variant="unlocked"
+                         onView={() => handlePreview(p)}
+                         onDownload={() => {
+                           if (p.cv_url) {
+                             window.open(p.cv_url, '_blank');
+                           } else {
+                             toast.error('Kein CV verfügbar');
+                           }
+                         }}
+                         onToggleFavorite={() => {
+                           toast.success('Favorit-Funktion wird bald verfügbar sein');
+                         }}
+                       />
+                    </div>
+                  ))}
+                </div>
+                
+                {/* Pagination for recently viewed */}
+                {totalPagesViewed > 1 && (
+                  <div className="mt-8 flex justify-center">
+                    <Pagination>
+                      <PaginationContent>
+                        <PaginationItem>
+                          <PaginationPrevious 
+                            onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                            className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                          />
+                        </PaginationItem>
+                        
+                        {Array.from({ length: totalPagesViewed }, (_, i) => i + 1).map((page) => (
+                          <PaginationItem key={page}>
+                            <PaginationLink
+                              onClick={() => setCurrentPage(page)}
+                              isActive={currentPage === page}
+                              className="cursor-pointer"
+                            >
+                              {page}
+                            </PaginationLink>
+                          </PaginationItem>
+                        ))}
+                        
+                        <PaginationItem>
+                          <PaginationNext 
+                            onClick={() => setCurrentPage(Math.min(totalPagesViewed, currentPage + 1))}
+                            className={currentPage === totalPagesViewed ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                          />
+                        </PaginationItem>
+                      </PaginationContent>
+                    </Pagination>
                   </div>
-                ))}
-              </div>
+                )}
+              </>
             )
           )}
         </CardContent>
