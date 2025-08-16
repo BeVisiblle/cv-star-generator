@@ -12,8 +12,9 @@ import { useAuth } from "@/hooks/useAuth";
 import { SelectionBar } from "@/components/Company/SelectionBar";
 import { useBulkStageUpdate, useExportCandidates } from "@/hooks/useUnlockedBulk";
 import { toast } from "sonner";
-import { CandidateCard } from "@/components/unlocked/CandidateCard";
+import { ProfileCard } from "@/components/profile/ProfileCard";
 import { useEqualizeCards } from "@/components/unlocked/useEqualizeCards";
+import { useProfiles } from "@/hooks/useProfiles";
 
 interface Profile {
   id: string;
@@ -256,30 +257,31 @@ export default function CompanyUnlocked() {
                       className="absolute left-3 top-3 z-10 bg-white shadow-sm"
                       aria-label={`${p.vorname} ${p.nachname} auswählen`}
                     />
-                    <CandidateCard
-                      name={`${p.vorname} ${p.nachname}`}
-                      matchPercent={75}
-                      avatarUrl={p.avatar_url}
-                      role={p.branche}
-                      city={p.ort}
-                      hasLicense={true}
-                      seeking={p.status === 'job_seeking' ? 'Ausbildungsplatzwechsel' : undefined}
-                      skills={p.faehigkeiten ? (Array.isArray(p.faehigkeiten) ? p.faehigkeiten : []) : []}
-                      email={p.email}
-                      phone={p.telefon}
-                      profileHref={`/company/profile/${p.id}`}
-                      onDownloadCV={() => {
-                        if (p.cv_url) {
-                          window.open(p.cv_url, '_blank');
-                        } else {
-                          toast.error('Kein CV verfügbar');
-                        }
-                      }}
-                      onToggleFavorite={() => {
-                        // TODO: Implement favorite functionality
-                        toast.success('Favorit-Funktion wird bald verfügbar sein');
-                      }}
-                    />
+                     <ProfileCard
+                       profile={{
+                         id: p.id,
+                         name: `${p.vorname} ${p.nachname}`,
+                         avatar_url: p.avatar_url,
+                         role: p.branche,
+                         city: p.ort,
+                         fs: true,
+                         seeking: p.status === 'job_seeking' ? 'Ausbildungsplatzwechsel' : undefined,
+                         skills: p.faehigkeiten ? (Array.isArray(p.faehigkeiten) ? p.faehigkeiten : []) : [],
+                         match: 75,
+                       }}
+                       variant="unlocked"
+                       onView={() => handlePreview(p)}
+                       onDownload={() => {
+                         if (p.cv_url) {
+                           window.open(p.cv_url, '_blank');
+                         } else {
+                           toast.error('Kein CV verfügbar');
+                         }
+                       }}
+                       onToggleFavorite={() => {
+                         toast.success('Favorit-Funktion wird bald verfügbar sein');
+                       }}
+                     />
                   </div>
                 ))}
               </div>
@@ -299,30 +301,31 @@ export default function CompanyUnlocked() {
                       className="absolute left-3 top-3 z-10 bg-white shadow-sm"
                       aria-label={`${p.vorname} ${p.nachname} auswählen`}
                     />
-                    <CandidateCard
-                      name={`${p.vorname} ${p.nachname}`}
-                      matchPercent={75}
-                      avatarUrl={p.avatar_url}
-                      role={p.branche}
-                      city={p.ort}
-                      hasLicense={true}
-                      seeking={p.status === 'job_seeking' ? 'Ausbildungsplatzwechsel' : undefined}
-                      skills={p.faehigkeiten ? (Array.isArray(p.faehigkeiten) ? p.faehigkeiten : []) : []}
-                      email={p.email}
-                      phone={p.telefon}
-                      profileHref={`/company/profile/${p.id}`}
-                      onDownloadCV={() => {
-                        if (p.cv_url) {
-                          window.open(p.cv_url, '_blank');
-                        } else {
-                          toast.error('Kein CV verfügbar');
-                        }
-                      }}
-                      onToggleFavorite={() => {
-                        // TODO: Implement favorite functionality
-                        toast.success('Favorit-Funktion wird bald verfügbar sein');
-                      }}
-                    />
+                     <ProfileCard
+                       profile={{
+                         id: p.id,
+                         name: `${p.vorname} ${p.nachname}`,
+                         avatar_url: p.avatar_url,
+                         role: p.branche,
+                         city: p.ort,
+                         fs: true,
+                         seeking: p.status === 'job_seeking' ? 'Ausbildungsplatzwechsel' : undefined,
+                         skills: p.faehigkeiten ? (Array.isArray(p.faehigkeiten) ? p.faehigkeiten : []) : [],
+                         match: 75,
+                       }}
+                       variant="unlocked"
+                       onView={() => handlePreview(p)}
+                       onDownload={() => {
+                         if (p.cv_url) {
+                           window.open(p.cv_url, '_blank');
+                         } else {
+                           toast.error('Kein CV verfügbar');
+                         }
+                       }}
+                       onToggleFavorite={() => {
+                         toast.success('Favorit-Funktion wird bald verfügbar sein');
+                       }}
+                     />
                   </div>
                 ))}
               </div>

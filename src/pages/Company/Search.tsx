@@ -12,9 +12,10 @@ import { useCompany } from "@/hooks/useCompany";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { SearchHeader } from "@/components/Company/SearchHeader";
-import { ProfileCard } from "@/components/Company/ProfileCard";
+import { ProfileCard } from "@/components/profile/ProfileCard";
 import { UnlockProfileModal } from "@/components/Company/UnlockProfileModal";
 import { FullProfileModal } from "@/components/Company/FullProfileModal";
+import { useProfiles } from "@/hooks/useProfiles";
 import {
   Search as SearchIcon,
   Filter,
@@ -411,12 +412,20 @@ export default function CompanySearch() {
               return (
                 <ProfileCard
                   key={profile.id}
-                  profile={profile}
-                  isUnlocked={unlocked}
-                  matchPercentage={matchPercentage}
+                  profile={{
+                    id: profile.id,
+                    name: `${profile.vorname} ${profile.nachname}`,
+                    avatar_url: profile.avatar_url,
+                    role: profile.branche,
+                    city: profile.ort,
+                    fs: true, // Default for search results
+                    seeking: profile.status,
+                    skills: Array.isArray(profile.faehigkeiten) ? profile.faehigkeiten : [],
+                    match: matchPercentage,
+                  }}
+                  variant="search"
                   onUnlock={() => handleUnlockProfile(profile)}
-                  onSave={() => handleSaveMatch(profile)}
-                  onPreview={() => handlePreviewProfile(profile)}
+                  onToggleFavorite={() => handleSaveMatch(profile)}
                 />
               );
             })}
