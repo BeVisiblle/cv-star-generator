@@ -4,11 +4,15 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useCompany } from "@/hooks/useCompany";
 import { supabase } from "@/integrations/supabase/client";
 import { Eye, Coins } from "lucide-react";
 import { ProfileCard } from "@/components/Company/ProfileCard";
 import { useAuth } from "@/hooks/useAuth";
+import { SelectionBar } from "@/components/Company/SelectionBar";
+import { useBulkStageUpdate, useExportCandidates } from "@/hooks/useUnlockedBulk";
+import { toast } from "sonner";
 
 interface Profile {
   id: string;
@@ -34,6 +38,11 @@ export default function CompanyUnlocked() {
   const [recentlyViewed, setRecentlyViewed] = useState<Profile[]>([]);
   const [activeRecentTab, setActiveRecentTab] = useState<'unlocked' | 'viewed'>('unlocked');
   const [loading, setLoading] = useState(true);
+  const [selected, setSelected] = useState<string[]>([]);
+
+  // Bulk operations hooks
+  const bulkStage = useBulkStageUpdate(company?.id || '');
+  const exporter = useExportCandidates(company?.id || '');
 
   useEffect(() => {
     if (!company) return;
@@ -121,6 +130,49 @@ export default function CompanyUnlocked() {
     navigate(`/company/profile/${p.id}`);
   };
 
+  // Selection handlers
+  const toggleSelection = (profileId: string) => {
+    setSelected(prev => 
+      prev.includes(profileId) 
+        ? prev.filter(id => id !== profileId)
+        : [...prev, profileId]
+    );
+  };
+
+  const clearSelection = () => setSelected([]);
+
+  const handleBulkStage = async (stage: any) => {
+    if (!selected.length) return;
+    try {
+      await bulkStage.mutateAsync({ profileIds: selected, stage });
+      clearSelection();
+    } catch (error) {
+      console.error('Bulk stage update failed:', error);
+    }
+  };
+
+  const handleExportCsv = async () => {
+    if (!selected.length) return;
+    try {
+      const url = await exporter.export("csv", selected);
+      window.open(url, "_blank");
+      clearSelection();
+    } catch (error) {
+      console.error('CSV export failed:', error);
+    }
+  };
+
+  const handleExportXlsx = async () => {
+    if (!selected.length) return;
+    try {
+      const url = await exporter.export("xlsx", selected);
+      window.open(url, "_blank");
+      clearSelection();
+    } catch (error) {
+      console.error('Excel export failed:', error);
+    }
+  };
+
   return (
     <div className="p-3 md:p-6 min-h-screen bg-background max-w-full overflow-x-hidden space-y-6">
       <div className="flex items-center justify-between mb-2">
@@ -129,6 +181,18 @@ export default function CompanyUnlocked() {
           <Eye className="h-4 w-4 mr-1" /> {profiles.length}
         </Badge>
       </div>
+
+      {/* Selection Bar */}
+      {selected.length > 0 && (
+        <SelectionBar
+          count={selected.length}
+          onClear={clearSelection}
+          onBulkStage={handleBulkStage}
+          onExportCsv={handleExportCsv}
+          onExportXlsx={handleExportXlsx}
+          busy={bulkStage.isPending || exporter.isPending}
+        />
+      )}
 
       <Card>
         <CardHeader>
@@ -160,15 +224,22 @@ export default function CompanyUnlocked() {
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {profiles.map((p) => (
-                  <ProfileCard
-                    key={p.id}
-                    profile={p}
-                    isUnlocked={true}
-                    matchPercentage={75}
-                    onUnlock={() => {}}
-                    onSave={() => {}}
-                    onPreview={() => handlePreview(p)}
-                  />
+                  <div key={p.id} className="relative">
+                    <Checkbox
+                      checked={selected.includes(p.id)}
+                      onCheckedChange={() => toggleSelection(p.id)}
+                      className="absolute left-3 top-3 z-10 bg-white shadow-sm"
+                      aria-label={`${p.vorname} ${p.nachname} auswählen`}
+                    />
+                    <ProfileCard
+                      profile={p}
+                      isUnlocked={true}
+                      matchPercentage={75}
+                      onUnlock={() => {}}
+                      onSave={() => {}}
+                      onPreview={() => handlePreview(p)}
+                    />
+                  </div>
                 ))}
               </div>
             )
@@ -180,15 +251,22 @@ export default function CompanyUnlocked() {
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {recentlyViewed.map((p) => (
-                  <ProfileCard
-                    key={p.id}
-                    profile={p}
-                    isUnlocked={true}
-                    matchPercentage={75}
-                    onUnlock={() => {}}
-                    onSave={() => {}}
-                    onPreview={() => handlePreview(p)}
-                  />
+                  <div key={p.id} className="relative">
+                    <Checkbox
+                      checked={selected.includes(p.id)}
+                      onCheckedChange={() => toggleSelection(p.id)}
+                      className="absolute left-3 top-3 z-10 bg-white shadow-sm"
+                      aria-label={`${p.vorname} ${p.nachname} auswählen`}
+                    />
+                    <ProfileCard
+                      profile={p}
+                      isUnlocked={true}
+                      matchPercentage={75}
+                      onUnlock={() => {}}
+                      onSave={() => {}}
+                      onPreview={() => handlePreview(p)}
+                    />
+                  </div>
                 ))}
               </div>
             )

@@ -2517,6 +2517,15 @@ export type Database = {
         Args: { "": unknown }
         Returns: unknown
       }
+      bulk_stage_update: {
+        Args: {
+          p_company_id: string
+          p_note?: string
+          p_profile_ids: string[]
+          p_stage: string
+        }
+        Returns: undefined
+      }
       bytea: {
         Args: { "": unknown } | { "": unknown }
         Returns: string

@@ -8,7 +8,7 @@ export function useBulkStageUpdate(companyId: string) {
   
   return useMutation({
     mutationFn: async ({ profileIds, stage }: { profileIds: string[]; stage: Stage }) => {
-      const { data, error } = await supabase.rpc("bulk_stage_update", {
+      const { data, error } = await supabase.rpc("bulk_stage_update" as any, {
         p_company_id: companyId,
         p_profile_ids: profileIds,
         p_stage: stage
