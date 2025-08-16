@@ -4486,13 +4486,13 @@ export type Database = {
         }[]
       }
       viewer_first_degree: {
-        Args: { viewer: string }
+        Args: { p_viewer: string }
         Returns: {
           id: string
         }[]
       }
       viewer_second_degree: {
-        Args: { viewer: string }
+        Args: { p_viewer: string }
         Returns: {
           id: string
         }[]
