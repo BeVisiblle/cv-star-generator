@@ -53,6 +53,7 @@ interface Profile {
   email?: string;
   telefon?: string;
   cv_url?: string;
+  job_search_preferences?: string[];
 }
 
 interface SearchFilters {
@@ -151,8 +152,9 @@ export default function CompanySearch() {
         query = query.or(`ausbildungsberuf.ilike.%${filters.jobTitle}%,aktueller_beruf.ilike.%${filters.jobTitle}%,headline.ilike.%${filters.jobTitle}%`);
       }
       if (filters.jobSearchType && filters.jobSearchType.length > 0) {
+        const esc = (s: string) => s.replace(/"/g, '\\"');
         const jobSearchConditions = filters.jobSearchType.map(type => 
-          `job_search_preferences.cs.["${type}"]`
+          `job_search_preferences.ov.{"${esc(type)}"}`
         ).join(',');
         query = query.or(jobSearchConditions);
       }
@@ -532,7 +534,9 @@ export default function CompanySearch() {
                       role: profile.branche,
                       city: profile.ort,
                       fs: true, // Default for search results
-                      seeking: profile.status,
+                      seeking: Array.isArray(profile.job_search_preferences) && profile.job_search_preferences.length > 0
+                        ? profile.job_search_preferences.join(', ')
+                        : undefined,
                       skills: Array.isArray(profile.faehigkeiten) ? profile.faehigkeiten : [],
                       match: matchPercentage,
                     }}
