@@ -189,6 +189,8 @@ export default function CompanySettings() {
           target_locations: settings.target_locations,
           target_status: settings.target_status,
           notification_prefs: settings.notification_prefs,
+        }, {
+          onConflict: 'company_id'
         });
 
       if (error) throw error;
