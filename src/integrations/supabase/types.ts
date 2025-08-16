@@ -4421,6 +4421,7 @@ export type Database = {
         Args: { p_limit?: number; p_profile_id: string }
         Returns: {
           city: string
+          friend_count: number
           id: string
           industry: string
           logo_url: string
