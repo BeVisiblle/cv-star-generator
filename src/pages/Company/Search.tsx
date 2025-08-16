@@ -87,21 +87,34 @@ export default function CompanySearch() {
     industry: "",
     availability: "",
   });
+  const [totalCount, setTotalCount] = useState(0);
   const { toast } = useToast();
 
   useEffect(() => {
     loadProfiles();
-    loadUnlockedProfiles();
-    loadSavedMatches();
-    setCurrentPage(1); // Reset to first page when filters change
-  }, [company, filters]);
+  }, [company?.id, JSON.stringify(filters), currentPage]);
+
+  useEffect(() => {
+    if (company) {
+      loadUnlockedProfiles();
+      loadSavedMatches();
+    }
+  }, [company?.id]);
+
+  useEffect(() => {
+    // Reset to first page when filters or company change
+    setCurrentPage(1);
+  }, [JSON.stringify(filters), company?.id]);
 
   const loadProfiles = async () => {
     setLoading(true);
     try {
+      const from = (currentPage - 1) * ITEMS_PER_PAGE;
+      const to = from + ITEMS_PER_PAGE - 1;
+
       let query = supabase
         .from('profiles')
-        .select('*')
+        .select('*', { count: 'exact' })
         .eq('profile_published', true);
 
       // Apply filters
@@ -118,10 +131,13 @@ export default function CompanySearch() {
         query = query.or(`vorname.ilike.%${filters.keywords}%,nachname.ilike.%${filters.keywords}%,headline.ilike.%${filters.keywords}%`);
       }
 
-      const { data, error } = await query.limit(20);
+      const { data, error, count } = await query
+        .order('updated_at', { ascending: false })
+        .range(from, to);
 
       if (error) throw error;
       setProfiles((data || []) as Profile[]);
+      setTotalCount(count || 0);
     } catch (error) {
       console.error('Error loading profiles:', error);
       toast({ title: "Fehler beim Laden der Profile", variant: "destructive" });
@@ -338,12 +354,9 @@ export default function CompanySearch() {
     return Math.round((score / totalWeight) * 100) || Math.floor(Math.random() * 40) + 60; // Default fallback with some randomness
   };
 
-  // Filter and paginate profiles
-  const availableProfiles = profiles.filter((p) => !isProfileUnlocked(p.id));
-  const totalPages = Math.ceil(availableProfiles.length / ITEMS_PER_PAGE);
-  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-  const endIndex = startIndex + ITEMS_PER_PAGE;
-  const currentProfiles = availableProfiles.slice(startIndex, endIndex);
+  // Filter current page results to hide already unlocked
+  const currentProfiles = profiles.filter((p) => !isProfileUnlocked(p.id));
+  const totalPages = Math.max(1, Math.ceil(totalCount / ITEMS_PER_PAGE));
 
   return (
     <div className="p-3 md:p-6 min-h-screen bg-background max-w-full overflow-x-hidden space-y-6">
@@ -356,7 +369,7 @@ export default function CompanySearch() {
               {company?.active_tokens || 0} Tokens
             </Badge>
             <Badge variant="outline" className="px-3 py-1">
-              {availableProfiles.length} Kandidaten
+              {totalCount} Kandidaten
             </Badge>
           </div>
         </div>
@@ -364,7 +377,7 @@ export default function CompanySearch() {
       <SearchHeader 
         filters={filters}
         onFiltersChange={setFilters}
-        resultsCount={profiles.length}
+        resultsCount={totalCount}
       />
 
       {/* Advanced Filters Sidebar (conditionally shown) */}
@@ -417,7 +430,7 @@ export default function CompanySearch() {
           <div className="flex items-center justify-center py-20">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
           </div>
-        ) : availableProfiles.length === 0 ? (
+        ) : currentProfiles.length === 0 ? (
           <div className="text-center py-20">
             <Users className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
             <h3 className="text-xl font-semibold mb-2">Keine Kandidaten gefunden</h3>
