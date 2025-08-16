@@ -125,6 +125,7 @@ export const CandidatePipelineBoard: React.FC = () => {
   const grouped = useMemo(() => {
     const map: Record<string, CompanyCandidateItem[]> = {};
     STAGES.forEach((s) => (map[s.key] = []));
+    map['unlocked'] = []; // Initialize unlocked stage
     for (const it of filteredItems) {
       const key = STAGES.some((s) => s.key === it.stage) ? it.stage : 'unlocked';
       map[key].push(it);
