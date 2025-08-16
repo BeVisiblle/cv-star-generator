@@ -327,19 +327,19 @@ export function ProfileCard({
           <div className="flex items-start justify-between">
             <div className="flex items-start space-x-3 flex-1 min-w-0">
               <div className="relative flex-shrink-0">
-                <Avatar className="h-12 w-12 sm:h-14 sm:w-14">
+                <Avatar className="h-12 w-12">
                   <AvatarImage src={avatarSrc || ""} />
                   <AvatarFallback className="bg-gradient-to-br from-blue-100 to-blue-200">
                     {isUnlocked ? (
                       `${profile.vorname?.charAt(0)}${profile.nachname?.charAt(0)}`
                     ) : (
-                      <User className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600" />
+                      <User className="h-5 w-5 text-blue-600" />
                     )}
                   </AvatarFallback>
                 </Avatar>
                 {!isUnlocked && (
                   <div className="absolute -top-1 -right-1 bg-blue-500 text-white rounded-full p-1">
-                    <User className="h-2 w-2 sm:h-3 sm:w-3" />
+                    <User className="h-3 w-3" />
                   </div>
                 )}
               </div>
