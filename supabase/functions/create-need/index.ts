@@ -50,6 +50,11 @@ serve(async (req) => {
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     
     const supabase = createClient(supabaseUrl, supabaseServiceKey, {
+      global: {
+        headers: {
+          Authorization: authHeader,
+        },
+      },
       auth: {
         autoRefreshToken: false,
         persistSession: false,
@@ -120,7 +125,7 @@ serve(async (req) => {
         name,
         profession_id,
         employment_type,
-        location_geog: `POINT(${location.lng} ${location.lat})`,
+        location_geog: `SRID=4326;POINT(${location.lng} ${location.lat})`,
         radius_km,
         start_date: start_date || null,
         visibility: 'active'
