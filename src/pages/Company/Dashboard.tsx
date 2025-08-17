@@ -13,7 +13,8 @@ import {
   Search, 
   FileText, 
   Eye,
-  Building2
+  Building2,
+  Target
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { KpiCard } from "@/components/admin/KpiCard";
@@ -279,8 +280,12 @@ useEffect(() => {
             Hier ist eine Übersicht über {displayCompany.name}
           </p>
         </div>
-        <div className="flex space-x-2">
-          <Button onClick={() => navigate('/company/search')}>
+        <div className="flex flex-wrap gap-2">
+          <Button onClick={() => navigate('/company/needs')}>
+            <Target className="h-4 w-4 mr-2" />
+            Anforderungsprofile
+          </Button>
+          <Button variant="outline" onClick={() => navigate('/company/search')}>
             <Search className="h-4 w-4 mr-2" />
             Profile suchen
           </Button>

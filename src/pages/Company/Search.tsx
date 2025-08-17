@@ -94,12 +94,13 @@ export default function CompanySearch() {
   });
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
   const [totalCount, setTotalCount] = useState(0);
+  const [selectedNeedId, setSelectedNeedId] = useState<string | null>(null);
   const { toast } = useToast();
 
   useEffect(() => {
     loadProfiles();
-  }, [company?.id, JSON.stringify(filters), currentPage]);
-
+  }, [company?.id, JSON.stringify(filters), currentPage, selectedNeedId]);
+  
   useEffect(() => {
     if (company) {
       loadUnlockedProfiles();
@@ -110,7 +111,16 @@ export default function CompanySearch() {
   useEffect(() => {
     // Reset to first page when filters or company change
     setCurrentPage(1);
-  }, [JSON.stringify(filters), company?.id]);
+  }, [JSON.stringify(filters), company?.id, selectedNeedId]);
+
+  useEffect(() => {
+    // Check for need parameter in URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const needParam = urlParams.get('need');
+    if (needParam) {
+      setSelectedNeedId(needParam);
+    }
+  }, []);
 
   const loadProfiles = async () => {
     setLoading(true);
@@ -138,7 +148,27 @@ export default function CompanySearch() {
         query = query.not('id', 'in', `(${unlockedIds.map(id => `"${id}"`).join(',')})`);
       }
 
-      // Apply filters
+      // Apply filters including need-based matching
+      if (selectedNeedId) {
+        // If a specific need is selected, get matches from need_matches table
+        const { data: needMatches } = await supabase
+          .from('need_matches')
+          .select('candidate_id, score')
+          .eq('need_id', selectedNeedId)
+          .order('score', { ascending: false });
+        
+        if (needMatches && needMatches.length > 0) {
+          const candidateIds = needMatches.map(m => m.candidate_id);
+          query = query.in('id', candidateIds);
+        } else {
+          // No matches for this need, return empty results
+          setProfiles([]);
+          setTotalCount(0);
+          return;
+        }
+      }
+      
+      // Apply other filters
       if (filters.targetGroup) {
         query = query.eq('status', filters.targetGroup);
       }
@@ -392,8 +422,27 @@ export default function CompanySearch() {
     <div className="p-3 md:p-6 min-h-screen bg-background max-w-full overflow-x-hidden space-y-6">
       {/* LinkedIn-style Search Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-3">
-          <h1 className="text-2xl sm:text-3xl font-bold">Kandidatensuche</h1>
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-bold">Kandidatensuche</h1>
+            {selectedNeedId && (
+              <p className="text-muted-foreground text-sm mt-1">Gefiltert nach Anforderungsprofil</p>
+            )}
+          </div>
           <div className="flex items-center space-x-2">
+            {selectedNeedId && (
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => {
+                  setSelectedNeedId(null);
+                  const url = new URL(window.location.href);
+                  url.searchParams.delete('need');
+                  window.history.replaceState({}, '', url.toString());
+                }}
+              >
+                Filter entfernen
+              </Button>
+            )}
             <Badge variant="secondary" className="px-3 py-1">
               <Coins className="h-4 w-4 mr-1" />
               {company?.active_tokens || 0} Tokens
