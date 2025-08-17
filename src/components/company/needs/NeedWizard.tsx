@@ -33,7 +33,7 @@ interface FormData {
   } | null;
   radius_km: number;
   start_date?: Date;
-  seniority?: string;
+  
   skills: {
     must: string[];
     nice: string[];
@@ -51,25 +51,17 @@ interface FormData {
 }
 
 const STEPS = [
-  { id: 1, title: "Grundlagen", description: "Name und Rolle definieren" },
+  { id: 1, title: "Grundlagen", description: "Name und Beschäftigungsart" },
   { id: 2, title: "Standort", description: "Arbeitsort und Umkreis" },
-  { id: 3, title: "Anforderungen", description: "Must-Have und Nice-to-Have" },
-  { id: 4, title: "Zielgruppe", description: "Wer soll sich bewerben?" }
+  { id: 3, title: "Anforderungen & Zielgruppe", description: "Fähigkeiten und Bewerbergruppe" }
 ];
 
 const EMPLOYMENT_TYPES = [
+  { value: 'internship', label: 'Praktikum' },
   { value: 'apprenticeship', label: 'Ausbildung' },
-  { value: 'full_time', label: 'Vollzeit' },
-  { value: 'part_time', label: 'Teilzeit' },
-  { value: 'internship', label: 'Praktikum' }
+  { value: 'full_time', label: 'Job (Vollzeit)' }
 ];
 
-const SENIORITY_LEVELS = [
-  { value: 'entry', label: 'Einsteiger' },
-  { value: 'junior', label: 'Junior' },
-  { value: 'senior', label: 'Senior' },
-  { value: 'expert', label: 'Experte' }
-];
 
 const TARGET_GROUPS = [
   { value: 'azubi', label: 'Azubis' },
@@ -88,7 +80,7 @@ export function NeedWizard({ isOpen, onClose, onSubmit, isLoading }: NeedWizardP
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState<FormData>({
     name: '',
-    employment_type: 'apprenticeship',
+    employment_type: 'internship',
     location: null,
     radius_km: 25,
     skills: { must: [], nice: [] },
@@ -145,9 +137,7 @@ export function NeedWizard({ isOpen, onClose, onSubmit, isLoading }: NeedWizardP
       case 2:
         return formData.location;
       case 3:
-        return formData.skills.must.length > 0;
-      case 4:
-        return formData.target_groups.length > 0;
+        return formData.skills.must.length > 0 && formData.target_groups.length > 0;
       default:
         return false;
     }
@@ -178,7 +168,7 @@ export function NeedWizard({ isOpen, onClose, onSubmit, isLoading }: NeedWizardP
       // Reset form
       setFormData({
         name: '',
-        employment_type: 'apprenticeship',
+        employment_type: 'internship',
         location: null,
         radius_km: 25,
         skills: { must: [], nice: [] },
@@ -215,22 +205,6 @@ export function NeedWizard({ isOpen, onClose, onSubmit, isLoading }: NeedWizardP
                   {EMPLOYMENT_TYPES.map(type => (
                     <SelectItem key={type.value} value={type.value}>
                       {type.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div>
-              <Label htmlFor="seniority">Erfahrungslevel</Label>
-              <Select value={formData.seniority} onValueChange={(value) => updateFormData('seniority', value)}>
-                <SelectTrigger className="mt-1">
-                  <SelectValue placeholder="Optional auswählen" />
-                </SelectTrigger>
-                <SelectContent>
-                  {SENIORITY_LEVELS.map(level => (
-                    <SelectItem key={level.value} value={level.value}>
-                      {level.label}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -315,14 +289,12 @@ export function NeedWizard({ isOpen, onClose, onSubmit, isLoading }: NeedWizardP
       case 3:
         return (
           <div className="space-y-6">
+            {/* Skills Section */}
             <div>
               <h4 className="font-medium mb-3 flex items-center gap-2">
                 <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-                Must-Have Fähigkeiten *
+                Fähigkeiten *
               </h4>
-              <p className="text-sm text-muted-foreground mb-3">
-                Diese Fähigkeiten sind zwingend erforderlich
-              </p>
               
               <div className="flex gap-2 mb-3">
                 <div className="flex-1">
@@ -395,52 +367,50 @@ export function NeedWizard({ isOpen, onClose, onSubmit, isLoading }: NeedWizardP
                 </div>
               )}
             </div>
-          </div>
-        );
 
-      case 4:
-        return (
-          <div className="space-y-4">
-            <div>
-              <Label>Zielgruppe *</Label>
-              <p className="text-sm text-muted-foreground mb-3">
-                Wer soll sich auf diese Stelle bewerben?
-              </p>
-              <div className="grid grid-cols-2 gap-3">
-                {TARGET_GROUPS.map(group => (
-                  <div key={group.value} className="flex items-center space-x-2">
-                    <Checkbox
-                      id={group.value}
-                      checked={formData.target_groups.includes(group.value)}
-                      onCheckedChange={(checked) => {
-                        if (checked) {
-                          updateFormData('target_groups', [...formData.target_groups, group.value]);
-                        } else {
-                          updateFormData('target_groups', formData.target_groups.filter(tg => tg !== group.value));
-                        }
-                      }}
-                    />
-                    <Label htmlFor={group.value} className="text-sm font-normal">
-                      {group.label}
-                    </Label>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {formData.target_groups.length > 0 && (
-              <div className="p-4 bg-muted/50 rounded-lg">
-                <h4 className="font-medium mb-2">Zusammenfassung</h4>
-                <div className="text-sm space-y-1">
-                  <p><strong>Name:</strong> {formData.name}</p>
-                  <p><strong>Art:</strong> {EMPLOYMENT_TYPES.find(t => t.value === formData.employment_type)?.label}</p>
-                  <p><strong>Radius:</strong> {formData.radius_km} km</p>
-                  <p><strong>Must-Have:</strong> {formData.skills.must.length} Fähigkeiten</p>
-                  <p><strong>Nice-to-Have:</strong> {formData.skills.nice.length} Fähigkeiten</p>
-                  <p><strong>Zielgruppe:</strong> {formData.target_groups.map(tg => TARGET_GROUPS.find(g => g.value === tg)?.label).join(', ')}</p>
+            {/* Target Groups Section */}
+            <div className="border-t pt-6">
+              <div>
+                <Label>Zielgruppe *</Label>
+                <p className="text-sm text-muted-foreground mb-3">
+                  Wer soll sich auf diese Stelle bewerben?
+                </p>
+                <div className="grid grid-cols-2 gap-3">
+                  {TARGET_GROUPS.map(group => (
+                    <div key={group.value} className="flex items-center space-x-2">
+                      <Checkbox
+                        id={group.value}
+                        checked={formData.target_groups.includes(group.value)}
+                        onCheckedChange={(checked) => {
+                          if (checked) {
+                            updateFormData('target_groups', [...formData.target_groups, group.value]);
+                          } else {
+                            updateFormData('target_groups', formData.target_groups.filter(tg => tg !== group.value));
+                          }
+                        }}
+                      />
+                      <Label htmlFor={group.value} className="text-sm font-normal">
+                        {group.label}
+                      </Label>
+                    </div>
+                  ))}
                 </div>
               </div>
-            )}
+
+              {formData.target_groups.length > 0 && formData.skills.must.length > 0 && (
+                <div className="p-4 bg-muted/50 rounded-lg mt-4">
+                  <h4 className="font-medium mb-2">Zusammenfassung</h4>
+                  <div className="text-sm space-y-1">
+                    <p><strong>Name:</strong> {formData.name}</p>
+                    <p><strong>Art:</strong> {EMPLOYMENT_TYPES.find(t => t.value === formData.employment_type)?.label}</p>
+                    <p><strong>Radius:</strong> {formData.radius_km} km</p>
+                    <p><strong>Must-Have:</strong> {formData.skills.must.length} Fähigkeiten</p>
+                    <p><strong>Nice-to-Have:</strong> {formData.skills.nice.length} Fähigkeiten</p>
+                    <p><strong>Zielgruppe:</strong> {formData.target_groups.map(tg => TARGET_GROUPS.find(g => g.value === tg)?.label).join(', ')}</p>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         );
 

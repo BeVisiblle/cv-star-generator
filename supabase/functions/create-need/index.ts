@@ -17,7 +17,7 @@ interface CreateNeedRequest {
   };
   radius_km: number;
   start_date?: string;
-  seniority?: string;
+  
   skills: {
     must: string[];
     nice: string[];
@@ -69,7 +69,6 @@ serve(async (req) => {
       location, 
       radius_km, 
       start_date, 
-      seniority, 
       skills, 
       licenses, 
       languages, 
@@ -103,11 +102,12 @@ serve(async (req) => {
     const quota = quotaData[0];
     if (!quota || quota.remaining_needs <= 0) {
       return new Response(JSON.stringify({ 
+        success: false,
         error: 'quota_exceeded',
         message: 'No remaining needs available. Upgrade your plan or purchase additional needs.',
         quota: quota
       }), {
-        status: 402,
+        status: 200,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
@@ -123,7 +123,6 @@ serve(async (req) => {
         location_geog: `POINT(${location.lng} ${location.lat})`,
         radius_km,
         start_date: start_date || null,
-        seniority,
         visibility: 'active'
       })
       .select()
