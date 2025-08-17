@@ -3514,6 +3514,16 @@ export type Database = {
           name: string
         }[]
       }
+      get_company_need_quota: {
+        Args: { p_company_id: string }
+        Returns: {
+          company_id: string
+          included_needs: number
+          need_credits: number
+          remaining_needs: number
+          used_needs: number
+        }[]
+      }
       get_company_public: {
         Args: { p_id: string }
         Returns: {
@@ -5042,14 +5052,14 @@ export type Database = {
         Returns: number
       }
       suggest_companies: {
-        Args: { p_limit?: number; p_viewer: string }
+        Args: { p_limit?: number; p_profile_id: string }
         Returns: {
+          city: string
           id: string
           industry: string
           logo_url: string
-          main_location: string
           name: string
-          score: number
+          reasons: string[]
         }[]
       }
       suggest_companies_for_profile: {
@@ -5121,15 +5131,15 @@ export type Database = {
         }[]
       }
       viewer_first_degree: {
-        Args: { p_viewer: string }
+        Args: { user_id: string }
         Returns: {
-          id: string
+          profile_id: string
         }[]
       }
       viewer_second_degree: {
-        Args: { p_viewer: string }
+        Args: { user_id: string }
         Returns: {
-          id: string
+          profile_id: string
         }[]
       }
     }
