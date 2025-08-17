@@ -69,10 +69,81 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "fk_candidate_contacts_company"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "company_need_quota"
+            referencedColumns: ["company_id"]
+          },
+          {
             foreignKeyName: "fk_candidate_contacts_profile"
             columns: ["candidate_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      candidate_languages: {
+        Row: {
+          candidate_id: string
+          created_at: string | null
+          id: string
+          language: string
+          level: string
+        }
+        Insert: {
+          candidate_id: string
+          created_at?: string | null
+          id?: string
+          language: string
+          level: string
+        }
+        Update: {
+          candidate_id?: string
+          created_at?: string | null
+          id?: string
+          language?: string
+          level?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "candidate_languages_candidate_id_fkey"
+            columns: ["candidate_id"]
+            isOneToOne: false
+            referencedRelation: "candidate_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      candidate_licenses: {
+        Row: {
+          candidate_id: string
+          created_at: string | null
+          id: string
+          license: string
+          obtained_at: string | null
+        }
+        Insert: {
+          candidate_id: string
+          created_at?: string | null
+          id?: string
+          license: string
+          obtained_at?: string | null
+        }
+        Update: {
+          candidate_id?: string
+          created_at?: string | null
+          id?: string
+          license?: string
+          obtained_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "candidate_licenses_candidate_id_fkey"
+            columns: ["candidate_id"]
+            isOneToOne: false
+            referencedRelation: "candidate_profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -114,10 +185,85 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "fk_candidate_notes_company"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "company_need_quota"
+            referencedColumns: ["company_id"]
+          },
+          {
             foreignKeyName: "fk_candidate_notes_profile"
             columns: ["candidate_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      candidate_profiles: {
+        Row: {
+          availability_date: string | null
+          created_at: string | null
+          id: string
+          location_geog: unknown | null
+          profession_id: string | null
+          seniority: string | null
+          target_groups: string[] | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          availability_date?: string | null
+          created_at?: string | null
+          id?: string
+          location_geog?: unknown | null
+          profession_id?: string | null
+          seniority?: string | null
+          target_groups?: string[] | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          availability_date?: string | null
+          created_at?: string | null
+          id?: string
+          location_geog?: unknown | null
+          profession_id?: string | null
+          seniority?: string | null
+          target_groups?: string[] | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      candidate_skills: {
+        Row: {
+          candidate_id: string
+          created_at: string | null
+          id: string
+          level: string | null
+          skill: string
+        }
+        Insert: {
+          candidate_id: string
+          created_at?: string | null
+          id?: string
+          level?: string | null
+          skill: string
+        }
+        Update: {
+          candidate_id?: string
+          created_at?: string | null
+          id?: string
+          level?: string | null
+          skill?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "candidate_skills_candidate_id_fkey"
+            columns: ["candidate_id"]
+            isOneToOne: false
+            referencedRelation: "candidate_profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -148,6 +294,8 @@ export type Database = {
           matching_nice_text: string | null
           mission_statement: string | null
           name: string
+          need_credits: number | null
+          package_id: string | null
           phone: string | null
           plan_type: string | null
           primary_email: string | null
@@ -182,6 +330,8 @@ export type Database = {
           matching_nice_text?: string | null
           mission_statement?: string | null
           name: string
+          need_credits?: number | null
+          package_id?: string | null
           phone?: string | null
           plan_type?: string | null
           primary_email?: string | null
@@ -216,6 +366,8 @@ export type Database = {
           matching_nice_text?: string | null
           mission_statement?: string | null
           name?: string
+          need_credits?: number | null
+          package_id?: string | null
           phone?: string | null
           plan_type?: string | null
           primary_email?: string | null
@@ -231,6 +383,13 @@ export type Database = {
             columns: ["location_id"]
             isOneToOne: false
             referencedRelation: "locations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "companies_package_id_fkey"
+            columns: ["package_id"]
+            isOneToOne: false
+            referencedRelation: "company_packages"
             referencedColumns: ["id"]
           },
         ]
@@ -268,6 +427,13 @@ export type Database = {
             referencedRelation: "companies"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "fk_company_activity_company"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "company_need_quota"
+            referencedColumns: ["company_id"]
+          },
         ]
       }
       company_candidates: {
@@ -277,10 +443,12 @@ export type Database = {
           created_at: string
           id: string
           last_touched_at: string | null
+          match_score: number | null
           next_action_at: string | null
           next_action_note: string | null
           owner_user_id: string | null
           source: string | null
+          source_need_id: string | null
           stage: string
           unlocked_at: string | null
           unlocked_by_user_id: string | null
@@ -292,10 +460,12 @@ export type Database = {
           created_at?: string
           id?: string
           last_touched_at?: string | null
+          match_score?: number | null
           next_action_at?: string | null
           next_action_note?: string | null
           owner_user_id?: string | null
           source?: string | null
+          source_need_id?: string | null
           stage?: string
           unlocked_at?: string | null
           unlocked_by_user_id?: string | null
@@ -307,10 +477,12 @@ export type Database = {
           created_at?: string
           id?: string
           last_touched_at?: string | null
+          match_score?: number | null
           next_action_at?: string | null
           next_action_note?: string | null
           owner_user_id?: string | null
           source?: string | null
+          source_need_id?: string | null
           stage?: string
           unlocked_at?: string | null
           unlocked_by_user_id?: string | null
@@ -318,11 +490,25 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "company_candidates_source_need_id_fkey"
+            columns: ["source_need_id"]
+            isOneToOne: false
+            referencedRelation: "company_needs"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "fk_company_candidates_company"
             columns: ["company_id"]
             isOneToOne: false
             referencedRelation: "companies"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_company_candidates_company"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "company_need_quota"
+            referencedColumns: ["company_id"]
           },
           {
             foreignKeyName: "fk_company_candidates_profile"
@@ -365,6 +551,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "companies"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "company_employment_requests_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "company_need_quota"
+            referencedColumns: ["company_id"]
           },
           {
             foreignKeyName: "company_employment_requests_confirmed_by_fkey"
@@ -416,6 +609,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "company_follow_prefs_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "company_need_quota"
+            referencedColumns: ["company_id"]
+          },
+          {
             foreignKeyName: "company_follow_prefs_profile_id_fkey"
             columns: ["profile_id"]
             isOneToOne: false
@@ -423,6 +623,99 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      company_needs: {
+        Row: {
+          company_id: string
+          created_at: string | null
+          employment_type: string
+          id: string
+          location_geog: unknown | null
+          name: string
+          profession_id: string | null
+          radius_km: number
+          seniority: string | null
+          start_date: string | null
+          updated_at: string | null
+          visibility: string
+        }
+        Insert: {
+          company_id: string
+          created_at?: string | null
+          employment_type?: string
+          id?: string
+          location_geog?: unknown | null
+          name: string
+          profession_id?: string | null
+          radius_km?: number
+          seniority?: string | null
+          start_date?: string | null
+          updated_at?: string | null
+          visibility?: string
+        }
+        Update: {
+          company_id?: string
+          created_at?: string | null
+          employment_type?: string
+          id?: string
+          location_geog?: unknown | null
+          name?: string
+          profession_id?: string | null
+          radius_km?: number
+          seniority?: string | null
+          start_date?: string | null
+          updated_at?: string | null
+          visibility?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "company_needs_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "company_needs_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "company_need_quota"
+            referencedColumns: ["company_id"]
+          },
+        ]
+      }
+      company_packages: {
+        Row: {
+          active: boolean
+          code: string
+          created_at: string | null
+          extra_need_price_cents: number
+          id: string
+          included_needs: number
+          monthly_price_cents: number
+          name: string
+        }
+        Insert: {
+          active?: boolean
+          code: string
+          created_at?: string | null
+          extra_need_price_cents?: number
+          id: string
+          included_needs?: number
+          monthly_price_cents?: number
+          name: string
+        }
+        Update: {
+          active?: boolean
+          code?: string
+          created_at?: string | null
+          extra_need_price_cents?: number
+          id?: string
+          included_needs?: number
+          monthly_price_cents?: number
+          name?: string
+        }
+        Relationships: []
       }
       company_posts: {
         Row: {
@@ -456,6 +749,61 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "companies"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "company_posts_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "company_need_quota"
+            referencedColumns: ["company_id"]
+          },
+        ]
+      }
+      company_purchases: {
+        Row: {
+          amount_cents: number
+          company_id: string
+          completed_at: string | null
+          created_at: string | null
+          id: string
+          item_qty: number
+          item_type: string
+          status: string
+        }
+        Insert: {
+          amount_cents: number
+          company_id: string
+          completed_at?: string | null
+          created_at?: string | null
+          id?: string
+          item_qty?: number
+          item_type: string
+          status?: string
+        }
+        Update: {
+          amount_cents?: number
+          company_id?: string
+          completed_at?: string | null
+          created_at?: string | null
+          id?: string
+          item_qty?: number
+          item_type?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "company_purchases_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "company_purchases_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "company_need_quota"
+            referencedColumns: ["company_id"]
           },
         ]
       }
@@ -497,6 +845,13 @@ export type Database = {
             isOneToOne: true
             referencedRelation: "companies"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "company_settings_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: true
+            referencedRelation: "company_need_quota"
+            referencedColumns: ["company_id"]
           },
         ]
       }
@@ -540,6 +895,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "company_subscriptions_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: true
+            referencedRelation: "company_need_quota"
+            referencedColumns: ["company_id"]
+          },
+          {
             foreignKeyName: "company_subscriptions_plan_id_fkey"
             columns: ["plan_id"]
             isOneToOne: false
@@ -571,6 +933,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "companies"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "company_tags_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "company_need_quota"
+            referencedColumns: ["company_id"]
           },
           {
             foreignKeyName: "company_tags_tag_id_fkey"
@@ -637,6 +1006,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "companies"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "company_users_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "company_need_quota"
+            referencedColumns: ["company_id"]
           },
         ]
       }
@@ -714,6 +1090,13 @@ export type Database = {
             isOneToOne: true
             referencedRelation: "companies"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "follow_request_counters_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: true
+            referencedRelation: "company_need_quota"
+            referencedColumns: ["company_id"]
           },
         ]
       }
@@ -856,6 +1239,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "matches_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "company_need_quota"
+            referencedColumns: ["company_id"]
+          },
+          {
             foreignKeyName: "matches_profile_id_fkey"
             columns: ["profile_id"]
             isOneToOne: false
@@ -892,6 +1282,179 @@ export type Database = {
             columns: ["conversation_id"]
             isOneToOne: false
             referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      need_languages: {
+        Row: {
+          created_at: string | null
+          id: string
+          language: string
+          level: string
+          need_id: string
+          type: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          language: string
+          level: string
+          need_id: string
+          type: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          language?: string
+          level?: string
+          need_id?: string
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "need_languages_need_id_fkey"
+            columns: ["need_id"]
+            isOneToOne: false
+            referencedRelation: "company_needs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      need_licenses: {
+        Row: {
+          created_at: string | null
+          id: string
+          license: string
+          need_id: string
+          type: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          license: string
+          need_id: string
+          type: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          license?: string
+          need_id?: string
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "need_licenses_need_id_fkey"
+            columns: ["need_id"]
+            isOneToOne: false
+            referencedRelation: "company_needs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      need_matches: {
+        Row: {
+          breakdown: Json | null
+          candidate_id: string
+          computed_at: string | null
+          id: string
+          need_id: string
+          passed_gates: boolean | null
+          score: number
+        }
+        Insert: {
+          breakdown?: Json | null
+          candidate_id: string
+          computed_at?: string | null
+          id?: string
+          need_id: string
+          passed_gates?: boolean | null
+          score?: number
+        }
+        Update: {
+          breakdown?: Json | null
+          candidate_id?: string
+          computed_at?: string | null
+          id?: string
+          need_id?: string
+          passed_gates?: boolean | null
+          score?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "need_matches_candidate_id_fkey"
+            columns: ["candidate_id"]
+            isOneToOne: false
+            referencedRelation: "candidate_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "need_matches_need_id_fkey"
+            columns: ["need_id"]
+            isOneToOne: false
+            referencedRelation: "company_needs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      need_skills: {
+        Row: {
+          created_at: string | null
+          id: string
+          need_id: string
+          skill: string
+          type: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          need_id: string
+          skill: string
+          type: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          need_id?: string
+          skill?: string
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "need_skills_need_id_fkey"
+            columns: ["need_id"]
+            isOneToOne: false
+            referencedRelation: "company_needs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      need_target_groups: {
+        Row: {
+          created_at: string | null
+          id: string
+          need_id: string
+          target_group: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          need_id: string
+          target_group: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          need_id?: string
+          target_group?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "need_target_groups_need_id_fkey"
+            columns: ["need_id"]
+            isOneToOne: false
+            referencedRelation: "company_needs"
             referencedColumns: ["id"]
           },
         ]
@@ -1147,6 +1710,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "companies"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "plan_changes_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "company_need_quota"
+            referencedColumns: ["company_id"]
           },
           {
             foreignKeyName: "plan_changes_from_plan_fkey"
@@ -1796,6 +2366,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "profiles_current_company_id_fkey"
+            columns: ["current_company_id"]
+            isOneToOne: false
+            referencedRelation: "company_need_quota"
+            referencedColumns: ["company_id"]
+          },
+          {
             foreignKeyName: "profiles_location_id_fkey"
             columns: ["location_id"]
             isOneToOne: false
@@ -1887,6 +2464,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "companies"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "seat_ledger_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "company_need_quota"
+            referencedColumns: ["company_id"]
           },
         ]
       }
@@ -2039,6 +2623,13 @@ export type Database = {
             referencedRelation: "companies"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "subscriptions_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "company_need_quota"
+            referencedColumns: ["company_id"]
+          },
         ]
       }
       suggestions_history: {
@@ -2098,6 +2689,13 @@ export type Database = {
             referencedRelation: "companies"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "token_ledger_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "company_need_quota"
+            referencedColumns: ["company_id"]
+          },
         ]
       }
       token_pricing_tiers: {
@@ -2147,6 +2745,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "companies"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tokens_used_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "company_need_quota"
+            referencedColumns: ["company_id"]
           },
           {
             foreignKeyName: "tokens_used_profile_id_fkey"
@@ -2275,7 +2880,24 @@ export type Database = {
             referencedRelation: "companies"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "company_employment_requests_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "company_need_quota"
+            referencedColumns: ["company_id"]
+          },
         ]
+      }
+      company_need_quota: {
+        Row: {
+          company_id: string | null
+          included_needs: number | null
+          need_credits: number | null
+          remaining_needs: number | null
+          used_needs: number | null
+        }
+        Relationships: []
       }
       geography_columns: {
         Row: {
@@ -2557,6 +3179,10 @@ export type Database = {
           company_id: string
         }
         Returns: number
+      }
+      compute_need_candidate_score: {
+        Args: { p_candidate_id: string; p_need_id: string }
+        Returns: Json
       }
       consume_tokens: {
         Args: {
@@ -2958,6 +3584,15 @@ export type Database = {
           updated_at: string
           user_id: string
           visibility: string
+        }[]
+      }
+      get_matches_for_need: {
+        Args: { p_limit?: number; p_need_id: string }
+        Returns: {
+          breakdown: Json
+          candidate_id: string
+          passed_gates: boolean
+          score: number
         }[]
       }
       get_proj4_from_srid: {
