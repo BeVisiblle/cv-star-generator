@@ -56,7 +56,7 @@ export default function LandingPage() {
                 </Link>
               </div>
             </div>
-            <div className="relative lg:ml-8 mx-0">
+            <div className="relative lg:ml-8">
               <img src="/lovable-uploads/95e5dd4a-87e4-403a-b2cd-6f3d06433d25.png" alt="CV Generator Mobile App" className="w-full max-w-md mx-auto lg:max-w-lg xl:max-w-xl transform lg:translate-x-8" />
             </div>
           </div>
@@ -74,10 +74,9 @@ export default function LandingPage() {
         <div className="mx-auto max-w-7xl px-4 grid grid-cols-1 lg:grid-cols-2 gap-8">
           <div className="rounded-2xl ring-1 ring-zinc-800 p-8 bg-zinc-900/40">
             <h3 className="text-2xl font-semibold">Bereit, deinen CV zu bauen?</h3>
-            <p className="mt-2 text-sm text-zinc-300">Starte kostenlos, exportiere als PDF und
-teile dein Profil direkt.</p>
+            <p className="mt-2 text-sm text-zinc-300">Starte kostenlos, exportiere als PDF und teile dein Profil direkt.</p>
             <div className="mt-6 flex flex-wrap gap-3">
-              <Link to="/cv-generator" className="inline-flex items-center justify-center rounded-2xl px-5 py-3 text-sm font-semibold bg-[color:var(--brand)] text-black">Für Schüler, Azubis und Fachkräfte: Jetzt starten</Link>
+              <Link to="/cv-generator" className="inline-flex items-center justify-center rounded-2xl px-5 py-3 text-sm font-semibold bg-[color:var(--brand)] text-black">Für Azubis: Jetzt starten</Link>
             </div>
           </div>
           <div className="rounded-2xl ring-1 ring-zinc-800 p-8 bg-zinc-900/40">
@@ -99,7 +98,7 @@ teile dein Profil direkt.</p>
               <div className="h-8 w-8 rounded-xl bg-[color:var(--brand)]" />
               <span className="text-lg font-semibold">Ausbildungsbasis</span>
             </div>
-            <p className="mt-3 text-sm text-zinc-400 max-w-xs">Die smarte Brücke zwischen Schülern, Azubis und Fachkräften und Unternehmen – Austausch untereinander, einem AI-Matching und einer Datenbank mit vollständigen Profilen.</p>
+            <p className="mt-3 text-sm text-zinc-400 max-w-xs">Die smarte Brücke zwischen Azubis und Unternehmen – mit CV‑Generator, Matching und direktem Kontakt.</p>
             <div className="mt-6 flex items-center gap-4">
               <img src="https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg" alt="App Store" className="h-10 w-auto" />
               <img src="https://developer.android.com/images/brand/de_generic_rgb_wo_45.png" alt="Google Play" className="h-10 w-auto" />
@@ -163,7 +162,10 @@ export function FeatureCardsSection() {
               <span className="uppercase tracking-wide text-xs font-semibold">Community</span>
             </div>
             <h3 className="mt-2 text-xl font-semibold">Vernetzen & Austausch</h3>
-            <p className="mt-3 text-sm text-zinc-700 leading-relaxed">Tritt in Kontakt mit Fachkräften aus deiner und anderen Branchen und vernetze dich mit der Community von morgen.</p>
+            <p className="mt-3 text-sm text-zinc-700 leading-relaxed">
+              Tritt in Kontakt mit Azubis aus deiner Branche und vernetze dich
+              mit der Community von morgen.
+            </p>
           </article>
 
           {/* Unternehmen - Dark card with subtle background */}
@@ -209,7 +211,7 @@ export function FeatureCardsSection() {
                 <Sparkles className="h-5 w-5" />
                 <span className="uppercase tracking-wide text-xs font-semibold">KI-Powered</span>
               </div>
-              <h3 className="mt-2 text-xl font-semibold">Smart CV</h3>
+              <h3 className="mt-2 text-xl font-semibold">Smart CV Optimization</h3>
               <p className="mt-3 text-sm leading-relaxed text-white/90">
                 KI optimiert automatisch deinen CV für verschiedene Branchen und Stellenausschreibungen.
               </p>
@@ -245,50 +247,16 @@ export function FeatureCardsSection() {
               <span className="uppercase tracking-wide text-xs font-semibold">Matches</span>
             </div>
             <h3 className="mt-2 text-xl font-semibold">Direkte Matches</h3>
-            <p className="mt-3 text-sm leading-relaxed text-white/90">Erhalte automatisch passende Matches – täglich aktualisiert.</p>
+            <p className="mt-3 text-sm leading-relaxed text-white/90">
+              Erhalte automatisch passende Ausbildungs‑Matches – wöchentlich
+              aktualisiert.
+            </p>
           </article>
 
           {/* Kontakt - Dark card */}
-          <article className="rounded-2xl bg-zinc-900/70 ring-1 ring-zinc-800 p-6 animate-fade-in hover-scale" style={{
-          animationDelay: '0.6s'
-        }}>
-            <div className="flex items-center gap-2 text-zinc-400">
-              <PhoneCall className="h-5 w-5" />
-              <span className="uppercase tracking-wide text-xs font-semibold">Kontakt</span>
-            </div>
-            <h3 className="mt-2 text-xl font-semibold text-white">Direkter Kontakt</h3>
-            <p className="mt-3 text-sm text-zinc-300 leading-relaxed">
-              WhatsApp, Telefon oder E-Mail – nimm sofort Kontakt auf.
-            </p>
-          </article>
+          
 
           {/* Qualität - Dark card */}
-          <article className="rounded-2xl bg-zinc-900/70 ring-1 ring-zinc-800 p-6 animate-fade-in hover-scale" style={{
-          animationDelay: '0.7s'
-        }}>
-            <div className="flex items-center gap-2 text-zinc-400">
-              <ShieldCheck className="h-5 w-5" />
-              <span className="uppercase tracking-wide text-xs font-semibold">Qualität</span>
-            </div>
-            <h3 className="mt-2 text-xl font-semibold text-white">Geprüfte Profile</h3>
-            <p className="mt-3 text-sm text-zinc-300 leading-relaxed">
-              Alle Profile werden verifiziert für höchste Qualität.
-            </p>
-          </article>
-
-          {/* CV Templates - New card */}
-          <article className="rounded-2xl bg-gradient-to-br from-emerald-600 to-teal-600 p-6 text-white animate-fade-in hover-scale" style={{
-          animationDelay: '0.9s'
-        }}>
-            <div className="flex items-center gap-2 text-white/90">
-              <Users className="h-5 w-5" />
-              <span className="uppercase tracking-wide text-xs font-semibold">Templates</span>
-            </div>
-            <h3 className="mt-2 text-xl font-semibold">Professionelle Layouts</h3>
-            <p className="mt-3 text-sm leading-relaxed text-white/90">
-              Wähle aus verschiedenen modernen CV-Vorlagen für jeden Beruf.
-            </p>
-          </article>
           
 
         </div>
@@ -309,29 +277,7 @@ export function ProductShowcaseSection() {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
           {/* User Preview */}
-          <div className="relative rounded-3xl ring-1 ring-zinc-800 bg-gradient-to-b from-zinc-900/50 to-black p-8 animate-fade-in hover-scale overflow-hidden">
-            <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=2071&auto=format&fit=crop')] bg-cover bg-center opacity-10" />
-            <div className="relative">
-              <div className="flex items-center gap-3 text-[color:var(--brand)] text-sm uppercase tracking-wider font-semibold mb-4">
-                <Users className="h-5 w-5" /> 
-                <span>Für Azubis, Schüler & Fachkräfte</span>
-              </div>
-              <h3 className="text-3xl font-bold text-white mb-4">CV‑Editor, Job finden &
-Community</h3>
-              <p className="text-zinc-300 mb-8 leading-relaxed font-light">Erstelle deinen professionellen CV in nur fünf Schritten. Lade ihn als PDF herunter oder veröffentliche dein Profil – und werde direkt von Unternehmen gefunden und kontaktiert. Vernetze dich mit anderen Fachkräften, tausche Erfahrungen aus und tritt passenden Gruppen bei, um immer auf dem neuesten Stand zu bleiben.</p>
-              <div className="aspect-[16/10] rounded-2xl bg-zinc-950 ring-1 ring-zinc-800 flex items-center justify-center mb-6">
-                <div className="text-center">
-                  <div className="text-4xl mb-2">📱</div>
-                  <span className="text-zinc-500 text-sm">CV-Editor Interface</span>
-                </div>
-              </div>
-              <div className="flex gap-3 text-xs">
-                <span className="px-3 py-1 bg-[color:var(--brand)]/20 text-[color:var(--brand)] rounded-full">PDF Export</span>
-                <span className="px-3 py-1 bg-[color:var(--brand)]/20 text-[color:var(--brand)] rounded-full">Vernetzen</span>
-                <span className="px-3 py-1 bg-[color:var(--brand)]/20 text-[color:var(--brand)] rounded-full">Community</span>
-              </div>
-            </div>
-          </div>
+          
 
           {/* Company Preview */}
           <div className="relative rounded-3xl ring-1 ring-zinc-800 bg-gradient-to-b from-zinc-900/50 to-black p-8 animate-fade-in hover-scale overflow-hidden" style={{
@@ -343,10 +289,11 @@ Community</h3>
                 <Building2 className="h-5 w-5" /> 
                 <span>Für Unternehmen</span>
               </div>
-              <h3 className="text-3xl font-bold text-white mb-4">Kandidatensuche & Employee Branding</h3>
-              <p className="text-zinc-300 mb-8 leading-relaxed text-base font-light">Durchsuchen Sie standardisierte Azubi-Profile, schalten Sie passende Kandidat:innen per Token frei und nehmen Sie direkt Kontakt auf – via WhatsApp, Telefon oder E-Mail.
-
-Stärken Sie Ihr Employer Branding: Vernetzen Sie Ihr Team auf der Plattform und lassen Sie Mitarbeitende als authentische Markenbotschafter wirken.</p>
+              <h3 className="text-3xl font-bold text-white mb-4">Kandidatensuche & Recruitment</h3>
+              <p className="text-zinc-300 mb-8 leading-relaxed">
+                Durchsuchen Sie standardisierte Profile, schalten Sie passende Kandidaten mit Token frei 
+                und kontaktieren Sie diese direkt per WhatsApp, Telefon oder E-Mail. Employer Branding inklusive.
+              </p>
               <div className="aspect-[16/10] rounded-2xl bg-zinc-950 ring-1 ring-zinc-800 flex items-center justify-center mb-6">
                 <div className="text-center">
                   <div className="text-4xl mb-2">🏢</div>
@@ -356,7 +303,7 @@ Stärken Sie Ihr Employer Branding: Vernetzen Sie Ihr Team auf der Plattform und
               <div className="flex gap-3 text-xs">
                 <span className="px-3 py-1 bg-blue-500/20 text-blue-400 rounded-full">Token-System</span>
                 <span className="px-3 py-1 bg-blue-500/20 text-blue-400 rounded-full">Direktkontakt</span>
-                <span className="px-3 py-1 bg-blue-500/20 text-blue-400 rounded-full">Employee Branding</span>
+                <span className="px-3 py-1 bg-blue-500/20 text-blue-400 rounded-full">Analytics</span>
               </div>
             </div>
           </div>
