@@ -161,7 +161,7 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
       {!isCompanyRoute && <TopNavBar />}
       
       {/* Main content area with top padding only for non-company routes */}
-      <div className={isCompanyRoute ? "flex-1" : "flex-1 pt-14"}>
+      <div className={isCompanyRoute ? "flex-1 bg-black" : "flex-1 pt-14 bg-black"}>
         {children}
       </div>
     </div>
