@@ -10,7 +10,7 @@ export const BaseLayout: React.FC<BaseLayoutProps> = ({ children, className }) =
   return (
     <div className={cn(
       // Global guards
-      "min-h-screen w-full overflow-x-hidden bg-background text-foreground",
+      "min-h-screen w-full overflow-x-hidden bg-black text-white",
       // Respect safe areas
       "pt-safe pb-safe",
       className
