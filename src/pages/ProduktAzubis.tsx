@@ -142,7 +142,11 @@ const ProduktAzubis: React.FC = () => {
               </p>
               
               <div className="bg-muted rounded-lg p-4 mb-4">
-                <div className="w-full h-48 bg-gradient-to-br from-orange-400 to-orange-600 rounded-lg"></div>
+                <img 
+                  src="/lovable-uploads/4b784c18-de0b-4138-98bf-beb980e3fc0b.png" 
+                  alt="Portal Feed Interface" 
+                  className="w-full h-48 object-cover rounded-lg"
+                />
               </div>
 
               <div className="flex items-center justify-between pt-4 border-t">

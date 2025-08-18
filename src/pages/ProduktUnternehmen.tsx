@@ -168,8 +168,17 @@ const ProduktUnternehmen: React.FC = () => {
         </div>
       </div>
 
-      {/* Candidates Grid */}
+      {/* Platform Preview */}
       <div className="container mx-auto px-4 py-8">
+        <div className="mb-8">
+          <img 
+            src="/lovable-uploads/356afafd-8910-495a-8ba8-35d74adf7cb1.png" 
+            alt="Kandidatensuche Interface" 
+            className="w-full rounded-xl shadow-lg border"
+          />
+        </div>
+
+        {/* Candidates Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
           {candidates.map((candidate, index) => (
             <Card key={index} className="p-6 space-y-4">
