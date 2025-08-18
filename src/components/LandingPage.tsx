@@ -18,8 +18,9 @@ import { Link } from 'react-router-dom';
 */
 
 export default function LandingPage() {
-  return (
-    <main className="min-h-screen bg-black text-white w-full" style={{ ['--brand' as any]: '#5ce1e6' }}>
+  return <main className="min-h-screen bg-black text-white w-full" style={{
+    ['--brand' as any]: '#5ce1e6'
+  }}>
       {/* Simple Header */}
       <header className="bg-black py-4 w-full">
         <div className="mx-auto max-w-7xl px-4 flex items-center justify-between">
@@ -29,10 +30,7 @@ export default function LandingPage() {
             <span className="text-lg font-semibold">Ausbildungsbasis</span>
           </div>
           <div className="flex-1 flex justify-end">
-            <Link 
-              to="/auth" 
-              className="inline-flex items-center justify-center rounded-2xl px-4 py-2 text-sm font-semibold border border-zinc-700 text-white hover:bg-zinc-900"
-            >
+            <Link to="/auth" className="inline-flex items-center justify-center rounded-2xl px-4 py-2 text-sm font-semibold border border-zinc-700 text-white hover:bg-zinc-900">
               Login
             </Link>
           </div>
@@ -53,20 +51,13 @@ export default function LandingPage() {
                 werde direkt von Unternehmen gefunden und kontaktiert.
               </p>
               <div className="mt-10 flex flex-col sm:flex-row gap-4">
-                <Link 
-                  to="/cv-generator" 
-                  className="inline-flex items-center justify-center rounded-2xl px-6 py-3 text-base font-semibold bg-[color:var(--brand)] text-black shadow-lg shadow-teal-500/20"
-                >
+                <Link to="/cv-generator" className="inline-flex items-center justify-center rounded-2xl px-6 py-3 text-base font-semibold bg-[color:var(--brand)] text-black shadow-lg shadow-teal-500/20">
                   Lebenslauf erstellen – kostenlos
                 </Link>
               </div>
             </div>
             <div className="relative lg:ml-8">
-              <img 
-                src="/lovable-uploads/95e5dd4a-87e4-403a-b2cd-6f3d06433d25.png" 
-                alt="CV Generator Mobile App" 
-                className="w-full max-w-md mx-auto lg:max-w-lg xl:max-w-xl transform lg:translate-x-8"
-              />
+              <img src="/lovable-uploads/95e5dd4a-87e4-403a-b2cd-6f3d06433d25.png" alt="CV Generator Mobile App" className="w-full max-w-md mx-auto lg:max-w-lg xl:max-w-xl transform lg:translate-x-8" />
             </div>
           </div>
         </div>
@@ -133,14 +124,12 @@ export default function LandingPage() {
         </div>
         <div className="px-4 pb-8 mx-auto max-w-7xl text-xs text-zinc-500">© {new Date().getFullYear()} Ausbildungsbasis. Alle Rechte vorbehalten.</div>
       </footer>
-    </main>
-  );
+    </main>;
 }
 
 // --- FeatureCardsSection ---
 export function FeatureCardsSection() {
-  return (
-    <section className="w-full bg-black text-white py-16">
+  return <section className="w-full bg-black text-white py-16">
       <div className="w-full px-4">
         <h2 className="text-3xl md:text-4xl font-semibold tracking-tight mb-12 text-center">
           Warum unser CV‑Generator anders ist
@@ -165,7 +154,9 @@ export function FeatureCardsSection() {
           </article>
 
           {/* Community - White card */}
-          <article className="rounded-2xl bg-white text-zinc-900 ring-1 ring-zinc-200 p-6 animate-fade-in hover-scale" style={{animationDelay: '0.1s'}}>
+          <article className="rounded-2xl bg-white text-zinc-900 ring-1 ring-zinc-200 p-6 animate-fade-in hover-scale" style={{
+          animationDelay: '0.1s'
+        }}>
             <div className="flex items-center gap-2 text-zinc-700">
               <Users className="h-5 w-5" />
               <span className="uppercase tracking-wide text-xs font-semibold">Community</span>
@@ -178,7 +169,9 @@ export function FeatureCardsSection() {
           </article>
 
           {/* Unternehmen - Dark card with subtle background */}
-          <article className="relative rounded-2xl bg-zinc-900/70 ring-1 ring-zinc-800 p-6 animate-fade-in hover-scale overflow-hidden" style={{animationDelay: '0.2s'}}>
+          <article className="relative rounded-2xl bg-zinc-900/70 ring-1 ring-zinc-800 p-6 animate-fade-in hover-scale overflow-hidden" style={{
+          animationDelay: '0.2s'
+        }}>
             <div className="absolute inset-0 bg-gradient-to-br from-blue-900/20 to-purple-900/20" />
             <div className="relative">
               <div className="flex items-center gap-2 text-zinc-400">
@@ -193,7 +186,9 @@ export function FeatureCardsSection() {
           </article>
 
           {/* Gruppen - Brand color card */}
-          <article className="rounded-2xl bg-[color:var(--brand)] p-6 text-black animate-fade-in hover-scale lg:row-span-2" style={{animationDelay: '0.3s'}}>
+          <article className="rounded-2xl bg-[color:var(--brand)] p-6 text-black animate-fade-in hover-scale lg:row-span-2" style={{
+          animationDelay: '0.3s'
+        }}>
             <div className="flex items-center gap-2 text-black/80">
               <MessageSquare className="h-5 w-5" />
               <span className="uppercase tracking-wide text-xs font-semibold">Gruppen</span>
@@ -207,7 +202,9 @@ export function FeatureCardsSection() {
           </article>
 
           {/* AI-Powered CV - New 9th feature */}
-          <article className="relative rounded-2xl bg-gradient-to-br from-purple-600 to-pink-600 p-6 text-white animate-fade-in hover-scale overflow-hidden" style={{animationDelay: '0.8s'}}>
+          <article className="relative rounded-2xl bg-gradient-to-br from-purple-600 to-pink-600 p-6 text-white animate-fade-in hover-scale overflow-hidden" style={{
+          animationDelay: '0.8s'
+        }}>
             <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1677442136019-21780ecad995?q=80&w=2070&auto=format&fit=crop')] bg-cover bg-center opacity-20" />
             <div className="relative">
               <div className="flex items-center gap-2 text-white/90">
@@ -222,7 +219,9 @@ export function FeatureCardsSection() {
           </article>
 
           {/* 360° - Large bottom card */}
-          <article className="relative rounded-2xl bg-zinc-900/90 ring-1 ring-zinc-800 p-6 md:p-8 lg:col-span-2 animate-fade-in hover-scale overflow-hidden" style={{animationDelay: '0.4s'}}>
+          <article className="relative rounded-2xl bg-zinc-900/90 ring-1 ring-zinc-800 p-6 md:p-8 lg:col-span-2 animate-fade-in hover-scale overflow-hidden" style={{
+          animationDelay: '0.4s'
+        }}>
             <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2072&auto=format&fit=crop')] bg-cover bg-center opacity-20" />
             <div className="relative">
               <div className="text-6xl md:text-7xl font-extrabold tracking-tight text-white mb-4">360°</div>
@@ -240,7 +239,9 @@ export function FeatureCardsSection() {
           </article>
 
           {/* Matches - Red accent card */}
-          <article className="rounded-2xl bg-red-600/90 text-white p-6 animate-fade-in hover-scale" style={{animationDelay: '0.5s'}}>
+          <article className="rounded-2xl bg-red-600/90 text-white p-6 animate-fade-in hover-scale" style={{
+          animationDelay: '0.5s'
+        }}>
             <div className="flex items-center gap-2 text-white/90">
               <Sparkles className="h-5 w-5" />
               <span className="uppercase tracking-wide text-xs font-semibold">Matches</span>
@@ -253,39 +254,19 @@ export function FeatureCardsSection() {
           </article>
 
           {/* Kontakt - Dark card */}
-          <article className="rounded-2xl bg-zinc-900/70 ring-1 ring-zinc-800 p-6 animate-fade-in hover-scale" style={{animationDelay: '0.6s'}}>
-            <div className="flex items-center gap-2 text-zinc-400">
-              <PhoneCall className="h-5 w-5" />
-              <span className="uppercase tracking-wide text-xs font-semibold">Kontakt</span>
-            </div>
-            <h3 className="mt-2 text-xl font-semibold text-white">Sofortkontakt</h3>
-            <p className="mt-3 text-sm text-zinc-300 leading-relaxed">
-              Direkter Kontakt per WhatsApp, Telefon oder E‑Mail – ohne Umwege.
-            </p>
-          </article>
+          
 
           {/* Qualität - Dark card */}
-          <article className="rounded-2xl bg-zinc-900/70 ring-1 ring-zinc-800 p-6 animate-fade-in hover-scale" style={{animationDelay: '0.7s'}}>
-            <div className="flex items-center gap-2 text-zinc-400">
-              <ShieldCheck className="h-5 w-5" />
-              <span className="uppercase tracking-wide text-xs font-semibold">Qualität</span>
-            </div>
-            <h3 className="mt-2 text-xl font-semibold text-white">Verifizierte Profile</h3>
-            <p className="mt-3 text-sm text-zinc-300 leading-relaxed">
-              Standardisierte, geprüfte Lebensläufe stärken Ihre Arbeitgebermarke.
-            </p>
-          </article>
+          
 
         </div>
       </div>
-    </section>
-  );
+    </section>;
 }
 
 // --- Product Showcase Section ---
 export function ProductShowcaseSection() {
-  return (
-    <section className="w-full bg-black text-white py-20">
+  return <section className="w-full bg-black text-white py-20">
       <div className="mx-auto max-w-7xl px-4">
         <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-center mb-4">
           So sieht das Produkt aus
@@ -323,7 +304,9 @@ export function ProductShowcaseSection() {
           </div>
 
           {/* Company Preview */}
-          <div className="relative rounded-3xl ring-1 ring-zinc-800 bg-gradient-to-b from-zinc-900/50 to-black p-8 animate-fade-in hover-scale overflow-hidden" style={{animationDelay: '0.2s'}}>
+          <div className="relative rounded-3xl ring-1 ring-zinc-800 bg-gradient-to-b from-zinc-900/50 to-black p-8 animate-fade-in hover-scale overflow-hidden" style={{
+          animationDelay: '0.2s'
+        }}>
             <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1560472354-b33ff0c44a43?q=80&w=2126&auto=format&fit=crop')] bg-cover bg-center opacity-10" />
             <div className="relative">
               <div className="flex items-center gap-3 text-blue-400 text-sm uppercase tracking-wider font-semibold mb-4">
@@ -350,6 +333,5 @@ export function ProductShowcaseSection() {
           </div>
         </div>
       </div>
-    </section>
-  );
+    </section>;
 }
