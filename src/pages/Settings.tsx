@@ -11,6 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import NotifSettingsPanel from '@/components/notifications/NotifSettingsPanel';
+import { ProfileEmployerSection } from '@/components/settings/ProfileEmployerSection';
 
 const Settings = () => {
   const { profile, refetchProfile } = useAuth();
@@ -255,6 +256,15 @@ const Settings = () => {
                 </div>
               </CardContent>
             </Card>
+
+            {/* Employer Settings */}
+            <ProfileEmployerSection 
+              profileData={{
+                headline: profile?.headline,
+                employer_free: (profile as any)?.employer_free,
+                employer_slogan: (profile as any)?.employer_slogan,
+              }}
+            />
 
             {/* Notification Settings */}
             <Card>
