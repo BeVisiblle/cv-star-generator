@@ -349,11 +349,13 @@ Community</h3>
               <p className="text-zinc-300 mb-8 leading-relaxed text-base font-light">Durchsuchen Sie standardisierte Azubi-Profile, schalten Sie passende Kandidat:innen per Token frei und nehmen Sie direkt Kontakt auf – via WhatsApp, Telefon oder E-Mail.
 
 Stärken Sie Ihr Employer Branding: Vernetzen Sie Ihr Team auf der Plattform und lassen Sie Mitarbeitende als authentische Markenbotschafter wirken.</p>
-              <div className="aspect-[16/10] rounded-2xl bg-zinc-950 ring-1 ring-zinc-800 flex items-center justify-center mb-6">
-                <div className="text-center">
-                  <div className="text-4xl mb-2">🏢</div>
-                  <span className="text-zinc-500 text-sm">Unternehmens-Dashboard</span>
-                </div>
+              <div className="aspect-[16/10] rounded-2xl ring-1 ring-zinc-800 overflow-hidden mb-6">
+                <img
+                  src="/lovable-uploads/356afafd-8910-495a-8ba8-35d74adf7cb1.png"
+                  alt="Kandidatensuche Interface für Unternehmen"
+                  className="h-full w-full object-cover"
+                  loading="lazy"
+                />
               </div>
               <div className="flex gap-3 text-xs">
                 <span className="px-3 py-1 bg-blue-500/20 text-blue-400 rounded-full">Token-System</span>
