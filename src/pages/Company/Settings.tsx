@@ -23,6 +23,7 @@ import {
 } from "lucide-react";
 import { TagPicker, TagType } from "@/components/company/matching/TagPicker";
 import { BranchSelector } from "@/components/Company/BranchSelector";
+import { EmploymentRequestsCard } from "@/components/company/EmploymentRequestsCard";
 
 interface TeamMember {
   id: string;
@@ -400,6 +401,9 @@ export default function CompanySettings() {
                 </div>
               </CardContent>
             </Card>
+
+            {/* Employment Requests Card */}
+            <EmploymentRequestsCard company={company} />
           </div>
         </TabsContent>
 

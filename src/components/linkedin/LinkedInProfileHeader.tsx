@@ -22,6 +22,11 @@ export const LinkedInProfileHeader: React.FC<LinkedInProfileHeaderProps> = ({
   const [isUploadingCover, setIsUploadingCover] = useState(false);
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
   const [headline, setHeadline] = useState(profile?.headline || '');
+
+  // Sync local headline state with profile changes
+  React.useEffect(() => {
+    setHeadline(profile?.headline || '');
+  }, [profile?.headline]);
   const [currentPosition, setCurrentPosition] = useState('');
   const coverInputRef = useRef<HTMLInputElement>(null);
   const avatarInputRef = useRef<HTMLInputElement>(null);
@@ -376,9 +381,9 @@ export const LinkedInProfileHeader: React.FC<LinkedInProfileHeaderProps> = ({
             </div>
           )}
           
-          <p className="text-sm md:text-lg font-medium text-muted-foreground line-clamp-2">
-            {hasHeadline ? headline : '—'}
-          </p>
+           <p className="text-sm md:text-lg font-medium text-muted-foreground line-clamp-2">
+             {hasHeadline ? profile?.headline : '—'}
+           </p>
           
           <p className="text-sm text-muted-foreground flex flex-wrap items-center gap-x-1.5 gap-y-1">
             <MapPin className="h-4 w-4" aria-hidden />

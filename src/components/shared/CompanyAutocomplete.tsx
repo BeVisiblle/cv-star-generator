@@ -55,7 +55,7 @@ export function CompanyAutocomplete({
 
   function handleInputChange(newValue: string) {
     setInput(newValue);
-    setOpen(newValue.length >= 2); // Only open if we have enough chars to search
+    setOpen(newValue.length >= 1); // Only open if we have enough chars to search
     
     // Call external text change handler if provided
     if (onTextChange) {
@@ -76,7 +76,7 @@ export function CompanyAutocomplete({
            type="text"
            value={input}
            onChange={(e) => handleInputChange(e.target.value)}
-           onFocus={() => input.length >= 2 && setOpen(true)}
+           onFocus={() => input.length >= 1 && setOpen(true)}
            onBlur={() => setTimeout(() => setOpen(false), 150)} // allow click
            placeholder={placeholder}
            aria-autocomplete="list"
@@ -130,14 +130,18 @@ export function CompanyAutocomplete({
                 </div>
               )}
               <span className="truncate">{opt.name}</span>
+              {opt.employer_profile && (
+                <span className="px-1.5 py-0.5 bg-green-100 text-green-700 text-xs rounded-md font-medium ml-auto">
+                  Verifiziert
+                </span>
+              )}
             </li>
           ))}
 
-          {!isFetching && options.length === 0 && input.length >= 2 && (
+          {!isFetching && options.length === 0 && input.length >= 1 && (
             <li className="px-3 py-2 text-sm text-muted-foreground">
-              Kein verifiziertes Unternehmen gefunden. Du kannst oben{" "}
-              <span className="font-medium">freien Arbeitgeber</span> eintragen – 
-              er erscheint ohne Logo/Link.
+              Kein Unternehmen gefunden. Du kannst einen{" "}
+              <span className="font-medium">freien Text</span> eingeben.
             </li>
           )}
         </ul>
