@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { Camera, Edit3, MapPin, Building2 } from 'lucide-react';
+import { Camera, Edit3, MapPin, Building2, X, Check, Loader2 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -13,12 +13,20 @@ interface LinkedInProfileHeaderProps {
   profile: any;
   isEditing: boolean;
   onProfileUpdate: (updates: any) => void;
+  onStartEdit?: () => void;
+  onCancelEdit?: () => void;
+  onSave?: () => void;
+  isSaving?: boolean;
 }
 
 export const LinkedInProfileHeader: React.FC<LinkedInProfileHeaderProps> = ({
   profile,
   isEditing,
-  onProfileUpdate
+  onProfileUpdate,
+  onStartEdit,
+  onCancelEdit,
+  onSave,
+  isSaving = false
 }) => {
   const [isUploadingCover, setIsUploadingCover] = useState(false);
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
@@ -307,6 +315,29 @@ export const LinkedInProfileHeader: React.FC<LinkedInProfileHeaderProps> = ({
               <Camera className="h-4 w-4" />
               {isUploadingCover ? 'Lädt…' : 'Titelbild hinzufügen'}
             </label>
+          </div>
+        )}
+
+        {/* Edit Controls Overlay for Desktop */}
+        {isOwner && !isEditing && onStartEdit && (
+          <div className="absolute right-3 top-3 hidden md:block">
+            <Button size="sm" variant="secondary" onClick={onStartEdit}>
+              <Edit3 className="h-4 w-4 mr-2" />
+              Bearbeiten
+            </Button>
+          </div>
+        )}
+        
+        {isOwner && isEditing && onCancelEdit && onSave && (
+          <div className="absolute right-3 top-3 hidden md:flex gap-2">
+            <Button size="sm" variant="outline" onClick={onCancelEdit} disabled={isSaving}>
+              <X className="h-4 w-4 mr-2" />
+              Abbrechen
+            </Button>
+            <Button size="sm" onClick={onSave} disabled={isSaving}>
+              {isSaving ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Check className="h-4 w-4 mr-2" />}
+              Speichern
+            </Button>
           </div>
         )}
 

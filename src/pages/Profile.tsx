@@ -201,45 +201,6 @@ const Profile = () => {
 
   return (
     <div className="min-h-screen">
-      {/* Header */}
-      <div className="sticky top-14 z-30 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b">
-        <div className="px-3 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center justify-between gap-4">
-            <div className="min-w-0 flex-1">
-              <h1 className="text-xl md:text-2xl font-bold truncate">
-                {profile.vorname} {profile.nachname}
-              </h1>
-            </div>
-            
-            <div className="flex items-center gap-2">
-              {!profile.profile_published && (
-                <Button variant="outline" onClick={() => setShowPreview(true)} size="sm">
-                  Vorschau
-                </Button>
-              )}
-              
-              {isEditing ? (
-                <div className="hidden md:flex gap-2">
-                  <Button variant="outline" onClick={() => setIsEditing(false)} disabled={isSaving} size="sm">
-                    <X className="h-4 w-4 mr-2" />
-                    Abbrechen
-                  </Button>
-                  <Button onClick={handleSave} disabled={isSaving} size="sm">
-                    {isSaving ? <Clock className="h-4 w-4 mr-2 animate-spin" /> : <Check className="h-4 w-4 mr-2" />}
-                    Speichern
-                  </Button>
-                </div>
-              ) : (
-                <Button onClick={() => setIsEditing(true)} size="sm">
-                  <Edit3 className="h-4 w-4 mr-2" />
-                  Bearbeiten
-                </Button>
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
-
       {/* Main Content */}
       <div className="px-3 sm:px-6 lg:px-8 py-6">
         <div className="max-w-screen-2xl mx-auto">
@@ -248,7 +209,15 @@ const Profile = () => {
             <main className="lg:col-span-8">
               <div className="max-w-[560px] mx-auto lg:max-w-none space-y-6">
                 {/* Profile Header with Cover Photo - Always first */}
-                <LinkedInProfileHeader profile={profile} isEditing={isEditing} onProfileUpdate={handleProfileUpdate} />
+                <LinkedInProfileHeader 
+                  profile={profile} 
+                  isEditing={isEditing} 
+                  onProfileUpdate={handleProfileUpdate}
+                  onStartEdit={() => setIsEditing(true)}
+                  onCancelEdit={() => setIsEditing(false)}
+                  onSave={handleSave}
+                  isSaving={isSaving}
+                />
                 
                 {/* About Section - High priority on mobile */}
                 <LinkedInProfileMain profile={profile} isEditing={isEditing} onProfileUpdate={handleProfileUpdate} />
@@ -367,7 +336,7 @@ const Profile = () => {
 
             {/* Right Sidebar - Desktop: sidebar, Mobile: after main content */}
             <aside className="lg:col-span-4">
-              <div className="lg:sticky lg:top-24 space-y-4 md:space-y-6">
+              <div className="lg:sticky lg:top-6 space-y-4 md:space-y-6">
                 <LinkedInProfileSidebar profile={profile} isEditing={isEditing} onProfileUpdate={handleProfileUpdate} showLanguagesAndSkills={true} showLicenseAndStats={true} showCVSection={true} />
                 <RightRailAd variant="card" size="sm" />
                 <InView rootMargin="300px" placeholder={<div className="h-32 rounded-md bg-muted/50 animate-pulse" />}> 

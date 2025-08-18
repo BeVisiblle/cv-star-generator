@@ -167,7 +167,7 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
           ? "flex-1 bg-black" 
           : isCompanyRoute 
             ? "flex-1 bg-gray-50" 
-            : "flex-1 pt-14 bg-gray-50"
+            : "flex-1 pt-14 bg-white"
       }>
         {children}
       </div>

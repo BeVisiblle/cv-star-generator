@@ -1,6 +1,6 @@
 import React from "react";
 import { SidebarTrigger } from "@/components/ui/sidebar";
-import { Bell, Search as SearchIcon, MessageSquareMore, Users } from "lucide-react";
+import { Bell, Search as SearchIcon, MessageSquareMore, Users, User } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import SearchAutosuggest from "@/components/marketplace/SearchAutosuggest";
@@ -40,16 +40,57 @@ export default function TopNavBar() {
   // Fixed navbar that spans full width
   return (
     <div className="border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="flex h-14 items-center px-4">
-        <SidebarTrigger />
-        <div className="flex-1 flex items-center justify-center">
-          <h1 className="text-lg font-semibold">{title}</h1>
+      <div className="flex h-14 items-center px-4 gap-4">
+        <div className="flex items-center gap-3">
+          <SidebarTrigger />
+          {/* Logo */}
+          <div 
+            className="font-bold text-primary cursor-pointer"
+            onClick={() => navigate('/dashboard')}
+          >
+            Nkademiker Plus
+          </div>
         </div>
-        <div className="flex items-center gap-2">
+        
+        {/* Desktop Search Bar */}
+        <div className="hidden md:flex flex-1 max-w-md mx-4 relative">
+          <Input
+            placeholder="Personen, Unternehmen suchen..."
+            value={q}
+            onChange={(e) => {
+              setQ(e.target.value);
+              setOpen(e.target.value.trim().length >= 2);
+            }}
+            onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
+            onFocus={() => setOpen(q.trim().length >= 2)}
+            onBlur={() => setTimeout(() => setOpen(false), 200)}
+            className="pr-10"
+          />
           <SearchIcon 
-            className="h-5 w-5 cursor-pointer hover:text-primary" 
+            className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground cursor-pointer" 
+            onClick={handleSubmit}
+          />
+          <SearchAutosuggest 
+            query={q} 
+            open={open} 
+            onSelect={(type, item) => {
+              setOpen(false);
+              if (type === 'person') {
+                navigate(`/u/${item.id}`);
+              } else if (type === 'company') {
+                navigate(`/companies/${item.id}`);
+              }
+            }} 
+          />
+        </div>
+        
+        <div className="flex items-center gap-3">
+          {/* Mobile Search */}
+          <SearchIcon 
+            className="h-5 w-5 cursor-pointer hover:text-primary md:hidden" 
             onClick={() => navigate('/marketplace')} 
           />
+          
           <Users 
             className="h-5 w-5 cursor-pointer hover:text-primary" 
             onClick={() => setDrawerOpen(true)} 
@@ -65,6 +106,11 @@ export default function TopNavBar() {
           </Popover>
           
           <Bell className="h-5 w-5 cursor-pointer hover:text-primary" onClick={() => navigate('/notifications')} />
+          
+          <User 
+            className="h-5 w-5 cursor-pointer hover:text-primary" 
+            onClick={() => navigate('/profile')} 
+          />
         </div>
       </div>
       
