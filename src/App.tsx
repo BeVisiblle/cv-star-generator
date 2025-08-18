@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-route
 import { AuthenticatedLayout } from "@/components/AuthenticatedLayout";
 import { AuthProvider } from "@/hooks/useAuth";
 import { CVFormProvider } from "@/contexts/CVFormContext";
+import './styles/landing-overrides.css';
 import { CVGeneratorGate } from "@/components/CVGeneratorGate";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
