@@ -249,46 +249,13 @@ export function FeatureCardsSection() {
           </article>
 
           {/* Kontakt - Dark card */}
-          <article className="rounded-2xl bg-zinc-900/70 ring-1 ring-zinc-800 p-6 animate-fade-in hover-scale" style={{
-          animationDelay: '0.6s'
-        }}>
-            <div className="flex items-center gap-2 text-zinc-400">
-              <PhoneCall className="h-5 w-5" />
-              <span className="uppercase tracking-wide text-xs font-semibold">Kontakt</span>
-            </div>
-            <h3 className="mt-2 text-xl font-semibold text-white">Direkter Kontakt</h3>
-            <p className="mt-3 text-sm text-zinc-300 leading-relaxed">
-              WhatsApp, Telefon oder E-Mail – nimm sofort Kontakt auf.
-            </p>
-          </article>
+          
 
           {/* Qualität - Dark card */}
-          <article className="rounded-2xl bg-zinc-900/70 ring-1 ring-zinc-800 p-6 animate-fade-in hover-scale" style={{
-          animationDelay: '0.7s'
-        }}>
-            <div className="flex items-center gap-2 text-zinc-400">
-              <ShieldCheck className="h-5 w-5" />
-              <span className="uppercase tracking-wide text-xs font-semibold">Qualität</span>
-            </div>
-            <h3 className="mt-2 text-xl font-semibold text-white">Geprüfte Profile</h3>
-            <p className="mt-3 text-sm text-zinc-300 leading-relaxed">
-              Alle Profile werden verifiziert für höchste Qualität.
-            </p>
-          </article>
+          
 
           {/* CV Templates - New card */}
-          <article className="rounded-2xl bg-gradient-to-br from-emerald-600 to-teal-600 p-6 text-white animate-fade-in hover-scale" style={{
-          animationDelay: '0.9s'
-        }}>
-            <div className="flex items-center gap-2 text-white/90">
-              <Users className="h-5 w-5" />
-              <span className="uppercase tracking-wide text-xs font-semibold">Templates</span>
-            </div>
-            <h3 className="mt-2 text-xl font-semibold">Professionelle Layouts</h3>
-            <p className="mt-3 text-sm leading-relaxed text-white/90">
-              Wähle aus verschiedenen modernen CV-Vorlagen für jeden Beruf.
-            </p>
-          </article>
+          
           
 
         </div>
@@ -320,12 +287,7 @@ export function ProductShowcaseSection() {
 Community</h3>
               <p className="text-zinc-300 mb-8 leading-relaxed font-light">Erstelle deinen professionellen CV in nur fünf Schritten. Lade ihn als PDF herunter oder veröffentliche dein Profil – und werde direkt von Unternehmen gefunden und kontaktiert. Vernetze dich mit anderen Fachkräften, tausche Erfahrungen aus und tritt passenden Gruppen bei, um immer auf dem neuesten Stand zu bleiben.</p>
               <div className="aspect-[16/10] rounded-2xl ring-1 ring-zinc-800 overflow-hidden mb-6">
-                <img
-                  src="/lovable-uploads/4b784c18-de0b-4138-98bf-beb980e3fc0b.png"
-                  alt="Portal Feed Interface für Azubis und Fachkräfte"
-                  className="h-full w-full object-cover"
-                  loading="lazy"
-                />
+                <img src="/lovable-uploads/4b784c18-de0b-4138-98bf-beb980e3fc0b.png" alt="Portal Feed Interface für Azubis und Fachkräfte" className="h-full w-full object-cover" loading="lazy" />
               </div>
               <div className="flex gap-3 text-xs">
                 <span className="px-3 py-1 bg-[color:var(--brand)]/20 text-[color:var(--brand)] rounded-full">PDF Export</span>
@@ -350,12 +312,7 @@ Community</h3>
 
 Stärken Sie Ihr Employer Branding: Vernetzen Sie Ihr Team auf der Plattform und lassen Sie Mitarbeitende als authentische Markenbotschafter wirken.</p>
               <div className="aspect-[16/10] rounded-2xl ring-1 ring-zinc-800 overflow-hidden mb-6">
-                <img
-                  src="/lovable-uploads/356afafd-8910-495a-8ba8-35d74adf7cb1.png"
-                  alt="Kandidatensuche Interface für Unternehmen"
-                  className="h-full w-full object-cover"
-                  loading="lazy"
-                />
+                <img src="/lovable-uploads/356afafd-8910-495a-8ba8-35d74adf7cb1.png" alt="Kandidatensuche Interface für Unternehmen" className="h-full w-full object-cover" loading="lazy" />
               </div>
               <div className="flex gap-3 text-xs">
                 <span className="px-3 py-1 bg-blue-500/20 text-blue-400 rounded-full">Token-System</span>
