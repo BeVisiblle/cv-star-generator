@@ -157,11 +157,8 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
   
   return (
     <div className="min-h-screen flex flex-col w-full">
-      {/* Fixed TopNavBar on all pages except company routes */}
-      {!isCompanyRoute && <TopNavBar />}
-      
-      {/* Main content area with top padding only for non-company routes */}
-      <div className={isCompanyRoute ? "flex-1 bg-black" : "flex-1 pt-14 bg-black"}>
+      {/* Main content area without navigation bars */}
+      <div className="flex-1 bg-black">
         {children}
       </div>
     </div>
