@@ -38,21 +38,5 @@ export default function TopNavBar() {
   };
 
   // Fixed navbar that spans full width
-  return (
-    <div className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-sm border-b border-border">
-      <div className="container mx-auto px-4 h-14 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <SidebarTrigger />
-          <h1 className="text-lg font-semibold">{title}</h1>
-        </div>
-        
-        <div className="flex items-center gap-2">
-          <SearchIcon className="h-5 w-5" />
-          <Bell className="h-5 w-5" />
-          <MessageSquareMore className="h-5 w-5" />
-          <Users className="h-5 w-5" />
-        </div>
-      </div>
-    </div>
-  );
+  return;
 }
