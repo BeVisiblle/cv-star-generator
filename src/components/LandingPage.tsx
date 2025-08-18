@@ -249,9 +249,46 @@ export function FeatureCardsSection() {
           </article>
 
           {/* Kontakt - Dark card */}
-          
+          <article className="rounded-2xl bg-zinc-900/70 ring-1 ring-zinc-800 p-6 animate-fade-in hover-scale" style={{
+          animationDelay: '0.6s'
+        }}>
+            <div className="flex items-center gap-2 text-zinc-400">
+              <PhoneCall className="h-5 w-5" />
+              <span className="uppercase tracking-wide text-xs font-semibold">Kontakt</span>
+            </div>
+            <h3 className="mt-2 text-xl font-semibold text-white">Direkter Kontakt</h3>
+            <p className="mt-3 text-sm text-zinc-300 leading-relaxed">
+              WhatsApp, Telefon oder E-Mail – nimm sofort Kontakt auf.
+            </p>
+          </article>
 
           {/* Qualität - Dark card */}
+          <article className="rounded-2xl bg-zinc-900/70 ring-1 ring-zinc-800 p-6 animate-fade-in hover-scale" style={{
+          animationDelay: '0.7s'
+        }}>
+            <div className="flex items-center gap-2 text-zinc-400">
+              <ShieldCheck className="h-5 w-5" />
+              <span className="uppercase tracking-wide text-xs font-semibold">Qualität</span>
+            </div>
+            <h3 className="mt-2 text-xl font-semibold text-white">Geprüfte Profile</h3>
+            <p className="mt-3 text-sm text-zinc-300 leading-relaxed">
+              Alle Profile werden verifiziert für höchste Qualität.
+            </p>
+          </article>
+
+          {/* CV Templates - New card */}
+          <article className="rounded-2xl bg-gradient-to-br from-emerald-600 to-teal-600 p-6 text-white animate-fade-in hover-scale" style={{
+          animationDelay: '0.9s'
+        }}>
+            <div className="flex items-center gap-2 text-white/90">
+              <Users className="h-5 w-5" />
+              <span className="uppercase tracking-wide text-xs font-semibold">Templates</span>
+            </div>
+            <h3 className="mt-2 text-xl font-semibold">Professionelle Layouts</h3>
+            <p className="mt-3 text-sm leading-relaxed text-white/90">
+              Wähle aus verschiedenen modernen CV-Vorlagen für jeden Beruf.
+            </p>
+          </article>
           
 
         </div>
