@@ -26,7 +26,7 @@ export function useEmploymentRequests(userId?: string) {
     queryKey: ["employment_requests", userId],
     enabled: !!userId,
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data: base, error } = await supabase
         .from("company_employment_requests")
         .select(`
           id,
@@ -34,18 +34,32 @@ export function useEmploymentRequests(userId?: string) {
           company_id,
           status,
           created_at,
-          confirmed_by,
-          companies (
-            id,
-            name,
-            logo_url
-          )
+          confirmed_by
         `)
         .eq("user_id", userId!)
         .order("created_at", { ascending: false });
 
       if (error) throw error;
-      return data as any[] || [];
+
+      // Enrich with company details (manual join to avoid PostgREST rel issues)
+      const rows = (base as any[]) || [];
+      if (rows.length === 0) return [] as any[];
+
+      const companyIds = Array.from(new Set(rows.map(r => r.company_id).filter(Boolean)));
+      let companyMap = new Map<string, any>();
+      if (companyIds.length > 0) {
+        const { data: companies, error: cErr } = await supabase
+          .from("companies")
+          .select("id, name, logo_url")
+          .in("id", companyIds);
+        if (cErr) console.error("Error loading companies for employment requests:", cErr);
+        companyMap = new Map((companies || []).map((c: any) => [c.id, c]));
+      }
+
+      return rows.map(r => ({
+        ...r,
+        company: companyMap.get(r.company_id) || null,
+      }));
     },
     staleTime: 30_000,
   });
@@ -56,7 +70,7 @@ export function useCompanyEmploymentRequests(companyId?: string) {
     queryKey: ["company_employment_requests", companyId],
     enabled: !!companyId,
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data: base, error } = await supabase
         .from("company_employment_requests")
         .select(`
           id,
@@ -64,19 +78,31 @@ export function useCompanyEmploymentRequests(companyId?: string) {
           company_id,
           status,
           created_at,
-          confirmed_by,
-          profiles (
-            id,
-            vorname,
-            nachname,
-            headline
-          )
+          confirmed_by
         `)
         .eq("company_id", companyId!)
         .order("created_at", { ascending: false });
 
       if (error) throw error;
-      return data as any[] || [];
+
+      const rows = (base as any[]) || [];
+      if (rows.length === 0) return [] as any[];
+
+      const userIds = Array.from(new Set(rows.map(r => r.user_id).filter(Boolean)));
+      let profileMap = new Map<string, any>();
+      if (userIds.length > 0) {
+        const { data: profiles, error: pErr } = await supabase
+          .from("profiles")
+          .select("id, vorname, nachname, headline")
+          .in("id", userIds);
+        if (pErr) console.error("Error loading profiles for employment requests:", pErr);
+        profileMap = new Map((profiles || []).map((p: any) => [p.id, p]));
+      }
+
+      return rows.map(r => ({
+        ...r,
+        user_profile: profileMap.get(r.user_id) || null,
+      }));
     },
     staleTime: 30_000,
   });
