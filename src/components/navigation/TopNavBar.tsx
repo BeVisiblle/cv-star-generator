@@ -46,9 +46,30 @@ export default function TopNavBar() {
           <h1 className="text-lg font-semibold">{title}</h1>
         </div>
         <div className="flex items-center gap-2">
-          <Bell className="h-5 w-5" />
+          <SearchIcon 
+            className="h-5 w-5 cursor-pointer hover:text-primary" 
+            onClick={() => navigate('/marketplace')} 
+          />
+          <Users 
+            className="h-5 w-5 cursor-pointer hover:text-primary" 
+            onClick={() => setDrawerOpen(true)} 
+          />
+          
+          <Popover open={msgOpen} onOpenChange={setMsgOpen}>
+            <PopoverTrigger asChild>
+              <MessageSquareMore className="h-5 w-5 cursor-pointer hover:text-primary" />
+            </PopoverTrigger>
+            <PopoverContent className="w-80 p-0" align="end">
+              <MessagePopoverPanel onCompose={() => setMsgOpen(false)} />
+            </PopoverContent>
+          </Popover>
+          
+          <Bell className="h-5 w-5 cursor-pointer hover:text-primary" onClick={() => navigate('/notifications')} />
         </div>
       </div>
+      
+      {/* Connections Drawer */}
+      <ConnectionsDrawer open={drawerOpen} onOpenChange={setDrawerOpen} />
     </div>
   );
 }

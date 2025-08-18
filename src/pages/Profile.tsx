@@ -200,7 +200,7 @@ const Profile = () => {
   // Early returns after all hooks are declared
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen">
       {/* Header */}
       <div className="sticky top-14 z-30 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b">
         <div className="px-3 sm:px-6 lg:px-8 py-4">
