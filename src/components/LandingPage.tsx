@@ -183,25 +183,23 @@ export function FeatureCardsSection() {
             </div>
           </article>
 
-          {/* Gruppen - Brand color card */}
-          <article className="rounded-2xl bg-[color:var(--brand)] p-6 text-black animate-fade-in hover-scale lg:row-span-2" style={{
+          {/* Gruppen - Brand color card (made smaller) */}
+          <article className="rounded-2xl bg-[color:var(--brand)] p-6 text-black animate-fade-in hover-scale" style={{
           animationDelay: '0.3s'
         }}>
             <div className="flex items-center gap-2 text-black/80">
               <MessageSquare className="h-5 w-5" />
               <span className="uppercase tracking-wide text-xs font-semibold">Gruppen</span>
             </div>
-            <h3 className="mt-2 text-xl font-semibold">Interessen‑Gruppen & Lernhilfe</h3>
+            <h3 className="mt-2 text-xl font-semibold">Interessen‑Gruppen</h3>
             <p className="mt-3 text-sm leading-relaxed">
-              Tritt Gruppen bei, lerne von anderen oder hilf mit. Teile
-              Dokumente wie Lernzettel für Klausuren und diskutiere in
-              kleinen Runden über deine Zukunft.
+              Tritt Gruppen bei und tausche Lernzettel aus.
             </p>
           </article>
 
-          {/* AI-Powered CV - New 9th feature */}
+          {/* AI-Powered CV */}
           <article className="relative rounded-2xl bg-gradient-to-br from-purple-600 to-pink-600 p-6 text-white animate-fade-in hover-scale overflow-hidden" style={{
-          animationDelay: '0.8s'
+          animationDelay: '0.4s'
         }}>
             <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1677442136019-21780ecad995?q=80&w=2070&auto=format&fit=crop')] bg-cover bg-center opacity-20" />
             <div className="relative">
@@ -211,14 +209,14 @@ export function FeatureCardsSection() {
               </div>
               <h3 className="mt-2 text-xl font-semibold">Smart CV</h3>
               <p className="mt-3 text-sm leading-relaxed text-white/90">
-                KI optimiert automatisch deinen CV für verschiedene Branchen und Stellenausschreibungen.
+                KI optimiert automatisch deinen CV für verschiedene Branchen.
               </p>
             </div>
           </article>
 
           {/* 360° - Large bottom card */}
           <article className="relative rounded-2xl bg-zinc-900/90 ring-1 ring-zinc-800 p-6 md:p-8 lg:col-span-2 animate-fade-in hover-scale overflow-hidden" style={{
-          animationDelay: '0.4s'
+          animationDelay: '0.5s'
         }}>
             <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2072&auto=format&fit=crop')] bg-cover bg-center opacity-20" />
             <div className="relative">
@@ -236,21 +234,21 @@ export function FeatureCardsSection() {
             </div>
           </article>
 
-          {/* Matches - Red accent card */}
+          {/* Matches - Red accent card (smaller) */}
           <article className="rounded-2xl bg-red-600/90 text-white p-6 animate-fade-in hover-scale" style={{
-          animationDelay: '0.5s'
+          animationDelay: '0.6s'
         }}>
             <div className="flex items-center gap-2 text-white/90">
               <Sparkles className="h-5 w-5" />
               <span className="uppercase tracking-wide text-xs font-semibold">Matches</span>
             </div>
             <h3 className="mt-2 text-xl font-semibold">Direkte Matches</h3>
-            <p className="mt-3 text-sm leading-relaxed text-white/90">Erhalte automatisch passende Matches – täglich aktualisiert.</p>
+            <p className="mt-3 text-sm leading-relaxed text-white/90">Erhalte passende Matches täglich.</p>
           </article>
 
           {/* Kontakt - Dark card */}
           <article className="rounded-2xl bg-zinc-900/70 ring-1 ring-zinc-800 p-6 animate-fade-in hover-scale" style={{
-          animationDelay: '0.6s'
+          animationDelay: '0.7s'
         }}>
             <div className="flex items-center gap-2 text-zinc-400">
               <PhoneCall className="h-5 w-5" />
@@ -258,13 +256,13 @@ export function FeatureCardsSection() {
             </div>
             <h3 className="mt-2 text-xl font-semibold text-white">Direkter Kontakt</h3>
             <p className="mt-3 text-sm text-zinc-300 leading-relaxed">
-              WhatsApp, Telefon oder E-Mail – nimm sofort Kontakt auf.
+              WhatsApp, Telefon oder E-Mail – sofort erreichbar.
             </p>
           </article>
 
           {/* Qualität - Dark card */}
           <article className="rounded-2xl bg-zinc-900/70 ring-1 ring-zinc-800 p-6 animate-fade-in hover-scale" style={{
-          animationDelay: '0.7s'
+          animationDelay: '0.8s'
         }}>
             <div className="flex items-center gap-2 text-zinc-400">
               <ShieldCheck className="h-5 w-5" />
@@ -273,20 +271,6 @@ export function FeatureCardsSection() {
             <h3 className="mt-2 text-xl font-semibold text-white">Geprüfte Profile</h3>
             <p className="mt-3 text-sm text-zinc-300 leading-relaxed">
               Alle Profile werden verifiziert für höchste Qualität.
-            </p>
-          </article>
-
-          {/* CV Templates - New card */}
-          <article className="rounded-2xl bg-gradient-to-br from-emerald-600 to-teal-600 p-6 text-white animate-fade-in hover-scale" style={{
-          animationDelay: '0.9s'
-        }}>
-            <div className="flex items-center gap-2 text-white/90">
-              <Users className="h-5 w-5" />
-              <span className="uppercase tracking-wide text-xs font-semibold">Templates</span>
-            </div>
-            <h3 className="mt-2 text-xl font-semibold">Professionelle Layouts</h3>
-            <p className="mt-3 text-sm leading-relaxed text-white/90">
-              Wähle aus verschiedenen modernen CV-Vorlagen für jeden Beruf.
             </p>
           </article>
           
