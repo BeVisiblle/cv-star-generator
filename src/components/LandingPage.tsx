@@ -8,26 +8,19 @@ import { Link } from 'react-router-dom';
  Structure:
  1) Hero Header
  2) Brand/Unternehmensname
- 3) FeatureCardsSection (Fixed Grid Layout)
+ 3) FeatureCardsSection (8 Tiles)
  4) Produkt‑Showcase (User & Unternehmen)
  5) Dual Call‑to‑Action (beide Zielgruppen)
  6) Footer
 
  Notes:
  - Accent color uses inline style var --brand (default #5ce1e6)
- - No navbar on landing page
- - Full black background
 */
 
 export default function LandingPage() {
-  return <main className="min-h-screen w-screen bg-black text-white overflow-x-hidden" style={{
+  return <main className="min-h-screen bg-black text-white w-full" style={{
     ['--brand' as any]: '#5ce1e6'
   }}>
-    <style>{`
-      header[role="banner"], .navbar, .topbar, .app-header, .page-title {
-        display: none !important;
-      }
-    `}</style>
       {/* Simple Header */}
       <header className="bg-black py-4 w-full">
         <div className="mx-auto max-w-7xl px-4 flex items-center justify-between">
@@ -60,9 +53,6 @@ export default function LandingPage() {
               <div className="mt-10 flex flex-col sm:flex-row gap-4">
                 <Link to="/cv-generator" className="inline-flex items-center justify-center rounded-2xl px-6 py-3 text-base font-semibold bg-[color:var(--brand)] text-black shadow-lg shadow-teal-500/20">
                   Lebenslauf erstellen – kostenlos
-                </Link>
-                <Link to="/unternehmen" className="inline-flex items-center justify-center rounded-2xl px-6 py-3 text-base font-semibold border border-zinc-700 text-white hover:bg-zinc-900">
-                  Unternehmensprofil erstellen
                 </Link>
               </div>
             </div>
@@ -146,13 +136,13 @@ export function FeatureCardsSection() {
           Warum unser CV‑Generator anders ist
         </h2>
 
-        {/* Fixed Grid Layout: [CV tall] | [360°] | [2x2 small cards] */}
-        <div className="max-w-7xl mx-auto grid gap-4 lg:grid-cols-[minmax(280px,360px)_minmax(520px,1fr)_minmax(280px,340px)] items-stretch">
+        {/* Masonry-style Grid inspired by the reference */}
+        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
           
-          {/* LEFT: CV in 5 Schritten - Large left card */}
-          <article className="relative overflow-hidden rounded-2xl bg-zinc-900/90 ring-1 ring-zinc-800 min-h-[560px] animate-fade-in hover-scale">
+          {/* CV in 5 Schritten - Large left card */}
+          <article className="relative overflow-hidden rounded-2xl bg-zinc-900/90 ring-1 ring-zinc-800 lg:row-span-2 animate-fade-in hover-scale">
             <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=1974&auto=format&fit=crop')] bg-cover bg-center opacity-30" />
-            <div className="relative p-6 md:p-8 h-full flex flex-col justify-between">
+            <div className="relative p-6 md:p-8 h-full flex flex-col justify-between min-h-[300px]">
               <div>
                 <h3 className="text-3xl md:text-4xl font-bold text-white">CV in 5 Schritten</h3>
                 <p className="mt-4 text-sm text-zinc-200/90 leading-relaxed">
@@ -164,98 +154,22 @@ export function FeatureCardsSection() {
             </div>
           </article>
 
-          {/* MIDDLE: 360° - Same height */}
-          <article className="relative rounded-2xl bg-zinc-900/90 ring-1 ring-zinc-800 p-8 min-h-[560px] flex flex-col justify-between animate-fade-in hover-scale overflow-hidden">
-            <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2072&auto=format&fit=crop')] bg-cover bg-center opacity-20" />
-            <div className="relative">
-              <div className="text-6xl md:text-7xl font-extrabold tracking-tight text-white mb-4">360°</div>
-              <h3 className="text-2xl md:text-3xl font-bold text-white mb-4">Recruiting & Employer Branding</h3>
-              <p className="text-sm text-zinc-300 leading-relaxed">
-                Finden Sie spannende Profile mit vollständigen Daten, schalten
-                Sie diese frei und überzeugen Sie Talente von Ihrem
-                Unternehmen. Mitarbeitende werden zu Markenbotschafter:innen –
-                durch Austausch in Ihrem Namen.
-              </p>
-              <div className="mt-6 inline-block rounded-xl bg-gradient-to-br from-zinc-800/80 to-zinc-900/80 p-4 ring-1 ring-zinc-700/50 backdrop-blur-sm">
-                <p className="text-xs text-zinc-300">Freigabe via Token‑Modell, Export als Link/PDF/QR.</p>
-              </div>
-            </div>
-          </article>
-
-          {/* RIGHT: 2x2 small cards */}
-          <div className="grid grid-cols-2 gap-4 min-h-[560px]">
-            {/* Matches (rot) */}
-            <article className="rounded-2xl bg-red-600/90 text-white p-6 animate-fade-in hover-scale">
-              <div className="flex items-center gap-2 text-white/90">
-                <Sparkles className="h-5 w-5" />
-                <span className="uppercase tracking-wide text-xs font-semibold">Matches</span>
-              </div>
-              <h3 className="mt-2 text-lg font-semibold">Direkte Matches</h3>
-              <p className="mt-3 text-xs leading-relaxed text-white/90">Wöchentliche Vorschläge passend zu deinem Profil</p>
-            </article>
-
-            {/* Sofortkontakt */}
-            <article className="rounded-2xl bg-zinc-900/70 ring-1 ring-zinc-800 p-6 animate-fade-in hover-scale">
-              <div className="flex items-center gap-2 text-zinc-400">
-                <PhoneCall className="h-5 w-5" />
-                <span className="uppercase tracking-wide text-xs font-semibold">Kontakt</span>
-              </div>
-              <h3 className="mt-2 text-lg font-semibold text-white">Sofortkontakt & Multichannel</h3>
-              <p className="mt-3 text-xs text-zinc-300 leading-relaxed">WhatsApp, Telefon, E-Mail</p>
-            </article>
-
-            {/* Verifizierte Profile */}
-            <article className="rounded-2xl bg-zinc-900/70 ring-1 ring-zinc-800 p-6 animate-fade-in hover-scale">
-              <div className="flex items-center gap-2 text-zinc-400">
-                <ShieldCheck className="h-5 w-5" />
-                <span className="uppercase tracking-wide text-xs font-semibold">Qualität</span>
-              </div>
-              <h3 className="mt-2 text-lg font-semibold text-white">Verifizierte Profile</h3>
-              <p className="mt-3 text-xs text-zinc-300 leading-relaxed">Standardisierte Daten & Dokumente</p>
-            </article>
-
-            {/* Analytics & Team-Branding (mit Bild-Hintergrund) */}
-            <article className="relative rounded-2xl p-6 overflow-hidden ring-1 ring-zinc-800 animate-fade-in hover-scale">
-              <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1551281044-8d8d0d8d7b5a?q=80&w=1920&auto=format&fit=crop')] bg-cover bg-center opacity-20" />
-              <div className="relative">
-                <div className="flex items-center gap-2 text-zinc-300">
-                  <Building2 className="h-5 w-5" />
-                  <span className="uppercase tracking-wide text-xs font-semibold">Insights</span>
-                </div>
-                <h3 className="mt-2 text-lg font-semibold text-white">Analytics & Team-Branding</h3>
-                <p className="mt-3 text-xs text-zinc-300 leading-relaxed">Sichtbarkeit messen, Wirkung belegen</p>
-              </div>
-            </article>
-          </div>
-        </div>
-
-        {/* Additional feature cards below for mobile/tablet */}
-        <div className="lg:hidden max-w-7xl mx-auto mt-8 grid grid-cols-1 md:grid-cols-2 gap-4">
-          
           {/* Community - White card */}
-          <article className="rounded-2xl bg-white text-zinc-900 ring-1 ring-zinc-200 p-6 animate-fade-in hover-scale">
+          <article className="rounded-2xl bg-white text-zinc-900 ring-1 ring-zinc-200 p-6 animate-fade-in hover-scale" style={{
+          animationDelay: '0.1s'
+        }}>
             <div className="flex items-center gap-2 text-zinc-700">
               <Users className="h-5 w-5" />
               <span className="uppercase tracking-wide text-xs font-semibold">Community</span>
             </div>
             <h3 className="mt-2 text-xl font-semibold">Vernetzen & Austausch</h3>
-            <p className="mt-3 text-sm text-zinc-700 leading-relaxed">Tritt in Kontakt mit Fachkräften aus deiner und anderen Branchen</p>
-          </article>
-
-          {/* Fachbezogene Gruppen - Brand color card */}
-          <article className="rounded-2xl bg-[color:var(--brand)] p-6 text-black animate-fade-in hover-scale">
-            <div className="flex items-center gap-2 text-black/80">
-              <MessageSquare className="h-5 w-5" />
-              <span className="uppercase tracking-wide text-xs font-semibold">Gruppen</span>
-            </div>
-            <h3 className="mt-2 text-xl font-semibold">Fachbezogene Gruppen & Lernhilfe</h3>
-            <p className="mt-3 text-sm leading-relaxed">
-              Tritt Gruppen bei, lerne von anderen oder hilf mit. Teile Lernzettel und diskutiere über deine Zukunft.
-            </p>
+            <p className="mt-3 text-sm text-zinc-700 leading-relaxed">Tritt in Kontakt mit Fachkräften aus deiner und anderen Branchen und vernetze dich mit der Community von morgen.</p>
           </article>
 
           {/* Unternehmen - Dark card with subtle background */}
-          <article className="relative rounded-2xl bg-zinc-900/70 ring-1 ring-zinc-800 p-6 animate-fade-in hover-scale overflow-hidden">
+          <article className="relative rounded-2xl bg-zinc-900/70 ring-1 ring-zinc-800 p-6 animate-fade-in hover-scale overflow-hidden" style={{
+          animationDelay: '0.2s'
+        }}>
             <div className="absolute inset-0 bg-gradient-to-br from-blue-900/20 to-purple-900/20" />
             <div className="relative">
               <div className="flex items-center gap-2 text-zinc-400">
@@ -269,8 +183,26 @@ export function FeatureCardsSection() {
             </div>
           </article>
 
-          {/* AI-Powered CV */}
-          <article className="relative rounded-2xl bg-gradient-to-br from-purple-600 to-pink-600 p-6 text-white animate-fade-in hover-scale overflow-hidden">
+          {/* Gruppen - Brand color card */}
+          <article className="rounded-2xl bg-[color:var(--brand)] p-6 text-black animate-fade-in hover-scale lg:row-span-2" style={{
+          animationDelay: '0.3s'
+        }}>
+            <div className="flex items-center gap-2 text-black/80">
+              <MessageSquare className="h-5 w-5" />
+              <span className="uppercase tracking-wide text-xs font-semibold">Gruppen</span>
+            </div>
+            <h3 className="mt-2 text-xl font-semibold">Interessen‑Gruppen & Lernhilfe</h3>
+            <p className="mt-3 text-sm leading-relaxed">
+              Tritt Gruppen bei, lerne von anderen oder hilf mit. Teile
+              Dokumente wie Lernzettel für Klausuren und diskutiere in
+              kleinen Runden über deine Zukunft.
+            </p>
+          </article>
+
+          {/* AI-Powered CV - New 9th feature */}
+          <article className="relative rounded-2xl bg-gradient-to-br from-purple-600 to-pink-600 p-6 text-white animate-fade-in hover-scale overflow-hidden" style={{
+          animationDelay: '0.8s'
+        }}>
             <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1677442136019-21780ecad995?q=80&w=2070&auto=format&fit=crop')] bg-cover bg-center opacity-20" />
             <div className="relative">
               <div className="flex items-center gap-2 text-white/90">
@@ -283,7 +215,82 @@ export function FeatureCardsSection() {
               </p>
             </div>
           </article>
+
+          {/* 360° - Large bottom card */}
+          <article className="relative rounded-2xl bg-zinc-900/90 ring-1 ring-zinc-800 p-6 md:p-8 lg:col-span-2 animate-fade-in hover-scale overflow-hidden" style={{
+          animationDelay: '0.4s'
+        }}>
+            <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2072&auto=format&fit=crop')] bg-cover bg-center opacity-20" />
+            <div className="relative">
+              <div className="text-6xl md:text-7xl font-extrabold tracking-tight text-white mb-4">360°</div>
+              <h3 className="text-2xl md:text-3xl font-bold text-white mb-4">Recruiting & Employer Branding</h3>
+              <p className="text-sm text-zinc-300 leading-relaxed max-w-2xl">
+                Finden Sie spannende Profile mit vollständigen Daten, schalten
+                Sie diese frei und überzeugen Sie Talente von Ihrem
+                Unternehmen. Mitarbeitende werden zu Markenbotschafter:innen –
+                durch Austausch in Ihrem Namen.
+              </p>
+              <div className="mt-6 inline-block rounded-xl bg-gradient-to-br from-zinc-800/80 to-zinc-900/80 p-4 ring-1 ring-zinc-700/50 backdrop-blur-sm">
+                <p className="text-xs text-zinc-300">Freigabe via Token‑Modell, Export als Link/PDF/QR.</p>
+              </div>
+            </div>
+          </article>
+
+          {/* Matches - Red accent card */}
+          <article className="rounded-2xl bg-red-600/90 text-white p-6 animate-fade-in hover-scale" style={{
+          animationDelay: '0.5s'
+        }}>
+            <div className="flex items-center gap-2 text-white/90">
+              <Sparkles className="h-5 w-5" />
+              <span className="uppercase tracking-wide text-xs font-semibold">Matches</span>
+            </div>
+            <h3 className="mt-2 text-xl font-semibold">Direkte Matches</h3>
+            <p className="mt-3 text-sm leading-relaxed text-white/90">Erhalte automatisch passende Matches – täglich aktualisiert.</p>
+          </article>
+
+          {/* Kontakt - Dark card */}
+          <article className="rounded-2xl bg-zinc-900/70 ring-1 ring-zinc-800 p-6 animate-fade-in hover-scale" style={{
+          animationDelay: '0.6s'
+        }}>
+            <div className="flex items-center gap-2 text-zinc-400">
+              <PhoneCall className="h-5 w-5" />
+              <span className="uppercase tracking-wide text-xs font-semibold">Kontakt</span>
+            </div>
+            <h3 className="mt-2 text-xl font-semibold text-white">Direkter Kontakt</h3>
+            <p className="mt-3 text-sm text-zinc-300 leading-relaxed">
+              WhatsApp, Telefon oder E-Mail – nimm sofort Kontakt auf.
+            </p>
+          </article>
+
+          {/* Qualität - Dark card */}
+          <article className="rounded-2xl bg-zinc-900/70 ring-1 ring-zinc-800 p-6 animate-fade-in hover-scale" style={{
+          animationDelay: '0.7s'
+        }}>
+            <div className="flex items-center gap-2 text-zinc-400">
+              <ShieldCheck className="h-5 w-5" />
+              <span className="uppercase tracking-wide text-xs font-semibold">Qualität</span>
+            </div>
+            <h3 className="mt-2 text-xl font-semibold text-white">Geprüfte Profile</h3>
+            <p className="mt-3 text-sm text-zinc-300 leading-relaxed">
+              Alle Profile werden verifiziert für höchste Qualität.
+            </p>
+          </article>
+
+          {/* CV Templates - New card */}
+          <article className="rounded-2xl bg-gradient-to-br from-emerald-600 to-teal-600 p-6 text-white animate-fade-in hover-scale" style={{
+          animationDelay: '0.9s'
+        }}>
+            <div className="flex items-center gap-2 text-white/90">
+              <Users className="h-5 w-5" />
+              <span className="uppercase tracking-wide text-xs font-semibold">Templates</span>
+            </div>
+            <h3 className="mt-2 text-xl font-semibold">Professionelle Layouts</h3>
+            <p className="mt-3 text-sm leading-relaxed text-white/90">
+              Wähle aus verschiedenen modernen CV-Vorlagen für jeden Beruf.
+            </p>
+          </article>
           
+
         </div>
       </div>
     </section>;
