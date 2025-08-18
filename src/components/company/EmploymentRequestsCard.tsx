@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Check, X, Clock, UserCheck } from "lucide-react";
-import { useCompanyEmploymentRequests, EmploymentRequest } from "@/hooks/useEmploymentRequests";
+import { useCompanyEmploymentRequests, useUpdateEmploymentRequest, EmploymentRequest } from "@/hooks/useEmploymentRequests";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { CompanyProfile } from "@/types/company";
@@ -14,43 +14,12 @@ interface EmploymentRequestsCardProps {
 }
 
 export function EmploymentRequestsCard({ company }: EmploymentRequestsCardProps) {
-  const { data: requests = [], refetch } = useCompanyEmploymentRequests(company?.id);
-  const [processing, setProcessing] = useState<string | null>(null);
+  const { data: requests = [] } = useCompanyEmploymentRequests(company?.id);
+  const updateRequest = useUpdateEmploymentRequest();
   const { toast } = useToast();
 
   const handleRequestResponse = async (requestId: string, status: 'accepted' | 'declined') => {
-    if (!company?.id) return;
-    
-    setProcessing(requestId);
-    try {
-      const { error } = await supabase
-        .from('company_employment_requests')
-        .update({ 
-          status,
-          confirmed_by: (await supabase.auth.getUser()).data.user?.id
-        })
-        .eq('id', requestId)
-        .eq('company_id', company.id);
-
-      if (error) throw error;
-
-      toast({ 
-        title: status === 'accepted' ? "Antrag angenommen" : "Antrag abgelehnt",
-        description: status === 'accepted' 
-          ? "Der Benutzer wurde als Mitarbeiter bestätigt." 
-          : "Der Antrag wurde abgelehnt."
-      });
-      
-      refetch();
-    } catch (error: any) {
-      toast({ 
-        title: "Fehler", 
-        description: error.message || "Fehler beim Bearbeiten des Antrags",
-        variant: "destructive" 
-      });
-    } finally {
-      setProcessing(null);
-    }
+    // This function is now handled by the mutation hook
   };
 
   const getStatusBadge = (status: string) => {
@@ -123,8 +92,8 @@ export function EmploymentRequestsCard({ company }: EmploymentRequestsCardProps)
                       size="sm"
                       variant="default"
                       className="bg-green-600 hover:bg-green-700"
-                      disabled={processing === request.id}
-                      onClick={() => handleRequestResponse(request.id, 'accepted')}
+                      disabled={updateRequest.isPending}
+                      onClick={() => updateRequest.mutate({ requestId: request.id, status: 'accepted' })}
                     >
                       <Check className="h-4 w-4 mr-1" />
                       Annehmen
@@ -132,8 +101,8 @@ export function EmploymentRequestsCard({ company }: EmploymentRequestsCardProps)
                     <Button
                       size="sm"
                       variant="outline"
-                      disabled={processing === request.id}
-                      onClick={() => handleRequestResponse(request.id, 'declined')}
+                      disabled={updateRequest.isPending}
+                      onClick={() => updateRequest.mutate({ requestId: request.id, status: 'declined' })}
                     >
                       <X className="h-4 w-4 mr-1" />
                       Ablehnen

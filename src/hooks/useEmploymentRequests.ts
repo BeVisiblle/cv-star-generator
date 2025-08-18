@@ -1,5 +1,6 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 export type EmploymentRequest = {
   id: string;
@@ -105,5 +106,36 @@ export function useCompanyEmploymentRequests(companyId?: string) {
       }));
     },
     staleTime: 30_000,
+  });
+}
+
+export function useUpdateEmploymentRequest() {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async ({ requestId, status }: { requestId: string; status: 'accepted' | 'declined' }) => {
+      const { error } = await supabase
+        .from("company_employment_requests")
+        .update({ 
+          status, 
+          confirmed_by: (await supabase.auth.getUser()).data.user?.id 
+        })
+        .eq("id", requestId);
+      
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      // Invalidate all related queries for live updates
+      queryClient.invalidateQueries({ queryKey: ["employment_requests"] });
+      queryClient.invalidateQueries({ queryKey: ["company_employment_requests"] });
+      queryClient.invalidateQueries({ queryKey: ["profiles_public"] });
+      queryClient.invalidateQueries({ queryKey: ["company_people_public"] });
+      
+      toast.success("Anfrage erfolgreich bearbeitet");
+    },
+    onError: (error) => {
+      console.error("Error updating employment request:", error);
+      toast.error("Fehler beim Bearbeiten der Anfrage");
+    },
   });
 }

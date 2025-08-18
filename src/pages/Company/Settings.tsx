@@ -24,6 +24,7 @@ import {
 import { TagPicker, TagType } from "@/components/company/matching/TagPicker";
 import { BranchSelector } from "@/components/Company/BranchSelector";
 import { EmploymentRequestsCard } from "@/components/company/EmploymentRequestsCard";
+import { CompanyPeople } from "@/components/company/CompanyPeople";
 
 interface TeamMember {
   id: string;
@@ -404,6 +405,9 @@ export default function CompanySettings() {
 
             {/* Employment Requests Card */}
             <EmploymentRequestsCard company={company} />
+
+            {/* Company People (Team) */}
+            {company && <CompanyPeople companyId={company.id} />}
           </div>
         </TabsContent>
 

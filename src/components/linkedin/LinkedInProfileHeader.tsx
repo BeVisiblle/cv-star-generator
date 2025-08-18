@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { Camera, Edit3, MapPin } from 'lucide-react';
+import { Camera, Edit3, MapPin, Building2 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
+import { usePublicProfile } from '@/hooks/usePublicProfile';
 
 interface LinkedInProfileHeaderProps {
   profile: any;
@@ -23,6 +24,9 @@ export const LinkedInProfileHeader: React.FC<LinkedInProfileHeaderProps> = ({
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
   const [headline, setHeadline] = useState(profile?.headline || '');
 
+  // Use live profile data for employment information
+  const { data: liveProfile } = usePublicProfile(profile?.id);
+
   // Sync local headline state with profile changes
   React.useEffect(() => {
     setHeadline(profile?.headline || '');
@@ -30,9 +34,16 @@ export const LinkedInProfileHeader: React.FC<LinkedInProfileHeaderProps> = ({
   const [currentPosition, setCurrentPosition] = useState('');
   const coverInputRef = useRef<HTMLInputElement>(null);
   const avatarInputRef = useRef<HTMLInputElement>(null);
-  const hasHeadline = typeof profile?.headline === 'string' && profile.headline.trim().length > 0;
+  const hasHeadline = typeof (liveProfile?.headline || profile?.headline) === 'string' && (liveProfile?.headline || profile?.headline).trim().length > 0;
   const { user } = useAuth();
   const isOwner = user?.id === profile?.id;
+
+  // Show company badge from live data
+  const company = liveProfile?.company_id ? {
+    name: liveProfile.company_name!,
+    logo: liveProfile.company_logo,
+    href: `/companies/${liveProfile.company_id}`,
+  } : null;
 
   // Get current position from profile data
   React.useEffect(() => {
@@ -382,10 +393,25 @@ export const LinkedInProfileHeader: React.FC<LinkedInProfileHeaderProps> = ({
           )}
           
            <p className="text-sm md:text-lg font-medium text-muted-foreground line-clamp-2">
-             {hasHeadline ? profile?.headline : '—'}
+             {hasHeadline ? (liveProfile?.headline || profile?.headline) : '—'}
            </p>
-          
-          <p className="text-sm text-muted-foreground flex flex-wrap items-center gap-x-1.5 gap-y-1">
+           
+           {/* Show company employment badge */}
+           {company && (
+             <div className="flex items-center gap-2 mt-2">
+               <Building2 className="h-4 w-4 text-muted-foreground" />
+               <a href={company.href} className="hover:underline">
+                 <Badge variant="secondary" className="flex items-center gap-1">
+                   {company.logo && (
+                     <img src={company.logo} alt="" className="w-4 h-4 rounded-sm" />
+                   )}
+                   {company.name}
+                 </Badge>
+               </a>
+             </div>
+           )}
+           
+           <p className="text-sm text-muted-foreground flex flex-wrap items-center gap-x-1.5 gap-y-1">
             <MapPin className="h-4 w-4" aria-hidden />
             <span>{profile?.ort || '—'}</span>
             {profile?.branche && <span> • {profile.branche}</span>}
