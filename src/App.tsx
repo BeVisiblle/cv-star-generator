@@ -193,7 +193,7 @@ const App = () => (
         <BrowserRouter>
           <UniversalLayout>
             <Routes>
-              <Route path="/" element={<BaseLayout><Index /></BaseLayout>} />
+              <Route path="/" element={<BaseLayout className="bg-black text-white"><Index /></BaseLayout>} />
               <Route path="/auth" element={<Auth />} />
               <Route path="/blog" element={<Blog />} />
               <Route path="/blog/:slug" element={<PublicPage />} />
