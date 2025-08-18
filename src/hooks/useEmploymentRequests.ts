@@ -130,6 +130,7 @@ export function useUpdateEmploymentRequest() {
       queryClient.invalidateQueries({ queryKey: ["company_employment_requests"] });
       queryClient.invalidateQueries({ queryKey: ["profiles_public"] });
       queryClient.invalidateQueries({ queryKey: ["company_people_public"] });
+      queryClient.invalidateQueries({ queryKey: ["home-feed"] });
       
       toast.success("Anfrage erfolgreich bearbeitet");
     },

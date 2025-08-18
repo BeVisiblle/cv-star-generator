@@ -83,8 +83,15 @@ const getInitials = () => {
 
 const authorSubtitle = useMemo(() => {
   if (post.author_type === 'company') return '';
-  const a = post.author;
+  const a = post.author as any;
   if (!a) return '';
+  
+  // Use live employment data from profiles_public
+  if (a.employment_status && a.headline && a.company_name) {
+    return `${a.headline} @${a.company_name}`;
+  }
+  
+  // Fallback to legacy fields for backwards compatibility
   if (a.status === 'schueler' && a.schule) return `Schüler @ ${a.schule}`;
   if (a.status === 'azubi') {
     const job = a.ausbildungsberuf ? `im Bereich ${a.ausbildungsberuf}` : '';
@@ -96,7 +103,7 @@ const authorSubtitle = useMemo(() => {
     const company = a.ausbildungsbetrieb ? ` @ ${a.ausbildungsbetrieb}` : '';
     return `${job}${company}`;
   }
-  return a.ausbildungsberuf || '';
+  return a.ausbildungsberuf || a.headline || '';
 }, [post.author, post.author_type]);
 
   const truncated = useMemo(() => {

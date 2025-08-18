@@ -53,8 +53,8 @@ export default function CommunityFeed() {
       let profilesMap: Record<string, any> = {};
       if (authorIds.length > 0) {
         const { data: profiles, error: profileErr } = await supabase
-          .from('profiles')
-          .select('id, vorname, nachname, avatar_url, ausbildungsberuf')
+          .from('profiles_public')
+          .select('id, vorname, nachname, avatar_url, headline, full_name, company_id, company_name, company_logo, employment_status')
           .in('id', authorIds);
 
         if (profileErr) {
@@ -150,8 +150,8 @@ export default function CommunityFeed() {
       let author = null;
       if (newRow.user_id) {
         const { data: profiles, error: profErr } = await supabase
-          .from('profiles')
-          .select('id, vorname, nachname, avatar_url, ausbildungsberuf')
+          .from('profiles_public')
+          .select('id, vorname, nachname, avatar_url, headline, full_name, company_id, company_name, company_logo, employment_status')
           .eq('id', newRow.user_id)
           .limit(1);
         if (!profErr && profiles && profiles.length) {
