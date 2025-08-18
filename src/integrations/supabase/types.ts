@@ -278,6 +278,7 @@ export type Database = {
           created_at: string | null
           description: string | null
           employee_count: number | null
+          employer_profile: boolean | null
           founded_year: number | null
           header_image: string | null
           id: string
@@ -314,6 +315,7 @@ export type Database = {
           created_at?: string | null
           description?: string | null
           employee_count?: number | null
+          employer_profile?: boolean | null
           founded_year?: number | null
           header_image?: string | null
           id?: string
@@ -350,6 +352,7 @@ export type Database = {
           created_at?: string | null
           description?: string | null
           employee_count?: number | null
+          employer_profile?: boolean | null
           founded_year?: number | null
           header_image?: string | null
           id?: string
@@ -2216,6 +2219,8 @@ export type Database = {
           driver_license_class: string | null
           einwilligung: boolean | null
           email: string | null
+          employer_free: string | null
+          employer_slogan: string | null
           faehigkeiten: Json | null
           geburtsdatum: string | null
           geplanter_abschluss: string | null
@@ -2269,6 +2274,8 @@ export type Database = {
           driver_license_class?: string | null
           einwilligung?: boolean | null
           email?: string | null
+          employer_free?: string | null
+          employer_slogan?: string | null
           faehigkeiten?: Json | null
           geburtsdatum?: string | null
           geplanter_abschluss?: string | null
@@ -2322,6 +2329,8 @@ export type Database = {
           driver_license_class?: string | null
           einwilligung?: boolean | null
           email?: string | null
+          employer_free?: string | null
+          employer_slogan?: string | null
           faehigkeiten?: Json | null
           geburtsdatum?: string | null
           geplanter_abschluss?: string | null
@@ -3643,6 +3652,8 @@ export type Database = {
           driver_license_class: string | null
           einwilligung: boolean | null
           email: string | null
+          employer_free: string | null
+          employer_slogan: string | null
           faehigkeiten: Json | null
           geburtsdatum: string | null
           geplanter_abschluss: string | null
@@ -3695,6 +3706,26 @@ export type Database = {
         Returns: unknown
       }
       gidx_out: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      gtrgm_compress: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      gtrgm_decompress: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      gtrgm_in: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      gtrgm_options: {
+        Args: { "": unknown }
+        Returns: undefined
+      }
+      gtrgm_out: {
         Args: { "": unknown }
         Returns: unknown
       }
@@ -3972,6 +4003,15 @@ export type Database = {
           profile_id: string
         }[]
       }
+      search_companies_for_claim: {
+        Args: { limit?: number; q?: string }
+        Returns: {
+          id: string
+          logo_url: string
+          name: string
+          slug: string
+        }[]
+      }
       search_companies_within_radius: {
         Args: { lat_input: number; lon_input: number; radius_km: number }
         Returns: {
@@ -3981,6 +4021,18 @@ export type Database = {
           name: string
           postal_code: string
         }[]
+      }
+      set_limit: {
+        Args: { "": number }
+        Returns: number
+      }
+      show_limit: {
+        Args: Record<PropertyKey, never>
+        Returns: number
+      }
+      show_trgm: {
+        Args: { "": string }
+        Returns: string[]
       }
       spheroid_in: {
         Args: { "": unknown }
