@@ -20,50 +20,42 @@ import { Link } from 'react-router-dom';
 export default function LandingPage() {
   return (
     <main className="bg-black text-white" style={{ ['--brand' as any]: '#5ce1e6' }}>
-      {/* Header with Logo and Login */}
-      <header className="relative z-10">
+      {/* 1) Hero Header */}
+      <section className="relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-b from-zinc-900 via-black to-black" />
+        <div className="relative mx-auto max-w-7xl px-4 py-24 md:py-32">
+          <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight leading-[0.95]">
+            Mach keinen Lebenslauf.<br />
+            <span className="text-[color:var(--brand)]">Mach Eindruck.</span>
+          </h1>
+          <p className="mt-6 max-w-2xl text-zinc-300 text-lg">
+            In nur 5 Minuten zum perfekten Azubi‑CV. Keine langweiligen Bewerbungen mehr –
+            werde direkt von Unternehmen gefunden und kontaktiert.
+          </p>
+          <div className="mt-10 flex flex-col sm:flex-row gap-4">
+            <Link to="/cv-generator" className="inline-flex items-center justify-center rounded-2xl px-6 py-3 text-base font-semibold bg-[color:var(--brand)] text-black shadow-lg shadow-teal-500/20">
+              Lebenslauf erstellen – kostenlos
+            </Link>
+            <Link to="/auth" className="inline-flex items-center justify-center rounded-2xl px-6 py-3 text-base font-semibold border border-zinc-700 text-white hover:bg-zinc-900">
+              Bereits einen Account? Login
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* 2) Unternehmensname / Brand Strip */}
+      <section className="border-t border-zinc-800">
         <div className="mx-auto max-w-7xl px-4 py-6 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="h-8 w-8 rounded-xl bg-[color:var(--brand)]" />
             <span className="text-lg font-semibold">Ausbildungsbasis</span>
           </div>
-          <Link to="/auth" className="inline-flex items-center justify-center rounded-2xl px-4 py-2 text-sm font-semibold border border-zinc-700 text-white hover:bg-zinc-900">
-            Login
-          </Link>
-        </div>
-      </header>
-
-      {/* 1) Hero Section with Image */}
-      <section className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-zinc-900 via-black to-black" />
-        <div className="relative mx-auto max-w-7xl px-4 py-24 md:py-32">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            <div>
-              <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight leading-[0.95]">
-                Mach keinen Lebenslauf.<br />
-                <span className="text-[color:var(--brand)]">Mach Eindruck.</span>
-              </h1>
-              <p className="mt-6 text-zinc-300 text-lg">
-                In nur 5 Minuten zum perfekten Azubi‑CV. Keine langweiligen Bewerbungen mehr –
-                werde direkt von Unternehmen gefunden und kontaktiert.
-              </p>
-              <div className="mt-10 flex flex-col sm:flex-row gap-4">
-                <Link to="/cv-generator" className="inline-flex items-center justify-center rounded-2xl px-6 py-3 text-base font-semibold bg-[color:var(--brand)] text-black shadow-lg shadow-teal-500/20">
-                  Lebenslauf erstellen – kostenlos
-                </Link>
-                <Link to="/auth" className="inline-flex items-center justify-center rounded-2xl px-6 py-3 text-base font-semibold border border-zinc-700 text-white hover:bg-zinc-900">
-                  Bereits einen Account? Login
-                </Link>
-              </div>
-            </div>
-            <div className="flex justify-center lg:justify-end">
-              <img 
-                src="/lovable-uploads/8fb35cdb-4a8e-4fad-b852-15d97bce3b1f.png" 
-                alt="CV-Generator App auf dem Smartphone" 
-                className="max-w-sm w-full h-auto"
-              />
-            </div>
-          </div>
+          <nav className="hidden md:flex items-center gap-6 text-sm text-zinc-400">
+            <a href="#features" className="hover:text-white">Features</a>
+            <a href="#produkt" className="hover:text-white">Produkt</a>
+            <a href="#unternehmen" className="hover:text-white">Unternehmen</a>
+            <a href="#kontakt" className="hover:text-white">Kontakt</a>
+          </nav>
         </div>
       </section>
 
@@ -169,9 +161,80 @@ export function FeatureCardsSection() {
           Warum unser CV‑Generator?
         </h2>
 
-        <div className="space-y-6" aria-label="Feature grid">
-          {/* 360° – Full Width */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" aria-label="Feature grid">
+          {/* 1 */}
+          <article className="relative overflow-hidden rounded-2xl bg-zinc-900/70 ring-1 ring-zinc-800 col-span-1 lg:col-span-1">
+            <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=1974&auto=format&fit=crop')] bg-cover bg-center opacity-25" />
+            <div className="relative p-6 md:p-8">
+              <h3 className="text-2xl font-bold">CV in 5 Schritten</h3>
+              <p className="mt-3 text-sm text-zinc-200/90 leading-relaxed">
+                Von Layout bis Profil in <strong>5 Minuten</strong>. Einfache
+                Eingabe, klare Struktur, perfekter Look – bereit für PDF,
+                Profil‑Link & QR.
+              </p>
+            </div>
+          </article>
+
+          {/* 2 */}
+          <article className="rounded-2xl bg-white text-zinc-900 ring-1 ring-zinc-200 p-6 md:p-8">
+            <div className="flex items-center gap-2 text-zinc-700">
+              <Users className="h-5 w-5" />
+              <span className="uppercase tracking-wide text-xs">Community</span>
+            </div>
+            <h3 className="mt-2 text-xl font-semibold">Vernetzen & Austausch</h3>
+            <p className="mt-3 text-sm text-zinc-700">
+              Tritt in Kontakt mit Azubis aus deiner Branche, lerne ihre
+              Unternehmen kennen, vernetze dich mit Kolleg:innen und entdecke
+              die Arbeit von morgen.
+            </p>
+            <button className="mt-6 inline-flex items-center gap-2 text-sm font-medium text-zinc-900">
+              Community entdecken <ArrowRight className="h-4 w-4" />
+            </button>
+          </article>
+
+          {/* 3 */}
           <article className="rounded-2xl bg-zinc-900/70 ring-1 ring-zinc-800 p-6 md:p-8">
+            <div className="flex items-center gap-2 text-zinc-400">
+              <Building2 className="h-5 w-5" />
+              <span className="uppercase tracking-wide text-xs">Unternehmen</span>
+            </div>
+            <h3 className="mt-2 text-xl font-semibold">Von Firmen lernen & kontaktiert werden</h3>
+            <p className="mt-3 text-sm text-zinc-300">
+              Entdecke spannende Arbeitgeber, Einblicke in Berufe und lasse dich
+              direkt von Unternehmen ansprechen – ohne klassische Bewerbung.
+            </p>
+          </article>
+
+          {/* 4 */}
+          <article className="rounded-2xl bg-[color:var(--brand)] p-6 md:p-8 text-black">
+            <div className="flex items-center gap-2 text-black/80">
+              <MessageSquare className="h-5 w-5" />
+              <span className="uppercase tracking-wide text-xs">Gruppen</span>
+            </div>
+            <h3 className="mt-2 text-xl font-semibold">Interessen‑Gruppen & Lernhilfe</h3>
+            <p className="mt-3 text-sm">
+              Tritt Gruppen bei, lerne von anderen oder hilf mit. Teile
+              Dokumente (z. B. Lernzettel für Klausuren) und diskutiere in
+              kleinen Runden.
+            </p>
+          </article>
+
+          {/* 5 */}
+          <article className="rounded-2xl bg-zinc-900/70 ring-1 ring-zinc-800 p-6 md:p-8">
+            <div className="flex items-center gap-2 text-zinc-400">
+              <Sparkles className="h-5 w-5" />
+              <span className="uppercase tracking-wide text-xs">Matches</span>
+            </div>
+            <h3 className="mt-2 text-xl font-semibold">Direkte Matches & Wochen‑Vorschläge</h3>
+            <p className="mt-3 text-sm text-zinc-300">
+              Erhalte automatisch passende Ausbildungs‑Matches – wöchentlich
+              aktualisiert. Mit einem Klick Interesse zeigen oder Kontakt
+              freigeben.
+            </p>
+          </article>
+
+          {/* 6 – Wide */}
+          <article className="rounded-2xl bg-zinc-900/70 ring-1 ring-zinc-800 p-6 md:p-8 col-span-1 sm:col-span-2">
             <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
               <div>
                 <div className="text-5xl font-extrabold tracking-tight">360°</div>
@@ -189,48 +252,31 @@ export function FeatureCardsSection() {
             </div>
           </article>
 
-          {/* Three Cards in Row */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* Matches */}
-            <article className="rounded-2xl bg-zinc-900/70 ring-1 ring-zinc-800 p-6 md:p-8">
-              <div className="flex items-center gap-2 text-zinc-400">
-                <Sparkles className="h-5 w-5" />
-                <span className="uppercase tracking-wide text-xs">Matches</span>
-              </div>
-              <h3 className="mt-2 text-xl font-semibold">Direkte Matches & Wochen‑Vorschläge</h3>
-              <p className="mt-3 text-sm text-zinc-300">
-                Erhalte automatisch passende Ausbildungs‑Matches – wöchentlich
-                aktualisiert. Mit einem Klick Interesse zeigen oder Kontakt
-                freigeben.
-              </p>
-            </article>
+          {/* 7 */}
+          <article className="rounded-2xl bg-zinc-900/70 ring-1 ring-zinc-800 p-6 md:p-8">
+            <div className="flex items-center gap-2 text-zinc-400">
+              <PhoneCall className="h-5 w-5" />
+              <span className="uppercase tracking-wide text-xs">Kontakt</span>
+            </div>
+            <h3 className="mt-2 text-xl font-semibold">Sofortkontakt & Multichannel</h3>
+            <p className="mt-3 text-sm text-zinc-300">
+              Erreichen Sie Kandidat:innen direkt per WhatsApp, Telefon oder
+              E‑Mail – ohne Umwege. Schnelle Antworten, weniger Absprünge.
+            </p>
+          </article>
 
-            {/* Kontakt */}
-            <article className="rounded-2xl bg-zinc-900/70 ring-1 ring-zinc-800 p-6 md:p-8">
-              <div className="flex items-center gap-2 text-zinc-400">
-                <PhoneCall className="h-5 w-5" />
-                <span className="uppercase tracking-wide text-xs">Kontakt</span>
-              </div>
-              <h3 className="mt-2 text-xl font-semibold">Sofortkontakt & Multichannel</h3>
-              <p className="mt-3 text-sm text-zinc-300">
-                Erreichen Sie Kandidat:innen direkt per WhatsApp, Telefon oder
-                E‑Mail – ohne Umwege. Schnelle Antworten, weniger Absprünge.
-              </p>
-            </article>
-
-            {/* Qualität */}
-            <article className="rounded-2xl bg-zinc-900/70 ring-1 ring-zinc-800 p-6 md:p-8">
-              <div className="flex items-center gap-2 text-zinc-400">
-                <ShieldCheck className="h-5 w-5" />
-                <span className="uppercase tracking-wide text-xs">Qualität</span>
-              </div>
-              <h3 className="mt-2 text-xl font-semibold">Verifizierte Profile & Team‑Effekt</h3>
-              <p className="mt-3 text-sm text-zinc-300">
-                Standardisierte, geprüfte Lebensläufe. Team‑Profile stärken Ihre
-                Arbeitgebermarke – Empfehlungen entstehen organisch.
-              </p>
-            </article>
-          </div>
+          {/* 8 */}
+          <article className="rounded-2xl bg-zinc-900/70 ring-1 ring-zinc-800 p-6 md:p-8">
+            <div className="flex items-center gap-2 text-zinc-400">
+              <ShieldCheck className="h-5 w-5" />
+              <span className="uppercase tracking-wide text-xs">Qualität</span>
+            </div>
+            <h3 className="mt-2 text-xl font-semibold">Verifizierte Profile & Team‑Effekt</h3>
+            <p className="mt-3 text-sm text-zinc-300">
+              Standardisierte, geprüfte Lebensläufe. Team‑Profile stärken Ihre
+              Arbeitgebermarke – Empfehlungen entstehen organisch.
+            </p>
+          </article>
         </div>
       </div>
     </section>

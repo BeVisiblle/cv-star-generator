@@ -72,45 +72,44 @@ import SupportPage from "./pages/Admin/Support";
 import AdminTools from "./pages/Admin/Tools";
 import AdminAuthGate from "@/components/admin/AdminAuthGate";
 import CreateAdmin from "./pages/Admin/CreateAdmin";
+
 const queryClient = new QueryClient();
 
 // Protected route for company pages
-function CompanyProtectedRoute({
-  children
-}: {
-  children: React.ReactNode;
-}) {
-  const {
-    user
-  } = useAuth();
+function CompanyProtectedRoute({ children }: { children: React.ReactNode }) {
+  const { user } = useAuth();
   const [userType, setUserType] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+
   useEffect(() => {
     async function checkCompanyAccess() {
       // Check demo mode FIRST and IMMEDIATELY
       const demoMode = localStorage.getItem('demoMode') === 'true';
       console.log('Demo mode check:', demoMode);
+      
       if (demoMode) {
         console.log('Demo mode detected - allowing company access');
         setUserType('company');
         setIsLoading(false);
         return;
       }
+
       if (!user) {
         console.log('No user found');
         setIsLoading(false);
         return;
       }
+
       try {
         console.log('Checking company user for:', user.id);
-        const {
-          data: companyUser,
-          error
-        } = await supabase.from('company_users').select('*').eq('user_id', user.id).single();
-        console.log('Company user check result:', {
-          data: companyUser,
-          error
-        });
+        const { data: companyUser, error } = await supabase
+          .from('company_users')
+          .select('*')
+          .eq('user_id', user.id)
+          .single();
+
+        console.log('Company user check result:', { data: companyUser, error });
+
         if (companyUser && !error) {
           setUserType('company');
         } else {
@@ -122,55 +121,64 @@ function CompanyProtectedRoute({
       }
       setIsLoading(false);
     }
+
     checkCompanyAccess();
   }, [user]);
+
   if (isLoading) {
     console.log('CompanyProtectedRoute: Loading...');
-    return <div className="flex items-center justify-center min-h-screen">
+    return (
+      <div className="flex items-center justify-center min-h-screen">
         <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
-      </div>;
+      </div>
+    );
   }
+
   console.log('CompanyProtectedRoute: User type:', userType, 'User:', !!user);
+
   if (!user && localStorage.getItem('demoMode') !== 'true') {
     console.log('No user and no demo mode - redirecting to auth');
     return <Navigate to="/auth" replace />;
   }
+
   if (userType !== 'company') {
     console.log('Not a company user - redirecting to onboarding');
     return <Navigate to="/company/onboarding" replace />;
   }
+
   console.log('Access granted to company routes');
   return <>{children}</>;
 }
 
 // Layout wrapper that conditionally shows TopNavBar
-function LayoutContent({
-  children
-}: {
-  children: React.ReactNode;
-}) {
+function LayoutContent({ children }: { children: React.ReactNode }) {
   const location = useLocation();
   const isCompanyRoute = location.pathname.startsWith('/company/') && location.pathname !== '/company/onboarding';
-  return <div className="min-h-screen flex flex-col w-full">
+  
+  return (
+    <div className="min-h-screen flex flex-col w-full">
       {/* Fixed TopNavBar on all pages except company routes */}
       {!isCompanyRoute && <TopNavBar />}
       
       {/* Main content area with top padding only for non-company routes */}
-      
-    </div>;
+      <div className={isCompanyRoute ? "flex-1" : "flex-1 pt-14"}>
+        {children}
+      </div>
+    </div>
+  );
 }
 
 // Universal layout wrapper
-function UniversalLayout({
-  children
-}: {
-  children: React.ReactNode;
-}) {
-  return <SidebarProvider defaultOpen={false}>
+function UniversalLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <SidebarProvider defaultOpen={false}>
       <LayoutContent>{children}</LayoutContent>
-    </SidebarProvider>;
+    </SidebarProvider>
+  );
 }
-const App = () => <QueryClientProvider client={queryClient}>
+
+const App = () => (
+  <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <AuthProvider>
         <Toaster />
@@ -195,9 +203,14 @@ const App = () => <QueryClientProvider client={queryClient}>
               
               {/* Company routes */}
               <Route path="/company/onboarding" element={<CompanyOnboarding />} />
-              <Route path="/company/*" element={<CompanyProtectedRoute>
+              <Route
+                path="/company/*"
+                element={
+                  <CompanyProtectedRoute>
                     <CompanyLayout />
-                  </CompanyProtectedRoute>}>
+                  </CompanyProtectedRoute>
+                }
+              >
                 <Route path="dashboard" element={<CompanyDashboardNew />} />
                 <Route path="profile" element={<CompanyProfile />} />
                 <Route path="search" element={<CompanySearch />} />
@@ -285,5 +298,7 @@ const App = () => <QueryClientProvider client={queryClient}>
         </BrowserRouter>
       </AuthProvider>
     </TooltipProvider>
-  </QueryClientProvider>;
+  </QueryClientProvider>
+);
+
 export default App;
