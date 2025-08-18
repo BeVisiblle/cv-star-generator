@@ -19,9 +19,9 @@ import { Link } from 'react-router-dom';
 
 export default function LandingPage() {
   return (
-    <main className="min-h-screen bg-black text-white" style={{ ['--brand' as any]: '#5ce1e6' }}>
+    <main className="min-h-screen bg-black text-white w-full" style={{ ['--brand' as any]: '#5ce1e6' }}>
       {/* Simple Header */}
-      <header className="bg-black py-4">
+      <header className="bg-black py-4 w-full">
         <div className="mx-auto max-w-7xl px-4 flex items-center justify-between">
           <div className="flex-1" />
           <div className="flex items-center gap-3">
@@ -40,7 +40,7 @@ export default function LandingPage() {
       </header>
 
       {/* Hero Section with Mobile Image */}
-      <section className="relative overflow-hidden bg-black">
+      <section className="relative overflow-hidden bg-black w-full">
         <div className="mx-auto max-w-7xl px-4 py-16 md:py-24">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
             <div>
@@ -79,7 +79,7 @@ export default function LandingPage() {
       <ProductShowcaseSection />
 
       {/* Dual Call‑to‑Action */}
-      <section className="py-16 bg-black">
+      <section className="py-16 bg-black w-full">
         <div className="mx-auto max-w-7xl px-4 grid grid-cols-1 lg:grid-cols-2 gap-8">
           <div className="rounded-2xl ring-1 ring-zinc-800 p-8 bg-zinc-900/40">
             <h3 className="text-2xl font-semibold">Bereit, deinen CV zu bauen?</h3>
@@ -141,18 +141,18 @@ export default function LandingPage() {
 export function FeatureCardsSection() {
   return (
     <section className="w-full bg-black text-white py-16">
-      <div className="mx-auto max-w-7xl px-4">
+      <div className="w-full px-4">
         <h2 className="text-3xl md:text-4xl font-semibold tracking-tight mb-12 text-center">
           Warum unser CV‑Generator anders ist
         </h2>
 
         {/* Masonry-style Grid inspired by the reference */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
           
           {/* CV in 5 Schritten - Large left card */}
           <article className="relative overflow-hidden rounded-2xl bg-zinc-900/90 ring-1 ring-zinc-800 lg:row-span-2 animate-fade-in hover-scale">
             <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=1974&auto=format&fit=crop')] bg-cover bg-center opacity-30" />
-            <div className="relative p-6 md:p-8 h-full flex flex-col justify-between">
+            <div className="relative p-6 md:p-8 h-full flex flex-col justify-between min-h-[300px]">
               <div>
                 <h3 className="text-3xl md:text-4xl font-bold text-white">CV in 5 Schritten</h3>
                 <p className="mt-4 text-sm text-zinc-200/90 leading-relaxed">
@@ -204,6 +204,21 @@ export function FeatureCardsSection() {
               Dokumente wie Lernzettel für Klausuren und diskutiere in
               kleinen Runden über deine Zukunft.
             </p>
+          </article>
+
+          {/* AI-Powered CV - New 9th feature */}
+          <article className="relative rounded-2xl bg-gradient-to-br from-purple-600 to-pink-600 p-6 text-white animate-fade-in hover-scale overflow-hidden" style={{animationDelay: '0.8s'}}>
+            <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1677442136019-21780ecad995?q=80&w=2070&auto=format&fit=crop')] bg-cover bg-center opacity-20" />
+            <div className="relative">
+              <div className="flex items-center gap-2 text-white/90">
+                <Sparkles className="h-5 w-5" />
+                <span className="uppercase tracking-wide text-xs font-semibold">KI-Powered</span>
+              </div>
+              <h3 className="mt-2 text-xl font-semibold">Smart CV Optimization</h3>
+              <p className="mt-3 text-sm leading-relaxed text-white/90">
+                KI optimiert automatisch deinen CV für verschiedene Branchen und Stellenausschreibungen.
+              </p>
+            </div>
           </article>
 
           {/* 360° - Large bottom card */}
