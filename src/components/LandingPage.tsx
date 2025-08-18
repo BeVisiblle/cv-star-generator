@@ -281,8 +281,7 @@ export function ProductShowcaseSection() {
               </div>
               <h3 className="text-3xl font-bold text-white mb-4">CV‑Editor, Job finden &
 Community</h3>
-              <p className="text-zinc-300 mb-8 leading-relaxed font-light">Erstelle deinen professionellen CV in nur 5 Schritten, lade ihn herunter oder erstelle dir ein Profil und lass dich von Unternehmen kontaktieren.
-a</p>
+              <p className="text-zinc-300 mb-8 leading-relaxed font-light">Erstelle deinen professionellen CV in nur fünf Schritten. Lade ihn als PDF herunter oder veröffentliche dein Profil – und werde direkt von Unternehmen gefunden und kontaktiert. Vernetze dich mit anderen Fachkräften, tausche Erfahrungen aus und tritt passenden Gruppen bei, um immer auf dem neuesten Stand zu bleiben.</p>
               <div className="aspect-[16/10] rounded-2xl bg-zinc-950 ring-1 ring-zinc-800 flex items-center justify-center mb-6">
                 <div className="text-center">
                   <div className="text-4xl mb-2">📱</div>
