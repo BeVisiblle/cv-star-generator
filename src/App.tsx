@@ -154,11 +154,21 @@ function CompanyProtectedRoute({ children }: { children: React.ReactNode }) {
 function LayoutContent({ children }: { children: React.ReactNode }) {
   const location = useLocation();
   const isCompanyRoute = location.pathname.startsWith('/company/') && location.pathname !== '/company/onboarding';
+  const isLandingPage = location.pathname === '/';
   
   return (
     <div className="min-h-screen flex flex-col w-full">
-      {/* Main content area without navigation bars */}
-      <div className="flex-1 bg-black">
+      {/* TopNavBar for non-company and non-landing routes */}
+      {!isCompanyRoute && !isLandingPage && <TopNavBar />}
+      
+      {/* Main content area with conditional background and padding */}
+      <div className={
+        isLandingPage 
+          ? "flex-1 bg-black" 
+          : isCompanyRoute 
+            ? "flex-1 bg-gray-50" 
+            : "flex-1 pt-14 bg-gray-50"
+      }>
         {children}
       </div>
     </div>
