@@ -25,12 +25,22 @@ export function useSearchCompaniesForClaim(query: string, limit = 10) {
     queryKey: ["search_companies_for_claim", q, limit],
     enabled: q.length >= 2, // start searching from 2 chars
     queryFn: async () => {
-      const { data, error } = await supabase.rpc("search_companies_for_claim", {
-        q,
-        limit,
-      });
+      const { data, error } = await supabase
+        .from('companies')
+        .select('id, name, logo_url, employer_profile')
+        .eq('employer_profile', true)
+        .ilike('name', `%${q}%`)
+        .limit(limit);
+      
       if (error) throw error;
-      return (data ?? []) as CompanyOption[];
+      
+      // Generate slugs client-side and map to expected format
+      return (data || []).map(company => ({
+        id: company.id,
+        name: company.name,
+        logo_url: company.logo_url,
+        slug: company.name?.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-') || company.id
+      })) as CompanyOption[];
     },
     staleTime: 60_000,
   });

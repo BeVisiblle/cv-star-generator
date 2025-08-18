@@ -9,6 +9,8 @@ type Props = {
   defaultLabel?: string;
   label?: string;
   value?: CompanyOption | null;
+  onTextChange?: (text: string) => void;
+  currentText?: string;
 };
 
 export function CompanyAutocomplete({ 
@@ -16,9 +18,11 @@ export function CompanyAutocomplete({
   placeholder = "Unternehmen suchen …", 
   defaultLabel = "", 
   label = "Verifizierter Arbeitgeber (optional)",
-  value 
+  value,
+  onTextChange,
+  currentText
 }: Props) {
-  const [input, setInput] = useState(value?.name || defaultLabel);
+  const [input, setInput] = useState(currentText || value?.name || defaultLabel);
   const [open, setOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
   const listRef = useRef<HTMLUListElement>(null);
@@ -26,10 +30,12 @@ export function CompanyAutocomplete({
   const { data: options = [], isFetching } = useSearchCompaniesForClaim(input);
 
   useEffect(() => {
-    if (value) {
+    if (currentText !== undefined) {
+      setInput(currentText);
+    } else if (value) {
       setInput(value.name);
     }
-  }, [value]);
+  }, [value, currentText]);
 
   useEffect(() => {
     if (open && options.length) setActiveIndex(0);
@@ -49,7 +55,14 @@ export function CompanyAutocomplete({
 
   function handleInputChange(newValue: string) {
     setInput(newValue);
-    setOpen(true);
+    setOpen(newValue.length >= 2); // Only open if we have enough chars to search
+    
+    // Call external text change handler if provided
+    if (onTextChange) {
+      onTextChange(newValue);
+    }
+    
+    // Clear picked company if text doesn't match and we have a text change handler
     if (newValue === "" && value) {
       onPick(null);
     }
@@ -59,17 +72,17 @@ export function CompanyAutocomplete({
     <div className="relative space-y-1">
       <Label className="text-sm text-foreground/70">{label}</Label>
       <div className="relative">
-        <Input
-          type="text"
-          value={input}
-          onChange={(e) => handleInputChange(e.target.value)}
-          onFocus={() => setOpen(true)}
-          onBlur={() => setTimeout(() => setOpen(false), 150)} // allow click
-          placeholder={placeholder}
-          aria-autocomplete="list"
-          aria-expanded={open}
-          className="pr-8"
-        />
+         <Input
+           type="text"
+           value={input}
+           onChange={(e) => handleInputChange(e.target.value)}
+           onFocus={() => input.length >= 2 && setOpen(true)}
+           onBlur={() => setTimeout(() => setOpen(false), 150)} // allow click
+           placeholder={placeholder}
+           aria-autocomplete="list"
+           aria-expanded={open}
+           className="pr-8"
+         />
         {value && (
           <button
             type="button"

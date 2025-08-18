@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { CompanyAutocomplete } from "@/components/shared/CompanyAutocomplete";
 import { CompanyOption } from "@/hooks/useSearchCompanies";
@@ -20,13 +20,20 @@ interface ProfileEmployerSectionProps {
 }
 
 export function ProfileEmployerSection({ profileData }: ProfileEmployerSectionProps) {
-  const { user } = useAuth();
+  const { user, refetchProfile } = useAuth();
   const [pickedCompany, setPickedCompany] = useState<CompanyOption | null>(null);
   const [formData, setFormData] = useState({
     headline: profileData?.headline || "",
     employer_free: profileData?.employer_free || "",
     employer_slogan: profileData?.employer_slogan || "",
   });
+
+  // Update employer_free when company is picked or cleared
+  useEffect(() => {
+    if (pickedCompany) {
+      setFormData(prev => ({ ...prev, employer_free: pickedCompany.name }));
+    }
+  }, [pickedCompany]);
 
   const updateProfile = useUpdateProfile();
   const startRequest = useStartEmploymentRequest();
@@ -41,7 +48,29 @@ export function ProfileEmployerSection({ profileData }: ProfileEmployerSectionPr
       headline: formData.headline || null,
       employer_free: formData.employer_free || null,
       employer_slogan: formData.employer_slogan || null,
+    }, {
+      onSuccess: () => {
+        // Immediately refresh profile to update header/chips
+        refetchProfile();
+      }
     });
+  }
+
+  // Handle company selection - sets both picked company and employer_free text
+  function handleCompanyPick(company: CompanyOption | null) {
+    setPickedCompany(company);
+    if (company) {
+      setFormData(prev => ({ ...prev, employer_free: company.name }));
+    }
+  }
+
+  // Handle manual employer text changes
+  function handleEmployerTextChange(text: string) {
+    setFormData(prev => ({ ...prev, employer_free: text }));
+    // Clear picked company if user manually changes text
+    if (pickedCompany && text !== pickedCompany.name) {
+      setPickedCompany(null);
+    }
   }
 
   function sendRequest() {
@@ -86,16 +115,16 @@ export function ProfileEmployerSection({ profileData }: ProfileEmployerSectionPr
             />
           </div>
 
-          {/* Free employer text */}
-          <div className="space-y-2">
-            <Label htmlFor="employer_free">Arbeitgeber (Freitext)</Label>
-            <Input
-              id="employer_free"
-              value={formData.employer_free}
-              onChange={(e) => setFormData(prev => ({ ...prev, employer_free: e.target.value }))}
-              placeholder="Name des Unternehmens"
-            />
-          </div>
+          {/* Integrated company search/free text input */}
+          <CompanyAutocomplete 
+            onPick={handleCompanyPick}
+            value={pickedCompany}
+            label="Arbeitgeber"
+            placeholder="Unternehmen suchen oder eingeben..."
+            defaultLabel={formData.employer_free}
+            onTextChange={handleEmployerTextChange}
+            currentText={formData.employer_free}
+          />
 
           {/* Employer slogan */}
           <div className="space-y-2">
@@ -109,44 +138,39 @@ export function ProfileEmployerSection({ profileData }: ProfileEmployerSectionPr
             />
           </div>
 
-          <Separator />
+          {pickedCompany && (
+            <>
+              <Separator />
 
-          {/* Company verification section */}
-          <div className="space-y-4">
-            <div>
-              <h4 className="font-medium text-sm mb-2">Arbeitgeber verifizieren</h4>
-              <p className="text-sm text-muted-foreground mb-4">
-                Wenn dein Arbeitgeber bereits auf der Plattform ist, kannst du eine 
-                Beschäftigungsbestätigung beantragen.
-              </p>
-            </div>
+              {/* Company verification section - only show if company is selected */}
+              <div className="space-y-4">
+                <div>
+                  <h4 className="font-medium text-sm mb-2">Arbeitgeber verifizieren</h4>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Du hast ein verifiziertes Unternehmen ausgewählt. Beantrage eine 
+                    Beschäftigungsbestätigung, um als Mitarbeiter verifiziert zu werden.
+                  </p>
+                </div>
 
-            <CompanyAutocomplete 
-              onPick={setPickedCompany}
-              value={pickedCompany}
-              label="Unternehmen suchen"
-              placeholder="Nach Unternehmen suchen..."
-            />
-
-            {pickedCompany && (
-              <div className="flex items-center gap-2 p-3 bg-muted/50 rounded-md">
-                {pickedCompany.logo_url ? (
-                  <img 
-                    src={pickedCompany.logo_url} 
-                    alt="" 
-                    className="h-8 w-8 rounded object-cover" 
-                  />
-                ) : (
-                  <div className="h-8 w-8 rounded bg-muted flex items-center justify-center">
-                    <span className="text-sm font-medium">
-                      {pickedCompany.name.charAt(0).toUpperCase()}
-                    </span>
-                  </div>
-                )}
-                <span className="font-medium text-sm">{pickedCompany.name}</span>
+                <div className="flex items-center gap-2 p-3 bg-muted/50 rounded-md">
+                  {pickedCompany.logo_url ? (
+                    <img 
+                      src={pickedCompany.logo_url} 
+                      alt="" 
+                      className="h-8 w-8 rounded object-cover" 
+                    />
+                  ) : (
+                    <div className="h-8 w-8 rounded bg-muted flex items-center justify-center">
+                      <span className="text-sm font-medium">
+                        {pickedCompany.name.charAt(0).toUpperCase()}
+                      </span>
+                    </div>
+                  )}
+                  <span className="font-medium text-sm">{pickedCompany.name}</span>
+                </div>
               </div>
-            )}
-          </div>
+            </>
+          )}
 
           {/* Action buttons */}
           <div className="flex flex-col sm:flex-row gap-3 pt-4">
