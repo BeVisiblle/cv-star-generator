@@ -28,6 +28,8 @@ import Settings from "./pages/Settings";
 import BaseLayout from "@/components/layout/BaseLayout";
 import DiscoverAzubis from "./pages/DiscoverAzubis";
 import DiscoverCompanies from "./pages/DiscoverCompanies";
+import ProduktAzubis from "./pages/ProduktAzubis";
+import ProduktUnternehmen from "./pages/ProduktUnternehmen";
 import CommunityContacts from "./pages/Community/Contacts";
 import CommunityCompanies from "./pages/Community/Companies";
 import CommunityMessages from "./pages/Community/Messages";
@@ -202,6 +204,8 @@ const App = () => (
               <Route path="/talent" element={<BaseLayout><Talent /></BaseLayout>} />
               <Route path="/datenschutz" element={<Datenschutz />} />
               <Route path="/impressum" element={<Impressum />} />
+              <Route path="/produkt/azubis" element={<ProduktAzubis />} />
+              <Route path="/produkt/unternehmen" element={<ProduktUnternehmen />} />
               <Route path="/bootstrap/create-admin" element={<BaseLayout><CreateAdmin /></BaseLayout>} />
               
               {/* CV Generator - Open for everyone, but validates complete profiles */}
