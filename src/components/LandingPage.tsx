@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { ArrowRight, Users, Building2, MessageSquare, Sparkles, ShieldCheck, PhoneCall } from "lucide-react";
 import { Link } from 'react-router-dom';
 
@@ -18,6 +18,107 @@ import { Link } from 'react-router-dom';
 */
 
 export default function LandingPage() {
+  // SEO Head Injection
+  useEffect(() => {
+    const site = "https://ausbildungsbasis.de";
+    const title = "Lebenslauf Ausbildung – CV Generator | Ausbildungsbasis";
+    const desc = "Erstelle deinen Azubi-Lebenslauf in 5 Minuten. CV für Ausbildung als PDF, Profil veröffentlichen und direkt von Unternehmen gefunden werden – kostenlos starten.";
+    const keywords = "Lebenslauf Ausbildung, CV Ausbildung, Lebenslauf erstellen, Lebenslauf Hilfe, Azubi Lebenslauf, Bewerbung Ausbildung, CV Generator";
+    const ogImage = site + "/images/step1-hero.jpg";
+
+    const head = document.head;
+    
+    const meta = (name: string, content: string, attr = "name") => {
+      let el = head.querySelector(`meta[${attr}="${name}"]`) as HTMLMetaElement;
+      if (!el) {
+        el = document.createElement("meta");
+        el.setAttribute(attr, name);
+        head.appendChild(el);
+      }
+      el.setAttribute("content", content);
+    };
+
+    const link = (rel: string, href: string) => {
+      let el = head.querySelector(`link[rel="${rel}"]`) as HTMLLinkElement;
+      if (!el) {
+        el = document.createElement("link");
+        el.rel = rel;
+        head.appendChild(el);
+      }
+      el.href = href;
+    };
+
+    // Basic meta tags
+    document.title = title;
+    meta("description", desc);
+    meta("keywords", keywords);
+    meta("robots", "index,follow,max-image-preview:large");
+    meta("viewport", "width=device-width, initial-scale=1");
+    link("canonical", site + "/");
+
+    // Open Graph
+    head.insertAdjacentHTML("beforeend",
+      '<meta property="og:locale" content="de_DE">' +
+      '<meta property="og:type" content="website">' +
+      '<meta property="og:site_name" content="Ausbildungsbasis">' +
+      '<meta property="og:title" content="' + title.replace(/"/g, '&quot;') + '">' +
+      '<meta property="og:description" content="' + desc.replace(/"/g, '&quot;') + '">' +
+      '<meta property="og:url" content="' + site + '/">' +
+      '<meta property="og:image" content="' + ogImage + '">' +
+      '<meta property="og:image:alt" content="CV Generator für Ausbildung">'
+    );
+
+    // Twitter Cards
+    head.insertAdjacentHTML("beforeend",
+      '<meta name="twitter:card" content="summary_large_image">' +
+      '<meta name="twitter:title" content="' + title.replace(/"/g, '&quot;') + '">' +
+      '<meta name="twitter:description" content="' + desc.replace(/"/g, '&quot;') + '">' +
+      '<meta name="twitter:image" content="' + ogImage + '">'
+    );
+
+    // JSON-LD Structured Data
+    const jsonLd = [
+      {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": "Ausbildungsbasis",
+        "url": site,
+        "logo": site + "/images/step1-hero.jpg",
+        "sameAs": ["https://www.linkedin.com/company/ausbildungsbasis"]
+      },
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "url": site,
+        "name": "Ausbildungsbasis",
+        "potentialAction": {
+          "@type": "SearchAction",
+          "target": site + "/suche?q={search_term_string}",
+          "query-input": "required name=search_term_string"
+        }
+      },
+      {
+        "@context": "https://schema.org",
+        "@type": "Product",
+        "name": "CV Generator (Lebenslauf Ausbildung)",
+        "brand": { "@type": "Brand", "name": "Ausbildungsbasis" },
+        "url": site + "/cv-generator",
+        "description": "CV für Ausbildung in 5 Minuten: PDF, Profil, Direktkontakt zu Unternehmen.",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "EUR",
+          "availability": "https://schema.org/InStock"
+        }
+      }
+    ];
+
+    const script = document.createElement("script");
+    script.type = "application/ld+json";
+    script.text = JSON.stringify(jsonLd);
+    head.appendChild(script);
+  }, []);
+
   return <main className="min-h-screen bg-black text-white w-full" style={{
     ['--brand' as any]: '#5ce1e6'
   }}>
@@ -123,6 +224,18 @@ teile dein Profil direkt.</p>
             </ul>
           </div>
         </div>
+        
+        {/* SEO Internal Navigation Links */}
+        <nav aria-label="Beliebte Themen" className="mx-auto max-w-7xl px-4 py-6 border-t border-zinc-800">
+          <h4 className="text-sm font-semibold text-white mb-3">Beliebte Themen</h4>
+          <ul className="flex flex-wrap gap-x-4 gap-y-2 text-sm text-zinc-400">
+            <li><Link to="/cv-generator" className="hover:text-white">Lebenslauf erstellen (Generator)</Link></li>
+            <li><a href="#produkt" className="hover:text-white">CV Ausbildung – so sieht's aus</a></li>
+            <li><a href="#features" className="hover:text-white">Lebenslauf Hilfe – Features</a></li>
+            <li><Link to="/unternehmen" className="hover:text-white">Kandidatensuche für Unternehmen</Link></li>
+          </ul>
+        </nav>
+        
         <div className="px-4 pb-8 mx-auto max-w-7xl text-xs text-zinc-500">© {new Date().getFullYear()} Ausbildungsbasis. Alle Rechte vorbehalten.</div>
       </footer>
     </main>;
