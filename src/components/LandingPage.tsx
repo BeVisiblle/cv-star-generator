@@ -132,7 +132,7 @@ export default function LandingPage() {
               alt="Ausbildungsbasis Logo" 
               className="h-8 w-8 object-contain"
             />
-            <span className="text-lg font-semibold">Ausbildungsbasis</span>
+            <span className="text-lg font-semibold hidden sm:block">Ausbildungsbasis</span>
           </div>
           <div className="flex-1 flex justify-end">
             <Link to="/auth" className="inline-flex items-center justify-center rounded-2xl px-4 py-2 text-sm font-semibold border border-zinc-700 text-white hover:bg-zinc-900">
