@@ -127,7 +127,11 @@ export default function LandingPage() {
         <div className="mx-auto max-w-7xl px-4 flex items-center justify-between">
           <div className="flex-1" />
           <div className="flex items-center gap-3">
-            <div className="h-8 w-8 rounded-xl bg-[color:var(--brand)]" />
+            <img 
+              src="/lovable-uploads/db86285e-b61d-4b09-b7a8-09931550f198.png" 
+              alt="Ausbildungsbasis Logo" 
+              className="h-8 w-8 object-contain"
+            />
             <span className="text-lg font-semibold">Ausbildungsbasis</span>
           </div>
           <div className="flex-1 flex justify-end">
@@ -197,7 +201,11 @@ teile dein Profil direkt.</p>
         <div className="mx-auto max-w-7xl px-4 py-10 grid grid-cols-1 md:grid-cols-3 gap-8 items-start">
           <div>
             <div className="flex items-center gap-3">
-              <div className="h-8 w-8 rounded-xl bg-[color:var(--brand)]" />
+              <img 
+                src="/lovable-uploads/db86285e-b61d-4b09-b7a8-09931550f198.png" 
+                alt="Ausbildungsbasis Logo" 
+                className="h-8 w-8 object-contain"
+              />
               <span className="text-lg font-semibold">Ausbildungsbasis</span>
             </div>
             <p className="mt-3 text-sm text-zinc-400 max-w-xs">Die smarte Brücke zwischen Schülern, Azubis und Fachkräften und Unternehmen – Austausch untereinander, einem AI-Matching und einer Datenbank mit vollständigen Profilen.</p>
