@@ -90,7 +90,7 @@ export function AppSidebar() {
         {!collapsed ? (
           <div className="flex items-center space-x-3">
             <img
-              src="/lovable-uploads/8297f269-1ddb-4b49-a83d-9a561d9e57b4.png"
+              src="/lovable-uploads/db86285e-b61d-4b09-b7a8-09931550f198.png"
               alt="Ausbildungsbasis Logo"
               className="h-8 w-8 rounded-md object-contain"
               loading="eager"
@@ -100,7 +100,7 @@ export function AppSidebar() {
         ) : (
           <div className="flex justify-center">
             <img
-              src="/lovable-uploads/8297f269-1ddb-4b49-a83d-9a561d9e57b4.png"
+              src="/lovable-uploads/db86285e-b61d-4b09-b7a8-09931550f198.png"
               alt="Ausbildungsbasis Logo"
               className="h-8 w-8 rounded-md object-contain"
               loading="eager"

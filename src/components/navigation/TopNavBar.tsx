@@ -51,10 +51,17 @@ export default function TopNavBar() {
           <SidebarTrigger />
           {/* Logo */}
           <div 
-            className="font-bold text-primary cursor-pointer"
+            className="flex items-center gap-2 cursor-pointer"
             onClick={() => navigate('/dashboard')}
           >
-            Nkademiker Plus
+            <img 
+              src="/lovable-uploads/db86285e-b61d-4b09-b7a8-09931550f198.png" 
+              alt="Ausbildungsbasis Logo" 
+              className="h-8 w-8"
+            />
+            <span className="font-bold text-primary hidden sm:block">
+              Ausbildungsbasis
+            </span>
           </div>
         </div>
         
