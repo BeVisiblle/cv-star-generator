@@ -23,9 +23,7 @@ const ClassicLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) => {
             <div className="text-base md:text-lg mb-3 text-white/90 font-serif">
               {getStatusTitle(data.status)} - {getBrancheTitle(data.branche)}
             </div>
-            <div className="cv-contact">
-              <ContactInfo data={data} isLight />
-            </div>
+            <ContactInfo data={data} isLight />
           </div>
         </div>
       </div>

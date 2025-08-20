@@ -15,24 +15,24 @@ export const CvRendererMobile: React.FC<Props> = ({ content, className }) => {
       data-cv-preview
       data-variant="mobile"
       className={cn(
-        'cv-root cv-mobile mx-auto bg-card text-foreground rounded-lg shadow-sm border border-border overflow-hidden',
+        'cv-mobile mx-auto bg-card text-foreground rounded-lg shadow-sm border border-border overflow-hidden',
         'max-w-full',
         className,
       )}
       aria-label="Lebenslauf Vorschau – Mobil"
     >
-      <header className="cv-header cv-card border-b border-border">
+      <header className="px-4 py-4 flex items-center gap-4 border-b border-border">
         {content.avatarUrl && (
           <img
             src={content.avatarUrl}
             alt={`${content.fullName || 'Profil'} – Profilbild`}
-            className="cv-header-img"
+            className="h-12 w-12 rounded-full object-cover shrink-0"
           />
         )}
-        <div className="cv-header-meta">
-          <h1 className="cv-title font-semibold">{content.fullName || 'Vorname Nachname'}</h1>
+        <div className="min-w-0">
+          <h1 className="text-base font-semibold truncate">{content.fullName || 'Vorname Nachname'}</h1>
           {content.headline && (
-            <p className="cv-subtitle text-muted-foreground">{content.headline}</p>
+            <p className="text-xs text-muted-foreground truncate">{content.headline}</p>
           )}
         </div>
       </header>
@@ -40,35 +40,35 @@ export const CvRendererMobile: React.FC<Props> = ({ content, className }) => {
       <main className="px-4 py-3 space-y-3">
         {/* Kontakt */}
         {(content.contact?.email || content.contact?.phone || content.contact?.location) && (
-          <div className="cv-card">
-            <h2 className="cv-section-title text-sm font-medium mb-2">Kontakt</h2>
-            <ul className="cv-p text-muted-foreground space-y-1">
+          <section className="cv-section">
+            <h2 className="text-sm font-medium mb-2">Kontakt</h2>
+            <ul className="text-xs text-muted-foreground space-y-1">
               {content.contact.email && <li>{content.contact.email}</li>}
               {content.contact.phone && <li>{content.contact.phone}</li>}
               {content.contact.location && <li>{content.contact.location}</li>}
               {content.driversLicenseClass && <li>Führerschein {content.driversLicenseClass}</li>}
             </ul>
-          </div>
+          </section>
         )}
 
         {/* Über mich */}
         {content.about && (
-          <div className="cv-card">
-            <h2 className="cv-section-title text-sm font-medium mb-2">Über mich</h2>
-            <p className="cv-p leading-5 text-foreground/90">
+          <section className="cv-section">
+            <h2 className="text-sm font-medium mb-2">Über mich</h2>
+            <p className="text-[13px] leading-5 text-foreground/90">
               {content.about}
             </p>
-          </div>
+          </section>
         )}
 
         {/* Berufserfahrung */}
         {content.experience?.length > 0 && (
-          <div className="cv-card">
-            <h2 className="cv-section-title text-sm font-medium mb-2">Berufserfahrung</h2>
+          <section className="cv-section">
+            <h2 className="text-sm font-medium mb-2">Berufserfahrung</h2>
             <div className="space-y-2">
               {content.experience.map((e, idx) => (
-                <article key={idx} className="cv-card">
-                  <div className="font-medium cv-p">
+                <article key={idx} className="text-[13px]">
+                  <div className="font-medium">
                     {e.role || 'Position'}{e.company ? ` · ${e.company}` : ''}
                   </div>
                   {(e.startDate || e.endDate) && (
@@ -77,22 +77,22 @@ export const CvRendererMobile: React.FC<Props> = ({ content, className }) => {
                     </div>
                   )}
                   {e.description && (
-                    <p className="cv-p leading-5 mt-1">{e.description}</p>
+                    <p className="text-[13px] leading-5 mt-1">{e.description}</p>
                   )}
                 </article>
               ))}
             </div>
-          </div>
+          </section>
         )}
 
         {/* Ausbildung */}
         {content.education?.length > 0 && (
-          <div className="cv-card">
-            <h2 className="cv-section-title text-sm font-medium mb-2">Ausbildung</h2>
+          <section className="cv-section">
+            <h2 className="text-sm font-medium mb-2">Ausbildung</h2>
             <div className="space-y-2">
               {content.education.map((ed, idx) => (
-                <article key={idx} className="cv-card">
-                  <div className="font-medium cv-p">
+                <article key={idx} className="text-[13px]">
+                  <div className="font-medium">
                     {ed.degree || 'Abschluss'}{ed.school ? ` · ${ed.school}` : ''}
                   </div>
                   {(ed.startDate || ed.endDate) && (
@@ -101,18 +101,18 @@ export const CvRendererMobile: React.FC<Props> = ({ content, className }) => {
                     </div>
                   )}
                   {ed.description && (
-                    <p className="cv-p leading-5 mt-1">{ed.description}</p>
+                    <p className="text-[13px] leading-5 mt-1">{ed.description}</p>
                   )}
                 </article>
               ))}
             </div>
-          </div>
+          </section>
         )}
 
         {/* Skills */}
         {content.skills?.length > 0 && (
-          <div className="cv-card">
-            <h2 className="cv-section-title text-sm font-medium mb-2">Fähigkeiten</h2>
+          <section className="cv-section">
+            <h2 className="text-sm font-medium mb-2">Fähigkeiten</h2>
             <div className="flex flex-wrap gap-1.5">
               {content.skills.map((s, i) => (
                 <span key={i} className="px-2 py-1 text-xs rounded-md bg-muted text-foreground/90">
@@ -120,19 +120,19 @@ export const CvRendererMobile: React.FC<Props> = ({ content, className }) => {
                 </span>
               ))}
             </div>
-          </div>
+          </section>
         )}
 
         {/* Sprachen */}
         {content.languages?.length > 0 && (
-          <div className="cv-card">
-            <h2 className="cv-section-title text-sm font-medium mb-2">Sprachen</h2>
-            <ul className="cv-p text-muted-foreground flex flex-wrap gap-x-3 gap-y-1">
+          <section className="cv-section">
+            <h2 className="text-sm font-medium mb-2">Sprachen</h2>
+            <ul className="text-xs text-muted-foreground flex flex-wrap gap-x-3 gap-y-1">
               {content.languages.map((l, i) => (
                 <li key={i}>{l.name}{l.level ? ` (${l.level})` : ''}</li>
               ))}
             </ul>
-          </div>
+          </section>
         )}
       </main>
     </article>

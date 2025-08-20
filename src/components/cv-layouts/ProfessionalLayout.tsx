@@ -7,7 +7,7 @@ const ProfessionalLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) =
   return (
     <div className={`max-w-4xl mx-auto bg-white border border-gray-300 shadow-lg ${className}`} data-cv-preview>
       {/* Header Section */}
-      <div className={`cv-header-mobile p-8 border-b-2 border-[hsl(${colors.primary})]`}>
+      <div className={`p-8 border-b-2 border-[hsl(${colors.primary})]`}>
         <div className="flex items-center gap-6">
           <ProfileImage profilbild={data.profilbild} avatar_url={data.avatar_url} size="lg" className="border-2 border-gray-300" />
           <div className="flex-1">
@@ -17,9 +17,7 @@ const ProfessionalLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) =
             <div className={`text-lg mb-3 text-[hsl(${colors.text})] font-medium`}>
               {getStatusTitle(data.status)} - {getBrancheTitle(data.branche)}
             </div>
-            <div className="cv-contact">
-              <ContactInfo data={data} />
-            </div>
+            <ContactInfo data={data} />
           </div>
         </div>
       </div>

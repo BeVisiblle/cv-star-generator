@@ -5,10 +5,28 @@ import { Phone, Mail, MapPin, Calendar } from 'lucide-react';
 const LiveCareerLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) => {
   const colors = getBrancheColors(data.branche);
   
-  const LanguageText: React.FC<{ niveau: string; sprache: string }> = ({ niveau, sprache }) => {
+  const LanguageProgressBar: React.FC<{ niveau: string; sprache: string }> = ({ niveau, sprache }) => {
+    const levels = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
+    const currentLevel = niveau === 'Muttersprache' ? 6 : levels.indexOf(niveau);
+    
     return (
-      <div className="cv-language">
-        {sprache} – {niveau}
+      <div className="mb-3">
+        <div className="mb-0.5">
+          <span className="font-medium text-gray-900" style={{ fontSize: '9pt' }}>{sprache}</span>
+        </div>
+        <div className="mb-1">
+          <span className="text-gray-600" style={{ fontSize: '8pt' }}>{niveau}</span>
+        </div>
+        <div className="w-full bg-gray-200 rounded-full" style={{ height: '4px' }}>
+          <div 
+            className="rounded-full"
+            style={{ 
+              height: '4px',
+              width: `${((currentLevel + 1) / 6) * 100}%`,
+              background: `hsl(${colors.primary})`
+            }}
+          />
+        </div>
       </div>
     );
   };
@@ -23,19 +41,13 @@ const LiveCareerLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) => 
       pageBreakAfter: 'auto'
     }}>
       {/* Header Section - PDF optimized */}
-      <div className="cv-header-mobile mb-6">
+      <div className="mb-6">
         <div className="flex items-start gap-4">
           {/* Profile Image */}
           {(data.profilbild || data.avatar_url) && (
             <div className="w-20 h-20 flex-shrink-0">
               <img
-                src={
-                  typeof data.profilbild === 'string' 
-                    ? data.profilbild 
-                    : (data.profilbild && data.profilbild instanceof File) 
-                      ? URL.createObjectURL(data.profilbild) 
-                      : data.avatar_url
-                }
+                src={typeof data.profilbild === 'string' ? data.profilbild : data.profilbild ? URL.createObjectURL(data.profilbild) : data.avatar_url}
                 alt="Profilbild"
                 className="w-full h-full object-cover rounded"
                 style={{ maxWidth: '20mm', maxHeight: '20mm' }}
@@ -45,43 +57,44 @@ const LiveCareerLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) => 
           
           {/* Name and Title */}
           <div className="flex-1">
-            <h1 className="cv-title text-gray-900 mb-1">
+            <h1 className="text-xl font-bold text-gray-900 mb-1" style={{ fontSize: '18pt', lineHeight: '1.2' }}>
               {data.vorname} {data.nachname}
             </h1>
             <h2 
-              className="cv-subtitle mb-3"
+              className="text-base font-medium mb-3"
               style={{ 
-                color: `hsl(${colors.primary})`
+                color: `hsl(${colors.primary})`,
+                fontSize: '12pt'
               }}
             >
               {getStatusTitle(data.status)} - {getBrancheTitle(data.branche)}
             </h2>
             
             {/* Contact Information */}
-            <div className="cv-contact text-gray-600">
+            <div className="grid grid-cols-2 gap-x-6 gap-y-1 text-xs text-gray-600" style={{ fontSize: '9pt' }}>
               {(data.strasse && data.ort) && (
-                <>
-                  <MapPin className="cv-icon h-3 w-3 flex-shrink-0 mt-0.5" />
+                <div className="flex items-start gap-1.5">
+                  <MapPin className="h-3 w-3 flex-shrink-0 mt-0.5" />
                   <span>{data.strasse} {data.hausnummer}, {data.plz} {data.ort}</span>
-                </>
+                </div>
               )}
               {data.telefon && (
-                <>
-                  <Phone className="cv-icon h-3 w-3 flex-shrink-0 mt-0.5" />
+                <div className="flex items-start gap-1.5">
+                  <Phone className="h-3 w-3 flex-shrink-0 mt-0.5" />
                   <span>{data.telefon}</span>
-                </>
+                </div>
               )}
               {data.email && (
-                <>
-                  <Mail className="cv-icon h-3 w-3 flex-shrink-0 mt-0.5" />
+                <div className="flex items-start gap-1.5">
+                  <Mail className="h-3 w-3 flex-shrink-0 mt-0.5" />
                   <span>{data.email}</span>
-                </>
+                </div>
               )}
               {data.geburtsdatum && (
-                <>
-                  <Calendar className="cv-icon h-3 w-3 flex-shrink-0 mt-0.5" />
+                <div className="flex items-start gap-1.5">
+                  <Calendar className="h-3 w-3 flex-shrink-0 mt-0.5" />
                   <span>{formatDate(data.geburtsdatum)}</span>
-                </>
+                </div>
               )}
             </div>
           </div>
@@ -98,14 +111,15 @@ const LiveCareerLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) => 
           {data.ueberMich && (
             <div className="cv-section">
               <h3 
-                className="cv-section-title"
+                className="font-bold uppercase tracking-wide mb-2"
                 style={{ 
-                  color: `hsl(${colors.primary})`
+                  color: `hsl(${colors.primary})`,
+                  fontSize: '11pt'
                 }}
               >
                 Über mich
               </h3>
-              <p className="cv-p text-gray-700">
+              <p className="text-gray-700" style={{ fontSize: '9pt', lineHeight: '1.4' }}>
                 {data.ueberMich}
               </p>
             </div>
@@ -115,16 +129,17 @@ const LiveCareerLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) => 
           {(data.status === 'azubi' || data.status === 'ausgelernt') && data.faehigkeiten && data.faehigkeiten.length > 0 && (
             <div className="cv-section">
               <h3 
-                className="cv-section-title"
+                className="font-bold uppercase tracking-wide mb-2"
                 style={{ 
-                  color: `hsl(${colors.primary})`
+                  color: `hsl(${colors.primary})`,
+                  fontSize: '11pt'
                 }}
               >
                 Kompetenzen
               </h3>
               <div className="space-y-1">
                 {data.faehigkeiten.map((skill, index) => (
-                  <div key={index} className="cv-p text-gray-700 flex items-start">
+                  <div key={index} className="text-gray-700 flex items-start" style={{ fontSize: '9pt' }}>
                     <span className="mr-2 mt-1 w-1 h-1 rounded-full flex-shrink-0" style={{ background: `hsl(${colors.primary})` }} />
                     <span>{skill}</span>
                   </div>
@@ -137,16 +152,17 @@ const LiveCareerLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) => 
           {data.sprachen && data.sprachen.length > 0 && (
             <div className="cv-section">
               <h3 
-                className="cv-section-title"
+                className="font-bold uppercase tracking-wide mb-2"
                 style={{ 
-                  color: `hsl(${colors.primary})`
+                  color: `hsl(${colors.primary})`,
+                  fontSize: '11pt'
                 }}
               >
                 Sprachen
               </h3>
-              <div className="space-y-1">
+              <div className="space-y-3">
                 {data.sprachen.map((sprache, index) => (
-                  <LanguageText 
+                  <LanguageProgressBar 
                     key={index} 
                     niveau={sprache.niveau} 
                     sprache={sprache.sprache}
@@ -164,9 +180,10 @@ const LiveCareerLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) => 
           {data.berufserfahrung && data.berufserfahrung.length > 0 && (
             <div className="cv-section">
               <h3 
-                className="cv-section-title mb-3"
+                className="font-bold uppercase tracking-wide mb-3"
                 style={{ 
-                  color: `hsl(${colors.primary})`
+                  color: `hsl(${colors.primary})`,
+                  fontSize: '11pt'
                 }}
               >
                 Berufserfahrung
@@ -190,18 +207,18 @@ const LiveCareerLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) => 
                   <div key={index} className="cv-section break-inside-avoid">
                     <div className="flex justify-between items-start mb-1">
                       <div className="flex-1">
-                        <h4 className="cv-subtitle font-semibold text-gray-900">{job.titel}</h4>
-                        <p className="cv-p font-medium" style={{ color: `hsl(${colors.primary})` }}>
+                        <h4 className="font-semibold text-gray-900" style={{ fontSize: '10pt' }}>{job.titel}</h4>
+                        <p className="font-medium" style={{ color: `hsl(${colors.primary})`, fontSize: '9pt' }}>
                           {job.unternehmen} • {job.ort}
                         </p>
                       </div>
-                      <div className="cv-p text-gray-500 font-medium ml-4 whitespace-nowrap">
+                      <div className="text-gray-500 font-medium ml-4 whitespace-nowrap" style={{ fontSize: '9pt' }}>
                         {job.zeitraum_von ? new Date(job.zeitraum_von).toLocaleDateString('de-DE', { month: '2-digit', year: 'numeric' }).replace('.', '/') : ''} - {job.zeitraum_bis ? new Date(job.zeitraum_bis).toLocaleDateString('de-DE', { month: '2-digit', year: 'numeric' }).replace('.', '/') : 'heute'}
                       </div>
                     </div>
                     {job.beschreibung && (
                       <div className="mt-2">
-                        <ul className="cv-p text-gray-700 space-y-0.5">
+                        <ul className="text-gray-700 space-y-0.5" style={{ fontSize: '9pt' }}>
                           {job.beschreibung.split('\n').filter(line => line.trim()).map((line, i) => (
                             <li key={i} className="flex items-start">
                               <span className="mr-2 mt-1 w-1 h-1 rounded-full bg-gray-400 flex-shrink-0" />
@@ -221,9 +238,10 @@ const LiveCareerLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) => 
           {data.schulbildung && data.schulbildung.length > 0 && (
             <div className="cv-section">
               <h3 
-                className="cv-section-title mb-3"
+                className="font-bold uppercase tracking-wide mb-3"
                 style={{ 
-                  color: `hsl(${colors.primary})`
+                  color: `hsl(${colors.primary})`,
+                  fontSize: '11pt'
                 }}
               >
                 Ausbildung
@@ -239,19 +257,19 @@ const LiveCareerLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) => 
                   <div key={index} className="cv-section break-inside-avoid">
                     <div className="flex justify-between items-start mb-1">
                       <div className="flex-1">
-                        <h4 className="cv-subtitle font-semibold text-gray-900">{school.schulform}</h4>
-                        <p className="cv-p font-medium" style={{ color: `hsl(${colors.primary})` }}>
+                        <h4 className="font-semibold text-gray-900" style={{ fontSize: '10pt' }}>{school.schulform}</h4>
+                        <p className="font-medium" style={{ color: `hsl(${colors.primary})`, fontSize: '9pt' }}>
                           {school.name}
                         </p>
-                        <p className="cv-p text-gray-600">{school.ort}</p>
+                        <p className="text-gray-600" style={{ fontSize: '9pt' }}>{school.ort}</p>
                       </div>
-                      <div className="cv-p text-gray-500 font-medium ml-4 whitespace-nowrap">
+                      <div className="text-gray-500 font-medium ml-4 whitespace-nowrap" style={{ fontSize: '9pt' }}>
                         {school.zeitraum_von} - {school.zeitraum_bis || 'Heute'}
                       </div>
                     </div>
                     {school.beschreibung && (
                       <div className="mt-2">
-                        <p className="cv-p text-gray-700">{school.beschreibung}</p>
+                        <p className="text-gray-700" style={{ fontSize: '9pt' }}>{school.beschreibung}</p>
                       </div>
                     )}
                   </div>

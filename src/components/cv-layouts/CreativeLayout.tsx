@@ -21,7 +21,7 @@ const CreativeLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) => {
       </div>
 
       {/* Header Section */}
-      <div className="cv-header-mobile relative p-8 overflow-hidden">
+      <div className="relative p-8 overflow-hidden">
         <div 
           className="absolute inset-0 transform -skew-y-1"
           style={{
@@ -37,9 +37,7 @@ const CreativeLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) => {
             <div className="text-xl mb-4 text-white/90">
               {getStatusTitle(data.status)} - {getBrancheTitle(data.branche)}
             </div>
-            <div className="cv-contact">
-              <ContactInfo data={data} isLight />
-            </div>
+            <ContactInfo data={data} isLight />
           </div>
         </div>
       </div>

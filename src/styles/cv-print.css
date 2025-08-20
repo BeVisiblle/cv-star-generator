@@ -1,135 +1,37 @@
-/* CV Print Styles - Robust PDF Export with Edge-Case Fixes */
-
-/* CV Base Classes */
-.cv-root { 
-  font-family: var(--cv-font-family); 
-  line-height: var(--cv-line); 
-  font-feature-settings: "liga","kern"; 
-  text-rendering: optimizeLegibility;
-  unicode-bidi: plaintext; /* RTL/LTL auto-detection */
-}
-.cv-title { font-size: var(--cv-title); font-weight: 700; }
-.cv-subtitle { font-size: var(--cv-subtitle); font-weight: 500; opacity: .9; }
-.cv-p { font-size: var(--cv-text); }
-.cv-card { 
-  padding: var(--cv-pad-card); 
-  margin-bottom: var(--cv-gap);
-  unicode-bidi: plaintext;
-}
-.cv-section-title {
-  font-size: var(--cv-section-title);
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: .5px;
-  margin-bottom: 2pt;
-}
-
-/* Header/Image Stability */
-.cv-header {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  align-items: center;
-  gap: 6pt;
-  margin-bottom: 4pt;
-  max-height: var(--cv-header-h);
-  overflow: hidden;
-}
-.cv-header-img {
-  max-height: var(--cv-logo-h);
-  width: auto;
-  object-fit: contain;
-  border-radius: 50%;
-}
-.cv-header-meta { 
-  min-width: 0; 
-  overflow: hidden; 
-  line-height: 1.15;
-}
-.cv-header-meta .cv-title { 
-  white-space: nowrap; 
-  text-overflow: ellipsis; 
-  overflow: hidden; 
-}
-
-/* Page Setup */
-@page { 
-  size: A4; 
-  margin: 8mm 10mm; 
-}
-
+/* CV Print Styles for better page breaks */
 @media print {
-  .cv-root {
-    --cv-text: calc(8.5pt * var(--cv-scale));
-    --cv-title: calc(15pt * var(--cv-scale));
-    --cv-subtitle: calc(9.5pt * var(--cv-scale));
-    --cv-section-title: calc(9pt * var(--cv-scale));
-    --cv-line: 1.2;
-    --cv-pad-card: calc(6pt * var(--cv-scale));
-    --cv-gap: calc(5pt * var(--cv-scale));
-  }
-
-  html, body {
-    margin: 0 !important;
-    padding: 0 !important;
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
-  }
-
-  /* Desktop-A4 */
-  .cv-a4 {
-    width: 210mm;
-    min-height: 297mm;
-    page-break-after: always;
-    box-sizing: border-box;
-  }
-  .cv-a4:last-child { page-break-after: auto; }
-
-  /* Mobile narrow */
-  .cv-narrow {
-    width: 90mm; 
-    margin: 0;
-    box-sizing: border-box;
-    page-break-after: always;
-  }
-  .cv-narrow:last-child { page-break-after: auto; }
-
-  /* Cards protection */
-  .cv-card {
-    break-inside: avoid;
+  .cv-section {
     page-break-inside: avoid;
-    -webkit-column-break-inside: avoid;
-    overflow-wrap: anywhere; /* Fix long words/URLs */
-    word-break: break-word;
-    hyphens: auto;
-  }
-
-  /* Sections + Titles */
-  .cv-section { 
     break-inside: avoid;
-    page-break-inside: avoid; 
-    margin-bottom: 5pt;
-    unicode-bidi: plaintext;
+    margin-bottom: 20px;
   }
-  .cv-section-title {
-    break-after: avoid;
+  
+  .break-inside-avoid {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+  
+  /* Prevent orphaned content */
+  h1, h2, h3, h4, h5, h6 {
     page-break-after: avoid;
+    break-after: avoid;
   }
-  .cv-section-title + .cv-card {
-    break-before: avoid;
-    page-break-before: avoid;
-  }
-
-  /* Flex/Grid safety */
-  .cv-flex, .cv-grid { display: block !important; }
-
-  /* Legacy support */
+  
+  /* Keep related content together */
   .cv-entry {
     page-break-inside: avoid;
     break-inside: avoid;
   }
-  h1, h2, h3, h4, h5, h6 {
-    page-break-after: avoid;
-    break-after: avoid;
+  
+  /* Better spacing for printed version */
+  .cv-section + .cv-section {
+    margin-top: 16px;
+  }
+  
+  /* Ensure proper page margins */
+  @page {
+    margin: 15mm;
+    size: A4;
   }
 }
 

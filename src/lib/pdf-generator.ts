@@ -29,9 +29,7 @@ export const generatePDF = async (
       logging: false,
       width: element.scrollWidth,
       height: element.scrollHeight,
-      // Better rendering for PDFs
-      foreignObjectRendering: true,
-    } as any);
+    });
 
     // Determine page size in millimeters
     const pageDims = format === 'a4'

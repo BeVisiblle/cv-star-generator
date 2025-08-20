@@ -48,27 +48,7 @@ export interface CVLayoutProps {
 
 export const formatDate = (date: Date | string | undefined) => {
   if (!date) return '';
-  try {
-    const dateObj = new Date(date);
-    if (isNaN(dateObj.getTime())) return '';
-    return new Intl.DateTimeFormat('de-DE').format(dateObj);
-  } catch {
-    return '';
-  }
-};
-
-export const fmtMonthYear = (date: Date | string | undefined) => {
-  if (!date) return 'heute';
-  try {
-    const dateObj = new Date(date);
-    if (isNaN(dateObj.getTime())) return 'heute';
-    return new Intl.DateTimeFormat('de-DE', { 
-      year: 'numeric', 
-      month: 'long' 
-    }).format(dateObj);
-  } catch {
-    return 'heute';
-  }
+  return new Intl.DateTimeFormat('de-DE').format(new Date(date));
 };
 
 export const getBrancheTitle = (branche?: string) => {
@@ -167,36 +147,36 @@ export const ContactInfo: React.FC<{ data: CVData; isLight?: boolean }> = ({ dat
   const textColor = isLight ? 'text-white/90' : 'text-muted-foreground';
   
   return (
-    <div className={`cv-contact ${textColor}`}>
+    <div className={`flex flex-wrap gap-4 text-sm ${textColor}`}>
       {data.telefon && (
-        <>
-          <Phone className="h-4 w-4 flex-shrink-0 cv-icon" />
+        <div className="flex items-center gap-2">
+          <Phone className="h-4 w-4 flex-shrink-0" />
           <span>{data.telefon}</span>
-        </>
+        </div>
       )}
       {data.email && (
-        <>
-          <Mail className="h-4 w-4 flex-shrink-0 cv-icon" />
+        <div className="flex items-center gap-2">
+          <Mail className="h-4 w-4 flex-shrink-0" />
           <span>{data.email}</span>
-        </>
+        </div>
       )}
       {(data.strasse && data.ort) && (
-        <>
-          <MapPin className="h-4 w-4 flex-shrink-0 cv-icon" />
+        <div className="flex items-center gap-2">
+          <MapPin className="h-4 w-4 flex-shrink-0" />
           <span>{data.strasse} {data.hausnummer}, {data.plz} {data.ort}</span>
-        </>
+        </div>
       )}
       {data.geburtsdatum && (
-        <>
-          <Calendar className="h-4 w-4 flex-shrink-0 cv-icon" />
+        <div className="flex items-center gap-2">
+          <Calendar className="h-4 w-4 flex-shrink-0" />
           <span>{formatDate(data.geburtsdatum)}</span>
-        </>
+        </div>
       )}
       {data.has_drivers_license && data.driver_license_class && (
-        <>
-          <Car className="h-4 w-4 flex-shrink-0 cv-icon" />
+        <div className="flex items-center gap-2">
+          <Car className="h-4 w-4 flex-shrink-0" />
           <span>Führerschein {data.driver_license_class}</span>
-        </>
+        </div>
       )}
     </div>
   );
