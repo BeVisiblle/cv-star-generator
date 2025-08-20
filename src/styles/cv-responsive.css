@@ -1,20 +1,27 @@
-/* Responsive, fixed-size wrappers for CV preview to avoid overflow and ensure predictable PDF output */
+/* Responsive CV containers for screen display */
 
 /* Screen sizes */
-.cv-a4 {
-  width: 794px; /* ~ A4 @96dpi */
-}
-
-.cv-mobile {
-  width: 372px; /* typical mobile page width */
+@media screen {
+  .cv-desktop { 
+    max-width: 850px; 
+    margin: 0 auto;
+  }
+  .cv-mobile { 
+    max-width: 390px; 
+    margin: 0 auto;
+  }
+  .cv-a4 {
+    width: 794px; /* ~ A4 @96dpi */
+    margin: 0 auto;
+  }
 }
 
 /* Prevent horizontal scroll inside CV */
-.cv-a4, .cv-mobile {
+.cv-a4, .cv-mobile, .cv-desktop, .cv-narrow {
   overflow-x: hidden;
 }
 
-/* Print sizing hints are in cv-print.css; we keep screen-only sizing here */
+/* Mobile responsive */
 @media (max-width: 400px) {
   .cv-mobile { width: 100%; }
 }

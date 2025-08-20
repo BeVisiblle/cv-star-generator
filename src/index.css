@@ -8,6 +8,18 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
+    /* CV Design Tokens */
+    --cv-font-family: 'Inter', ui-sans-serif, system-ui, -apple-system;
+    --cv-text: 10.5pt;
+    --cv-title: 20pt;
+    --cv-subtitle: 12pt;
+    --cv-line: 1.35;
+
+    --cv-pad-card: 12pt;
+    --cv-gap: 8pt;
+
+    --cv-header-h: 64pt;
+    --cv-logo-h: 20pt;
     --background: 0 0% 100%;
     --foreground: 220 13% 13%;
 
