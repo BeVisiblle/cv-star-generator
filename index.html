@@ -28,37 +28,82 @@
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
     
-    <!-- Auto-Shrink-to-Fit Global Script -->
+    <!-- Smart Auto Fit Script for All CV Layouts -->
     <script>
+    /* Smart Auto Fit – für ALLE Layouts unter data-cv-preview */
     (function(){
       const PX_PER_MM = 96/25.4;
       const mm = px => px / PX_PER_MM;
+      const getVar = n => parseFloat(getComputedStyle(document.documentElement).getPropertyValue(n)) || 0;
+      const setVar = (n,v) => document.documentElement.style.setProperty(n, String(v));
+      const raf = () => new Promise(r => requestAnimationFrame(r));
 
-      function setScale(s){ document.documentElement.style.setProperty('--cv-scale', String(s)); }
-      function measure(){
-        const host = document.querySelector('[data-cv-preview]');
-        if (!host) return 0;
-        // misst die gesamte CV-Höhe – wenn ihr explizit .cv-a4 nutzt, könnt ihr darauf umstellen
-        return mm(host.scrollHeight);
+      function measureMm(){
+        const host = document.querySelector('[data-cv-preview] .cv-a4') 
+                  || document.querySelector('[data-cv-preview]');
+        return host ? mm(host.scrollHeight) : 0;
       }
 
-      async function shrink({target=283, step=.95, min=.85, tries=5}={}){
-        let scale = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--cv-scale')) || 1;
-        for (let i=0; i<tries; i++){
-          if (measure() <= target) break;
-          const next = Math.max(min, +(scale * step).toFixed(3));
-          if (next === scale) break;
-          scale = next;
-          setScale(scale);
-          await new Promise(r => requestAnimationFrame(r));
+      async function shrinkTo(limitMm, {headerMin, contentMin, step, maxIter}){
+        // 1) Header zuerst etwas schrumpfen
+        for (let i=0; i<maxIter; i++){
+          if (measureMm() <= limitMm) break;
+          let hs = getVar('--cv-header-scale') || 1;
+          if (hs <= headerMin) break;
+          setVar('--cv-header-scale', Math.max(headerMin, +(hs * step).toFixed(3)));
+          await raf();
+        }
+        // 2) Dann Gesamtinhalt
+        for (let i=0; i<maxIter; i++){
+          if (measureMm() <= limitMm) break;
+          let cs = getVar('--cv-scale') || 1;
+          if (cs <= contentMin) break;
+          setVar('--cv-scale', Math.max(contentMin, +(cs * step).toFixed(3)));
+          await raf();
+        }
+        return measureMm() <= limitMm;
+      }
+
+      async function growTowards(limitMm, {growStep, maxGrow, maxIter}){
+        for (let i=0; i<maxIter; i++){
+          const cur = getVar('--cv-scale') || 1;
+          if (measureMm() >= limitMm - 10 || cur >= maxGrow) break; // ~1 cm Rest ok
+          setVar('--cv-scale', Math.min(maxGrow, +(cur * growStep).toFixed(3)));
+          await raf();
         }
       }
 
-      // Browser-Druck
-      window.addEventListener('beforeprint', () => { shrink(); });
+      async function cvAutoFitSmart(opts = {}){
+        const {
+          safetyMm=6, headerMin=0.75, contentMin=0.82, step=0.95,  // 5% Reduktion
+          growStep=1.03, maxGrow=1.0, maxIter=12,
+          pagesPrimary=1, pagesFallback=2
+        } = opts;
 
-      // Optional für eigenen Button: await window.cvAutoShrinkToFit({target:283})
-      window.cvAutoShrinkToFit = shrink;
+        // Reset auf 100%
+        setVar('--cv-scale', 1); setVar('--cv-header-scale', 1); await raf();
+
+        const limit1 = pagesPrimary*297 - safetyMm;
+        const fits1  = await shrinkTo(limit1, {headerMin, contentMin, step, maxIter});
+        if (fits1){ await growTowards(limit1, {growStep, maxGrow, maxIter}); return {pages: pagesPrimary}; }
+
+        // Fallback: 2 Seiten
+        const limit2 = pagesFallback*297 - safetyMm;
+        // leicht entspannen
+        setVar('--cv-header-scale', Math.min(1, Math.max(headerMin, getVar('--cv-header-scale')*1.05)));
+        setVar('--cv-scale',        Math.min(1, Math.max(contentMin, getVar('--cv-scale')*1.05)));
+        await raf();
+
+        await shrinkTo(limit2, {headerMin, contentMin, step, maxIter});
+        await growTowards(limit2, {growStep, maxGrow, maxIter});
+        return {pages: pagesFallback};
+      }
+
+      // Browser-Print: Auto-Fit automatisch auslösen
+      window.addEventListener('beforeprint', () => { cvAutoFitSmart(); });
+
+      // Programmatic API
+      window.cvAutoFitSmart = cvAutoFitSmart;
     })();
     </script>
   </body>

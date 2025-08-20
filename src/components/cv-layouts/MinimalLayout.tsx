@@ -7,7 +7,7 @@ const MinimalLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) => {
   return (
     <div className={`max-w-3xl mx-auto bg-white ${className}`} data-cv-preview>
       {/* Header Section */}
-      <div className={`p-8 border-b-2 border-[hsl(${colors.primary})]`}>
+      <div className={`cv-header-mobile p-8 border-b-2 border-[hsl(${colors.primary})]`}>
         <div className="flex items-center gap-6">
           <ProfileImage profilbild={data.profilbild} avatar_url={data.avatar_url} size="md" className="border border-gray-200" />
           <div className="flex-1">
@@ -17,7 +17,9 @@ const MinimalLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) => {
             <div className={`text-lg mb-3 text-[hsl(${colors.text})] font-light tracking-wide`}>
               {getStatusTitle(data.status)} • {getBrancheTitle(data.branche)}
             </div>
-            <ContactInfo data={data} />
+            <div className="cv-contact">
+              <ContactInfo data={data} />
+            </div>
           </div>
         </div>
       </div>

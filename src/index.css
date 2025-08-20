@@ -130,22 +130,27 @@ All colors MUST be HSL.
 
 @layer components {
   /* ===== SCOPE: Global CV System for ALL Layouts ===== */
+  [data-cv-preview] { 
+    --cv-scale: 1; 
+    --cv-header-scale: 1; 
+  }
+
+  /* Screen-Tokens – alles variablenbasiert, damit JS feinjustieren kann */
   [data-cv-preview] {
-    /* Typo-Tokens – Basis (Screen) */
-    --cv-text: calc(9.5pt * var(--cv-scale));
-    --cv-title: calc(16.5pt * var(--cv-scale));
-    --cv-subtitle: calc(10.5pt * var(--cv-scale));
+    --cv-text: calc(9.6pt * var(--cv-scale));
+    --cv-title: calc(16.8pt * var(--cv-scale));
+    --cv-subtitle: calc(10.6pt * var(--cv-scale));
     --cv-section-title: calc(9.8pt * var(--cv-scale));
     --cv-line: 1.28;
 
-    --cv-pad-card: calc(8pt * var(--cv-scale));
+    --cv-pad: calc(8pt * var(--cv-scale));
     --cv-gap: calc(6pt * var(--cv-scale));
 
     font-family: ui-sans-serif, system-ui, -apple-system, "Inter";
     line-height: var(--cv-line);
   }
 
-  /* Einheitliche Typo, selbst wenn Layouts andere Klassen verwenden */
+  /* Typo-Defaults (greifen auch ohne spezielle Klassen im Layout) */
   [data-cv-preview] h1 { 
     font-size: var(--cv-title); 
     font-weight: 700; 
@@ -171,35 +176,59 @@ All colors MUST be HSL.
   [data-cv-preview] li, 
   [data-cv-preview] .cv-text { 
     font-size: var(--cv-text); 
+    line-height: var(--cv-line); 
   }
-
-  /* Karten-Komfort (greift nur, wenn vorhanden) */
   [data-cv-preview] .cv-card { 
-    padding: var(--cv-pad-card); 
+    padding: var(--cv-pad); 
     margin-bottom: var(--cv-gap); 
   }
 
-  /* Lange Wörter/Emails robust umbrechen */
-  [data-cv-preview] *, 
-  [data-cv-preview] .cv-card * { 
+  /* Header – eigene Skala & Limits, kein Wort-Zerhacken */
+  [data-cv-preview] .cv-header-mobile {
+    display: flex; 
+    flex-direction: column; 
+    gap: 8px;
+    padding: calc(10pt * var(--cv-header-scale)) calc(10pt * var(--cv-header-scale));
+    line-height: 1.15;
+    max-block-size: calc(110mm * var(--cv-header-scale)); /* harte Obergrenze */
+    break-inside: avoid; 
+    page-break-inside: avoid;
+  }
+  [data-cv-preview] .cv-header-mobile h1 { 
+    font-size: calc(16.5pt * var(--cv-header-scale));
+    margin: 0; 
+    word-break: normal; 
+    hyphens: none; 
+    overflow-wrap: anywhere;
+  }
+  [data-cv-preview] .cv-header-mobile .cv-subtitle {
+    font-size: calc(10.8pt * var(--cv-header-scale));
+    line-height: 1.2; 
+    word-break: normal; 
+    hyphens: none;
+  }
+
+  /* Kontaktinfos: Desktop grid, Mobile einfach untereinander */
+  [data-cv-preview] .cv-contact { 
+    display: grid; 
+    grid-template-columns: 16pt 1fr; 
+    gap: 6px 10px; 
+  }
+  [data-cv-preview] .cv-contact * { 
+    font-size: calc(9.2pt * var(--cv-scale)); 
+    line-height: 1.25; 
     overflow-wrap: anywhere; 
-    word-break: break-word; 
-    hyphens: auto; 
   }
-
-  /* Mobile/Screen Containerbreiten (nur Ansicht) */
-  @media screen {
-    [data-cv-preview].cv-mobile { 
-      max-width: 390px; 
-      margin: 0 auto; 
+  @media (max-width: 640px) {
+    [data-cv-preview] .cv-contact { 
+      grid-template-columns: 1fr; 
     }
-    [data-cv-preview].cv-desktop { 
-      max-width: 850px; 
-      margin: 0 auto; 
+    [data-cv-preview] .cv-contact .cv-icon { 
+      display: none; 
     }
   }
 
-  /* Sprach-Balken unterdrücken (alle Layouts) – Text only */
+  /* Sprachen: Balken/Badges raus → reine Textzeilen */
   [data-cv-preview] .cv-language-badge,
   [data-cv-preview] .cv-language-tag,
   [data-cv-preview] [data-tag="language"] { 
@@ -213,6 +242,17 @@ All colors MUST be HSL.
     font-size: var(--cv-text); 
     line-height: 1.25; 
     margin-bottom: 2pt; 
+  }
+
+  /* Wort-/URL-Brüche robust überall */
+  [data-cv-preview] *, 
+  [data-cv-preview] .cv-card * { 
+    overflow-wrap: anywhere; 
+    word-break: break-word; 
+  }
+  [data-cv-preview] h1, 
+  [data-cv-preview] .cv-subtitle { 
+    hyphens: none; 
   }
 }
 
@@ -330,11 +370,11 @@ All colors MUST be HSL.
     }
   }
 
-/* ===== PRINT / PDF: Immer A4, kompaktere Tokens + saubere Umbrüche ===== */
+/* ===== PRINT / PDF ===== */
 @page { 
   size: A4; 
-  margin: 8mm 10mm; 
-}
+  margin: 0; 
+}  /* randloses A4 – volle Fläche */
 
 @media print {
   html, body { 
@@ -344,28 +384,33 @@ All colors MUST be HSL.
     print-color-adjust: exact; 
   }
 
+  /* Print-Tokens kompakter (sieht edel aus, spart Höhe) */
   [data-cv-preview] {
-    /* Print-Tokens: nochmal leicht kleiner und dichter */
-    --cv-text: calc(8.8pt * var(--cv-scale));
-    --cv-title: calc(15.2pt * var(--cv-scale));
-    --cv-subtitle: calc(9.8pt * var(--cv-scale));
+    --cv-text: calc(8.9pt * var(--cv-scale));
+    --cv-title: calc(15.6pt * var(--cv-scale));
+    --cv-subtitle: calc(9.7pt * var(--cv-scale));
     --cv-section-title: calc(9.2pt * var(--cv-scale));
     --cv-line: 1.22;
-
-    --cv-pad-card: calc(6.5pt * var(--cv-scale));
+    --cv-pad: calc(6.5pt * var(--cv-scale));
     --cv-gap: calc(5pt * var(--cv-scale));
   }
 
-  /* A4-Inhaltsfläche (nutzt eure bestehenden Wrapper; kein Extra-Padding) */
+  /* Optionaler PDF-Wrapper – keine Extra-Ränder/Schlagschatten */
   [data-cv-preview] .cv-a4 { 
     width: 210mm; 
     min-height: 297mm; 
-    box-sizing: border-box; 
     margin: 0; 
     padding: 0; 
+    box-sizing: border-box; 
+  }
+  [data-cv-preview], 
+  [data-cv-preview] .cv-card, 
+  [data-cv-preview] .cv-a4 { 
+    box-shadow: none !important; 
+    border: 0 !important; 
   }
 
-  /* Sections & Cards zusammenhalten – keine zerrissenen Einträge */
+  /* Umbruch-Sicherheit (Sections/Cards bleiben zusammen) */
   [data-cv-preview] .cv-section,
   [data-cv-preview] .break-inside-avoid { 
     break-inside: avoid; 
@@ -383,17 +428,10 @@ All colors MUST be HSL.
     page-break-after: avoid; 
   }
 
-  /* Grid/Flex im Druck stabilisieren */
+  /* Grid/Flex im Print simplifizieren, damit Breaks greifen */
   [data-cv-preview] .cv-grid, 
   [data-cv-preview] .cv-flex { 
     display: block !important; 
-  }
-
-  /* Schatten/Borders im PDF vermeiden (blasen Boxen auf) */
-  [data-cv-preview] .cv-card, 
-  [data-cv-preview] .cv-a4 { 
-    box-shadow: none !important; 
-    border: 0 !important; 
   }
 }
 

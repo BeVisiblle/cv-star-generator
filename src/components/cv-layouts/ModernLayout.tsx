@@ -23,7 +23,9 @@ const ModernLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) => {
             <div className="text-lg md:text-xl mb-3 md:mb-4 text-white/90">
               {getStatusTitle(data.status)} - {getBrancheTitle(data.branche)}
             </div>
-            <ContactInfo data={data} isLight />
+            <div className="cv-contact">
+              <ContactInfo data={data} isLight />
+            </div>
           </div>
         </div>
       </div>

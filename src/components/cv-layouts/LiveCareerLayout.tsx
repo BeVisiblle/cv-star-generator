@@ -23,7 +23,7 @@ const LiveCareerLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) => 
       pageBreakAfter: 'auto'
     }}>
       {/* Header Section - PDF optimized */}
-      <div className="mb-6">
+      <div className="cv-header-mobile mb-6">
         <div className="flex items-start gap-4">
           {/* Profile Image */}
           {(data.profilbild || data.avatar_url) && (
@@ -58,30 +58,30 @@ const LiveCareerLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) => 
             </h2>
             
             {/* Contact Information */}
-            <div className="grid grid-cols-2 gap-x-6 gap-y-1 cv-p text-gray-600">
+            <div className="cv-contact text-gray-600">
               {(data.strasse && data.ort) && (
-                <div className="flex items-start gap-1.5">
-                  <MapPin className="h-3 w-3 flex-shrink-0 mt-0.5" />
+                <>
+                  <MapPin className="cv-icon h-3 w-3 flex-shrink-0 mt-0.5" />
                   <span>{data.strasse} {data.hausnummer}, {data.plz} {data.ort}</span>
-                </div>
+                </>
               )}
               {data.telefon && (
-                <div className="flex items-start gap-1.5">
-                  <Phone className="h-3 w-3 flex-shrink-0 mt-0.5" />
+                <>
+                  <Phone className="cv-icon h-3 w-3 flex-shrink-0 mt-0.5" />
                   <span>{data.telefon}</span>
-                </div>
+                </>
               )}
               {data.email && (
-                <div className="flex items-start gap-1.5">
-                  <Mail className="h-3 w-3 flex-shrink-0 mt-0.5" />
+                <>
+                  <Mail className="cv-icon h-3 w-3 flex-shrink-0 mt-0.5" />
                   <span>{data.email}</span>
-                </div>
+                </>
               )}
               {data.geburtsdatum && (
-                <div className="flex items-start gap-1.5">
-                  <Calendar className="h-3 w-3 flex-shrink-0 mt-0.5" />
+                <>
+                  <Calendar className="cv-icon h-3 w-3 flex-shrink-0 mt-0.5" />
                   <span>{formatDate(data.geburtsdatum)}</span>
-                </div>
+                </>
               )}
             </div>
           </div>
