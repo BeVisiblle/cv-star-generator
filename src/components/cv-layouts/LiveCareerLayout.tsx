@@ -47,7 +47,13 @@ const LiveCareerLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) => 
           {(data.profilbild || data.avatar_url) && (
             <div className="w-20 h-20 flex-shrink-0">
               <img
-                src={typeof data.profilbild === 'string' ? data.profilbild : data.profilbild ? URL.createObjectURL(data.profilbild) : data.avatar_url}
+                src={
+                  typeof data.profilbild === 'string' 
+                    ? data.profilbild 
+                    : (data.profilbild && data.profilbild instanceof File) 
+                      ? URL.createObjectURL(data.profilbild) 
+                      : data.avatar_url
+                }
                 alt="Profilbild"
                 className="w-full h-full object-cover rounded"
                 style={{ maxWidth: '20mm', maxHeight: '20mm' }}
