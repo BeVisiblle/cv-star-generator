@@ -1,18 +1,94 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* CV Generator Design System - All colors, gradients, fonts, etc defined here. 
-All colors MUST be HSL.
-*/
-
+/* Design System & Theme Variables */
 @layer base {
   :root {
-    /* CV Global Auto-Shrink Scale */
-    --cv-scale: 1; /* 1 = 100% */
+    /* Base scale for CV layouts */
+    --cv-scale: 1;
+    --cv-header-scale: 1;
+    --cv-page-margin: 0mm; /* 0 for borderless, 8mm for standard */
+
+    /* Color Palette */
+    --background: 210 40% 98%;
+    --foreground: 222.2 84% 4.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+    --primary: 221.2 83.2% 53.3%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 210 40% 96%;
+    --secondary-foreground: 222.2 84% 4.9%;
+    --muted: 210 40% 96%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 210 40% 96%;
+    --accent-foreground: 222.2 84% 4.9%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 221.2 83.2% 53.3%;
+    --chart-1: 12 76% 61%;
+    --chart-2: 173 58% 39%;
+    --chart-3: 197 37% 24%;
+    --chart-4: 43 74% 66%;
+    --chart-5: 27 87% 67%;
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 217.2 91.2% 59.8%;
+    --primary-foreground: 222.2 84% 4.9%;
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 224.3 76.3% 94.1%;
+    --chart-1: 220 70% 50%;
+    --chart-2: 160 60% 45%;
+    --chart-3: 30 80% 55%;
+    --chart-4: 280 65% 60%;
+    --chart-5: 340 75% 55%;
+  }
+}
+
+/* Body & Global Styles */
+@layer base {
+  * {
+    @apply border-border;
+  }
+  
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+}
+
+/* CV Layout Engine - Global Styles for ALL Layouts */
+@layer components {
+  /* ===== SCOPE: Gilt für ALLE CV-Layouts ===== */
+  [data-cv-preview] {
+    /* CSS variables for responsive control */
+    --cv-scale: 1;
+    --cv-header-scale: 1;
+    --cv-page-margin: 0mm; /* 0 for borderless, 8mm for standard */
     
-    /* CV Design Tokens */
-    --cv-font-family: 'Inter', ui-sans-serif, system-ui, -apple-system;
+    /* Typo-Tokens – Basis (Screen) */
     --cv-text: calc(9.5pt * var(--cv-scale));
     --cv-title: calc(16.5pt * var(--cv-scale));
     --cv-subtitle: calc(10.5pt * var(--cv-scale));
@@ -22,146 +98,26 @@ All colors MUST be HSL.
     --cv-pad-card: calc(8pt * var(--cv-scale));
     --cv-gap: calc(6pt * var(--cv-scale));
 
-    --cv-header-h: calc(48pt * var(--cv-scale));
-    --cv-logo-h: calc(28pt * var(--cv-scale));
-    --background: 0 0% 100%;
-    --foreground: 220 13% 13%;
-
-    --card: 0 0% 100%;
-    --card-foreground: 220 13% 13%;
-
-    --popover: 0 0% 100%;
-    --popover-foreground: 220 13% 13%;
-
-    --primary: 220 13% 13%;
-    --primary-foreground: 0 0% 100%;
-
-    --secondary: 220 13% 91%;
-    --secondary-foreground: 220 13% 13%;
-
-    --muted: 220 13% 91%;
-    --muted-foreground: 220 8.9% 46.1%;
-
-    --accent: 184 73% 63%;
-    --accent-foreground: 0 0% 100%;
-    
-    --linkedin-blue: 201 100% 35%;
-    --linkedin-blue-light: 201 100% 95%;
-
-    --hero-gradient-from: 197 100% 95%;
-    --hero-gradient-to: 0 0% 100%;
-
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 100%;
-
-    --border: 220 13% 91%;
-    --input: 220 13% 91%;
-    --ring: 220 13% 13%;
-
-    --radius: 1rem;
-
-    --sidebar-background: 0 0% 98%;
-
-    --sidebar-foreground: 240 5.3% 26.1%;
-
-    --sidebar-primary: 240 5.9% 10%;
-
-    --sidebar-primary-foreground: 0 0% 98%;
-
-    --sidebar-accent: 240 4.8% 95.9%;
-
-    --sidebar-accent-foreground: 240 5.9% 10%;
-
-    --sidebar-border: 220 13% 91%;
-
-    --sidebar-ring: 217.2 91.2% 59.8%;
-  }
-
-  .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
-  }
-}
-
-@layer base {
-  * {
-    @apply border-border;
-  }
-
-  body {
-    @apply bg-background text-foreground;
-    overflow-x: hidden;
-    font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
-  }
-}
-
-@layer components {
-  /* ===== SCOPE: Global CV System for ALL Layouts ===== */
-  [data-cv-preview] { 
-    --cv-scale: 1; 
-    --cv-header-scale: 1; 
-  }
-
-  /* Screen-Tokens – alles variablenbasiert, damit JS feinjustieren kann */
-  [data-cv-preview] {
-    --cv-text: calc(9.6pt * var(--cv-scale));
-    --cv-title: calc(16.8pt * var(--cv-scale));
-    --cv-subtitle: calc(10.6pt * var(--cv-scale));
-    --cv-section-title: calc(9.8pt * var(--cv-scale));
-    --cv-line: 1.28;
-
-    --cv-pad: calc(8pt * var(--cv-scale));
-    --cv-gap: calc(6pt * var(--cv-scale));
-
     font-family: ui-sans-serif, system-ui, -apple-system, "Inter";
     line-height: var(--cv-line);
   }
 
-  /* Typo-Defaults (greifen auch ohne spezielle Klassen im Layout) */
+  /* Einheitliche Typo, selbst wenn Layouts andere Klassen verwenden */
   [data-cv-preview] h1 { 
     font-size: var(--cv-title); 
     font-weight: 700; 
     line-height: 1.15; 
     margin: 0 0 2pt; 
+    word-break: normal; 
+    hyphens: none; 
   }
   [data-cv-preview] .cv-subtitle { 
     font-size: var(--cv-subtitle); 
     font-weight: 600; 
     opacity: .9; 
     margin: 0 0 4pt; 
+    word-break: normal; 
+    hyphens: none; 
   }
   [data-cv-preview] h2, 
   [data-cv-preview] h3, 
@@ -171,26 +127,41 @@ All colors MUST be HSL.
     text-transform: uppercase; 
     letter-spacing: .5px; 
     margin: 0 0 2pt; 
+    word-break: normal; 
+    hyphens: none; 
   }
   [data-cv-preview] p, 
   [data-cv-preview] li, 
   [data-cv-preview] .cv-text { 
     font-size: var(--cv-text); 
-    line-height: var(--cv-line); 
   }
+
+  /* Karten-Komfort (greift nur, wenn vorhanden) */
   [data-cv-preview] .cv-card { 
-    padding: var(--cv-pad); 
+    padding: var(--cv-pad-card); 
     margin-bottom: var(--cv-gap); 
   }
 
-  /* Header – eigene Skala & Limits, kein Wort-Zerhacken */
+  /* Better word wrapping - avoid aggressive breaking */
+  [data-cv-preview] * { 
+    word-break: normal; 
+    overflow-wrap: break-word; 
+    hyphens: auto; 
+  }
+  /* Only URLs and contact info can break anywhere */
+  [data-cv-preview] .cv-contact *, 
+  [data-cv-preview] a { 
+    overflow-wrap: anywhere; 
+  }
+
+  /* Header/Image Stability - override any existing padding with scalable calc */
   [data-cv-preview] .cv-header-mobile {
     display: flex; 
     flex-direction: column; 
     gap: 8px;
-    padding: calc(10pt * var(--cv-header-scale)) calc(10pt * var(--cv-header-scale));
+    padding: calc(10pt * var(--cv-header-scale)) calc(10pt * var(--cv-header-scale)) !important;
     line-height: 1.15;
-    max-block-size: calc(110mm * var(--cv-header-scale)); /* harte Obergrenze */
+    max-block-size: calc(80mm * var(--cv-header-scale)); /* smaller max height */
     break-inside: avoid; 
     page-break-inside: avoid;
   }
@@ -199,7 +170,6 @@ All colors MUST be HSL.
     margin: 0; 
     word-break: normal; 
     hyphens: none; 
-    overflow-wrap: anywhere;
   }
   [data-cv-preview] .cv-header-mobile .cv-subtitle {
     font-size: calc(10.8pt * var(--cv-header-scale));
@@ -225,7 +195,7 @@ All colors MUST be HSL.
     }
     [data-cv-preview] .cv-contact .cv-icon { 
       display: none; 
-    }
+    } /* optional */
   }
 
   /* Sprachen: Balken/Badges raus → reine Textzeilen */
@@ -244,137 +214,24 @@ All colors MUST be HSL.
     margin-bottom: 2pt; 
   }
 
-  /* Wort-/URL-Brüche robust überall */
-  [data-cv-preview] *, 
-  [data-cv-preview] .cv-card * { 
-    overflow-wrap: anywhere; 
-    word-break: break-word; 
-  }
-  [data-cv-preview] h1, 
-  [data-cv-preview] .cv-subtitle { 
-    hyphens: none; 
+  /* Mobile/Screen Containerbreiten (nur Ansicht) */
+  @media screen {
+    [data-cv-preview].cv-mobile { 
+      max-width: 390px; 
+      margin: 0 auto; 
+    }
+    [data-cv-preview].cv-desktop { 
+      max-width: 850px; 
+      margin: 0 auto; 
+    }
   }
 }
 
-  /* Language styling - simple text only */
-  .cv-language-tag,
-  .cv-language-level,
-  .cv-language-badge,
-  [data-tag="language"],
-  .profile-tag.language {
-    background: none !important;
-    border: none !important;
-    box-shadow: none !important;
-    color: inherit !important;
-    font-size: var(--cv-text) !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    display: inline !important;
-  }
-
-  .cv-language {
-    font-size: var(--cv-text);
-    line-height: 1.25;
-    margin-bottom: 2pt;
-  }
-
-  /* Media defaults to prevent horizontal overflow */
-  img, video, canvas, svg, iframe {
-    max-width: 100%;
-    height: auto;
-    display: block;
-  }
-
-  /* PDF Page Break Controls */
-  .page-break-inside-avoid {
-    page-break-inside: avoid;
-    break-inside: avoid;
-    -webkit-column-break-inside: avoid;
-    -moz-column-break-inside: avoid;
-    column-break-inside: avoid;
-    display: block;
-  }
-
-  .page-break-before {
-    page-break-before: always;
-    break-before: page;
-  }
-
-  /* CV Section page break optimization */
-  .cv-section {
-    page-break-inside: avoid;
-    break-inside: avoid;
-    -webkit-column-break-inside: avoid;
-    -moz-column-break-inside: avoid;
-    column-break-inside: avoid;
-    margin-bottom: 20px;
-    display: block;
-  }
-
-  .page-break {
-    page-break-before: always;
-    break-before: page;
-  }
-
-  .cv-container {
-    display: block;
-  }
-
-  /* Additional PDF optimization for sections */
-  .page-break-inside-avoid h3,
-  .cv-section h3 {
-    page-break-after: avoid;
-    break-after: avoid;
-  }
-
-  /* Mobile optimization for CV layouts - ensure no horizontal scroll */
-  @media screen and (max-width: 768px) {
-    .cv-layout-mobile {
-      transform: scale(0.85);
-      transform-origin: top center;
-      overflow-x: hidden;
-      max-width: 100%;
-    }
-    
-    .cv-content-mobile {
-      padding: 0.5rem;
-      font-size: 0.85rem;
-    }
-    
-    .cv-header-mobile {
-      padding: 0.75rem;
-      margin-bottom: 0.5rem;
-    }
-    
-    .cv-section-mobile {
-      margin-bottom: 1rem;
-      padding: 0.5rem;
-    }
-    
-    .cv-grid-mobile {
-      grid-template-columns: 1fr;
-      gap: 0.75rem;
-    }
-    
-    .cv-text-mobile {
-      font-size: 0.8rem;
-      line-height: 1.3;
-    }
-  }
-
-  /* Touch-friendly elements for mobile CV editing */
-  @media (hover: none) and (pointer: coarse) {
-    .cv-interactive-element {
-      min-height: 44px;
-      min-width: 44px;
-    }
-  }
-
-/* ===== PRINT / PDF ===== */
+/* ===== PRINT / PDF: Full page A4, no margins, optimized spacing ===== */
 @page { 
   size: A4; 
-  margin: 0; 
-}  /* randloses A4 – volle Fläche */
+  margin: var(--cv-page-margin, 0mm); /* Use CSS variable for flexible margins */
+}
 
 @media print {
   html, body { 
@@ -384,33 +241,39 @@ All colors MUST be HSL.
     print-color-adjust: exact; 
   }
 
-  /* Print-Tokens kompakter (sieht edel aus, spart Höhe) */
   [data-cv-preview] {
-    --cv-text: calc(8.9pt * var(--cv-scale));
-    --cv-title: calc(15.6pt * var(--cv-scale));
-    --cv-subtitle: calc(9.7pt * var(--cv-scale));
+    /* Print-Tokens: compact but readable */
+    --cv-text: calc(8.8pt * var(--cv-scale));
+    --cv-title: calc(15.2pt * var(--cv-scale));
+    --cv-subtitle: calc(9.8pt * var(--cv-scale));
     --cv-section-title: calc(9.2pt * var(--cv-scale));
     --cv-line: 1.22;
-    --cv-pad: calc(6.5pt * var(--cv-scale));
+
+    --cv-pad-card: calc(6.5pt * var(--cv-scale));
     --cv-gap: calc(5pt * var(--cv-scale));
   }
 
-  /* Optionaler PDF-Wrapper – keine Extra-Ränder/Schlagschatten */
+  /* Single A4 wrapper - full page width, no visual artifacts */
   [data-cv-preview] .cv-a4 { 
     width: 210mm; 
     min-height: 297mm; 
-    margin: 0; 
-    padding: 0; 
     box-sizing: border-box; 
-  }
-  [data-cv-preview], 
-  [data-cv-preview] .cv-card, 
-  [data-cv-preview] .cv-a4 { 
+    margin: 0; 
+    padding: var(--cv-page-margin, 0mm);
     box-shadow: none !important; 
     border: 0 !important; 
+    border-radius: 0 !important;
   }
 
-  /* Umbruch-Sicherheit (Sections/Cards bleiben zusammen) */
+  /* Remove layout within layout artifacts */
+  [data-cv-preview] .cv-a4 > * {
+    max-width: none !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+  }
+
+  /* Sections & Cards zusammenhalten – keine zerrissenen Einträge */
   [data-cv-preview] .cv-section,
   [data-cv-preview] .break-inside-avoid { 
     break-inside: avoid; 
@@ -428,7 +291,7 @@ All colors MUST be HSL.
     page-break-after: avoid; 
   }
 
-  /* Grid/Flex im Print simplifizieren, damit Breaks greifen */
+  /* Grid/Flex im Druck stabilisieren */
   [data-cv-preview] .cv-grid, 
   [data-cv-preview] .cv-flex { 
     display: block !important; 

@@ -101,6 +101,11 @@ const CVStep6 = () => {
         return;
       }
 
+      // Auto-fit before generating PDF
+      if (window.cvAutoFitSmart) {
+        await window.cvAutoFitSmart({ pagesPrimary: 1, pagesFallback: 2 });
+      }
+
       const base = generateCVFilename(formData.vorname || 'Unknown', formData.nachname || 'User');
       const baseNoExt = base.replace(/\.pdf$/i, '');
       const variant: 'mobile' | 'a4' = isMobile ? 'mobile' : 'a4';
@@ -163,10 +168,12 @@ const CVStep6 = () => {
       <article
         data-cv-preview
         data-variant="a4"
-        className={cn(
-          'cv-a4 mx-auto bg-card text-foreground rounded-md shadow-sm border border-border overflow-hidden',
-          'max-w-full'
-        )}
+        className="cv-a4 mx-auto bg-card text-foreground"
+        style={{ 
+          maxWidth: '210mm',
+          minHeight: '297mm',
+          boxSizing: 'border-box'
+        }}
         aria-label="Lebenslauf Vorschau – A4"
       >
         <LayoutComponent data={data} />
