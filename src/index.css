@@ -9,17 +9,19 @@ All colors MUST be HSL.
 @layer base {
   :root {
     /* CV Design Tokens */
+    --cv-scale: 1; /* Auto-shrink scaling factor */
     --cv-font-family: 'Inter', ui-sans-serif, system-ui, -apple-system;
-    --cv-text: 10.5pt;
-    --cv-title: 20pt;
-    --cv-subtitle: 12pt;
-    --cv-line: 1.35;
+    --cv-text: calc(9pt * var(--cv-scale));
+    --cv-title: calc(16pt * var(--cv-scale));
+    --cv-subtitle: calc(10pt * var(--cv-scale));
+    --cv-section-title: calc(9.5pt * var(--cv-scale));
+    --cv-line: 1.25;
 
-    --cv-pad-card: 12pt;
-    --cv-gap: 8pt;
+    --cv-pad-card: calc(8pt * var(--cv-scale));
+    --cv-gap: calc(6pt * var(--cv-scale));
 
-    --cv-header-h: 64pt;
-    --cv-logo-h: 20pt;
+    --cv-header-h: calc(48pt * var(--cv-scale));
+    --cv-logo-h: calc(28pt * var(--cv-scale));
     --background: 0 0% 100%;
     --foreground: 220 13% 13%;
 
@@ -121,6 +123,51 @@ All colors MUST be HSL.
     @apply bg-background text-foreground;
     overflow-x: hidden;
     font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+  }
+
+  .cv-root { 
+    font-family: var(--cv-font-family); 
+    line-height: var(--cv-line); 
+    font-feature-settings: "liga","kern"; 
+    text-rendering: optimizeLegibility;
+    unicode-bidi: plaintext;
+  }
+  .cv-title { font-size: var(--cv-title); font-weight: 700; }
+  .cv-subtitle { font-size: var(--cv-subtitle); font-weight: 500; opacity: .9; }
+  .cv-p { font-size: var(--cv-text); }
+  .cv-card { 
+    padding: var(--cv-pad-card); 
+    margin-bottom: var(--cv-gap);
+    unicode-bidi: plaintext;
+  }
+  .cv-section-title {
+    font-size: var(--cv-section-title);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    margin-bottom: 2pt;
+  }
+
+  /* Language styling - simple text only */
+  .cv-language-tag,
+  .cv-language-level,
+  .cv-language-badge,
+  [data-tag="language"],
+  .profile-tag.language {
+    background: none !important;
+    border: none !important;
+    box-shadow: none !important;
+    color: inherit !important;
+    font-size: var(--cv-text) !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    display: inline !important;
+  }
+
+  .cv-language {
+    font-size: var(--cv-text);
+    line-height: 1.25;
+    margin-bottom: 2pt;
   }
 
   /* Media defaults to prevent horizontal overflow */

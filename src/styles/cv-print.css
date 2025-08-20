@@ -8,13 +8,20 @@
   text-rendering: optimizeLegibility;
   unicode-bidi: plaintext; /* RTL/LTL auto-detection */
 }
-.cv-title { font-size: var(--cv-title); }
-.cv-subtitle { font-size: var(--cv-subtitle); }
+.cv-title { font-size: var(--cv-title); font-weight: 700; }
+.cv-subtitle { font-size: var(--cv-subtitle); font-weight: 500; opacity: .9; }
 .cv-p { font-size: var(--cv-text); }
 .cv-card { 
   padding: var(--cv-pad-card); 
   margin-bottom: var(--cv-gap);
   unicode-bidi: plaintext;
+}
+.cv-section-title {
+  font-size: var(--cv-section-title);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  margin-bottom: 2pt;
 }
 
 /* Header/Image Stability */
@@ -22,17 +29,22 @@
   display: grid;
   grid-template-columns: auto 1fr;
   align-items: center;
-  column-gap: 12pt;
+  gap: 6pt;
+  margin-bottom: 4pt;
   max-height: var(--cv-header-h);
   overflow: hidden;
 }
 .cv-header-img {
-  height: var(--cv-logo-h);
+  max-height: var(--cv-logo-h);
   width: auto;
-  max-width: 64pt;
   object-fit: contain;
+  border-radius: 50%;
 }
-.cv-header-meta { min-width: 0; overflow: hidden; }
+.cv-header-meta { 
+  min-width: 0; 
+  overflow: hidden; 
+  line-height: 1.15;
+}
 .cv-header-meta .cv-title { 
   white-space: nowrap; 
   text-overflow: ellipsis; 
@@ -41,10 +53,21 @@
 
 /* Page Setup */
 @page { 
-  margin: 12mm; 
+  size: A4; 
+  margin: 8mm 10mm; 
 }
 
 @media print {
+  .cv-root {
+    --cv-text: calc(8.5pt * var(--cv-scale));
+    --cv-title: calc(15pt * var(--cv-scale));
+    --cv-subtitle: calc(9.5pt * var(--cv-scale));
+    --cv-section-title: calc(9pt * var(--cv-scale));
+    --cv-line: 1.2;
+    --cv-pad-card: calc(6pt * var(--cv-scale));
+    --cv-gap: calc(5pt * var(--cv-scale));
+  }
+
   html, body {
     margin: 0 !important;
     padding: 0 !important;
@@ -84,7 +107,7 @@
   .cv-section { 
     break-inside: avoid;
     page-break-inside: avoid; 
-    padding-bottom: 2pt;
+    margin-bottom: 5pt;
     unicode-bidi: plaintext;
   }
   .cv-section-title {
