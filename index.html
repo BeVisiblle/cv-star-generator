@@ -27,5 +27,39 @@
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+    
+    <!-- Auto-Shrink-to-Fit Global Script -->
+    <script>
+    (function(){
+      const PX_PER_MM = 96/25.4;
+      const mm = px => px / PX_PER_MM;
+
+      function setScale(s){ document.documentElement.style.setProperty('--cv-scale', String(s)); }
+      function measure(){
+        const host = document.querySelector('[data-cv-preview]');
+        if (!host) return 0;
+        // misst die gesamte CV-Höhe – wenn ihr explizit .cv-a4 nutzt, könnt ihr darauf umstellen
+        return mm(host.scrollHeight);
+      }
+
+      async function shrink({target=283, step=.95, min=.85, tries=5}={}){
+        let scale = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--cv-scale')) || 1;
+        for (let i=0; i<tries; i++){
+          if (measure() <= target) break;
+          const next = Math.max(min, +(scale * step).toFixed(3));
+          if (next === scale) break;
+          scale = next;
+          setScale(scale);
+          await new Promise(r => requestAnimationFrame(r));
+        }
+      }
+
+      // Browser-Druck
+      window.addEventListener('beforeprint', () => { shrink(); });
+
+      // Optional für eigenen Button: await window.cvAutoShrinkToFit({target:283})
+      window.cvAutoShrinkToFit = shrink;
+    })();
+    </script>
   </body>
 </html>
