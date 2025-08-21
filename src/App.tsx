@@ -155,29 +155,13 @@ function CompanyProtectedRoute({ children }: { children: React.ReactNode }) {
 // Layout wrapper that conditionally shows TopNavBar
 function LayoutContent({ children }: { children: React.ReactNode }) {
   const location = useLocation();
-  const { user } = useAuth();
-  const pathname = location.pathname;
-  
-  const isCompanyRoute = pathname.startsWith('/company/') && pathname !== '/company/onboarding';
-  const isLandingPage = pathname === '/';
-  
-  // Define CV routes where chrome should be hidden when not authenticated
-  const isCvRoute = pathname.startsWith('/cv-generator') || 
-                   pathname.startsWith('/cv-layout-selector') || 
-                   pathname.startsWith('/cv') || 
-                   pathname.startsWith('/resume') || 
-                   pathname.startsWith('/bewerbung');
-  
-  const isAuthenticated = !!user;
-  const showChrome = isAuthenticated || !isCvRoute;
+  const isCompanyRoute = location.pathname.startsWith('/company/') && location.pathname !== '/company/onboarding';
+  const isLandingPage = location.pathname === '/';
   
   return (
-    <div 
-      className="min-h-screen flex flex-col w-full"
-      data-cv-chrome={showChrome ? "on" : "off"}
-    >
-      {/* TopNavBar for non-company and non-landing routes, and only when showChrome is true */}
-      {showChrome && !isCompanyRoute && !isLandingPage && <TopNavBar />}
+    <div className="min-h-screen flex flex-col w-full">
+      {/* TopNavBar for non-company and non-landing routes */}
+      {!isCompanyRoute && !isLandingPage && <TopNavBar />}
       
       {/* Main content area with conditional background and padding */}
       <div className={
@@ -185,9 +169,7 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
           ? "flex-1 bg-black" 
           : isCompanyRoute 
             ? "flex-1 bg-gray-50" 
-            : showChrome 
-              ? "flex-1 pt-14 bg-white"
-              : "flex-1 bg-white"
+            : "flex-1 pt-14 bg-white"
       }>
         {children}
       </div>
