@@ -208,6 +208,26 @@ All colors MUST be HSL.
   .pt-safe { padding-top: env(safe-area-inset-top); }
   .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
 
+  /* Hide navbar outside portal (auth page, CV generator) */
+  .auth-page header,
+  .auth-page nav,
+  .auth-page .navbar,
+  [data-cv-preview] header,
+  [data-cv-preview] nav,
+  [data-cv-preview] .navbar {
+    display: none !important;
+  }
+
+  /* Remove white padding/margins for auth and CV areas */
+  .auth-page main,
+  .auth-page .page-content,
+  [data-cv-preview] main,
+  [data-cv-preview] .page-content {
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #fff;
+  }
+
   /* Line clamp utilities (no plugin) */
   .line-clamp-1 { display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
   .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
@@ -238,3 +258,21 @@ html.overflow-fix, .overflow-fix body {
 .show-scrollbar-y::-webkit-scrollbar { width: 10px; }
 .show-scrollbar-y::-webkit-scrollbar-thumb { background-color: hsl(var(--muted-foreground) / 0.4); border-radius: 9999px; }
 .show-scrollbar-y::-webkit-scrollbar-track { background-color: hsl(var(--muted) / 0.5); }
+
+@media print {
+  /* Hide all navigation elements in print */
+  header, nav, .navbar, .app-sidebar, .sidebar {
+    display: none !important;
+  }
+  
+  /* Clean print layout */
+  main, body {
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  
+  /* Ensure TopNavBar is hidden in print */
+  .sticky.top-0 {
+    display: none !important;
+  }
+}

@@ -85,7 +85,7 @@ const CVGeneratorContent = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background overflow-x-hidden">
+    <div className="min-h-screen bg-background overflow-x-hidden" data-cv-preview>
       <div className="container mx-auto px-4 py-4 md:py-8 pb-24 md:pb-8 pt-safe max-w-full md:max-w-2xl">
         {/* Header */}
         <div className="sticky top-0 z-30 mb-6 md:mb-8 bg-background/80 supports-[backdrop-filter]:bg-background/60 backdrop-blur border-b">
