@@ -208,7 +208,39 @@ All colors MUST be HSL.
   .pt-safe { padding-top: env(safe-area-inset-top); }
   .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
 
-  /* Hide navbar outside portal (auth page, CV generator) */
+  /* Hide chrome when data-cv-chrome="off" */
+  [data-cv-chrome="off"] header,
+  [data-cv-chrome="off"] nav,
+  [data-cv-chrome="off"] .navbar,
+  [data-cv-chrome="off"] .topbar,
+  [data-cv-chrome="off"] .breadcrumb,
+  [data-cv-chrome="off"] .subnav,
+  [data-cv-chrome="off"] .footer,
+  [data-cv-chrome="off"] footer,
+  [data-cv-chrome="off"] .bottom-bar,
+  [data-cv-chrome="off"] .app-sidebar {
+    display: none !important;
+  }
+
+  /* Remove white padding/margins when chrome is off */
+  [data-cv-chrome="off"] main,
+  [data-cv-chrome="off"] .page-content,
+  [data-cv-chrome="off"] .content {
+    margin: 0 !important;
+    padding: 0 !important;
+    max-width: none !important;
+    background: #fff;
+    min-height: 100vh;
+  }
+
+  /* Neutralize container/wrapper padding when chrome is off */
+  [data-cv-chrome="off"] .container,
+  [data-cv-chrome="off"] .wrapper {
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  /* Legacy selectors for backward compatibility */
   .auth-page header,
   .auth-page nav,
   .auth-page .navbar,
@@ -218,7 +250,6 @@ All colors MUST be HSL.
     display: none !important;
   }
 
-  /* Remove white padding/margins for auth and CV areas */
   .auth-page main,
   .auth-page .page-content,
   [data-cv-preview] main,
@@ -260,19 +291,14 @@ html.overflow-fix, .overflow-fix body {
 .show-scrollbar-y::-webkit-scrollbar-track { background-color: hsl(var(--muted) / 0.5); }
 
 @media print {
-  /* Hide all navigation elements in print */
-  header, nav, .navbar, .app-sidebar, .sidebar {
+  /* Hide all navigation elements in print - chrome always off for PDF */
+  header, nav, .navbar, .topbar, .footer, footer, .app-sidebar, .bottom-bar, .breadcrumb, .subnav {
     display: none !important;
   }
   
   /* Clean print layout */
-  main, body {
+  body, html, main {
     margin: 0 !important;
     padding: 0 !important;
-  }
-  
-  /* Ensure TopNavBar is hidden in print */
-  .sticky.top-0 {
-    display: none !important;
   }
 }
