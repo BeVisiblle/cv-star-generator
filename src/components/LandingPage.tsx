@@ -25,9 +25,7 @@ export default function LandingPage() {
     const desc = "Erstelle deinen Azubi-Lebenslauf in 5 Minuten. CV für Ausbildung als PDF, Profil veröffentlichen und direkt von Unternehmen gefunden werden – kostenlos starten.";
     const keywords = "Lebenslauf Ausbildung, CV Ausbildung, Lebenslauf erstellen, Lebenslauf Hilfe, Azubi Lebenslauf, Bewerbung Ausbildung, CV Generator";
     const ogImage = site + "/images/step1-hero.jpg";
-
     const head = document.head;
-    
     const meta = (name: string, content: string, attr = "name") => {
       let el = head.querySelector(`meta[${attr}="${name}"]`) as HTMLMetaElement;
       if (!el) {
@@ -37,7 +35,6 @@ export default function LandingPage() {
       }
       el.setAttribute("content", content);
     };
-
     const link = (rel: string, href: string) => {
       let el = head.querySelector(`link[rel="${rel}"]`) as HTMLLinkElement;
       if (!el) {
@@ -57,68 +54,51 @@ export default function LandingPage() {
     link("canonical", site + "/");
 
     // Open Graph
-    head.insertAdjacentHTML("beforeend",
-      '<meta property="og:locale" content="de_DE">' +
-      '<meta property="og:type" content="website">' +
-      '<meta property="og:site_name" content="Ausbildungsbasis">' +
-      '<meta property="og:title" content="' + title.replace(/"/g, '&quot;') + '">' +
-      '<meta property="og:description" content="' + desc.replace(/"/g, '&quot;') + '">' +
-      '<meta property="og:url" content="' + site + '/">' +
-      '<meta property="og:image" content="' + ogImage + '">' +
-      '<meta property="og:image:alt" content="CV Generator für Ausbildung">'
-    );
+    head.insertAdjacentHTML("beforeend", '<meta property="og:locale" content="de_DE">' + '<meta property="og:type" content="website">' + '<meta property="og:site_name" content="Ausbildungsbasis">' + '<meta property="og:title" content="' + title.replace(/"/g, '&quot;') + '">' + '<meta property="og:description" content="' + desc.replace(/"/g, '&quot;') + '">' + '<meta property="og:url" content="' + site + '/">' + '<meta property="og:image" content="' + ogImage + '">' + '<meta property="og:image:alt" content="CV Generator für Ausbildung">');
 
     // Twitter Cards
-    head.insertAdjacentHTML("beforeend",
-      '<meta name="twitter:card" content="summary_large_image">' +
-      '<meta name="twitter:title" content="' + title.replace(/"/g, '&quot;') + '">' +
-      '<meta name="twitter:description" content="' + desc.replace(/"/g, '&quot;') + '">' +
-      '<meta name="twitter:image" content="' + ogImage + '">'
-    );
+    head.insertAdjacentHTML("beforeend", '<meta name="twitter:card" content="summary_large_image">' + '<meta name="twitter:title" content="' + title.replace(/"/g, '&quot;') + '">' + '<meta name="twitter:description" content="' + desc.replace(/"/g, '&quot;') + '">' + '<meta name="twitter:image" content="' + ogImage + '">');
 
     // JSON-LD Structured Data
-    const jsonLd = [
-      {
-        "@context": "https://schema.org",
-        "@type": "Organization",
-        "name": "Ausbildungsbasis",
-        "url": site,
-        "logo": site + "/images/step1-hero.jpg",
-        "sameAs": ["https://www.linkedin.com/company/ausbildungsbasis"]
-      },
-      {
-        "@context": "https://schema.org",
-        "@type": "WebSite",
-        "url": site,
-        "name": "Ausbildungsbasis",
-        "potentialAction": {
-          "@type": "SearchAction",
-          "target": site + "/suche?q={search_term_string}",
-          "query-input": "required name=search_term_string"
-        }
-      },
-      {
-        "@context": "https://schema.org",
-        "@type": "Product",
-        "name": "CV Generator (Lebenslauf Ausbildung)",
-        "brand": { "@type": "Brand", "name": "Ausbildungsbasis" },
-        "url": site + "/cv-generator",
-        "description": "CV für Ausbildung in 5 Minuten: PDF, Profil, Direktkontakt zu Unternehmen.",
-        "offers": {
-          "@type": "Offer",
-          "price": "0",
-          "priceCurrency": "EUR",
-          "availability": "https://schema.org/InStock"
-        }
+    const jsonLd = [{
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "Ausbildungsbasis",
+      "url": site,
+      "logo": site + "/images/step1-hero.jpg",
+      "sameAs": ["https://www.linkedin.com/company/ausbildungsbasis"]
+    }, {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "url": site,
+      "name": "Ausbildungsbasis",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": site + "/suche?q={search_term_string}",
+        "query-input": "required name=search_term_string"
       }
-    ];
-
+    }, {
+      "@context": "https://schema.org",
+      "@type": "Product",
+      "name": "CV Generator (Lebenslauf Ausbildung)",
+      "brand": {
+        "@type": "Brand",
+        "name": "Ausbildungsbasis"
+      },
+      "url": site + "/cv-generator",
+      "description": "CV für Ausbildung in 5 Minuten: PDF, Profil, Direktkontakt zu Unternehmen.",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "EUR",
+        "availability": "https://schema.org/InStock"
+      }
+    }];
     const script = document.createElement("script");
     script.type = "application/ld+json";
     script.text = JSON.stringify(jsonLd);
     head.appendChild(script);
   }, []);
-
   return <main className="min-h-screen bg-black text-white w-full" style={{
     ['--brand' as any]: '#5ce1e6'
   }}>
@@ -127,11 +107,7 @@ export default function LandingPage() {
         <div className="mx-auto max-w-7xl px-4 flex items-center justify-between">
           <div className="flex-1" />
           <div className="flex items-center gap-3">
-            <img 
-              src="/lovable-uploads/db86285e-b61d-4b09-b7a8-09931550f198.png" 
-              alt="Ausbildungsbasis Logo" 
-              className="h-8 w-8 object-contain"
-            />
+            <img src="/lovable-uploads/db86285e-b61d-4b09-b7a8-09931550f198.png" alt="Ausbildungsbasis Logo" className="h-8 w-8 object-contain" />
             <span className="text-lg font-semibold hidden sm:block">Ausbildungsbasis</span>
           </div>
           <div className="flex-1 flex justify-end">
@@ -201,11 +177,7 @@ teile dein Profil direkt.</p>
         <div className="mx-auto max-w-7xl px-4 py-10 grid grid-cols-1 md:grid-cols-3 gap-8 items-start">
           <div>
             <div className="flex items-center gap-3">
-              <img 
-                src="/lovable-uploads/db86285e-b61d-4b09-b7a8-09931550f198.png" 
-                alt="Ausbildungsbasis Logo" 
-                className="h-8 w-8 object-contain"
-              />
+              <img src="/lovable-uploads/db86285e-b61d-4b09-b7a8-09931550f198.png" alt="Ausbildungsbasis Logo" className="h-8 w-8 object-contain" />
               <span className="text-lg font-semibold">Ausbildungsbasis</span>
             </div>
             <p className="mt-3 text-sm text-zinc-400 max-w-xs">Die smarte Brücke zwischen Schülern, Azubis und Fachkräften und Unternehmen – Austausch untereinander, einem AI-Matching und einer Datenbank mit vollständigen Profilen.</p>
@@ -441,12 +413,7 @@ export function ProductShowcaseSection() {
 Community</h3>
               <p className="text-zinc-300 mb-8 leading-relaxed font-light">Erstelle deinen professionellen CV in nur fünf Schritten. Lade ihn als PDF herunter oder veröffentliche dein Profil – und werde direkt von Unternehmen gefunden und kontaktiert. Vernetze dich mit anderen Fachkräften, tausche Erfahrungen aus und tritt passenden Gruppen bei, um immer auf dem neuesten Stand zu bleiben.</p>
               <div className="aspect-[16/10] rounded-2xl ring-1 ring-zinc-800 overflow-hidden mb-6">
-                <img
-                  src="/lovable-uploads/4b784c18-de0b-4138-98bf-beb980e3fc0b.png"
-                  alt="Portal Feed Interface für Azubis und Fachkräfte"
-                  className="h-full w-full object-cover"
-                  loading="lazy"
-                />
+                <img src="/lovable-uploads/4b784c18-de0b-4138-98bf-beb980e3fc0b.png" alt="Portal Feed Interface für Azubis und Fachkräfte" className="h-full w-full object-cover" loading="lazy" />
               </div>
               <div className="flex gap-3 text-xs">
                 <span className="px-3 py-1 bg-[color:var(--brand)]/20 text-[color:var(--brand)] rounded-full">PDF Export</span>
@@ -471,12 +438,7 @@ Community</h3>
 
 Stärken Sie Ihr Employer Branding: Vernetzen Sie Ihr Team auf der Plattform und lassen Sie Mitarbeitende als authentische Markenbotschafter wirken.</p>
               <div className="aspect-[16/10] rounded-2xl ring-1 ring-zinc-800 overflow-hidden mb-6">
-                <img
-                  src="/lovable-uploads/356afafd-8910-495a-8ba8-35d74adf7cb1.png"
-                  alt="Kandidatensuche Interface für Unternehmen"
-                  className="h-full w-full object-cover"
-                  loading="lazy"
-                />
+                <img src="/lovable-uploads/356afafd-8910-495a-8ba8-35d74adf7cb1.png" alt="Kandidatensuche Interface für Unternehmen" className="h-full w-full object-cover" loading="lazy" />
               </div>
               <div className="flex gap-3 text-xs">
                 <span className="px-3 py-1 bg-blue-500/20 text-blue-400 rounded-full">Token-System</span>
