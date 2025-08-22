@@ -157,19 +157,26 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
   const location = useLocation();
   const isCompanyRoute = location.pathname.startsWith('/company/') && location.pathname !== '/company/onboarding';
   const isLandingPage = location.pathname === '/';
+  const isAuthRoute = location.pathname === '/auth';
+  const isCvRoute = location.pathname.startsWith('/cv-generator') || location.pathname.startsWith('/cv-layout-selector');
+  
+  // Only show TopNavBar when NOT on landing, company, auth, or CV routes
+  const showTopNav = !isLandingPage && !isCompanyRoute && !isAuthRoute && !isCvRoute;
   
   return (
     <div className="min-h-screen flex flex-col w-full">
-      {/* TopNavBar for non-company and non-landing routes */}
-      {!isCompanyRoute && !isLandingPage && <TopNavBar />}
+      {/* TopNavBar conditionally rendered */}
+      {showTopNav && <TopNavBar />}
       
       {/* Main content area with conditional background and padding */}
       <div className={
         isLandingPage 
           ? "flex-1 bg-black" 
           : isCompanyRoute 
-            ? "flex-1 bg-gray-50" 
-            : "flex-1 pt-14 bg-white"
+            ? "flex-1 bg-white" 
+            : showTopNav
+              ? "flex-1 pt-14 bg-white"
+              : "flex-1 bg-white"
       }>
         {children}
       </div>
