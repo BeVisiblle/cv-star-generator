@@ -4,10 +4,14 @@ import BaseLayout from "@/components/layout/BaseLayout";
 import { AppSidebar } from "@/components/AppSidebar";
 import NewPostComposer from "@/components/community/NewPostComposer";
 import { VisibilityPrompt } from "@/components/modals/VisibilityPrompt";
+import { AddressConfirmModal } from "@/components/modals/AddressConfirmModal";
+import { VisibilityNudge, VisibilityInfoBanner } from "@/components/modals/VisibilityNudge";
+import { useEntryGates } from "@/hooks/useEntryGates";
 
 export function AuthenticatedLayout() {
   const { profile, isLoading, user } = useAuth();
   const location = useLocation();
+  const entryGates = useEntryGates();
 
   // Show loading state
   if (isLoading) {
@@ -42,6 +46,25 @@ export function AuthenticatedLayout() {
         {/* Global UI */}
         <VisibilityPrompt />
         <NewPostComposer />
+        
+        {/* Entry Gates */}
+        {entryGates.addressData && (
+          <AddressConfirmModal
+            open={entryGates.showAddressModal}
+            initialData={entryGates.addressData}
+            onConfirm={entryGates.saveAddress}
+          />
+        )}
+        
+        <VisibilityNudge
+          open={entryGates.showVisibilityModal}
+          onClose={entryGates.closeVisibilityModal}
+          onChoose={entryGates.saveVisibilityChoice}
+        />
+        
+        {entryGates.showVisibilityBanner && (
+          <VisibilityInfoBanner onOpen={entryGates.openVisibilityModal} />
+        )}
       </main>
     </div>
   );
