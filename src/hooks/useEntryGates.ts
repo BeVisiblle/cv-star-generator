@@ -37,7 +37,7 @@ export function useEntryGates() {
     // Check if address is already confirmed
     const { data: existingProfile } = await supabase
       .from('profiles')
-      .select('address_confirmed, postal_code, city, street, house_number')
+      .select('address_confirmed, plz, ort, strasse, hausnummer')
       .eq('id', user.id)
       .single();
 
@@ -45,12 +45,12 @@ export function useEntryGates() {
       return false; // Already confirmed
     }
 
-    // Get signup data for pre-filling
+    // Get signup data for pre-filling using existing profile fields
     const addressData: AddressData = {
-      zip: existingProfile?.postal_code || '',
-      city: existingProfile?.city || '',
-      street: existingProfile?.street || '',
-      houseNo: existingProfile?.house_number || ''
+      zip: existingProfile?.plz || '',
+      city: existingProfile?.ort || '',
+      street: existingProfile?.strasse || '',
+      houseNo: existingProfile?.hausnummer || ''
     };
 
     setState(prev => ({
@@ -135,12 +135,10 @@ export function useEntryGates() {
     const { error } = await supabase
       .from('profiles')
       .update({
-        postal_code: addressData.zip,
-        city: addressData.city,
-        street: addressData.street || null,
-        house_number: addressData.houseNo || null,
-        latitude: addressData.lat,
-        longitude: addressData.lng,
+        plz: addressData.zip,
+        ort: addressData.city,
+        strasse: addressData.street || null,
+        hausnummer: addressData.houseNo || null,
         address_confirmed: true
       })
       .eq('id', user.id);

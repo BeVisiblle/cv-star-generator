@@ -2275,6 +2275,7 @@ export type Database = {
           abschlussjahr: string | null
           abschlussjahr_ausgelernt: string | null
           account_created: boolean | null
+          address_confirmed: boolean | null
           aktueller_beruf: string | null
           ausbildungsberuf: string | null
           ausbildungsbetrieb: string | null
@@ -2292,22 +2293,30 @@ export type Database = {
           employer_free: string | null
           employer_slogan: string | null
           faehigkeiten: Json | null
+          first_dashboard_seen: boolean | null
+          first_profile_saved: boolean | null
           geburtsdatum: string | null
           geplanter_abschluss: string | null
           has_drivers_license: boolean | null
           has_own_vehicle: boolean | null
           hausnummer: string | null
           headline: string | null
+          house_number: string | null
           id: string
           job_search_preferences: string[]
           kenntnisse: string | null
+          latitude: number | null
           layout: number | null
           location_id: number | null
+          login_count: number | null
+          longitude: number | null
           motivation: string | null
           nachname: string | null
+          onboarding_completed: boolean | null
           open_to_work: boolean | null
           ort: string | null
           plz: string | null
+          postal_code: string | null
           praktische_erfahrung: string | null
           profile_complete: boolean | null
           profile_published: boolean | null
@@ -2317,11 +2326,14 @@ export type Database = {
           startjahr: string | null
           status: string | null
           strasse: string | null
+          street: string | null
           target_year: string | null
           telefon: string | null
           uebermich: string | null
           updated_at: string | null
           visibility_industry: Json | null
+          visibility_mode: string | null
+          visibility_prompt_shown: boolean | null
           visibility_region: Json | null
           voraussichtliches_ende: string | null
           vorname: string | null
@@ -2330,6 +2342,7 @@ export type Database = {
           abschlussjahr?: string | null
           abschlussjahr_ausgelernt?: string | null
           account_created?: boolean | null
+          address_confirmed?: boolean | null
           aktueller_beruf?: string | null
           ausbildungsberuf?: string | null
           ausbildungsbetrieb?: string | null
@@ -2347,22 +2360,30 @@ export type Database = {
           employer_free?: string | null
           employer_slogan?: string | null
           faehigkeiten?: Json | null
+          first_dashboard_seen?: boolean | null
+          first_profile_saved?: boolean | null
           geburtsdatum?: string | null
           geplanter_abschluss?: string | null
           has_drivers_license?: boolean | null
           has_own_vehicle?: boolean | null
           hausnummer?: string | null
           headline?: string | null
+          house_number?: string | null
           id: string
           job_search_preferences?: string[]
           kenntnisse?: string | null
+          latitude?: number | null
           layout?: number | null
           location_id?: number | null
+          login_count?: number | null
+          longitude?: number | null
           motivation?: string | null
           nachname?: string | null
+          onboarding_completed?: boolean | null
           open_to_work?: boolean | null
           ort?: string | null
           plz?: string | null
+          postal_code?: string | null
           praktische_erfahrung?: string | null
           profile_complete?: boolean | null
           profile_published?: boolean | null
@@ -2372,11 +2393,14 @@ export type Database = {
           startjahr?: string | null
           status?: string | null
           strasse?: string | null
+          street?: string | null
           target_year?: string | null
           telefon?: string | null
           uebermich?: string | null
           updated_at?: string | null
           visibility_industry?: Json | null
+          visibility_mode?: string | null
+          visibility_prompt_shown?: boolean | null
           visibility_region?: Json | null
           voraussichtliches_ende?: string | null
           vorname?: string | null
@@ -2385,6 +2409,7 @@ export type Database = {
           abschlussjahr?: string | null
           abschlussjahr_ausgelernt?: string | null
           account_created?: boolean | null
+          address_confirmed?: boolean | null
           aktueller_beruf?: string | null
           ausbildungsberuf?: string | null
           ausbildungsbetrieb?: string | null
@@ -2402,22 +2427,30 @@ export type Database = {
           employer_free?: string | null
           employer_slogan?: string | null
           faehigkeiten?: Json | null
+          first_dashboard_seen?: boolean | null
+          first_profile_saved?: boolean | null
           geburtsdatum?: string | null
           geplanter_abschluss?: string | null
           has_drivers_license?: boolean | null
           has_own_vehicle?: boolean | null
           hausnummer?: string | null
           headline?: string | null
+          house_number?: string | null
           id?: string
           job_search_preferences?: string[]
           kenntnisse?: string | null
+          latitude?: number | null
           layout?: number | null
           location_id?: number | null
+          login_count?: number | null
+          longitude?: number | null
           motivation?: string | null
           nachname?: string | null
+          onboarding_completed?: boolean | null
           open_to_work?: boolean | null
           ort?: string | null
           plz?: string | null
+          postal_code?: string | null
           praktische_erfahrung?: string | null
           profile_complete?: boolean | null
           profile_published?: boolean | null
@@ -2427,11 +2460,14 @@ export type Database = {
           startjahr?: string | null
           status?: string | null
           strasse?: string | null
+          street?: string | null
           target_year?: string | null
           telefon?: string | null
           uebermich?: string | null
           updated_at?: string | null
           visibility_industry?: Json | null
+          visibility_mode?: string | null
+          visibility_prompt_shown?: boolean | null
           visibility_region?: Json | null
           voraussichtliches_ende?: string | null
           vorname?: string | null
@@ -3757,6 +3793,7 @@ export type Database = {
           abschlussjahr: string | null
           abschlussjahr_ausgelernt: string | null
           account_created: boolean | null
+          address_confirmed: boolean | null
           aktueller_beruf: string | null
           ausbildungsberuf: string | null
           ausbildungsbetrieb: string | null
@@ -3774,22 +3811,30 @@ export type Database = {
           employer_free: string | null
           employer_slogan: string | null
           faehigkeiten: Json | null
+          first_dashboard_seen: boolean | null
+          first_profile_saved: boolean | null
           geburtsdatum: string | null
           geplanter_abschluss: string | null
           has_drivers_license: boolean | null
           has_own_vehicle: boolean | null
           hausnummer: string | null
           headline: string | null
+          house_number: string | null
           id: string
           job_search_preferences: string[]
           kenntnisse: string | null
+          latitude: number | null
           layout: number | null
           location_id: number | null
+          login_count: number | null
+          longitude: number | null
           motivation: string | null
           nachname: string | null
+          onboarding_completed: boolean | null
           open_to_work: boolean | null
           ort: string | null
           plz: string | null
+          postal_code: string | null
           praktische_erfahrung: string | null
           profile_complete: boolean | null
           profile_published: boolean | null
@@ -3799,11 +3844,14 @@ export type Database = {
           startjahr: string | null
           status: string | null
           strasse: string | null
+          street: string | null
           target_year: string | null
           telefon: string | null
           uebermich: string | null
           updated_at: string | null
           visibility_industry: Json | null
+          visibility_mode: string | null
+          visibility_prompt_shown: boolean | null
           visibility_region: Json | null
           voraussichtliches_ende: string | null
           vorname: string | null

@@ -19,7 +19,6 @@ export function VisibilityNudge({ open, onClose, onChoose, allowClose = true }: 
     <Dialog open={open} onOpenChange={allowClose ? onClose : undefined}>
       <DialogContent 
         className="w-[min(560px,92vw)] max-h-[90dvh] overflow-auto p-4 sm:p-6"
-        hideCloseButton={!allowClose}
       >
         <DialogHeader>
           <DialogTitle className="text-lg font-semibold">Sichtbar für Unternehmen werden?</DialogTitle>

@@ -1,3 +1,4 @@
+import React from "react";
 import { Outlet, Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import BaseLayout from "@/components/layout/BaseLayout";
@@ -27,9 +28,17 @@ export function AuthenticatedLayout() {
     return <Navigate to="/auth" replace />;
   }
 
-  // Removed redirect gate for unpublished profiles to allow free navigation
-
-  // For users without profiles, let them stay where they are (they might be in CV generator)
+  // Trigger entry gates on route change for dashboard/sidebar access
+  React.useEffect(() => {
+    const isDashboardRoute = location.pathname === '/dashboard' || 
+                            location.pathname.startsWith('/talent') ||
+                            location.pathname.startsWith('/marketplace') ||
+                            location.pathname.startsWith('/notifications');
+    
+    if (user && isDashboardRoute) {
+      entryGates.onNavigate();
+    }
+  }, [location.pathname, user, entryGates.onNavigate]);
 
   return (
     <div className="min-h-screen flex w-full">

@@ -98,7 +98,6 @@ export function AddressConfirmModal({ open, initialData, onConfirm }: AddressCon
     <Dialog open={open} modal>
       <DialogContent 
         className="w-[min(560px,92vw)] max-h-[90dvh] overflow-auto p-4 sm:p-6"
-        hideCloseButton
       >
         <DialogHeader>
           <DialogTitle className="text-lg font-semibold">Adresse bestätigen</DialogTitle>
