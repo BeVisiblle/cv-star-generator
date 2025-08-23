@@ -113,7 +113,7 @@ export function useEntryGates() {
     } finally {
       setState(prev => ({ ...prev, loading: false }));
     }
-  }, [user, checkAddressConfirmation, checkVisibilityPrompt]);
+  }, [user?.id]); // Simplified dependencies
 
   const saveAddress = useCallback(async (addressData: AddressData) => {
     if (!user) throw new Error('No user');

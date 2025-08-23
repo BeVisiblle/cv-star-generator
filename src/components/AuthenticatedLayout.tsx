@@ -38,7 +38,7 @@ export function AuthenticatedLayout() {
     if (user && isDashboardRoute) {
       entryGates.onNavigate();
     }
-  }, [location.pathname, user, entryGates.onNavigate]);
+  }, [location.pathname, user?.id]); // Use user.id instead of entryGates.onNavigate
 
   return (
     <div className="min-h-screen flex w-full">
