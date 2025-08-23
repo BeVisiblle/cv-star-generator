@@ -3900,6 +3900,10 @@ export type Database = {
         Args: { _company_id: string }
         Returns: boolean
       }
+      increment_login_count: {
+        Args: { user_id: string }
+        Returns: number
+      }
       is_company_admin: {
         Args: { check_company_id: string }
         Returns: boolean

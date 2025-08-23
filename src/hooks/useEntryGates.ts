@@ -34,11 +34,8 @@ export function useEntryGates() {
   const checkAddressConfirmation = useCallback(async () => {
     if (!user || !profile) return false;
 
-    // For now, skip address confirmation until database is updated
-    // Check localStorage for address confirmation
-    const addressConfirmed = localStorage.getItem(`address_confirmed_${user.id}`) === 'true';
-    
-    if (addressConfirmed) {
+    // Check if address is already confirmed from the profile
+    if (profile.address_confirmed) {
       return false; // Already confirmed
     }
 
@@ -62,26 +59,21 @@ export function useEntryGates() {
   const checkVisibilityPrompt = useCallback(async () => {
     if (!user || !profile) return;
 
-    // Use localStorage for tracking until database is updated
-    const visibilityPromptShown = localStorage.getItem(`visibility_prompt_shown_${user.id}`) === 'true';
-    const firstDashboardSeen = localStorage.getItem(`first_dashboard_seen_${user.id}`) === 'true';
-    const visibilityMode = localStorage.getItem(`visibility_mode_${user.id}`) || 'invisible';
-
-    const isFirstDashboard = !firstDashboardSeen;
-    const hasCompletedOnboarding = true; // Assume completed if user has profile
-    const isInvisible = visibilityMode === 'invisible';
+    const isFirstDashboard = !profile.first_dashboard_seen;
+    const hasCompletedOnboarding = profile.onboarding_completed || profile.first_profile_saved;
+    const isInvisible = profile.visibility_mode === 'invisible';
 
     // First time prompt (after onboarding completion)
     const qualifiesFirstPrompt = 
       hasCompletedOnboarding && 
-      !visibilityPromptShown;
+      !profile.visibility_prompt_shown;
 
     // Cyclic prompt (every 3rd login when invisible)
     const needsCyclicPrompt = 
       isInvisible && 
       loginCount > 0 && 
       loginCount % 3 === 0 &&
-      visibilityPromptShown;
+      profile.visibility_prompt_shown;
 
     if (qualifiesFirstPrompt || needsCyclicPrompt) {
       setState(prev => ({
@@ -98,7 +90,10 @@ export function useEntryGates() {
 
     // Mark first dashboard visit
     if (isFirstDashboard) {
-      localStorage.setItem(`first_dashboard_seen_${user.id}`, 'true');
+      await supabase
+        .from('profiles')
+        .update({ first_dashboard_seen: true })
+        .eq('id', user.id);
     }
   }, [user, profile, loginCount]);
 
@@ -124,21 +119,19 @@ export function useEntryGates() {
     if (!user) throw new Error('No user');
 
     try {
-      // Update existing profile fields
+      // Update profile with address and mark as confirmed
       const { error } = await supabase
         .from('profiles')
         .update({
           plz: addressData.zip,
           ort: addressData.city,
           strasse: addressData.street || null,
-          hausnummer: addressData.houseNo || null
+          hausnummer: addressData.houseNo || null,
+          address_confirmed: true
         })
         .eq('id', user.id);
 
       if (error) throw error;
-
-      // Mark as confirmed in localStorage
-      localStorage.setItem(`address_confirmed_${user.id}`, 'true');
 
       setState(prev => ({
         ...prev,
@@ -158,9 +151,18 @@ export function useEntryGates() {
     if (!user) return;
 
     try {
-      // For now, store in localStorage until database is updated
-      localStorage.setItem(`visibility_mode_${user.id}`, choice);
-      localStorage.setItem(`visibility_prompt_shown_${user.id}`, 'true');
+      const { error } = await supabase
+        .from('profiles')
+        .update({
+          visibility_mode: choice,
+          visibility_prompt_shown: true
+        })
+        .eq('id', user.id);
+
+      if (error) {
+        console.error('Failed to save visibility choice:', error);
+        return;
+      }
 
       setState(prev => ({
         ...prev,

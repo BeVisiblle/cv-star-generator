@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 
 export function useLoginCounter() {
@@ -7,19 +8,34 @@ export function useLoginCounter() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (!user) {
+    if (!user?.id) {
       setLoading(false);
       return;
     }
 
-    // For now, use a simple session-based counter until database migration is complete
-    const sessionKey = `login_count_${user.id}`;
-    const storedCount = parseInt(localStorage.getItem(sessionKey) || '0', 10);
-    const newCount = storedCount + 1;
-    
-    localStorage.setItem(sessionKey, newCount.toString());
-    setLoginCount(newCount);
-    setLoading(false);
+    const updateLoginCount = async () => {
+      setLoading(true);
+      try {
+        // Call the database function to increment login count
+        const { data, error } = await supabase.rpc('increment_login_count', {
+          user_id: user.id
+        });
+
+        if (error) {
+          console.error('Failed to increment login count:', error);
+          setLoginCount(0);
+        } else {
+          setLoginCount(data || 0);
+        }
+      } catch (error) {
+        console.error('Unexpected error incrementing login count:', error);
+        setLoginCount(0);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    updateLoginCount();
   }, [user?.id]);
 
   return { loginCount, loading };
