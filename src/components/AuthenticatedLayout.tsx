@@ -12,7 +12,6 @@ import { useEntryGates } from "@/hooks/useEntryGates";
 export function AuthenticatedLayout() {
   const { profile, isLoading, user } = useAuth();
   const location = useLocation();
-  const entryGates = useEntryGates();
 
   // Show loading state
   if (isLoading) {
@@ -27,6 +26,9 @@ export function AuthenticatedLayout() {
   if (!user) {
     return <Navigate to="/auth" replace />;
   }
+
+  // Only call hooks after conditional returns
+  const entryGates = useEntryGates();
 
   // Trigger entry gates on route change for dashboard/sidebar access
   React.useEffect(() => {
