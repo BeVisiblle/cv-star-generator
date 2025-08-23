@@ -14,6 +14,18 @@ export function AuthenticatedLayout() {
   const location = useLocation();
   const entryGates = useEntryGates();
 
+  // Trigger entry gates on route change for dashboard/sidebar access
+  React.useEffect(() => {
+    const isDashboardRoute = location.pathname === '/dashboard' || 
+                            location.pathname.startsWith('/talent') ||
+                            location.pathname.startsWith('/marketplace') ||
+                            location.pathname.startsWith('/notifications');
+    
+    if (user && isDashboardRoute) {
+      entryGates.onNavigate();
+    }
+  }, [location.pathname, user?.id]);
+
   // Show loading state
   if (isLoading) {
     return (
@@ -28,17 +40,6 @@ export function AuthenticatedLayout() {
     return <Navigate to="/auth" replace />;
   }
 
-  // Trigger entry gates on route change for dashboard/sidebar access
-  React.useEffect(() => {
-    const isDashboardRoute = location.pathname === '/dashboard' || 
-                            location.pathname.startsWith('/talent') ||
-                            location.pathname.startsWith('/marketplace') ||
-                            location.pathname.startsWith('/notifications');
-    
-    if (user && isDashboardRoute) {
-      entryGates.onNavigate();
-    }
-  }, [location.pathname, user?.id]); // Use user.id instead of entryGates.onNavigate
 
   return (
     <div className="min-h-screen flex w-full">
