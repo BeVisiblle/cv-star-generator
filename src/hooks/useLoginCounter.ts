@@ -1,11 +1,10 @@
 import { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 
 export function useLoginCounter() {
   const { user } = useAuth();
   const [loginCount, setLoginCount] = useState(0);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (!user) {
@@ -13,35 +12,15 @@ export function useLoginCounter() {
       return;
     }
 
-    const updateLoginCount = async () => {
-      try {
-        // Get current login count
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('login_count')
-          .eq('id', user.id)
-          .single();
-
-        const currentCount = (profile?.login_count || 0) + 1;
-
-        // Update login count
-        const { error } = await supabase
-          .from('profiles')
-          .update({ login_count: currentCount })
-          .eq('id', user.id);
-
-        if (!error) {
-          setLoginCount(currentCount);
-        }
-      } catch (error) {
-        console.error('Failed to update login count:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    updateLoginCount();
-  }, [user]);
+    // For now, use a simple session-based counter until database migration is complete
+    const sessionKey = `login_count_${user.id}`;
+    const storedCount = parseInt(localStorage.getItem(sessionKey) || '0', 10);
+    const newCount = storedCount + 1;
+    
+    localStorage.setItem(sessionKey, newCount.toString());
+    setLoginCount(newCount);
+    setLoading(false);
+  }, [user?.id]);
 
   return { loginCount, loading };
 }
