@@ -54,7 +54,7 @@ export function useEntryGates() {
     }));
 
     return true;
-  }, [user, profile]);
+  }, [user?.id, profile?.address_confirmed, profile?.plz, profile?.ort, profile?.strasse, profile?.hausnummer]);
 
   const checkVisibilityPrompt = useCallback(async () => {
     if (!user || !profile) return;
@@ -95,7 +95,7 @@ export function useEntryGates() {
         .update({ first_dashboard_seen: true })
         .eq('id', user.id);
     }
-  }, [user, profile, loginCount]);
+  }, [user?.id, profile?.first_dashboard_seen, profile?.onboarding_completed, profile?.first_profile_saved, profile?.visibility_mode, profile?.visibility_prompt_shown, loginCount]);
 
   const onNavigate = useCallback(async () => {
     if (!user) return;
@@ -113,7 +113,7 @@ export function useEntryGates() {
     } finally {
       setState(prev => ({ ...prev, loading: false }));
     }
-  }, [user?.id]); // Simplified dependencies
+  }, [user?.id, checkAddressConfirmation, checkVisibilityPrompt]);
 
   const saveAddress = useCallback(async (addressData: AddressData) => {
     if (!user) throw new Error('No user');
