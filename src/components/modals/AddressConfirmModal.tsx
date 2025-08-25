@@ -19,23 +19,24 @@ interface AddressData {
 
 interface AddressConfirmModalProps {
   open: boolean;
+  onOpenChange: (open: boolean) => void;
   initialData: AddressData;
   onConfirm: (data: AddressData) => Promise<void>;
 }
 
-export function AddressConfirmModal({ open, initialData, onConfirm }: AddressConfirmModalProps) {
+export function AddressConfirmModal({ open, onOpenChange, initialData, onConfirm }: AddressConfirmModalProps) {
   const [data, setData] = useState<AddressData>(initialData);
-  const [isEditing, setIsEditing] = useState(false);
+  const [isEditing, setIsEditing] = useState(true); // Start in editing mode
   const [loading, setLoading] = useState(false);
   const { searchLocations } = useLocations();
   const { toast } = useToast();
   const [cityOptions, setCityOptions] = useState<Array<{ city: string; lat: number; lng: number }>>([]);
 
   useEffect(() => {
-    if (data.zip && data.zip.length === 5) {
+    if (data.zip && data.zip.length >= 3) {
       searchLocations(data.zip).then(locations => {
         setCityOptions(locations);
-        if (locations.length === 1) {
+        if (locations.length === 1 && data.zip.length === 5) {
           setData(prev => ({
             ...prev,
             city: locations[0].city,
@@ -44,11 +45,15 @@ export function AddressConfirmModal({ open, initialData, onConfirm }: AddressCon
           }));
         }
       });
+    } else {
+      setCityOptions([]);
     }
   }, [data.zip, searchLocations]);
 
   const handleZipChange = (zip: string) => {
-    setData(prev => ({ ...prev, zip, city: '', lat: undefined, lng: undefined }));
+    // Only allow digits and max 5 characters
+    const cleanZip = zip.replace(/\D/g, '').slice(0, 5);
+    setData(prev => ({ ...prev, zip: cleanZip, city: '', lat: undefined, lng: undefined }));
   };
 
   const handleCitySelect = (selectedCity: string) => {
@@ -95,7 +100,7 @@ export function AddressConfirmModal({ open, initialData, onConfirm }: AddressCon
   };
 
   return (
-    <Dialog open={open} modal>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent 
         className="w-[min(560px,92vw)] max-h-[90dvh] overflow-auto p-4 sm:p-6"
       >
@@ -115,7 +120,6 @@ export function AddressConfirmModal({ open, initialData, onConfirm }: AddressCon
               onChange={(e) => handleZipChange(e.target.value)}
               placeholder="12345"
               maxLength={5}
-              readOnly={!isEditing}
               className="mt-1"
             />
           </div>
@@ -182,15 +186,13 @@ export function AddressConfirmModal({ open, initialData, onConfirm }: AddressCon
             {loading ? "Wird gespeichert..." : "Bestätigen"}
           </Button>
           
-          {!isEditing && (
-            <Button
-              variant="outline"
-              onClick={() => setIsEditing(true)}
-              className="flex-1 min-h-[44px]"
-            >
-              Daten korrigieren
-            </Button>
-          )}
+          <Button
+            variant="outline"
+            onClick={() => onOpenChange(false)}
+            className="flex-1 min-h-[44px]"
+          >
+            Abbrechen
+          </Button>
         </div>
 
         <p className="text-xs text-muted-foreground mt-4">
