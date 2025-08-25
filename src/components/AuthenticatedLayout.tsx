@@ -62,10 +62,7 @@ export function AuthenticatedLayout() {
           <AddressConfirmModal
             open={entryGates.showAddressModal}
             onOpenChange={(open) => {
-              if (!open) {
-                // You could add a method to close the modal in entryGates if needed
-                // For now, we'll let the modal stay open until confirmed
-              }
+              if (!open) entryGates.closeAddressModal();
             }}
             initialData={entryGates.addressData}
             onConfirm={entryGates.saveAddress}

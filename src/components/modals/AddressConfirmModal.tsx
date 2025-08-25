@@ -1,12 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useLocations } from '@/hooks/useLocations';
-import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { PLZOrtSelector } from '@/components/shared/PLZOrtSelector';
 
 interface AddressData {
   zip: string;
@@ -26,60 +24,23 @@ interface AddressConfirmModalProps {
 
 export function AddressConfirmModal({ open, onOpenChange, initialData, onConfirm }: AddressConfirmModalProps) {
   const [data, setData] = useState<AddressData>(initialData);
-  const [isEditing, setIsEditing] = useState(true); // Start in editing mode
   const [loading, setLoading] = useState(false);
-  const { searchLocations } = useLocations();
   const { toast } = useToast();
-  const [cityOptions, setCityOptions] = useState<Array<{ city: string; lat: number; lng: number }>>([]);
-
-  useEffect(() => {
-    if (data.zip && data.zip.length >= 3) {
-      searchLocations(data.zip).then(locations => {
-        setCityOptions(locations);
-        if (locations.length === 1 && data.zip.length === 5) {
-          setData(prev => ({
-            ...prev,
-            city: locations[0].city,
-            lat: locations[0].lat,
-            lng: locations[0].lng
-          }));
-        }
-      });
-    } else {
-      setCityOptions([]);
-    }
-  }, [data.zip, searchLocations]);
 
   const handleZipChange = (zip: string) => {
-    // Only allow digits and max 5 characters
     const cleanZip = zip.replace(/\D/g, '').slice(0, 5);
-    setData(prev => ({ ...prev, zip: cleanZip, city: '', lat: undefined, lng: undefined }));
-  };
-
-  const handleCitySelect = (selectedCity: string) => {
-    const location = cityOptions.find(opt => opt.city === selectedCity);
-    if (location) {
-      setData(prev => ({
-        ...prev,
-        city: location.city,
-        lat: location.lat,
-        lng: location.lng
-      }));
-    }
+    setData(prev => ({ ...prev, zip: cleanZip }));
   };
 
   const isValid = () => {
-    return data.zip.match(/^\d{5}$/) && 
-           data.city.trim() !== '' && 
-           data.lat !== undefined && 
-           data.lng !== undefined;
+    return /^\d{5}$/.test(data.zip) && data.city.trim() !== '';
   };
 
   const handleConfirm = async () => {
     if (!isValid()) {
       toast({
         title: "Ungültige Daten",
-        description: "Bitte füllen Sie alle Pflichtfelder aus.",
+        description: "Bitte gib eine gültige PLZ und Stadt an.",
         variant: "destructive"
       });
       return;
@@ -88,6 +49,7 @@ export function AddressConfirmModal({ open, onOpenChange, initialData, onConfirm
     setLoading(true);
     try {
       await onConfirm(data);
+      onOpenChange(false);
     } catch (error) {
       toast({
         title: "Fehler",
@@ -112,47 +74,15 @@ export function AddressConfirmModal({ open, onOpenChange, initialData, onConfirm
         </DialogHeader>
 
         <div className="space-y-4 mt-4">
-          <div>
-            <Label htmlFor="zip">Postleitzahl *</Label>
-            <Input
-              id="zip"
-              value={data.zip}
-              onChange={(e) => handleZipChange(e.target.value)}
-              placeholder="12345"
-              maxLength={5}
-              className="mt-1"
-            />
-          </div>
-
-          {cityOptions.length > 1 && (
-            <div>
-              <Label htmlFor="city">Stadt *</Label>
-              <Select value={data.city} onValueChange={handleCitySelect}>
-                <SelectTrigger className="mt-1">
-                  <SelectValue placeholder="Stadt wählen" />
-                </SelectTrigger>
-                <SelectContent>
-                  {cityOptions.map((option, index) => (
-                    <SelectItem key={index} value={option.city}>
-                      {option.city}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          )}
-
-          {cityOptions.length === 1 && (
-            <div>
-              <Label htmlFor="city">Stadt *</Label>
-              <Input
-                id="city"
-                value={data.city}
-                readOnly
-                className="mt-1 bg-muted"
-              />
-            </div>
-          )}
+          <PLZOrtSelector
+            plz={data.zip}
+            ort={data.city}
+            required
+            plzLabel="Postleitzahl"
+            ortLabel="Stadt"
+            onPLZChange={(plz, ort) => setData(prev => ({ ...prev, zip: plz, city: ort }))}
+            onOrtChange={(ort) => setData(prev => ({ ...prev, city: ort }))}
+          />
 
           <div>
             <Label htmlFor="street">Straße</Label>
@@ -185,7 +115,7 @@ export function AddressConfirmModal({ open, onOpenChange, initialData, onConfirm
           >
             {loading ? "Wird gespeichert..." : "Bestätigen"}
           </Button>
-          
+
           <Button
             variant="outline"
             onClick={() => onOpenChange(false)}
@@ -196,7 +126,7 @@ export function AddressConfirmModal({ open, onOpenChange, initialData, onConfirm
         </div>
 
         <p className="text-xs text-muted-foreground mt-4">
-          Wir speichern Koordinaten deiner PLZ für Matching im Radius (Ort/Branche). Keine Weitergabe an Dritte.
+          Wir speichern die PLZ und den Ort für das Matching im Radius. Keine Weitergabe an Dritte.
         </p>
       </DialogContent>
     </Dialog>

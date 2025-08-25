@@ -203,6 +203,7 @@ export function useEntryGates() {
     saveVisibilityChoice,
     closeVisibilityModal,
     openVisibilityModal,
-    closeVisibilityBanner
+    closeVisibilityBanner,
+    closeAddressModal: () => setState(prev => ({ ...prev, showAddressModal: false }))
   };
 }
