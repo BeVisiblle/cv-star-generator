@@ -9,6 +9,7 @@ import { toast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
 import { useCVForm } from '@/contexts/CVFormContext';
+import { useAuth } from '@/hooks/useAuth';
 
 interface ProfileCreationModalProps {
   isOpen: boolean;
@@ -30,6 +31,7 @@ export const ProfileCreationModal = ({
   const [rateLimitSeconds, setRateLimitSeconds] = useState(0);
   const navigate = useNavigate();
   const { setAutoSyncEnabled } = useCVForm();
+  const { refetchProfile } = useAuth();
 
   // Auth state cleanup utility
   const cleanupAuthState = () => {
@@ -156,17 +158,6 @@ export const ProfileCreationModal = ({
     setIsCreating(true);
 
     try {
-      // Clean up auth state before new signup
-      cleanupAuthState();
-      
-      // Attempt global sign out first
-      try {
-        await supabase.auth.signOut({ scope: 'global' });
-      } catch (err) {
-        // Continue even if this fails
-        console.log('Sign out failed:', err);
-      }
-
       // First try to create the account
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email,
@@ -451,9 +442,16 @@ export const ProfileCreationModal = ({
             localStorage.removeItem('cvLayoutEditMode');
             localStorage.removeItem('creating-profile');
             
-            // Force page reload to refresh auth state and profile data
+            toast({
+              title: "Profil erstellt!",
+              description: "Ihr Profil wurde erfolgreich erstellt.",
+              variant: "default"
+            });
+            
+            // Refresh the profile in auth context and navigate
+            await refetchProfile();
             onClose();
-            window.location.href = '/profile';
+            navigate('/profile');
             
           } catch (error) {
             retryCount++;

@@ -6,8 +6,9 @@ import { useAuth } from '@/hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 
 export const CVGeneratorGate = ({ children }: { children: React.ReactNode }) => {
-  const { user, profile, isLoading } = useAuth();
+  const { user, profile, isLoading, refetchProfile } = useAuth();
   const navigate = useNavigate();
+  const [isRefetching, setIsRefetching] = React.useState(false);
 
   if (isLoading) {
     return (
@@ -20,6 +21,23 @@ export const CVGeneratorGate = ({ children }: { children: React.ReactNode }) => 
   // If user is not logged in, allow CV generation (registration happens at the end)
   if (!user) {
     return <>{children}</>;
+  }
+
+  // If user exists but profile is null, try to refetch once
+  React.useEffect(() => {
+    if (user && profile === null && !isRefetching) {
+      setIsRefetching(true);
+      refetchProfile().finally(() => setIsRefetching(false));
+    }
+  }, [user, profile, refetchProfile, isRefetching]);
+
+  // Show loading while refetching profile
+  if (user && profile === null && isRefetching) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
+      </div>
+    );
   }
 
   // If user is logged in but doesn't have a complete profile, show message
