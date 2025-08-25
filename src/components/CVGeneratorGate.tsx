@@ -10,6 +10,14 @@ export const CVGeneratorGate = ({ children }: { children: React.ReactNode }) => 
   const navigate = useNavigate();
   const [isRefetching, setIsRefetching] = React.useState(false);
 
+  // If user exists but profile is null, try to refetch once
+  React.useEffect(() => {
+    if (user && profile === null && !isRefetching) {
+      setIsRefetching(true);
+      refetchProfile().finally(() => setIsRefetching(false));
+    }
+  }, [user, profile, refetchProfile, isRefetching]);
+
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -22,14 +30,6 @@ export const CVGeneratorGate = ({ children }: { children: React.ReactNode }) => 
   if (!user) {
     return <>{children}</>;
   }
-
-  // If user exists but profile is null, try to refetch once
-  React.useEffect(() => {
-    if (user && profile === null && !isRefetching) {
-      setIsRefetching(true);
-      refetchProfile().finally(() => setIsRefetching(false));
-    }
-  }, [user, profile, refetchProfile, isRefetching]);
 
   // Show loading while refetching profile
   if (user && profile === null && isRefetching) {
