@@ -39,7 +39,7 @@ import NotificationsPage from "./pages/Notifications";
 // Company components
 import { CompanyLayout } from "@/components/Company/CompanyLayout";
 import CompanyOnboarding from "@/pages/Company/Onboarding";
-import CompanyDashboardNew from "@/pages/Company/Dashboard";
+import CompanyDashboard from "@/pages/Company/CompanyDashboard";
 import CompanyProfile from "@/pages/Company/Profile";
 import CompanySearch from "@/pages/Company/Search";
 import CompanyNotifications from "@/pages/Company/Notifications";
@@ -229,7 +229,7 @@ const App = () => (
                   </CompanyProtectedRoute>
                 }
               >
-                <Route path="dashboard" element={<CompanyDashboardNew />} />
+                <Route path="dashboard" element={<CompanyDashboard />} />
                 <Route path="profile" element={<CompanyProfile />} />
                 <Route path="search" element={<CompanySearch />} />
                 <Route path="unlocked" element={<CompanyUnlocked />} />

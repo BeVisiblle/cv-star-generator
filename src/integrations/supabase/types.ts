@@ -290,6 +290,7 @@ export type Database = {
           contact_person: string | null
           country: string | null
           created_at: string | null
+          current_plan_id: string | null
           description: string | null
           employee_count: number | null
           employer_profile: boolean | null
@@ -310,13 +311,16 @@ export type Database = {
           mission_statement: string | null
           name: string
           need_credits: number | null
+          onboarding_completed: boolean | null
           package_id: string | null
           phone: string | null
           plan_type: string | null
           primary_email: string | null
           seats: number | null
           size_range: string | null
+          stripe_customer_id: string | null
           subscription_status: string | null
+          token_balance: number | null
           updated_at: string | null
           website_url: string | null
         }
@@ -327,6 +331,7 @@ export type Database = {
           contact_person?: string | null
           country?: string | null
           created_at?: string | null
+          current_plan_id?: string | null
           description?: string | null
           employee_count?: number | null
           employer_profile?: boolean | null
@@ -347,13 +352,16 @@ export type Database = {
           mission_statement?: string | null
           name: string
           need_credits?: number | null
+          onboarding_completed?: boolean | null
           package_id?: string | null
           phone?: string | null
           plan_type?: string | null
           primary_email?: string | null
           seats?: number | null
           size_range?: string | null
+          stripe_customer_id?: string | null
           subscription_status?: string | null
+          token_balance?: number | null
           updated_at?: string | null
           website_url?: string | null
         }
@@ -364,6 +372,7 @@ export type Database = {
           contact_person?: string | null
           country?: string | null
           created_at?: string | null
+          current_plan_id?: string | null
           description?: string | null
           employee_count?: number | null
           employer_profile?: boolean | null
@@ -384,13 +393,16 @@ export type Database = {
           mission_statement?: string | null
           name?: string
           need_credits?: number | null
+          onboarding_completed?: boolean | null
           package_id?: string | null
           phone?: string | null
           plan_type?: string | null
           primary_email?: string | null
           seats?: number | null
           size_range?: string | null
+          stripe_customer_id?: string | null
           subscription_status?: string | null
+          token_balance?: number | null
           updated_at?: string | null
           website_url?: string | null
         }
@@ -2693,6 +2705,33 @@ export type Database = {
         }
         Relationships: []
       }
+      subscription_plans: {
+        Row: {
+          active: boolean | null
+          created_at: string | null
+          features: Json
+          id: string
+          name: string
+          price_cents: number
+        }
+        Insert: {
+          active?: boolean | null
+          created_at?: string | null
+          features?: Json
+          id: string
+          name: string
+          price_cents: number
+        }
+        Update: {
+          active?: boolean | null
+          created_at?: string | null
+          features?: Json
+          id?: string
+          name?: string
+          price_cents?: number
+        }
+        Relationships: []
+      }
       subscriptions: {
         Row: {
           company_id: string | null
@@ -2812,6 +2851,30 @@ export type Database = {
             referencedColumns: ["company_id"]
           },
         ]
+      }
+      token_packages: {
+        Row: {
+          active: boolean | null
+          created_at: string | null
+          credits: number
+          id: string
+          price_cents: number
+        }
+        Insert: {
+          active?: boolean | null
+          created_at?: string | null
+          credits: number
+          id?: string
+          price_cents: number
+        }
+        Update: {
+          active?: boolean | null
+          created_at?: string | null
+          credits?: number
+          id?: string
+          price_cents?: number
+        }
+        Relationships: []
       }
       token_pricing_tiers: {
         Row: {
@@ -3381,6 +3444,10 @@ export type Database = {
         }
         Returns: string
       }
+      deduct_company_tokens: {
+        Args: { company_uuid: string; token_amount: number }
+        Returns: boolean
+      }
       disablelongtransactions: {
         Args: Record<PropertyKey, never>
         Returns: string
@@ -3707,6 +3774,10 @@ export type Database = {
           size_range: string
           website_url: string
         }[]
+      }
+      get_company_token_balance: {
+        Args: { company_uuid: string }
+        Returns: number
       }
       get_feed: {
         Args: {
