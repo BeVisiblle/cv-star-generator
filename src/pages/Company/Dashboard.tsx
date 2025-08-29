@@ -14,11 +14,14 @@ import {
   FileText, 
   Eye,
   Building2,
-  Target
+  Target,
+  CreditCard
 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { KpiCard } from "@/components/admin/KpiCard";
 import { TopMatchedCandidates } from "@/components/dashboard/TopMatchedCandidates";
+import { TokenManagementModal } from "@/components/company/dashboard/TokenManagementModal";
+import { useToast } from "@/hooks/use-toast";
 
 interface Profile {
   id: string;
@@ -40,7 +43,7 @@ interface DashboardStats {
 }
 
 export default function CompanyDashboard() {
-  const { company, loading: companyLoading } = useCompany();
+  const { company, loading: companyLoading, refetch: refetchCompany } = useCompany();
   const [stats, setStats] = useState<DashboardStats>({
     totalMatches: 0,
     monthlyMatches: 0,
@@ -54,7 +57,10 @@ export default function CompanyDashboard() {
   const [loading, setLoading] = useState(true);
   const [demoMode, setDemoMode] = useState(false);
   const [demoCompanyData, setDemoCompanyData] = useState<any>(null);
-const navigate = useNavigate();
+  const [showTokenModal, setShowTokenModal] = useState(false);
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const { toast } = useToast();
 
 const [highlightIndex, setHighlightIndex] = useState(0);
 
@@ -80,6 +86,36 @@ useEffect(() => {
       loadDashboardData();
     }
   }, [company]);
+
+  useEffect(() => {
+    // Check for success/token_success params
+    const success = searchParams.get('success');
+    const tokenSuccess = searchParams.get('token_success');
+    
+    if (success) {
+      toast({
+        title: "Plan erfolgreich aktiviert!",
+        description: "Ihr neuer Plan ist jetzt aktiv.",
+      });
+      refetchCompany();
+      // Remove success param from URL
+      const newUrl = new URL(window.location.href);
+      newUrl.searchParams.delete('success');
+      window.history.replaceState({}, '', newUrl.toString());
+    }
+    
+    if (tokenSuccess) {
+      toast({
+        title: "Credits erfolgreich gekauft!",
+        description: "Ihre neuen Credits sind verfügbar.",
+      });
+      refetchCompany();
+      // Remove token_success param from URL
+      const newUrl = new URL(window.location.href);
+      newUrl.searchParams.delete('token_success');
+      window.history.replaceState({}, '', newUrl.toString());
+    }
+  }, [searchParams, refetchCompany, toast]);
 
   const loadDashboardData = async () => {
     if (!company) return;
@@ -238,6 +274,14 @@ useEffect(() => {
   }
 
   const displayCompany = demoMode ? demoCompanyData : company;
+  const currentTokens = demoMode ? 50 : (company?.active_tokens ?? 0);
+
+  const handleTokenBalanceUpdate = (balance: number) => {
+    if (company) {
+      // Update company state with new balance
+      refetchCompany();
+    }
+  };
 
   return (
     <div className="p-3 md:p-6 min-h-screen bg-background max-w-full overflow-x-hidden space-y-6">
@@ -303,9 +347,48 @@ useEffect(() => {
         </div>
       )}
 
+      {/* Low Credit Banner */}
+      {currentTokens < 3 && (
+        <Card className="border-orange-200 bg-orange-50">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center">
+                  <CreditCard className="h-4 w-4 text-orange-600" />
+                </div>
+                <div>
+                  <p className="font-medium text-orange-900">
+                    {company?.plan_type === 'free' || !company?.plan_type 
+                      ? "Ihre Credits sind aufgebraucht. Upgrade auf Starter, um weiter Profile freizuschalten."
+                      : "Credits sind aufgebraucht. Jetzt Credits nachkaufen."
+                    }
+                  </p>
+                </div>
+              </div>
+              <Button 
+                size="sm" 
+                className="bg-[hsl(var(--accent))] hover:bg-[hsl(var(--accent-hover))] text-white"
+                onClick={() => setShowTokenModal(true)}
+              >
+                {company?.plan_type === 'free' || !company?.plan_type 
+                  ? "Upgrade auf Starter" 
+                  : "Credits verwalten"
+                }
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Stats Overview */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <KpiCard title="Tokens übrig" value={demoMode ? 50 : (company?.active_tokens ?? 0)} hint="Aktualisiert in Echtzeit" />
+        <div onClick={() => setShowTokenModal(true)} className="cursor-pointer">
+          <KpiCard 
+            title="Tokens übrig" 
+            value={currentTokens} 
+            hint="3 Credits je vollständigem Profil (1 Profil + 2 Kontakt)"
+          />
+        </div>
         <KpiCard title="Matches (Monat)" value={stats.monthlyMatches} hint={`${stats.totalMatches} insgesamt`} />
         <KpiCard title="Freigeschaltet" value={stats.unlockedProfiles} hint="Profile angesehen" />
         <KpiCard title="Team Größe" value={demoMode ? 5 : (company?.seats ?? 0)} hint="aktive Mitglieder" />
@@ -391,6 +474,14 @@ useEffect(() => {
           )}
         </CardContent>
       </Card>
+
+      {/* Token Management Modal */}
+      <TokenManagementModal 
+        open={showTokenModal}
+        onOpenChange={setShowTokenModal}
+        currentBalance={currentTokens}
+        onBalanceUpdate={handleTokenBalanceUpdate}
+      />
     </div>
   );
 }

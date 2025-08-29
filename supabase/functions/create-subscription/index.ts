@@ -51,15 +51,36 @@ serve(async (req) => {
 
     // Plan pricing mapping
     const planPricing = {
-      starter: "price_starter_monthly", // Replace with actual Stripe price ID
-      premium: "price_premium_monthly", // Replace with actual Stripe price ID
+      starter: {
+        name: "Starter Plan",
+        amount: 29900, // 299€ in cents
+      },
+      premium: {
+        name: "Premium Plan", 
+        amount: 88900, // 889€ in cents
+      },
     };
+
+    const selectedPlan = planPricing[planId as keyof typeof planPricing];
+    if (!selectedPlan) {
+      throw new Error("Invalid plan ID");
+    }
 
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
       line_items: [
         {
-          price: planPricing[planId as keyof typeof planPricing],
+          price_data: {
+            currency: "eur",
+            product_data: {
+              name: selectedPlan.name,
+              description: `Monatliches Abonnement für ${selectedPlan.name}`,
+            },
+            unit_amount: selectedPlan.amount,
+            recurring: {
+              interval: "month",
+            },
+          },
           quantity: 1,
         },
       ],

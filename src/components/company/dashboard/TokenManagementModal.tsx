@@ -85,6 +85,36 @@ export function TokenManagementModal({
     }
   };
 
+  const handlePlanUpgrade = async (planId: 'starter' | 'premium') => {
+    setLoading(true);
+    
+    try {
+      const { data, error } = await supabase.functions.invoke('create-subscription', {
+        body: { planId }
+      });
+
+      if (error) throw error;
+
+      if (data?.url) {
+        // Open Stripe checkout in new tab
+        window.open(data.url, '_blank');
+        toast({
+          title: "Weiterleitung zur Plan-Aktivierung",
+          description: "Sie werden zu Stripe weitergeleitet.",
+        });
+      }
+    } catch (error) {
+      console.error('Error creating subscription:', error);
+      toast({
+        title: "Fehler bei der Plan-Aktivierung",
+        description: "Bitte versuchen Sie es erneut.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const formatPrice = (cents: number) => {
     return `${(cents / 100).toFixed(0)}€`;
   };
@@ -208,17 +238,52 @@ export function TokenManagementModal({
           {/* Plan Upgrade */}
           <Card className="bg-gradient-to-r from-purple-50 to-pink-50 border-purple-200">
             <CardContent className="p-6">
-              <div className="flex items-center justify-between">
+              <div className="space-y-4">
                 <div>
                   <h3 className="font-semibold text-lg">Plan upgraden</h3>
                   <p className="text-muted-foreground">
                     Holen Sie sich monatliche Credits und weitere Vorteile
                   </p>
                 </div>
-                <Button variant="outline" className="flex-shrink-0">
-                  <ArrowUpRight className="h-4 w-4 mr-2" />
-                  Plan upgraden
-                </Button>
+                
+                <div className="grid gap-3 md:grid-cols-2">
+                  <Card className="border-2 border-[hsl(var(--accent))] bg-white">
+                    <CardContent className="p-4">
+                      <div className="text-center space-y-2">
+                        <h4 className="font-semibold">Starter</h4>
+                        <div className="text-2xl font-bold text-[hsl(var(--accent))]">299€</div>
+                        <p className="text-sm text-muted-foreground">pro Monat</p>
+                        <Button 
+                          size="sm" 
+                          className="w-full bg-[hsl(var(--accent))] hover:bg-[hsl(var(--accent-hover))] text-white"
+                          onClick={() => handlePlanUpgrade('starter')}
+                          disabled={loading}
+                        >
+                          Starter wählen
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                  
+                  <Card className="border border-gray-200 bg-white">
+                    <CardContent className="p-4">
+                      <div className="text-center space-y-2">
+                        <h4 className="font-semibold">Premium</h4>
+                        <div className="text-2xl font-bold">889€</div>
+                        <p className="text-sm text-muted-foreground">pro Monat</p>
+                        <Button 
+                          size="sm" 
+                          variant="outline" 
+                          className="w-full"
+                          onClick={() => handlePlanUpgrade('premium')}
+                          disabled={loading}
+                        >
+                          Premium wählen
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
               </div>
             </CardContent>
           </Card>
