@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -501,13 +501,13 @@ const Auth = () => {
         <div className="text-center text-sm text-muted-foreground">
           <p>
             Mit der Anmeldung stimmen Sie unseren{' '}
-            <button className="underline hover:text-foreground">
-              Nutzungsbedingungen
-            </button>{' '}
+            <Link to="/agb" className="underline hover:text-foreground">
+              AGB
+            </Link>{' '}
             und{' '}
-            <button className="underline hover:text-foreground">
+            <Link to="/datenschutz" className="underline hover:text-foreground">
               Datenschutzbestimmungen
-            </button>{' '}
+            </Link>{' '}
             zu.
           </p>
         </div>

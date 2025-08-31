@@ -200,7 +200,7 @@ teile dein Profil direkt.</p>
             <ul className="mt-3 space-y-2">
               <li><Link to="/impressum" className="hover:text-white">Impressum</Link></li>
               <li><Link to="/datenschutz" className="hover:text-white">Datenschutz</Link></li>
-              <li><a href="#agb" className="hover:text-white">AGB</a></li>
+              <li><Link to="/agb" className="hover:text-white">AGB</Link></li>
             </ul>
           </div>
         </div>

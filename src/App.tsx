@@ -18,6 +18,7 @@ import Blog from "./pages/Blog";
 import Unternehmen from "./pages/Unternehmen";
 import Datenschutz from "./pages/Datenschutz";
 import Impressum from "./pages/Impressum";
+import AGB from "./pages/AGB";
 import Talent from "./pages/Talent";
 import CVGenerator from "./components/CVGenerator";
 import Auth from "./pages/Auth";
@@ -211,6 +212,7 @@ const App = () => (
               <Route path="/talent" element={<BaseLayout><Talent /></BaseLayout>} />
               <Route path="/datenschutz" element={<Datenschutz />} />
               <Route path="/impressum" element={<Impressum />} />
+              <Route path="/agb" element={<AGB />} />
               <Route path="/produkt/azubis" element={<ProduktAzubis />} />
               <Route path="/produkt/unternehmen" element={<ProduktUnternehmen />} />
               <Route path="/bootstrap/create-admin" element={<BaseLayout><CreateAdmin /></BaseLayout>} />
