@@ -75,6 +75,8 @@ import SupportPage from "./pages/Admin/Support";
 import AdminTools from "./pages/Admin/Tools";
 import AdminAuthGate from "@/components/admin/AdminAuthGate";
 import CreateAdmin from "./pages/Admin/CreateAdmin";
+import CvGeneratorLandingPage from "./components/CvGeneratorLandingPage";
+import UeberUns from "./pages/UeberUns";
 
 const queryClient = new QueryClient();
 
@@ -213,6 +215,8 @@ const App = () => (
               <Route path="/datenschutz" element={<Datenschutz />} />
               <Route path="/impressum" element={<Impressum />} />
               <Route path="/agb" element={<AGB />} />
+              <Route path="/lebenslauf-erstellen" element={<BaseLayout><CvGeneratorLandingPage /></BaseLayout>} />
+              <Route path="/ueber-uns" element={<BaseLayout><UeberUns /></BaseLayout>} />
               <Route path="/produkt/azubis" element={<ProduktAzubis />} />
               <Route path="/produkt/unternehmen" element={<ProduktUnternehmen />} />
               <Route path="/bootstrap/create-admin" element={<BaseLayout><CreateAdmin /></BaseLayout>} />
