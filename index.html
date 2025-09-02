@@ -20,13 +20,13 @@
 
     <!-- Preload critical resources for LCP optimization -->
     <link rel="preload" href="/lovable-uploads/hero-mobile-576x576.webp" as="image" type="image/webp" fetchpriority="high" />
-    <link rel="preload" href="/src/index.css" as="style" onload="this.onload=null;this.rel='stylesheet'" />
-    <noscript><link rel="stylesheet" href="/src/index.css" /></noscript>
     
-    <!-- Preconnect and preload Google Fonts to reduce blocking time -->
+    <!-- Preconnect to Google Fonts early -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'" />
+    
+    <!-- Load Google Fonts non-blocking -->
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet';this.media='all'" />
     <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" /></noscript>
     
     <!-- Inline critical CSS for above-the-fold content -->
