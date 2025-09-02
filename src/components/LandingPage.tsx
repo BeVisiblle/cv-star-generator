@@ -106,10 +106,17 @@ export default function LandingPage() {
       <header className="bg-black py-4 w-full">
         <div className="mx-auto max-w-7xl px-4 flex items-center justify-between">
           <div className="flex-1" />
-          <div className="flex items-center gap-3">
-            <img src="/lovable-uploads/db86285e-b61d-4b09-b7a8-09931550f198.png" alt="Ausbildungsbasis Logo" className="h-8 w-8 object-contain" />
-            <span className="text-lg font-semibold hidden sm:block">Ausbildungsbasis</span>
-          </div>
+            <div className="flex items-center gap-3">
+              <img 
+                src="/lovable-uploads/db86285e-b61d-4b09-b7a8-09931550f198.png" 
+                alt="Ausbildungsbasis Logo" 
+                className="h-8 w-8 object-contain" 
+                width="32" 
+                height="32"
+                loading="eager"
+              />
+              <span className="text-lg font-semibold hidden sm:block">Ausbildungsbasis</span>
+            </div>
           <div className="flex-1 flex justify-end">
             <Link to="/auth" className="inline-flex items-center justify-center rounded-2xl px-4 py-2 text-sm font-semibold border border-zinc-700 text-white hover:bg-zinc-900">
               Login
@@ -138,7 +145,15 @@ export default function LandingPage() {
               </div>
             </div>
             <div className="relative lg:ml-8 mx-0">
-              <img src="/lovable-uploads/95e5dd4a-87e4-403a-b2cd-6f3d06433d25.png" alt="CV Generator Mobile App" className="w-full max-w-md mx-auto lg:max-w-lg xl:max-w-xl transform lg:translate-x-8" />
+              <img 
+                src="/lovable-uploads/95e5dd4a-87e4-403a-b2cd-6f3d06433d25.png" 
+                alt="CV Generator Mobile App" 
+                className="w-full max-w-md mx-auto lg:max-w-lg xl:max-w-xl transform lg:translate-x-8" 
+                width="576" 
+                height="576"
+                loading="eager"
+                style={{ maxWidth: '576px', height: 'auto' }}
+              />
             </div>
           </div>
         </div>
@@ -177,7 +192,14 @@ teile dein Profil direkt.</p>
         <div className="mx-auto max-w-7xl px-4 py-10 grid grid-cols-1 md:grid-cols-3 gap-8 items-start">
           <div>
             <div className="flex items-center gap-3">
-              <img src="/lovable-uploads/db86285e-b61d-4b09-b7a8-09931550f198.png" alt="Ausbildungsbasis Logo" className="h-8 w-8 object-contain" />
+              <img 
+                src="/lovable-uploads/db86285e-b61d-4b09-b7a8-09931550f198.png" 
+                alt="Ausbildungsbasis Logo" 
+                className="h-8 w-8 object-contain" 
+                width="32" 
+                height="32"
+                loading="lazy"
+              />
               <span className="text-lg font-semibold">Ausbildungsbasis</span>
             </div>
             <p className="mt-3 text-sm text-zinc-400 max-w-xs">Die smarte Brücke zwischen Schülern, Azubis und Fachkräften und Unternehmen – Austausch untereinander, einem AI-Matching und einer Datenbank mit vollständigen Profilen.</p>
@@ -413,7 +435,15 @@ export function ProductShowcaseSection() {
 Community beitreten</h3>
               <p className="text-zinc-300 mb-8 leading-relaxed font-light">Erstelle deinen professionellen CV in nur fünf Schritten. Lade ihn als PDF herunter oder veröffentliche dein Profil – und werde direkt von Unternehmen gefunden und kontaktiert. Vernetze dich mit anderen Fachkräften, tausche Erfahrungen aus und tritt passenden Gruppen bei, um immer auf dem neuesten Stand zu bleiben.</p>
               <div className="aspect-[16/10] rounded-2xl ring-1 ring-zinc-800 overflow-hidden mb-6">
-                <img src="/lovable-uploads/4b784c18-de0b-4138-98bf-beb980e3fc0b.png" alt="Portal Feed Interface für Azubis und Fachkräfte" className="h-full w-full object-cover" loading="lazy" />
+                <img 
+                  src="/lovable-uploads/4b784c18-de0b-4138-98bf-beb980e3fc0b.png" 
+                  alt="Portal Feed Interface für Azubis und Fachkräfte" 
+                  className="h-full w-full object-cover" 
+                  width="532" 
+                  height="332"
+                  loading="lazy"
+                  style={{ maxWidth: '532px', height: 'auto' }}
+                />
               </div>
               <div className="flex gap-3 text-xs">
                 <span className="px-3 py-1 bg-[color:var(--brand)]/20 text-[color:var(--brand)] rounded-full">PDF Export</span>
@@ -438,7 +468,15 @@ Community beitreten</h3>
 
 Stärken Sie Ihr Employer Branding: Vernetzen Sie Ihr Team auf der Plattform und lassen Sie Mitarbeitende als authentische Markenbotschafter wirken.</p>
               <div className="aspect-[16/10] rounded-2xl ring-1 ring-zinc-800 overflow-hidden mb-6">
-                <img src="/lovable-uploads/356afafd-8910-495a-8ba8-35d74adf7cb1.png" alt="Kandidatensuche Interface für Unternehmen" className="h-full w-full object-cover" loading="lazy" />
+                <img 
+                  src="/lovable-uploads/356afafd-8910-495a-8ba8-35d74adf7cb1.png" 
+                  alt="Kandidatensuche Interface für Unternehmen" 
+                  className="h-full w-full object-cover" 
+                  width="532" 
+                  height="332"
+                  loading="lazy"
+                  style={{ maxWidth: '532px', height: 'auto' }}
+                />
               </div>
               <div className="flex gap-3 text-xs">
                 <span className="px-3 py-1 bg-blue-500/20 text-blue-400 rounded-full">Token-System</span>
