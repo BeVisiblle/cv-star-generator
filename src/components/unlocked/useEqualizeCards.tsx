@@ -10,9 +10,17 @@ export function useEqualizeCards() {
 
     const apply = () => {
       const cards = Array.from(wrap.querySelectorAll<HTMLElement>(".ab-card"));
-      cards.forEach(c => (c.style.height = "auto"));
-      const max = cards.reduce((m, c) => Math.max(m, c.offsetHeight), 0);
-      cards.forEach(c => (c.style.height = `${max}px`));
+      
+      // Batch DOM writes first
+      requestAnimationFrame(() => {
+        cards.forEach(c => (c.style.height = "auto"));
+        
+        // Then batch DOM reads in next frame to avoid forced reflow
+        requestAnimationFrame(() => {
+          const max = cards.reduce((m, c) => Math.max(m, c.offsetHeight), 0);
+          cards.forEach(c => (c.style.height = `${max}px`));
+        });
+      });
     };
 
     apply();

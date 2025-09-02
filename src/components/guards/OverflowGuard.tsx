@@ -5,10 +5,19 @@ const isDev = typeof import.meta !== "undefined" && (import.meta as any).env?.DE
 function getFirstOverflowingSelector(): string | null {
   try {
     const all = document.querySelectorAll<HTMLElement>("body *");
+    
+    // Cache computed styles to avoid repeated getComputedStyle calls
+    const elementData: Array<{el: HTMLElement, style: CSSStyleDeclaration}> = [];
+    
     for (const el of all) {
-      // Ignore elements not in layout flow
       const style = window.getComputedStyle(el);
+      // Ignore elements not in layout flow
       if (style.position === "fixed" || style.position === "absolute") continue;
+      elementData.push({el, style});
+    }
+    
+    // Batch all DOM reads after collecting styles
+    for (const {el} of elementData) {
       if (el.scrollWidth > el.clientWidth + 1) {
         // Try to build a useful selector
         const id = el.id ? `#${el.id}` : '';
@@ -33,18 +42,22 @@ export const OverflowGuard: React.FC = () => {
 
   const check = useMemo(() => () => {
     if (!document?.documentElement) return;
-    const doc = document.documentElement;
-    const hasOverflow = doc.scrollWidth > doc.clientWidth + 1;
-    setOverflow(hasOverflow);
+    
+    // Use requestAnimationFrame to avoid forced reflow
+    requestAnimationFrame(() => {
+      const doc = document.documentElement;
+      const hasOverflow = doc.scrollWidth > doc.clientWidth + 1;
+      setOverflow(hasOverflow);
 
-    if (hasOverflow) {
-      applyKnownCorrections();
-      if (isDev) {
-        const sel = getFirstOverflowingSelector();
-        setOffender(sel);
-        if (sel) console.warn("OverflowGuard: first overflowing element:", sel);
+      if (hasOverflow) {
+        applyKnownCorrections();
+        if (isDev) {
+          const sel = getFirstOverflowingSelector();
+          setOffender(sel);
+          if (sel) console.warn("OverflowGuard: first overflowing element:", sel);
+        }
       }
-    }
+    });
   }, []);
 
   useEffect(() => {
