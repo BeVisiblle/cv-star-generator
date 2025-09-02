@@ -107,14 +107,17 @@ export default function LandingPage() {
         <div className="mx-auto max-w-7xl px-4 flex items-center justify-between">
           <div className="flex-1" />
             <div className="flex items-center gap-3">
-              <img 
-                src="/lovable-uploads/logo-32x32.png" 
-                alt="Ausbildungsbasis Logo" 
-                className="h-8 w-8 object-contain" 
-                width="32" 
-                height="32"
-                loading="eager"
-              />
+              <picture>
+                <source srcSet="/lovable-uploads/logo-32x32.webp" type="image/webp" />
+                <img 
+                  src="/lovable-uploads/logo-32x32.png" 
+                  alt="Ausbildungsbasis Logo" 
+                  className="h-8 w-8 object-contain" 
+                  width="32" 
+                  height="32"
+                  loading="eager"
+                />
+              </picture>
               <span className="text-lg font-semibold hidden sm:block">Ausbildungsbasis</span>
             </div>
           <div className="flex-1 flex justify-end">
@@ -145,16 +148,19 @@ export default function LandingPage() {
               </div>
             </div>
             <div className="relative lg:ml-8 mx-0">
-              <img 
-                src="/lovable-uploads/hero-mobile-576x576.png" 
-                alt="CV Generator Mobile App" 
-                className="w-full max-w-md mx-auto lg:max-w-lg xl:max-w-xl transform lg:translate-x-8" 
-                width="576" 
-                height="576"
-                loading="eager"
-                fetchPriority="high"
-                style={{ maxWidth: '576px', height: 'auto' }}
-              />
+              <picture>
+                <source srcSet="/lovable-uploads/hero-mobile-576x576.webp" type="image/webp" />
+                <img 
+                  src="/lovable-uploads/hero-mobile-576x576.png" 
+                  alt="CV Generator Mobile App" 
+                  className="w-full max-w-md mx-auto lg:max-w-lg xl:max-w-xl transform lg:translate-x-8" 
+                  width="576" 
+                  height="576"
+                  loading="eager"
+                  fetchPriority="high"
+                  style={{ maxWidth: '576px', height: 'auto' }}
+                />
+              </picture>
             </div>
           </div>
         </div>
@@ -193,14 +199,17 @@ teile dein Profil direkt.</p>
         <div className="mx-auto max-w-7xl px-4 py-10 grid grid-cols-1 md:grid-cols-3 gap-8 items-start">
           <div>
             <div className="flex items-center gap-3">
-              <img 
-                src="/lovable-uploads/logo-32x32.png" 
-                alt="Ausbildungsbasis Logo" 
-                className="h-8 w-8 object-contain" 
-                width="32" 
-                height="32"
-                loading="lazy"
-              />
+              <picture>
+                <source srcSet="/lovable-uploads/logo-32x32.webp" type="image/webp" />
+                <img 
+                  src="/lovable-uploads/logo-32x32.png" 
+                  alt="Ausbildungsbasis Logo" 
+                  className="h-8 w-8 object-contain" 
+                  width="32" 
+                  height="32"
+                  loading="lazy"
+                />
+              </picture>
               <span className="text-lg font-semibold">Ausbildungsbasis</span>
             </div>
             <p className="mt-3 text-sm text-zinc-400 max-w-xs">Die smarte Brücke zwischen Schülern, Azubis und Fachkräften und Unternehmen – Austausch untereinander, einem AI-Matching und einer Datenbank mit vollständigen Profilen.</p>
@@ -436,15 +445,18 @@ export function ProductShowcaseSection() {
 Community beitreten</h3>
               <p className="text-zinc-300 mb-8 leading-relaxed font-light">Erstelle deinen professionellen CV in nur fünf Schritten. Lade ihn als PDF herunter oder veröffentliche dein Profil – und werde direkt von Unternehmen gefunden und kontaktiert. Vernetze dich mit anderen Fachkräften, tausche Erfahrungen aus und tritt passenden Gruppen bei, um immer auf dem neuesten Stand zu bleiben.</p>
               <div className="aspect-[16/10] rounded-2xl ring-1 ring-zinc-800 overflow-hidden mb-6">
-                <img 
-                  src="/lovable-uploads/feed-interface-532x332.png" 
-                  alt="Portal Feed Interface für Azubis und Fachkräfte" 
-                  className="h-full w-full object-cover" 
-                  width="532" 
-                  height="332"
-                  loading="lazy"
-                  style={{ maxWidth: '532px', height: 'auto' }}
-                />
+                <picture>
+                  <source srcSet="/lovable-uploads/feed-interface-532x332.webp" type="image/webp" />
+                  <img 
+                    src="/lovable-uploads/feed-interface-532x332.png" 
+                    alt="Portal Feed Interface für Azubis und Fachkräfte" 
+                    className="h-full w-full object-cover" 
+                    width="532" 
+                    height="332"
+                    loading="lazy"
+                    style={{ maxWidth: '532px', height: 'auto' }}
+                  />
+                </picture>
               </div>
               <div className="flex gap-3 text-xs">
                 <span className="px-3 py-1 bg-[color:var(--brand)]/20 text-[color:var(--brand)] rounded-full">PDF Export</span>
@@ -469,15 +481,18 @@ Community beitreten</h3>
 
 Stärken Sie Ihr Employer Branding: Vernetzen Sie Ihr Team auf der Plattform und lassen Sie Mitarbeitende als authentische Markenbotschafter wirken.</p>
               <div className="aspect-[16/10] rounded-2xl ring-1 ring-zinc-800 overflow-hidden mb-6">
-                <img 
-                  src="/lovable-uploads/search-interface-532x332.png" 
-                  alt="Kandidatensuche Interface für Unternehmen" 
-                  className="h-full w-full object-cover" 
-                  width="532" 
-                  height="332"
-                  loading="lazy"
-                  style={{ maxWidth: '532px', height: 'auto' }}
-                />
+                <picture>
+                  <source srcSet="/lovable-uploads/search-interface-532x332.webp" type="image/webp" />
+                  <img 
+                    src="/lovable-uploads/search-interface-532x332.png" 
+                    alt="Kandidatensuche Interface für Unternehmen" 
+                    className="h-full w-full object-cover" 
+                    width="532" 
+                    height="332"
+                    loading="lazy"
+                    style={{ maxWidth: '532px', height: 'auto' }}
+                  />
+                </picture>
               </div>
               <div className="flex gap-3 text-xs">
                 <span className="px-3 py-1 bg-blue-500/20 text-blue-400 rounded-full">Token-System</span>
