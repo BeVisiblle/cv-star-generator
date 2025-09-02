@@ -62,16 +62,6 @@ export default function CompanyDashboard() {
   const [searchParams] = useSearchParams();
   const { toast } = useToast();
 
-const [highlightIndex, setHighlightIndex] = useState(0);
-
-useEffect(() => {
-  if (bestMatches.length <= 1) return;
-  setHighlightIndex(0);
-  const id = setInterval(() => {
-    setHighlightIndex((i) => (i + 1) % Math.min(bestMatches.length, 4));
-  }, 4000);
-  return () => clearInterval(id);
-}, [bestMatches]);
 
   useEffect(() => {
     // Check for demo mode
