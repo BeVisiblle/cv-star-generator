@@ -125,16 +125,16 @@ export default function LandingPage() {
         </div>
       </header>
 
-      {/* Hero Section with Mobile Image */}
-      <section className="relative overflow-hidden bg-black w-full">
+      {/* Hero Section with Mobile Image - LCP Optimized */}
+      <section className="hero-section relative overflow-hidden bg-black w-full">
         <div className="mx-auto max-w-7xl px-4 py-16 md:py-24">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
             <div>
-              <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight leading-[0.95]">
+              <h1 className="hero-title text-5xl md:text-7xl font-extrabold tracking-tight leading-[0.95]">
                 Mach keinen Lebenslauf.<br />
-                <span className="text-[color:var(--brand)]">Mach Eindruck.</span>
+                <span className="hero-accent text-[color:var(--brand)]">Mach Eindruck.</span>
               </h1>
-              <p className="mt-6 text-zinc-300 text-lg max-w-xl">
+              <p className="hero-subtitle mt-6 text-zinc-300 text-lg max-w-xl">
                 In nur 5 Minuten zum perfekten Lebenslauf. Keine langweiligen Bewerbungen mehr –
                 werde direkt von Unternehmen gefunden und kontaktiert.
               </p>
@@ -152,6 +152,7 @@ export default function LandingPage() {
                 width="576" 
                 height="576"
                 loading="eager"
+                fetchPriority="high"
                 style={{ maxWidth: '576px', height: 'auto' }}
               />
             </div>

@@ -18,7 +18,8 @@
     <meta name="twitter:site" content="@ausbildungsbasis" />
     <meta name="twitter:image" content="/images/step1-hero.jpg" />
 
-    <!-- Preload critical CSS to prevent render blocking -->
+    <!-- Preload critical resources for LCP optimization -->
+    <link rel="preload" href="/lovable-uploads/hero-mobile-576x576.png" as="image" fetchpriority="high" />
     <link rel="preload" href="/src/index.css" as="style" onload="this.onload=null;this.rel='stylesheet'" />
     <noscript><link rel="stylesheet" href="/src/index.css" /></noscript>
     
@@ -27,6 +28,17 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'" />
     <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" /></noscript>
+    
+    <!-- Inline critical CSS for above-the-fold content -->
+    <style>
+      /* Critical CSS for LCP element */
+      .hero-section { background: #000; }
+      .hero-title { font-size: 3rem; font-weight: 800; line-height: 0.95; color: #fff; }
+      .hero-accent { color: #5ce1e6; }
+      .hero-subtitle { color: #d4d4d8; font-size: 1.125rem; margin-top: 1.5rem; }
+      .hero-cta { background: #5ce1e6; color: #000; padding: 0.75rem 1.5rem; border-radius: 1rem; font-weight: 600; margin-top: 2.5rem; display: inline-flex; }
+      @media (min-width: 768px) { .hero-title { font-size: 4.5rem; } }
+    </style>
   </head>
 
   <body>
