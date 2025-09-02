@@ -108,7 +108,7 @@ export default function LandingPage() {
           <div className="flex-1" />
             <div className="flex items-center gap-3">
               <img 
-                src="/lovable-uploads/db86285e-b61d-4b09-b7a8-09931550f198.png" 
+                src="/lovable-uploads/logo-32x32.png" 
                 alt="Ausbildungsbasis Logo" 
                 className="h-8 w-8 object-contain" 
                 width="32" 
@@ -146,7 +146,7 @@ export default function LandingPage() {
             </div>
             <div className="relative lg:ml-8 mx-0">
               <img 
-                src="/lovable-uploads/95e5dd4a-87e4-403a-b2cd-6f3d06433d25.png" 
+                src="/lovable-uploads/hero-mobile-576x576.png" 
                 alt="CV Generator Mobile App" 
                 className="w-full max-w-md mx-auto lg:max-w-lg xl:max-w-xl transform lg:translate-x-8" 
                 width="576" 
@@ -193,7 +193,7 @@ teile dein Profil direkt.</p>
           <div>
             <div className="flex items-center gap-3">
               <img 
-                src="/lovable-uploads/db86285e-b61d-4b09-b7a8-09931550f198.png" 
+                src="/lovable-uploads/logo-32x32.png" 
                 alt="Ausbildungsbasis Logo" 
                 className="h-8 w-8 object-contain" 
                 width="32" 
@@ -436,7 +436,7 @@ Community beitreten</h3>
               <p className="text-zinc-300 mb-8 leading-relaxed font-light">Erstelle deinen professionellen CV in nur fünf Schritten. Lade ihn als PDF herunter oder veröffentliche dein Profil – und werde direkt von Unternehmen gefunden und kontaktiert. Vernetze dich mit anderen Fachkräften, tausche Erfahrungen aus und tritt passenden Gruppen bei, um immer auf dem neuesten Stand zu bleiben.</p>
               <div className="aspect-[16/10] rounded-2xl ring-1 ring-zinc-800 overflow-hidden mb-6">
                 <img 
-                  src="/lovable-uploads/4b784c18-de0b-4138-98bf-beb980e3fc0b.png" 
+                  src="/lovable-uploads/feed-interface-532x332.png" 
                   alt="Portal Feed Interface für Azubis und Fachkräfte" 
                   className="h-full w-full object-cover" 
                   width="532" 
@@ -469,7 +469,7 @@ Community beitreten</h3>
 Stärken Sie Ihr Employer Branding: Vernetzen Sie Ihr Team auf der Plattform und lassen Sie Mitarbeitende als authentische Markenbotschafter wirken.</p>
               <div className="aspect-[16/10] rounded-2xl ring-1 ring-zinc-800 overflow-hidden mb-6">
                 <img 
-                  src="/lovable-uploads/356afafd-8910-495a-8ba8-35d74adf7cb1.png" 
+                  src="/lovable-uploads/search-interface-532x332.png" 
                   alt="Kandidatensuche Interface für Unternehmen" 
                   className="h-full w-full object-cover" 
                   width="532" 
