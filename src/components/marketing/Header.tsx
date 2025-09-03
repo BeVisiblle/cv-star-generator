@@ -41,7 +41,10 @@ export default function Header({ variant }: HeaderProps) {
     >
       <div className="mx-auto max-w-[1200px] px-4 sm:px-6 lg:px-8 h-14 flex items-center justify-between">
         <div className="flex items-center gap-6">
-          <Link to="/" className="font-semibold">YourBrand</Link>
+          <Link to="/" className="flex items-center gap-2">
+            <img src="/lovable-uploads/59fd3c9b-c2d3-4613-b2c1-1366f349e1e9.png" alt="Ausbildungsbasis Logo" className="h-8 w-8" />
+            <span className="font-semibold">Ausbildungsbasis</span>
+          </Link>
           <nav className="hidden md:flex items-center gap-6 text-sm text-muted-foreground">
             <Link to="/" className="hover:text-foreground">Start</Link>
             <Link to="/unternehmen" className="hover:text-foreground">Unternehmen</Link>

@@ -55,7 +55,7 @@ export default function TopNavBar() {
             onClick={() => navigate('/dashboard')}
           >
             <img 
-              src="/lovable-uploads/db86285e-b61d-4b09-b7a8-09931550f198.png" 
+              src="/lovable-uploads/59fd3c9b-c2d3-4613-b2c1-1366f349e1e9.png" 
               alt="Ausbildungsbasis Logo" 
               className="h-8 w-8"
             />

@@ -107,17 +107,14 @@ export default function LandingPage() {
         <div className="mx-auto max-w-7xl px-4 flex items-center justify-between">
           <div className="flex-1" />
             <div className="flex items-center gap-3">
-              <picture>
-                <source srcSet="/lovable-uploads/logo-32x32.webp" type="image/webp" />
-                <img 
-                  src="/lovable-uploads/logo-32x32.png" 
-                  alt="Ausbildungsbasis Logo" 
-                  className="h-8 w-8 object-contain" 
-                  width="32" 
-                  height="32"
-                  loading="eager"
-                />
-              </picture>
+              <img 
+                src="/lovable-uploads/59fd3c9b-c2d3-4613-b2c1-1366f349e1e9.png" 
+                alt="Ausbildungsbasis Logo" 
+                className="h-8 w-8 object-contain" 
+                width="32" 
+                height="32"
+                loading="eager"
+              />
               <span className="text-lg font-semibold hidden sm:block">Ausbildungsbasis</span>
             </div>
           <div className="flex-1 flex justify-end">
@@ -199,17 +196,14 @@ teile dein Profil direkt.</p>
         <div className="mx-auto max-w-7xl px-4 py-10 grid grid-cols-1 md:grid-cols-3 gap-8 items-start">
           <div>
             <div className="flex items-center gap-3">
-              <picture>
-                <source srcSet="/lovable-uploads/logo-32x32.webp" type="image/webp" />
-                <img 
-                  src="/lovable-uploads/logo-32x32.png" 
-                  alt="Ausbildungsbasis Logo" 
-                  className="h-8 w-8 object-contain" 
-                  width="32" 
-                  height="32"
-                  loading="lazy"
-                />
-              </picture>
+              <img 
+                src="/lovable-uploads/59fd3c9b-c2d3-4613-b2c1-1366f349e1e9.png" 
+                alt="Ausbildungsbasis Logo" 
+                className="h-8 w-8 object-contain" 
+                width="32" 
+                height="32"
+                loading="lazy"
+              />
               <span className="text-lg font-semibold">Ausbildungsbasis</span>
             </div>
             <p className="mt-3 text-sm text-zinc-400 max-w-xs">Die smarte Brücke zwischen Schülern, Azubis und Fachkräften und Unternehmen – Austausch untereinander, einem AI-Matching und einer Datenbank mit vollständigen Profilen.</p>
