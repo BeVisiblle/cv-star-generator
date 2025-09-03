@@ -1,6 +1,8 @@
 import React, { useEffect } from 'react';
 import { ArrowRight, Users, Building2, MessageSquare, Sparkles, ShieldCheck, PhoneCall } from "lucide-react";
 import { Link } from 'react-router-dom';
+import Header from './marketing/Header';
+import Footer from './marketing/Footer';
 
 /*
  Landing Page – CV Generator
@@ -99,157 +101,132 @@ export default function LandingPage() {
     script.text = JSON.stringify(jsonLd);
     head.appendChild(script);
   }, []);
-  return <main className="min-h-screen bg-black text-white w-full" style={{
-    ['--brand' as any]: '#5ce1e6'
-  }}>
-      {/* Simple Header */}
-      <header className="bg-black py-4 w-full">
-        <div className="mx-auto max-w-7xl px-4 flex items-center justify-between">
-          <div className="flex-1" />
-            <div className="flex items-center gap-3">
-              <img 
-                src="/lovable-uploads/59fd3c9b-c2d3-4613-b2c1-1366f349e1e9.png" 
-                alt="Ausbildungsbasis Logo" 
-                className="h-8 w-8 object-contain" 
-                width="32" 
-                height="32"
-                loading="eager"
-              />
-              <span className="text-lg font-semibold hidden sm:block">Ausbildungsbasis</span>
-            </div>
-          <div className="flex-1 flex justify-end">
-            <Link to="/auth" className="inline-flex items-center justify-center rounded-2xl px-4 py-2 text-sm font-semibold border border-zinc-700 text-white hover:bg-zinc-900">
-              Login
-            </Link>
-          </div>
-        </div>
-      </header>
 
-      {/* Hero Section with Mobile Image - LCP Optimized */}
-      <section className="hero-section relative overflow-hidden bg-black w-full">
-        <div className="mx-auto max-w-7xl px-4 py-16 md:py-24">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
-            <div>
-              <h1 className="hero-title text-5xl md:text-7xl font-extrabold tracking-tight leading-[0.95]">
-                Mach keinen Lebenslauf.<br />
-                <span className="hero-accent text-[color:var(--brand)]">Mach Eindruck.</span>
-              </h1>
-              <p className="hero-subtitle mt-6 text-zinc-300 text-lg max-w-xl">
-                In nur 5 Minuten zum perfekten Lebenslauf. Keine langweiligen Bewerbungen mehr –
-                werde direkt von Unternehmen gefunden und kontaktiert.
-              </p>
-              <div className="mt-10 flex flex-col sm:flex-row gap-4">
-                <Link to="/cv-generator" className="inline-flex items-center justify-center rounded-2xl px-6 py-3 text-base font-semibold bg-[color:var(--brand)] text-black shadow-lg shadow-teal-500/20">
-                  Lebenslauf erstellen – kostenlos
+  return (
+    <div className="min-h-screen bg-background">
+      {/* Header */}
+      <Header variant="talent" />
+      
+      <main className="bg-black text-white w-full" style={{
+        ['--brand' as any]: '#5ce1e6'
+      }}>
+        {/* Hero Section with Mobile Image - LCP Optimized */}
+        <section className="hero-section relative overflow-hidden bg-black w-full">
+          <div className="mx-auto max-w-7xl px-4 py-16 md:py-24">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+              <div>
+                <h1 className="hero-title text-5xl md:text-7xl font-extrabold tracking-tight leading-[0.95]">
+                  Werde sichtbar
+                </h1>
+                <p className="hero-subtitle mt-6 text-zinc-300 text-lg max-w-xl">
+                  Erstelle dein Profil anhand deines Lebenslaufes einfach und schnell. Vernetze dich mit anderen, 
+                  tausche Erfahrungen aus und werde von Unternehmen gefunden – oder bewirb dich mit einem Klick.
+                </p>
+                <div className="mt-10 flex flex-col sm:flex-row gap-4">
+                  <Link to="/onboarding" className="inline-flex items-center justify-center rounded-2xl px-6 py-3 text-base font-semibold bg-[color:var(--brand)] text-black shadow-lg shadow-teal-500/20">
+                    Profil erstellen – kostenlos
+                  </Link>
+                  <Link to="#so-funktionierts" className="inline-flex items-center justify-center rounded-2xl px-6 py-3 text-base font-semibold border border-zinc-700 text-white hover:bg-zinc-900">
+                    So funktioniert's
+                  </Link>
+                </div>
+                <p className="mt-4 text-xs text-zinc-400">
+                  *Dein Profil wird automatisch aus deinem Lebenslauf erstellt.
+                </p>
+              </div>
+              <div className="relative lg:ml-8 mx-0">
+                <picture>
+                  <source srcSet="/lovable-uploads/hero-mobile-576x576.webp" type="image/webp" />
+                  <img 
+                    src="/lovable-uploads/hero-mobile-576x576.png" 
+                    alt="CV Generator Mobile App" 
+                    className="w-full max-w-md mx-auto lg:max-w-lg xl:max-w-xl transform lg:translate-x-8" 
+                    width="576" 
+                    height="576"
+                    loading="eager"
+                    fetchPriority="high"
+                    style={{ maxWidth: '576px', height: 'auto' }}
+                  />
+                </picture>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Feature Cards */}
+        <FeatureCardsSection />
+
+        {/* "Mach keinen Lebenslauf – Mach Eindruck" Section */}
+        <section id="cv-impression" className="py-16 bg-black w-full">
+          <div className="mx-auto max-w-7xl px-4">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+              <div className="relative lg:mr-8">
+                <picture>
+                  <source srcSet="/lovable-uploads/hero-mobile-576x576.webp" type="image/webp" />
+                  <img 
+                    src="/lovable-uploads/hero-mobile-576x576.png" 
+                    alt="CV Generator Mobile App" 
+                    className="w-full max-w-md mx-auto rounded-lg" 
+                    width="576" 
+                    height="576"
+                    loading="lazy"
+                  />
+                </picture>
+              </div>
+              <div>
+                <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
+                  Mach keinen Lebenslauf – mach Eindruck
+                </h2>
+                <p className="text-zinc-300 text-lg mb-6 leading-relaxed">
+                  Lade deinen Lebenslauf hoch und erhalte ein vollständiges Profil, das überzeugt. 
+                  Teile relevante Erfahrungen, Fähigkeiten und Nachweise – klar strukturiert und sofort einsatzbereit.
+                </p>
+                <Link 
+                  to="/onboarding" 
+                  className="inline-flex items-center justify-center rounded-2xl px-6 py-3 text-base font-semibold border border-zinc-700 text-white hover:bg-zinc-900"
+                >
+                  Profil jetzt erstellen
                 </Link>
               </div>
             </div>
-            <div className="relative lg:ml-8 mx-0">
-              <picture>
-                <source srcSet="/lovable-uploads/hero-mobile-576x576.webp" type="image/webp" />
-                <img 
-                  src="/lovable-uploads/hero-mobile-576x576.png" 
-                  alt="CV Generator Mobile App" 
-                  className="w-full max-w-md mx-auto lg:max-w-lg xl:max-w-xl transform lg:translate-x-8" 
-                  width="576" 
-                  height="576"
-                  loading="eager"
-                  fetchPriority="high"
-                  style={{ maxWidth: '576px', height: 'auto' }}
-                />
-              </picture>
-            </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* Feature Cards */}
-      <FeatureCardsSection />
+        {/* Product Showcase */}
+        <ProductShowcaseSection />
 
-      {/* Product Showcase */}
-      <ProductShowcaseSection />
-
-      {/* Dual Call‑to‑Action */}
-      <section className="py-16 bg-black w-full">
-        <div className="mx-auto max-w-7xl px-4 grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <div className="rounded-2xl ring-1 ring-zinc-800 p-8 bg-zinc-900/40">
-            <h3 className="text-2xl font-semibold">Bereit, deinen CV zu bauen?</h3>
-            <p className="mt-2 text-sm text-zinc-300">Starte kostenlos, exportiere als PDF und
-teile dein Profil direkt.</p>
-            <div className="mt-6 flex flex-wrap gap-3">
-              <Link to="/cv-generator" className="inline-flex items-center justify-center rounded-2xl px-5 py-3 text-sm font-semibold bg-[color:var(--brand)] text-black">Für Schüler, Azubis und Fachkräfte: Jetzt starten</Link>
+        {/* Dual Call‑to‑Action */}
+        <section className="py-16 bg-black w-full">
+          <div className="mx-auto max-w-7xl px-4 grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div className="rounded-2xl ring-1 ring-zinc-800 p-8 bg-zinc-900/40">
+              <h3 className="text-2xl font-semibold">Bereit, dein Profil zu erstellen?</h3>
+              <p className="mt-2 text-sm text-zinc-300">Starte kostenlos und werde von Unternehmen gefunden.</p>
+              <div className="mt-6 flex flex-wrap gap-3">
+                <Link to="/onboarding" className="inline-flex items-center justify-center rounded-2xl px-5 py-3 text-sm font-semibold bg-[color:var(--brand)] text-black">Für Schüler, Azubis und Fachkräfte: Jetzt starten</Link>
+              </div>
+            </div>
+            <div className="rounded-2xl ring-1 ring-zinc-800 p-8 bg-zinc-900/40">
+              <h3 className="text-2xl font-semibold">Talente schneller finden</h3>
+              <p className="mt-2 text-sm text-zinc-300">Registrieren Sie Ihr Unternehmen und schalten Sie passende Profile frei.</p>
+              <div className="mt-6 flex flex-wrap gap-3">
+                <Link to="/unternehmen/onboarding" className="inline-flex items-center justify-center rounded-2xl px-5 py-3 text-sm font-semibold bg-white text-black">Unternehmen-Account erstellen</Link>
+                <Link to="/auth" className="inline-flex items-center justify-center rounded-2xl px-5 py-3 text-sm font-semibold border border-zinc-700">Login</Link>
+              </div>
             </div>
           </div>
-          <div className="rounded-2xl ring-1 ring-zinc-800 p-8 bg-zinc-900/40">
-            <h3 className="text-2xl font-semibold">Talente schneller finden</h3>
-            <p className="mt-2 text-sm text-zinc-300">Registrieren Sie Ihr Unternehmen und schalten Sie passende Profile frei.</p>
-            <div className="mt-6 flex flex-wrap gap-3">
-              <Link to="/unternehmen" className="inline-flex items-center justify-center rounded-2xl px-5 py-3 text-sm font-semibold bg-white text-black">Unternehmen registrieren</Link>
-              <Link to="/auth" className="inline-flex items-center justify-center rounded-2xl px-5 py-3 text-sm font-semibold border border-zinc-700">Login</Link>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* 6) Footer */}
-      <footer className="border-t border-zinc-900">
-        <div className="mx-auto max-w-7xl px-4 py-10 grid grid-cols-1 md:grid-cols-3 gap-8 items-start">
-          <div>
-            <div className="flex items-center gap-3">
-              <img 
-                src="/lovable-uploads/59fd3c9b-c2d3-4613-b2c1-1366f349e1e9.png" 
-                alt="Ausbildungsbasis Logo" 
-                className="h-8 w-8 object-contain" 
-                width="32" 
-                height="32"
-                loading="lazy"
-              />
-              <span className="text-lg font-semibold">Ausbildungsbasis</span>
-            </div>
-            <p className="mt-3 text-sm text-zinc-400 max-w-xs">Die smarte Brücke zwischen Schülern, Azubis und Fachkräften und Unternehmen – Austausch untereinander, einem AI-Matching und einer Datenbank mit vollständigen Profilen.</p>
-            <div className="mt-6 flex items-center gap-4">
-              <img src="https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg" alt="App Store" className="h-10 w-auto" />
-              <img src="https://developer.android.com/images/brand/de_generic_rgb_wo_45.png" alt="Google Play" className="h-10 w-auto" />
-            </div>
-          </div>
-          <div className="text-sm text-zinc-400">
-            <div className="font-semibold text-white">Navigation</div>
-            <ul className="mt-3 space-y-2">
-              <li><a href="#features" className="hover:text-white">Features</a></li>
-              <li><a href="#produkt" className="hover:text-white">Produkt</a></li>
-              <li><a href="#unternehmen" className="hover:text-white">Unternehmen</a></li>
-              <li><a href="#kontakt" className="hover:text-white">Kontakt</a></li>
-            </ul>
-          </div>
-          <div className="text-sm text-zinc-400">
-            <div className="font-semibold text-white">Rechtliches</div>
-            <ul className="mt-3 space-y-2">
-              <li><Link to="/impressum" className="hover:text-white">Impressum</Link></li>
-              <li><Link to="/datenschutz" className="hover:text-white">Datenschutz</Link></li>
-              <li><Link to="/agb" className="hover:text-white">AGB</Link></li>
-            </ul>
-          </div>
-        </div>
-        
-        {/* SEO Internal Navigation Links */}
-        <nav aria-label="Beliebte Themen" className="mx-auto max-w-7xl px-4 py-6 border-t border-zinc-800">
-          <h4 className="text-sm font-semibold text-white mb-3">Beliebte Themen</h4>
-          <ul className="flex flex-wrap gap-x-4 gap-y-2 text-sm text-zinc-400">
-            <li><Link to="/cv-generator" className="hover:text-white">Lebenslauf erstellen (Generator)</Link></li>
-            <li><a href="#produkt" className="hover:text-white">CV Ausbildung – so sieht's aus</a></li>
-            <li><a href="#features" className="hover:text-white">Lebenslauf Hilfe – Features</a></li>
-            <li><Link to="/unternehmen" className="hover:text-white">Kandidatensuche für Unternehmen</Link></li>
-          </ul>
-        </nav>
-        
-        <div className="px-4 pb-8 mx-auto max-w-7xl text-xs text-zinc-500">© {new Date().getFullYear()} Ausbildungsbasis. Alle Rechte vorbehalten.</div>
-      </footer>
-    </main>;
+        </section>
+      </main>
+      
+      {/* Footer */}
+      <Footer />
+    </div>
+  );
 }
 
 // --- FeatureCardsSection ---
 export function FeatureCardsSection() {
-  return <section className="w-full bg-black text-white py-16">
+  return (
+    <section id="so-funktionierts" className="w-full bg-black text-white py-16">
       <div className="w-full px-4">
         <h2 className="text-3xl md:text-4xl font-semibold tracking-tight mb-12 text-center">
           Warum unser Portal genau richtig für Dich ist.
@@ -343,159 +320,107 @@ export function FeatureCardsSection() {
             <div className="relative">
               <div className="text-6xl md:text-7xl font-extrabold tracking-tight text-white mb-4">360°</div>
               <h3 className="text-2xl md:text-3xl font-bold text-white mb-4">Recruiting & Employer Branding</h3>
-              <p className="text-sm text-zinc-300 leading-relaxed max-w-2xl">
-                Finden Sie spannende Profile mit vollständigen Daten, schalten
-                Sie diese frei und überzeugen Sie Fachkräfte und Talente von Ihrem
-                Unternehmen. Mitarbeitende werden zu Markenbotschafter:innen –
-                durch Austausch in Ihrem Namen.
+              <p className="text-sm text-zinc-200/90 leading-relaxed max-w-lg">
+                Vollständige Recruiting-Lösung: Von der Kandidatensuche über Bewerbermanagement bis hin zu Employer Branding. 
+                Alles in einer Plattform, die Unternehmen und Talente intelligent zusammenbringt.
               </p>
-              <div className="mt-6 inline-block rounded-xl bg-gradient-to-br from-zinc-800/80 to-zinc-900/80 p-4 ring-1 ring-zinc-700/50 backdrop-blur-sm">
-                <p className="text-xs text-zinc-300">Freigabe via Token‑Modell, Export als Link/PDF/QR.</p>
-              </div>
             </div>
           </article>
 
-          {/* Matches - Red accent card */}
-          <article className="rounded-2xl bg-red-600/90 text-white p-6 animate-fade-in hover-scale" style={{
+          {/* Sicherheit - Security card */}
+          <article className="relative rounded-2xl bg-emerald-600 p-6 text-white animate-fade-in hover-scale overflow-hidden" style={{
           animationDelay: '0.5s'
         }}>
-            <div className="flex items-center gap-2 text-white/90">
-              <Sparkles className="h-5 w-5" />
-              <span className="uppercase tracking-wide text-xs font-semibold">Matches</span>
+            <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1563013544-824ae1b704d3?q=80&w=2070&auto=format&fit=crop')] bg-cover bg-center opacity-20" />
+            <div className="relative">
+              <div className="flex items-center gap-2 text-white/90">
+                <ShieldCheck className="h-5 w-5" />
+                <span className="uppercase tracking-wide text-xs font-semibold">Sicherheit</span>
+              </div>
+              <h3 className="mt-2 text-xl font-semibold">DSGVO & Datenschutz</h3>
+              <p className="mt-3 text-sm leading-relaxed text-white/90">
+                Höchste Sicherheitsstandards, Server in Deutschland, volle DSGVO-Konformität.
+              </p>
             </div>
-            <h3 className="mt-2 text-xl font-semibold">Direkte Matches</h3>
-            <p className="mt-3 text-sm leading-relaxed text-white/90">Erhalte automatisch passende Matches – täglich aktualisiert.</p>
           </article>
 
-          {/* Kontakt - Dark card */}
-          <article className="rounded-2xl bg-zinc-900/70 ring-1 ring-zinc-800 p-6 animate-fade-in hover-scale" style={{
+          {/* Support - Support card */}
+          <article className="relative rounded-2xl bg-orange-600 p-6 text-white animate-fade-in hover-scale overflow-hidden" style={{
           animationDelay: '0.6s'
         }}>
-            <div className="flex items-center gap-2 text-zinc-400">
-              <PhoneCall className="h-5 w-5" />
-              <span className="uppercase tracking-wide text-xs font-semibold">Kontakt</span>
+            <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1553484771-371a605b060b?q=80&w=2070&auto=format&fit=crop')] bg-cover bg-center opacity-20" />
+            <div className="relative">
+              <div className="flex items-center gap-2 text-white/90">
+                <PhoneCall className="h-5 w-5" />
+                <span className="uppercase tracking-wide text-xs font-semibold">Support</span>
+              </div>
+              <h3 className="mt-2 text-xl font-semibold">Persönlicher Support</h3>
+              <p className="mt-3 text-sm leading-relaxed text-white/90">
+                Unser Team steht dir bei Fragen zur Seite – per Chat, E-Mail oder Telefon.
+              </p>
             </div>
-            <h3 className="mt-2 text-xl font-semibold text-white">Direkter Kontakt</h3>
-            <p className="mt-3 text-sm text-zinc-300 leading-relaxed">
-              WhatsApp, Telefon oder E-Mail – nimm sofort Kontakt auf.
-            </p>
           </article>
-
-          {/* Qualität - Dark card */}
-          <article className="rounded-2xl bg-zinc-900/70 ring-1 ring-zinc-800 p-6 animate-fade-in hover-scale" style={{
-          animationDelay: '0.7s'
-        }}>
-            <div className="flex items-center gap-2 text-zinc-400">
-              <ShieldCheck className="h-5 w-5" />
-              <span className="uppercase tracking-wide text-xs font-semibold">Qualität</span>
-            </div>
-            <h3 className="mt-2 text-xl font-semibold text-white">Geprüfte Profile</h3>
-            <p className="mt-3 text-sm text-zinc-300 leading-relaxed">
-              Alle Profile werden verifiziert für höchste Qualität.
-            </p>
-          </article>
-
-          {/* CV Templates - New card */}
-          <article className="rounded-2xl bg-gradient-to-br from-emerald-600 to-teal-600 p-6 text-white animate-fade-in hover-scale" style={{
-          animationDelay: '0.9s'
-        }}>
-            <div className="flex items-center gap-2 text-white/90">
-              <Users className="h-5 w-5" />
-              <span className="uppercase tracking-wide text-xs font-semibold">Templates</span>
-            </div>
-            <h3 className="mt-2 text-xl font-semibold">Professionelle Layouts</h3>
-            <p className="mt-3 text-sm leading-relaxed text-white/90">
-              Wähle aus verschiedenen modernen CV-Vorlagen für jeden Beruf.
-            </p>
-          </article>
-          
-
         </div>
       </div>
-    </section>;
+    </section>
+  );
 }
 
-// --- Product Showcase Section ---
+// --- ProductShowcaseSection ---
 export function ProductShowcaseSection() {
-  return <section className="w-full bg-black text-white py-20">
-      <div className="mx-auto max-w-7xl px-4">
-        <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-center mb-4">
-          So sieht das Produkt aus
+  return (
+    <section id="produkt" className="w-full bg-black text-white py-16">
+      <div className="max-w-7xl mx-auto px-4">
+        <h2 className="text-3xl md:text-4xl font-semibold tracking-tight mb-12 text-center">
+          So sieht unser Portal aus
         </h2>
-        <p className="text-center text-zinc-400 mb-16 max-w-2xl mx-auto">
-          Ein Blick in die Anwendung – für Azubis, Schüler, Fachkräfte und Unternehmen.
-        </p>
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-          {/* User Preview */}
-          <div className="relative rounded-3xl ring-1 ring-zinc-800 bg-gradient-to-b from-zinc-900/50 to-black p-8 animate-fade-in hover-scale overflow-hidden">
-            <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=2071&auto=format&fit=crop')] bg-cover bg-center opacity-10" />
-            <div className="relative">
-              <div className="flex items-center gap-3 text-[color:var(--brand)] text-sm uppercase tracking-wider font-semibold mb-4">
-                <Users className="h-5 w-5" /> 
-                <span>Für Azubis, Schüler & Fachkräfte</span>
-              </div>
-              <h3 className="text-3xl font-bold text-white mb-4">CV‑Editor, Job finden &
-Community beitreten</h3>
-              <p className="text-zinc-300 mb-8 leading-relaxed font-light">Erstelle deinen professionellen CV in nur fünf Schritten. Lade ihn als PDF herunter oder veröffentliche dein Profil – und werde direkt von Unternehmen gefunden und kontaktiert. Vernetze dich mit anderen Fachkräften, tausche Erfahrungen aus und tritt passenden Gruppen bei, um immer auf dem neuesten Stand zu bleiben.</p>
-              <div className="aspect-[16/10] rounded-2xl ring-1 ring-zinc-800 overflow-hidden mb-6">
+        
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* For Talents */}
+          <div className="relative group">
+            <div className="relative overflow-hidden rounded-2xl bg-zinc-900/40 ring-1 ring-zinc-800">
+              <div className="aspect-[16/10] relative">
                 <picture>
                   <source srcSet="/lovable-uploads/feed-interface-532x332.webp" type="image/webp" />
                   <img 
                     src="/lovable-uploads/feed-interface-532x332.png" 
                     alt="Portal Feed Interface für Azubis und Fachkräfte" 
                     className="h-full w-full object-cover" 
-                    width="532" 
-                    height="332"
                     loading="lazy"
-                    style={{ maxWidth: '532px', height: 'auto' }}
                   />
                 </picture>
-              </div>
-              <div className="flex gap-3 text-xs">
-                <span className="px-3 py-1 bg-[color:var(--brand)]/20 text-[color:var(--brand)] rounded-full">PDF Export</span>
-                <span className="px-3 py-1 bg-[color:var(--brand)]/20 text-[color:var(--brand)] rounded-full">Vernetzen</span>
-                <span className="px-3 py-1 bg-[color:var(--brand)]/20 text-[color:var(--brand)] rounded-full">Community</span>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                <div className="absolute bottom-4 left-4 right-4">
+                  <h3 className="text-xl font-semibold text-white mb-2">Für Azubis & Fachkräfte</h3>
+                  <p className="text-sm text-zinc-200">Community-Feed, Networking und direkte Jobchancen in einem Portal.</p>
+                </div>
               </div>
             </div>
           </div>
 
-          {/* Company Preview */}
-          <div className="relative rounded-3xl ring-1 ring-zinc-800 bg-gradient-to-b from-zinc-900/50 to-black p-8 animate-fade-in hover-scale overflow-hidden" style={{
-          animationDelay: '0.2s'
-        }}>
-            <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1560472354-b33ff0c44a43?q=80&w=2126&auto=format&fit=crop')] bg-cover bg-center opacity-10" />
-            <div className="relative">
-              <div className="flex items-center gap-3 text-blue-400 text-sm uppercase tracking-wider font-semibold mb-4">
-                <Building2 className="h-5 w-5" /> 
-                <span>Für Unternehmen</span>
-              </div>
-              <h3 className="text-3xl font-bold text-white mb-4">Kandidatensuche & Employee Branding</h3>
-              <p className="text-zinc-300 mb-8 leading-relaxed text-base font-light">Durchsuchen Sie standardisierte Azubi-Profile, schalten Sie passende Kandidat:innen per Token frei und nehmen Sie direkt Kontakt auf – via WhatsApp, Telefon oder E-Mail.
-
-Stärken Sie Ihr Employer Branding: Vernetzen Sie Ihr Team auf der Plattform und lassen Sie Mitarbeitende als authentische Markenbotschafter wirken.</p>
-              <div className="aspect-[16/10] rounded-2xl ring-1 ring-zinc-800 overflow-hidden mb-6">
+          {/* For Companies */}
+          <div className="relative group">
+            <div className="relative overflow-hidden rounded-2xl bg-zinc-900/40 ring-1 ring-zinc-800">
+              <div className="aspect-[16/10] relative">
                 <picture>
                   <source srcSet="/lovable-uploads/search-interface-532x332.webp" type="image/webp" />
                   <img 
                     src="/lovable-uploads/search-interface-532x332.png" 
                     alt="Kandidatensuche Interface für Unternehmen" 
                     className="h-full w-full object-cover" 
-                    width="532" 
-                    height="332"
                     loading="lazy"
-                    style={{ maxWidth: '532px', height: 'auto' }}
                   />
                 </picture>
-              </div>
-              <div className="flex gap-3 text-xs">
-                <span className="px-3 py-1 bg-blue-500/20 text-blue-400 rounded-full">Token-System</span>
-                <span className="px-3 py-1 bg-blue-500/20 text-blue-400 rounded-full">Direktkontakt</span>
-                <span className="px-3 py-1 bg-blue-500/20 text-blue-400 rounded-full">Employee Branding</span>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                <div className="absolute bottom-4 left-4 right-4">
+                  <h3 className="text-xl font-semibold text-white mb-2">Für Unternehmen</h3>
+                  <p className="text-sm text-zinc-200">Intelligente Kandidatensuche mit Filtern, Matching und direktem Kontakt.</p>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
-    </section>;
+    </section>
+  );
 }
