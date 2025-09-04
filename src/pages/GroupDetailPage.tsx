@@ -4,6 +4,7 @@ import { useGroup, useJoinGroup, useLeaveGroup } from '@/hooks/useGroups';
 import { usePosts } from '@/hooks/usePosts';
 import { useFiles } from '@/hooks/useFiles';
 import { useQuestions } from '@/hooks/useQuestions';
+import { useGroupJoinRequests, useApproveJoinRequest } from '@/hooks/useJoinRequests';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -30,9 +31,11 @@ export default function GroupDetailPage() {
   const { data: posts = [] } = usePosts(id!, { type: activeTab === 'posts' ? undefined : 'thread' });
   const { data: files = [] } = useFiles(id!);
   const { data: questions = [] } = useQuestions(id!);
+  const { data: joinRequests = [] } = useGroupJoinRequests(id!);
   
   const joinGroup = useJoinGroup();
   const leaveGroup = useLeaveGroup();
+  const approveJoinRequest = useApproveJoinRequest();
 
   if (groupLoading) {
     return (
@@ -279,6 +282,51 @@ export default function GroupDetailPage() {
 
           <TabsContent value="members" className="mt-6">
             <div className="space-y-4">
+              {/* Join Requests Section for Moderators/Owners */}
+              {isOwner && joinRequests.length > 0 && (
+                <div className="mb-6">
+                  <h3 className="text-lg font-semibold mb-3">Beitrittsanfragen</h3>
+                  <div className="space-y-3">
+                    {joinRequests.filter(req => req.status === 'pending').map((request) => (
+                      <Card key={request.id} className="border-amber-200">
+                        <CardContent className="p-4">
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <p className="font-medium">Neue Beitrittsanfrage</p>
+                              <p className="text-sm text-muted-foreground">
+                                {new Date(request.requested_at).toLocaleDateString('de-DE')}
+                              </p>
+                              {request.message && (
+                                <p className="text-sm mt-1 italic">"{request.message}"</p>
+                              )}
+                            </div>
+                            <div className="flex gap-2">
+                              <Button 
+                                size="sm" 
+                                onClick={() => approveJoinRequest.mutate({ requestId: request.id, approve: true })}
+                                disabled={approveJoinRequest.isPending}
+                              >
+                                Annehmen
+                              </Button>
+                              <Button 
+                                size="sm" 
+                                variant="outline" 
+                                onClick={() => approveJoinRequest.mutate({ requestId: request.id, approve: false })}
+                                disabled={approveJoinRequest.isPending}
+                              >
+                                Ablehnen
+                              </Button>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Current Members */}
+              <h3 className="text-lg font-semibold">Mitglieder ({memberCount})</h3>
               {group.group_members?.map((member: any) => (
                 <Card key={member.user_id}>
                   <CardContent className="p-4">

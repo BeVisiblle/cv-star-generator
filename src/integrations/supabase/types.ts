@@ -3688,6 +3688,10 @@ export type Database = {
             }
         Returns: string
       }
+      approve_join_request: {
+        Args: { approve: boolean; request_id: string }
+        Returns: boolean
+      }
       box: {
         Args: { "": unknown } | { "": unknown }
         Returns: unknown
@@ -4368,6 +4372,10 @@ export type Database = {
       is_content_editor: {
         Args: { _uid?: string }
         Returns: boolean
+      }
+      join_group: {
+        Args: { group_uuid: string; join_message?: string }
+        Returns: string
       }
       json: {
         Args: { "": unknown }

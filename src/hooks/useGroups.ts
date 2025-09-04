@@ -46,6 +46,7 @@ export const useGroup = (id: string) => {
         .select(`
           *,
           group_members(
+            group_id,
             user_id,
             role,
             status,
@@ -162,27 +163,20 @@ export const useJoinGroup = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (data: JoinGroupRequest): Promise<GroupMember> => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('User not authenticated');
-
-      const { data: member, error } = await supabase
-        .from('group_members')
-        .insert({
-          group_id: data.group_id,
-          user_id: user.id,
-          role: 'member',
-          status: 'active',
-        })
-        .select()
-        .single();
+    mutationFn: async (data: JoinGroupRequest): Promise<string> => {
+      const { data: result, error } = await supabase.rpc('join_group', {
+        group_uuid: data.group_id,
+        join_message: data.message || null
+      });
 
       if (error) throw error;
-      return member as GroupMember;
+      return result as string;
     },
-    onSuccess: (_, variables) => {
+    onSuccess: (result, variables) => {
       queryClient.invalidateQueries({ queryKey: ['group-members', variables.group_id] });
       queryClient.invalidateQueries({ queryKey: ['group', variables.group_id] });
+      queryClient.invalidateQueries({ queryKey: ['groups'] });
+      queryClient.invalidateQueries({ queryKey: ['join-requests'] });
     },
   });
 };

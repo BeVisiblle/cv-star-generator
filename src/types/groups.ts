@@ -227,6 +227,7 @@ export interface UpdateGroupRequest {
 
 export interface JoinGroupRequest {
   group_id: string;
+  message?: string;
 }
 
 export interface CreatePostRequest {
