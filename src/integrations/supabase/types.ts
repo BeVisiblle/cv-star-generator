@@ -4373,6 +4373,14 @@ export type Database = {
         Args: { _uid?: string }
         Returns: boolean
       }
+      is_group_member: {
+        Args: { _group_id: string }
+        Returns: boolean
+      }
+      is_public_group: {
+        Args: { _group_id: string }
+        Returns: boolean
+      }
       join_group: {
         Args: { group_uuid: string; join_message?: string }
         Returns: string
