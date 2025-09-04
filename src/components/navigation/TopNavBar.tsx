@@ -2,9 +2,9 @@ import React, { useState, useRef } from 'react';
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Bell, Search as SearchIcon, MessageSquareMore, Users, User, BookOpen } from "lucide-react";
 import { useLocation, useNavigate, Link } from "react-router-dom";
-import { SearchBar } from "@/components/search/SearchBar";
+
 import { NotificationCenter } from "@/components/notifications/NotificationCenter";
-import { useUnreadNotificationCount } from "@/hooks/useNotifications";
+
 import { Input } from "@/components/ui/input";
 import SearchAutosuggest, { SuggestionType } from "@/components/marketplace/SearchAutosuggest";
 import ConnectionsDrawer from "@/components/community/ConnectionsDrawer";
@@ -36,7 +36,7 @@ export default function TopNavBar() {
   const [isNotificationCenterOpen, setIsNotificationCenterOpen] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   
-  const { data: unreadCount = 0 } = useUnreadNotificationCount();
+  const unreadCount = 0; // Temporarily disabled
 
   const handleSubmit = () => {
     const term = q.trim();
@@ -139,13 +139,6 @@ export default function TopNavBar() {
             )}
           </div>
           
-          <Link 
-            to="/groups" 
-            className="h-5 w-5 cursor-pointer hover:text-primary flex items-center"
-            title="Gruppen"
-          >
-            <BookOpen className="h-5 w-5" />
-          </Link>
           
           <User 
             className="h-5 w-5 cursor-pointer hover:text-primary" 
