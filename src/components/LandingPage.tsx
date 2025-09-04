@@ -137,7 +137,7 @@ export default function LandingPage() {
               <div className="relative lg:ml-8 mx-0">
                 <picture>
                   <img 
-                    src="/lovable-uploads/header-mobile-screens.png" 
+                    src="/lovable-uploads/c2a9bc2e-3848-456e-bd06-6570a63f062f.png" 
                     alt="CV Generator Mobile App Screenshots" 
                     className="w-full max-w-md mx-auto lg:max-w-lg xl:max-w-xl transform lg:translate-x-8" 
                     width="1200" 
@@ -164,7 +164,7 @@ export default function LandingPage() {
                   <img 
                     src="/lovable-uploads/c2a9bc2e-3848-456e-bd06-6570a63f062f.png" 
                     alt="CV Generator Mobile App Screenshots" 
-                    className="w-full max-w-md mx-auto rounded-lg" 
+                    className="w-full max-w-lg mx-auto lg:max-w-xl rounded-lg" 
                     width="1200" 
                     height="600"
                     loading="lazy"
