@@ -279,3 +279,5 @@ export const ProfileCreationFlow: React.FC = () => {
     </div>
   );
 };
+
+export default ProfileCreationFlow;

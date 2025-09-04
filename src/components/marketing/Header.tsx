@@ -19,7 +19,7 @@ export default function Header({ variant }: HeaderProps) {
       <Link to="/auth" className="text-sm text-white hover:text-white/80">Login</Link>
       {variant === "talent" ? (
         <>
-          <Button asChild size="sm" className="bg-[color:var(--brand)] text-black hover:opacity-90">
+          <Button asChild size="sm" className="bg-accent text-accent-foreground hover:bg-accent/90">
             <Link to="/cv-generator">Profil erstellen – kostenlos</Link>
           </Button>
           <Button asChild size="sm" variant="outline" className="bg-white text-black border-white hover:bg-white/90">

@@ -136,16 +136,15 @@ export default function LandingPage() {
               </div>
               <div className="relative lg:ml-8 mx-0">
                 <picture>
-                  <source srcSet="/lovable-uploads/hero-mobile-576x576.webp" type="image/webp" />
                   <img 
-                    src="/lovable-uploads/hero-mobile-576x576.png" 
-                    alt="CV Generator Mobile App" 
-                    className="w-full max-w-md mx-auto lg:max-w-lg xl:max-w-xl transform lg:translate-x-8" 
-                    width="576" 
-                    height="576"
+                    src="/lovable-uploads/f4832110-7607-4707-9ab7-0c354dd85de5.png" 
+                    alt="CV Generator Mobile App Screenshots" 
+                    className="w-full max-w-sm mx-auto lg:max-w-none lg:w-full xl:w-[120%] transform lg:translate-x-8" 
+                    width="1200" 
+                    height="600"
                     loading="eager"
                     fetchPriority="high"
-                    style={{ maxWidth: '576px', height: 'auto' }}
+                    style={{ height: 'auto' }}
                   />
                 </picture>
               </div>
@@ -162,13 +161,12 @@ export default function LandingPage() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
               <div className="relative lg:mr-8">
                 <picture>
-                  <source srcSet="/lovable-uploads/hero-mobile-576x576.webp" type="image/webp" />
                   <img 
-                    src="/lovable-uploads/hero-mobile-576x576.png" 
-                    alt="CV Generator Mobile App" 
-                    className="w-full max-w-md mx-auto rounded-lg" 
-                    width="576" 
-                    height="576"
+                    src="/lovable-uploads/c2a9bc2e-3848-456e-bd06-6570a63f062f.png" 
+                    alt="CV Generator Mobile App Screenshots" 
+                    className="w-full max-w-lg mx-auto lg:max-w-xl rounded-lg" 
+                    width="1200" 
+                    height="600"
                     loading="lazy"
                   />
                 </picture>
