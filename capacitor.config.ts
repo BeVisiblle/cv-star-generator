@@ -5,7 +5,7 @@ const config: CapacitorConfig = {
   appName: 'cv-star-generator',
   webDir: 'dist',
   server: {
-    url: 'https://1030f469-875d-417b-a01b-8fc69ec10950.lovableproject.com?forceHideBadge=true',
+    url: 'http://192.168.0.7:8080',
     cleartext: true
   },
   plugins: {

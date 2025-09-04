@@ -1,0 +1,485 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Workspace
+   version = "1.0">
+   <Group
+      location = "group:App/public"
+      name = "public">
+      <FileRef
+         location = "group:favicon.ico">
+      </FileRef>
+      <FileRef
+         location = "group:index.html">
+      </FileRef>
+      <FileRef
+         location = "group:cordova.js">
+      </FileRef>
+      <Group
+         location = "group:images"
+         name = "images">
+         <FileRef
+            location = "group:step3.jpg">
+         </FileRef>
+         <FileRef
+            location = "group:step2.jpg">
+         </FileRef>
+         <FileRef
+            location = "group:step1.jpg">
+         </FileRef>
+         <FileRef
+            location = "group:step1-hero.jpg">
+         </FileRef>
+      </Group>
+      <FileRef
+         location = "group:cordova_plugins.js">
+      </FileRef>
+      <FileRef
+         location = "group:robots.txt">
+      </FileRef>
+      <Group
+         location = "group:assets"
+         name = "assets">
+         <FileRef
+            location = "group:Settings-DMeWRrVd.js">
+         </FileRef>
+         <FileRef
+            location = "group:LanguageSelector-B2kTdHQ2.js">
+         </FileRef>
+         <FileRef
+            location = "group:ClassicLayout-CGkZN0Qg.js">
+         </FileRef>
+         <FileRef
+            location = "group:DiscoverAzubis-CyTucJI0.js">
+         </FileRef>
+         <FileRef
+            location = "group:KpiCard-CUL9q--Z.js">
+         </FileRef>
+         <FileRef
+            location = "group:coins-ByOwAaBQ.js">
+         </FileRef>
+         <FileRef
+            location = "group:form-field-error-Ddyu-7G4.js">
+         </FileRef>
+         <FileRef
+            location = "group:Overview-CVqC_nw-.js">
+         </FileRef>
+         <FileRef
+            location = "group:TagPicker-lhs2IfH2.js">
+         </FileRef>
+         <FileRef
+            location = "group:BranchSelector-SrCiRBkC.js">
+         </FileRef>
+         <FileRef
+            location = "group:FeedSortBar-DE_D0EI5.js">
+         </FileRef>
+         <FileRef
+            location = "group:ModernLayout-tkrb_8Db.js">
+         </FileRef>
+         <FileRef
+            location = "group:Feed-BgJ4D-sm.js">
+         </FileRef>
+         <FileRef
+            location = "group:Notifications-8WHQnuvW.js">
+         </FileRef>
+         <FileRef
+            location = "group:save-CidDRbn-.js">
+         </FileRef>
+         <FileRef
+            location = "group:PageEditor-Df50S9IW.js">
+         </FileRef>
+         <FileRef
+            location = "group:phone-DPacjDdx.js">
+         </FileRef>
+         <FileRef
+            location = "group:PagesList-D7fRUnBZ.js">
+         </FileRef>
+         <FileRef
+            location = "group:Plans-COeBjzeJ.js">
+         </FileRef>
+         <FileRef
+            location = "group:target-B8YkRPGf.js">
+         </FileRef>
+         <FileRef
+            location = "group:useFollowCompany-D8n65ruz.js">
+         </FileRef>
+         <FileRef
+            location = "group:PublicPage-DvTVgbwF.js">
+         </FileRef>
+         <FileRef
+            location = "group:camera-DSZMTAZG.js">
+         </FileRef>
+         <FileRef
+            location = "group:Unternehmen-ChnqYgU3.js">
+         </FileRef>
+         <FileRef
+            location = "group:Billing-DosnrNat.js">
+         </FileRef>
+         <FileRef
+            location = "group:Profile-B5ruBdZg.js">
+         </FileRef>
+         <FileRef
+            location = "group:AdminSettings-CSatx8us.js">
+         </FileRef>
+         <FileRef
+            location = "group:Profile-Bfr5D-Bs.js">
+         </FileRef>
+         <FileRef
+            location = "group:filter-CAoYDdOJ.js">
+         </FileRef>
+         <FileRef
+            location = "group:CompanyRecommendations-CfijwPVw.js">
+         </FileRef>
+         <FileRef
+            location = "group:CVLayoutBase-DBy4FfLM.js">
+         </FileRef>
+         <FileRef
+            location = "group:globe-D5H7raO2.js">
+         </FileRef>
+         <FileRef
+            location = "group:mapFormDataToCVData-BcY9aSwN.js">
+         </FileRef>
+         <FileRef
+            location = "group:PageEditor-DZrYvFpI.css">
+         </FileRef>
+         <FileRef
+            location = "group:index-WoB5yl46.css">
+         </FileRef>
+         <FileRef
+            location = "group:MatchingProfile-C_w3fEyM.js">
+         </FileRef>
+         <FileRef
+            location = "group:trash-2-BHF9YgkA.js">
+         </FileRef>
+         <FileRef
+            location = "group:graduation-cap-BafnHspn.js">
+         </FileRef>
+         <FileRef
+            location = "group:ProduktAzubis-dphnl3d0.js">
+         </FileRef>
+         <FileRef
+            location = "group:ProfessionalLayout-DWdbbl17.js">
+         </FileRef>
+         <FileRef
+            location = "group:heart-Ct-V_EFv.js">
+         </FileRef>
+         <FileRef
+            location = "group:radio-group-CcW5DrWW.js">
+         </FileRef>
+         <FileRef
+            location = "group:purify.es-BFmuJLeH.js">
+         </FileRef>
+         <FileRef
+            location = "group:RightPanel-DCX9RCK6.js">
+         </FileRef>
+         <FileRef
+            location = "group:CreateAdmin-D6ASvY2O.js">
+         </FileRef>
+         <FileRef
+            location = "group:html2canvas.esm-CBrSDip1.js">
+         </FileRef>
+         <FileRef
+            location = "group:RightRailAd-CTTkQHVW.js">
+         </FileRef>
+         <FileRef
+            location = "group:map-pin-CHOlsO9T.js">
+         </FileRef>
+         <FileRef
+            location = "group:Unlocked-DIRUt5s5.js">
+         </FileRef>
+         <FileRef
+            location = "group:CompanyDashboard-jBiODI9e.js">
+         </FileRef>
+         <FileRef
+            location = "group:Search-CON5e_a3.js">
+         </FileRef>
+         <FileRef
+            location = "group:users-round-TPjRnrdE.js">
+         </FileRef>
+         <FileRef
+            location = "group:Dashboard-CVlRkP9W.js">
+         </FileRef>
+         <FileRef
+            location = "group:Support-4Qr446OM.js">
+         </FileRef>
+         <FileRef
+            location = "group:car-DGn7-4ri.js">
+         </FileRef>
+         <FileRef
+            location = "group:LinkedInProfileActivity-C_lL-7zx.js">
+         </FileRef>
+         <FileRef
+            location = "group:Needs-xVDDcY2i.js">
+         </FileRef>
+         <FileRef
+            location = "group:download-B2a1VUVs.js">
+         </FileRef>
+         <FileRef
+            location = "group:UserProfile-BTcmMtZ6.js">
+         </FileRef>
+         <FileRef
+            location = "group:PublicCompanyView-CHJmj-Rb.js">
+         </FileRef>
+         <FileRef
+            location = "group:pagination-BiWYc04C.js">
+         </FileRef>
+         <FileRef
+            location = "group:arrow-right-LojY0lkL.js">
+         </FileRef>
+         <FileRef
+            location = "group:circle-check-big-BphadYQt.js">
+         </FileRef>
+         <FileRef
+            location = "group:Impressum-CTggjsiA.js">
+         </FileRef>
+         <FileRef
+            location = "group:Marketplace-BGP5mkeC.js">
+         </FileRef>
+         <FileRef
+            location = "group:formatDistanceToNow-CIaJGOoW.js">
+         </FileRef>
+         <FileRef
+            location = "group:CreativeLayout-BOF1TzKN.js">
+         </FileRef>
+         <FileRef
+            location = "group:package-Ch6zAcyQ.js">
+         </FileRef>
+         <FileRef
+            location = "group:AGB-BlFtlRM_.js">
+         </FileRef>
+         <FileRef
+            location = "group:CVGenerator-BkI6MLgt.js">
+         </FileRef>
+         <FileRef
+            location = "group:combobox-C3qNkvKZ.js">
+         </FileRef>
+         <FileRef
+            location = "group:AdminLayout-C5huxH0l.js">
+         </FileRef>
+         <FileRef
+            location = "group:message-circle-DLKuyZ9F.js">
+         </FileRef>
+         <FileRef
+            location = "group:CandidatesPipeline-BiWCTOsa.js">
+         </FileRef>
+         <FileRef
+            location = "group:AdminAuthGate-dWiF5eAf.js">
+         </FileRef>
+         <FileRef
+            location = "group:mail-CqkF9uqU.js">
+         </FileRef>
+         <FileRef
+            location = "group:CompanyLayout-C-VpZDLq.js">
+         </FileRef>
+         <FileRef
+            location = "group:index-ys5FbvN3.js">
+         </FileRef>
+         <FileRef
+            location = "group:Jobs-Dg1a4H0B.js">
+         </FileRef>
+         <FileRef
+            location = "group:Notifications-Blp6xuu0.js">
+         </FileRef>
+         <FileRef
+            location = "group:ProduktUnternehmen-WuORYSlZ.js">
+         </FileRef>
+         <FileRef
+            location = "group:Matches-rw603whi.js">
+         </FileRef>
+         <FileRef
+            location = "group:PeopleRecommendations-CmGceezs.js">
+         </FileRef>
+         <FileRef
+            location = "group:circle-DS72xJ5R.js">
+         </FileRef>
+         <FileRef
+            location = "group:Settings-B2hAjgo5.js">
+         </FileRef>
+         <FileRef
+            location = "group:Jobs-DmKjS8Tv.js">
+         </FileRef>
+         <FileRef
+            location = "group:useAdminSession-DRXLi73J.js">
+         </FileRef>
+         <FileRef
+            location = "group:credit-card-QHi7yS4m.js">
+         </FileRef>
+         <FileRef
+            location = "group:DiscoverCompanies-BsXXhZy2.js">
+         </FileRef>
+         <FileRef
+            location = "group:zap-Ck0rkfx_.js">
+         </FileRef>
+         <FileRef
+            location = "group:Users-C7DeHki_.js">
+         </FileRef>
+         <FileRef
+            location = "group:shield-BkpvZ-RN.js">
+         </FileRef>
+         <FileRef
+            location = "group:Datenschutz-tMphDbxt.js">
+         </FileRef>
+         <FileRef
+            location = "group:Onboarding-CpQ6CAqV.js">
+         </FileRef>
+         <FileRef
+            location = "group:UnlockProfileModal-QESdCbON.js">
+         </FileRef>
+         <FileRef
+            location = "group:Contacts-BVNODCz1.js">
+         </FileRef>
+         <FileRef
+            location = "group:Talent-CbZiOQJ2.js">
+         </FileRef>
+         <FileRef
+            location = "group:progress-DhEk11aU.js">
+         </FileRef>
+         <FileRef
+            location = "group:TopMatchedCandidates-CpmJx-M9.js">
+         </FileRef>
+         <FileRef
+            location = "group:Messages-CqmaN0Jj.js">
+         </FileRef>
+         <FileRef
+            location = "group:MinimalLayout-CmfTexZx.js">
+         </FileRef>
+         <FileRef
+            location = "group:ProfileView-VYtywSLL.js">
+         </FileRef>
+         <FileRef
+            location = "group:CompanyLandingPage-m8_aQXQX.js">
+         </FileRef>
+         <FileRef
+            location = "group:star-BV7bgwot.js">
+         </FileRef>
+         <FileRef
+            location = "group:trending-up-yqgtMIJz.js">
+         </FileRef>
+         <FileRef
+            location = "group:ScheduledPosts-BOYSiMq3.js">
+         </FileRef>
+         <FileRef
+            location = "group:slider-B1aYNU-u.js">
+         </FileRef>
+         <FileRef
+            location = "group:ProfileCreationFlow-TXhbH7Za.js">
+         </FileRef>
+         <FileRef
+            location = "group:Posts-DQaO4Gw_.js">
+         </FileRef>
+         <FileRef
+            location = "group:NotificationsList-E-cIowKr.js">
+         </FileRef>
+         <FileRef
+            location = "group:Companies-4U0vzD2d.js">
+         </FileRef>
+         <FileRef
+            location = "group:Content-C8zWoYy2.js">
+         </FileRef>
+         <FileRef
+            location = "group:ProfileCard-CvbCsSK_.js">
+         </FileRef>
+         <FileRef
+            location = "group:collapsible-BL6VB44T.js">
+         </FileRef>
+         <FileRef
+            location = "group:de-DvJX0Y84.js">
+         </FileRef>
+         <FileRef
+            location = "group:index.es-Bi8fKYrv.js">
+         </FileRef>
+         <FileRef
+            location = "group:table-dPj5jYnH.js">
+         </FileRef>
+         <FileRef
+            location = "group:InView-Cz46DNvs.js">
+         </FileRef>
+         <FileRef
+            location = "group:Analytics-YEx8b-7Y.js">
+         </FileRef>
+         <FileRef
+            location = "group:share-2-Brz27N7K.js">
+         </FileRef>
+         <FileRef
+            location = "group:SeoInsights-Dlw3czOU.js">
+         </FileRef>
+         <FileRef
+            location = "group:jspdf.es.min-_XEiv_pk.js">
+         </FileRef>
+         <FileRef
+            location = "group:clock-iu3ZJGPp.js">
+         </FileRef>
+         <FileRef
+            location = "group:ComingSoon-DbfAGZR7.js">
+         </FileRef>
+         <FileRef
+            location = "group:LiveCareerLayout-B19VSbvv.js">
+         </FileRef>
+         <FileRef
+            location = "group:Blog-D1EI8Hab.js">
+         </FileRef>
+         <FileRef
+            location = "group:useCompany-BH3n25kN.js">
+         </FileRef>
+         <FileRef
+            location = "group:Companies-X2PB3P71.js">
+         </FileRef>
+         <FileRef
+            location = "group:pdf-generator-C2VLZv-W.js">
+         </FileRef>
+         <FileRef
+            location = "group:Tools-CZGcTqX1.js">
+         </FileRef>
+         <FileRef
+            location = "group:useDebounce-qZN4GsUb.js">
+         </FileRef>
+      </Group>
+      <Group
+         location = "group:lovable-uploads"
+         name = "lovable-uploads">
+         <FileRef
+            location = "group:8297f269-1ddb-4b49-a83d-9a561d9e57b4.png">
+         </FileRef>
+         <FileRef
+            location = "group:db86285e-b61d-4b09-b7a8-09931550f198.png">
+         </FileRef>
+         <FileRef
+            location = "group:356afafd-8910-495a-8ba8-35d74adf7cb1.png">
+         </FileRef>
+         <FileRef
+            location = "group:feed-interface-532x332.png">
+         </FileRef>
+         <FileRef
+            location = "group:search-interface-532x332.webp">
+         </FileRef>
+         <FileRef
+            location = "group:4b784c18-de0b-4138-98bf-beb980e3fc0b.png">
+         </FileRef>
+         <FileRef
+            location = "group:feed-interface-532x332.webp">
+         </FileRef>
+         <FileRef
+            location = "group:search-interface-532x332.png">
+         </FileRef>
+         <FileRef
+            location = "group:hero-mobile-576x576.webp">
+         </FileRef>
+         <FileRef
+            location = "group:logo-32x32.webp">
+         </FileRef>
+         <FileRef
+            location = "group:hero-mobile-576x576.png">
+         </FileRef>
+         <FileRef
+            location = "group:logo-32x32.png">
+         </FileRef>
+         <FileRef
+            location = "group:95e5dd4a-87e4-403a-b2cd-6f3d06433d25.png">
+         </FileRef>
+         <FileRef
+            location = "group:59fd3c9b-c2d3-4613-b2c1-1366f349e1e9.png">
+         </FileRef>
+      </Group>
+      <FileRef
+         location = "group:placeholder.svg">
+      </FileRef>
+   </Group>
+</Workspace>

@@ -15,23 +15,23 @@ export default function Header({ variant }: HeaderProps) {
   const isActive = (path: string) => location.pathname === path;
 
   const RightCtas = () => (
-    <div className="hidden md:flex items-center gap-2">
-      <Link to="/auth" className="text-sm text-muted-foreground hover:text-foreground">Login</Link>
+    <div className="hidden sm:flex items-center gap-2">
+      <Link to="/auth" className="text-sm text-white hover:text-white/80">Login</Link>
       {variant === "talent" ? (
         <>
-          <Button asChild size="sm">
-            <Link to="/onboarding">Profil erstellen – kostenlos</Link>
+          <Button asChild size="sm" className="bg-[color:var(--brand)] text-black hover:opacity-90">
+            <Link to="/cv-generator">Profil erstellen – kostenlos</Link>
           </Button>
-          <Button asChild size="sm" variant="outline">
+          <Button asChild size="sm" variant="outline" className="bg-white text-black border-white hover:bg-white/90">
             <Link to="/unternehmen">Für Unternehmen</Link>
           </Button>
         </>
       ) : (
         <>
-          <Button asChild size="sm">
+          <Button asChild size="sm" className="bg-[color:var(--brand)] text-black hover:opacity-90">
             <Link to="/unternehmen/onboarding">Unternehmen-Account erstellen</Link>
           </Button>
-          <Button asChild size="sm" variant="outline">
+          <Button asChild size="sm" variant="outline" className="bg-white text-black border-white hover:bg-white/90">
             <Link to="/produkt#demo">Demo ansehen</Link>
           </Button>
         </>
@@ -40,103 +40,25 @@ export default function Header({ variant }: HeaderProps) {
   );
 
   return (
-    <header className={cn("sticky top-0 z-30 w-full border-b bg-background/90 backdrop-blur supports-[backdrop-filter]:bg-background/60")}
+    <header className={cn("sticky top-0 z-30 w-full bg-black text-white")}
       aria-label="Hauptnavigation"
     >
       <div className="mx-auto max-w-[1200px] px-4 sm:px-6 lg:px-8 h-14 flex items-center justify-between">
         <div className="flex items-center gap-6">
           <Link to="/" className="flex items-center gap-2">
             <img src="/lovable-uploads/59fd3c9b-c2d3-4613-b2c1-1366f349e1e9.png" alt="Ausbildungsbasis Logo" className="h-8 w-8" />
-            <span className="font-semibold">Ausbildungsbasis</span>
+            <span className="font-semibold hidden sm:inline">Ausbildungsbasis</span>
           </Link>
-          <nav className="hidden md:flex items-center gap-6 text-sm text-muted-foreground">
-            <Link 
-              to="/features" 
-              className={cn("hover:text-foreground", isActive("/features") && "text-foreground font-medium")}
-            >
-              Features
-            </Link>
-            <Link 
-              to="/produkt" 
-              className={cn("hover:text-foreground", isActive("/produkt") && "text-foreground font-medium")}
-            >
-              Produkt
-            </Link>
-            <Link 
-              to="/unternehmen" 
-              className={cn("hover:text-foreground", isActive("/unternehmen") && "text-foreground font-medium")}
-            >
-              Unternehmen
-            </Link>
-            <Link 
-              to="/kontakt" 
-              className={cn("hover:text-foreground", isActive("/kontakt") && "text-foreground font-medium")}
-            >
-              Kontakt
-            </Link>
-          </nav>
+          {/* Navigation removed per request: keep only logo + CTAs + login */}
         </div>
 
         <RightCtas />
 
-        <div className="md:hidden">
-          <Sheet>
-            <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" aria-label="Menü öffnen">
-                <Menu className="h-5 w-5" />
-              </Button>
-            </SheetTrigger>
-            <SheetContent side="right" className="w-[80vw] sm:w-80">
-              <div className="flex flex-col gap-4 mt-8">
-                <Link 
-                  to="/features" 
-                  className={cn("text-foreground", isActive("/features") && "font-medium")}
-                >
-                  Features
-                </Link>
-                <Link 
-                  to="/produkt" 
-                  className={cn("text-foreground", isActive("/produkt") && "font-medium")}
-                >
-                  Produkt
-                </Link>
-                <Link 
-                  to="/unternehmen" 
-                  className={cn("text-foreground", isActive("/unternehmen") && "font-medium")}
-                >
-                  Unternehmen
-                </Link>
-                <Link 
-                  to="/kontakt" 
-                  className={cn("text-foreground", isActive("/kontakt") && "font-medium")}
-                >
-                  Kontakt
-                </Link>
-                <hr className="my-2" />
-                <Link to="/auth" className="text-foreground">Login</Link>
-                {variant === "talent" ? (
-                  <>
-                    <Button asChild>
-                      <Link to="/onboarding">Profil erstellen – kostenlos</Link>
-                    </Button>
-                    <Button asChild variant="outline">
-                      <Link to="/unternehmen">Für Unternehmen</Link>
-                    </Button>
-                  </>
-                ) : (
-                  <>
-                    <Button asChild>
-                      <Link to="/unternehmen/onboarding">Unternehmen-Account erstellen</Link>
-                    </Button>
-                    <Button asChild variant="outline">
-                      <Link to="/produkt#demo">Demo ansehen</Link>
-                    </Button>
-                  </>
-                )}
-              </div>
-            </SheetContent>
-          </Sheet>
+        {/* Mobile-only: show only Login on the right */}
+        <div className="sm:hidden">
+          <Link to="/auth" className="text-sm text-white hover:text-white/80">Login</Link>
         </div>
+
       </div>
     </header>
   );

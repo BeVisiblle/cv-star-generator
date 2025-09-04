@@ -5,7 +5,6 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { AuthenticatedLayout } from "@/components/AuthenticatedLayout";
 import { AuthProvider } from "@/hooks/useAuth";
-import { CVFormProvider } from "@/contexts/CVFormContext";
 import { CVGeneratorGate } from "@/components/CVGeneratorGate";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -168,9 +167,21 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
   const isLandingPage = location.pathname === '/';
   const isAuthRoute = location.pathname === '/auth';
   const isCvRoute = location.pathname.startsWith('/cv-generator') || location.pathname.startsWith('/cv-layout-selector');
-  
-  // Only show TopNavBar when NOT on landing, company, auth, or CV routes
-  const showTopNav = !isLandingPage && !isCompanyRoute && !isAuthRoute && !isCvRoute;
+  const isLegalRoute = ['/impressum','/datenschutz','/agb','/ueber-uns'].includes(location.pathname);
+  // Show TopNavBar ONLY in the portal (app) sections, not on marketing/login/landing
+  const portalPrefixes = [
+    '/dashboard',
+    '/marketplace',
+    '/community',
+    '/notifications',
+    '/settings',
+    '/profile',
+    '/companies',
+    '/entdecken',
+    '/u/'
+  ];
+  const isPortalRoute = portalPrefixes.some(p => location.pathname.startsWith(p));
+  const showTopNav = isPortalRoute && !isLegalRoute && !isLandingPage && !isAuthRoute && !isCvRoute;
   
   return (
     <div className="min-h-screen flex flex-col w-full">

@@ -123,7 +123,7 @@ export default function LandingPage() {
                   tausche Erfahrungen aus und werde von Unternehmen gefunden – oder bewirb dich mit einem Klick.
                 </p>
                 <div className="mt-10 flex flex-col sm:flex-row gap-4">
-                  <Link to="/onboarding" className="inline-flex items-center justify-center rounded-2xl px-6 py-3 text-base font-semibold bg-[color:var(--brand)] text-black shadow-lg shadow-teal-500/20">
+                  <Link to="/cv-generator" className="inline-flex items-center justify-center rounded-2xl px-6 py-3 text-base font-semibold border border-[color:var(--brand)] text-[color:var(--brand)] bg-transparent hover:bg-[color:var(--brand)]/10">
                     Profil erstellen – kostenlos
                   </Link>
                   <Link to="#so-funktionierts" className="inline-flex items-center justify-center rounded-2xl px-6 py-3 text-base font-semibold border border-zinc-700 text-white hover:bg-zinc-900">

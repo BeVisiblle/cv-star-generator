@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">cv-star-generator</string>
+    <string name="title_activity_main">cv-star-generator</string>
+    <string name="package_name">com.cvstargenerator.app</string>
+    <string name="custom_url_scheme">com.cvstargenerator.app</string>
+</resources>
