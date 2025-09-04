@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
-import { LayoutDashboard, User, Users, Settings, FileText, LogOut, ChevronRight, Plus, MessageSquare, Briefcase, Building2 } from "lucide-react";
+import { LayoutDashboard, User, Users, Settings, FileText, LogOut, ChevronRight, Plus, MessageSquare, Briefcase, Building2, BookOpen } from "lucide-react";
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarMenuSub, SidebarMenuSubItem, SidebarMenuSubButton, SidebarHeader, SidebarFooter, useSidebar } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -19,6 +19,10 @@ const navigationItems = [{
   title: "Einstellungen",
   url: "/settings",
   icon: Settings
+}, {
+  title: "Lerngruppen",
+  url: "/groups",
+  icon: BookOpen
 }];
 export function AppSidebar() {
   const { state, setOpen } = useSidebar();

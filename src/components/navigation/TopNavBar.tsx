@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { SidebarTrigger } from "@/components/ui/sidebar";
-import { Bell, Search as SearchIcon, MessageSquareMore, Users, User, BookOpen } from "lucide-react";
+import { Bell, Search as SearchIcon, MessageSquareMore, Users, User } from "lucide-react";
 import { useLocation, useNavigate, Link } from "react-router-dom";
 
 import { NotificationCenter } from "@/components/notifications/NotificationCenter";
@@ -149,14 +149,6 @@ export default function TopNavBar() {
       
       {/* Connections Drawer */}
       <ConnectionsDrawer open={drawerOpen} onOpenChange={setDrawerOpen} />
-      
-          <Link 
-            to="/groups" 
-            className="h-5 w-5 cursor-pointer hover:text-primary flex items-center"
-            title="Gruppen"
-          >
-            <BookOpen className="h-5 w-5" />
-          </Link>
 
           {/* Notification Center */}
       <NotificationCenter 
