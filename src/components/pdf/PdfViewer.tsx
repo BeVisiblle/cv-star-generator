@@ -5,7 +5,8 @@ import { ZoomIn, ZoomOut, RotateCw, Download, ChevronLeft, ChevronRight } from '
 import { PageThumbnails } from './PageThumbnails';
 import { PDFSidebar } from './PDFSidebar';
 import type { PDFViewerProps } from '@/types/groups';
-import { useFilePages, useQuestions, useAnnotations } from '@/hooks/useFiles';
+import { useFilePages, useAnnotations } from '@/hooks/useFiles';
+import { useQuestions } from '@/hooks/useQuestions';
 
 export const PdfViewer: React.FC<PDFViewerProps> = ({
   file,
