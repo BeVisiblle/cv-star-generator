@@ -14,16 +14,16 @@ export const useFiles = (groupId: string) => {
     queryFn: async (): Promise<GroupFile[]> => {
       const { data, error } = await supabase
         .from('files')
-        .select(`
-          *,
-          uploader:profiles(id, display_name, avatar_url),
-          page_count:file_pages(count)
-        `)
+        .select('*')
         .eq('group_id', groupId)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      return data as GroupFile[];
+      return data.map(file => ({
+        ...file,
+        uploader: null,
+        page_count: 0
+      })) as GroupFile[];
     },
     staleTime: 30000,
   });
@@ -35,11 +35,7 @@ export const useFile = (id: string) => {
     queryFn: async (): Promise<GroupFile | null> => {
       const { data, error } = await supabase
         .from('files')
-        .select(`
-          *,
-          uploader:profiles(id, display_name, avatar_url),
-          file_pages(*)
-        `)
+        .select('*')
         .eq('id', id)
         .single();
 
@@ -47,7 +43,11 @@ export const useFile = (id: string) => {
         if (error.code === 'PGRST116') return null;
         throw error;
       }
-      return data as GroupFile;
+      return {
+        ...data,
+        uploader: null,
+        page_count: 0
+      } as GroupFile;
     },
     staleTime: 30000,
   });

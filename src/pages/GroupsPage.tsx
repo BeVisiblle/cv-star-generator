@@ -12,7 +12,7 @@ import { EmptyState } from '@/components/shared/EmptyState';
 
 export default function GroupsPage() {
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedType, setSelectedType] = useState<'study' | 'professional' | 'interest' | undefined>();
+  const [selectedType, setSelectedType] = useState<'course' | 'exam' | 'profession' | undefined>();
   
   const { data: groups = [], isLoading, error } = useGroups({
     search: searchTerm,
@@ -76,25 +76,25 @@ export default function GroupsPage() {
             Alle
           </Button>
           <Button
-            variant={selectedType === 'study' ? "default" : "outline"}
+            variant={selectedType === 'course' ? "default" : "outline"}
             size="sm"
-            onClick={() => setSelectedType('study')}
+            onClick={() => setSelectedType('course')}
           >
-            Studium
+            Studiengang
           </Button>
           <Button
-            variant={selectedType === 'professional' ? "default" : "outline"}
+            variant={selectedType === 'exam' ? "default" : "outline"}
             size="sm"
-            onClick={() => setSelectedType('professional')}
+            onClick={() => setSelectedType('exam')}
+          >
+            Prüfung
+          </Button>
+          <Button
+            variant={selectedType === 'profession' ? "default" : "outline"}
+            size="sm"
+            onClick={() => setSelectedType('profession')}
           >
             Beruf
-          </Button>
-          <Button
-            variant={selectedType === 'interest' ? "default" : "outline"}
-            size="sm"
-            onClick={() => setSelectedType('interest')}
-          >
-            Interessen
           </Button>
         </div>
       </div>
@@ -130,8 +130,8 @@ export default function GroupsPage() {
                     </CardTitle>
                     <div className="flex items-center gap-2 mt-2">
                       <Badge variant="secondary" className="text-xs">
-                        {group.type === 'study' ? 'Studium' : 
-                         group.type === 'professional' ? 'Beruf' : 'Interessen'}
+                        {group.type === 'course' ? 'Studiengang' : 
+                         group.type === 'exam' ? 'Prüfung' : 'Beruf'}
                       </Badge>
                       {group.visibility === 'private' && (
                         <Badge variant="outline" className="text-xs">

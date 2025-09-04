@@ -94,8 +94,8 @@ export default function GroupDetailPage() {
               <h1 className="text-3xl font-bold mb-2">{group.title}</h1>
               <div className="flex items-center gap-2 mb-3">
                 <Badge variant="secondary">
-                  {group.type === 'study' ? 'Studium' : 
-                   group.type === 'professional' ? 'Beruf' : 'Interessen'}
+                  {group.type === 'course' ? 'Studiengang' : 
+                   group.type === 'exam' ? 'Prüfung' : 'Beruf'}
                 </Badge>
                 {group.visibility === 'private' && (
                   <Badge variant="outline">Privat</Badge>

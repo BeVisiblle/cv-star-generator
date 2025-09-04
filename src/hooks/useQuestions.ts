@@ -31,7 +31,10 @@ export const useQuestions = (groupId: string, filters?: QuestionFilters) => {
 
       const { data, error } = await query;
       if (error) throw error;
-      return data as Question[];
+      return data.map(q => ({
+        ...q,
+        anchor: q.anchor as any
+      })) as Question[];
     },
     staleTime: 30000,
   });
@@ -56,7 +59,10 @@ export const useQuestion = (id: string) => {
         if (error.code === 'PGRST116') return null;
         throw error;
       }
-      return data as Question;
+      return {
+        ...data,
+        anchor: data.anchor as any
+      } as Question;
     },
     staleTime: 30000,
   });
@@ -86,7 +92,10 @@ export const useCreateQuestion = () => {
         .single();
 
       if (error) throw error;
-      return question as Question;
+      return {
+        ...question,
+        anchor: question.anchor as any
+      } as Question;
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['questions', variables.groupId] });

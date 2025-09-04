@@ -216,6 +216,7 @@ export interface CreateGroupRequest {
 export interface UpdateGroupRequest {
   title?: string;
   description?: string;
+  type?: 'course' | 'exam' | 'profession';
   visibility?: 'public' | 'private' | 'hidden';
   school?: string;
   course_code?: string;
@@ -224,11 +225,11 @@ export interface UpdateGroupRequest {
 }
 
 export interface JoinGroupRequest {
-  group_id: string;
+  groupId: string;
 }
 
 export interface CreatePostRequest {
-  group_id: string;
+  groupId: string;
   type: 'thread' | 'question' | 'resource' | 'event' | 'poll';
   title?: string;
   body?: string;
@@ -236,9 +237,9 @@ export interface CreatePostRequest {
 }
 
 export interface CreateQuestionRequest {
-  group_id: string;
-  file_id?: string;
-  page_id?: string;
+  groupId: string;
+  fileId?: string;
+  pageId?: string;
   anchor?: {
     x: number;
     y: number;
@@ -251,13 +252,13 @@ export interface CreateQuestionRequest {
 }
 
 export interface CreateAnswerRequest {
-  question_id: string;
+  questionId: string;
   body: string;
 }
 
 export interface CreateAnnotationRequest {
-  file_id: string;
-  page_id: string;
+  fileId: string;
+  pageId: string;
   anchor: {
     x: number;
     y: number;
@@ -295,6 +296,7 @@ export interface PostFilters {
   pinned?: boolean;
   author_id?: string;
   tags?: string[];
+  search?: string;
 }
 
 export interface QuestionFilters {
@@ -302,6 +304,7 @@ export interface QuestionFilters {
   file_id?: string;
   tags?: string[];
   author_id?: string;
+  search?: string;
 }
 
 // PDF Processing Types
