@@ -1,46 +1,67 @@
-/* CV Print Styles for better page breaks */
-@media print {
-  .cv-section {
-    page-break-inside: avoid;
-    break-inside: avoid;
-    margin-bottom: 20px;
-  }
-  
-  .break-inside-avoid {
-    page-break-inside: avoid;
-    break-inside: avoid;
-  }
-  
-  /* Prevent orphaned content */
-  h1, h2, h3, h4, h5, h6 {
-    page-break-after: avoid;
-    break-after: avoid;
-  }
-  
-  /* Keep related content together */
-  .cv-entry {
-    page-break-inside: avoid;
-    break-inside: avoid;
-  }
-  
-  /* Better spacing for printed version */
-  .cv-section + .cv-section {
-    margin-top: 16px;
-  }
-  
-  /* Ensure proper page margins */
-  @page {
-    margin: 15mm;
-    size: A4;
-  }
+/* Screen preview A4 sizing */
+[data-cv-preview][data-variant="a4"] {
+  width: 210mm;
+  min-height: 297mm;
+  background: var(--card);
 }
 
-/* Also apply these styles for screen to match print layout */
-.cv-section {
-  break-inside: avoid;
-  margin-bottom: 20px;
+/* Better wrapping */
+[data-cv-preview] {
+  -webkit-hyphens: auto;
+  hyphens: auto;
+  word-break: break-word;
 }
 
+/* General section break control */
+.cv-section,
 .break-inside-avoid {
   break-inside: avoid;
+}
+
+/* Print styles for clean A4 export */
+@media print {
+  @page {
+    size: A4;
+    margin: 12mm;
+  }
+
+  html, body {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* Neutralize preview container in print */
+  [data-cv-preview] {
+    box-shadow: none !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: #fff !important;
+  }
+
+  /* Avoid CSS grid issues while printing */
+  [data-cv-preview] main {
+    display: block !important;
+  }
+
+  /* Prevent torn sections and headings */
+  .cv-section,
+  .cv-section > *,
+  header,
+  h2 {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  /* Manual page break helper */
+  .cv-page-break {
+    break-before: page;
+    page-break-before: always;
+  }
+
+  /* Disable truncate on print */
+  .truncate {
+    overflow: visible !important;
+    text-overflow: clip !important;
+    white-space: normal !important;
+  }
 }

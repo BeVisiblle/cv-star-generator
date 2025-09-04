@@ -1,7 +1,10 @@
 import React, { useState, useRef } from 'react';
 import { SidebarTrigger } from "@/components/ui/sidebar";
-import { Bell, Search as SearchIcon, MessageSquareMore, Users, User } from "lucide-react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { Bell, Search as SearchIcon, MessageSquareMore, Users, User, BookOpen } from "lucide-react";
+import { useLocation, useNavigate, Link } from "react-router-dom";
+import { SearchBar } from "@/components/search/SearchBar";
+import { NotificationCenter } from "@/components/notifications/NotificationCenter";
+import { useUnreadNotificationCount } from "@/hooks/useNotifications";
 import { Input } from "@/components/ui/input";
 import SearchAutosuggest, { SuggestionType } from "@/components/marketplace/SearchAutosuggest";
 import ConnectionsDrawer from "@/components/community/ConnectionsDrawer";
@@ -30,7 +33,10 @@ export default function TopNavBar() {
   const [open, setOpen] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [msgOpen, setMsgOpen] = useState(false);
+  const [isNotificationCenterOpen, setIsNotificationCenterOpen] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  
+  const { data: unreadCount = 0 } = useUnreadNotificationCount();
 
   const handleSubmit = () => {
     const term = q.trim();
@@ -121,7 +127,25 @@ export default function TopNavBar() {
             </PopoverContent>
           </Popover>
           
-          <Bell className="h-5 w-5 cursor-pointer hover:text-primary" onClick={() => navigate('/notifications')} />
+          <div className="relative">
+            <Bell 
+              className="h-5 w-5 cursor-pointer hover:text-primary" 
+              onClick={() => setIsNotificationCenterOpen(true)} 
+            />
+            {unreadCount > 0 && (
+              <span className="absolute -top-1 -right-1 h-4 w-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
+                {unreadCount > 9 ? '9+' : unreadCount}
+              </span>
+            )}
+          </div>
+          
+          <Link 
+            to="/groups" 
+            className="h-5 w-5 cursor-pointer hover:text-primary flex items-center"
+            title="Gruppen"
+          >
+            <BookOpen className="h-5 w-5" />
+          </Link>
           
           <User 
             className="h-5 w-5 cursor-pointer hover:text-primary" 
@@ -132,6 +156,12 @@ export default function TopNavBar() {
       
       {/* Connections Drawer */}
       <ConnectionsDrawer open={drawerOpen} onOpenChange={setDrawerOpen} />
+      
+      {/* Notification Center */}
+      <NotificationCenter 
+        isOpen={isNotificationCenterOpen} 
+        onClose={() => setIsNotificationCenterOpen(false)} 
+      />
     </div>
   );
 }

@@ -1,119 +1,207 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { NotificationService } from '@/services/notificationService';
-import type { NotificationRow, RecipientType } from '@/types/notifications';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { supabase } from '@/lib/supabase';
+import type { Notification } from '@/types/groups';
 
-export interface UseNotificationsReturn {
-  items: NotificationRow[];
-  loading: boolean;
-  hasMore: boolean;
-  error?: string;
-  fetchPage: () => Promise<void>;
-  markRead: (id: string) => Promise<void>;
-  markAllRead: () => Promise<void>;
-  reset: () => void;
+export function useNotifications() {
+  return useQuery({
+    queryKey: ['notifications'],
+    queryFn: async (): Promise<Notification[]> => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return [];
+
+      const { data: notifications, error } = await supabase
+        .from('notifications')
+        .select(`
+          *,
+          profiles!notifications_from_user_id_fkey (
+            id,
+            username,
+            full_name,
+            avatar_url
+          )
+        `)
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(50);
+
+      if (error) {
+        console.error('Error fetching notifications:', error);
+        return [];
+      }
+
+      return notifications || [];
+    },
+    staleTime: 30000, // 30 seconds
+    refetchInterval: 60000, // Refetch every minute
+  });
 }
 
-/**
- * Hook for managing notifications with pagination and real-time updates
- * @param recipientType - Type of recipient (profile or company)
- * @param recipientId - ID of the recipient
- * @returns Notification data and management functions
- */
-export function useNotifications(
-  recipientType: RecipientType, 
-  recipientId: string | null
-): UseNotificationsReturn {
-  const [items, setItems] = useState<NotificationRow[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [hasMore, setHasMore] = useState(true);
-  const [error, setError] = useState<string | undefined>();
-  const cursorRef = useRef<string | null>(null);
+export function useUnreadNotificationCount() {
+  return useQuery({
+    queryKey: ['unread-notification-count'],
+    queryFn: async (): Promise<number> => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return 0;
 
-  const fetchPage = useCallback(async () => {
-    if (!recipientId || loading || !hasMore) return;
-    
-    setLoading(true);
-    setError(undefined);
+      const { count, error } = await supabase
+        .from('notifications')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', user.id)
+        .eq('is_read', false);
 
-    const result = await NotificationService.fetchPage({
-      recipientType,
-      recipientId,
-      cursor: cursorRef.current || undefined,
-    });
-
-    if (result.error) {
-      setError(result.error);
-    } else {
-      setItems(prev => [...prev, ...result.data]);
-      cursorRef.current = result.nextCursor || null;
-      setHasMore(result.hasMore);
-    }
-
-    setLoading(false);
-  }, [recipientId, recipientType, loading, hasMore]);
-
-  // Real-time subscription for new notifications
-  useEffect(() => {
-    if (!recipientId) return;
-
-    const unsubscribe = NotificationService.subscribeToUpdates(
-      recipientType,
-      recipientId,
-      (newNotification) => {
-        setItems(prev => [newNotification, ...prev]);
+      if (error) {
+        console.error('Error fetching unread count:', error);
+        return 0;
       }
-    );
 
-    return unsubscribe;
-  }, [recipientId, recipientType]);
+      return count || 0;
+    },
+    staleTime: 30000,
+    refetchInterval: 60000,
+  });
+}
 
-  const markRead = useCallback(async (id: string) => {
-    // Optimistic update
-    setItems(prev =>
-      prev.map(n => (n.id === id ? { ...n, read_at: new Date().toISOString() } : n))
-    );
+export function useMarkNotificationAsRead() {
+  const queryClient = useQueryClient();
 
-    // Server update
-    const result = await NotificationService.markAsRead(id);
-    if (!result.success && result.error) {
-      setError(result.error);
-      // Revert optimistic update on error
-      setItems(prev =>
-        prev.map(n => (n.id === id ? { ...n, read_at: null } : n))
-      );
+  return useMutation({
+    mutationFn: async (notificationId: string) => {
+      const { error } = await supabase
+        .from('notifications')
+        .update({ is_read: true })
+        .eq('id', notificationId);
+
+      if (error) {
+        throw new Error(`Failed to mark notification as read: ${error.message}`);
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['notifications'] });
+      queryClient.invalidateQueries({ queryKey: ['unread-notification-count'] });
+    },
+  });
+}
+
+export function useMarkAllNotificationsAsRead() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('User not authenticated');
+
+      const { error } = await supabase
+        .from('notifications')
+        .update({ is_read: true })
+        .eq('user_id', user.id)
+        .eq('is_read', false);
+
+      if (error) {
+        throw new Error(`Failed to mark all notifications as read: ${error.message}`);
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['notifications'] });
+      queryClient.invalidateQueries({ queryKey: ['unread-notification-count'] });
+    },
+  });
+}
+
+export function useDeleteNotification() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (notificationId: string) => {
+      const { error } = await supabase
+        .from('notifications')
+        .delete()
+        .eq('id', notificationId);
+
+      if (error) {
+        throw new Error(`Failed to delete notification: ${error.message}`);
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['notifications'] });
+      queryClient.invalidateQueries({ queryKey: ['unread-notification-count'] });
+    },
+  });
+}
+
+// Helper function to create notifications
+export async function createNotification(data: {
+  userId: string;
+  type: 'answer' | 'question' | 'mention' | 'group_invite' | 'system';
+  title: string;
+  message: string;
+  relatedId?: string;
+  fromUserId?: string;
+}): Promise<{ success: boolean; error?: string }> {
+  try {
+    const { error } = await supabase
+      .from('notifications')
+      .insert({
+        user_id: data.userId,
+        type: data.type,
+        title: data.title,
+        message: data.message,
+        related_id: data.relatedId,
+        from_user_id: data.fromUserId,
+        is_read: false
+      });
+
+    if (error) {
+      throw new Error(`Failed to create notification: ${error.message}`);
     }
-  }, []);
 
-  const markAllRead = useCallback(async () => {
-    if (!recipientId) return;
-    
-    const now = new Date().toISOString();
+    return { success: true };
 
-    // Optimistic update
-    setItems(prev => prev.map(n => ({ ...n, read_at: n.read_at ?? now })));
+  } catch (error) {
+    console.error('Create notification error:', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error occurred'
+    };
+  }
+}
 
-    // Server update
-    const result = await NotificationService.markAllAsRead(recipientType, recipientId);
-    if (!result.success && result.error) {
-      setError(result.error);
-    }
-  }, [recipientId, recipientType]);
+// Helper function to create notification for answer
+export async function createAnswerNotification(
+  questionAuthorId: string,
+  answerAuthorId: string,
+  questionId: string,
+  answerContent: string
+): Promise<void> {
+  if (questionAuthorId === answerAuthorId) return; // Don't notify self
 
-  const reset = useCallback(() => {
-    setItems([]);
-    setHasMore(true);
-    setError(undefined);
-    cursorRef.current = null;
-  }, []);
+  await createNotification({
+    userId: questionAuthorId,
+    type: 'answer',
+    title: 'New Answer',
+    message: `Someone answered your question: "${answerContent.substring(0, 100)}..."`,
+    relatedId: questionId,
+    fromUserId: answerAuthorId
+  });
+}
 
-  return { 
-    items, 
-    loading, 
-    hasMore, 
-    error,
-    fetchPage, 
-    markRead, 
-    markAllRead, 
-    reset 
-  };
+// Helper function to create notification for question
+export async function createQuestionNotification(
+  groupMemberIds: string[],
+  questionAuthorId: string,
+  questionId: string,
+  questionTitle: string,
+  groupTitle: string
+): Promise<void> {
+  const notifications = groupMemberIds
+    .filter(memberId => memberId !== questionAuthorId) // Don't notify self
+    .map(memberId => createNotification({
+      userId: memberId,
+      type: 'question',
+      title: 'New Question',
+      message: `New question in ${groupTitle}: "${questionTitle}"`,
+      relatedId: questionId,
+      fromUserId: questionAuthorId
+    }));
+
+  await Promise.all(notifications);
 }
