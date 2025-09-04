@@ -150,7 +150,15 @@ export default function TopNavBar() {
       {/* Connections Drawer */}
       <ConnectionsDrawer open={drawerOpen} onOpenChange={setDrawerOpen} />
       
-      {/* Notification Center */}
+          <Link 
+            to="/groups" 
+            className="h-5 w-5 cursor-pointer hover:text-primary flex items-center"
+            title="Gruppen"
+          >
+            <BookOpen className="h-5 w-5" />
+          </Link>
+
+          {/* Notification Center */}
       <NotificationCenter 
         isOpen={isNotificationCenterOpen} 
         onClose={() => setIsNotificationCenterOpen(false)} 

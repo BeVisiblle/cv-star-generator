@@ -43,6 +43,10 @@ const CommunityJobs = lazy(() => import("./pages/Community/Jobs"));
 const NotificationsPage = lazy(() => import("./pages/Notifications"));
 
 
+// Groups components - lazy loaded
+const GroupsPage = lazy(() => import("./pages/GroupsPage"));
+const GroupDetailPage = lazy(() => import("./pages/GroupDetailPage"));
+
 // Company components - lazy loaded
 const CompanyLayout = lazy(() => import("@/components/Company/CompanyLayout").then(m => ({ default: m.CompanyLayout })));
 const CompanyOnboarding = lazy(() => import("./pages/Company/Onboarding"));
@@ -315,6 +319,8 @@ const App = () => (
                 <Route path="/settings" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><Settings /></Suspense>} />
                 <Route path="/entdecken/azubis" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><DiscoverAzubis /></Suspense>} />
                 <Route path="/entdecken/unternehmen" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><DiscoverCompanies /></Suspense>} />
+                <Route path="/groups" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><GroupsPage /></Suspense>} />
+                <Route path="/groups/:id" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><GroupDetailPage /></Suspense>} />
                 <Route path="/u/:id" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><UserProfilePage /></Suspense>} />
               </Route>
 
