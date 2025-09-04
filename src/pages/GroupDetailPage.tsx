@@ -69,7 +69,7 @@ export default function GroupDetailPage() {
   const handleJoinGroup = async () => {
     if (!user || !id) return;
     try {
-      await joinGroup.mutateAsync({ groupId: id });
+      await joinGroup.mutateAsync({ group_id: id });
     } catch (error) {
       console.error('Failed to join group:', error);
     }
