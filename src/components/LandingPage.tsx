@@ -139,12 +139,12 @@ export default function LandingPage() {
                   <img 
                     src="/lovable-uploads/f4832110-7607-4707-9ab7-0c354dd85de5.png" 
                     alt="CV Generator Mobile App Screenshots" 
-                    className="w-full max-w-md mx-auto lg:max-w-lg xl:max-w-xl transform lg:translate-x-8" 
+                    className="w-full max-w-lg mx-auto lg:max-w-xl xl:max-w-2xl transform lg:translate-x-8" 
                     width="1200" 
                     height="600"
                     loading="eager"
                     fetchPriority="high"
-                    style={{ maxWidth: '576px', height: 'auto' }}
+                    style={{ maxWidth: '700px', height: 'auto' }}
                   />
                 </picture>
               </div>
