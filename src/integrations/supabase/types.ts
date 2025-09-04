@@ -1370,6 +1370,47 @@ export type Database = {
         }
         Relationships: []
       }
+      group_join_requests: {
+        Row: {
+          group_id: string
+          id: string
+          message: string | null
+          requested_at: string
+          responded_at: string | null
+          responded_by: string | null
+          status: string
+          user_id: string
+        }
+        Insert: {
+          group_id: string
+          id?: string
+          message?: string | null
+          requested_at?: string
+          responded_at?: string | null
+          responded_by?: string | null
+          status?: string
+          user_id: string
+        }
+        Update: {
+          group_id?: string
+          id?: string
+          message?: string | null
+          requested_at?: string
+          responded_at?: string | null
+          responded_by?: string | null
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "group_join_requests_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       group_members: {
         Row: {
           group_id: string
@@ -1404,13 +1445,16 @@ export type Database = {
       }
       groups: {
         Row: {
+          allow_member_invites: boolean | null
           course_code: string | null
           cover_image: string | null
           created_at: string
           created_by: string | null
           description: string | null
           id: string
+          max_members: number | null
           region: string | null
+          require_approval: boolean | null
           school: string | null
           title: string
           type: string
@@ -1418,13 +1462,16 @@ export type Database = {
           visibility: string
         }
         Insert: {
+          allow_member_invites?: boolean | null
           course_code?: string | null
           cover_image?: string | null
           created_at?: string
           created_by?: string | null
           description?: string | null
           id?: string
+          max_members?: number | null
           region?: string | null
+          require_approval?: boolean | null
           school?: string | null
           title: string
           type?: string
@@ -1432,13 +1479,16 @@ export type Database = {
           visibility?: string
         }
         Update: {
+          allow_member_invites?: boolean | null
           course_code?: string | null
           cover_image?: string | null
           created_at?: string
           created_by?: string | null
           description?: string | null
           id?: string
+          max_members?: number | null
           region?: string | null
+          require_approval?: boolean | null
           school?: string | null
           title?: string
           type?: string
