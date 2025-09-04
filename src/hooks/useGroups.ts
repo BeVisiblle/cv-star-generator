@@ -16,10 +16,7 @@ export const useGroups = (filters?: GroupFilters) => {
     queryFn: async (): Promise<Group[]> => {
       let query = supabase
         .from('groups')
-        .select(`
-          *,
-          group_members!inner(count)
-        `)
+        .select('*')
         .order('created_at', { ascending: false });
 
       if (filters?.type) {
@@ -172,7 +169,7 @@ export const useJoinGroup = () => {
       const { data: member, error } = await supabase
         .from('group_members')
         .insert({
-          group_id: data.groupId,
+          group_id: data.group_id,
           user_id: user.id,
           role: 'member',
           status: 'active',
@@ -184,8 +181,8 @@ export const useJoinGroup = () => {
       return member as GroupMember;
     },
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['group-members', variables.groupId] });
-      queryClient.invalidateQueries({ queryKey: ['group', variables.groupId] });
+      queryClient.invalidateQueries({ queryKey: ['group-members', variables.group_id] });
+      queryClient.invalidateQueries({ queryKey: ['group', variables.group_id] });
     },
   });
 };

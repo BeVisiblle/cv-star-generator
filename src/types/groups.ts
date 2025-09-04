@@ -16,6 +16,7 @@ export interface Group {
   updated_at: string;
   member_count?: number;
   last_activity?: string;
+  group_members?: GroupMember[];
 }
 
 export interface GroupMember {
@@ -225,11 +226,11 @@ export interface UpdateGroupRequest {
 }
 
 export interface JoinGroupRequest {
-  groupId: string;
+  group_id: string;
 }
 
 export interface CreatePostRequest {
-  groupId: string;
+  group_id: string;
   type: 'thread' | 'question' | 'resource' | 'event' | 'poll';
   title?: string;
   body?: string;

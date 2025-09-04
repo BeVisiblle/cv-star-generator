@@ -1,10 +1,13 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import type { Database } from '@/integrations/supabase/types';
 import type { 
   Post, 
   CreatePostRequest, 
   PostFilters 
 } from '@/types/groups';
+
+type DbPost = Database['public']['Tables']['posts']['Row'];
 
 // Posts API
 export const usePosts = (groupId: string, filters?: PostFilters) => {
@@ -13,7 +16,10 @@ export const usePosts = (groupId: string, filters?: PostFilters) => {
     queryFn: async (): Promise<Post[]> => {
       let query = supabase
         .from('posts')
-        .select('*')
+        .select(`
+          *,
+          author:profiles(id, display_name, avatar_url)
+        `)
         .eq('group_id', groupId)
         .order('pinned', { ascending: false })
         .order('created_at', { ascending: false });
@@ -27,7 +33,7 @@ export const usePosts = (groupId: string, filters?: PostFilters) => {
 
       const { data, error } = await query;
       if (error) throw error;
-      return data as Post[];
+      return (data || []) as Post[];
     },
     staleTime: 30000,
   });
@@ -39,7 +45,10 @@ export const usePost = (id: string) => {
     queryFn: async (): Promise<Post | null> => {
       const { data, error } = await supabase
         .from('posts')
-        .select('*')
+        .select(`
+          *,
+          author:profiles(id, display_name, avatar_url)
+        `)
         .eq('id', id)
         .single();
 
@@ -64,21 +73,24 @@ export const useCreatePost = () => {
       const { data: post, error } = await supabase
         .from('posts')
         .insert({
-          group_id: data.groupId,
+          group_id: data.group_id,
           author_id: user.id,
           type: data.type,
           title: data.title,
           body: data.body,
           meta: data.meta || {},
         })
-        .select()
+        .select(`
+          *,
+          author:profiles(id, display_name, avatar_url)
+        `)
         .single();
 
       if (error) throw error;
       return post as Post;
     },
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['posts', variables.groupId] });
+      queryClient.invalidateQueries({ queryKey: ['posts', variables.group_id] });
     },
   });
 };
@@ -97,7 +109,10 @@ export const useUpdatePost = () => {
           updated_at: new Date().toISOString(),
         })
         .eq('id', id)
-        .select()
+        .select(`
+          *,
+          author:profiles(id, display_name, avatar_url)
+        `)
         .single();
 
       if (error) throw error;
