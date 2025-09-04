@@ -14,6 +14,95 @@ export type Database = {
   }
   public: {
     Tables: {
+      annotations: {
+        Row: {
+          anchor: Json
+          author_id: string | null
+          created_at: string
+          file_id: string
+          id: string
+          note: string | null
+          page_id: string
+          quote: string | null
+          visibility: string
+        }
+        Insert: {
+          anchor: Json
+          author_id?: string | null
+          created_at?: string
+          file_id: string
+          id?: string
+          note?: string | null
+          page_id: string
+          quote?: string | null
+          visibility?: string
+        }
+        Update: {
+          anchor?: Json
+          author_id?: string | null
+          created_at?: string
+          file_id?: string
+          id?: string
+          note?: string | null
+          page_id?: string
+          quote?: string | null
+          visibility?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "annotations_file_id_fkey"
+            columns: ["file_id"]
+            isOneToOne: false
+            referencedRelation: "files"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "annotations_page_id_fkey"
+            columns: ["page_id"]
+            isOneToOne: false
+            referencedRelation: "file_pages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      answers: {
+        Row: {
+          author_id: string | null
+          body: string
+          created_at: string
+          id: string
+          is_accepted: boolean
+          question_id: string
+          updated_at: string
+        }
+        Insert: {
+          author_id?: string | null
+          body: string
+          created_at?: string
+          id?: string
+          is_accepted?: boolean
+          question_id: string
+          updated_at?: string
+        }
+        Update: {
+          author_id?: string | null
+          body?: string
+          created_at?: string
+          id?: string
+          is_accepted?: boolean
+          question_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "answers_question_id_fkey"
+            columns: ["question_id"]
+            isOneToOne: false
+            referencedRelation: "questions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       blocks: {
         Row: {
           blocked_id: string
@@ -1121,6 +1210,97 @@ export type Database = {
         }
         Relationships: []
       }
+      file_pages: {
+        Row: {
+          bbox: Json | null
+          created_at: string
+          file_id: string
+          id: string
+          page_number: number
+          text: string | null
+          thumb_path: string | null
+        }
+        Insert: {
+          bbox?: Json | null
+          created_at?: string
+          file_id: string
+          id?: string
+          page_number: number
+          text?: string | null
+          thumb_path?: string | null
+        }
+        Update: {
+          bbox?: Json | null
+          created_at?: string
+          file_id?: string
+          id?: string
+          page_number?: number
+          text?: string | null
+          thumb_path?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "file_pages_file_id_fkey"
+            columns: ["file_id"]
+            isOneToOne: false
+            referencedRelation: "files"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      files: {
+        Row: {
+          byte_size: number | null
+          checksum: string
+          created_at: string
+          filename: string
+          group_id: string
+          id: string
+          license: string | null
+          mime_type: string | null
+          source: string | null
+          storage_path: string
+          uploader_id: string | null
+          version: number
+        }
+        Insert: {
+          byte_size?: number | null
+          checksum: string
+          created_at?: string
+          filename: string
+          group_id: string
+          id?: string
+          license?: string | null
+          mime_type?: string | null
+          source?: string | null
+          storage_path: string
+          uploader_id?: string | null
+          version?: number
+        }
+        Update: {
+          byte_size?: number | null
+          checksum?: string
+          created_at?: string
+          filename?: string
+          group_id?: string
+          id?: string
+          license?: string | null
+          mime_type?: string | null
+          source?: string | null
+          storage_path?: string
+          uploader_id?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "files_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       follow_request_counters: {
         Row: {
           company_id: string
@@ -1187,6 +1367,83 @@ export type Database = {
           id?: string
           status?: Database["public"]["Enums"]["follow_status"]
           updated_at?: string
+        }
+        Relationships: []
+      }
+      group_members: {
+        Row: {
+          group_id: string
+          joined_at: string
+          role: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          group_id: string
+          joined_at?: string
+          role?: string
+          status?: string
+          user_id: string
+        }
+        Update: {
+          group_id?: string
+          joined_at?: string
+          role?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "group_members_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      groups: {
+        Row: {
+          course_code: string | null
+          cover_image: string | null
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          region: string | null
+          school: string | null
+          title: string
+          type: string
+          updated_at: string
+          visibility: string
+        }
+        Insert: {
+          course_code?: string | null
+          cover_image?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          region?: string | null
+          school?: string | null
+          title: string
+          type?: string
+          updated_at?: string
+          visibility?: string
+        }
+        Update: {
+          course_code?: string | null
+          cover_image?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          region?: string | null
+          school?: string | null
+          title?: string
+          type?: string
+          updated_at?: string
+          visibility?: string
         }
         Relationships: []
       }
@@ -2504,6 +2761,73 @@ export type Database = {
             columns: ["location_id"]
             isOneToOne: false
             referencedRelation: "locations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      questions: {
+        Row: {
+          accepted_answer_id: string | null
+          anchor: Json | null
+          author_id: string | null
+          body: string | null
+          created_at: string
+          file_id: string | null
+          group_id: string
+          id: string
+          page_id: string | null
+          status: string
+          tags: string[] | null
+          title: string
+        }
+        Insert: {
+          accepted_answer_id?: string | null
+          anchor?: Json | null
+          author_id?: string | null
+          body?: string | null
+          created_at?: string
+          file_id?: string | null
+          group_id: string
+          id?: string
+          page_id?: string | null
+          status?: string
+          tags?: string[] | null
+          title: string
+        }
+        Update: {
+          accepted_answer_id?: string | null
+          anchor?: Json | null
+          author_id?: string | null
+          body?: string | null
+          created_at?: string
+          file_id?: string | null
+          group_id?: string
+          id?: string
+          page_id?: string | null
+          status?: string
+          tags?: string[] | null
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "questions_file_id_fkey"
+            columns: ["file_id"]
+            isOneToOne: false
+            referencedRelation: "files"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "questions_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "groups"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "questions_page_id_fkey"
+            columns: ["page_id"]
+            isOneToOne: false
+            referencedRelation: "file_pages"
             referencedColumns: ["id"]
           },
         ]
