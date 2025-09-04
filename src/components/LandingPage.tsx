@@ -137,7 +137,7 @@ export default function LandingPage() {
               <div className="relative lg:ml-8 mx-0">
                 <picture>
                   <img 
-                    src="/lovable-uploads/c2a9bc2e-3848-456e-bd06-6570a63f062f.png" 
+                    src="/lovable-uploads/f4832110-7607-4707-9ab7-0c354dd85de5.png" 
                     alt="CV Generator Mobile App Screenshots" 
                     className="w-full max-w-md mx-auto lg:max-w-lg xl:max-w-xl transform lg:translate-x-8" 
                     width="1200" 
