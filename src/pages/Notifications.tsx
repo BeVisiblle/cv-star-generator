@@ -1,6 +1,6 @@
 import NotificationsList from '@/components/notifications/NotificationsList';
 import { useAuth } from '@/hooks/useAuth';
-import { useNotifications } from '@/hooks/useNotifications';
+import { useRecipientNotifications } from '@/hooks/useRecipientNotifications';
 import { LeftPanel } from '@/components/dashboard/LeftPanel';
 import { RightPanel } from '@/components/dashboard/RightPanel';
 
@@ -9,7 +9,7 @@ export default function NotificationsPage() {
   const isCompany = false; // TODO: Implement company context detection
   const companyId = null; // TODO: Get from company context
 
-  const { markAllRead } = useNotifications(
+  const { markAllRead } = useRecipientNotifications(
     isCompany ? 'company' : 'profile',
     isCompany ? companyId : profile?.id ?? null
   );

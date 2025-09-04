@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import type { 
-  File, 
+  File as GroupFile, 
   FilePage,
   Annotation,
   CreateAnnotationRequest 
@@ -23,7 +23,7 @@ export const useFiles = (groupId: string) => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      return data as File[];
+      return data as GroupFile[];
     },
     enabled: !!groupId,
   });
@@ -44,7 +44,7 @@ export const useFile = (fileId: string) => {
         .single();
 
       if (error) throw error;
-      return data as File;
+      return data as GroupFile;
     },
     enabled: !!fileId,
   });

@@ -1,20 +1,15 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Bell, X, Check, Trash2, MessageSquare, Users, FileText, UserPlus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
-import { 
-  useNotifications, 
-  useUnreadNotificationCount, 
-  useMarkNotificationAsRead, 
-  useMarkAllNotificationsAsRead,
-  useDeleteNotification 
-} from '@/hooks/useNotifications';
+import { useAuth } from '@/hooks/useAuth';
+import { useRecipientNotifications } from '@/hooks/useRecipientNotifications';
 import { formatDistanceToNow } from 'date-fns';
 import { de } from 'date-fns/locale';
-import type { Notification } from '@/types/groups';
+import type { NotificationRow, NotifType } from '@/types/notifications';
 
 interface NotificationCenterProps {
   isOpen: boolean;
@@ -25,41 +20,39 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
   isOpen,
   onClose
 }) => {
-  const { data: notifications = [], isLoading } = useNotifications();
-  const { data: unreadCount = 0 } = useUnreadNotificationCount();
-  const markAsRead = useMarkNotificationAsRead();
-  const markAllAsRead = useMarkAllNotificationsAsRead();
-  const deleteNotification = useDeleteNotification();
+  const { profile } = useAuth();
+  const { items: notifications, loading, markRead, markAllRead } = useRecipientNotifications(
+    'profile',
+    profile?.id || null
+  );
 
-  const getNotificationIcon = (type: Notification['type']) => {
+  const unreadCount = notifications.filter(n => !n.read_at).length;
+
+  const getNotificationIcon = (type: NotifType) => {
     switch (type) {
-      case 'answer':
+      case 'post_interaction':
         return <MessageSquare className="h-4 w-4" />;
-      case 'question':
-        return <FileText className="h-4 w-4" />;
-      case 'mention':
-        return <Users className="h-4 w-4" />;
-      case 'group_invite':
+      case 'follow_request_received':
         return <UserPlus className="h-4 w-4" />;
-      case 'system':
-        return <Bell className="h-4 w-4" />;
+      case 'employment_request':
+        return <FileText className="h-4 w-4" />;
+      case 'company_unlocked_you':
+        return <Users className="h-4 w-4" />;
       default:
         return <Bell className="h-4 w-4" />;
     }
   };
 
-  const getNotificationColor = (type: Notification['type']) => {
+  const getNotificationColor = (type: NotifType) => {
     switch (type) {
-      case 'answer':
+      case 'post_interaction':
         return 'text-green-600';
-      case 'question':
+      case 'follow_request_received':
         return 'text-blue-600';
-      case 'mention':
+      case 'employment_request':
         return 'text-purple-600';
-      case 'group_invite':
+      case 'company_unlocked_you':
         return 'text-orange-600';
-      case 'system':
-        return 'text-gray-600';
       default:
         return 'text-gray-600';
     }
@@ -67,7 +60,7 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
 
   const handleMarkAsRead = async (notificationId: string) => {
     try {
-      await markAsRead.mutateAsync(notificationId);
+      await markRead(notificationId);
     } catch (error) {
       console.error('Failed to mark notification as read:', error);
     }
@@ -75,17 +68,9 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
 
   const handleMarkAllAsRead = async () => {
     try {
-      await markAllAsRead.mutateAsync();
+      await markAllRead();
     } catch (error) {
       console.error('Failed to mark all notifications as read:', error);
-    }
-  };
-
-  const handleDeleteNotification = async (notificationId: string) => {
-    try {
-      await deleteNotification.mutateAsync(notificationId);
-    } catch (error) {
-      console.error('Failed to delete notification:', error);
     }
   };
 
@@ -106,12 +91,11 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
             </CardTitle>
             <div className="flex items-center gap-2">
               {unreadCount > 0 && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleMarkAllAsRead}
-                  disabled={markAllAsRead.isPending}
-                >
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleMarkAllAsRead}
+                  >
                   <Check className="h-4 w-4" />
                   Mark all read
                 </Button>
@@ -126,7 +110,7 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
           
           <CardContent className="p-0">
             <ScrollArea className="h-[400px]">
-              {isLoading ? (
+              {loading ? (
                 <div className="flex items-center justify-center p-8">
                   <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
                 </div>
@@ -142,7 +126,7 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
                     <div
                       key={notification.id}
                       className={`p-3 rounded-lg mb-2 transition-colors ${
-                        notification.is_read 
+                        notification.read_at 
                           ? 'bg-muted/30' 
                           : 'bg-primary/5 border-l-2 border-l-primary'
                       }`}
@@ -157,7 +141,7 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
                             <div className="flex-1">
                               <h4 className="font-medium text-sm">{notification.title}</h4>
                               <p className="text-sm text-muted-foreground mt-1">
-                                {notification.message}
+                                {notification.body}
                               </p>
                               <div className="flex items-center gap-2 mt-2">
                                 <span className="text-xs text-muted-foreground">
@@ -166,35 +150,20 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
                                     locale: de 
                                   })}
                                 </span>
-                                {notification.profiles && (
-                                  <span className="text-xs text-muted-foreground">
-                                    • {notification.profiles.username}
-                                  </span>
-                                )}
                               </div>
                             </div>
                             
                             <div className="flex items-center gap-1 ml-2">
-                              {!notification.is_read && (
+                              {!notification.read_at && (
                                 <Button
                                   variant="ghost"
                                   size="sm"
                                   onClick={() => handleMarkAsRead(notification.id)}
-                                  disabled={markAsRead.isPending}
                                   className="h-6 w-6 p-0"
                                 >
                                   <Check className="h-3 w-3" />
                                 </Button>
                               )}
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => handleDeleteNotification(notification.id)}
-                                disabled={deleteNotification.isPending}
-                                className="h-6 w-6 p-0 text-muted-foreground hover:text-destructive"
-                              >
-                                <Trash2 className="h-3 w-3" />
-                              </Button>
                             </div>
                           </div>
                         </div>

@@ -112,11 +112,9 @@ export const SearchBar: React.FC<SearchBarProps> = ({
                         {group.description}
                       </p>
                       <div className="flex gap-1 mt-2">
-                        {group.tags?.slice(0, 3).map((tag) => (
-                          <Badge key={tag} variant="secondary" className="text-xs">
-                            {tag}
-                          </Badge>
-                        ))}
+                        <span className="text-xs text-muted-foreground">
+                          {group.description ? 'Mit Beschreibung' : 'Gruppe'}
+                        </span>
                       </div>
                     </div>
                     <div className="text-right text-sm text-muted-foreground">
@@ -147,12 +145,10 @@ export const SearchBar: React.FC<SearchBarProps> = ({
                     <div className="flex-1">
                       <h4 className="font-medium">{post.title}</h4>
                       <p className="text-sm text-muted-foreground line-clamp-2">
-                        {post.content}
+                        {post.title || 'Kein Inhalt'}
                       </p>
                       <div className="flex items-center gap-2 mt-2 text-xs text-muted-foreground">
-                        <span>in {post.groups?.title}</span>
-                        <span>•</span>
-                        <span>{post.profiles?.username}</span>
+                        <span>Post</span>
                       </div>
                     </div>
                   </div>
@@ -178,14 +174,12 @@ export const SearchBar: React.FC<SearchBarProps> = ({
                 <CardContent className="p-3">
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
-                      <h4 className="font-medium">{file.title}</h4>
+                      <h4 className="font-medium">{file.filename || 'Datei'}</h4>
                       <p className="text-sm text-muted-foreground line-clamp-2">
-                        {file.description}
+                        Datei
                       </p>
                       <div className="flex items-center gap-2 mt-2 text-xs text-muted-foreground">
-                        <span>in {file.groups?.title}</span>
-                        <span>•</span>
-                        <span>{file.profiles?.username}</span>
+                        <span>Datei</span>
                       </div>
                     </div>
                   </div>

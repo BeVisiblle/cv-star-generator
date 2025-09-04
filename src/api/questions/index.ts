@@ -164,8 +164,8 @@ export async function acceptAnswer(answerId: string): Promise<{ success: boolean
       .select(`
         id,
         question_id,
-        questions!inner (
-          author_id
+        questions (
+          user_id
         )
       `)
       .eq('id', answerId)
@@ -175,7 +175,7 @@ export async function acceptAnswer(answerId: string): Promise<{ success: boolean
       throw new Error(`Answer not found: ${fetchError.message}`);
     }
 
-    if (answer.questions.author_id !== user.id) {
+    if (!answer.questions || (answer.questions as any).user_id !== user.id) {
       throw new Error('Only the question author can accept answers');
     }
 

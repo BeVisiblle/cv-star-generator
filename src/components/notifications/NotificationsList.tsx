@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { EmptyState } from '@/components/shared/EmptyState';
 import { LoadingSkeleton } from '@/components/shared/LoadingSkeleton';
-import { useNotifications } from '@/hooks/useNotifications';
+import { useRecipientNotifications } from '@/hooks/useRecipientNotifications';
 import type { NotificationRow } from '@/types/notifications';
 import type { RecipientType } from '@/types/notifications';
 import NotificationCard from './NotificationCard';
@@ -14,7 +14,7 @@ type Props = {
 
 export default function NotificationsList({ recipientType, recipientId, onAction }: Props) {
   const { items, loading, hasMore, error, fetchPage, markRead, reset } =
-    useNotifications(recipientType, recipientId);
+    useRecipientNotifications(recipientType, recipientId);
 
   useEffect(() => {
     reset();
