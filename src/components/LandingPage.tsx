@@ -126,7 +126,7 @@ export default function LandingPage() {
                   <Link to="/cv-generator" className="inline-flex items-center justify-center rounded-2xl px-6 py-3 text-base font-semibold border border-[color:var(--brand)] text-[color:var(--brand)] bg-transparent hover:bg-[color:var(--brand)]/10">
                     Profil erstellen – kostenlos
                   </Link>
-                  <Link to="#so-funktionierts" className="inline-flex items-center justify-center rounded-2xl px-6 py-3 text-base font-semibold border border-zinc-700 text-white hover:bg-zinc-900">
+                  <Link to="/so-funktionierts" className="inline-flex items-center justify-center rounded-2xl px-6 py-3 text-base font-semibold border border-zinc-700 text-white hover:bg-zinc-900">
                     So funktioniert's
                   </Link>
                 </div>
@@ -179,12 +179,20 @@ export default function LandingPage() {
                   Lade deinen Lebenslauf hoch und erhalte ein vollständiges Profil, das überzeugt. 
                   Teile relevante Erfahrungen, Fähigkeiten und Nachweise – klar strukturiert und sofort einsatzbereit.
                 </p>
-                <Link 
-                  to="/onboarding" 
-                  className="inline-flex items-center justify-center rounded-2xl px-6 py-3 text-base font-semibold border border-zinc-700 text-white hover:bg-zinc-900"
-                >
-                  Profil jetzt erstellen
-                </Link>
+                <div className="flex flex-col sm:flex-row gap-4">
+                  <Link 
+                    to="/cv-generator" 
+                    className="inline-flex items-center justify-center rounded-2xl px-6 py-3 text-base font-semibold border border-zinc-700 text-white hover:bg-zinc-900"
+                  >
+                    Profil jetzt erstellen
+                  </Link>
+                  <Link 
+                    to="/so-funktionierts" 
+                    className="inline-flex items-center justify-center rounded-2xl px-6 py-3 text-base font-semibold border border-[color:var(--brand)] text-[color:var(--brand)] bg-transparent hover:bg-[color:var(--brand)]/10"
+                  >
+                    So funktioniert's
+                  </Link>
+                </div>
               </div>
             </div>
           </div>
@@ -207,7 +215,7 @@ export default function LandingPage() {
               <h3 className="text-2xl font-semibold">Talente schneller finden</h3>
               <p className="mt-2 text-sm text-zinc-300">Registrieren Sie Ihr Unternehmen und schalten Sie passende Profile frei.</p>
               <div className="mt-6 flex flex-wrap gap-3">
-                <Link to="/unternehmen/onboarding" className="inline-flex items-center justify-center rounded-2xl px-5 py-3 text-sm font-semibold bg-white text-black">Unternehmen-Account erstellen</Link>
+                <Link to="/company/onboarding" className="inline-flex items-center justify-center rounded-2xl px-5 py-3 text-sm font-semibold bg-white text-black">Unternehmensaccount erstellen</Link>
                 <Link to="/auth" className="inline-flex items-center justify-center rounded-2xl px-5 py-3 text-sm font-semibold border border-zinc-700">Login</Link>
               </div>
             </div>

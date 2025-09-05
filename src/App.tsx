@@ -27,6 +27,7 @@ const Impressum = lazy(() => import("./pages/Impressum"));
 const AGB = lazy(() => import("./pages/AGB"));
 const Talent = lazy(() => import("./pages/Talent"));
 const CVGenerator = lazy(() => import("./components/CVGenerator"));
+const CVExplanation = lazy(() => import("./pages/CVExplanation"));
 const Profile = lazy(() => import("./pages/Profile"));
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const Marketplace = lazy(() => import("./pages/Marketplace"));
@@ -252,6 +253,7 @@ const App = () => (
               {/* CV Generator - Open for everyone, but validates complete profiles */}
               <Route path="/cv-generator" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><CVGeneratorGate><CVGenerator /></CVGeneratorGate></Suspense>} />
               <Route path="/cv-layout-selector" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><CVGeneratorGate><CVGenerator /></CVGeneratorGate></Suspense>} />
+              <Route path="/so-funktionierts" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><BaseLayout><CVExplanation /></BaseLayout></Suspense>} />
               
               {/* Company routes */}
               <Route path="/company/onboarding" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><CompanyOnboarding /></Suspense>} />
