@@ -1,73 +1,68 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { OnboardingStep1 } from './OnboardingStep1';
 import { OnboardingStep2 } from './OnboardingStep2';
 import { OnboardingStep3 } from './OnboardingStep3';
 import { OnboardingStep4 } from './OnboardingStep4';
 import { OnboardingStep5 } from './OnboardingStep5';
-import { useAuth } from '@/hooks/useAuth';
+import { Building2 } from 'lucide-react';
 
 export interface OnboardingData {
-  // Step 1
-  companyName: string;
+  // Step 1 - Personal & Company Info
+  firstName: string;
+  lastName: string;
   email: string;
-  password: string;
   phone: string;
-  industry: string;
-  location: string;
+  companyName: string;
+  companySize: string;
+  lookingFor: string[];
+  acceptedTerms: boolean;
   
-  // Step 2
-  selectedPlan: 'free' | 'starter' | 'premium' | 'enterprise';
+  // Step 2 - Plan Selection
+  selectedPlan: 'free' | 'starter' | 'premium';
   
   // Step 3 - handled by Stripe
   
-  // Step 4
+  // Step 4 - Profile Setup
   logo?: File;
+  coverImage?: File;
+  location: string;
+  contactPersonName: string;
+  contactPersonRole: string;
+  contactPersonEmail: string;
   shortDescription: string;
-  longDescription: string;
-  companySize: string;
-  benefits: string[];
-  contactName: string;
-  contactRole: string;
-  contactEmail: string;
+  website: string;
+  linkedin: string;
   
-  // Step 5
-  jobTitle: string;
-  positions: number;
-  jobLocation: string;
-  startDate: Date | null;
-  requirements: string[];
+  // Step 5 - Team Invites (optional)
+  teamEmails: string[];
 }
 
 export function OnboardingWizard() {
   const [currentStep, setCurrentStep] = useState(1);
   const [data, setData] = useState<OnboardingData>({
-    companyName: '',
+    firstName: '',
+    lastName: '',
     email: '',
-    password: '',
     phone: '',
-    industry: '',
-    location: '',
-    selectedPlan: 'free',
-    shortDescription: '',
-    longDescription: '',
+    companyName: '',
     companySize: '',
-    benefits: [],
-    contactName: '',
-    contactRole: '',
-    contactEmail: '',
-    jobTitle: '',
-    positions: 1,
-    jobLocation: '',
-    startDate: null,
-    requirements: [],
+    lookingFor: [],
+    acceptedTerms: false,
+    selectedPlan: 'free',
+    location: '',
+    contactPersonName: '',
+    contactPersonRole: '',
+    contactPersonEmail: '',
+    shortDescription: '',
+    website: '',
+    linkedin: '',
+    teamEmails: []
   });
   
   const navigate = useNavigate();
-  const { user } = useAuth();
 
   const updateData = (newData: Partial<OnboardingData>) => {
     setData(prev => ({ ...prev, ...newData }));
@@ -88,24 +83,31 @@ export function OnboardingWizard() {
   const progress = (currentStep / 5) * 100;
 
   const stepTitles = [
-    "Unternehmensdaten",
+    "Über dich & dein Unternehmen",
     "Plan wählen", 
     "Zahlungsdetails",
-    "Unternehmensprofil",
-    "Erstes Anforderungsprofil"
+    "Profil einrichten",
+    "Team einladen"
   ];
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-4 py-8 max-w-4xl">
+    <div className="min-h-screen bg-gradient-to-br from-background via-accent/5 to-primary/5">
+      <div className="container mx-auto px-4 py-8 max-w-6xl">
         {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold mb-2">
-            Ihr Unternehmensprofil in wenigen Minuten erstellen
-          </h1>
-          <p className="text-muted-foreground">
-            Schritt {currentStep} von 5: {stepTitles[currentStep - 1]}
-          </p>
+        <div className="flex items-center justify-center mb-8">
+          <div className="flex items-center space-x-4">
+            <div className="w-12 h-12 bg-primary rounded-lg flex items-center justify-center">
+              <Building2 className="h-6 w-6 text-white" />
+            </div>
+            <div>
+              <h1 className="text-3xl font-bold text-foreground">
+                Endlich passende Mitarbeiter finden
+              </h1>
+              <p className="text-muted-foreground">
+                Schritt {currentStep} von 5: {stepTitles[currentStep - 1]}
+              </p>
+            </div>
+          </div>
         </div>
 
         {/* Progress Bar */}
@@ -113,7 +115,7 @@ export function OnboardingWizard() {
           <Progress value={progress} className="h-2" />
           <div className="flex justify-between mt-2 text-sm text-muted-foreground">
             {stepTitles.map((title, index) => (
-              <span key={index} className={index + 1 <= currentStep ? 'text-primary' : ''}>
+              <span key={index} className={index + 1 <= currentStep ? 'text-primary font-medium' : ''}>
                 {index + 1}
               </span>
             ))}
@@ -121,55 +123,56 @@ export function OnboardingWizard() {
         </div>
 
         {/* Step Content */}
-        <Card className="mb-8">
-          <CardContent className="p-8">
-            {currentStep === 1 && (
-              <OnboardingStep1 
-                data={data} 
-                updateData={updateData} 
-                onNext={nextStep}
-              />
-            )}
-            {currentStep === 2 && (
-              <OnboardingStep2 
-                data={data} 
-                updateData={updateData} 
-                onNext={nextStep}
-                onPrev={prevStep}
-              />
-            )}
-            {currentStep === 3 && (
-              <OnboardingStep3 
-                data={data} 
-                onNext={nextStep}
-                onPrev={prevStep}
-                onSkip={() => skipToStep(4)}
-              />
-            )}
-            {currentStep === 4 && (
-              <OnboardingStep4 
-                data={data} 
-                updateData={updateData} 
-                onNext={nextStep}
-                onPrev={prevStep}
-              />
-            )}
-            {currentStep === 5 && (
-              <OnboardingStep5 
-                data={data} 
-                updateData={updateData} 
-                onComplete={() => navigate('/company/dashboard')}
-                onPrev={prevStep}
-              />
-            )}
-          </CardContent>
-        </Card>
+        <div className="mb-8">
+          {currentStep === 1 && (
+            <OnboardingStep1 
+              data={data} 
+              updateData={updateData} 
+              onNext={nextStep}
+            />
+          )}
+          {currentStep === 2 && (
+            <OnboardingStep2 
+              data={data} 
+              updateData={updateData} 
+              onNext={nextStep}
+              onPrev={prevStep}
+            />
+          )}
+          {currentStep === 3 && (
+            <OnboardingStep3 
+              data={data} 
+              onNext={nextStep}
+              onPrev={prevStep}
+              onSkip={() => skipToStep(4)}
+            />
+          )}
+          {currentStep === 4 && (
+            <OnboardingStep4 
+              data={data} 
+              updateData={updateData} 
+              onNext={nextStep}
+              onPrev={prevStep}
+            />
+          )}
+          {currentStep === 5 && (
+            <OnboardingStep5 
+              data={data} 
+              updateData={updateData} 
+              onComplete={() => navigate('/company/dashboard')}
+              onPrev={prevStep}
+            />
+          )}
+        </div>
 
         {/* Save & Continue Later */}
         <div className="text-center">
-          <Button variant="ghost" onClick={() => navigate('/company/dashboard')}>
+          <button 
+            onClick={() => navigate('/company/dashboard')}
+            className="text-muted-foreground hover:text-foreground transition-colors"
+          >
             Speichern & später fortfahren
-          </Button>
+          </button>
         </div>
       </div>
     </div>

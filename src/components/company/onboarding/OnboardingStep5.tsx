@@ -2,223 +2,181 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Calendar } from '@/components/ui/calendar';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Checkbox } from '@/components/ui/checkbox';
-import { ArrowLeft, CalendarIcon, Briefcase } from 'lucide-react';
-import { format } from 'date-fns';
-import { de } from 'date-fns/locale';
-import { cn } from '@/lib/utils';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { ArrowLeft, Plus, X, Users, Check } from 'lucide-react';
 import { OnboardingData } from './OnboardingWizard';
-import { PLZOrtSelector } from '@/components/shared/PLZOrtSelector';
 import { useToast } from '@/hooks/use-toast';
 
 interface OnboardingStep5Props {
   data: OnboardingData;
-  updateData: (data: Partial<OnboardingData>) => void;
+  updateData: (newData: Partial<OnboardingData>) => void;
   onComplete: () => void;
   onPrev: () => void;
 }
 
 export function OnboardingStep5({ data, updateData, onComplete, onPrev }: OnboardingStep5Props) {
-  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [newEmail, setNewEmail] = useState('');
+  const [emailError, setEmailError] = useState('');
   const { toast } = useToast();
 
-  const requirementOptions = [
-    'Hauptschulabschluss',
-    'Realschulabschluss',
-    'Abitur',
-    'Führerschein B',
-    'Führerschein CE',
-    'Deutsch (B2)',
-    'Englisch (B1)',
-    'Handwerkliche Vorerfahrung',
-    'IT-Grundkenntnisse',
-    'Teamfähigkeit'
-  ];
-
-  const handleRequirementChange = (requirement: string, checked: boolean) => {
-    const newRequirements = checked 
-      ? [...data.requirements, requirement]
-      : data.requirements.filter(r => r !== requirement);
-    updateData({ requirements: newRequirements });
+  const addTeamEmail = () => {
+    if (!newEmail.trim()) {
+      setEmailError('E-Mail ist erforderlich');
+      return;
+    }
+    
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(newEmail)) {
+      setEmailError('Ungültige E-Mail-Adresse');
+      return;
+    }
+    
+    if (data.teamEmails.includes(newEmail)) {
+      setEmailError('E-Mail bereits hinzugefügt');
+      return;
+    }
+    
+    updateData({ teamEmails: [...data.teamEmails, newEmail] });
+    setNewEmail('');
+    setEmailError('');
   };
 
-  const validateStep = () => {
-    const newErrors: Record<string, string> = {};
-    
-    if (!data.jobTitle.trim()) {
-      newErrors.jobTitle = 'Berufsbezeichnung ist erforderlich';
-    }
-    if (data.positions < 1) {
-      newErrors.positions = 'Mindestens 1 Stelle erforderlich';
-    }
-    if (!data.jobLocation.trim()) {
-      newErrors.jobLocation = 'Standort ist erforderlich';
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+  const removeTeamEmail = (email: string) => {
+    updateData({ teamEmails: data.teamEmails.filter(e => e !== email) });
   };
 
   const handleComplete = () => {
-    if (validateStep()) {
-      toast({
-        title: "Onboarding abgeschlossen!",
-        description: "Ihr Unternehmensprofil wurde erfolgreich erstellt.",
-      });
-      onComplete();
-    } else {
-      toast({
-        title: "Bitte alle Pflichtfelder ausfüllen",
-        variant: "destructive",
-      });
-    }
+    toast({
+      title: "Willkommen!",
+      description: "Ihr Unternehmensprofil wurde erfolgreich erstellt.",
+    });
+    onComplete();
+  };
+
+  const handleSkip = () => {
+    onComplete();
   };
 
   return (
-    <div className="space-y-6">
-      <div className="text-center mb-8">
-        <div className="mx-auto w-16 h-16 bg-[hsl(var(--accent))] rounded-full flex items-center justify-center mb-4">
-          <Briefcase className="h-8 w-8 text-white" />
-        </div>
-        <h2 className="text-2xl font-semibold mb-2">Erstes Anforderungsprofil</h2>
-        <p className="text-muted-foreground">
-          Erstellen Sie Ihr erstes Stellenprofil und sehen Sie passende Kandidaten
+    <div className="space-y-8">
+      <div className="text-center space-y-2">
+        <h2 className="text-3xl font-bold">Team einladen</h2>
+        <p className="text-muted-foreground text-lg">
+          Laden Sie Kollegen ein, um gemeinsam Kandidaten zu finden (optional)
         </p>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2 max-w-4xl mx-auto">
-        {/* Job Title */}
-        <div className="space-y-2">
-          <Label htmlFor="jobTitle">Berufsbezeichnung *</Label>
-          <Input
-            id="jobTitle"
-            value={data.jobTitle}
-            onChange={(e) => updateData({ jobTitle: e.target.value })}
-            placeholder="z.B. Elektroniker/in für Betriebstechnik"
-            className={errors.jobTitle ? 'border-destructive' : ''}
-          />
-          {errors.jobTitle && (
-            <p className="text-sm text-destructive">{errors.jobTitle}</p>
-          )}
-        </div>
-
-        {/* Number of Positions */}
-        <div className="space-y-2">
-          <Label htmlFor="positions">Anzahl Stellen *</Label>
-          <Input
-            id="positions"
-            type="number"
-            min="1"
-            value={data.positions}
-            onChange={(e) => updateData({ positions: parseInt(e.target.value) || 1 })}
-            className={errors.positions ? 'border-destructive' : ''}
-          />
-          {errors.positions && (
-            <p className="text-sm text-destructive">{errors.positions}</p>
-          )}
-        </div>
-
-        {/* Location */}
-        <div className="space-y-2">
-          <Label>Standort *</Label>
-          <Input
-            value={data.jobLocation}
-            onChange={(e) => updateData({ jobLocation: e.target.value })}
-            placeholder="z.B. 10115 Berlin"
-            className={errors.jobLocation ? 'border-destructive' : ''}
-          />
-          {errors.jobLocation && (
-            <p className="text-sm text-destructive">{errors.jobLocation}</p>
-          )}
-        </div>
-
-        {/* Start Date */}
-        <div className="space-y-2">
-          <Label>Startdatum</Label>
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button
-                variant="outline"
-                className={cn(
-                  "w-full justify-start text-left font-normal",
-                  !data.startDate && "text-muted-foreground"
-                )}
-              >
-                <CalendarIcon className="mr-2 h-4 w-4" />
-                {data.startDate ? (
-                  format(data.startDate, "dd.MM.yyyy", { locale: de })
-                ) : (
-                  <span>Datum wählen</span>
-                )}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0" align="start">
-              <Calendar
-                mode="single"
-                selected={data.startDate || undefined}
-                onSelect={(date) => updateData({ startDate: date || null })}
-                initialFocus
-                className={cn("p-3 pointer-events-auto")}
-                locale={de}
-              />
-            </PopoverContent>
-          </Popover>
-        </div>
-
-        {/* Requirements */}
-        <div className="md:col-span-2 space-y-4">
-          <Label>Anforderungen</Label>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-            {requirementOptions.map((requirement) => (
-              <div key={requirement} className="flex items-center space-x-2">
-                <Checkbox
-                  id={requirement}
-                  checked={data.requirements.includes(requirement)}
-                  onCheckedChange={(checked) => handleRequirementChange(requirement, checked as boolean)}
+      <div className="max-w-2xl mx-auto space-y-6">
+        {/* Team Invitation Card */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Users className="h-5 w-5" />
+              Team-Mitglieder einladen
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {/* Add Email Input */}
+            <div className="flex gap-2">
+              <div className="flex-1 space-y-2">
+                <Label htmlFor="teamEmail">E-Mail-Adresse</Label>
+                <Input
+                  id="teamEmail"
+                  type="email"
+                  value={newEmail}
+                  onChange={(e) => setNewEmail(e.target.value)}
+                  onKeyPress={(e) => e.key === 'Enter' && addTeamEmail()}
+                  placeholder="kollege@unternehmen.de"
+                  className={emailError ? "border-destructive" : ""}
                 />
-                <Label htmlFor={requirement} className="text-sm">
-                  {requirement}
-                </Label>
+                {emailError && (
+                  <p className="text-sm text-destructive">{emailError}</p>
+                )}
               </div>
-            ))}
-          </div>
-        </div>
-      </div>
+              <div className="pt-7">
+                <Button onClick={addTeamEmail}>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Hinzufügen
+                </Button>
+              </div>
+            </div>
 
-      {/* Summary */}
-      <div className="max-w-2xl mx-auto">
-        <div className="bg-muted/50 rounded-lg p-6 space-y-3">
-          <h3 className="font-semibold text-center mb-4">Zusammenfassung</h3>
-          <div className="grid gap-2 text-sm">
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Position:</span>
-              <span>{data.jobTitle || 'Nicht angegeben'}</span>
+            {/* Team Email List */}
+            {data.teamEmails.length > 0 && (
+              <div className="space-y-3">
+                <Label>Eingeladene Team-Mitglieder ({data.teamEmails.length})</Label>
+                <div className="space-y-2">
+                  {data.teamEmails.map((email, index) => (
+                    <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
+                      <span className="text-sm">{email}</span>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => removeTeamEmail(email)}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Info Box */}
+            <div className="bg-muted/50 p-4 rounded-lg">
+              <div className="flex items-start gap-3">
+                <div className="mt-0.5">
+                  <div className="w-5 h-5 bg-primary rounded-full flex items-center justify-center">
+                    <Check className="h-3 w-3 text-white" />
+                  </div>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-sm font-medium">Was passiert als nächstes?</p>
+                  <ul className="text-sm text-muted-foreground space-y-1">
+                    <li>• Ihre Kollegen erhalten eine Einladung per E-Mail</li>
+                    <li>• Sie können direkt auf Ihr Unternehmensprofil zugreifen</li>
+                    <li>• Gemeinsam können Sie Kandidaten suchen und verwalten</li>
+                  </ul>
+                </div>
+              </div>
             </div>
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Anzahl:</span>
-              <span>{data.positions} Stelle{data.positions > 1 ? 'n' : ''}</span>
+          </CardContent>
+        </Card>
+
+        {/* Summary Card */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Zusammenfassung</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-2 gap-4 text-sm">
+              <div>
+                <span className="font-medium">Unternehmen:</span>
+                <p className="text-muted-foreground">{data.companyName}</p>
+              </div>
+              <div>
+                <span className="font-medium">Plan:</span>
+                <Badge variant={data.selectedPlan === 'free' ? 'outline' : 'default'}>
+                  {data.selectedPlan === 'free' ? 'Free' : data.selectedPlan === 'starter' ? 'Starter' : 'Premium'}
+                </Badge>
+              </div>
+              <div>
+                <span className="font-medium">Kontakt:</span>
+                <p className="text-muted-foreground">{data.firstName} {data.lastName}</p>
+              </div>
+              <div>
+                <span className="font-medium">Suchen nach:</span>
+                <div className="flex flex-wrap gap-1 mt-1">
+                  {data.lookingFor.map(item => (
+                    <Badge key={item} variant="outline" className="text-xs">
+                      {item}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
             </div>
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Standort:</span>
-              <span>{data.jobLocation || 'Nicht angegeben'}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Start:</span>
-              <span>
-                {data.startDate 
-                  ? format(data.startDate, "dd.MM.yyyy", { locale: de })
-                  : 'Flexibel'
-                }
-              </span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Anforderungen:</span>
-              <span>{data.requirements.length} ausgewählt</span>
-            </div>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
       </div>
 
       <div className="flex justify-between pt-6">
@@ -226,13 +184,14 @@ export function OnboardingStep5({ data, updateData, onComplete, onPrev }: Onboar
           <ArrowLeft className="h-4 w-4 mr-2" />
           Zurück
         </Button>
-        
-        <Button 
-          onClick={handleComplete}
-          className="bg-[hsl(var(--accent))] hover:bg-[hsl(var(--accent-hover))] text-white px-8"
-        >
-          Matches anzeigen
-        </Button>
+        <div className="flex gap-3">
+          <Button variant="outline" onClick={handleSkip}>
+            Später erledigen
+          </Button>
+          <Button onClick={handleComplete} className="px-8">
+            Fertig & Profil ansehen
+          </Button>
+        </div>
       </div>
     </div>
   );
