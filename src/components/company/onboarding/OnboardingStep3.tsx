@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowLeft, CreditCard, CheckCircle } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
+import { ArrowLeft, CreditCard, Shield, Check } from 'lucide-react';
 import { OnboardingData } from './OnboardingWizard';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -63,65 +63,89 @@ export function OnboardingStep3({ data, onNext, onPrev, onSkip }: OnboardingStep
   };
 
   return (
-    <div className="space-y-6">
-      <div className="text-center mb-8">
-        <h2 className="text-2xl font-semibold mb-2">Zahlungsdetails hinterlegen</h2>
-        <p className="text-muted-foreground">
-          Für {planNames[data.selectedPlan as keyof typeof planNames]} benötigen wir eine Zahlungsmethode.
-        </p>
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-black to-slate-900 flex items-center justify-center py-20">
+      <div className="w-full max-w-md mx-auto px-4">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <div className="text-sm text-green-400 font-medium tracking-wide uppercase mb-2">
+            ZAHLUNGSDETAILS
+          </div>
+          <h1 className="text-4xl font-bold text-white mb-4">
+            Sichere Zahlung
+          </h1>
+          <p className="text-slate-300 text-lg">
+            Für {planNames[data.selectedPlan as keyof typeof planNames]} benötigen wir eine Zahlungsmethode.
+          </p>
+        </div>
 
-      <Card className="max-w-md mx-auto">
-        <CardHeader className="text-center">
-          <div className="mx-auto w-16 h-16 bg-[hsl(var(--accent))] rounded-full flex items-center justify-center mb-4">
-            <CreditCard className="h-8 w-8 text-white" />
-          </div>
-          <CardTitle>Sichere Zahlung mit Stripe</CardTitle>
-        </CardHeader>
-        
-        <CardContent className="space-y-4">
-          <div className="text-center text-sm text-muted-foreground space-y-2">
-            <p>Ihre Zahlungsdaten werden sicher über Stripe verarbeitet.</p>
-            <p>✓ SSL-verschlüsselt</p>
-            <p>✓ PCI-DSS konform</p>
-            <p>✓ Keine Kartendaten gespeichert</p>
-          </div>
-          
-          <Button 
-            onClick={handleStripeSetup}
-            disabled={loading}
-            className="w-full bg-[hsl(var(--accent))] hover:bg-[hsl(var(--accent-hover))] text-white"
-          >
-            {loading ? (
-              <>
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                Wird geladen...
-              </>
-            ) : (
-              <>
-                <CreditCard className="h-4 w-4 mr-2" />
-                Kreditkarte hinzufügen
-              </>
-            )}
-          </Button>
-          
-          <div className="text-center">
+        {/* Payment Card */}
+        <Card className="bg-white/10 backdrop-blur-lg border-white/20 shadow-2xl mb-8">
+          <CardContent className="p-8 text-center space-y-6">
+            <div className="mx-auto w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mb-6">
+              <CreditCard className="h-8 w-8 text-white" />
+            </div>
+            
+            <div>
+              <h3 className="text-xl font-bold text-white mb-2">Sichere Zahlung mit Stripe</h3>
+              <p className="text-white/60">Ihre Zahlungsdaten werden sicher verarbeitet</p>
+            </div>
+
+            {/* Security Features */}
+            <div className="space-y-3 text-left">
+              <div className="flex items-center gap-3">
+                <Shield className="h-4 w-4 text-green-400" />
+                <span className="text-white/80 text-sm">SSL-verschlüsselt</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <Shield className="h-4 w-4 text-green-400" />
+                <span className="text-white/80 text-sm">PCI-DSS konform</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <Shield className="h-4 w-4 text-green-400" />
+                <span className="text-white/80 text-sm">Keine Kartendaten gespeichert</span>
+              </div>
+            </div>
+            
+            <Button 
+              onClick={handleStripeSetup}
+              disabled={loading}
+              className="w-full bg-green-400 text-black hover:bg-green-500 py-3"
+              size="lg"
+            >
+              {loading ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-black mr-2"></div>
+                  Wird geladen...
+                </>
+              ) : (
+                <>
+                  <CreditCard className="h-4 w-4 mr-2" />
+                  Kreditkarte hinzufügen
+                </>
+              )}
+            </Button>
+            
             <Button 
               variant="ghost" 
               onClick={onNext}
-              className="text-sm"
+              className="text-white/60 hover:text-white"
             >
               Später einrichten
             </Button>
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
 
-      <div className="flex justify-between pt-6">
-        <Button variant="outline" onClick={onPrev}>
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Zurück
-        </Button>
+        {/* Navigation */}
+        <div className="flex justify-center">
+          <Button 
+            variant="outline" 
+            onClick={onPrev}
+            className="bg-white/10 border-white/20 text-white hover:bg-white/20"
+          >
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Zurück
+          </Button>
+        </div>
       </div>
     </div>
   );

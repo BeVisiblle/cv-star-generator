@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, Check, Star, Zap, Target } from 'lucide-react';
 import { OnboardingData } from './OnboardingWizard';
@@ -147,103 +147,118 @@ export function OnboardingStep2({ data, updateData, onNext, onPrev }: Onboarding
   ];
 
   return (
-    <div className="space-y-8">
-      <div className="text-center space-y-4">
-        <h2 className="text-3xl font-bold">Wähle deinen Plan</h2>
-        <p className="text-muted-foreground text-lg">
-          Preise basieren auf Unternehmensgröße ({data.companySize}) & Bedarf ({data.lookingFor.join(', ')})
-        </p>
-        <div className="text-sm text-muted-foreground flex items-center justify-center gap-2">
-          <span>zzgl. USt., monatlich kündbar</span>
-          <Badge variant="outline" className="text-xs">
-            Preis basiert auf Unternehmensgröße & Bedarf
-          </Badge>
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-black to-slate-900 flex items-center justify-center py-20">
+      <div className="w-full max-w-5xl mx-auto px-4">
+        {/* Header */}
+        <div className="text-center mb-12">
+          <div className="text-sm text-green-400 font-medium tracking-wide uppercase mb-2">
+            PLAN AUSWÄHLEN
+          </div>
+          <h1 className="text-4xl font-bold text-white mb-4">
+            Wähle deinen Plan
+          </h1>
+          <p className="text-slate-300 text-lg mb-4">
+            Preise basieren auf Unternehmensgröße ({data.companySize}) & Bedarf ({data.lookingFor.join(', ')})
+          </p>
+          <div className="text-sm text-white/60">
+            zzgl. USt., monatlich kündbar
+          </div>
         </div>
-      </div>
 
-      <div className="grid md:grid-cols-3 gap-6">
-        {plans.map((plan) => {
-          const IconComponent = plan.icon;
-          return (
-            <Card 
-              key={plan.id} 
-              className={`relative transition-all duration-200 hover:shadow-lg ${
-                plan.highlighted ? 'border-primary ring-2 ring-primary/20' : ''
-              }`}
-            >
-              {plan.highlighted && (
-                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                  <Badge className="bg-primary text-primary-foreground">
-                    Empfohlen
-                  </Badge>
-                </div>
-              )}
-              
-              <CardHeader className="text-center pb-2">
-                <div className="mx-auto w-12 h-12 bg-accent rounded-full flex items-center justify-center mb-4">
-                  <IconComponent className="h-6 w-6 text-accent-foreground" />
-                </div>
-                <CardTitle className="text-xl">{plan.name}</CardTitle>
-                <p className="text-sm text-muted-foreground">{plan.description}</p>
-                <div className="space-y-1">
-                  <div className="text-3xl font-bold">
-                    {plan.price === 0 ? 'Kostenlos' : `€${plan.price}`}
+        {/* Plan Cards */}
+        <div className="grid md:grid-cols-3 gap-6 mb-12">
+          {plans.map((plan) => {
+            const IconComponent = plan.icon;
+            return (
+              <Card 
+                key={plan.id} 
+                className={`relative bg-white/10 backdrop-blur-lg border-white/20 shadow-2xl transition-all duration-200 hover:bg-white/15 ${
+                  plan.highlighted ? 'ring-2 ring-green-400/50 border-green-400/30' : ''
+                }`}
+              >
+                {plan.highlighted && (
+                  <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                    <Badge className="bg-green-400 text-black font-medium">
+                      Empfohlen
+                    </Badge>
                   </div>
-                  {plan.price > 0 && (
-                    <div className="text-sm text-muted-foreground">
-                      pro Monat, netto
-                    </div>
-                  )}
-                </div>
-              </CardHeader>
-              
-              <CardContent className="space-y-4">
-                <ul className="space-y-3">
-                  {plan.features.map((feature, index) => (
-                    <li key={index} className="flex items-start gap-2">
-                      <Check className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
-                      <span className="text-sm">{feature}</span>
-                    </li>
-                  ))}
-                </ul>
+                )}
                 
-                <Button 
-                  onClick={() => handlePlanSelect(plan.id as 'free' | 'starter' | 'premium')}
-                  variant={plan.highlighted ? "default" : "outline"}
-                  className="w-full h-11"
-                  disabled={loading}
-                >
-                  {loading ? (
-                    <>
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current mr-2"></div>
-                      Wird geladen...
-                    </>
-                  ) : (
-                    `${plan.name} wählen`
-                  )}
-                </Button>
-              </CardContent>
-            </Card>
-          );
-        })}
-      </div>
+                <CardContent className="p-8 text-center">
+                  <div className="mx-auto w-12 h-12 bg-white/20 rounded-full flex items-center justify-center mb-6">
+                    <IconComponent className="h-6 w-6 text-white" />
+                  </div>
+                  
+                  <h3 className="text-xl font-bold text-white mb-2">{plan.name}</h3>
+                  <p className="text-white/60 text-sm mb-6">{plan.description}</p>
+                  
+                  <div className="mb-8">
+                    <div className="text-4xl font-bold text-white mb-2">
+                      {plan.price === 0 ? 'Kostenlos' : `€${plan.price}`}
+                    </div>
+                    {plan.price > 0 && (
+                      <div className="text-white/60 text-sm">
+                        pro Monat, netto
+                      </div>
+                    )}
+                  </div>
+                  
+                  <ul className="space-y-3 mb-8 text-left">
+                    {plan.features.map((feature, index) => (
+                      <li key={index} className="flex items-start gap-3">
+                        <Check className="h-4 w-4 text-green-400 mt-0.5 flex-shrink-0" />
+                        <span className="text-white/80 text-sm">{feature}</span>
+                      </li>
+                    ))}
+                  </ul>
+                  
+                  <Button 
+                    onClick={() => handlePlanSelect(plan.id as 'free' | 'starter' | 'premium')}
+                    variant={plan.highlighted ? "default" : "outline"}
+                    className={`w-full h-12 ${
+                      plan.highlighted 
+                        ? 'bg-green-400 text-black hover:bg-green-500' 
+                        : 'bg-white/10 border-white/20 text-white hover:bg-white/20'
+                    }`}
+                    disabled={loading}
+                  >
+                    {loading ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current mr-2"></div>
+                        Wird geladen...
+                      </>
+                    ) : (
+                      `${plan.name} wählen`
+                    )}
+                  </Button>
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
 
-      <div className="flex justify-between items-center pt-6">
-        <Button variant="outline" onClick={onPrev}>
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Zurück
-        </Button>
-        
-        <div className="text-sm text-muted-foreground">
-          Mit deiner Auswahl stimmst du unseren{' '}
-          <a href="/agb" target="_blank" className="text-primary hover:underline">
-            AGB
-          </a>{' '}
-          &{' '}
-          <a href="/datenschutz" target="_blank" className="text-primary hover:underline">
-            Datenschutz
-          </a>{' '}
-          zu.
+        {/* Footer */}
+        <div className="flex justify-between items-center">
+          <Button 
+            variant="outline" 
+            onClick={onPrev}
+            className="bg-white/10 border-white/20 text-white hover:bg-white/20"
+          >
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Zurück
+          </Button>
+          
+          <div className="text-sm text-white/60 text-center">
+            Mit deiner Auswahl stimmst du unseren{' '}
+            <a href="/agb" target="_blank" className="text-green-400 hover:underline">
+              AGB
+            </a>{' '}
+            &{' '}
+            <a href="/datenschutz" target="_blank" className="text-green-400 hover:underline">
+              Datenschutz
+            </a>{' '}
+            zu.
+          </div>
         </div>
       </div>
     </div>
