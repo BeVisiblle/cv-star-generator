@@ -103,6 +103,60 @@ export type Database = {
           },
         ]
       }
+      app_settings: {
+        Row: {
+          id: boolean
+          require_password_after_verify: boolean
+        }
+        Insert: {
+          id?: boolean
+          require_password_after_verify?: boolean
+        }
+        Update: {
+          id?: boolean
+          require_password_after_verify?: boolean
+        }
+        Relationships: []
+      }
+      billing_events: {
+        Row: {
+          created_at: string
+          event_type: string
+          id: string
+          org_id: string | null
+          payload: Json
+        }
+        Insert: {
+          created_at?: string
+          event_type: string
+          id?: string
+          org_id?: string | null
+          payload?: Json
+        }
+        Update: {
+          created_at?: string
+          event_type?: string
+          id?: string
+          org_id?: string | null
+          payload?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "billing_events_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "billing_events_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "company_need_quota"
+            referencedColumns: ["company_id"]
+          },
+        ]
+      }
       blocks: {
         Row: {
           blocked_id: string
@@ -403,6 +457,8 @@ export type Database = {
           onboarding_completed: boolean | null
           package_id: string | null
           phone: string | null
+          plan: Database["public"]["Enums"]["plan_code"] | null
+          plan_status: string | null
           plan_type: string | null
           primary_email: string | null
           seats: number | null
@@ -444,6 +500,8 @@ export type Database = {
           onboarding_completed?: boolean | null
           package_id?: string | null
           phone?: string | null
+          plan?: Database["public"]["Enums"]["plan_code"] | null
+          plan_status?: string | null
           plan_type?: string | null
           primary_email?: string | null
           seats?: number | null
@@ -485,6 +543,8 @@ export type Database = {
           onboarding_completed?: boolean | null
           package_id?: string | null
           phone?: string | null
+          plan?: Database["public"]["Enums"]["plan_code"] | null
+          plan_status?: string | null
           plan_type?: string | null
           primary_email?: string | null
           seats?: number | null
@@ -1928,6 +1988,144 @@ export type Database = {
           type?: Database["public"]["Enums"]["notif_type"]
         }
         Relationships: []
+      }
+      onboarding_sessions: {
+        Row: {
+          claimed_by: string | null
+          completed: boolean
+          created_at: string
+          email: string
+          id: string
+          org_id: string | null
+          payload: Json
+          selected_plan: Database["public"]["Enums"]["plan_code"] | null
+          stripe_status: string | null
+          updated_at: string
+        }
+        Insert: {
+          claimed_by?: string | null
+          completed?: boolean
+          created_at?: string
+          email: string
+          id?: string
+          org_id?: string | null
+          payload?: Json
+          selected_plan?: Database["public"]["Enums"]["plan_code"] | null
+          stripe_status?: string | null
+          updated_at?: string
+        }
+        Update: {
+          claimed_by?: string | null
+          completed?: boolean
+          created_at?: string
+          email?: string
+          id?: string
+          org_id?: string | null
+          payload?: Json
+          selected_plan?: Database["public"]["Enums"]["plan_code"] | null
+          stripe_status?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "onboarding_sessions_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "onboarding_sessions_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "company_need_quota"
+            referencedColumns: ["company_id"]
+          },
+        ]
+      }
+      org_entitlements: {
+        Row: {
+          ads_enabled: boolean
+          created_at: string
+          job_postings_limit: number
+          matching_tier: string | null
+          org_id: string
+          unlock_tokens_total: number
+          unlock_tokens_used: number
+          updated_at: string
+        }
+        Insert: {
+          ads_enabled?: boolean
+          created_at?: string
+          job_postings_limit?: number
+          matching_tier?: string | null
+          org_id: string
+          unlock_tokens_total?: number
+          unlock_tokens_used?: number
+          updated_at?: string
+        }
+        Update: {
+          ads_enabled?: boolean
+          created_at?: string
+          job_postings_limit?: number
+          matching_tier?: string | null
+          org_id?: string
+          unlock_tokens_total?: number
+          unlock_tokens_used?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "org_entitlements_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: true
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "org_entitlements_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: true
+            referencedRelation: "company_need_quota"
+            referencedColumns: ["company_id"]
+          },
+        ]
+      }
+      org_preferences: {
+        Row: {
+          created_at: string
+          looking_for: Database["public"]["Enums"]["looking_tag"][]
+          org_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          looking_for?: Database["public"]["Enums"]["looking_tag"][]
+          org_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          looking_for?: Database["public"]["Enums"]["looking_tag"][]
+          org_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "org_preferences_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: true
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "org_preferences_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: true
+            referencedRelation: "company_need_quota"
+            referencedColumns: ["company_id"]
+          },
+        ]
       }
       page_revisions: {
         Row: {
@@ -3532,6 +3730,14 @@ export type Database = {
       }
     }
     Functions: {
+      _add_col_if_missing: {
+        Args: {
+          p_column_def: string
+          p_column_name: string
+          p_table_name: string
+        }
+        Returns: undefined
+      }
       _postgis_deprecate: {
         Args: { newname: string; oldname: string; version: string }
         Returns: undefined
@@ -5829,8 +6035,10 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "editor" | "viewer"
+      company_size_band: "1-9" | "10-49" | "50-249" | "250-999" | "1000+"
       follow_entity: "profile" | "company"
       follow_status: "pending" | "accepted" | "rejected" | "blocked"
+      looking_tag: "Praktikanten" | "Auszubildende" | "Fachkräfte"
       notif_channel: "in_app" | "email"
       notif_recipient: "profile" | "company"
       notif_type:
@@ -5848,6 +6056,7 @@ export type Database = {
         | "weekly_digest_company"
         | "billing_update"
         | "product_update"
+      plan_code: "free" | "starter" | "premium"
       tag_type:
         | "profession"
         | "target_group"
@@ -5991,8 +6200,10 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "editor", "viewer"],
+      company_size_band: ["1-9", "10-49", "50-249", "250-999", "1000+"],
       follow_entity: ["profile", "company"],
       follow_status: ["pending", "accepted", "rejected", "blocked"],
+      looking_tag: ["Praktikanten", "Auszubildende", "Fachkräfte"],
       notif_channel: ["in_app", "email"],
       notif_recipient: ["profile", "company"],
       notif_type: [
@@ -6011,6 +6222,7 @@ export const Constants = {
         "billing_update",
         "product_update",
       ],
+      plan_code: ["free", "starter", "premium"],
       tag_type: [
         "profession",
         "target_group",
