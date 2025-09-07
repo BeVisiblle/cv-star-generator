@@ -1557,6 +1557,108 @@ export type Database = {
         }
         Relationships: []
       }
+      job_posts: {
+        Row: {
+          category: string | null
+          city: string | null
+          company_id: string
+          country: string | null
+          created_at: string
+          description_md: string | null
+          duration_months: number | null
+          employment: string | null
+          hours_per_week_max: number | null
+          hours_per_week_min: number | null
+          id: string
+          is_active: boolean
+          is_public: boolean
+          postal_code: string | null
+          published_at: string | null
+          requirements_md: string | null
+          salary_currency: string | null
+          salary_interval: string | null
+          salary_max: number | null
+          salary_min: number | null
+          slug: string | null
+          state: string | null
+          tasks_md: string | null
+          title: string
+          updated_at: string
+          work_mode: string | null
+        }
+        Insert: {
+          category?: string | null
+          city?: string | null
+          company_id: string
+          country?: string | null
+          created_at?: string
+          description_md?: string | null
+          duration_months?: number | null
+          employment?: string | null
+          hours_per_week_max?: number | null
+          hours_per_week_min?: number | null
+          id?: string
+          is_active?: boolean
+          is_public?: boolean
+          postal_code?: string | null
+          published_at?: string | null
+          requirements_md?: string | null
+          salary_currency?: string | null
+          salary_interval?: string | null
+          salary_max?: number | null
+          salary_min?: number | null
+          slug?: string | null
+          state?: string | null
+          tasks_md?: string | null
+          title: string
+          updated_at?: string
+          work_mode?: string | null
+        }
+        Update: {
+          category?: string | null
+          city?: string | null
+          company_id?: string
+          country?: string | null
+          created_at?: string
+          description_md?: string | null
+          duration_months?: number | null
+          employment?: string | null
+          hours_per_week_max?: number | null
+          hours_per_week_min?: number | null
+          id?: string
+          is_active?: boolean
+          is_public?: boolean
+          postal_code?: string | null
+          published_at?: string | null
+          requirements_md?: string | null
+          salary_currency?: string | null
+          salary_interval?: string | null
+          salary_max?: number | null
+          salary_min?: number | null
+          slug?: string | null
+          state?: string | null
+          tasks_md?: string | null
+          title?: string
+          updated_at?: string
+          work_mode?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "job_posts_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "job_posts_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "company_need_quota"
+            referencedColumns: ["company_id"]
+          },
+        ]
+      }
       languages: {
         Row: {
           code: string | null
@@ -3110,6 +3212,99 @@ export type Database = {
         }
         Relationships: []
       }
+      requirement_profiles: {
+        Row: {
+          category: string
+          city: string | null
+          company_id: string
+          country: string | null
+          created_at: string
+          description_md: string | null
+          duration_months: number | null
+          employment: string | null
+          hours_per_week_max: number | null
+          hours_per_week_min: number | null
+          id: string
+          postal_code: string | null
+          ready_for_publish: boolean
+          requirements_md: string | null
+          salary_currency: string | null
+          salary_interval: string | null
+          salary_max: number | null
+          salary_min: number | null
+          state: string | null
+          tasks_md: string | null
+          title: string
+          updated_at: string
+          work_mode: string | null
+        }
+        Insert: {
+          category?: string
+          city?: string | null
+          company_id: string
+          country?: string | null
+          created_at?: string
+          description_md?: string | null
+          duration_months?: number | null
+          employment?: string | null
+          hours_per_week_max?: number | null
+          hours_per_week_min?: number | null
+          id?: string
+          postal_code?: string | null
+          ready_for_publish?: boolean
+          requirements_md?: string | null
+          salary_currency?: string | null
+          salary_interval?: string | null
+          salary_max?: number | null
+          salary_min?: number | null
+          state?: string | null
+          tasks_md?: string | null
+          title: string
+          updated_at?: string
+          work_mode?: string | null
+        }
+        Update: {
+          category?: string
+          city?: string | null
+          company_id?: string
+          country?: string | null
+          created_at?: string
+          description_md?: string | null
+          duration_months?: number | null
+          employment?: string | null
+          hours_per_week_max?: number | null
+          hours_per_week_min?: number | null
+          id?: string
+          postal_code?: string | null
+          ready_for_publish?: boolean
+          requirements_md?: string | null
+          salary_currency?: string | null
+          salary_interval?: string | null
+          salary_max?: number | null
+          salary_min?: number | null
+          state?: string | null
+          tasks_md?: string | null
+          title?: string
+          updated_at?: string
+          work_mode?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "requirement_profiles_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "requirement_profiles_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "company_need_quota"
+            referencedColumns: ["company_id"]
+          },
+        ]
+      }
       school_types: {
         Row: {
           category: string | null
@@ -4066,6 +4261,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: string
       }
+      ensure_job_slug: {
+        Args: { p_job: string }
+        Returns: string
+      }
       equals: {
         Args: { geom1: unknown; geom2: unknown }
         Returns: boolean
@@ -4836,6 +5035,10 @@ export type Database = {
           skills: string[]
         }[]
       }
+      publish_requirement_profile: {
+        Args: { p_profile: string; p_public?: boolean }
+        Returns: string
+      }
       purchase_tokens: {
         Args: { _client_request_id?: string; _company_id: string; _qty: number }
         Returns: {
@@ -4886,6 +5089,10 @@ export type Database = {
       show_trgm: {
         Args: { "": string }
         Returns: string[]
+      }
+      slugify: {
+        Args: { txt: string }
+        Returns: string
       }
       spheroid_in: {
         Args: { "": unknown }
