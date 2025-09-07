@@ -3894,6 +3894,13 @@ export type Database = {
             }
         Returns: string
       }
+      apply_entitlements: {
+        Args: {
+          p_org_id: string
+          p_plan: Database["public"]["Enums"]["plan_code"]
+        }
+        Returns: undefined
+      }
       approve_join_request: {
         Args: { approve: boolean; request_id: string }
         Returns: boolean
@@ -4062,6 +4069,10 @@ export type Database = {
       equals: {
         Args: { geom1: unknown; geom2: unknown }
         Returns: boolean
+      }
+      finalize_onboarding_from_session: {
+        Args: { p_session: string }
+        Returns: string
       }
       find_locations_within_radius: {
         Args: { p_center_location_id: number; p_radius_km: number }
@@ -4611,6 +4622,10 @@ export type Database = {
           reasons: string[]
           score: number
         }[]
+      }
+      must_set_password: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
       }
       path: {
         Args: { "": unknown }
