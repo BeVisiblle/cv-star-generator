@@ -519,8 +519,8 @@ export const LinkedInProfileSidebar: React.FC<LinkedInProfileSidebarProps> = ({
     }
   };
   return <div className="space-y-6">
-      {/* CV Section - Show only if allowed */}
-      {showCVSection && (
+      {/* CV Section - Always show CV for everyone */}
+      {(
         <Card>
           <CardHeader>
             <CardTitle className="text-lg font-semibold flex items-center justify-between flex-wrap gap-2">
@@ -577,7 +577,7 @@ export const LinkedInProfileSidebar: React.FC<LinkedInProfileSidebarProps> = ({
               </div>
             )}
           </CardContent>
-        </Card>
+         </Card>
       )}
 
       {/* Document Section - Show for companies or if documents exist or not readonly */}
