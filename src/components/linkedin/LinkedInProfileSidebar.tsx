@@ -27,6 +27,7 @@ interface LinkedInProfileSidebarProps {
   showLanguagesAndSkills?: boolean;
   showLicenseAndStats?: boolean;
   showCVSection?: boolean;
+  isCompanyViewing?: boolean;
 }
 interface UserDocument {
   id: string;
@@ -44,7 +45,8 @@ export const LinkedInProfileSidebar: React.FC<LinkedInProfileSidebarProps> = ({
   readOnly = false,
   showLanguagesAndSkills = true,
   showLicenseAndStats = true,
-  showCVSection = true
+  showCVSection = true,
+  isCompanyViewing = false
 }) => {
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
   const [userDocuments, setUserDocuments] = useState<UserDocument[]>([]);
@@ -578,8 +580,8 @@ export const LinkedInProfileSidebar: React.FC<LinkedInProfileSidebarProps> = ({
         </Card>
       )}
 
-      {/* Document Section - Show if documents exist or not readonly */}
-      {(!readOnly || userDocuments.length > 0) && <Card>
+      {/* Document Section - Show for companies or if documents exist or not readonly */}
+      {(isCompanyViewing || !readOnly || userDocuments.length > 0) && <Card>
           <CardHeader>
             <CardTitle className="text-lg font-semibold">
               {readOnly ? "Zeugnisse & Zertifikate" : "Dokumente hochladen"}
@@ -621,8 +623,8 @@ export const LinkedInProfileSidebar: React.FC<LinkedInProfileSidebarProps> = ({
       {/* Contact Information */}
       
 
-      {/* Languages */}
-{showLanguagesAndSkills && (
+      {/* Languages - Only show if data exists or not readonly */}
+{showLanguagesAndSkills && (profile?.sprachen?.length > 0 || !readOnly) && (
   <Card>
     <CardHeader>
       <CardTitle className="text-lg font-semibold">Sprachen</CardTitle>
@@ -640,7 +642,7 @@ export const LinkedInProfileSidebar: React.FC<LinkedInProfileSidebarProps> = ({
               </div>
             ))
           ) : (
-            <p className="text-muted-foreground text-sm">Keine Sprachen hinzugefügt</p>
+            !readOnly && <p className="text-muted-foreground text-sm">Keine Sprachen hinzugefügt</p>
           )}
         </div>
       )}
@@ -648,8 +650,8 @@ export const LinkedInProfileSidebar: React.FC<LinkedInProfileSidebarProps> = ({
   </Card>
 )}
 
-      {/* Skills */}
-{showLanguagesAndSkills && (
+      {/* Skills - Only show if data exists or not readonly */}
+{showLanguagesAndSkills && (profile?.faehigkeiten?.length > 0 || !readOnly) && (
   <Card>
     <CardHeader>
       <CardTitle className="text-lg font-semibold">Fähigkeiten</CardTitle>
@@ -666,7 +668,7 @@ export const LinkedInProfileSidebar: React.FC<LinkedInProfileSidebarProps> = ({
               </Badge>
             ))
           ) : (
-            <p className="text-muted-foreground text-sm">Keine Fähigkeiten hinzugefügt</p>
+            !readOnly && <p className="text-muted-foreground text-sm">Keine Fähigkeiten hinzugefügt</p>
           )}
         </div>
       )}
@@ -674,8 +676,8 @@ export const LinkedInProfileSidebar: React.FC<LinkedInProfileSidebarProps> = ({
   </Card>
 )}
 
-      {/* Driver's License */}
-{showLicenseAndStats && (
+      {/* Driver's License - Only show if data exists or not readonly */}
+{showLicenseAndStats && (profile?.has_drivers_license !== null && profile?.has_drivers_license !== undefined || !readOnly) && (
   <Card>
     <CardHeader>
       <CardTitle className="text-lg font-semibold">Führerschein</CardTitle>
@@ -692,7 +694,7 @@ export const LinkedInProfileSidebar: React.FC<LinkedInProfileSidebarProps> = ({
         ) : profile?.has_drivers_license === false ? (
           <p className="text-muted-foreground text-sm">Kein Führerschein vorhanden</p>
         ) : (
-          <p className="text-muted-foreground text-sm">Führerschein-Status nicht angegeben</p>
+          !readOnly && <p className="text-muted-foreground text-sm">Führerschein-Status nicht angegeben</p>
         )}
       </div>
     </CardContent>
