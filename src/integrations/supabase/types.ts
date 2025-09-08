@@ -1724,89 +1724,473 @@ export type Database = {
         }
         Relationships: []
       }
+      job_certifications: {
+        Row: {
+          certification_name: string
+          created_at: string | null
+          id: string
+          is_required: boolean | null
+          issuing_authority: string | null
+          job_id: string | null
+        }
+        Insert: {
+          certification_name: string
+          created_at?: string | null
+          id?: string
+          is_required?: boolean | null
+          issuing_authority?: string | null
+          job_id?: string | null
+        }
+        Update: {
+          certification_name?: string
+          created_at?: string | null
+          id?: string
+          is_required?: boolean | null
+          issuing_authority?: string | null
+          job_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "job_certifications_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "job_posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "job_certifications_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "public_job_listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      job_driving_licenses: {
+        Row: {
+          created_at: string | null
+          id: string
+          is_required: boolean | null
+          job_id: string | null
+          license_class: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          is_required?: boolean | null
+          job_id?: string | null
+          license_class: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          is_required?: boolean | null
+          job_id?: string | null
+          license_class?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "job_driving_licenses_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "job_posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "job_driving_licenses_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "public_job_listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      job_languages: {
+        Row: {
+          created_at: string | null
+          id: string
+          is_required: boolean | null
+          job_id: string | null
+          language: string
+          level: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          is_required?: boolean | null
+          job_id?: string | null
+          language: string
+          level?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          is_required?: boolean | null
+          job_id?: string | null
+          language?: string
+          level?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "job_languages_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "job_posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "job_languages_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "public_job_listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      job_post_apprenticeships: {
+        Row: {
+          apprenticeship_profession: string
+          chamber: string | null
+          created_at: string | null
+          duration_months: number | null
+          exam_support: boolean | null
+          id: string
+          job_id: string | null
+          minimum_education: string | null
+          rotation_plan: string | null
+          salary_year_1_cents: number | null
+          salary_year_2_cents: number | null
+          salary_year_3_cents: number | null
+          salary_year_4_cents: number | null
+          training_start_date: string | null
+          vocational_school: string | null
+        }
+        Insert: {
+          apprenticeship_profession: string
+          chamber?: string | null
+          created_at?: string | null
+          duration_months?: number | null
+          exam_support?: boolean | null
+          id?: string
+          job_id?: string | null
+          minimum_education?: string | null
+          rotation_plan?: string | null
+          salary_year_1_cents?: number | null
+          salary_year_2_cents?: number | null
+          salary_year_3_cents?: number | null
+          salary_year_4_cents?: number | null
+          training_start_date?: string | null
+          vocational_school?: string | null
+        }
+        Update: {
+          apprenticeship_profession?: string
+          chamber?: string | null
+          created_at?: string | null
+          duration_months?: number | null
+          exam_support?: boolean | null
+          id?: string
+          job_id?: string | null
+          minimum_education?: string | null
+          rotation_plan?: string | null
+          salary_year_1_cents?: number | null
+          salary_year_2_cents?: number | null
+          salary_year_3_cents?: number | null
+          salary_year_4_cents?: number | null
+          training_start_date?: string | null
+          vocational_school?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "job_post_apprenticeships_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "job_posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "job_post_apprenticeships_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "public_job_listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      job_post_internships: {
+        Row: {
+          created_at: string | null
+          duration_weeks_max: number | null
+          duration_weeks_min: number | null
+          enrollment_required: boolean | null
+          field_of_study: string | null
+          id: string
+          internship_type: string | null
+          job_id: string | null
+          learning_objectives: string | null
+          mentor_assigned: boolean | null
+        }
+        Insert: {
+          created_at?: string | null
+          duration_weeks_max?: number | null
+          duration_weeks_min?: number | null
+          enrollment_required?: boolean | null
+          field_of_study?: string | null
+          id?: string
+          internship_type?: string | null
+          job_id?: string | null
+          learning_objectives?: string | null
+          mentor_assigned?: boolean | null
+        }
+        Update: {
+          created_at?: string | null
+          duration_weeks_max?: number | null
+          duration_weeks_min?: number | null
+          enrollment_required?: boolean | null
+          field_of_study?: string | null
+          id?: string
+          internship_type?: string | null
+          job_id?: string | null
+          learning_objectives?: string | null
+          mentor_assigned?: boolean | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "job_post_internships_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "job_posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "job_post_internships_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "public_job_listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      job_post_professionals: {
+        Row: {
+          created_at: string | null
+          degree_required: boolean | null
+          id: string
+          job_id: string | null
+          min_experience_years: number | null
+          minimum_degree: string | null
+          on_call_duty: boolean | null
+          probation_period_months: number | null
+          professional_qualification: string | null
+          relocation_assistance: boolean | null
+          shift_work: boolean | null
+          weekend_work: boolean | null
+        }
+        Insert: {
+          created_at?: string | null
+          degree_required?: boolean | null
+          id?: string
+          job_id?: string | null
+          min_experience_years?: number | null
+          minimum_degree?: string | null
+          on_call_duty?: boolean | null
+          probation_period_months?: number | null
+          professional_qualification?: string | null
+          relocation_assistance?: boolean | null
+          shift_work?: boolean | null
+          weekend_work?: boolean | null
+        }
+        Update: {
+          created_at?: string | null
+          degree_required?: boolean | null
+          id?: string
+          job_id?: string | null
+          min_experience_years?: number | null
+          minimum_degree?: string | null
+          on_call_duty?: boolean | null
+          probation_period_months?: number | null
+          professional_qualification?: string | null
+          relocation_assistance?: boolean | null
+          shift_work?: boolean | null
+          weekend_work?: boolean | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "job_post_professionals_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "job_posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "job_post_professionals_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "public_job_listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       job_posts: {
         Row: {
+          address_number: string | null
+          address_street: string | null
+          barrier_free_access: boolean | null
+          benefits_description: string | null
           category: string | null
           city: string | null
+          commute_distance_km: number | null
           company_id: string
+          contact_person_email: string | null
+          contact_person_name: string | null
+          contact_person_phone: string | null
+          contact_person_photo_url: string | null
+          contact_person_role: string | null
           country: string | null
           created_at: string
           description_md: string | null
           duration_months: number | null
           employment: string | null
+          employment_type: string | null
+          end_date: string | null
           hours_per_week_max: number | null
           hours_per_week_min: number | null
           id: string
           is_active: boolean
           is_public: boolean
+          job_type: string | null
+          location_lat: number | null
+          location_lng: number | null
+          parking_available: boolean | null
           postal_code: string | null
+          public_transport: boolean | null
           published_at: string | null
+          relocation_support: boolean | null
+          requirements_description: string | null
           requirements_md: string | null
+          role_family: string | null
           salary_currency: string | null
           salary_interval: string | null
           salary_max: number | null
           salary_min: number | null
           slug: string | null
+          start_date: string | null
+          start_immediately: boolean | null
           state: string | null
+          tasks_description: string | null
           tasks_md: string | null
+          team_department: string | null
           title: string
+          travel_percentage: number | null
           updated_at: string
+          visa_sponsorship: boolean | null
           work_mode: string | null
         }
         Insert: {
+          address_number?: string | null
+          address_street?: string | null
+          barrier_free_access?: boolean | null
+          benefits_description?: string | null
           category?: string | null
           city?: string | null
+          commute_distance_km?: number | null
           company_id: string
+          contact_person_email?: string | null
+          contact_person_name?: string | null
+          contact_person_phone?: string | null
+          contact_person_photo_url?: string | null
+          contact_person_role?: string | null
           country?: string | null
           created_at?: string
           description_md?: string | null
           duration_months?: number | null
           employment?: string | null
+          employment_type?: string | null
+          end_date?: string | null
           hours_per_week_max?: number | null
           hours_per_week_min?: number | null
           id?: string
           is_active?: boolean
           is_public?: boolean
+          job_type?: string | null
+          location_lat?: number | null
+          location_lng?: number | null
+          parking_available?: boolean | null
           postal_code?: string | null
+          public_transport?: boolean | null
           published_at?: string | null
+          relocation_support?: boolean | null
+          requirements_description?: string | null
           requirements_md?: string | null
+          role_family?: string | null
           salary_currency?: string | null
           salary_interval?: string | null
           salary_max?: number | null
           salary_min?: number | null
           slug?: string | null
+          start_date?: string | null
+          start_immediately?: boolean | null
           state?: string | null
+          tasks_description?: string | null
           tasks_md?: string | null
+          team_department?: string | null
           title: string
+          travel_percentage?: number | null
           updated_at?: string
+          visa_sponsorship?: boolean | null
           work_mode?: string | null
         }
         Update: {
+          address_number?: string | null
+          address_street?: string | null
+          barrier_free_access?: boolean | null
+          benefits_description?: string | null
           category?: string | null
           city?: string | null
+          commute_distance_km?: number | null
           company_id?: string
+          contact_person_email?: string | null
+          contact_person_name?: string | null
+          contact_person_phone?: string | null
+          contact_person_photo_url?: string | null
+          contact_person_role?: string | null
           country?: string | null
           created_at?: string
           description_md?: string | null
           duration_months?: number | null
           employment?: string | null
+          employment_type?: string | null
+          end_date?: string | null
           hours_per_week_max?: number | null
           hours_per_week_min?: number | null
           id?: string
           is_active?: boolean
           is_public?: boolean
+          job_type?: string | null
+          location_lat?: number | null
+          location_lng?: number | null
+          parking_available?: boolean | null
           postal_code?: string | null
+          public_transport?: boolean | null
           published_at?: string | null
+          relocation_support?: boolean | null
+          requirements_description?: string | null
           requirements_md?: string | null
+          role_family?: string | null
           salary_currency?: string | null
           salary_interval?: string | null
           salary_max?: number | null
           salary_min?: number | null
           slug?: string | null
+          start_date?: string | null
+          start_immediately?: boolean | null
           state?: string | null
+          tasks_description?: string | null
           tasks_md?: string | null
+          team_department?: string | null
           title?: string
+          travel_percentage?: number | null
           updated_at?: string
+          visa_sponsorship?: boolean | null
           work_mode?: string | null
         }
         Relationships: [
@@ -1823,6 +2207,48 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "company_need_quota"
             referencedColumns: ["company_id"]
+          },
+        ]
+      }
+      job_skills: {
+        Row: {
+          created_at: string | null
+          id: string
+          is_required: boolean | null
+          job_id: string | null
+          skill_level: number | null
+          skill_name: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          is_required?: boolean | null
+          job_id?: string | null
+          skill_level?: number | null
+          skill_name: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          is_required?: boolean | null
+          job_id?: string | null
+          skill_level?: number | null
+          skill_name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "job_skills_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "job_posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "job_skills_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "public_job_listings"
+            referencedColumns: ["id"]
           },
         ]
       }
