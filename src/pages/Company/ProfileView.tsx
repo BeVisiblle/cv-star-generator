@@ -250,6 +250,10 @@ const CompanyProfileView = () => {
               isEditing={false}
               onProfileUpdate={() => {}} // Read-only
               readOnly={true}
+              showLanguagesAndSkills={true}
+              showLicenseAndStats={false}
+              showCVSection={false}
+              isCompanyViewing={true}
             />
             
             {/* Kontaktdaten Box */}
