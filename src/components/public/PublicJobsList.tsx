@@ -1,11 +1,11 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { JobCard } from './JobCard';
+import { JobSearchHeader } from './JobSearchHeader';
+import { Card, CardContent } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
 import { supabase } from '@/integrations/supabase/client';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
-import { MapPin, Building, Clock, Euro } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
+import { useAuth } from '@/hooks/useAuth';
 
 interface PublicJob {
   id: string;
@@ -24,13 +24,29 @@ interface PublicJob {
   salary_interval: string;
   published_at: string;
   description_snippet: string;
+  description_md?: string;
+}
+
+interface JobSearchFilters {
+  keywords: string;
+  category: string;
+  location: string;
+  workMode: string;
+  employment: string;
 }
 
 export default function PublicJobsList() {
-  const navigate = useNavigate();
+  const { user } = useAuth();
   const [jobs, setJobs] = useState<PublicJob[]>([]);
   const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
+  const [filters, setFilters] = useState<JobSearchFilters>({
+    keywords: "",
+    category: "",
+    location: "",
+    workMode: "",
+    employment: "",
+  });
 
   useEffect(() => {
     loadJobs();
@@ -48,141 +64,189 @@ export default function PublicJobsList() {
       setJobs(data || []);
     } catch (error) {
       console.error('Error loading jobs:', error);
+      toast.error('Fehler beim Laden der Stellenanzeigen');
     } finally {
       setLoading(false);
     }
   }
 
   const filteredJobs = jobs.filter(job => {
-    if (!searchQuery) return true;
-    const query = searchQuery.toLowerCase();
-    return (
-      job.title?.toLowerCase().includes(query) ||
-      job.company_name?.toLowerCase().includes(query) ||
-      job.city?.toLowerCase().includes(query) ||
-      job.category?.toLowerCase().includes(query)
-    );
+    // Keywords filter
+    if (filters.keywords) {
+      const keywords = filters.keywords.toLowerCase();
+      const searchText = `${job.title} ${job.company_name} ${job.description_snippet || ''}`.toLowerCase();
+      if (!searchText.includes(keywords)) return false;
+    }
+
+    // Category filter
+    if (filters.category && job.category !== filters.category) return false;
+
+    // Location filter
+    if (filters.location) {
+      const location = filters.location.toLowerCase();
+      if (!job.city?.toLowerCase().includes(location)) return false;
+    }
+
+    // Work mode filter
+    if (filters.workMode && job.work_mode !== filters.workMode) return false;
+
+    // Employment filter
+    if (filters.employment && job.employment !== filters.employment) return false;
+
+    return true;
   });
 
-  const formatSalary = (job: PublicJob) => {
-    if (!job.salary_min && !job.salary_max) return null;
-    
-    const currency = job.salary_currency === 'EUR' ? '€' : job.salary_currency;
-    const interval = job.salary_interval === 'month' ? '/Monat' : 
-                    job.salary_interval === 'year' ? '/Jahr' : 
-                    job.salary_interval === 'hour' ? '/Std' : '';
-
-    if (job.salary_min && job.salary_max) {
-      return `${currency}${job.salary_min.toLocaleString()} - ${currency}${job.salary_max.toLocaleString()} ${interval}`;
-    } else if (job.salary_min) {
-      return `ab ${currency}${job.salary_min.toLocaleString()} ${interval}`;
-    } else if (job.salary_max) {
-      return `bis ${currency}${job.salary_max.toLocaleString()} ${interval}`;
+  const handleApply = async (jobId: string) => {
+    if (!user) {
+      toast.error('Bitte melde dich an, um dich zu bewerben');
+      return;
     }
-    return null;
+
+    try {
+      // Get user profile for application
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('email, vorname, nachname, telefon, cv_url')
+        .eq('id', user.id)
+        .single();
+
+      if (profileError) {
+        toast.error('Fehler beim Laden des Profils');
+        return;
+      }
+
+      const fullName = `${profile.vorname || ''} ${profile.nachname || ''}`.trim();
+      if (!fullName || !profile.email) {
+        toast.error('Bitte vervollständige dein Profil, um dich zu bewerben');
+        return;
+      }
+
+      const result = await supabase.rpc('apply_one_click', {
+        p_job: jobId,
+        p_email: profile.email,
+        p_full_name: fullName,
+        p_phone: profile.telefon || undefined,
+        p_cv_url: profile.cv_url || undefined
+      });
+
+      if (result.error) throw result.error;
+
+      toast.success('Bewerbung erfolgreich eingereicht!');
+    } catch (error) {
+      console.error('Error applying to job:', error);
+      toast.error('Fehler beim Einreichen der Bewerbung');
+    }
   };
 
-  if (loading) {
-    return (
-      <div className="max-w-6xl mx-auto p-6">
-        <div className="animate-pulse space-y-4">
-          {Array.from({ length: 6 }).map((_, i) => (
-            <div key={i} className="h-48 bg-muted rounded-lg"></div>
+  return (
+    <div className="max-w-7xl mx-auto p-6">
+      <div className="mb-8 text-center">
+        <h1 className="text-3xl font-bold mb-4">Stellenanzeigen</h1>
+        <p className="text-muted-foreground mb-6">Entdecke spannende Karrieremöglichkeiten und bewirb dich mit einem Klick</p>
+      </div>
+
+      <JobSearchHeader
+        filters={filters}
+        onFiltersChange={setFilters}
+        resultsCount={filteredJobs.length}
+        showAdvancedFilters={showAdvancedFilters}
+        onToggleAdvancedFilters={() => setShowAdvancedFilters(!showAdvancedFilters)}
+      />
+
+      {/* Advanced Filters */}
+      {showAdvancedFilters && (
+        <Card className="mb-6">
+          <CardContent className="p-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <label className="text-sm font-medium mb-2 block">Arbeitsort</label>
+                <select
+                  value={filters.workMode}
+                  onChange={(e) => setFilters({ ...filters, workMode: e.target.value })}
+                  className="w-full p-2 border rounded-md text-sm"
+                >
+                  <option value="">Alle</option>
+                  <option value="remote">Remote</option>
+                  <option value="hybrid">Hybrid</option>
+                  <option value="onsite">Vor Ort</option>
+                </select>
+              </div>
+              <div>
+                <label className="text-sm font-medium mb-2 block">Beschäftigungsart</label>
+                <select
+                  value={filters.employment}
+                  onChange={(e) => setFilters({ ...filters, employment: e.target.value })}
+                  className="w-full p-2 border rounded-md text-sm"
+                >
+                  <option value="">Alle</option>
+                  <option value="vollzeit">Vollzeit</option>
+                  <option value="teilzeit">Teilzeit</option>
+                  <option value="ausbildung">Ausbildung</option>
+                  <option value="praktikum">Praktikum</option>
+                </select>
+              </div>
+              <div>
+                <label className="text-sm font-medium mb-2 block">Standort</label>
+                <input
+                  type="text"
+                  placeholder="Stadt eingeben..."
+                  value={filters.location}
+                  onChange={(e) => setFilters({ ...filters, location: e.target.value })}
+                  className="w-full p-2 border rounded-md text-sm"
+                />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {loading ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {Array.from({ length: 6 }).map((_, index) => (
+            <Card key={index} className="h-[340px]">
+              <CardContent className="p-6">
+                <div className="flex items-start space-x-3 mb-4">
+                  <Skeleton className="h-12 w-12 rounded-full" />
+                  <div className="flex-1 space-y-2">
+                    <Skeleton className="h-4 w-3/4" />
+                    <Skeleton className="h-3 w-1/2" />
+                  </div>
+                </div>
+                <div className="space-y-2 mb-4">
+                  <Skeleton className="h-3 w-full" />
+                  <Skeleton className="h-3 w-2/3" />
+                </div>
+                <div className="flex gap-2 mb-4">
+                  <Skeleton className="h-6 w-16" />
+                  <Skeleton className="h-6 w-20" />
+                </div>
+                <div className="space-y-2">
+                  <Skeleton className="h-8 w-full" />
+                  <Skeleton className="h-8 w-full" />
+                </div>
+              </CardContent>
+            </Card>
           ))}
         </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="max-w-6xl mx-auto p-6 space-y-6">
-      <div className="space-y-4">
-        <h1 className="text-3xl font-bold">Stellenanzeigen</h1>
-        <p className="text-muted-foreground">
-          Entdecke spannende Karrieremöglichkeiten und bewirb dich mit nur einem Klick
-        </p>
-        
-        <div className="flex gap-4">
-          <Input
-            placeholder="Suche nach Stelle, Unternehmen oder Ort..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="max-w-md"
-          />
-        </div>
-      </div>
-
-      {filteredJobs.length === 0 ? (
+      ) : filteredJobs.length === 0 ? (
         <div className="text-center py-12">
           <p className="text-muted-foreground">
-            {searchQuery ? 'Keine Stellen gefunden.' : 'Aktuell sind keine Stellen verfügbar.'}
+            {jobs.length === 0 
+              ? "Derzeit sind keine Stellenanzeigen verfügbar." 
+              : "Keine Stellenanzeigen gefunden, die deinen Suchkriterien entsprechen."}
           </p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredJobs.map((job) => (
-            <Card key={job.id} className="flex flex-col hover:shadow-lg transition-shadow">
-              <CardHeader>
-                <div className="space-y-2">
-                  <div className="flex items-start justify-between">
-                    <Badge variant="secondary" className="text-xs">
-                      {job.category}
-                    </Badge>
-                    <Badge variant="outline" className="text-xs">
-                      {job.employment}
-                    </Badge>
-                  </div>
-                  <CardTitle className="text-lg line-clamp-2">{job.title}</CardTitle>
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Building className="h-4 w-4" />
-                    <span>{job.company_name}</span>
-                  </div>
-                </div>
-              </CardHeader>
-              
-              <CardContent className="flex-1 space-y-4">
-                <p className="text-sm text-muted-foreground line-clamp-3">
-                  {job.description_snippet}...
-                </p>
-                
-                <div className="space-y-2">
-                  {job.city && (
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <MapPin className="h-4 w-4" />
-                      <span>{job.city}{job.country && `, ${job.country}`}</span>
-                    </div>
-                  )}
-                  
-                  {formatSalary(job) && (
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <Euro className="h-4 w-4" />
-                      <span>{formatSalary(job)}</span>
-                    </div>
-                  )}
-                  
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Clock className="h-4 w-4" />
-                    <span>{new Date(job.published_at).toLocaleDateString('de-DE')}</span>
-                  </div>
-                </div>
-                
-                <div className="pt-4 flex flex-col gap-2">
-                  <Button 
-                    onClick={() => navigate(`/jobs/${job.slug}`)}
-                    className="w-full"
-                  >
-                    Jetzt bewerben
-                  </Button>
-                  <Button 
-                    variant="outline" 
-                    onClick={() => navigate(`/jobs/${job.slug}`)}
-                    className="w-full"
-                  >
-                    Details ansehen
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
+          {filteredJobs.map(job => (
+            <JobCard 
+              key={job.id} 
+              job={{
+                ...job,
+                description_md: job.description_snippet
+              }} 
+              onApply={handleApply}
+            />
           ))}
         </div>
       )}
