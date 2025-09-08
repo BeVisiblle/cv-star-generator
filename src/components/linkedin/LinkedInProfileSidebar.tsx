@@ -217,10 +217,10 @@ export const LinkedInProfileSidebar: React.FC<LinkedInProfileSidebarProps> = ({
 
   // Load user documents on component mount
   useEffect(() => {
-    if (profile?.id) {
+    if (profile?.id && (isCompanyViewing || !readOnly)) {
       loadUserDocuments();
     }
-  }, [profile?.id]);
+  }, [profile?.id, isCompanyViewing, readOnly]);
   const loadUserDocuments = async () => {
     setIsLoadingDocuments(true);
     try {
