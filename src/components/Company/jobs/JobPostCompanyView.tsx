@@ -3,7 +3,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Eye, Users, MapPin, Clock, Euro, Briefcase, Calendar, Star, CheckCircle, XCircle } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Eye, Users, MapPin, Clock, Euro, Briefcase, Calendar, Star, CheckCircle, XCircle, X } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useCompany } from '@/hooks/useCompany';
 import { useToast } from '@/hooks/use-toast';
@@ -251,13 +252,20 @@ export default function JobPostCompanyView({ jobId, onClose }: JobPostCompanyVie
     return (
       <div className="text-center p-8">
         <p className="text-muted-foreground">Stellenanzeige nicht gefunden.</p>
-        <Button onClick={onClose} className="mt-4">Schließen</Button>
       </div>
     );
   }
 
   return (
-    <div className="max-w-6xl mx-auto p-6 space-y-6">
+    <Dialog open={true} onOpenChange={onClose}>
+      <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <Briefcase className="h-5 w-5" />
+            {jobPost?.title || 'Stellenanzeige'}
+          </DialogTitle>
+        </DialogHeader>
+        <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -568,6 +576,8 @@ export default function JobPostCompanyView({ jobId, onClose }: JobPostCompanyVie
           </Card>
         </TabsContent>
       </Tabs>
-    </div>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 }

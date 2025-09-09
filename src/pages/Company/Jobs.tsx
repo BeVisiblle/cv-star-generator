@@ -16,6 +16,7 @@ export default function CompanyJobs() {
   const { company, loading: companyLoading } = useCompany();
   const [showJobPostDialog, setShowJobPostDialog] = useState(false);
   const [selectedJobId, setSelectedJobId] = useState<string | null>(null);
+  const [showJobDetails, setShowJobDetails] = useState(false);
 
   // Fetch company job posts
   const { data: jobPosts = [], isLoading, refetch } = useQuery({
@@ -46,6 +47,25 @@ export default function CompanyJobs() {
   const handleJobCreated = () => {
     refetch();
     setShowJobPostDialog(false);
+  };
+
+  const handleViewJob = (jobId: string) => {
+    setSelectedJobId(jobId);
+    setShowJobDetails(true);
+  };
+
+  const handleCloseJobDetails = () => {
+    setShowJobDetails(false);
+    setSelectedJobId(null);
+  };
+
+  const handleEditJob = (jobId: string) => {
+    // Hier könnte man zur Job-Bearbeitung navigieren
+    console.log('Edit job:', jobId);
+    // Für jetzt schließen wir die Details und zeigen den Job-Creation-Wizard
+    setShowJobDetails(false);
+    setSelectedJobId(null);
+    // TODO: Implementiere Job-Bearbeitung
   };
 
   if (companyLoading || isLoading) {
@@ -140,11 +160,8 @@ export default function CompanyJobs() {
                   companyName={company.name || ''}
                   company={company}
                   onJobUpdated={refetch}
-                  onViewJob={setSelectedJobId}
-                  onEdit={(jobId) => {
-                    // Hier könnte man zur Bearbeitung navigieren
-                    console.log('Edit job:', jobId);
-                  }}
+                  onViewJob={handleViewJob}
+                  onEdit={handleEditJob}
                 />
               ))}
             </div>
@@ -175,11 +192,8 @@ export default function CompanyJobs() {
                   companyName={company.name || ''}
                   company={company}
                   onJobUpdated={refetch}
-                  onViewJob={setSelectedJobId}
-                  onEdit={(jobId) => {
-                    // Hier könnte man zur Bearbeitung navigieren
-                    console.log('Edit job:', jobId);
-                  }}
+                  onViewJob={handleViewJob}
+                  onEdit={handleEditJob}
                 />
               ))}
             </div>
@@ -206,11 +220,8 @@ export default function CompanyJobs() {
                   companyName={company.name || ''}
                   company={company}
                   onJobUpdated={refetch}
-                  onViewJob={setSelectedJobId}
-                  onEdit={(jobId) => {
-                    // Hier könnte man zur Bearbeitung navigieren
-                    console.log('Edit job:', jobId);
-                  }}
+                  onViewJob={handleViewJob}
+                  onEdit={handleEditJob}
                 />
               ))}
             </div>
@@ -227,10 +238,10 @@ export default function CompanyJobs() {
       />
 
       {/* Job Post Company View */}
-      {selectedJobId && (
+      {showJobDetails && selectedJobId && (
         <JobPostCompanyView
           jobId={selectedJobId}
-          onClose={() => setSelectedJobId(null)}
+          onClose={handleCloseJobDetails}
         />
       )}
     </div>
