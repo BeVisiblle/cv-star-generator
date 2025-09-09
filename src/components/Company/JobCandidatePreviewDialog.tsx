@@ -2,7 +2,7 @@ import React from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Eye, Edit, X } from 'lucide-react';
-import JobUserPreview from '../jobs/JobUserPreview';
+import JobUserPreview from './jobs/JobUserPreview';
 
 interface JobCandidatePreviewDialogProps {
   job: any;
