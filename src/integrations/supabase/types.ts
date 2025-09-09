@@ -5174,6 +5174,10 @@ export type Database = {
         Args: { _conv_id: string; _uid: string }
         Returns: boolean
       }
+      can_view_community_post: {
+        Args: { p_post_id: string; p_viewer_id: string }
+        Returns: boolean
+      }
       can_view_post: {
         Args: { _post_id: string; _viewer: string }
         Returns: boolean
