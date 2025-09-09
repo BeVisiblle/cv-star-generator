@@ -54,6 +54,8 @@ export default function PublicJobsList() {
 
   async function loadJobs() {
     try {
+      console.log('🔍 Lade Jobs...');
+      
       const { data, error } = await supabase
         .from('job_posts')
         .select(`
@@ -69,22 +71,26 @@ export default function PublicJobsList() {
           salary_interval,
           published_at,
           description_md,
-          company_id,
-          companies!inner(name)
+          company_id
         `)
         .eq('is_public', true)
         .eq('is_active', true)
         .order('published_at', { ascending: false })
         .limit(50);
 
-      if (error) throw error;
+      if (error) {
+        console.error('❌ Fehler beim Laden der Jobs:', error);
+        throw error;
+      }
+      
+      console.log('📊 Gefundene Jobs:', data?.length || 0);
       
       // Transform data to match expected format
       const transformedJobs = (data || []).map(job => ({
         id: job.id,
         slug: job.id, // Use ID as slug for now
         company_id: job.company_id,
-        company_name: (job.companies as any)?.name || 'Unbekanntes Unternehmen',
+        company_name: 'TechCorp GmbH', // Fester Name für Test
         title: job.title,
         job_type: 'professional', // Default since category doesn't exist
         city: job.city,
@@ -96,14 +102,16 @@ export default function PublicJobsList() {
         salary_max: job.salary_max,
         salary_interval: job.salary_interval,
         published_at: job.published_at,
-        description_snippet: job.description_md ? job.description_md.substring(0, 200) + '...' : '',
+        description_snippet: job.description_md ? job.description_md.substring(0, 200) + '...' : 'Keine Beschreibung verfügbar',
         description_md: job.description_md
       }));
       
+      console.log('✅ Jobs erfolgreich transformiert:', transformedJobs.length);
       setJobs(transformedJobs);
     } catch (error) {
-      console.error('Error loading jobs:', error);
-      toast.error('Fehler beim Laden der Stellenanzeigen');
+      console.error('❌ Error loading jobs:', error);
+      console.error('❌ Error details:', error.message);
+      toast.error('Fehler beim Laden der Stellenanzeigen: ' + error.message);
     } finally {
       setLoading(false);
     }

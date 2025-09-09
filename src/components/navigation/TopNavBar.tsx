@@ -4,6 +4,7 @@ import { Bell, Search as SearchIcon, MessageSquareMore, Users, User } from "luci
 import { useLocation, useNavigate, Link } from "react-router-dom";
 
 import { NotificationCenter } from "@/components/notifications/NotificationCenter";
+import { GlobalSearchBar } from "@/components/search/GlobalSearchBar";
 
 import { Input } from "@/components/ui/input";
 import SearchAutosuggest, { SuggestionType } from "@/components/marketplace/SearchAutosuggest";
@@ -71,37 +72,12 @@ export default function TopNavBar() {
           </div>
         </div>
         
-        {/* Desktop Search Bar */}
-        <div className="hidden md:flex flex-1 max-w-md mx-4 relative">
-          <Input
-            ref={inputRef}
-            placeholder="Personen, Unternehmen suchen..."
-            value={q}
-            onChange={(e) => {
-              setQ(e.target.value);
-              setOpen(e.target.value.trim().length >= 2);
-            }}
-            onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
-            onFocus={() => setOpen(q.trim().length >= 2)}
-            className="pr-10"
-          />
-          <SearchIcon 
-            className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground cursor-pointer" 
-            onClick={handleSubmit}
-          />
-          <SearchAutosuggest 
-            query={q} 
-            open={open}
-            anchorRef={inputRef}
-            onClose={handleSearchClose}
-            onSelect={(type: SuggestionType, item: { id: string; label: string }) => {
-              setOpen(false);
-              if (type === 'person') {
-                navigate(`/u/${item.id}`);
-              } else if (type === 'company') {
-                navigate(`/companies/${item.id}`);
-              }
-            }} 
+        {/* Global Search Bar */}
+        <div className="hidden md:flex flex-1 max-w-md mx-4">
+          <GlobalSearchBar 
+            placeholder="Personen, Unternehmen, Events suchen..."
+            showCategories={false}
+            className="w-full"
           />
         </div>
         

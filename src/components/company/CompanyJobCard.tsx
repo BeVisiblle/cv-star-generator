@@ -2,11 +2,12 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { MapPin, Briefcase, Building, Clock, Euro, Calendar, MoreVertical, Eye, EyeOff, Edit, Users } from "lucide-react";
+import { MapPin, Briefcase, Building, Clock, Euro, Calendar, MoreVertical, Eye, EyeOff, Edit, Users, Trash2 } from "lucide-react";
 import { useJobPostingLimits } from "@/hooks/useJobPostingLimits";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
 import JobCandidatePreviewDialog from "../Company/JobCandidatePreviewDialog";
+import { supabase } from "@/integrations/supabase/client";
 
 interface CompanyJobCardProps {
   job: {
@@ -24,6 +25,7 @@ interface CompanyJobCardProps {
     description_md?: string;
     is_active: boolean;
     is_public: boolean;
+    slug?: string;
     // Weitere Job-Felder für die Vorschau
     [key: string]: any;
   };
@@ -106,6 +108,7 @@ export function CompanyJobCard({ job, companyName, company, onJobUpdated, onView
   const { publishJob, updateJob } = useJobPostingLimits();
   const { toast } = useToast();
   const [isUpdating, setIsUpdating] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const handlePublish = () => {
     publishJob(job.id);
@@ -139,6 +142,38 @@ export function CompanyJobCard({ job, companyName, company, onJobUpdated, onView
       console.error('Toggle public error:', error);
     } finally {
       setIsUpdating(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!confirm('Sind Sie sicher, dass Sie diese Stellenanzeige löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden.')) {
+      return;
+    }
+
+    setIsDeleting(true);
+    try {
+      const { error } = await supabase
+        .from('job_posts')
+        .delete()
+        .eq('id', job.id);
+
+      if (error) throw error;
+
+      toast({
+        title: 'Stellenanzeige gelöscht',
+        description: 'Die Stellenanzeige wurde erfolgreich gelöscht.',
+      });
+
+      onJobUpdated();
+    } catch (error) {
+      console.error('Delete job error:', error);
+      toast({
+        title: 'Fehler',
+        description: 'Die Stellenanzeige konnte nicht gelöscht werden.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -236,7 +271,11 @@ export function CompanyJobCard({ job, companyName, company, onJobUpdated, onView
                     </DropdownMenuItem>
                   }
                 />
-                <DropdownMenuItem onClick={() => window.open(`/jobs/${job.slug || job.id}`, '_blank')}>
+                <DropdownMenuItem onClick={() => {
+                  const companySlug = company?.slug || company?.id;
+                  const jobSlug = job.slug || job.id;
+                  window.open(`/companies/${companySlug}/jobs/${jobSlug}`, '_blank');
+                }}>
                   <Eye className="h-4 w-4 mr-2" />
                   Öffentliche Ansicht
                 </DropdownMenuItem>
@@ -276,6 +315,18 @@ export function CompanyJobCard({ job, companyName, company, onJobUpdated, onView
                       )}
                     </DropdownMenuItem>
                   </>
+                )}
+                
+                {/* Delete option for drafts */}
+                {!job.is_active && (
+                  <DropdownMenuItem 
+                    onClick={handleDelete} 
+                    disabled={isDeleting}
+                    className="text-destructive focus:text-destructive"
+                  >
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    {isDeleting ? 'Löschen...' : 'Löschen'}
+                  </DropdownMenuItem>
                 )}
               </DropdownMenuContent>
             </DropdownMenu>

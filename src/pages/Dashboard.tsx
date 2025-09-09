@@ -3,6 +3,7 @@ import CommunityFeed from '@/components/community/CommunityFeed';
 import CommunityComposerTeaser from '@/components/community/CommunityComposerTeaser';
 import { LeftPanel } from '@/components/dashboard/LeftPanel';
 import { RightPanel } from '@/components/dashboard/RightPanel';
+import { RightRail } from '@/components/sidebars/RightRail';
 import FeedSortBar from '@/components/community/FeedSortBar';
 
 const Dashboard = () => {
@@ -33,6 +34,7 @@ const Dashboard = () => {
           <aside className="hidden xl:block w-[320px] shrink-0">
             <div className="sticky top-20 space-y-4">
               <RightPanel />
+              <RightRail />
             </div>
           </aside>
         </div>
