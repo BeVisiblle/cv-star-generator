@@ -90,7 +90,8 @@ export function useJobPostingLimits() {
       if (skills) cleanJobData.skills = skills;
       if (languages) cleanJobData.languages = languages;
       if (certifications) cleanJobData.certifications = certifications;
-      if (driving_licenses) cleanJobData.driving_licenses = driving_licenses;
+      // Temporarily skip driving_licenses until migration is applied
+      // if (driving_licenses) cleanJobData.driving_licenses = driving_licenses;
       if (internship) cleanJobData.internship_data = internship;
       if (apprenticeship) cleanJobData.apprenticeship_data = apprenticeship;
       if (professional) cleanJobData.professional_data = professional;
@@ -174,7 +175,8 @@ export function useJobPostingLimits() {
       if (skills) cleanJobData.skills = skills;
       if (languages) cleanJobData.languages = languages;
       if (certifications) cleanJobData.certifications = certifications;
-      if (driving_licenses) cleanJobData.driving_licenses = driving_licenses;
+      // Temporarily skip driving_licenses until migration is applied
+      // if (driving_licenses) cleanJobData.driving_licenses = driving_licenses;
       if (internship) cleanJobData.internship_data = internship;
       if (apprenticeship) cleanJobData.apprenticeship_data = apprenticeship;
       if (professional) cleanJobData.professional_data = professional;
