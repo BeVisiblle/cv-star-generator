@@ -43,6 +43,7 @@ const CommunityMessages = lazy(() => import("./pages/Community/Messages"));
 const CommunityJobs = lazy(() => import("./pages/Community/Jobs"));
 const NotificationsPage = lazy(() => import("./pages/Notifications"));
 const Applications = lazy(() => import("./pages/User/Applications"));
+const TestData = lazy(() => import("./pages/TestData"));
 
 
 // Groups components - lazy loaded
@@ -246,6 +247,9 @@ const App = () => (
               {/* Public job listings */}
               <Route path="/jobs" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><BaseLayout><PublicJobs /></BaseLayout></Suspense>} />
               <Route path="/jobs/:slug" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><BaseLayout><PublicJobDetail /></BaseLayout></Suspense>} />
+              
+              {/* Test Data Management */}
+              <Route path="/test-data" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><TestData /></Suspense>} />
               
               
               {/* CV Generator - Open for everyone, but validates complete profiles */}
