@@ -65,9 +65,14 @@ export default function JobUserPreview({ jobId, onEdit, showEditButton = false }
 
         if (error) throw error;
 
+        const skills = Array.isArray((data as any).skills)
+          ? (data as any).skills
+          : [];
+
         setJob({
-          ...data,
-          company_name: data.companies?.name || 'Unbekanntes Unternehmen'
+          ...(data as any),
+          skills,
+          company_name: (data as any).companies?.name || 'Unbekanntes Unternehmen'
         });
       } catch (error) {
         console.error('Error fetching job:', error);

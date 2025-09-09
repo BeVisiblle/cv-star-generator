@@ -20,7 +20,7 @@ const TOKEN_PACKAGES = [
 
 export function TokenPurchase() {
   const { company } = useCompany();
-  const { remainingTokens, remainingJobPosts } = useJobPostingLimits();
+  const { tokenBalance, remainingJobPosts } = useJobPostingLimits();
   const { toast } = useToast();
   const [isOpen, setIsOpen] = useState(false);
   const [selectedPackage, setSelectedPackage] = useState(TOKEN_PACKAGES[1]);
@@ -82,9 +82,9 @@ export function TokenPurchase() {
             <div className="grid grid-cols-2 gap-4 text-sm">
               <div>
                 <span className="font-medium">Verbleibende Tokens:</span>
-                <Badge variant={remainingTokens > 0 ? "default" : "destructive"} className="ml-2">
-                  {remainingTokens}
-                </Badge>
+<Badge variant={tokenBalance > 0 ? "default" : "destructive"} className="ml-2">
+  {tokenBalance}
+</Badge>
               </div>
               <div>
                 <span className="font-medium">Verbleibende Job-Posts:</span>

@@ -102,7 +102,7 @@ export default function JobApplicationCard({ application, onStatusUpdate }: JobA
       }
 
       // Create or update application
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('applications')
         .upsert({
           id: application.id,
@@ -119,11 +119,11 @@ export default function JobApplicationCard({ application, onStatusUpdate }: JobA
       if (error) throw error;
 
       // Track job post view
-      await supabase
+      await (supabase as any)
         .from('job_post_views')
-        .upsert({
+        .insert({
           job_post_id: application.job_post_id,
-          viewed_by: user.id
+          user_id: user.id
         });
 
       toast({

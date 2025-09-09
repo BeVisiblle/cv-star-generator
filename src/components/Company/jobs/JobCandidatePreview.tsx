@@ -16,9 +16,10 @@ import {
   Phone,
   ExternalLink,
   Star,
-  AlertTriangle
+  AlertTriangle,
+  Edit
 } from 'lucide-react';
-import { JobFormData } from './JobCreationWizard';
+import { JobFormData } from '../../company/jobs/JobCreationWizard';
 
 interface JobCandidatePreviewProps {
   formData: JobFormData;

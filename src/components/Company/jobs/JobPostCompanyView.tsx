@@ -118,7 +118,7 @@ export default function JobPostCompanyView({ jobId, onClose }: JobPostCompanyVie
 
   const loadApplications = async () => {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('applications')
         .select(`
           *,
@@ -138,7 +138,7 @@ export default function JobPostCompanyView({ jobId, onClose }: JobPostCompanyVie
         .order('applied_at', { ascending: false });
 
       if (error) throw error;
-      setApplications(data || []);
+      setApplications((data || []) as any);
     } catch (error: any) {
       console.error('Error loading applications:', error);
     }
@@ -147,7 +147,7 @@ export default function JobPostCompanyView({ jobId, onClose }: JobPostCompanyVie
   const loadStats = async () => {
     try {
       // Load view statistics
-      const { data: viewsData, error: viewsError } = await supabase
+      const { data: viewsData, error: viewsError } = await (supabase as any)
         .from('job_post_views')
         .select('id')
         .eq('job_post_id', jobId);
@@ -155,7 +155,7 @@ export default function JobPostCompanyView({ jobId, onClose }: JobPostCompanyVie
       if (viewsError) throw viewsError;
 
       // Load application statistics
-      const { data: applicationsData, error: applicationsError } = await supabase
+      const { data: applicationsData, error: applicationsError } = await (supabase as any)
         .from('applications')
         .select('status')
         .eq('job_post_id', jobId);

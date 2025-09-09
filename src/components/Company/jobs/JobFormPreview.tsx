@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { MapPin, Building, Clock, Euro, Edit } from 'lucide-react';
-import { JobFormData } from './JobCreationWizard';
+import { JobFormData } from '../../company/jobs/JobCreationWizard';
 
 interface JobFormPreviewProps {
   formData: JobFormData;

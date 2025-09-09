@@ -155,37 +155,52 @@ export type Database = {
       }
       applications: {
         Row: {
+          applied_at: string | null
           candidate_id: string
           company_id: string
           created_at: string
           id: string
           job_id: string
+          job_post_id: string | null
           source: string
           stage: string
+          status: string | null
           unread: boolean
           updated_at: string
+          user_id: string | null
+          viewed_by_company: boolean | null
         }
         Insert: {
+          applied_at?: string | null
           candidate_id: string
           company_id: string
           created_at?: string
           id?: string
           job_id: string
+          job_post_id?: string | null
           source?: string
           stage?: string
+          status?: string | null
           unread?: boolean
           updated_at?: string
+          user_id?: string | null
+          viewed_by_company?: boolean | null
         }
         Update: {
+          applied_at?: string | null
           candidate_id?: string
           company_id?: string
           created_at?: string
           id?: string
           job_id?: string
+          job_post_id?: string | null
           source?: string
           stage?: string
+          status?: string | null
           unread?: boolean
           updated_at?: string
+          user_id?: string | null
+          viewed_by_company?: boolean | null
         }
         Relationships: [
           {
@@ -219,6 +234,20 @@ export type Database = {
           {
             foreignKeyName: "applications_job_id_fkey"
             columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "public_job_listings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "applications_job_post_id_fkey"
+            columns: ["job_post_id"]
+            isOneToOne: false
+            referencedRelation: "job_posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "applications_job_post_id_fkey"
+            columns: ["job_post_id"]
             isOneToOne: false
             referencedRelation: "public_job_listings"
             referencedColumns: ["id"]
@@ -2408,6 +2437,48 @@ export type Database = {
           },
         ]
       }
+      job_post_views: {
+        Row: {
+          created_at: string | null
+          id: string
+          ip_address: unknown | null
+          job_post_id: string | null
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          ip_address?: unknown | null
+          job_post_id?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          ip_address?: unknown | null
+          job_post_id?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "job_post_views_job_post_id_fkey"
+            columns: ["job_post_id"]
+            isOneToOne: false
+            referencedRelation: "job_posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "job_post_views_job_post_id_fkey"
+            columns: ["job_post_id"]
+            isOneToOne: false
+            referencedRelation: "public_job_listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       job_posts: {
         Row: {
           address_number: string | null
@@ -3452,27 +3523,33 @@ export type Database = {
           id: string
           included_seats: number
           included_tokens: number
+          max_job_posts: number | null
           max_seats: number
           monthly_price_cents: number
           name: string
+          tokens_per_post: number | null
         }
         Insert: {
           active?: boolean
           id: string
           included_seats?: number
           included_tokens?: number
+          max_job_posts?: number | null
           max_seats?: number
           monthly_price_cents: number
           name: string
+          tokens_per_post?: number | null
         }
         Update: {
           active?: boolean
           id?: string
           included_seats?: number
           included_tokens?: number
+          max_job_posts?: number | null
           max_seats?: number
           monthly_price_cents?: number
           name?: string
+          tokens_per_post?: number | null
         }
         Relationships: []
       }
