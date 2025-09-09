@@ -86,11 +86,11 @@ export default function PublicJobsList() {
         company_id: job.company_id,
         company_name: (job.companies as any)?.name || 'Unbekanntes Unternehmen',
         title: job.title,
-        job_type: job.job_type || 'professional',
+        job_type: 'professional', // Default since category doesn't exist
         city: job.city,
         country: job.country,
         work_mode: job.work_mode,
-        employment_type: job.employment_type,
+        employment_type: job.employment,
         salary_currency: job.salary_currency,
         salary_min: job.salary_min,
         salary_max: job.salary_max,

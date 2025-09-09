@@ -38,8 +38,8 @@ export function ShareJobButton({
     
     try {
       const { data, error } = await supabase.rpc('share_job_as_post', { 
-        p_org: orgId, 
-        p_job: jobId 
+        p_company_id: orgId, 
+        p_job_id: jobId 
       });
       
       if (error) {

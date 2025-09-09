@@ -335,16 +335,18 @@ export default function JobCreationWizard({ open, onOpenChange, onJobCreated }: 
   const handleSaveAsDraft = async () => {
     if (!company?.id) return;
 
-    try {
-      const result = await saveDraft(formData);
-      if (result) {
-        setSavedJobId(result.id);
-        onJobCreated?.();
-        onOpenChange(false);
+    saveDraft.mutate(formData, {
+      onSuccess: (result) => {
+        if (result && result.id) {
+          setSavedJobId(result.id);
+          onJobCreated?.();
+          onOpenChange(false);
+        }
+      },
+      onError: (error) => {
+        console.error('Save error:', error);
       }
-    } catch (error) {
-      console.error('Save error:', error);
-    }
+    });
   };
 
   const handlePublish = async () => {
@@ -354,13 +356,17 @@ export default function JobCreationWizard({ open, onOpenChange, onJobCreated }: 
       // First save as draft if not already saved
       let jobId = savedJobId;
       if (!jobId) {
-        const result = await saveDraft(formData);
-        if (result) {
-          jobId = result.id;
-          setSavedJobId(jobId);
-        } else {
-          return;
-        }
+        saveDraft.mutate(formData, {
+          onSuccess: (result) => {
+            if (result && result.id) {
+              setSavedJobId(result.id);
+              publishJob(result.id);
+              onJobCreated?.();
+              onOpenChange(false);
+            }
+          }
+        });
+        return;
       }
 
       // Then publish with token consumption

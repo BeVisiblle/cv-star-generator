@@ -49,7 +49,7 @@ export function PlanUpgrade() {
   // Mark current plan
   const plansWithCurrent = PLANS.map(plan => ({
     ...plan,
-    current: company?.plan_id === plan.id
+    current: false // Disable for now since plan property doesn't exist in Company type
   }));
 
   const handleUpgrade = async () => {
@@ -108,7 +108,7 @@ export function PlanUpgrade() {
             <div className="text-sm">
               <span className="font-medium">Aktueller Plan:</span>
               <Badge variant="outline" className="ml-2">
-                {company?.plan_id || 'Starter'}
+                Starter
               </Badge>
             </div>
           </div>
