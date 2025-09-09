@@ -1,55 +1,38 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { useCompany } from './useCompany';
-import { useToast } from './use-toast';
-
-export interface JobPostingLimits {
-  can_post: boolean;
-  remaining_tokens: number;
-  remaining_job_posts: number;
-  tokens_per_post: number;
-  message: string;
-}
+import { useCompany } from '@/hooks/useCompany';
+import { useToast } from '@/hooks/use-toast';
 
 export function useJobPostingLimits() {
   const { company } = useCompany();
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  // Check current limits
+  // Fetch job posting limits and token balance
   const { data: limits, isLoading, error } = useQuery({
     queryKey: ['job-posting-limits', company?.id],
-    queryFn: async (): Promise<JobPostingLimits | null> => {
+    queryFn: async () => {
       if (!company?.id) return null;
 
-      // For now, return a basic limits object since the RPC function doesn't exist
-      const limits = {
-        remaining_job_posts: 10,
-        total_posts: 10,
-        current_posts: 0,
-        can_post: true,
-        remaining_tokens: 100,
-        tokens_per_post: 1,
-        message: 'Basic limits'
-      };
+      const { data, error } = await supabase.rpc('check_job_posting_limits', {
+        p_company_id: company.id
+      });
 
       if (error) throw error;
-      return limits;
+      return data;
     },
     enabled: !!company?.id,
-    refetchInterval: 30000, // Refetch every 30 seconds
   });
 
   // Publish job with token consumption
   const publishJobMutation = useMutation({
-    mutationFn: async (jobId: string) => {
-      // Publish job by updating it directly since RPC function doesn't exist
-      const { data, error } = await supabase
-        .from('job_posts')
-        .update({ is_active: true, is_public: true })
-        .eq('id', jobId)
-        .select()
-        .single();
+    mutationFn: async (jobData: any) => {
+      if (!company?.id) throw new Error('No company selected');
+
+      const { data, error } = await supabase.rpc('publish_job_with_tokens', {
+        p_company_id: company.id,
+        p_job_data: jobData
+      });
 
       if (error) throw error;
       return data;
@@ -59,13 +42,12 @@ export function useJobPostingLimits() {
         title: "Stellenanzeige veröffentlicht",
         description: "Ihre Stellenanzeige wurde erfolgreich veröffentlicht.",
       });
-      // Refetch limits and job posts
-      queryClient.invalidateQueries({ queryKey: ['job-posting-limits', company?.id] });
       queryClient.invalidateQueries({ queryKey: ['company-job-posts', company?.id] });
+      queryClient.invalidateQueries({ queryKey: ['job-posting-limits', company?.id] });
     },
     onError: (error: any) => {
       toast({
-        title: "Fehler",
+        title: "Veröffentlichung fehlgeschlagen",
         description: error.message || "Unbekannter Fehler",
         variant: "destructive",
       });
@@ -85,6 +67,17 @@ export function useJobPostingLimits() {
         internship,
         apprenticeship,
         professional,
+        company_description,
+        application_deadline,
+        application_url,
+        application_email,
+        application_instructions,
+        is_featured,
+        featured_until,
+        is_urgent,
+        tags,
+        external_id,
+        source,
         ...cleanJobData 
       } = jobData;
       
@@ -101,6 +94,19 @@ export function useJobPostingLimits() {
       if (internship) cleanJobData.internship_data = internship;
       if (apprenticeship) cleanJobData.apprenticeship_data = apprenticeship;
       if (professional) cleanJobData.professional_data = professional;
+      
+      // Map additional fields
+      if (company_description) cleanJobData.company_description = company_description;
+      if (application_deadline) cleanJobData.application_deadline = application_deadline;
+      if (application_url) cleanJobData.application_url = application_url;
+      if (application_email) cleanJobData.application_email = application_email;
+      if (application_instructions) cleanJobData.application_instructions = application_instructions;
+      if (is_featured !== undefined) cleanJobData.is_featured = is_featured;
+      if (featured_until) cleanJobData.featured_until = featured_until;
+      if (is_urgent !== undefined) cleanJobData.is_urgent = is_urgent;
+      if (tags) cleanJobData.tags = tags;
+      if (external_id) cleanJobData.external_id = external_id;
+      if (source) cleanJobData.source = source;
       
       const { data, error } = await supabase
         .from('job_posts')
@@ -145,6 +151,17 @@ export function useJobPostingLimits() {
         internship,
         apprenticeship,
         professional,
+        company_description,
+        application_deadline,
+        application_url,
+        application_email,
+        application_instructions,
+        is_featured,
+        featured_until,
+        is_urgent,
+        tags,
+        external_id,
+        source,
         ...cleanJobData 
       } = jobData;
       
@@ -161,6 +178,19 @@ export function useJobPostingLimits() {
       if (internship) cleanJobData.internship_data = internship;
       if (apprenticeship) cleanJobData.apprenticeship_data = apprenticeship;
       if (professional) cleanJobData.professional_data = professional;
+      
+      // Map additional fields
+      if (company_description) cleanJobData.company_description = company_description;
+      if (application_deadline) cleanJobData.application_deadline = application_deadline;
+      if (application_url) cleanJobData.application_url = application_url;
+      if (application_email) cleanJobData.application_email = application_email;
+      if (application_instructions) cleanJobData.application_instructions = application_instructions;
+      if (is_featured !== undefined) cleanJobData.is_featured = is_featured;
+      if (featured_until) cleanJobData.featured_until = featured_until;
+      if (is_urgent !== undefined) cleanJobData.is_urgent = is_urgent;
+      if (tags) cleanJobData.tags = tags;
+      if (external_id) cleanJobData.external_id = external_id;
+      if (source) cleanJobData.source = source;
       
       const { data, error } = await supabase
         .from('job_posts')
@@ -197,11 +227,11 @@ export function useJobPostingLimits() {
     remainingTokens: limits?.remaining_tokens || 0,
     remainingJobPosts: limits?.remaining_job_posts || 0,
     tokensPerPost: limits?.tokens_per_post || 1,
-    publishJob: publishJobMutation.mutate,
+    publishJob: publishJobMutation.mutateAsync,
     isPublishing: publishJobMutation.isPending,
-    saveDraft: saveDraftMutation,
+    saveDraft: saveDraftMutation.mutateAsync,
     isSavingDraft: saveDraftMutation.isPending,
-    updateJob: updateJobMutation,
+    updateJob: updateJobMutation.mutateAsync,
     isUpdating: updateJobMutation.isPending,
   };
 }

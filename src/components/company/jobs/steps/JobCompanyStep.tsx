@@ -82,16 +82,18 @@ export default function JobCompanyStep({ formData, updateFormData, company }: Jo
                 onChange={(e) => updateFormData({ contact_person_name: e.target.value })}
                 placeholder="Max Mustermann"
                 className="mt-1"
+                required
               />
             </div>
             <div>
-              <Label htmlFor="contact_role">Position/Rolle</Label>
+              <Label htmlFor="contact_role">Position/Rolle *</Label>
               <Input
                 id="contact_role"
                 value={formData.contact_person_role}
                 onChange={(e) => updateFormData({ contact_person_role: e.target.value })}
                 placeholder="Personalleiter, HR Manager"
                 className="mt-1"
+                required
               />
             </div>
           </div>

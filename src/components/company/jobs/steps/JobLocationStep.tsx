@@ -49,7 +49,7 @@ export default function JobLocationStep({ formData, updateFormData, company }: J
     <div className="space-y-6">
       {/* Work Mode */}
       <div>
-        <Label className="text-base font-semibold">Arbeitsmodus</Label>
+        <Label className="text-base font-semibold">Arbeitsmodus *</Label>
         <Tabs value={formData.work_mode} onValueChange={handleWorkModeChange} className="mt-2">
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="onsite">Vor Ort</TabsTrigger>

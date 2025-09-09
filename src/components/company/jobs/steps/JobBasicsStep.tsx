@@ -112,20 +112,21 @@ export default function JobBasicsStep({ formData, updateFormData, company }: Job
 
       {/* Team/Department */}
       <div>
-        <Label htmlFor="team_department">Team/Abteilung</Label>
+        <Label htmlFor="team_department">Team/Abteilung *</Label>
         <Input
           id="team_department"
           value={formData.team_department}
           onChange={(e) => updateFormData({ team_department: e.target.value })}
           placeholder="z.B. Elektrotechnik, IT-Abteilung"
           className="mt-1"
+          required
         />
       </div>
 
       {/* Role Family */}
       <div>
-        <Label htmlFor="role_family">Rollenfamilie</Label>
-        <Select onValueChange={(value) => updateFormData({ role_family: value })}>
+        <Label htmlFor="role_family">Rollenfamilie *</Label>
+        <Select onValueChange={(value) => updateFormData({ role_family: value })} required>
           <SelectTrigger className="mt-1">
             <SelectValue placeholder="Wählen Sie eine Kategorie" />
           </SelectTrigger>
@@ -141,7 +142,7 @@ export default function JobBasicsStep({ formData, updateFormData, company }: Job
 
       {/* Description */}
       <div>
-        <Label htmlFor="description">Beschreibung</Label>
+        <Label htmlFor="description">Beschreibung *</Label>
         <p className="text-sm text-muted-foreground mb-2">
           Allgemeine Beschreibung der Position und des Unternehmens
         </p>

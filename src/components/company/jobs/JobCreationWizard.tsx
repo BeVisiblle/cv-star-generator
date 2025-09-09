@@ -19,6 +19,7 @@ import JobSalaryStep from './steps/JobSalaryStep';
 import JobSkillsStep from './steps/JobSkillsStep';
 import JobLanguagesStep from './steps/JobLanguagesStep';
 import JobCompanyStep from './steps/JobCompanyStep';
+import JobAdditionalStep from './steps/JobAdditionalStep';
 import JobPreviewStep from './steps/JobPreviewStep';
 
 export interface JobFormData {
@@ -74,6 +75,19 @@ export interface JobFormData {
   contact_person_role: string;
   contact_person_email: string;
   contact_person_phone: string;
+  
+  // Additional fields
+  company_description: string;
+  application_deadline?: string;
+  application_url?: string;
+  application_email?: string;
+  application_instructions?: string;
+  is_featured: boolean;
+  featured_until?: string;
+  is_urgent: boolean;
+  tags: string[];
+  external_id?: string;
+  source: string;
   
   // Type-specific fields
   internship?: {
@@ -133,6 +147,7 @@ const STEPS = [
   { id: 'skills', title: 'Fähigkeiten & Anforderungen', component: JobSkillsStep },
   { id: 'languages', title: 'Sprachen & Zertifikate', component: JobLanguagesStep },
   { id: 'company', title: 'Unternehmensdarstellung', component: JobCompanyStep },
+  { id: 'additional', title: 'Zusätzliche Optionen', component: JobAdditionalStep },
   { id: 'preview', title: 'Vorschau & Veröffentlichen', component: JobPreviewStep },
 ];
 
@@ -185,6 +200,17 @@ export default function JobCreationWizard({ open, onOpenChange, onJobCreated }: 
     contact_person_role: '',
     contact_person_email: '',
     contact_person_phone: '',
+    company_description: '',
+    application_deadline: '',
+    application_url: '',
+    application_email: '',
+    application_instructions: '',
+    is_featured: false,
+    featured_until: '',
+    is_urgent: false,
+    tags: [],
+    external_id: '',
+    source: 'manual',
     visa_sponsorship: false,
     relocation_support: false,
     travel_percentage: 0,
@@ -295,12 +321,31 @@ export default function JobCreationWizard({ open, onOpenChange, onJobCreated }: 
     switch (STEPS[currentStep].id) {
       case 'basics':
         if (!formData.title) errors.push('Berufsbezeichnung ist erforderlich');
+        if (!formData.team_department) errors.push('Team/Abteilung ist erforderlich');
+        if (!formData.role_family) errors.push('Rollenfamilie ist erforderlich');
+        if (!formData.description) errors.push('Beschreibung ist erforderlich');
         break;
       case 'location':
+        if (!formData.work_mode) errors.push('Arbeitsmodus ist erforderlich');
         if (formData.work_mode !== 'remote') {
+          if (!formData.country) errors.push('Land ist erforderlich');
+          if (!formData.state) errors.push('Bundesland ist erforderlich');
           if (!formData.city) errors.push('Stadt ist erforderlich');
-          if (!formData.postal_code) errors.push('PLZ ist erforderlich');
+          if (!formData.postal_code) errors.push('Postleitzahl ist erforderlich');
+          if (!formData.address_street) errors.push('Straße ist erforderlich');
         }
+        break;
+      case 'time_contract':
+        if (!formData.employment_type) errors.push('Beschäftigungsart ist erforderlich');
+        break;
+      case 'company':
+        if (!formData.contact_person_name) errors.push('Name des Ansprechpartners ist erforderlich');
+        if (!formData.contact_person_role) errors.push('Position/Rolle des Ansprechpartners ist erforderlich');
+        if (!formData.contact_person_email) errors.push('E-Mail des Ansprechpartners ist erforderlich');
+        break;
+      case 'additional':
+        if (!formData.company_description) errors.push('Unternehmensbeschreibung ist erforderlich');
+        if (formData.company_description.length < 250) errors.push('Unternehmensbeschreibung muss mindestens 250 Zeichen haben');
         break;
       case 'time':
         if (formData.hours_per_week_min && formData.hours_per_week_max) {
