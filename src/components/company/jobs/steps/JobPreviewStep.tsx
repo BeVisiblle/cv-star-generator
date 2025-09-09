@@ -4,10 +4,12 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
-import { Eye, Share, CheckCircle, AlertCircle, MapPin, Clock, Euro } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Eye, Share, CheckCircle, AlertCircle, MapPin, Clock, Euro, Users } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { JobFormData } from '../JobCreationWizard';
+import JobCandidatePreview from '../JobCandidatePreview';
 
 interface JobPreviewStepProps {
   formData: JobFormData;
@@ -84,8 +86,41 @@ export default function JobPreviewStep({ formData, updateFormData, company }: Jo
 
   return (
     <div className="space-y-6">
-      {/* Validation Checklist */}
-      <Card>
+      {/* Preview Tabs */}
+      <Tabs defaultValue="candidate" className="w-full">
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="candidate" className="flex items-center gap-2">
+            <Users className="h-4 w-4" />
+            Kandidaten-Ansicht
+          </TabsTrigger>
+          <TabsTrigger value="checklist" className="flex items-center gap-2">
+            <CheckCircle className="h-4 w-4" />
+            Veröffentlichung
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="candidate" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Eye className="h-5 w-5" />
+                So sehen Kandidaten Ihre Stellenanzeige
+              </CardTitle>
+              <p className="text-sm text-muted-foreground">
+                Diese Vorschau zeigt, wie Ihre Stellenanzeige für potenzielle Bewerber dargestellt wird.
+              </p>
+            </CardHeader>
+            <CardContent>
+              <div className="border rounded-lg p-4 bg-gray-50">
+                <JobCandidatePreview formData={formData} company={company} />
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="checklist" className="space-y-6">
+          {/* Validation Checklist */}
+          <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <CheckCircle className="h-5 w-5" />
@@ -238,39 +273,41 @@ export default function JobPreviewStep({ formData, updateFormData, company }: Jo
         </CardContent>
       </Card>
 
-      {/* Terms */}
-      <Card>
-        <CardContent className="pt-6">
-          <div className="flex items-start space-x-2">
-            <Checkbox
-              id="terms"
-              checked={agreedToTerms}
-              onCheckedChange={(checked) => setAgreedToTerms(!!checked)}
-            />
-            <Label htmlFor="terms" className="text-sm">
-              Ich akzeptiere die AGB und Datenschutzbestimmungen. Die Stellenanzeige entspricht 
-              den gesetzlichen Anforderungen und verwendet geschlechtsneutrale Sprache (m/w/d).
-            </Label>
-          </div>
-        </CardContent>
-      </Card>
+          {/* Terms */}
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex items-start space-x-2">
+                <Checkbox
+                  id="terms"
+                  checked={agreedToTerms}
+                  onCheckedChange={(checked) => setAgreedToTerms(!!checked)}
+                />
+                <Label htmlFor="terms" className="text-sm">
+                  Ich akzeptiere die AGB und Datenschutzbestimmungen. Die Stellenanzeige entspricht 
+                  den gesetzlichen Anforderungen und verwendet geschlechtsneutrale Sprache (m/w/d).
+                </Label>
+              </div>
+            </CardContent>
+          </Card>
 
-      {/* Actions */}
-      <div className="flex gap-4">
-        <Button
-          onClick={handlePublish}
-          disabled={!canPublish || isPublishing}
-          className="flex-1"
-        >
+          {/* Actions */}
+          <div className="flex gap-4">
+            <Button
+              onClick={handlePublish}
+              disabled={!canPublish || isPublishing}
+              className="flex-1"
+            >
           <Eye className="h-4 w-4 mr-2" />
           {isPublishing ? 'Veröffentliche...' : 'Jetzt veröffentlichen'}
         </Button>
         
-        <Button variant="outline">
-          <Share className="h-4 w-4 mr-2" />
-          Link kopieren
-        </Button>
-      </div>
+            <Button variant="outline">
+              <Share className="h-4 w-4 mr-2" />
+              Link kopieren
+            </Button>
+          </div>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
