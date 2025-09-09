@@ -10,7 +10,7 @@ import { Eye, Share, CheckCircle, AlertCircle, MapPin, Clock, Euro, Users, Edit,
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { JobFormData } from '../JobCreationWizard';
-import JobCandidatePreview from '../JobCandidatePreview';
+import JobFormPreview from '../JobFormPreview';
 
 interface JobPreviewStepProps {
   formData: JobFormData;
@@ -22,6 +22,7 @@ interface JobPreviewStepProps {
 export default function JobPreviewStep({ formData, updateFormData, company, onEdit }: JobPreviewStepProps) {
   const [isPublishing, setIsPublishing] = useState(false);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
+  const [previewJobId, setPreviewJobId] = useState<string | null>(null);
   const { toast } = useToast();
 
   const validateForm = () => {
@@ -129,14 +130,14 @@ export default function JobPreviewStep({ formData, updateFormData, company, onEd
                           Kandidaten-Ansicht
                         </DialogTitle>
                       </DialogHeader>
-                      <div className="mt-4">
-                        <JobCandidatePreview 
-                          formData={formData} 
-                          company={company} 
-                          onEdit={onEdit}
-                          showEditButton={true}
-                        />
-                      </div>
+                             <div className="mt-4">
+                               <JobFormPreview
+                                 formData={formData}
+                                 company={company}
+                                 onEdit={onEdit}
+                                 showEditButton={true}
+                               />
+                             </div>
                       <div className="flex justify-end gap-2 mt-6 pt-4 border-t">
                         <Button variant="outline" onClick={() => {
                           const dialog = document.querySelector('[role="dialog"]') as HTMLElement;
@@ -158,9 +159,9 @@ export default function JobPreviewStep({ formData, updateFormData, company, onEd
                     </DialogContent>
                   </Dialog>
                 </div>
-                <div className="border rounded-lg p-4 bg-gray-50 max-h-96 overflow-y-auto">
-                  <JobCandidatePreview formData={formData} company={company} />
-                </div>
+                       <div className="border rounded-lg p-4 bg-gray-50 max-h-96 overflow-y-auto">
+                         <JobFormPreview formData={formData} company={company} />
+                       </div>
               </div>
             </CardContent>
           </Card>

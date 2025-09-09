@@ -28,6 +28,6 @@ export default function CompanyJobDetails() {
   }
 
   return (
-    <JobCompanyView />
+    <JobCompanyView jobId={jobId} />
   );
 }

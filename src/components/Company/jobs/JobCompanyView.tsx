@@ -43,8 +43,13 @@ interface JobDetail {
   tags: string[] | null;
 }
 
-export default function JobCompanyView() {
-  const { jobId } = useParams();
+interface JobCompanyViewProps {
+  jobId?: string;
+}
+
+export default function JobCompanyView({ jobId: propJobId }: JobCompanyViewProps) {
+  const { jobId: paramJobId } = useParams();
+  const jobId = propJobId || paramJobId;
   const navigate = useNavigate();
   const { toast } = useToast();
   
