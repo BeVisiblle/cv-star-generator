@@ -1,5 +1,5 @@
 import React from 'react';
-import TestDataInserter from '@/components/TestDataInserter';
+import AdminTestDataInserter from '@/components/AdminTestDataInserter';
 
 export default function TestDataPage() {
   return (
@@ -13,7 +13,7 @@ export default function TestDataPage() {
             </p>
           </div>
           
-          <TestDataInserter />
+          <AdminTestDataInserter />
         </div>
       </div>
     </div>
