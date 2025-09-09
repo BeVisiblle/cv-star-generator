@@ -75,10 +75,13 @@ export function useJobPostingLimits() {
   // Save job as draft
   const saveDraftMutation = useMutation({
     mutationFn: async (jobData: any) => {
+      // Remove certifications from jobData to avoid column error
+      const { certifications, ...cleanJobData } = jobData;
+      
       const { data, error } = await supabase
         .from('job_posts')
         .insert({
-          ...jobData,
+          ...cleanJobData,
           company_id: company?.id,
           is_active: false,
           is_public: false,
@@ -108,9 +111,12 @@ export function useJobPostingLimits() {
   // Update existing job
   const updateJobMutation = useMutation({
     mutationFn: async ({ jobId, jobData }: { jobId: string; jobData: any }) => {
+      // Remove certifications from jobData to avoid column error
+      const { certifications, ...cleanJobData } = jobData;
+      
       const { data, error } = await supabase
         .from('job_posts')
-        .update(jobData)
+        .update(cleanJobData)
         .eq('id', jobId)
         .eq('company_id', company?.id)
         .select()

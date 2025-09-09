@@ -9,7 +9,7 @@ import JobCreationWizard from "@/components/company/jobs/JobCreationWizard";
 import { TokenStatus } from "@/components/Company/TokenStatus";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { JobCard } from "@/components/public/JobCard";
+import { CompanyJobCard } from "@/components/company/CompanyJobCard";
 
 export default function CompanyJobs() {
   const { company, loading: companyLoading } = useCompany();
@@ -132,24 +132,11 @@ export default function CompanyJobs() {
           ) : (
             <div className="grid gap-6">
               {activeJobs.map((job) => (
-                <JobCard
+                <CompanyJobCard
                   key={job.id}
-                  job={{
-                    id: job.id,
-                    title: job.title,
-                    company_name: company.name || '',
-                    city: job.city || '',
-                    job_type: job.category,
-                    work_mode: job.work_mode,
-                    employment_type: job.employment,
-                    salary_min: job.salary_min,
-                    salary_max: job.salary_max,
-                    salary_currency: job.salary_currency,
-                    salary_interval: job.salary_interval,
-                    published_at: job.created_at,
-                    description_md: job.description_md,
-                    slug: job.slug
-                  }}
+                  job={job}
+                  companyName={company.name || ''}
+                  onJobUpdated={refetch}
                 />
               ))}
             </div>
@@ -174,24 +161,11 @@ export default function CompanyJobs() {
           ) : (
             <div className="grid gap-6">
               {draftJobs.map((job) => (
-                <JobCard
+                <CompanyJobCard
                   key={job.id}
-                  job={{
-                    id: job.id,
-                    title: job.title,
-                    company_name: company.name || '',
-                    city: job.city || '',
-                    job_type: job.category,
-                    work_mode: job.work_mode,
-                    employment_type: job.employment,
-                    salary_min: job.salary_min,
-                    salary_max: job.salary_max,
-                    salary_currency: job.salary_currency,
-                    salary_interval: job.salary_interval,
-                    published_at: job.created_at,
-                    description_md: job.description_md,
-                    slug: job.slug
-                  }}
+                  job={job}
+                  companyName={company.name || ''}
+                  onJobUpdated={refetch}
                 />
               ))}
             </div>
@@ -212,24 +186,11 @@ export default function CompanyJobs() {
           ) : (
             <div className="grid gap-6">
               {inactiveJobs.map((job) => (
-                <JobCard
+                <CompanyJobCard
                   key={job.id}
-                  job={{
-                    id: job.id,
-                    title: job.title,
-                    company_name: company.name || '',
-                    city: job.city || '',
-                    job_type: job.category,
-                    work_mode: job.work_mode,
-                    employment_type: job.employment,
-                    salary_min: job.salary_min,
-                    salary_max: job.salary_max,
-                    salary_currency: job.salary_currency,
-                    salary_interval: job.salary_interval,
-                    published_at: job.created_at,
-                    description_md: job.description_md,
-                    slug: job.slug
-                  }}
+                  job={job}
+                  companyName={company.name || ''}
+                  onJobUpdated={refetch}
                 />
               ))}
             </div>
