@@ -136,8 +136,8 @@ export default function JobFormPreview({ formData, company, onEdit, showEditButt
             </CardHeader>
             <CardContent>
               <div className="prose max-w-none">
-                {formData.description_md ? (
-                  <div dangerouslySetInnerHTML={{ __html: formData.description_md }} />
+                {formData.description ? (
+                  <div dangerouslySetInnerHTML={{ __html: formData.description }} />
                 ) : (
                   <p className="text-muted-foreground">Keine Beschreibung verfügbar.</p>
                 )}
@@ -217,7 +217,7 @@ export default function JobFormPreview({ formData, company, onEdit, showEditButt
                 <div className="flex flex-wrap gap-2">
                   {formData.skills.map((skill, index) => (
                     <Badge key={index} variant="secondary">
-                      {skill}
+                      {typeof skill === 'string' ? skill : skill.name}
                     </Badge>
                   ))}
                 </div>
@@ -235,7 +235,7 @@ export default function JobFormPreview({ formData, company, onEdit, showEditButt
                 <div className="flex flex-wrap gap-2">
                   {formData.languages.map((language, index) => (
                     <Badge key={index} variant="outline">
-                      {language}
+                      {typeof language === 'string' ? language : language.language}
                     </Badge>
                   ))}
                 </div>

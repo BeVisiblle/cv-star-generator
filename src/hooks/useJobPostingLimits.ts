@@ -204,8 +204,8 @@ export const useJobPostingLimits = () => {
   // Publish job using RPC function
   const publishJobMutation = useMutation({
     mutationFn: async (jobId: string) => {
-      const { data, error } = await supabase.rpc('publish_job_with_tokens', {
-        p_job_id: jobId
+      const { data, error } = await supabase.functions.invoke('publish_job_with_tokens', {
+        body: { job_id: jobId }
       });
 
       if (error) throw error;

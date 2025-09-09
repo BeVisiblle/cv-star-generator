@@ -7,7 +7,7 @@ import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Calendar, Star, AlertTriangle, Tag, Plus, X } from 'lucide-react';
-import { JobFormData } from '../../company/jobs/JobCreationWizard';
+import { JobFormData } from '../../../company/jobs/JobCreationWizard';
 
 interface JobAdditionalStepProps {
   formData: JobFormData;

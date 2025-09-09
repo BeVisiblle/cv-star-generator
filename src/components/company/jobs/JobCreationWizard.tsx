@@ -19,7 +19,7 @@ import JobSalaryStep from './steps/JobSalaryStep';
 import JobSkillsStep from './steps/JobSkillsStep';
 import JobLanguagesStep from './steps/JobLanguagesStep';
 import JobCompanyStep from './steps/JobCompanyStep';
-import JobAdditionalStep from './steps/JobAdditionalStep';
+import JobAdditionalStep from '../../Company/jobs/steps/JobAdditionalStep';
 import JobPreviewStep from './steps/JobPreviewStep';
 
 export interface JobFormData {

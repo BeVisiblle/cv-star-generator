@@ -105,7 +105,12 @@ export default function JobPostCompanyView({ jobId, onClose }: JobPostCompanyVie
         .single();
 
       if (error) throw error;
-      setJobPost(data);
+      
+      const skills = Array.isArray((data as any).skills) ? (data as any).skills : [];
+      setJobPost({
+        ...(data as any),
+        skills
+      });
     } catch (error: any) {
       console.error('Error loading job post:', error);
       toast({

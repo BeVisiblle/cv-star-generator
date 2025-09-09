@@ -10,7 +10,7 @@ import { Eye, Share, CheckCircle, AlertCircle, MapPin, Clock, Euro, Users, Edit,
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { JobFormData } from '../JobCreationWizard';
-import JobFormPreview from '../JobFormPreview';
+import JobFormPreview from '../../Company/jobs/JobFormPreview';
 
 interface JobPreviewStepProps {
   formData: JobFormData;
