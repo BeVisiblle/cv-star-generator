@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -6,7 +7,6 @@ import { Badge } from "@/components/ui/badge";
 import { Plus, Briefcase, Settings, Archive, Eye, Save, Users } from "lucide-react";
 import { useCompany } from "@/hooks/useCompany";
 import JobCreationWizard from "@/components/company/jobs/JobCreationWizard";
-import JobPostCompanyView from "@/components/Company/jobs/JobPostCompanyView";
 import { TokenStatus } from "@/components/Company/TokenStatus";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -14,9 +14,8 @@ import { CompanyJobCard } from "@/components/company/CompanyJobCard";
 
 export default function CompanyJobs() {
   const { company, loading: companyLoading } = useCompany();
+  const navigate = useNavigate();
   const [showJobPostDialog, setShowJobPostDialog] = useState(false);
-  const [selectedJobId, setSelectedJobId] = useState<string | null>(null);
-  const [showJobDetails, setShowJobDetails] = useState(false);
 
   // Fetch company job posts
   const { data: jobPosts = [], isLoading, refetch } = useQuery({
@@ -50,21 +49,12 @@ export default function CompanyJobs() {
   };
 
   const handleViewJob = (jobId: string) => {
-    setSelectedJobId(jobId);
-    setShowJobDetails(true);
-  };
-
-  const handleCloseJobDetails = () => {
-    setShowJobDetails(false);
-    setSelectedJobId(null);
+    navigate(`/company/jobs/${jobId}`);
   };
 
   const handleEditJob = (jobId: string) => {
     // Hier könnte man zur Job-Bearbeitung navigieren
     console.log('Edit job:', jobId);
-    // Für jetzt schließen wir die Details und zeigen den Job-Creation-Wizard
-    setShowJobDetails(false);
-    setSelectedJobId(null);
     // TODO: Implementiere Job-Bearbeitung
   };
 
@@ -237,13 +227,6 @@ export default function CompanyJobs() {
         onJobCreated={handleJobCreated}
       />
 
-      {/* Job Post Company View */}
-      {showJobDetails && selectedJobId && (
-        <JobPostCompanyView
-          jobId={selectedJobId}
-          onClose={handleCloseJobDetails}
-        />
-      )}
     </div>
   );
 }

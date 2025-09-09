@@ -257,29 +257,27 @@ export default function JobPostCompanyView({ jobId, onClose }: JobPostCompanyVie
   }
 
   return (
-    <Dialog open={true} onOpenChange={onClose}>
-      <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <Briefcase className="h-5 w-5" />
-            {jobPost?.title || 'Stellenanzeige'}
-          </DialogTitle>
-        </DialogHeader>
-        <div className="space-y-6">
+    <div className="max-w-6xl mx-auto p-6 space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">{jobPost.title}</h1>
-          <div className="flex items-center gap-2 mt-2">
-            <Badge variant={jobPost.is_active ? "default" : "secondary"}>
-              {jobPost.is_active ? "Aktiv" : "Inaktiv"}
-            </Badge>
-            <Badge variant={jobPost.is_public ? "default" : "outline"}>
-              {jobPost.is_public ? "Öffentlich" : "Privat"}
-            </Badge>
-            {jobPost.is_draft && (
-              <Badge variant="outline">Entwurf</Badge>
-            )}
+        <div className="flex items-center gap-4">
+          <Button variant="outline" onClick={onClose} className="flex items-center gap-2">
+            <X className="h-4 w-4" />
+            Zurück
+          </Button>
+          <div>
+            <h1 className="text-2xl font-bold">{jobPost.title}</h1>
+            <div className="flex items-center gap-2 mt-2">
+              <Badge variant={jobPost.is_active ? "default" : "secondary"}>
+                {jobPost.is_active ? "Aktiv" : "Inaktiv"}
+              </Badge>
+              <Badge variant={jobPost.is_public ? "default" : "outline"}>
+                {jobPost.is_public ? "Öffentlich" : "Privat"}
+              </Badge>
+              {jobPost.is_draft && (
+                <Badge variant="outline">Entwurf</Badge>
+              )}
+            </div>
           </div>
         </div>
         <div className="flex gap-2">
@@ -288,9 +286,6 @@ export default function JobPostCompanyView({ jobId, onClose }: JobPostCompanyVie
             onClick={toggleJobStatus}
           >
             {jobPost.is_active ? "Deaktivieren" : "Aktivieren"}
-          </Button>
-          <Button variant="outline" onClick={onClose}>
-            Schließen
           </Button>
         </div>
       </div>
@@ -576,8 +571,6 @@ export default function JobPostCompanyView({ jobId, onClose }: JobPostCompanyVie
           </Card>
         </TabsContent>
       </Tabs>
-        </div>
-      </DialogContent>
-    </Dialog>
+    </div>
   );
 }

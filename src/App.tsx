@@ -66,6 +66,7 @@ const CompanyFeed = lazy(() => import("./pages/Company/Feed"));
 const CandidatesPipelinePage = lazy(() => import("./pages/Company/CandidatesPipeline"));
 const MatchingProfilePage = lazy(() => import("./pages/Company/MatchingProfile"));
 const CompanyJobs = lazy(() => import("./pages/Company/Jobs"));
+const CompanyJobDetails = lazy(() => import("./pages/Company/JobDetails"));
 
 // Admin components - lazy loaded
 const AdminLayout = lazy(() => import("./pages/Admin/AdminLayout"));
@@ -277,6 +278,7 @@ const App = () => (
                 <Route path="profile/:id" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><CompanyProfileView /></Suspense>} />
 
                 <Route path="jobs" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><CompanyJobs /></Suspense>} />
+                <Route path="jobs/:jobId" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><CompanyJobDetails /></Suspense>} />
                 <Route path="candidates/pipeline" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><CandidatesPipelinePage /></Suspense>} />
                 <Route path="candidates/saved" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><CompanyComingSoon /></Suspense>} />
                 <Route path="candidates/token-history" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><CompanyComingSoon /></Suspense>} />
