@@ -5,6 +5,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import PostCard from './PostCard';
+import EnhancedCommunityFeed from './EnhancedCommunityFeed';
 import { Loader2 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -14,7 +15,7 @@ const PAGE_SIZE = 20;
 
 type FeedSortOption = "relevant" | "newest";
 
-export default function CommunityFeed() {
+export function LegacyCommunityFeed() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const viewerId = user?.id || null;
@@ -339,4 +340,9 @@ export default function CommunityFeed() {
       )}
     </div>
   );
+}
+
+// Export the enhanced community feed as the default
+export default function CommunityFeed() {
+  return <EnhancedCommunityFeed />;
 }

@@ -5054,6 +5054,16 @@ export type Database = {
         Args: { geom1: unknown; geom2: unknown }
         Returns: boolean
       }
+      add_community_comment: {
+        Args: {
+          p_author_company_id?: string
+          p_author_user_id?: string
+          p_body_md: string
+          p_parent_comment_id?: string
+          p_post_id: string
+        }
+        Returns: string
+      }
       add_seats: {
         Args: { _add: number; _client_request_id?: string; _company_id: string }
         Returns: {
@@ -5102,6 +5112,17 @@ export type Database = {
           p_plan: Database["public"]["Enums"]["plan_code"]
         }
         Returns: undefined
+      }
+      apply_from_community_post: {
+        Args: {
+          p_applicant_user_id: string
+          p_cv_url?: string
+          p_email: string
+          p_full_name: string
+          p_phone?: string
+          p_post_id: string
+        }
+        Returns: string
       }
       apply_one_click: {
         Args: {
@@ -5236,6 +5257,19 @@ export type Database = {
           lon: number
         }[]
       }
+      create_community_post: {
+        Args: {
+          p_actor_company_id?: string
+          p_actor_user_id?: string
+          p_body_md?: string
+          p_job_id?: string
+          p_media?: Json
+          p_mentions?: Json
+          p_post_kind?: Database["public"]["Enums"]["post_kind"]
+          p_visibility?: Database["public"]["Enums"]["post_visibility"]
+        }
+        Returns: string
+      }
       create_company_account: {
         Args: {
           p_city: string
@@ -5281,6 +5315,10 @@ export type Database = {
       enablelongtransactions: {
         Args: Record<PropertyKey, never>
         Returns: string
+      }
+      ensure_community_preferences: {
+        Args: { p_user_id: string }
+        Returns: undefined
       }
       ensure_job_slug: {
         Args: { p_job: string }
@@ -5531,6 +5569,41 @@ export type Database = {
       geomfromewkt: {
         Args: { "": string }
         Returns: unknown
+      }
+      get_community_feed: {
+        Args: { p_limit?: number; p_offset?: number; p_user_id: string }
+        Returns: {
+          actor_company_id: string
+          actor_user_id: string
+          applies_enabled: boolean
+          body_md: string
+          comment_count: number
+          created_at: string
+          id: string
+          job_id: string
+          like_count: number
+          media: Json
+          post_kind: Database["public"]["Enums"]["post_kind"]
+          share_count: number
+          updated_at: string
+          visibility: Database["public"]["Enums"]["post_visibility"]
+        }[]
+      }
+      get_community_preferences: {
+        Args: { p_user_id: string }
+        Returns: {
+          blocked_ids: string[] | null
+          created_at: string | null
+          muted_company_ids: string[] | null
+          muted_user_ids: string[] | null
+          origin_filter: string | null
+          radius_km: number | null
+          show_company_posts: boolean | null
+          show_job_shares: boolean | null
+          show_user_posts: boolean | null
+          updated_at: string | null
+          user_id: string
+        }
       }
       get_companies_public: {
         Args: { limit_count?: number; offset_count?: number; search?: string }
@@ -6099,9 +6172,52 @@ export type Database = {
           postal_code: string
         }[]
       }
+      set_community_preferences: {
+        Args: {
+          p_muted_company_ids?: string[]
+          p_muted_user_ids?: string[]
+          p_origin_filter?: string
+          p_radius_km?: number
+          p_show_company_posts?: boolean
+          p_show_job_shares?: boolean
+          p_show_user_posts?: boolean
+          p_user_id: string
+        }
+        Returns: {
+          blocked_ids: string[] | null
+          created_at: string | null
+          muted_company_ids: string[] | null
+          muted_user_ids: string[] | null
+          origin_filter: string | null
+          radius_km: number | null
+          show_company_posts: boolean | null
+          show_job_shares: boolean | null
+          show_user_posts: boolean | null
+          updated_at: string | null
+          user_id: string
+        }
+      }
       set_limit: {
         Args: { "": number }
         Returns: number
+      }
+      share_community_post: {
+        Args: {
+          p_comment?: string
+          p_post_id: string
+          p_sharer_company_id?: string
+          p_sharer_user_id?: string
+        }
+        Returns: string
+      }
+      share_job_as_post: {
+        Args: {
+          p_company_id: string
+          p_custom_message?: string
+          p_job_id: string
+          p_visibility?: Database["public"]["Enums"]["post_visibility"]
+        }
+        Returns: string
       }
       show_limit: {
         Args: Record<PropertyKey, never>
@@ -7226,6 +7342,14 @@ export type Database = {
       text: {
         Args: { "": unknown }
         Returns: string
+      }
+      toggle_community_like: {
+        Args: {
+          p_liker_company_id?: string
+          p_liker_user_id?: string
+          p_post_id: string
+        }
+        Returns: Json
       }
       unfollow_company: {
         Args: { p_company_id: string; p_profile_id: string }
