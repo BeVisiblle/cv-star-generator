@@ -158,10 +158,13 @@ export type Database = {
           applied_at: string | null
           candidate_id: string
           company_id: string
+          cover_letter: string | null
           created_at: string
           id: string
           job_id: string
           job_post_id: string | null
+          portfolio_url: string | null
+          resume_url: string | null
           source: string
           stage: string
           status: string | null
@@ -174,10 +177,13 @@ export type Database = {
           applied_at?: string | null
           candidate_id: string
           company_id: string
+          cover_letter?: string | null
           created_at?: string
           id?: string
           job_id: string
           job_post_id?: string | null
+          portfolio_url?: string | null
+          resume_url?: string | null
           source?: string
           stage?: string
           status?: string | null
@@ -190,10 +196,13 @@ export type Database = {
           applied_at?: string | null
           candidate_id?: string
           company_id?: string
+          cover_letter?: string | null
           created_at?: string
           id?: string
           job_id?: string
           job_post_id?: string | null
+          portfolio_url?: string | null
+          resume_url?: string | null
           source?: string
           stage?: string
           status?: string | null

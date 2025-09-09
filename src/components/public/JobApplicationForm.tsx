@@ -97,13 +97,16 @@ export default function JobApplicationForm({
       const { error } = await supabase
         .from('applications')
         .insert({
+          job_id: jobId,
           job_post_id: jobId,
+          candidate_id: user.id,
           user_id: user.id,
           company_id: companyId,
           cover_letter: formData.coverLetter.trim(),
           resume_url: resumeUrl,
           portfolio_url: formData.portfolioUrl || null,
-          status: 'applied'
+          status: 'applied',
+          applied_at: new Date().toISOString()
         });
 
       if (error) throw error;

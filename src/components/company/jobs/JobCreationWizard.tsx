@@ -155,16 +155,13 @@ export default function JobCreationWizard({ open, onOpenChange, onJobCreated }: 
   const { company } = useCompany();
   const { toast } = useToast();
   const { 
-    canPost, 
-    remainingTokens, 
+    canCreateJob, 
+    tokenBalance, 
     remainingJobPosts, 
     tokensPerPost,
     publishJob,
-    isPublishing,
     saveDraft,
-    isSavingDraft,
-    updateJob,
-    isUpdating
+    updateJob
   } = useJobPostingLimits();
   const [currentStep, setCurrentStep] = useState(0);
   const [savedJobId, setSavedJobId] = useState<string | null>(null);
@@ -398,18 +395,9 @@ export default function JobCreationWizard({ open, onOpenChange, onJobCreated }: 
   const handleSaveAsDraft = async () => {
     if (!company?.id) return;
 
-    saveDraft.mutate(formData, {
-      onSuccess: (result) => {
-        if (result && result.id) {
-          setSavedJobId(result.id);
-          onJobCreated?.();
-          onOpenChange(false);
-        }
-      },
-      onError: (error) => {
-        console.error('Save error:', error);
-      }
-    });
+    await saveDraft(formData);
+    onJobCreated?.();
+    onOpenChange(false);
   };
 
   const handlePublish = async () => {
@@ -419,16 +407,13 @@ export default function JobCreationWizard({ open, onOpenChange, onJobCreated }: 
       // First save as draft if not already saved
       let jobId = savedJobId;
       if (!jobId) {
-        saveDraft.mutate(formData, {
-          onSuccess: (result) => {
-            if (result && result.id) {
-              setSavedJobId(result.id);
-              publishJob(result.id);
-              onJobCreated?.();
-              onOpenChange(false);
-            }
-          }
-        });
+        const result = await saveDraft(formData);
+        if (result && result.id) {
+          setSavedJobId(result.id);
+          await publishJob(result.id);
+          onJobCreated?.();
+          onOpenChange(false);
+        }
         return;
       }
 
@@ -497,7 +482,6 @@ export default function JobCreationWizard({ open, onOpenChange, onJobCreated }: 
                     formData={formData}
                     updateFormData={updateFormData}
                     company={company}
-                    onEdit={currentStep === STEPS.length - 1 ? () => handleEdit('basics') : undefined}
                   />
                 )}
               </CardContent>
@@ -554,11 +538,10 @@ export default function JobCreationWizard({ open, onOpenChange, onJobCreated }: 
           <div className="flex gap-2">
             <Button
               onClick={handleSaveAsDraft}
-              disabled={isSavingDraft}
               variant="outline"
             >
               <Save className="h-4 w-4 mr-2" />
-              {isSavingDraft ? 'Speichert...' : 'Als Entwurf speichern'}
+              Als Entwurf speichern
             </Button>
           </div>
 
@@ -581,11 +564,11 @@ export default function JobCreationWizard({ open, onOpenChange, onJobCreated }: 
             ) : (
               <Button 
                 onClick={handlePublish} 
-                disabled={!canPost || isPublishing || isSavingDraft}
-                className={!canPost ? 'opacity-50' : ''}
+                disabled={!canCreateJob}
+                className={!canCreateJob ? 'opacity-50' : ''}
               >
                 <Eye className="h-4 w-4 mr-2" />
-                {isPublishing ? 'Veröffentlicht...' : 'Veröffentlichen'}
+                Veröffentlichen
               </Button>
             )}
           </div>
@@ -596,7 +579,7 @@ export default function JobCreationWizard({ open, onOpenChange, onJobCreated }: 
           <div className="mt-4 p-3 bg-muted/50 rounded-lg text-sm">
             <div className="flex items-center justify-between">
               <div>
-                <span className="font-medium">Verbleibende Tokens:</span> {remainingTokens}
+                <span className="font-medium">Token Balance:</span> {tokenBalance}
               </div>
               <div>
                 <span className="font-medium">Verbleibende Job-Posts:</span> {remainingJobPosts}
@@ -605,9 +588,9 @@ export default function JobCreationWizard({ open, onOpenChange, onJobCreated }: 
                 <span className="font-medium">Tokens pro Post:</span> {tokensPerPost}
               </div>
             </div>
-            {!canPost && (
+            {!canCreateJob && (
               <div className="mt-2 text-destructive text-xs">
-                {remainingTokens < tokensPerPost 
+                {tokenBalance < tokensPerPost 
                   ? 'Nicht genügend Tokens verfügbar. Bitte kaufen Sie mehr Tokens.'
                   : 'Job-Posting-Limit erreicht. Bitte upgraden Sie Ihren Plan.'
                 }

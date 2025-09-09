@@ -103,7 +103,7 @@ const formatDate = (dateString: string) => {
 };
 
 export function CompanyJobCard({ job, companyName, company, onJobUpdated, onViewJob, onEdit }: CompanyJobCardProps) {
-  const { publishJob, isPublishing, updateJob } = useJobPostingLimits();
+  const { publishJob, updateJob } = useJobPostingLimits();
   const { toast } = useToast();
   const [isUpdating, setIsUpdating] = useState(false);
 
@@ -115,7 +115,7 @@ export function CompanyJobCard({ job, companyName, company, onJobUpdated, onView
   const handleToggleActive = async () => {
     setIsUpdating(true);
     try {
-      await updateJob.mutateAsync({
+      await updateJob({
         jobId: job.id,
         jobData: { is_active: !job.is_active }
       });
@@ -130,7 +130,7 @@ export function CompanyJobCard({ job, companyName, company, onJobUpdated, onView
   const handleTogglePublic = async () => {
     setIsUpdating(true);
     try {
-      await updateJob.mutateAsync({
+      await updateJob({
         jobId: job.id,
         jobData: { is_public: !job.is_public }
       });
@@ -242,7 +242,7 @@ export function CompanyJobCard({ job, companyName, company, onJobUpdated, onView
                 </DropdownMenuItem>
                 
                 {!job.is_active ? (
-                  <DropdownMenuItem onClick={handlePublish} disabled={isPublishing}>
+                  <DropdownMenuItem onClick={handlePublish}>
                     <Edit className="h-4 w-4 mr-2" />
                     Veröffentlichen
                   </DropdownMenuItem>

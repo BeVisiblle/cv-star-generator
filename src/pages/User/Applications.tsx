@@ -88,7 +88,7 @@ export default function Applications() {
         .order('applied_at', { ascending: false });
 
       if (error) throw error;
-      setApplications(data || []);
+      setApplications((data || []) as any);
     } catch (error: any) {
       console.error('Error loading applications:', error);
       toast({
