@@ -24,7 +24,7 @@ export const useJobPostingLimits = () => {
           )
         `)
         .eq('company_id', company.id)
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
       return data;
@@ -59,7 +59,7 @@ export const useJobPostingLimits = () => {
         job_type: jobData.job_type,
         team_department: jobData.team_department,
         role_family: jobData.role_family,
-        description: jobData.description,
+        description_md: jobData.description,
         work_mode: jobData.work_mode,
         city: jobData.city,
         address_street: jobData.address_street,
@@ -135,7 +135,7 @@ export const useJobPostingLimits = () => {
         job_type: jobData.job_type,
         team_department: jobData.team_department,
         role_family: jobData.role_family,
-        description: jobData.description,
+        description_md: jobData.description,
         work_mode: jobData.work_mode,
         city: jobData.city,
         address_street: jobData.address_street,
@@ -229,7 +229,7 @@ export const useJobPostingLimits = () => {
   });
 
   // Calculate limits and usage
-  const maxJobPosts = subscriptionData?.plans?.max_job_posts || 0;
+  const maxJobPosts = subscriptionData?.plans?.max_job_posts ?? 3;
   const currentJobPosts = jobPostsData?.count || 0;
   const remainingJobPosts = Math.max(0, maxJobPosts - currentJobPosts);
   const canCreateJob = remainingJobPosts > 0;
