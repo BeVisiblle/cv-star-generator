@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { MapPin, Briefcase, Building, Clock, Euro, Calendar } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import ShareJobButton from "./ShareJobButton";
 
 interface JobCardProps {
   job: {
@@ -11,9 +12,9 @@ interface JobCardProps {
     company_name: string;
     city: string;
     country?: string;
-    category?: string;
+    job_type?: string;
     work_mode?: string;
-    employment?: string;
+    employment_type?: string;
     salary_min?: number;
     salary_max?: number;
     salary_currency?: string;
@@ -21,17 +22,18 @@ interface JobCardProps {
     published_at: string;
     description_md?: string;
     slug?: string;
+    company_id?: string; // Add company_id for sharing
   };
   onApply?: (jobId: string) => void;
 }
 
 const getCategoryLabel = (category: string) => {
   switch (category) {
-    case 'azubi':
+    case 'apprenticeship':
       return 'Ausbildung';
-    case 'fachkraft':
-      return 'Fachkraft';
-    case 'praktikum':
+    case 'professional':
+      return 'Berufserfahren';
+    case 'internship':
       return 'Praktikum';
     default:
       return category;
@@ -53,13 +55,13 @@ const getWorkModeLabel = (workMode: string) => {
 
 const getEmploymentLabel = (employment: string) => {
   switch (employment) {
-    case 'vollzeit':
+    case 'fulltime':
       return 'Vollzeit';
-    case 'teilzeit':
+    case 'parttime':
       return 'Teilzeit';
-    case 'ausbildung':
+    case 'apprenticeship':
       return 'Ausbildung';
-    case 'praktikum':
+    case 'internship':
       return 'Praktikum';
     default:
       return employment;
@@ -152,16 +154,16 @@ export function JobCard({ job, onApply }: JobCardProps) {
                   <MapPin className="h-3 w-3 flex-shrink-0" />
                   <span className="truncate">{job.city}</span>
                 </div>
-                {job.category && (
+                {job.job_type && (
                   <div className="flex items-center gap-1 flex-shrink-0">
                     <Briefcase className="h-3 w-3" />
-                    <span className="truncate">{getCategoryLabel(job.category)}</span>
+                    <span className="truncate">{getCategoryLabel(job.job_type)}</span>
                   </div>
                 )}
-                {job.employment && (
+                {job.employment_type && (
                   <div className="flex items-center gap-1 flex-shrink-0">
                     <Clock className="h-3 w-3" />
-                    <span className="truncate">{getEmploymentLabel(job.employment)}</span>
+                    <span className="truncate">{getEmploymentLabel(job.employment_type)}</span>
                   </div>
                 )}
               </div>
@@ -227,6 +229,17 @@ export function JobCard({ job, onApply }: JobCardProps) {
               Details ansehen
             </Button>
           </div>
+          {/* Share Button */}
+          {job.company_id && (
+            <div className="w-full">
+              <ShareJobButton 
+                jobId={job.id} 
+                orgId={job.company_id}
+                size="sm"
+                className="w-full text-[10px] sm:text-xs px-1 sm:px-2 h-8"
+              />
+            </div>
+          )}
         </div>
       </CardContent>
     </Card>

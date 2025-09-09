@@ -103,30 +103,25 @@ function CompanyProtectedRoute({ children }: { children: React.ReactNode }) {
     async function checkCompanyAccess() {
       // Check demo mode FIRST and IMMEDIATELY
       const demoMode = localStorage.getItem('demoMode') === 'true';
-      console.log('Demo mode check:', demoMode);
       
       if (demoMode) {
-        console.log('Demo mode detected - allowing company access');
         setUserType('company');
         setIsLoading(false);
         return;
       }
 
       if (!user) {
-        console.log('No user found');
+        setUserType('not_company');
         setIsLoading(false);
         return;
       }
 
       try {
-        console.log('Checking company user for:', user.id);
         const { data: companyUser, error } = await supabase
           .from('company_users')
           .select('*')
           .eq('user_id', user.id)
           .single();
-
-        console.log('Company user check result:', { data: companyUser, error });
 
         if (companyUser && !error) {
           setUserType('company');
@@ -144,7 +139,6 @@ function CompanyProtectedRoute({ children }: { children: React.ReactNode }) {
   }, [user]);
 
   if (isLoading) {
-    console.log('CompanyProtectedRoute: Loading...');
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
@@ -152,19 +146,14 @@ function CompanyProtectedRoute({ children }: { children: React.ReactNode }) {
     );
   }
 
-  console.log('CompanyProtectedRoute: User type:', userType, 'User:', !!user);
-
   if (!user && localStorage.getItem('demoMode') !== 'true') {
-    console.log('No user and no demo mode - redirecting to auth');
     return <Navigate to="/auth" replace />;
   }
 
   if (userType !== 'company') {
-    console.log('Not a company user - redirecting to onboarding');
     return <Navigate to="/company/onboarding" replace />;
   }
 
-  console.log('Access granted to company routes');
   return <>{children}</>;
 }
 
@@ -225,11 +214,11 @@ function UniversalLayout({ children }: { children: React.ReactNode }) {
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <AuthProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
+        <TooltipProvider>
+          <AuthProvider>
+            <Toaster />
+            <Sonner />
+            <BrowserRouter>
           <UniversalLayout>
             <Routes>
               <Route path="/" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen bg-black"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div></div>}><BaseLayout className="bg-black text-white"><Index /></BaseLayout></Suspense>} />
@@ -255,6 +244,7 @@ const App = () => (
               {/* Public job listings */}
               <Route path="/jobs" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><BaseLayout><PublicJobs /></BaseLayout></Suspense>} />
               <Route path="/jobs/:slug" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><BaseLayout><PublicJobDetail /></BaseLayout></Suspense>} />
+              
               
               {/* CV Generator - Open for everyone, but validates complete profiles */}
               <Route path="/cv-generator" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><CVGeneratorGate><CVGenerator /></CVGeneratorGate></Suspense>} />

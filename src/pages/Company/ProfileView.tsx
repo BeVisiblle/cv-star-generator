@@ -11,7 +11,7 @@ import { LinkedInProfileMain } from '@/components/linkedin/LinkedInProfileMain';
 import { LinkedInProfileSidebar } from '@/components/linkedin/LinkedInProfileSidebar';
 import { LinkedInProfileExperience } from '@/components/linkedin/LinkedInProfileExperience';
 import { LinkedInProfileEducation } from '@/components/linkedin/LinkedInProfileEducation';
-import { LinkedInProfileActivity } from '@/components/linkedin/LinkedInProfileActivity';
+import ActivityTab from '@/components/profile/ActivityTab';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
 import { useCompany } from '@/hooks/useCompany';
@@ -237,9 +237,7 @@ const CompanyProfileView = () => {
           />
 
           {/* Activity Section */}
-          <LinkedInProfileActivity 
-            profile={displayProfile}
-          />
+          <ActivityTab userId={displayProfile?.id} />
         </main>
 
         {/* Right Sidebar */}

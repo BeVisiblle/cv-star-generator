@@ -13,11 +13,11 @@ interface PublicJob {
   company_id: string;
   company_name: string;
   title: string;
-  category: string;
+  job_type: string;
   city: string;
   country: string;
   work_mode: string;
-  employment: string;
+  employment_type: string;
   salary_currency: string;
   salary_min: number | null;
   salary_max: number | null;
@@ -55,13 +55,52 @@ export default function PublicJobsList() {
   async function loadJobs() {
     try {
       const { data, error } = await supabase
-        .from('public_job_listings')
-        .select('*')
+        .from('job_posts')
+        .select(`
+          id,
+          title,
+          city,
+          country,
+          work_mode,
+          employment,
+          salary_currency,
+          salary_min,
+          salary_max,
+          salary_interval,
+          published_at,
+          description_md,
+          company_id,
+          companies!inner(name)
+        `)
+        .eq('is_public', true)
+        .eq('is_active', true)
         .order('published_at', { ascending: false })
         .limit(50);
 
       if (error) throw error;
-      setJobs(data || []);
+      
+      // Transform data to match expected format
+      const transformedJobs = (data || []).map(job => ({
+        id: job.id,
+        slug: job.id, // Use ID as slug for now
+        company_id: job.company_id,
+        company_name: (job.companies as any)?.name || 'Unbekanntes Unternehmen',
+        title: job.title,
+        job_type: job.job_type || 'professional',
+        city: job.city,
+        country: job.country,
+        work_mode: job.work_mode,
+        employment_type: job.employment_type,
+        salary_currency: job.salary_currency,
+        salary_min: job.salary_min,
+        salary_max: job.salary_max,
+        salary_interval: job.salary_interval,
+        published_at: job.published_at,
+        description_snippet: job.description_md ? job.description_md.substring(0, 200) + '...' : '',
+        description_md: job.description_md
+      }));
+      
+      setJobs(transformedJobs);
     } catch (error) {
       console.error('Error loading jobs:', error);
       toast.error('Fehler beim Laden der Stellenanzeigen');
@@ -79,7 +118,7 @@ export default function PublicJobsList() {
     }
 
     // Category filter
-    if (filters.category && job.category !== filters.category) return false;
+    if (filters.category && job.job_type !== filters.category) return false;
 
     // Location filter
     if (filters.location) {
@@ -91,7 +130,7 @@ export default function PublicJobsList() {
     if (filters.workMode && job.work_mode !== filters.workMode) return false;
 
     // Employment filter
-    if (filters.employment && job.employment !== filters.employment) return false;
+    if (filters.employment && job.employment_type !== filters.employment) return false;
 
     return true;
   });
@@ -157,7 +196,20 @@ export default function PublicJobsList() {
       {showAdvancedFilters && (
         <Card className="mb-6">
           <CardContent className="p-4">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <div>
+                <label className="text-sm font-medium mb-2 block">Kategorie</label>
+                <select
+                  value={filters.category}
+                  onChange={(e) => setFilters({ ...filters, category: e.target.value })}
+                  className="w-full p-2 border rounded-md text-sm"
+                >
+                  <option value="">Alle</option>
+                  <option value="internship">Praktikum</option>
+                  <option value="apprenticeship">Ausbildung</option>
+                  <option value="professional">Berufserfahren</option>
+                </select>
+              </div>
               <div>
                 <label className="text-sm font-medium mb-2 block">Arbeitsort</label>
                 <select
@@ -179,10 +231,10 @@ export default function PublicJobsList() {
                   className="w-full p-2 border rounded-md text-sm"
                 >
                   <option value="">Alle</option>
-                  <option value="vollzeit">Vollzeit</option>
-                  <option value="teilzeit">Teilzeit</option>
-                  <option value="ausbildung">Ausbildung</option>
-                  <option value="praktikum">Praktikum</option>
+                  <option value="fulltime">Vollzeit</option>
+                  <option value="parttime">Teilzeit</option>
+                  <option value="apprenticeship">Ausbildung</option>
+                  <option value="internship">Praktikum</option>
                 </select>
               </div>
               <div>

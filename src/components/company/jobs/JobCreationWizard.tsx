@@ -9,6 +9,7 @@ import { ArrowLeft, ArrowRight, Save, Eye, Sparkles, CheckCircle } from 'lucide-
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useCompany } from '@/hooks/useCompany';
+import { useJobPostingLimits } from '@/hooks/useJobPostingLimits';
 
 // Step components
 import JobBasicsStep from './steps/JobBasicsStep';
@@ -136,7 +137,22 @@ const STEPS = [
 ];
 
 export default function JobCreationWizard({ open, onOpenChange, onJobCreated }: JobCreationWizardProps) {
+  const { company } = useCompany();
+  const { toast } = useToast();
+  const { 
+    canPost, 
+    remainingTokens, 
+    remainingJobPosts, 
+    tokensPerPost,
+    publishJob,
+    isPublishing,
+    saveDraft,
+    isSavingDraft,
+    updateJob,
+    isUpdating
+  } = useJobPostingLimits();
   const [currentStep, setCurrentStep] = useState(0);
+  const [savedJobId, setSavedJobId] = useState<string | null>(null);
   const [formData, setFormData] = useState<JobFormData>({
     title: '',
     job_type: 'professional',
@@ -174,11 +190,7 @@ export default function JobCreationWizard({ open, onOpenChange, onJobCreated }: 
     travel_percentage: 0,
   });
   const [isAIGenerating, setIsAIGenerating] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
-
-  const { company } = useCompany();
-  const { toast } = useToast();
 
   const progress = ((currentStep + 1) / STEPS.length) * 100;
   const CurrentStepComponent = STEPS[currentStep]?.component;
@@ -323,33 +335,42 @@ export default function JobCreationWizard({ open, onOpenChange, onJobCreated }: 
   const handleSaveAsDraft = async () => {
     if (!company?.id) return;
 
-    setIsSaving(true);
     try {
-      const { error } = await supabase.from('job_posts').insert({
-        company_id: company.id,
-        ...formData,
-        is_active: false,
-        is_public: false,
-      });
-
-      if (error) throw error;
-
-      toast({
-        title: "Entwurf gespeichert",
-        description: "Ihre Stellenanzeige wurde als Entwurf gespeichert.",
-      });
-
-      onJobCreated?.();
-      onOpenChange(false);
+      const result = await saveDraft(formData);
+      if (result) {
+        setSavedJobId(result.id);
+        onJobCreated?.();
+        onOpenChange(false);
+      }
     } catch (error) {
       console.error('Save error:', error);
-      toast({
-        title: "Speichern fehlgeschlagen",
-        description: "Konnte Entwurf nicht speichern.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsSaving(false);
+    }
+  };
+
+  const handlePublish = async () => {
+    if (!company?.id) return;
+
+    try {
+      // First save as draft if not already saved
+      let jobId = savedJobId;
+      if (!jobId) {
+        const result = await saveDraft(formData);
+        if (result) {
+          jobId = result.id;
+          setSavedJobId(jobId);
+        } else {
+          return;
+        }
+      }
+
+      // Then publish with token consumption
+      if (jobId) {
+        publishJob(jobId);
+        onJobCreated?.();
+        onOpenChange(false);
+      }
+    } catch (error) {
+      console.error('Publish error:', error);
     }
   };
 
@@ -463,11 +484,11 @@ export default function JobCreationWizard({ open, onOpenChange, onJobCreated }: 
           <div className="flex gap-2">
             <Button
               onClick={handleSaveAsDraft}
-              disabled={isSaving}
+              disabled={isSavingDraft}
               variant="outline"
             >
               <Save className="h-4 w-4 mr-2" />
-              {isSaving ? 'Speichert...' : 'Als Entwurf speichern'}
+              {isSavingDraft ? 'Speichert...' : 'Als Entwurf speichern'}
             </Button>
           </div>
 
@@ -488,13 +509,42 @@ export default function JobCreationWizard({ open, onOpenChange, onJobCreated }: 
                 <ArrowRight className="h-4 w-4 ml-2" />
               </Button>
             ) : (
-              <Button onClick={() => {/* Handle publish */}}>
+              <Button 
+                onClick={handlePublish} 
+                disabled={!canPost || isPublishing || isSavingDraft}
+                className={!canPost ? 'opacity-50' : ''}
+              >
                 <Eye className="h-4 w-4 mr-2" />
-                Veröffentlichen
+                {isPublishing ? 'Veröffentlicht...' : 'Veröffentlichen'}
               </Button>
             )}
           </div>
         </div>
+
+        {/* Token and Limit Info */}
+        {isLastStep && (
+          <div className="mt-4 p-3 bg-muted/50 rounded-lg text-sm">
+            <div className="flex items-center justify-between">
+              <div>
+                <span className="font-medium">Verbleibende Tokens:</span> {remainingTokens}
+              </div>
+              <div>
+                <span className="font-medium">Verbleibende Job-Posts:</span> {remainingJobPosts}
+              </div>
+              <div>
+                <span className="font-medium">Tokens pro Post:</span> {tokensPerPost}
+              </div>
+            </div>
+            {!canPost && (
+              <div className="mt-2 text-destructive text-xs">
+                {remainingTokens < tokensPerPost 
+                  ? 'Nicht genügend Tokens verfügbar. Bitte kaufen Sie mehr Tokens.'
+                  : 'Job-Posting-Limit erreicht. Bitte upgraden Sie Ihren Plan.'
+                }
+              </div>
+            )}
+          </div>
+        )}
       </DialogContent>
     </Dialog>
   );

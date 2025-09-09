@@ -11,7 +11,7 @@ import { LinkedInProfileMain } from "@/components/linkedin/LinkedInProfileMain";
 import { LinkedInProfileSidebar } from "@/components/linkedin/LinkedInProfileSidebar";
 import { LinkedInProfileExperience } from "@/components/linkedin/LinkedInProfileExperience";
 import { LinkedInProfileEducation } from "@/components/linkedin/LinkedInProfileEducation";
-import { LinkedInProfileActivity } from "@/components/linkedin/LinkedInProfileActivity";
+import ActivityTab from "@/components/profile/ActivityTab";
 import { RightRailAd } from "@/components/linkedin/right-rail/RightRailAd";
 import { PeopleRecommendations } from "@/components/linkedin/right-rail/PeopleRecommendations";
 import { CompanyRecommendations } from "@/components/linkedin/right-rail/CompanyRecommendations";
@@ -222,7 +222,7 @@ export default function UserProfilePage() {
               <LinkedInProfileMain profile={displayProfile} isEditing={false} onProfileUpdate={() => {}} readOnly={!isOwner} />
               <LinkedInProfileExperience experiences={displayProfile?.berufserfahrung || []} isEditing={false} onExperiencesUpdate={() => {}} />
               <LinkedInProfileEducation education={displayProfile?.schulbildung || []} isEditing={false} onEducationUpdate={() => {}} />
-              <LinkedInProfileActivity profile={displayProfile} />
+              <ActivityTab userId={displayProfile?.id} />
             </div>
           </main>
           <aside className="lg:col-span-4">

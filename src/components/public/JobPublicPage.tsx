@@ -10,17 +10,18 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { MapPin, Building, Clock, Euro, Users, Calendar, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import ShareJobButton from './ShareJobButton';
 
 interface JobDetail {
   id: string;
   title: string;
   company_name: string;
   description_md: string | null;
-  tasks_md: string | null;
-  requirements_md: string | null;
-  category: string;
+  tasks_description: string | null;
+  requirements_description: string | null;
+  job_type: string;
   work_mode: string;
-  employment: string;
+  employment_type: string;
   city: string;
   country: string;
   salary_currency: string;
@@ -28,6 +29,7 @@ interface JobDetail {
   salary_max: number | null;
   salary_interval: string;
   published_at: string;
+  company_id?: string; // Add company_id for sharing
 }
 
 export default function JobPublicPage() {
@@ -60,13 +62,13 @@ export default function JobPublicPage() {
       const { data, error } = await supabase
         .from('job_posts')
         .select(`
-          id, title, description_md, tasks_md, requirements_md,
-          category, work_mode, employment, city, country,
+          id, title, description_md, tasks_description, requirements_description,
+          job_type, work_mode, employment_type, city, country,
           salary_currency, salary_min, salary_max, salary_interval,
-          published_at,
+          published_at, company_id,
           companies!inner(name)
         `)
-        .eq('slug', slug)
+        .eq('id', slug) // Use ID instead of slug for now
         .eq('is_public', true)
         .eq('is_active', true)
         .maybeSingle();
@@ -225,8 +227,8 @@ export default function JobPublicPage() {
 
         {/* Badges */}
         <div className="flex flex-wrap gap-2">
-          <Badge variant="secondary">{job.category}</Badge>
-          <Badge variant="outline">{job.employment}</Badge>
+          <Badge variant="secondary">{job.job_type}</Badge>
+          <Badge variant="outline">{job.employment_type}</Badge>
           <Badge variant="outline">{job.work_mode}</Badge>
         </div>
       </div>
@@ -252,14 +254,14 @@ export default function JobPublicPage() {
           </Card>
         )}
 
-        {job.tasks_md && (
+        {job.tasks_description && (
           <Card>
             <CardHeader>
               <CardTitle>Ihre Aufgaben</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="prose prose-sm max-w-none">
-                {job.tasks_md.split('\n').map((task, index) => (
+                {job.tasks_description.split('\n').map((task, index) => (
                   <p key={index} className="mb-4 last:mb-0">
                     {task}
                   </p>
@@ -269,14 +271,14 @@ export default function JobPublicPage() {
           </Card>
         )}
 
-        {job.requirements_md && (
+        {job.requirements_description && (
           <Card>
             <CardHeader>
               <CardTitle>Das bringen Sie mit</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="prose prose-sm max-w-none">
-                {job.requirements_md.split('\n').map((requirement, index) => (
+                {job.requirements_description.split('\n').map((requirement, index) => (
                   <p key={index} className="mb-4 last:mb-0">
                     {requirement}
                   </p>
@@ -294,12 +296,22 @@ export default function JobPublicPage() {
           <p className="text-muted-foreground">
             Bewerben Sie sich jetzt mit nur wenigen Klicks – ohne langwierige Registrierung.
           </p>
-          <Button 
-            size="lg"
-            onClick={() => setShowApplicationModal(true)}
-          >
-            Jetzt bewerben
-          </Button>
+          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            <Button 
+              size="lg"
+              onClick={() => setShowApplicationModal(true)}
+            >
+              Jetzt bewerben
+            </Button>
+            {job.company_id && (
+              <ShareJobButton 
+                jobId={job.id} 
+                orgId={job.company_id}
+                size="lg"
+                variant="outline"
+              />
+            )}
+          </div>
         </CardContent>
       </Card>
 

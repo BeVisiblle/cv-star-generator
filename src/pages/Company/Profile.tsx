@@ -28,6 +28,7 @@ import { TagType } from "@/components/company/matching/TagPicker";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { PLZOrtSelector } from "@/components/shared/PLZOrtSelector";
 import { PreviewAsApplicantModal } from "@/components/Company/PreviewAsApplicantModal";
+import ActivityTab from "@/components/profile/ActivityTab";
 interface CompanyProfile {
   name: string;
   description: string;
@@ -542,16 +543,7 @@ const [companyOrt, setCompanyOrt] = useState<string>("");
         </TabsContent>
 
         <TabsContent value="posts">
-          <Card>
-            <CardHeader>
-              <CardTitle>Unternehmensbeiträge</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground text-center py-8">
-                Noch keine Beiträge veröffentlicht.
-              </p>
-            </CardContent>
-          </Card>
+          <ActivityTab orgId={company?.id} />
         </TabsContent>
 
         <TabsContent value="team">

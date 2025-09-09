@@ -62,22 +62,15 @@ export const usePostLikes = (postId: string) => {
         });
         return { changed: false };
       }
-      const liked = data?.liked ?? false;
-      if (liked) {
-        const { error } = await sb
-          .from("post_likes")
-          .delete()
-          .eq("post_id", postId)
-          .eq("user_id", user.id);
-        if (error) throw error;
-      } else {
-        const { error } = await sb.from("post_likes").insert({
-          post_id: postId,
-          user_id: user.id,
-        });
-        if (error) throw error;
-      }
-      return { changed: true };
+      
+      // Use RPC function for community likes
+      const { data, error } = await sb.rpc('toggle_community_like', {
+        p_post_id: postId,
+        p_liker_user_id: user.id
+      });
+      
+      if (error) throw error;
+      return { changed: true, result: data };
     },
     onSuccess: () => {
       // Invalidate all like queries for this post (for any user key)
@@ -145,13 +138,17 @@ export const usePostComments = (postId: string) => {
         });
         return;
       }
-      const { error } = await sb.from("post_comments").insert({
-        post_id: postId,
-        user_id: user.id,
-        content: payload.content,
-        parent_comment_id: payload.parentId ?? null,
+      
+      // Use RPC function for community comments
+      const { data, error } = await sb.rpc('add_community_comment', {
+        p_post_id: postId,
+        p_body_md: payload.content,
+        p_author_user_id: user.id,
+        p_parent_comment_id: payload.parentId ?? null
       });
+      
       if (error) throw error;
+      return data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["post-comments", postId] });
@@ -214,12 +211,15 @@ export const usePostReposts = (postId: string) => {
         toast({ title: "Bereits geteilt", description: "Du hast diesen Beitrag schon geteilt." });
         return { changed: false };
       }
-      const { error } = await sb.from("post_reposts").insert({
-        post_id: postId,
-        reposter_id: user.id,
+      
+      // Use RPC function for community shares
+      const { data: shareData, error } = await sb.rpc('share_community_post', {
+        p_post_id: postId,
+        p_sharer_user_id: user.id
       });
+      
       if (error) throw error;
-      return { changed: true };
+      return { changed: true, result: shareData };
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["post-reposts", postId] });

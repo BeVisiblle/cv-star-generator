@@ -55,7 +55,7 @@ export default function TopNavBar() {
       <div className="flex h-14 items-center px-4 gap-4">
         <div className="flex items-center gap-3">
           <SidebarTrigger />
-          {/* Logo */}
+          {/* Logo/Brand - only in navbar */}
           <div 
             className="flex items-center gap-2 cursor-pointer"
             onClick={() => navigate('/dashboard')}

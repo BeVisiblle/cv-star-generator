@@ -3,9 +3,10 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Briefcase, Settings, Archive, Eye } from "lucide-react";
+import { Plus, Briefcase, Settings, Archive, Eye, Save } from "lucide-react";
 import { useCompany } from "@/hooks/useCompany";
 import JobCreationWizard from "@/components/company/jobs/JobCreationWizard";
+import { TokenStatus } from "@/components/Company/TokenStatus";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { JobCard } from "@/components/public/JobCard";
@@ -32,9 +33,9 @@ export default function CompanyJobs() {
     enabled: !!company?.id
   });
 
-  const activeJobs = jobPosts.filter(job => job.is_active);
-  const inactiveJobs = jobPosts.filter(job => !job.is_active);
-  const publicJobs = jobPosts.filter(job => job.is_public);
+  const activeJobs = jobPosts.filter(job => job.is_active && job.is_public);
+  const draftJobs = jobPosts.filter(job => !job.is_active && !job.is_public);
+  const inactiveJobs = jobPosts.filter(job => job.is_active && !job.is_public);
 
   const handleCreateJob = () => {
     setShowJobPostDialog(true);
@@ -78,15 +79,27 @@ export default function CompanyJobs() {
         </Button>
       </div>
 
+      {/* Token Status */}
+      <TokenStatus />
+
       {/* Job Posts List */}
       <Tabs defaultValue="active" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="active" className="flex items-center gap-2">
             <Eye className="h-4 w-4" />
             Aktiv
             {activeJobs.length > 0 && (
               <Badge variant="outline" className="ml-1">
                 {activeJobs.length}
+              </Badge>
+            )}
+          </TabsTrigger>
+          <TabsTrigger value="drafts" className="flex items-center gap-2">
+            <Save className="h-4 w-4" />
+            Entwürfe
+            {draftJobs.length > 0 && (
+              <Badge variant="outline" className="ml-1">
+                {draftJobs.length}
               </Badge>
             )}
           </TabsTrigger>
@@ -99,12 +112,12 @@ export default function CompanyJobs() {
               </Badge>
             )}
           </TabsTrigger>
-          <TabsTrigger value="public" className="flex items-center gap-2">
-            <Archive className="h-4 w-4" />
-            Öffentlich
-            {publicJobs.length > 0 && (
+          <TabsTrigger value="all" className="flex items-center gap-2">
+            <Briefcase className="h-4 w-4" />
+            Alle
+            {jobPosts.length > 0 && (
               <Badge variant="outline" className="ml-1">
-                {publicJobs.length}
+                {jobPosts.length}
               </Badge>
             )}
           </TabsTrigger>
@@ -128,6 +141,48 @@ export default function CompanyJobs() {
           ) : (
             <div className="grid gap-6">
               {activeJobs.map((job) => (
+                <JobCard
+                  key={job.id}
+                  job={{
+                    id: job.id,
+                    title: job.title,
+                    company_name: company.name || '',
+                    city: job.city || '',
+                    category: job.category,
+                    work_mode: job.work_mode,
+                    employment: job.employment,
+                    salary_min: job.salary_min,
+                    salary_max: job.salary_max,
+                    salary_currency: job.salary_currency,
+                    salary_interval: job.salary_interval,
+                    published_at: job.created_at,
+                    description_md: job.description_md,
+                    slug: job.slug
+                  }}
+                />
+              ))}
+            </div>
+          )}
+        </TabsContent>
+
+        <TabsContent value="drafts" className="space-y-4">
+          {draftJobs.length === 0 ? (
+            <Card>
+              <CardContent className="text-center py-8">
+                <Save className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                <h3 className="text-lg font-semibold mb-2">Keine Entwürfe</h3>
+                <p className="text-muted-foreground mb-4">
+                  Speichern Sie Ihre Stellenanzeigen als Entwurf, um sie später zu bearbeiten.
+                </p>
+                <Button onClick={handleCreateJob}>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Neue Stellenanzeige erstellen
+                </Button>
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="grid gap-6">
+              {draftJobs.map((job) => (
                 <JobCard
                   key={job.id}
                   job={{
