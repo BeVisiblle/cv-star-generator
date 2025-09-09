@@ -138,8 +138,13 @@ export default function CompanyJobs() {
                   key={job.id}
                   job={job}
                   companyName={company.name || ''}
+                  company={company}
                   onJobUpdated={refetch}
                   onViewJob={setSelectedJobId}
+                  onEdit={(jobId) => {
+                    // Hier könnte man zur Bearbeitung navigieren
+                    console.log('Edit job:', jobId);
+                  }}
                 />
               ))}
             </div>
@@ -168,8 +173,13 @@ export default function CompanyJobs() {
                   key={job.id}
                   job={job}
                   companyName={company.name || ''}
+                  company={company}
                   onJobUpdated={refetch}
                   onViewJob={setSelectedJobId}
+                  onEdit={(jobId) => {
+                    // Hier könnte man zur Bearbeitung navigieren
+                    console.log('Edit job:', jobId);
+                  }}
                 />
               ))}
             </div>
@@ -194,8 +204,13 @@ export default function CompanyJobs() {
                   key={job.id}
                   job={job}
                   companyName={company.name || ''}
+                  company={company}
                   onJobUpdated={refetch}
                   onViewJob={setSelectedJobId}
+                  onEdit={(jobId) => {
+                    // Hier könnte man zur Bearbeitung navigieren
+                    console.log('Edit job:', jobId);
+                  }}
                 />
               ))}
             </div>
