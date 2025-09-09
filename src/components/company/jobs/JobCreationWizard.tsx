@@ -335,8 +335,13 @@ export default function JobCreationWizard({ open, onOpenChange, onJobCreated }: 
           if (!formData.address_street) errors.push('Straße ist erforderlich');
         }
         break;
-      case 'time_contract':
+      case 'time':
         if (!formData.employment_type) errors.push('Beschäftigungsart ist erforderlich');
+        if (formData.hours_per_week_min && formData.hours_per_week_max) {
+          if (formData.hours_per_week_min > formData.hours_per_week_max) {
+            errors.push('Minimale Wochenstunden dürfen nicht höher als maximale sein');
+          }
+        }
         break;
       case 'company':
         if (!formData.contact_person_name) errors.push('Name des Ansprechpartners ist erforderlich');
@@ -345,13 +350,6 @@ export default function JobCreationWizard({ open, onOpenChange, onJobCreated }: 
         break;
       case 'additional':
         // Additional fields are optional, no validation needed
-        break;
-      case 'time':
-        if (formData.hours_per_week_min && formData.hours_per_week_max) {
-          if (formData.hours_per_week_min > formData.hours_per_week_max) {
-            errors.push('Minimale Wochenstunden dürfen nicht höher als maximale sein');
-          }
-        }
         break;
       case 'salary':
         if (formData.salary_min && formData.salary_max) {
