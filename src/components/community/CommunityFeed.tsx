@@ -342,7 +342,7 @@ export function LegacyCommunityFeed() {
   );
 }
 
-// Export the enhanced community feed as the default
+// Export the legacy community feed as the default to restore previous functionality
 export default function CommunityFeed() {
-  return <EnhancedCommunityFeed />;
+  return <LegacyCommunityFeed />;
 }

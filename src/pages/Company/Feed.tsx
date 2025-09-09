@@ -3,7 +3,7 @@ import CommunityFeed from '@/components/community/CommunityFeed';
 import CompanyFeedLeft from '@/components/company/feed/CompanyFeedLeft';
 import CompanyFeedRight from '@/components/company/feed/CompanyFeedRight';
 import FeedSortBar from '@/components/community/FeedSortBar';
-import CommunityComposerTeaser from '@/components/community/CommunityComposerTeaser';
+import CompanyComposerTeaser from '@/components/dashboard/CompanyComposerTeaser';
 
 const CompanyFeed: React.FC = () => {
   return (
@@ -21,7 +21,7 @@ const CompanyFeed: React.FC = () => {
           {/* Mitte */}
           <section className="flex-1 min-w-0">
             <div className="w-full max-w-[560px] mx-auto px-4 md:max-w-none md:px-0 space-y-4">
-              <CommunityComposerTeaser onOpenComposer={() => {}} />
+              <CompanyComposerTeaser />
               <div className="my-2">
                 <FeedSortBar />
               </div>
