@@ -92,15 +92,6 @@ export function useJobPostingLimits() {
         contact_person_role: jobData.contact_person_role,
         contact_person_email: jobData.contact_person_email,
         contact_person_phone: jobData.contact_person_phone,
-        company_description: jobData.company_description,
-        application_deadline: jobData.application_deadline,
-        application_url: jobData.application_url,
-        application_email: jobData.application_email,
-        application_instructions: jobData.application_instructions,
-        tags: jobData.tags || [],
-        is_featured: jobData.is_featured || false,
-        is_urgent: jobData.is_urgent || false,
-        featured_until: jobData.featured_until,
         visa_sponsorship: jobData.visa_sponsorship || false,
         relocation_support: jobData.relocation_support || false,
         travel_percentage: jobData.travel_percentage || 0,
@@ -110,13 +101,28 @@ export function useJobPostingLimits() {
         is_draft: true,
       };
 
+      // Add optional fields only if they exist and have values
+      if (jobData.company_description) basicJobData.company_description = jobData.company_description;
+      if (jobData.application_deadline) basicJobData.application_deadline = jobData.application_deadline;
+      if (jobData.application_url) basicJobData.application_url = jobData.application_url;
+      if (jobData.application_email) basicJobData.application_email = jobData.application_email;
+      if (jobData.application_instructions) basicJobData.application_instructions = jobData.application_instructions;
+      if (jobData.tags && jobData.tags.length > 0) basicJobData.tags = jobData.tags;
+      if (jobData.is_featured !== undefined) basicJobData.is_featured = jobData.is_featured;
+      if (jobData.is_urgent !== undefined) basicJobData.is_urgent = jobData.is_urgent;
+      if (jobData.featured_until) basicJobData.featured_until = jobData.featured_until;
+
       const { data, error } = await supabase
         .from('job_posts')
         .insert(basicJobData)
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Save draft error:', error);
+        console.error('Data being inserted:', basicJobData);
+        throw error;
+      }
       return data;
     },
     onSuccess: () => {
@@ -173,20 +179,22 @@ export function useJobPostingLimits() {
         contact_person_role: jobData.contact_person_role,
         contact_person_email: jobData.contact_person_email,
         contact_person_phone: jobData.contact_person_phone,
-        company_description: jobData.company_description,
-        application_deadline: jobData.application_deadline,
-        application_url: jobData.application_url,
-        application_email: jobData.application_email,
-        application_instructions: jobData.application_instructions,
-        tags: jobData.tags || [],
-        is_featured: jobData.is_featured || false,
-        is_urgent: jobData.is_urgent || false,
-        featured_until: jobData.featured_until,
         visa_sponsorship: jobData.visa_sponsorship || false,
         relocation_support: jobData.relocation_support || false,
         travel_percentage: jobData.travel_percentage || 0,
         updated_at: new Date().toISOString(),
       };
+
+      // Add optional fields only if they exist and have values
+      if (jobData.company_description) basicJobData.company_description = jobData.company_description;
+      if (jobData.application_deadline) basicJobData.application_deadline = jobData.application_deadline;
+      if (jobData.application_url) basicJobData.application_url = jobData.application_url;
+      if (jobData.application_email) basicJobData.application_email = jobData.application_email;
+      if (jobData.application_instructions) basicJobData.application_instructions = jobData.application_instructions;
+      if (jobData.tags && jobData.tags.length > 0) basicJobData.tags = jobData.tags;
+      if (jobData.is_featured !== undefined) basicJobData.is_featured = jobData.is_featured;
+      if (jobData.is_urgent !== undefined) basicJobData.is_urgent = jobData.is_urgent;
+      if (jobData.featured_until) basicJobData.featured_until = jobData.featured_until;
 
       const { data, error } = await supabase
         .from('job_posts')
@@ -196,7 +204,11 @@ export function useJobPostingLimits() {
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Update job error:', error);
+        console.error('Data being updated:', basicJobData);
+        throw error;
+      }
       return data;
     },
     onSuccess: () => {
