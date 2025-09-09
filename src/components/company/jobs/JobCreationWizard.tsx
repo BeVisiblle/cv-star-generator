@@ -361,6 +361,20 @@ export default function JobCreationWizard({ open, onOpenChange, onJobCreated }: 
           }
         }
         break;
+      case 'skills':
+        if (!formData.tasks_description || formData.tasks_description.trim().length < 50) {
+          errors.push('Aufgabenbeschreibung muss mindestens 50 Zeichen haben');
+        }
+        if (!formData.requirements_description || formData.requirements_description.trim().length < 50) {
+          errors.push('Anforderungen müssen mindestens 50 Zeichen haben');
+        }
+        if (!formData.benefits_description || formData.benefits_description.trim().length < 50) {
+          errors.push('Benefits müssen mindestens 50 Zeichen haben');
+        }
+        break;
+      case 'languages':
+        // Languages are optional, no validation needed
+        break;
     }
 
     setValidationErrors(errors);
