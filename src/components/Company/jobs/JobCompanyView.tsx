@@ -65,7 +65,7 @@ export default function JobCompanyView({ jobId: propJobId }: JobCompanyViewProps
           .from('job_posts')
           .select(`
             *,
-            companies!inner(name)
+            companies!job_posts_company_id_fkey(name)
           `)
           .eq('id', jobId)
           .single();

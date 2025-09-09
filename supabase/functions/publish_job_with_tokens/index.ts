@@ -56,7 +56,7 @@ serve(async (req) => {
       .from('job_posts')
       .select(`
         *,
-        companies!inner(id, name, active_tokens, token_balance)
+        companies!job_posts_company_id_fkey(id, name, active_tokens, token_balance)
       `)
       .eq('id', job_id)
       .single();

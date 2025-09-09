@@ -236,7 +236,7 @@ export function CompanyJobCard({ job, companyName, company, onJobUpdated, onView
                     </DropdownMenuItem>
                   }
                 />
-                <DropdownMenuItem onClick={() => window.open(`/jobs/${job.id}`, '_blank')}>
+                <DropdownMenuItem onClick={() => window.open(`/jobs/${job.slug || job.id}`, '_blank')}>
                   <Eye className="h-4 w-4 mr-2" />
                   Öffentliche Ansicht
                 </DropdownMenuItem>
