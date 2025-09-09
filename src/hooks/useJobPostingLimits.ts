@@ -54,69 +54,56 @@ export function useJobPostingLimits() {
     },
   });
 
-  // Save job as draft
+  // Save job as draft - using only basic fields that definitely exist
   const saveDraftMutation = useMutation({
     mutationFn: async (jobData: any) => {
-      // Map fields to database schema
-      const { 
-        description, 
-        skills, 
-        languages, 
-        certifications, 
-        driving_licenses,
-        internship,
-        apprenticeship,
-        professional,
-        company_description,
-        application_deadline,
-        application_url,
-        application_email,
-        application_instructions,
-        is_featured,
-        featured_until,
-        is_urgent,
-        tags,
-        external_id,
-        source,
-        ...cleanJobData 
-      } = jobData;
-      
-      // Map description to description_md if it exists
-      if (description) {
-        cleanJobData.description_md = description;
-      }
-      
-      // Map complex fields to JSONB
-      if (skills) cleanJobData.skills = skills;
-      if (languages) cleanJobData.languages = languages;
-      if (certifications) cleanJobData.certifications = certifications;
-      // Temporarily skip driving_licenses until migration is applied
-      // if (driving_licenses) cleanJobData.driving_licenses = driving_licenses;
-      if (internship) cleanJobData.internship_data = internship;
-      if (apprenticeship) cleanJobData.apprenticeship_data = apprenticeship;
-      if (professional) cleanJobData.professional_data = professional;
-      
-      // Map additional fields
-      if (company_description) cleanJobData.company_description = company_description;
-      if (application_deadline) cleanJobData.application_deadline = application_deadline;
-      if (application_url) cleanJobData.application_url = application_url;
-      if (application_email) cleanJobData.application_email = application_email;
-      if (application_instructions) cleanJobData.application_instructions = application_instructions;
-      if (is_featured !== undefined) cleanJobData.is_featured = is_featured;
-      if (featured_until) cleanJobData.featured_until = featured_until;
-      if (is_urgent !== undefined) cleanJobData.is_urgent = is_urgent;
-      if (tags) cleanJobData.tags = tags;
-      if (external_id) cleanJobData.external_id = external_id;
-      if (source) cleanJobData.source = source;
-      
+      // Only use basic fields that are guaranteed to exist in the database
+      const basicJobData = {
+        title: jobData.title,
+        job_type: jobData.job_type,
+        team_department: jobData.team_department,
+        role_family: jobData.role_family,
+        description: jobData.description,
+        work_mode: jobData.work_mode,
+        city: jobData.city,
+        address_street: jobData.address_street,
+        address_number: jobData.address_number,
+        postal_code: jobData.postal_code,
+        state: jobData.state,
+        country: jobData.country,
+        public_transport: jobData.public_transport || false,
+        parking_available: jobData.parking_available || false,
+        barrier_free_access: jobData.barrier_free_access || false,
+        commute_distance_km: jobData.commute_distance_km || 25,
+        employment_type: jobData.employment_type,
+        start_immediately: jobData.start_immediately !== undefined ? jobData.start_immediately : true,
+        start_date: jobData.start_date,
+        end_date: jobData.end_date,
+        hours_per_week_min: jobData.hours_per_week_min,
+        hours_per_week_max: jobData.hours_per_week_max,
+        salary_min: jobData.salary_min,
+        salary_max: jobData.salary_max,
+        salary_currency: jobData.salary_currency || 'EUR',
+        salary_interval: jobData.salary_interval || 'month',
+        tasks_description: jobData.tasks_description,
+        requirements_description: jobData.requirements_description,
+        benefits_description: jobData.benefits_description,
+        contact_person_name: jobData.contact_person_name,
+        contact_person_role: jobData.contact_person_role,
+        contact_person_email: jobData.contact_person_email,
+        contact_person_phone: jobData.contact_person_phone,
+        visa_sponsorship: jobData.visa_sponsorship || false,
+        relocation_support: jobData.relocation_support || false,
+        travel_percentage: jobData.travel_percentage || 0,
+        company_id: company?.id,
+        is_active: false,
+        is_public: false,
+        is_draft: true,
+      };
+
       const { data, error } = await supabase
         .from('job_posts')
-        .insert({
-          ...cleanJobData,
-          company_id: company?.id,
-          is_active: false,
-          is_public: false,
-        })
+        .insert(basicJobData)
         .select()
         .single();
 
@@ -139,64 +126,53 @@ export function useJobPostingLimits() {
     },
   });
 
-  // Update existing job
+  // Update existing job - using only basic fields
   const updateJobMutation = useMutation({
     mutationFn: async ({ jobId, jobData }: { jobId: string; jobData: any }) => {
-      // Map fields to database schema
-      const { 
-        description, 
-        skills, 
-        languages, 
-        certifications, 
-        driving_licenses,
-        internship,
-        apprenticeship,
-        professional,
-        company_description,
-        application_deadline,
-        application_url,
-        application_email,
-        application_instructions,
-        is_featured,
-        featured_until,
-        is_urgent,
-        tags,
-        external_id,
-        source,
-        ...cleanJobData 
-      } = jobData;
-      
-      // Map description to description_md if it exists
-      if (description) {
-        cleanJobData.description_md = description;
-      }
-      
-      // Map complex fields to JSONB
-      if (skills) cleanJobData.skills = skills;
-      if (languages) cleanJobData.languages = languages;
-      if (certifications) cleanJobData.certifications = certifications;
-      // Temporarily skip driving_licenses until migration is applied
-      // if (driving_licenses) cleanJobData.driving_licenses = driving_licenses;
-      if (internship) cleanJobData.internship_data = internship;
-      if (apprenticeship) cleanJobData.apprenticeship_data = apprenticeship;
-      if (professional) cleanJobData.professional_data = professional;
-      
-      // Map additional fields
-      if (company_description) cleanJobData.company_description = company_description;
-      if (application_deadline) cleanJobData.application_deadline = application_deadline;
-      if (application_url) cleanJobData.application_url = application_url;
-      if (application_email) cleanJobData.application_email = application_email;
-      if (application_instructions) cleanJobData.application_instructions = application_instructions;
-      if (is_featured !== undefined) cleanJobData.is_featured = is_featured;
-      if (featured_until) cleanJobData.featured_until = featured_until;
-      if (is_urgent !== undefined) cleanJobData.is_urgent = is_urgent;
-      if (tags) cleanJobData.tags = tags;
-      if (external_id) cleanJobData.external_id = external_id;
-      if (source) cleanJobData.source = source;
-      
+      // Only use basic fields that are guaranteed to exist
+      const basicJobData = {
+        title: jobData.title,
+        job_type: jobData.job_type,
+        team_department: jobData.team_department,
+        role_family: jobData.role_family,
+        description: jobData.description,
+        work_mode: jobData.work_mode,
+        city: jobData.city,
+        address_street: jobData.address_street,
+        address_number: jobData.address_number,
+        postal_code: jobData.postal_code,
+        state: jobData.state,
+        country: jobData.country,
+        public_transport: jobData.public_transport || false,
+        parking_available: jobData.parking_available || false,
+        barrier_free_access: jobData.barrier_free_access || false,
+        commute_distance_km: jobData.commute_distance_km || 25,
+        employment_type: jobData.employment_type,
+        start_immediately: jobData.start_immediately !== undefined ? jobData.start_immediately : true,
+        start_date: jobData.start_date,
+        end_date: jobData.end_date,
+        hours_per_week_min: jobData.hours_per_week_min,
+        hours_per_week_max: jobData.hours_per_week_max,
+        salary_min: jobData.salary_min,
+        salary_max: jobData.salary_max,
+        salary_currency: jobData.salary_currency || 'EUR',
+        salary_interval: jobData.salary_interval || 'month',
+        tasks_description: jobData.tasks_description,
+        requirements_description: jobData.requirements_description,
+        benefits_description: jobData.benefits_description,
+        contact_person_name: jobData.contact_person_name,
+        contact_person_role: jobData.contact_person_role,
+        contact_person_email: jobData.contact_person_email,
+        contact_person_phone: jobData.contact_person_phone,
+        visa_sponsorship: jobData.visa_sponsorship || false,
+        relocation_support: jobData.relocation_support || false,
+        travel_percentage: jobData.travel_percentage || 0,
+        updated_at: new Date().toISOString(),
+      };
+
       const { data, error } = await supabase
         .from('job_posts')
-        .update(cleanJobData)
+        .update(basicJobData)
         .eq('id', jobId)
         .eq('company_id', company?.id)
         .select()
