@@ -1,22 +1,30 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { useCompany } from '@/hooks/useCompany';
 import { useToast } from '@/hooks/use-toast';
+import { useCompany } from './useCompany';
 
-export function useJobPostingLimits() {
+export const useJobPostingLimits = () => {
   const { company } = useCompany();
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  // Fetch job posting limits and token balance
-  const { data: limits, isLoading, error } = useQuery({
-    queryKey: ['job-posting-limits', company?.id],
+  // Get company subscription and limits
+  const { data: subscriptionData, isLoading: subscriptionLoading } = useQuery({
+    queryKey: ['company-subscription', company?.id],
     queryFn: async () => {
       if (!company?.id) return null;
-
-      const { data, error } = await supabase.rpc('check_job_posting_limits', {
-        p_company_id: company.id
-      });
+      
+      const { data, error } = await supabase
+        .from('company_subscriptions')
+        .select(`
+          *,
+          plans (
+            max_job_posts,
+            tokens_per_post
+          )
+        `)
+        .eq('company_id', company.id)
+        .single();
 
       if (error) throw error;
       return data;
@@ -24,34 +32,22 @@ export function useJobPostingLimits() {
     enabled: !!company?.id,
   });
 
-  // Publish job with token consumption
-  const publishJobMutation = useMutation({
-    mutationFn: async (jobData: any) => {
-      if (!company?.id) throw new Error('No company selected');
-
-      const { data, error } = await supabase.rpc('publish_job_with_tokens', {
-        p_company_id: company.id,
-        p_job_data: jobData
-      });
+  // Get current job posts count
+  const { data: jobPostsData, isLoading: jobPostsLoading } = useQuery({
+    queryKey: ['company-job-posts', company?.id],
+    queryFn: async () => {
+      if (!company?.id) return { count: 0, posts: [] };
+      
+      const { data, error } = await supabase
+        .from('job_posts')
+        .select('id, title, created_at, is_public, is_active')
+        .eq('company_id', company.id)
+        .order('created_at', { ascending: false });
 
       if (error) throw error;
-      return data;
+      return { count: data?.length || 0, posts: data || [] };
     },
-    onSuccess: () => {
-      toast({
-        title: "Stellenanzeige veröffentlicht",
-        description: "Ihre Stellenanzeige wurde erfolgreich veröffentlicht.",
-      });
-      queryClient.invalidateQueries({ queryKey: ['company-job-posts', company?.id] });
-      queryClient.invalidateQueries({ queryKey: ['job-posting-limits', company?.id] });
-    },
-    onError: (error: any) => {
-      toast({
-        title: "Veröffentlichung fehlgeschlagen",
-        description: error.message || "Unbekannter Fehler",
-        variant: "destructive",
-      });
-    },
+    enabled: !!company?.id,
   });
 
   // Save job as draft - using only basic fields that definitely exist
@@ -100,17 +96,6 @@ export function useJobPostingLimits() {
         is_public: false,
         is_draft: true,
       };
-
-      // Add optional fields only if they exist and have values
-      if (jobData.company_description) basicJobData.company_description = jobData.company_description;
-      if (jobData.application_deadline) basicJobData.application_deadline = jobData.application_deadline;
-      if (jobData.application_url) basicJobData.application_url = jobData.application_url;
-      if (jobData.application_email) basicJobData.application_email = jobData.application_email;
-      if (jobData.application_instructions) basicJobData.application_instructions = jobData.application_instructions;
-      if (jobData.tags && jobData.tags.length > 0) basicJobData.tags = jobData.tags;
-      if (jobData.is_featured !== undefined) basicJobData.is_featured = jobData.is_featured;
-      if (jobData.is_urgent !== undefined) basicJobData.is_urgent = jobData.is_urgent;
-      if (jobData.featured_until) basicJobData.featured_until = jobData.featured_until;
 
       const { data, error } = await supabase
         .from('job_posts')
@@ -185,17 +170,6 @@ export function useJobPostingLimits() {
         updated_at: new Date().toISOString(),
       };
 
-      // Add optional fields only if they exist and have values
-      if (jobData.company_description) basicJobData.company_description = jobData.company_description;
-      if (jobData.application_deadline) basicJobData.application_deadline = jobData.application_deadline;
-      if (jobData.application_url) basicJobData.application_url = jobData.application_url;
-      if (jobData.application_email) basicJobData.application_email = jobData.application_email;
-      if (jobData.application_instructions) basicJobData.application_instructions = jobData.application_instructions;
-      if (jobData.tags && jobData.tags.length > 0) basicJobData.tags = jobData.tags;
-      if (jobData.is_featured !== undefined) basicJobData.is_featured = jobData.is_featured;
-      if (jobData.is_urgent !== undefined) basicJobData.is_urgent = jobData.is_urgent;
-      if (jobData.featured_until) basicJobData.featured_until = jobData.featured_until;
-
       const { data, error } = await supabase
         .from('job_posts')
         .update(basicJobData)
@@ -227,19 +201,69 @@ export function useJobPostingLimits() {
     },
   });
 
+  // Publish job using RPC function
+  const publishJobMutation = useMutation({
+    mutationFn: async (jobId: string) => {
+      const { data, error } = await supabase.rpc('publish_job_with_tokens', {
+        p_job_id: jobId
+      });
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      toast({
+        title: "Stellenanzeige veröffentlicht",
+        description: "Ihre Stellenanzeige wurde erfolgreich veröffentlicht.",
+      });
+      queryClient.invalidateQueries({ queryKey: ['company-job-posts', company?.id] });
+      queryClient.invalidateQueries({ queryKey: ['company-subscription', company?.id] });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Veröffentlichung fehlgeschlagen",
+        description: error.message || "Unbekannter Fehler",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Calculate limits and usage
+  const maxJobPosts = subscriptionData?.plans?.max_job_posts || 0;
+  const currentJobPosts = jobPostsData?.count || 0;
+  const remainingJobPosts = Math.max(0, maxJobPosts - currentJobPosts);
+  const canCreateJob = remainingJobPosts > 0;
+
+  const tokensPerPost = subscriptionData?.plans?.tokens_per_post || 0;
+  const tokenBalance = subscriptionData?.token_balance || 0;
+  const canPublishJob = tokenBalance >= tokensPerPost;
+
   return {
-    limits,
-    isLoading,
-    error,
-    canPost: limits?.can_post || false,
-    remainingTokens: limits?.remaining_tokens || 0,
-    remainingJobPosts: limits?.remaining_job_posts || 0,
-    tokensPerPost: limits?.tokens_per_post || 1,
-    publishJob: publishJobMutation.mutateAsync,
-    isPublishing: publishJobMutation.isPending,
+    // Data
+    subscriptionData,
+    jobPostsData,
+    
+    // Loading states
+    subscriptionLoading,
+    jobPostsLoading,
+    
+    // Mutations
+    saveDraftMutation,
+    updateJobMutation,
+    publishJobMutation,
+    
+    // Limits and usage
+    maxJobPosts,
+    currentJobPosts,
+    remainingJobPosts,
+    canCreateJob,
+    tokensPerPost,
+    tokenBalance,
+    canPublishJob,
+    
+    // Helper functions
     saveDraft: saveDraftMutation.mutateAsync,
-    isSavingDraft: saveDraftMutation.isPending,
     updateJob: updateJobMutation.mutateAsync,
-    isUpdating: updateJobMutation.isPending,
+    publishJob: publishJobMutation.mutateAsync,
   };
-}
+};
