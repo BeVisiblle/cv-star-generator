@@ -35,9 +35,10 @@ export default function CompanyJobs() {
     enabled: !!company?.id
   });
 
-  const activeJobs = jobPosts.filter(job => job.is_active && job.is_public);
-  const draftJobs = jobPosts.filter(job => !job.is_active);
-  const inactiveJobs = jobPosts.filter(job => !job.is_public);
+  const jobPostsArray = Array.isArray(jobPosts) ? jobPosts : [];
+  const activeJobs = jobPostsArray.filter(job => job.is_active && job.is_public);
+  const draftJobs = jobPostsArray.filter(job => !job.is_active);
+  const inactiveJobs = jobPostsArray.filter(job => !job.is_public);
 
   const handleCreateJob = () => {
     setShowJobPostDialog(true);
