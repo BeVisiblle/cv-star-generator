@@ -34,7 +34,7 @@ export const useJobPostingLimits = () => {
 
   // Get current job posts count
   const { data: jobPostsData, isLoading: jobPostsLoading } = useQuery({
-    queryKey: ['company-job-posts', company?.id],
+    queryKey: ['company-job-posts-summary', company?.id],
     queryFn: async () => {
       if (!company?.id) return { count: 0, posts: [] };
       
@@ -116,6 +116,7 @@ export const useJobPostingLimits = () => {
         description: "Ihre Stellenanzeige wurde als Entwurf gespeichert.",
       });
       queryClient.invalidateQueries({ queryKey: ['company-job-posts', company?.id] });
+      queryClient.invalidateQueries({ queryKey: ['company-job-posts-summary', company?.id] });
     },
     onError: (error: any) => {
       toast({
@@ -191,6 +192,7 @@ export const useJobPostingLimits = () => {
         description: "Ihre Stellenanzeige wurde erfolgreich aktualisiert.",
       });
       queryClient.invalidateQueries({ queryKey: ['company-job-posts', company?.id] });
+      queryClient.invalidateQueries({ queryKey: ['company-job-posts-summary', company?.id] });
     },
     onError: (error: any) => {
       toast({
@@ -217,6 +219,7 @@ export const useJobPostingLimits = () => {
         description: "Ihre Stellenanzeige wurde erfolgreich veröffentlicht.",
       });
       queryClient.invalidateQueries({ queryKey: ['company-job-posts', company?.id] });
+      queryClient.invalidateQueries({ queryKey: ['company-job-posts-summary', company?.id] });
       queryClient.invalidateQueries({ queryKey: ['company-subscription', company?.id] });
     },
     onError: (error: any) => {
