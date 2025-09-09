@@ -34,8 +34,8 @@ export default function CompanyJobs() {
   });
 
   const activeJobs = jobPosts.filter(job => job.is_active && job.is_public);
-  const draftJobs = jobPosts.filter(job => !job.is_active && !job.is_public);
-  const inactiveJobs = jobPosts.filter(job => job.is_active && !job.is_public);
+  const draftJobs = jobPosts.filter(job => !job.is_active);
+  const inactiveJobs = jobPosts.filter(job => !job.is_public);
 
   const handleCreateJob = () => {
     setShowJobPostDialog(true);
@@ -84,7 +84,7 @@ export default function CompanyJobs() {
 
       {/* Job Posts List */}
       <Tabs defaultValue="active" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="active" className="flex items-center gap-2">
             <Eye className="h-4 w-4" />
             Aktiv
@@ -109,15 +109,6 @@ export default function CompanyJobs() {
             {inactiveJobs.length > 0 && (
               <Badge variant="outline" className="ml-1">
                 {inactiveJobs.length}
-              </Badge>
-            )}
-          </TabsTrigger>
-          <TabsTrigger value="all" className="flex items-center gap-2">
-            <Briefcase className="h-4 w-4" />
-            Alle
-            {jobPosts.length > 0 && (
-              <Badge variant="outline" className="ml-1">
-                {jobPosts.length}
               </Badge>
             )}
           </TabsTrigger>
@@ -148,9 +139,9 @@ export default function CompanyJobs() {
                     title: job.title,
                     company_name: company.name || '',
                     city: job.city || '',
-                    category: job.category,
+                    job_type: job.category,
                     work_mode: job.work_mode,
-                    employment: job.employment,
+                    employment_type: job.employment,
                     salary_min: job.salary_min,
                     salary_max: job.salary_max,
                     salary_currency: job.salary_currency,
@@ -190,9 +181,9 @@ export default function CompanyJobs() {
                     title: job.title,
                     company_name: company.name || '',
                     city: job.city || '',
-                    category: job.category,
+                    job_type: job.category,
                     work_mode: job.work_mode,
-                    employment: job.employment,
+                    employment_type: job.employment,
                     salary_min: job.salary_min,
                     salary_max: job.salary_max,
                     salary_currency: job.salary_currency,
@@ -228,9 +219,9 @@ export default function CompanyJobs() {
                     title: job.title,
                     company_name: company.name || '',
                     city: job.city || '',
-                    category: job.category,
+                    job_type: job.category,
                     work_mode: job.work_mode,
-                    employment: job.employment,
+                    employment_type: job.employment,
                     salary_min: job.salary_min,
                     salary_max: job.salary_max,
                     salary_currency: job.salary_currency,
@@ -245,43 +236,6 @@ export default function CompanyJobs() {
           )}
         </TabsContent>
 
-        <TabsContent value="public" className="space-y-4">
-          {publicJobs.length === 0 ? (
-            <Card>
-              <CardContent className="text-center py-8">
-                <Archive className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                <h3 className="text-lg font-semibold mb-2">Keine öffentlichen Stellenanzeigen</h3>
-                <p className="text-muted-foreground">
-                  Öffentlich sichtbare Stellenanzeigen werden hier angezeigt.
-                </p>
-              </CardContent>
-            </Card>
-          ) : (
-            <div className="grid gap-6">
-              {publicJobs.map((job) => (
-                <JobCard
-                  key={job.id}
-                  job={{
-                    id: job.id,
-                    title: job.title,
-                    company_name: company.name || '',
-                    city: job.city || '',
-                    category: job.category,
-                    work_mode: job.work_mode,
-                    employment: job.employment,
-                    salary_min: job.salary_min,
-                    salary_max: job.salary_max,
-                    salary_currency: job.salary_currency,
-                    salary_interval: job.salary_interval,
-                    published_at: job.created_at,
-                    description_md: job.description_md,
-                    slug: job.slug
-                  }}
-                />
-              ))}
-            </div>
-          )}
-        </TabsContent>
       </Tabs>
 
       {/* Job Creation Wizard */}
