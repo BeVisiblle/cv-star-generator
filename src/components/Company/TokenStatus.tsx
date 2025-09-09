@@ -1,35 +1,21 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { useJobPostingLimits } from '@/hooks/useJobPostingLimits';
+import { useCompany } from '@/hooks/useCompany';
 import { TokenPurchase } from './TokenPurchase';
 import { PlanUpgrade } from './PlanUpgrade';
 import { Coins, Briefcase, AlertCircle } from 'lucide-react';
 
 export function TokenStatus() {
-  const { 
-    remainingTokens, 
-    remainingJobPosts, 
-    tokensPerPost, 
-    canPost,
-    isLoading 
-  } = useJobPostingLimits();
+  const { company } = useCompany();
 
-  if (isLoading) {
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">Token-Status</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="animate-pulse space-y-2">
-            <div className="h-4 bg-muted rounded w-3/4"></div>
-            <div className="h-4 bg-muted rounded w-1/2"></div>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
+  if (!company) return null;
+
+  const activeTokens = company.active_tokens || 0;
+  // The company object from the network request shows token_balance doesn't exist in the schema
+  // Using only active_tokens which is available
+  const totalTokens = activeTokens;
+
 
   return (
     <Card>
@@ -43,45 +29,45 @@ export function TokenStatus() {
         <div className="grid grid-cols-2 gap-4">
           <div className="flex items-center gap-2">
             <Coins className="h-4 w-4 text-muted-foreground" />
-            <span className="text-sm">Verbleibende Tokens:</span>
-            <Badge variant={remainingTokens > 0 ? "default" : "destructive"}>
-              {remainingTokens}
+            <span className="text-sm">Aktive Tokens:</span>
+            <Badge variant={activeTokens > 0 ? "default" : "destructive"}>
+              {activeTokens}
             </Badge>
           </div>
           <div className="flex items-center gap-2">
             <Briefcase className="h-4 w-4 text-muted-foreground" />
-            <span className="text-sm">Verbleibende Job-Posts:</span>
-            <Badge variant={remainingJobPosts > 0 ? "default" : "destructive"}>
-              {remainingJobPosts}
+            <span className="text-sm">Plan-Typ:</span>
+            <Badge variant="outline">
+              {company.plan_type || 'basis'}
             </Badge>
           </div>
         </div>
 
         <div className="text-sm text-muted-foreground">
-          <span>Tokens pro Job-Post: {tokensPerPost}</span>
+          <span>Verfügbare Tokens: {totalTokens}</span>
         </div>
 
-        {!canPost && (
+        {totalTokens <= 5 && (
           <div className="space-y-3">
             <div className="flex items-center gap-2 p-3 bg-destructive/10 border border-destructive/20 rounded-md">
               <AlertCircle className="h-4 w-4 text-destructive" />
               <div className="text-sm text-destructive">
-                {remainingTokens < tokensPerPost 
-                  ? 'Nicht genügend Tokens verfügbar. Bitte kaufen Sie mehr Tokens.'
-                  : 'Job-Posting-Limit erreicht. Bitte upgraden Sie Ihren Plan.'
+                {totalTokens === 0 
+                  ? 'Keine Tokens verfügbar. Bitte kaufen Sie Tokens oder upgraden Sie Ihren Plan.'
+                  : `Wenige Tokens verfügbar (${totalTokens}). Erwägen Sie den Kauf weiterer Tokens.`
                 }
               </div>
             </div>
             <div className="flex justify-end gap-2">
-              {remainingTokens < tokensPerPost && <TokenPurchase />}
-              {remainingJobPosts <= 0 && <PlanUpgrade />}
+              <TokenPurchase />
+              <PlanUpgrade />
             </div>
           </div>
         )}
 
-        {canPost && (
+        {totalTokens > 5 && (
           <div className="text-sm text-green-600">
-            ✓ Sie können {Math.min(remainingJobPosts, Math.floor(remainingTokens / tokensPerPost))} weitere Job-Posts veröffentlichen.
+            ✓ Sie haben ausreichend Tokens für weitere Aktivitäten.
           </div>
         )}
       </CardContent>
