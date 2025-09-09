@@ -1,8 +1,9 @@
 import React from 'react';
 import CommunityFeed from '@/components/community/CommunityFeed';
-import { ComposerTeaser } from '@/components/dashboard/ComposerTeaser';
+import CommunityComposerTeaser from '@/components/community/CommunityComposerTeaser';
 import { LeftPanel } from '@/components/dashboard/LeftPanel';
 import { RightPanel } from '@/components/dashboard/RightPanel';
+import FeedSortBar from '@/components/community/FeedSortBar';
 
 const Dashboard = () => {
   return (
@@ -20,7 +21,10 @@ const Dashboard = () => {
           {/* Center column (flex grows) */}
           <section className="flex-1 min-w-0">
             <div className="w-full max-w-[560px] mx-auto px-4 md:max-w-none md:px-0 space-y-4">
-              <ComposerTeaser />
+              <CommunityComposerTeaser onOpenComposer={() => {}} />
+              <div className="my-2">
+                <FeedSortBar />
+              </div>
               <CommunityFeed />
             </div>
           </section>
