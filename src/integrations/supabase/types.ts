@@ -2412,11 +2412,19 @@ export type Database = {
         Row: {
           address_number: string | null
           address_street: string | null
+          application_count: number | null
+          application_deadline: string | null
+          application_email: string | null
+          application_instructions: string | null
+          application_url: string | null
+          apprenticeship_data: Json | null
           barrier_free_access: boolean | null
           benefits_description: string | null
           category: string | null
+          certifications: Json | null
           city: string | null
           commute_distance_km: number | null
+          company_description: string | null
           company_id: string
           contact_person_email: string | null
           contact_person_name: string | null
@@ -2426,20 +2434,29 @@ export type Database = {
           country: string | null
           created_at: string
           description_md: string | null
+          driving_licenses: Json | null
           duration_months: number | null
           employment: string | null
           employment_type: string | null
           end_date: string | null
+          external_id: string | null
+          featured_until: string | null
           hours_per_week_max: number | null
           hours_per_week_min: number | null
           id: string
+          internship_data: Json | null
           is_active: boolean
+          is_draft: boolean | null
+          is_featured: boolean | null
           is_public: boolean
+          is_urgent: boolean | null
           job_type: string | null
+          languages: Json | null
           location_lat: number | null
           location_lng: number | null
           parking_available: boolean | null
           postal_code: string | null
+          professional_data: Json | null
           public_transport: boolean | null
           published_at: string | null
           relocation_support: boolean | null
@@ -2450,27 +2467,39 @@ export type Database = {
           salary_interval: string | null
           salary_max: number | null
           salary_min: number | null
+          skills: Json | null
           slug: string | null
+          source: string | null
           start_date: string | null
           start_immediately: boolean | null
           state: string | null
+          tags: string[] | null
           tasks_description: string | null
           tasks_md: string | null
           team_department: string | null
           title: string
           travel_percentage: number | null
           updated_at: string
+          view_count: number | null
           visa_sponsorship: boolean | null
           work_mode: string | null
         }
         Insert: {
           address_number?: string | null
           address_street?: string | null
+          application_count?: number | null
+          application_deadline?: string | null
+          application_email?: string | null
+          application_instructions?: string | null
+          application_url?: string | null
+          apprenticeship_data?: Json | null
           barrier_free_access?: boolean | null
           benefits_description?: string | null
           category?: string | null
+          certifications?: Json | null
           city?: string | null
           commute_distance_km?: number | null
+          company_description?: string | null
           company_id: string
           contact_person_email?: string | null
           contact_person_name?: string | null
@@ -2480,20 +2509,29 @@ export type Database = {
           country?: string | null
           created_at?: string
           description_md?: string | null
+          driving_licenses?: Json | null
           duration_months?: number | null
           employment?: string | null
           employment_type?: string | null
           end_date?: string | null
+          external_id?: string | null
+          featured_until?: string | null
           hours_per_week_max?: number | null
           hours_per_week_min?: number | null
           id?: string
+          internship_data?: Json | null
           is_active?: boolean
+          is_draft?: boolean | null
+          is_featured?: boolean | null
           is_public?: boolean
+          is_urgent?: boolean | null
           job_type?: string | null
+          languages?: Json | null
           location_lat?: number | null
           location_lng?: number | null
           parking_available?: boolean | null
           postal_code?: string | null
+          professional_data?: Json | null
           public_transport?: boolean | null
           published_at?: string | null
           relocation_support?: boolean | null
@@ -2504,27 +2542,39 @@ export type Database = {
           salary_interval?: string | null
           salary_max?: number | null
           salary_min?: number | null
+          skills?: Json | null
           slug?: string | null
+          source?: string | null
           start_date?: string | null
           start_immediately?: boolean | null
           state?: string | null
+          tags?: string[] | null
           tasks_description?: string | null
           tasks_md?: string | null
           team_department?: string | null
           title: string
           travel_percentage?: number | null
           updated_at?: string
+          view_count?: number | null
           visa_sponsorship?: boolean | null
           work_mode?: string | null
         }
         Update: {
           address_number?: string | null
           address_street?: string | null
+          application_count?: number | null
+          application_deadline?: string | null
+          application_email?: string | null
+          application_instructions?: string | null
+          application_url?: string | null
+          apprenticeship_data?: Json | null
           barrier_free_access?: boolean | null
           benefits_description?: string | null
           category?: string | null
+          certifications?: Json | null
           city?: string | null
           commute_distance_km?: number | null
+          company_description?: string | null
           company_id?: string
           contact_person_email?: string | null
           contact_person_name?: string | null
@@ -2534,20 +2584,29 @@ export type Database = {
           country?: string | null
           created_at?: string
           description_md?: string | null
+          driving_licenses?: Json | null
           duration_months?: number | null
           employment?: string | null
           employment_type?: string | null
           end_date?: string | null
+          external_id?: string | null
+          featured_until?: string | null
           hours_per_week_max?: number | null
           hours_per_week_min?: number | null
           id?: string
+          internship_data?: Json | null
           is_active?: boolean
+          is_draft?: boolean | null
+          is_featured?: boolean | null
           is_public?: boolean
+          is_urgent?: boolean | null
           job_type?: string | null
+          languages?: Json | null
           location_lat?: number | null
           location_lng?: number | null
           parking_available?: boolean | null
           postal_code?: string | null
+          professional_data?: Json | null
           public_transport?: boolean | null
           published_at?: string | null
           relocation_support?: boolean | null
@@ -2558,16 +2617,20 @@ export type Database = {
           salary_interval?: string | null
           salary_max?: number | null
           salary_min?: number | null
+          skills?: Json | null
           slug?: string | null
+          source?: string | null
           start_date?: string | null
           start_immediately?: boolean | null
           state?: string | null
+          tags?: string[] | null
           tasks_description?: string | null
           tasks_md?: string | null
           team_department?: string | null
           title?: string
           travel_percentage?: number | null
           updated_at?: string
+          view_count?: number | null
           visa_sponsorship?: boolean | null
           work_mode?: string | null
         }
