@@ -509,34 +509,34 @@ export function EventDetail() {
                     </div>
                   ) : interestedParticipants.length > 0 ? (
                     interestedParticipants.map((participant) => (
-                    <div key={participant.id} className="flex items-center gap-3">
-                      <AvatarClickable
-                        profileId={participant.id}
-                        profileType="user"
-                        className="h-8 w-8"
-                      >
-                        <Avatar className="h-8 w-8">
-                          <AvatarImage src={participant.avatar_url} />
-                          <AvatarFallback>
-                            {participant.display_name.charAt(0).toUpperCase()}
-                          </AvatarFallback>
-                        </Avatar>
-                      </AvatarClickable>
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2">
-                          <span className="text-sm font-medium">{participant.display_name}</span>
-                          {participant.verified && (
-                            <Badge variant="secondary" className="text-xs">✓</Badge>
-                          )}
+                      <div key={participant.id} className="flex items-center gap-3">
+                        <AvatarClickable
+                          profileId={participant.id}
+                          profileType="user"
+                          className="h-8 w-8"
+                        >
+                          <Avatar className="h-8 w-8">
+                            <AvatarImage src={participant.avatar_url} />
+                            <AvatarFallback>
+                              {participant.display_name.charAt(0).toUpperCase()}
+                            </AvatarFallback>
+                          </Avatar>
+                        </AvatarClickable>
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm font-medium">{participant.display_name}</span>
+                            {participant.verified && (
+                              <Badge variant="secondary" className="text-xs">✓</Badge>
+                            )}
+                          </div>
+                          <p className="text-xs text-muted-foreground">
+                            {new Date(participant.rsvp_date).toLocaleDateString('de-DE')}
+                          </p>
                         </div>
-                        <p className="text-xs text-muted-foreground">
-                          {new Date(participant.rsvp_date).toLocaleDateString('de-DE')}
-                        </p>
+                        <Badge variant="outline" className="text-xs">
+                          Interessiert
+                        </Badge>
                       </div>
-                      <Badge variant="outline" className="text-xs">
-                        Interessiert
-                      </Badge>
-                    </div>
                     ))
                   ) : (
                     <div className="text-center py-8 text-muted-foreground">
