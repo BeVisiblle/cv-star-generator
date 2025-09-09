@@ -76,18 +76,18 @@ export interface JobFormData {
   contact_person_email: string;
   contact_person_phone: string;
   
-  // Additional fields
-  company_description: string;
+  // Additional fields (optional)
+  company_description?: string;
   application_deadline?: string;
   application_url?: string;
   application_email?: string;
   application_instructions?: string;
-  is_featured: boolean;
+  is_featured?: boolean;
   featured_until?: string;
-  is_urgent: boolean;
-  tags: string[];
+  is_urgent?: boolean;
+  tags?: string[];
   external_id?: string;
-  source: string;
+  source?: string;
   
   // Type-specific fields
   internship?: {
@@ -344,8 +344,7 @@ export default function JobCreationWizard({ open, onOpenChange, onJobCreated }: 
         if (!formData.contact_person_email) errors.push('E-Mail des Ansprechpartners ist erforderlich');
         break;
       case 'additional':
-        if (!formData.company_description) errors.push('Unternehmensbeschreibung ist erforderlich');
-        if (formData.company_description.length < 250) errors.push('Unternehmensbeschreibung muss mindestens 250 Zeichen haben');
+        // Additional fields are optional, no validation needed
         break;
       case 'time':
         if (formData.hours_per_week_min && formData.hours_per_week_max) {
