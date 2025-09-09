@@ -26,6 +26,7 @@ interface CompanyJobCardProps {
   };
   companyName: string;
   onJobUpdated: () => void;
+  onViewJob?: (jobId: string) => void;
 }
 
 const getCategoryLabel = (category: string) => {
@@ -212,9 +213,13 @@ export function CompanyJobCard({ job, companyName, onJobUpdated }: CompanyJobCar
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => onViewJob?.(job.id)}>
+                  <Eye className="h-4 w-4 mr-2" />
+                  Details & Bewerbungen
+                </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => window.open(`/jobs/${job.id}`, '_blank')}>
                   <Eye className="h-4 w-4 mr-2" />
-                  Vorschau ansehen
+                  Öffentliche Ansicht
                 </DropdownMenuItem>
                 
                 {!job.is_active ? (

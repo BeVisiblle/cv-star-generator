@@ -75,13 +75,32 @@ export function useJobPostingLimits() {
   // Save job as draft
   const saveDraftMutation = useMutation({
     mutationFn: async (jobData: any) => {
-      // Remove invalid fields and ensure proper field mapping
-      const { certifications, description, ...cleanJobData } = jobData;
+      // Map fields to database schema
+      const { 
+        description, 
+        skills, 
+        languages, 
+        certifications, 
+        driving_licenses,
+        internship,
+        apprenticeship,
+        professional,
+        ...cleanJobData 
+      } = jobData;
       
       // Map description to description_md if it exists
       if (description) {
         cleanJobData.description_md = description;
       }
+      
+      // Map complex fields to JSONB
+      if (skills) cleanJobData.skills = skills;
+      if (languages) cleanJobData.languages = languages;
+      if (certifications) cleanJobData.certifications = certifications;
+      if (driving_licenses) cleanJobData.driving_licenses = driving_licenses;
+      if (internship) cleanJobData.internship_data = internship;
+      if (apprenticeship) cleanJobData.apprenticeship_data = apprenticeship;
+      if (professional) cleanJobData.professional_data = professional;
       
       const { data, error } = await supabase
         .from('job_posts')
@@ -116,13 +135,32 @@ export function useJobPostingLimits() {
   // Update existing job
   const updateJobMutation = useMutation({
     mutationFn: async ({ jobId, jobData }: { jobId: string; jobData: any }) => {
-      // Remove invalid fields and ensure proper field mapping
-      const { certifications, description, ...cleanJobData } = jobData;
+      // Map fields to database schema
+      const { 
+        description, 
+        skills, 
+        languages, 
+        certifications, 
+        driving_licenses,
+        internship,
+        apprenticeship,
+        professional,
+        ...cleanJobData 
+      } = jobData;
       
       // Map description to description_md if it exists
       if (description) {
         cleanJobData.description_md = description;
       }
+      
+      // Map complex fields to JSONB
+      if (skills) cleanJobData.skills = skills;
+      if (languages) cleanJobData.languages = languages;
+      if (certifications) cleanJobData.certifications = certifications;
+      if (driving_licenses) cleanJobData.driving_licenses = driving_licenses;
+      if (internship) cleanJobData.internship_data = internship;
+      if (apprenticeship) cleanJobData.apprenticeship_data = apprenticeship;
+      if (professional) cleanJobData.professional_data = professional;
       
       const { data, error } = await supabase
         .from('job_posts')

@@ -3,9 +3,10 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Briefcase, Settings, Archive, Eye, Save } from "lucide-react";
+import { Plus, Briefcase, Settings, Archive, Eye, Save, Users } from "lucide-react";
 import { useCompany } from "@/hooks/useCompany";
 import JobCreationWizard from "@/components/company/jobs/JobCreationWizard";
+import JobPostCompanyView from "@/components/Company/jobs/JobPostCompanyView";
 import { TokenStatus } from "@/components/Company/TokenStatus";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -14,6 +15,7 @@ import { CompanyJobCard } from "@/components/company/CompanyJobCard";
 export default function CompanyJobs() {
   const { company, loading: companyLoading } = useCompany();
   const [showJobPostDialog, setShowJobPostDialog] = useState(false);
+  const [selectedJobId, setSelectedJobId] = useState<string | null>(null);
 
   // Fetch company job posts
   const { data: jobPosts = [], isLoading, refetch } = useQuery({
@@ -137,6 +139,7 @@ export default function CompanyJobs() {
                   job={job}
                   companyName={company.name || ''}
                   onJobUpdated={refetch}
+                  onViewJob={setSelectedJobId}
                 />
               ))}
             </div>
@@ -166,6 +169,7 @@ export default function CompanyJobs() {
                   job={job}
                   companyName={company.name || ''}
                   onJobUpdated={refetch}
+                  onViewJob={setSelectedJobId}
                 />
               ))}
             </div>
@@ -191,6 +195,7 @@ export default function CompanyJobs() {
                   job={job}
                   companyName={company.name || ''}
                   onJobUpdated={refetch}
+                  onViewJob={setSelectedJobId}
                 />
               ))}
             </div>
@@ -205,6 +210,14 @@ export default function CompanyJobs() {
         onOpenChange={setShowJobPostDialog}
         onJobCreated={handleJobCreated}
       />
+
+      {/* Job Post Company View */}
+      {selectedJobId && (
+        <JobPostCompanyView
+          jobId={selectedJobId}
+          onClose={() => setSelectedJobId(null)}
+        />
+      )}
     </div>
   );
 }

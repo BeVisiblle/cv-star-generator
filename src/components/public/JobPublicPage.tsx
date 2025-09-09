@@ -11,6 +11,7 @@ import { Separator } from '@/components/ui/separator';
 import { MapPin, Building, Clock, Euro, Users, Calendar, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import ShareJobButton from './ShareJobButton';
+import JobApplicationForm from './JobApplicationForm';
 
 interface JobDetail {
   id: string;
@@ -190,13 +191,13 @@ export default function JobPublicPage() {
           </div>
           
           <div className="flex flex-col gap-2 md:items-end">
-            <Button 
-              size="lg"
-              onClick={() => setShowApplicationModal(true)}
-              className="w-full md:w-auto"
-            >
-              Jetzt bewerben
-            </Button>
+            <JobApplicationForm
+              jobId={job.id}
+              companyId={job.company_id || ''}
+              jobTitle={job.title}
+              companyName={job.company_name}
+              onApplicationSubmitted={() => setApplicationSuccess(true)}
+            />
             <p className="text-sm text-muted-foreground text-center md:text-right">
               Bewerbung in nur 2 Minuten
             </p>
@@ -297,12 +298,13 @@ export default function JobPublicPage() {
             Bewerben Sie sich jetzt mit nur wenigen Klicks – ohne langwierige Registrierung.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <Button 
-              size="lg"
-              onClick={() => setShowApplicationModal(true)}
-            >
-              Jetzt bewerben
-            </Button>
+            <JobApplicationForm
+              jobId={job.id}
+              companyId={job.company_id || ''}
+              jobTitle={job.title}
+              companyName={job.company_name}
+              onApplicationSubmitted={() => setApplicationSuccess(true)}
+            />
             {job.company_id && (
               <ShareJobButton 
                 jobId={job.id} 
