@@ -25,6 +25,7 @@ import { TagPicker, TagType } from "@/components/company/matching/TagPicker";
 import { BranchSelector } from "@/components/Company/BranchSelector";
 import { EmploymentRequestsCard } from "@/components/company/EmploymentRequestsCard";
 import { CompanyPeople } from "@/components/company/CompanyPeople";
+import CommunityFeedControls from "@/components/community/CommunityFeedControls";
 
 interface TeamMember {
   id: string;
@@ -272,13 +273,14 @@ export default function CompanySettings() {
       </div>
 
       <Tabs defaultValue="general" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-6">
+        <TabsList className="grid w-full grid-cols-7">
           <TabsTrigger value="general">Allgemein</TabsTrigger>
           <TabsTrigger value="team">Team & Sitze</TabsTrigger>
           <TabsTrigger value="targeting">Zielgruppen</TabsTrigger>
           <TabsTrigger value="profile">Profil</TabsTrigger>
           <TabsTrigger value="billing">Tokens & Abrechnung</TabsTrigger>
           <TabsTrigger value="notifications">Benachrichtigungen</TabsTrigger>
+          <TabsTrigger value="community">Community</TabsTrigger>
         </TabsList>
 
         <TabsContent value="general">
@@ -682,6 +684,20 @@ export default function CompanySettings() {
                   />
                 </label>
               </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="community">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <Bell className="h-5 w-5 mr-2" />
+                Community-Einstellungen
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <CommunityFeedControls />
             </CardContent>
           </Card>
         </TabsContent>

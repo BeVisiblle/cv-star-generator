@@ -5,7 +5,7 @@ import { Plus, Loader2 } from 'lucide-react';
 import { useCommunityFeed } from '@/hooks/useCommunityPosts';
 import CommunityPostCard from './CommunityPostCard';
 import CommunityComposer from './CommunityComposer';
-import CommunityFeedControls from './CommunityFeedControls';
+import CommunityComposerTeaser from './CommunityComposerTeaser';
 import { useAuth } from '@/hooks/useAuth';
 
 export default function EnhancedCommunityFeed() {
@@ -58,21 +58,7 @@ export default function EnhancedCommunityFeed() {
   return (
     <div className="space-y-6">
       {/* Composer Teaser */}
-      <Card>
-        <CardContent className="p-4">
-          <Button 
-            variant="outline" 
-            className="w-full justify-start text-muted-foreground"
-            onClick={() => setComposerOpen(true)}
-          >
-            <Plus className="h-4 w-4 mr-2" />
-            Teile ein Update mit der Community...
-          </Button>
-        </CardContent>
-      </Card>
-
-      {/* Feed Controls */}
-      <CommunityFeedControls />
+      <CommunityComposerTeaser onOpenComposer={() => setComposerOpen(true)} />
 
       {/* Posts */}
       <div className="space-y-6">

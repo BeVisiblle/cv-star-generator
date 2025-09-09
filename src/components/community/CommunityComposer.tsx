@@ -19,14 +19,15 @@ import { supabase } from '@/integrations/supabase/client';
 interface CommunityComposerProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  initialTab?: string;
 }
 
-export default function CommunityComposer({ open, onOpenChange }: CommunityComposerProps) {
+export default function CommunityComposer({ open, onOpenChange, initialTab = 'text' }: CommunityComposerProps) {
   const isMobile = useIsMobile();
   const { user } = useAuth();
   const { company } = useCompany();
   
-  const [activeTab, setActiveTab] = useState('text');
+  const [activeTab, setActiveTab] = useState(initialTab);
   const [postAs, setPostAs] = useState<'user' | 'company'>('user');
   const [visibility, setVisibility] = useState<'public' | 'followers' | 'connections' | 'org_only'>('public');
   const [content, setContent] = useState('');
