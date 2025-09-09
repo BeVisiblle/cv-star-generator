@@ -5,7 +5,8 @@ import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Eye, Share, CheckCircle, AlertCircle, MapPin, Clock, Euro, Users } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Eye, Share, CheckCircle, AlertCircle, MapPin, Clock, Euro, Users, Edit, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { JobFormData } from '../JobCreationWizard';
@@ -15,9 +16,10 @@ interface JobPreviewStepProps {
   formData: JobFormData;
   updateFormData: (updates: Partial<JobFormData>) => void;
   company: any;
+  onEdit?: () => void;
 }
 
-export default function JobPreviewStep({ formData, updateFormData, company }: JobPreviewStepProps) {
+export default function JobPreviewStep({ formData, updateFormData, company, onEdit }: JobPreviewStepProps) {
   const [isPublishing, setIsPublishing] = useState(false);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   const { toast } = useToast();
@@ -111,8 +113,54 @@ export default function JobPreviewStep({ formData, updateFormData, company }: Jo
               </p>
             </CardHeader>
             <CardContent>
-              <div className="border rounded-lg p-4 bg-gray-50">
-                <JobCandidatePreview formData={formData} company={company} />
+              <div className="space-y-4">
+                <div className="flex gap-2">
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Button variant="outline" className="flex items-center gap-2">
+                        <Eye className="h-4 w-4" />
+                        Vollbild-Vorschau öffnen
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
+                      <DialogHeader>
+                        <DialogTitle className="flex items-center gap-2">
+                          <Eye className="h-5 w-5" />
+                          Kandidaten-Ansicht
+                        </DialogTitle>
+                      </DialogHeader>
+                      <div className="mt-4">
+                        <JobCandidatePreview 
+                          formData={formData} 
+                          company={company} 
+                          onEdit={onEdit}
+                          showEditButton={true}
+                        />
+                      </div>
+                      <div className="flex justify-end gap-2 mt-6 pt-4 border-t">
+                        <Button variant="outline" onClick={() => {
+                          const dialog = document.querySelector('[role="dialog"]') as HTMLElement;
+                          if (dialog) {
+                            const closeButton = dialog.querySelector('[data-state="open"]') as HTMLElement;
+                            if (closeButton) closeButton.click();
+                          }
+                        }}>
+                          <X className="h-4 w-4 mr-2" />
+                          Schließen
+                        </Button>
+                        {onEdit && (
+                          <Button onClick={onEdit}>
+                            <Edit className="h-4 w-4 mr-2" />
+                            Bearbeiten
+                          </Button>
+                        )}
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+                </div>
+                <div className="border rounded-lg p-4 bg-gray-50 max-h-96 overflow-y-auto">
+                  <JobCandidatePreview formData={formData} company={company} />
+                </div>
               </div>
             </CardContent>
           </Card>

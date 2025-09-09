@@ -377,6 +377,13 @@ export default function JobCreationWizard({ open, onOpenChange, onJobCreated }: 
     setCurrentStep(prev => Math.max(prev - 1, 0));
   };
 
+  const handleEdit = (stepId: string) => {
+    const stepIndex = STEPS.findIndex(step => step.id === stepId);
+    if (stepIndex !== -1) {
+      setCurrentStep(stepIndex);
+    }
+  };
+
   const handleSaveAsDraft = async () => {
     if (!company?.id) return;
 
@@ -479,6 +486,7 @@ export default function JobCreationWizard({ open, onOpenChange, onJobCreated }: 
                     formData={formData}
                     updateFormData={updateFormData}
                     company={company}
+                    onEdit={currentStep === STEPS.length - 1 ? () => handleEdit('basics') : undefined}
                   />
                 )}
               </CardContent>

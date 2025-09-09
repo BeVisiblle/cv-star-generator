@@ -23,9 +23,11 @@ import { JobFormData } from './JobCreationWizard';
 interface JobCandidatePreviewProps {
   formData: JobFormData;
   company: any;
+  onEdit?: () => void;
+  showEditButton?: boolean;
 }
 
-export default function JobCandidatePreview({ formData, company }: JobCandidatePreviewProps) {
+export default function JobCandidatePreview({ formData, company, onEdit, showEditButton = false }: JobCandidatePreviewProps) {
   const formatSalary = (min?: number, max?: number, currency = 'EUR', interval = 'month') => {
     if (!min && !max) return 'Vergütung nach Vereinbarung';
     
@@ -359,6 +361,18 @@ export default function JobCandidatePreview({ formData, company }: JobCandidateP
           )}
         </div>
       </div>
+
+      {/* Edit Button */}
+      {showEditButton && onEdit && (
+        <div className="mt-8 pt-6 border-t">
+          <div className="flex justify-center">
+            <Button onClick={onEdit} className="flex items-center gap-2">
+              <Edit className="h-4 w-4" />
+              Stellenanzeige bearbeiten
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
