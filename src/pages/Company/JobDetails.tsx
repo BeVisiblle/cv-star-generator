@@ -1,6 +1,6 @@
 import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import JobPostCompanyView from '@/components/Company/jobs/JobPostCompanyView';
+import JobCompanyView from '@/components/Company/jobs/JobCompanyView';
 
 export default function CompanyJobDetails() {
   const { jobId } = useParams<{ jobId: string }>();
@@ -28,9 +28,6 @@ export default function CompanyJobDetails() {
   }
 
   return (
-    <JobPostCompanyView
-      jobId={jobId}
-      onClose={handleClose}
-    />
+    <JobCompanyView />
   );
 }

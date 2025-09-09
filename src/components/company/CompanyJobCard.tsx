@@ -2,10 +2,11 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { MapPin, Briefcase, Building, Clock, Euro, Calendar, MoreVertical, Eye, EyeOff, Edit } from "lucide-react";
+import { MapPin, Briefcase, Building, Clock, Euro, Calendar, MoreVertical, Eye, EyeOff, Edit, Users } from "lucide-react";
 import { useJobPostingLimits } from "@/hooks/useJobPostingLimits";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
+import JobCandidatePreviewDialog from "./JobCandidatePreviewDialog";
 
 interface CompanyJobCardProps {
   job: {
@@ -23,10 +24,14 @@ interface CompanyJobCardProps {
     description_md?: string;
     is_active: boolean;
     is_public: boolean;
+    // Weitere Job-Felder für die Vorschau
+    [key: string]: any;
   };
   companyName: string;
+  company?: any;
   onJobUpdated: () => void;
   onViewJob?: (jobId: string) => void;
+  onEdit?: (jobId: string) => void;
 }
 
 const getCategoryLabel = (category: string) => {
@@ -97,7 +102,7 @@ const formatDate = (dateString: string) => {
   });
 };
 
-export function CompanyJobCard({ job, companyName, onJobUpdated }: CompanyJobCardProps) {
+export function CompanyJobCard({ job, companyName, company, onJobUpdated, onViewJob, onEdit }: CompanyJobCardProps) {
   const { publishJob, isPublishing, updateJob } = useJobPostingLimits();
   const { toast } = useToast();
   const [isUpdating, setIsUpdating] = useState(false);
@@ -153,7 +158,10 @@ export function CompanyJobCard({ job, companyName, onJobUpdated }: CompanyJobCar
   };
 
   return (
-    <Card className="group hover:shadow-lg transition-all duration-200 border-0 shadow-sm hover:shadow-md">
+    <Card 
+      className="group hover:shadow-lg transition-all duration-200 border-0 shadow-sm hover:shadow-md cursor-pointer"
+      onClick={() => onViewJob?.(job.id)}
+    >
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between">
           <div className="flex items-start space-x-3 flex-1 min-w-0">
@@ -217,6 +225,17 @@ export function CompanyJobCard({ job, companyName, onJobUpdated }: CompanyJobCar
                   <Eye className="h-4 w-4 mr-2" />
                   Details & Bewerbungen
                 </DropdownMenuItem>
+                <JobCandidatePreviewDialog 
+                  job={job} 
+                  company={company} 
+                  onEdit={onEdit ? () => onEdit(job.id) : undefined}
+                  trigger={
+                    <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                      <Users className="h-4 w-4 mr-2" />
+                      Kandidaten-Ansicht
+                    </DropdownMenuItem>
+                  }
+                />
                 <DropdownMenuItem onClick={() => window.open(`/jobs/${job.id}`, '_blank')}>
                   <Eye className="h-4 w-4 mr-2" />
                   Öffentliche Ansicht
