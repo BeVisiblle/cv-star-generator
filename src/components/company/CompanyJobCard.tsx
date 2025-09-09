@@ -6,7 +6,7 @@ import { MapPin, Briefcase, Building, Clock, Euro, Calendar, MoreVertical, Eye, 
 import { useJobPostingLimits } from "@/hooks/useJobPostingLimits";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
-import JobCandidatePreviewDialog from "./JobCandidatePreviewDialog";
+import JobCandidatePreviewDialog from "../Company/JobCandidatePreviewDialog";
 
 interface CompanyJobCardProps {
   job: {
