@@ -592,6 +592,384 @@ export type Database = {
           },
         ]
       }
+      community_comments: {
+        Row: {
+          author_company_id: string | null
+          author_user_id: string | null
+          body_md: string
+          created_at: string | null
+          id: string
+          parent_comment_id: string | null
+          post_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          author_company_id?: string | null
+          author_user_id?: string | null
+          body_md: string
+          created_at?: string | null
+          id?: string
+          parent_comment_id?: string | null
+          post_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          author_company_id?: string | null
+          author_user_id?: string | null
+          body_md?: string
+          created_at?: string | null
+          id?: string
+          parent_comment_id?: string | null
+          post_id?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "community_comments_author_company_id_fkey"
+            columns: ["author_company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "community_comments_author_company_id_fkey"
+            columns: ["author_company_id"]
+            isOneToOne: false
+            referencedRelation: "company_need_quota"
+            referencedColumns: ["company_id"]
+          },
+          {
+            foreignKeyName: "community_comments_parent_comment_id_fkey"
+            columns: ["parent_comment_id"]
+            isOneToOne: false
+            referencedRelation: "community_comments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "community_comments_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "community_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      community_job_limits: {
+        Row: {
+          company_id: string
+          job_id: string
+          shares_used: number | null
+          week_start: string
+        }
+        Insert: {
+          company_id: string
+          job_id: string
+          shares_used?: number | null
+          week_start: string
+        }
+        Update: {
+          company_id?: string
+          job_id?: string
+          shares_used?: number | null
+          week_start?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "community_job_limits_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "community_job_limits_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "company_need_quota"
+            referencedColumns: ["company_id"]
+          },
+          {
+            foreignKeyName: "community_job_limits_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "job_posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "community_job_limits_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "public_job_listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      community_likes: {
+        Row: {
+          created_at: string | null
+          id: string
+          liker_company_id: string | null
+          liker_user_id: string | null
+          post_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          liker_company_id?: string | null
+          liker_user_id?: string | null
+          post_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          liker_company_id?: string | null
+          liker_user_id?: string | null
+          post_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "community_likes_liker_company_id_fkey"
+            columns: ["liker_company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "community_likes_liker_company_id_fkey"
+            columns: ["liker_company_id"]
+            isOneToOne: false
+            referencedRelation: "company_need_quota"
+            referencedColumns: ["company_id"]
+          },
+          {
+            foreignKeyName: "community_likes_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "community_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      community_mentions: {
+        Row: {
+          created_at: string | null
+          end_pos: number | null
+          id: string
+          mentioned_company_id: string | null
+          mentioned_user_id: string | null
+          post_id: string
+          start_pos: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          end_pos?: number | null
+          id?: string
+          mentioned_company_id?: string | null
+          mentioned_user_id?: string | null
+          post_id: string
+          start_pos?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          end_pos?: number | null
+          id?: string
+          mentioned_company_id?: string | null
+          mentioned_user_id?: string | null
+          post_id?: string
+          start_pos?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "community_mentions_mentioned_company_id_fkey"
+            columns: ["mentioned_company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "community_mentions_mentioned_company_id_fkey"
+            columns: ["mentioned_company_id"]
+            isOneToOne: false
+            referencedRelation: "company_need_quota"
+            referencedColumns: ["company_id"]
+          },
+          {
+            foreignKeyName: "community_mentions_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "community_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      community_posts: {
+        Row: {
+          actor_company_id: string | null
+          actor_user_id: string | null
+          applies_enabled: boolean | null
+          body_md: string | null
+          comment_count: number | null
+          created_at: string | null
+          id: string
+          job_id: string | null
+          like_count: number | null
+          media: Json | null
+          post_kind: Database["public"]["Enums"]["post_kind"]
+          share_count: number | null
+          updated_at: string | null
+          visibility: Database["public"]["Enums"]["post_visibility"]
+        }
+        Insert: {
+          actor_company_id?: string | null
+          actor_user_id?: string | null
+          applies_enabled?: boolean | null
+          body_md?: string | null
+          comment_count?: number | null
+          created_at?: string | null
+          id?: string
+          job_id?: string | null
+          like_count?: number | null
+          media?: Json | null
+          post_kind?: Database["public"]["Enums"]["post_kind"]
+          share_count?: number | null
+          updated_at?: string | null
+          visibility?: Database["public"]["Enums"]["post_visibility"]
+        }
+        Update: {
+          actor_company_id?: string | null
+          actor_user_id?: string | null
+          applies_enabled?: boolean | null
+          body_md?: string | null
+          comment_count?: number | null
+          created_at?: string | null
+          id?: string
+          job_id?: string | null
+          like_count?: number | null
+          media?: Json | null
+          post_kind?: Database["public"]["Enums"]["post_kind"]
+          share_count?: number | null
+          updated_at?: string | null
+          visibility?: Database["public"]["Enums"]["post_visibility"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "community_posts_actor_company_id_fkey"
+            columns: ["actor_company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "community_posts_actor_company_id_fkey"
+            columns: ["actor_company_id"]
+            isOneToOne: false
+            referencedRelation: "company_need_quota"
+            referencedColumns: ["company_id"]
+          },
+          {
+            foreignKeyName: "community_posts_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "job_posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "community_posts_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "public_job_listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      community_preferences: {
+        Row: {
+          blocked_ids: string[] | null
+          created_at: string | null
+          muted_company_ids: string[] | null
+          muted_user_ids: string[] | null
+          origin_filter: string | null
+          radius_km: number | null
+          show_company_posts: boolean | null
+          show_job_shares: boolean | null
+          show_user_posts: boolean | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          blocked_ids?: string[] | null
+          created_at?: string | null
+          muted_company_ids?: string[] | null
+          muted_user_ids?: string[] | null
+          origin_filter?: string | null
+          radius_km?: number | null
+          show_company_posts?: boolean | null
+          show_job_shares?: boolean | null
+          show_user_posts?: boolean | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          blocked_ids?: string[] | null
+          created_at?: string | null
+          muted_company_ids?: string[] | null
+          muted_user_ids?: string[] | null
+          origin_filter?: string | null
+          radius_km?: number | null
+          show_company_posts?: boolean | null
+          show_job_shares?: boolean | null
+          show_user_posts?: boolean | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      community_shares: {
+        Row: {
+          created_at: string | null
+          id: string
+          post_id: string
+          sharer_company_id: string | null
+          sharer_user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          post_id: string
+          sharer_company_id?: string | null
+          sharer_user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          post_id?: string
+          sharer_company_id?: string | null
+          sharer_user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "community_shares_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "community_posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "community_shares_sharer_company_id_fkey"
+            columns: ["sharer_company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "community_shares_sharer_company_id_fkey"
+            columns: ["sharer_company_id"]
+            isOneToOne: false
+            referencedRelation: "company_need_quota"
+            referencedColumns: ["company_id"]
+          },
+        ]
+      }
       companies: {
         Row: {
           account_status: string
@@ -6895,6 +7273,7 @@ export type Database = {
       }
     }
     Enums: {
+      actor_kind: "user" | "company"
       app_role: "admin" | "editor" | "viewer"
       company_size_band: "1-9" | "10-49" | "50-249" | "250-999" | "1000+"
       follow_entity: "profile" | "company"
@@ -6918,6 +7297,8 @@ export type Database = {
         | "billing_update"
         | "product_update"
       plan_code: "free" | "starter" | "premium"
+      post_kind: "text" | "media" | "job_share" | "poll"
+      post_visibility: "public" | "followers" | "connections" | "org_only"
       tag_type:
         | "profession"
         | "target_group"
@@ -7060,6 +7441,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      actor_kind: ["user", "company"],
       app_role: ["admin", "editor", "viewer"],
       company_size_band: ["1-9", "10-49", "50-249", "250-999", "1000+"],
       follow_entity: ["profile", "company"],
@@ -7084,6 +7466,8 @@ export const Constants = {
         "product_update",
       ],
       plan_code: ["free", "starter", "premium"],
+      post_kind: ["text", "media", "job_share", "poll"],
+      post_visibility: ["public", "followers", "connections", "org_only"],
       tag_type: [
         "profession",
         "target_group",
