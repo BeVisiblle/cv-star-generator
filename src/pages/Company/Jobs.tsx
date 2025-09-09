@@ -6,7 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Plus, Briefcase, Settings, Archive, Eye, Save, Users } from "lucide-react";
 import { useCompany } from "@/hooks/useCompany";
-import JobCreationWizard from "@/components/company/jobs/JobCreationWizard";
+// import JobCreationWizard from "@/components/company/jobs/JobCreationWizard";
 import { TokenStatus } from "@/components/Company/TokenStatus";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -221,11 +221,11 @@ export default function CompanyJobs() {
       </Tabs>
 
       {/* Job Creation Wizard */}
-      <JobCreationWizard
+      {/* <JobCreationWizard
         open={showJobPostDialog}
         onOpenChange={setShowJobPostDialog}
         onJobCreated={handleJobCreated}
-      />
+      /> */}
 
     </div>
   );
