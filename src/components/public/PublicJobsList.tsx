@@ -71,7 +71,12 @@ export default function PublicJobsList() {
           salary_interval,
           published_at,
           description_md,
-          company_id
+          company_id,
+          companies!job_posts_company_id_fkey(
+            id,
+            name,
+            logo_url
+          )
         `)
         .eq('is_public', true)
         .eq('is_active', true)

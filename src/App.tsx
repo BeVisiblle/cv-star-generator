@@ -93,8 +93,9 @@ const AdminAuthGate = lazy(() => import("@/components/admin/AdminAuthGate"));
 const CreateAdmin = lazy(() => import("./pages/Admin/CreateAdmin"));
 const PublicJobs = lazy(() => import("./pages/PublicJobs"));
 const PublicJobDetail = lazy(() => import("./pages/PublicJobDetail"));
-const EventDetail = lazy(() => import("./pages/EventDetail"));
-const FeedSettingsPage = lazy(() => import("./pages/FeedSettingsPage"));
+// Temporarily removed due to build issues
+// const EventDetail = lazy(() => import("./pages/EventDetail"));
+// const FeedSettingsPage = lazy(() => import("./pages/FeedSettingsPage"));
 
 const queryClient = new QueryClient();
 
@@ -250,8 +251,8 @@ const App = () => (
               <Route path="/jobs" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><BaseLayout><PublicJobs /></BaseLayout></Suspense>} />
               <Route path="/jobs/:slug" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><BaseLayout><PublicJobDetail /></BaseLayout></Suspense>} />
               
-              {/* Event detail page */}
-              <Route path="/event/:eventId" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><EventDetail /></Suspense>} />
+              {/* Event detail page - temporarily disabled */}
+              {/* <Route path="/event/:eventId" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><EventDetail /></Suspense>} /> */}
               
               {/* Test Data Management */}
               <Route path="/test-data" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><TestData /></Suspense>} />
@@ -326,7 +327,7 @@ const App = () => (
                 <Route path="/notifications" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><NotificationsPage /></Suspense>} />
                 <Route path="/applications" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><Applications /></Suspense>} />
                 <Route path="/settings" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><Settings /></Suspense>} />
-                <Route path="/feed-settings" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><FeedSettingsPage /></Suspense>} />
+                {/* <Route path="/feed-settings" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><FeedSettingsPage /></Suspense>} /> */}
                 <Route path="/entdecken/azubis" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><DiscoverAzubis /></Suspense>} />
                 <Route path="/entdecken/unternehmen" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><DiscoverCompanies /></Suspense>} />
                 <Route path="/groups" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><GroupsPage /></Suspense>} />
