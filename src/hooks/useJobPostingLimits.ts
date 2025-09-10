@@ -127,10 +127,10 @@ export const useJobPostingLimits = () => {
     },
   });
 
-  // Update existing job - using only basic fields
+  // Update existing job - including status fields
   const updateJobMutation = useMutation({
     mutationFn: async ({ jobId, jobData }: { jobId: string; jobData: any }) => {
-      // Only use basic fields that are guaranteed to exist
+      // Include basic fields plus status fields
       const basicJobData = {
         title: jobData.title,
         job_type: jobData.job_type,
@@ -169,6 +169,10 @@ export const useJobPostingLimits = () => {
         relocation_support: jobData.relocation_support || false,
         travel_percentage: jobData.travel_percentage || 0,
         updated_at: new Date().toISOString(),
+        // Include status fields if provided
+        ...(jobData.is_active !== undefined && { is_active: jobData.is_active }),
+        ...(jobData.is_public !== undefined && { is_public: jobData.is_public }),
+        ...(jobData.is_draft !== undefined && { is_draft: jobData.is_draft }),
       };
 
       const { data, error } = await supabase

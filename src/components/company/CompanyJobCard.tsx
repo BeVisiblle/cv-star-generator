@@ -152,10 +152,9 @@ export function CompanyJobCard({ job, companyName, company, onJobUpdated, onView
 
     setIsDeleting(true);
     try {
-      const { error } = await supabase
-        .from('job_posts')
-        .delete()
-        .eq('id', job.id);
+      const { data, error } = await supabase.functions.invoke('delete_job_with_access', {
+        body: { job_id: job.id }
+      });
 
       if (error) throw error;
 
@@ -271,11 +270,7 @@ export function CompanyJobCard({ job, companyName, company, onJobUpdated, onView
                     </DropdownMenuItem>
                   }
                 />
-                <DropdownMenuItem onClick={() => {
-                  const companySlug = company?.slug || company?.id;
-                  const jobSlug = job.slug || job.id;
-                  window.open(`/companies/${companySlug}/jobs/${jobSlug}`, '_blank');
-                }}>
+                <DropdownMenuItem onClick={() => window.open(`/jobs/${job.id}`, '_blank')}>
                   <Eye className="h-4 w-4 mr-2" />
                   Öffentliche Ansicht
                 </DropdownMenuItem>

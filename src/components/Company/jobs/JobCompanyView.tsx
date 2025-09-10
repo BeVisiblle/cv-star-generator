@@ -68,7 +68,7 @@ export default function JobCompanyView({ jobId: propJobId }: JobCompanyViewProps
             companies!job_posts_company_id_fkey(name, slug)
           `)
           .eq('id', jobId)
-          .single();
+          .maybeSingle();
 
         if (error) throw error;
 
