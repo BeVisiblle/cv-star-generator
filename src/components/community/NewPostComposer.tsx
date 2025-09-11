@@ -1,10 +1,9 @@
 import React from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
-import { Button } from '@/components/ui/button';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { CreatePost } from '@/components/community/CreatePost';
+import { CommunityComposer } from './CommunityComposer';
 import { useAuth } from '@/hooks/useAuth';
 
 interface NewPostComposerProps {
@@ -12,38 +11,24 @@ interface NewPostComposerProps {
   onOpenChange: (open: boolean) => void;
 }
 
-export default function NewPostComposer({ open, onOpenChange }: NewPostComposerProps) {
+function NewPostComposer({ open, onOpenChange }: NewPostComposerProps) {
   const isMobile = useIsMobile();
   const { profile } = useAuth();
-  const [canPost, setCanPost] = React.useState(false);
-  const [isSubmitting, setIsSubmitting] = React.useState(false);
-
-  const handleState = (s: { canPost: boolean; isSubmitting: boolean }) => {
-    setCanPost(s.canPost);
-    setIsSubmitting(s.isSubmitting);
-  };
 
   const Header = (
-    <div className="px-6 pt-5 pb-3 border-b bg-background">
-      <div className="flex items-center gap-3">
-        <Avatar className="h-9 w-9">
-          <AvatarImage src={profile?.avatar_url || undefined} />
-          <AvatarFallback>
-            {profile?.vorname && profile?.nachname ? `${profile.vorname[0]}${profile.nachname[0]}` : "U"}
-          </AvatarFallback>
-        </Avatar>
-        <div className="flex-1 min-w-0">
-          <div className="text-sm font-medium leading-tight truncate">
-            {profile?.vorname && profile?.nachname ? `${profile.vorname} ${profile.nachname}` : "Unbekannter Nutzer"}
-          </div>
-          <div className="text-xs text-muted-foreground">
-            Neuer Beitrag
-          </div>
+    <div className="flex items-center gap-3 sticky top-0 bg-background pb-4 border-b">
+      <Avatar className="h-9 w-9">
+        <AvatarImage src={profile?.avatar_url || undefined} />
+        <AvatarFallback>
+          {profile?.vorname && profile?.nachname ? `${profile.vorname[0]}${profile.nachname[0]}` : "U"}
+        </AvatarFallback>
+      </Avatar>
+      <div className="flex-1 min-w-0">
+        <div className="text-sm font-medium leading-tight truncate">
+          {profile?.vorname && profile?.nachname ? `${profile.vorname} ${profile.nachname}` : "Unbekannter Nutzer"}
         </div>
-        <div className="flex items-center gap-2">
-          <Button disabled={!canPost || isSubmitting} onClick={() => document.getElementById("createpost-submit")?.click()}>
-            {isSubmitting ? "Wird veröffentlicht…" : "Posten"}
-          </Button>
+        <div className="text-xs text-muted-foreground">
+          Neuer Beitrag
         </div>
       </div>
     </div>
@@ -52,13 +37,13 @@ export default function NewPostComposer({ open, onOpenChange }: NewPostComposerP
   if (isMobile) {
     return (
       <Sheet open={open} onOpenChange={onOpenChange}>
-        <SheetContent side="bottom" className="h-[92vh] p-0 flex flex-col">
-          <SheetHeader className="px-6 pt-4 pb-2">
+        <SheetContent side="bottom" className="h-[85vh] p-6 flex flex-col">
+          <SheetHeader className="sr-only">
             <SheetTitle>Neuer Beitrag</SheetTitle>
           </SheetHeader>
           {Header}
-          <div className="flex-1 overflow-y-auto px-6 pb-6">
-            <CreatePost container="none" hideHeader variant="composer" hideBottomBar onStateChange={handleState} />
+          <div className="flex-1 overflow-y-auto pt-4">
+            <CommunityComposer />
           </div>
         </SheetContent>
       </Sheet>
@@ -67,15 +52,18 @@ export default function NewPostComposer({ open, onOpenChange }: NewPostComposerP
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="md:max-w-3xl w-full p-0 rounded-xl overflow-hidden">
+      <DialogContent className="sm:max-w-[600px] max-h-[85vh] overflow-hidden p-6">
         <DialogHeader className="sr-only">
           <DialogTitle>Neuer Beitrag</DialogTitle>
         </DialogHeader>
         {Header}
-        <div className="px-6 py-5">
-          <CreatePost container="none" hideHeader variant="composer" hideBottomBar onStateChange={handleState} />
+        <div className="max-h-[60vh] overflow-y-auto pt-4">
+          <CommunityComposer />
         </div>
       </DialogContent>
     </Dialog>
   );
 }
+
+export { NewPostComposer };
+export default NewPostComposer;

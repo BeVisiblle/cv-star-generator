@@ -44,15 +44,19 @@ export const PeopleRecommendations: React.FC<PeopleRecommendationsProps> = ({ li
           .from("profiles")
           .select("id, vorname, nachname, avatar_url, ort, branche, headline, ausbildungsberuf, geplanter_abschluss, status")
           .eq("profile_published", true)
-        .in("status", ["azubi", "schueler"]) as any;
+          .in("status", ["azubi", "schueler"])
+          .limit(50) as any; // Load more profiles to ensure we have enough with 'none' status
+        
         if (error) throw error;
         if (!user) {
           setItems([]);
           return;
         }
-        const filtered = (data as SimpleProfile[]).filter(p => p.id !== user.id).slice(0, limit);
+        
+        const filtered = (data as SimpleProfile[]).filter(p => p.id !== user.id);
         setItems(filtered);
-        // Preload connection statuses
+        
+        // Preload connection statuses for all profiles
         const ids = filtered.map(f => f.id);
         const statuses = await getStatuses(ids);
         setStatusMap(statuses);
@@ -63,7 +67,7 @@ export const PeopleRecommendations: React.FC<PeopleRecommendationsProps> = ({ li
       }
     };
     load();
-  }, [user, limit, getStatuses]);
+  }, [user, getStatuses]);
 
   const onConnect = async (targetId: string) => {
     try {
@@ -90,7 +94,7 @@ export const PeopleRecommendations: React.FC<PeopleRecommendationsProps> = ({ li
   const onDecline = async (fromId: string) => {
     try {
       await declineRequest(fromId);
-      setStatusMap(prev => ({ ...prev, [fromId]: "declined" }));
+      setStatusMap(prev => ({ ...prev, [fromId]: "none" })); // Reset to 'none' so they can appear again
     } catch (e) {
       console.error(e);
       toast({ title: "Fehler", description: "Konnte Anfrage nicht ablehnen.", variant: "destructive" });
@@ -126,7 +130,7 @@ export const PeopleRecommendations: React.FC<PeopleRecommendationsProps> = ({ li
           </div>
         )}
         {!loading && (
-          (items.filter(p => (statusMap[p.id] ?? 'none') === 'none' && p.id !== user?.id).slice(0, 3)).map(p => {
+          items.filter(p => (statusMap[p.id] ?? 'none') === 'none' && p.id !== user?.id).slice(0, 3).map(p => {
             const name = [p.vorname, p.nachname].filter(Boolean).join(" ") || "Unbekannt";
             const infoLine = [p.ort, p.branche].filter(Boolean).join(" • ");
             const subtitle = p.headline || p.ausbildungsberuf || p.geplanter_abschluss || "";
@@ -175,7 +179,7 @@ export const PeopleRecommendations: React.FC<PeopleRecommendationsProps> = ({ li
             );
           })
         )}
-        {!loading && items.filter(p => (statusMap[p.id] ?? 'none') === 'none' && p.id !== user?.id).slice(0, 3).length === 0 && (
+        {!loading && items.filter(p => (statusMap[p.id] ?? 'none') === 'none' && p.id !== user?.id).length === 0 && (
           <p className="text-xs text-muted-foreground">Keine Empfehlungen gefunden.</p>
         )}
         {showMore && (

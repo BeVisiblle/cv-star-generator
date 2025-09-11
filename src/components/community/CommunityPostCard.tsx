@@ -297,7 +297,7 @@ export default function CommunityPostCard({ post }: CommunityPostCardProps) {
                 placeholder="Schreibe einen Kommentar..."
                 value={newComment}
                 onChange={(e) => setNewComment(e.target.value)}
-                className="flex-1"
+                className="flex-1 rounded-full"
                 onKeyPress={(e) => {
                   if (e.key === 'Enter' && !e.shiftKey) {
                     e.preventDefault();
@@ -309,6 +309,7 @@ export default function CommunityPostCard({ post }: CommunityPostCardProps) {
                 size="sm" 
                 onClick={handleComment} 
                 disabled={!newComment.trim() || addComment.isPending}
+                className="rounded-full"
               >
                 <Send className="h-4 w-4" />
               </Button>

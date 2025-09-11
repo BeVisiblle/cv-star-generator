@@ -12,6 +12,7 @@ export type AttachmentUploaderProps = {
   onUploaded?: (items: UploadedAttachment[]) => void;
   uploadFn?: (file: File) => Promise<UploadedAttachment>;
   className?: string;
+  autoUpload?: boolean; // New prop for auto-upload functionality
 };
 
 type LocalItem = {
@@ -30,6 +31,7 @@ export default function AttachmentUploader({
   onUploaded,
   uploadFn,
   className,
+  autoUpload = false,
 }: AttachmentUploaderProps) {
   const [items, setItems] = useState<LocalItem[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -37,9 +39,10 @@ export default function AttachmentUploader({
 
   const remaining = Math.max(0, maxFiles - items.length);
 
-  const addFiles = useCallback((files: FileList | null) => {
+  const addFiles = useCallback(async (files: FileList | null) => {
     if (!files) return;
     const toAdd: LocalItem[] = [];
+    
     for (const file of Array.from(files).slice(0, remaining)) {
       if (!isAllowedFile(file)) {
         toAdd.push({ 
@@ -51,14 +54,35 @@ export default function AttachmentUploader({
         });
         continue;
       }
-      const li: LocalItem = { file, id: crypto.randomUUID(), status: 'queued', progress: 0 };
+      const li: LocalItem = { file, id: crypto.randomUUID(), status: autoUpload ? 'uploading' : 'queued', progress: 0 };
       if (file.type.startsWith('image/')) {
         li.previewUrl = URL.createObjectURL(file);
       }
       toAdd.push(li);
     }
+    
     setItems(prev => [...prev, ...toAdd]);
-  }, [remaining]);
+    
+    // Auto-upload if enabled
+    if (autoUpload && toAdd.length > 0) {
+      const validFiles = toAdd.filter(item => item.status === 'uploading');
+      const uploaded: UploadedAttachment[] = [];
+      
+      for (const item of validFiles) {
+        try {
+          const result = await uploader(item.file);
+          uploaded.push(result);
+          setItems(prev => prev.map(p => p.id === item.id ? { ...p, status: 'done', progress: 100, uploaded: result } : p));
+        } catch (err: any) {
+          setItems(prev => prev.map(p => p.id === item.id ? { ...p, status: 'error', error: err?.message ?? 'Upload fehlgeschlagen' } : p));
+        }
+      }
+      
+      if (uploaded.length && onUploaded) {
+        onUploaded(uploaded);
+      }
+    }
+  }, [remaining, autoUpload, uploader, onUploaded]);
 
   const onDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -136,10 +160,12 @@ export default function AttachmentUploader({
         </ul>
       )}
 
-      <div className="flex items-center justify-end gap-2">
-        <Button size="sm" variant="secondary" onClick={() => setItems([])} disabled={!items.length}>Zurücksetzen</Button>
-        <Button size="sm" onClick={startUpload} disabled={!hasQueued}>Hochladen</Button>
-      </div>
+      {!autoUpload && (
+        <div className="flex items-center justify-end gap-2">
+          <Button size="sm" variant="secondary" onClick={() => setItems([])} disabled={!items.length}>Zurücksetzen</Button>
+          <Button size="sm" onClick={startUpload} disabled={!hasQueued}>Hochladen</Button>
+        </div>
+      )}
     </div>
   );
 }
