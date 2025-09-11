@@ -75,11 +75,40 @@ export default function TopNavBar() {
           <h1 className="text-sm font-semibold truncate">{title}</h1>
         </div>
         
-        {/* Global Search Bar - Temporarily disabled */}
-        <div className="hidden md:flex flex-1 max-w-md mx-4">
+        {/* Global Search Bar */}
+        <div className="hidden md:flex flex-1 max-w-md mx-4 relative">
           <Input 
+            ref={inputRef}
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+            onFocus={() => setOpen(true)}
             placeholder="Personen, Unternehmen, Events suchen..."
             className="w-full"
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                handleSubmit();
+              }
+            }}
+          />
+          <SearchAutosuggest
+            query={q}
+            open={open && q.length >= 2}
+            anchorRef={inputRef}
+            onClose={handleSearchClose}
+            onSelect={(type: SuggestionType, payload: { id: string; label: string }) => {
+              setOpen(false);
+              setQ('');
+              
+              // Navigate based on type
+              if (type === 'person') {
+                navigate(`/profile/${payload.id}`);
+              } else if (type === 'company') {
+                navigate(`/company/${payload.id}`);
+              } else if (type === 'post') {
+                navigate(`/post/${payload.id}`);
+              }
+            }}
           />
         </div>
         
