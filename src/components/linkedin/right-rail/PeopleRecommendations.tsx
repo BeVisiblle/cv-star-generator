@@ -126,7 +126,7 @@ export const PeopleRecommendations: React.FC<PeopleRecommendationsProps> = ({ li
           </div>
         )}
         {!loading && (
-          (items.filter(p => (statusMap[p.id] ?? 'none') === 'none' && p.id !== user?.id).slice(0, 3)).map(p => {
+          (items.filter(p => (statusMap[p.id] ?? 'none') === 'none' && p.id !== user?.id)).map(p => {
             const name = [p.vorname, p.nachname].filter(Boolean).join(" ") || "Unbekannt";
             const infoLine = [p.ort, p.branche].filter(Boolean).join(" • ");
             const subtitle = p.headline || p.ausbildungsberuf || p.geplanter_abschluss || "";
@@ -175,7 +175,7 @@ export const PeopleRecommendations: React.FC<PeopleRecommendationsProps> = ({ li
             );
           })
         )}
-        {!loading && items.filter(p => (statusMap[p.id] ?? 'none') === 'none' && p.id !== user?.id).slice(0, 3).length === 0 && (
+        {!loading && items.filter(p => (statusMap[p.id] ?? 'none') === 'none' && p.id !== user?.id).length === 0 && (
           <p className="text-xs text-muted-foreground">Keine Empfehlungen gefunden.</p>
         )}
         {showMore && (
