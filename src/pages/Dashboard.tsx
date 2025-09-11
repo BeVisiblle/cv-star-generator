@@ -6,8 +6,12 @@ import FeedSortBar from '@/components/community/FeedSortBar';
 import { PeopleRecommendations } from '@/components/linkedin/right-rail/PeopleRecommendations';
 import { CompanyRecommendations } from '@/components/linkedin/right-rail/CompanyRecommendations';
 import { RightRailAd } from '@/components/linkedin/right-rail/RightRailAd';
+import useRealtimeFeed from '@/hooks/useRealtimeFeed';
 
 const Dashboard = () => {
+  // Initialize realtime subscriptions
+  useRealtimeFeed();
+  
   return (
     <main className="w-full overflow-x-hidden">
       <h1 className="sr-only">Dashboard</h1>

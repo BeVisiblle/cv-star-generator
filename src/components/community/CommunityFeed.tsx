@@ -118,28 +118,13 @@ export function LegacyCommunityFeed() {
 
       // Nur veröffentlichte Posts berücksichtigen (INSERT published oder UPDATE → published)
       const justPublished =
-        newRow?.status === 'published' &&
-        (evt === 'INSERT' || (evt === 'UPDATE' && oldRow?.status !== 'published'));
+        newRow?.visibility === 'public' &&
+        (evt === 'INSERT' || (evt === 'UPDATE' && oldRow?.visibility !== 'public'));
 
       if (!justPublished) return;
 
       const postId = newRow.id as string;
       if (!postId) return;
-
-      // Sichtbarkeit per can_view_post absichern
-      const { data: allowed, error: allowErr } = await supabase.rpc('can_view_post', {
-        _post_id: postId,
-        _viewer: viewerId as string,
-      });
-
-      if (allowErr) {
-        console.error('[feed] can_view_post error', allowErr);
-        return;
-      }
-      if (!allowed) {
-        console.log('[feed] event ignored: viewer cannot see post', postId);
-        return;
-      }
 
       // Duplikate vermeiden
       if (loadedIds.has(postId) || incoming.some((p) => p.id === postId)) {
@@ -148,31 +133,36 @@ export function LegacyCommunityFeed() {
 
       // Autor anreichern
       let author = null;
-      if (newRow.user_id) {
+      if (newRow.actor_user_id) {
         const { data: profiles, error: profErr } = await supabase
-          .from('profiles_public')
+          .from('profiles')
           .select('id, vorname, nachname, avatar_url, headline, full_name, company_id, company_name, company_logo, employment_status')
-          .eq('id', newRow.user_id)
+          .eq('id', newRow.actor_user_id)
           .limit(1);
         if (!profErr && profiles && profiles.length) {
           author = profiles[0];
         }
       }
 
-      const enriched: PostWithAuthor = { ...newRow, author };
+      const enriched: PostWithAuthor = { 
+        ...newRow, 
+        author,
+        content: newRow.body_md || newRow.content,
+        user_id: newRow.actor_user_id || newRow.user_id
+      };
       setIncoming((prev) => [enriched, ...prev]);
     };
 
     const channel = supabase
-      .channel('home-feed-changes')
+      .channel('community-feed-changes')
       .on(
         'postgres_changes',
-        { event: 'INSERT', schema: 'public', table: 'posts' },
+        { event: 'INSERT', schema: 'public', table: 'community_posts' },
         handleIncoming
       )
       .on(
         'postgres_changes',
-        { event: 'UPDATE', schema: 'public', table: 'posts' },
+        { event: 'UPDATE', schema: 'public', table: 'community_posts' },
         handleIncoming
       )
       .subscribe();

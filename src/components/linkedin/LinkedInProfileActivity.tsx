@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -49,8 +49,27 @@ const isOwner = user?.id === profile?.id;
     queryFn: async () => {
       if (!profile?.id) return [];
       
-      // If viewing own profile, show all posts
+      // If viewing own profile, show all posts including from community_posts
       if (user?.id === profile?.id) {
+        // First try to get from community_posts
+        const { data: communityPosts, error: communityError } = await supabase
+          .from('community_posts')
+          .select('*')
+          .eq('actor_user_id', profile.id)
+          .order('created_at', { ascending: false })
+          .limit(6);
+
+        if (!communityError && communityPosts && communityPosts.length > 0) {
+          // Convert community posts to expected format
+          return communityPosts.map((post: any) => ({
+            ...post,
+            content: post.body_md || '',
+            user_id: post.actor_user_id,
+            image_url: post.media && Array.isArray(post.media) && post.media.length > 0 ? post.media[0] : null
+          }));
+        }
+
+        // Fallback to legacy posts table
         const { data: posts, error } = await supabase
           .from('posts')
           .select('*')
@@ -62,42 +81,23 @@ const isOwner = user?.id === profile?.id;
         return posts || [];
       }
 
-      // Check if current user is a company user
-      const { data: companyUser } = await supabase
-        .from('company_users')
-        .select('company_id')
-        .eq('user_id', user?.id || '')
-        .maybeSingle();
-
-      if (companyUser) {
-        // User is from a company - check follow relationship
-        const { data: followRelation } = await supabase
-          .from('follows')
-          .select('id')
-          .or(`and(follower_type.eq.company,follower_id.eq.${companyUser.company_id},followee_type.eq.profile,followee_id.eq.${profile.id},status.eq.accepted),and(follower_type.eq.profile,follower_id.eq.${profile.id},followee_type.eq.company,followee_id.eq.${companyUser.company_id},status.eq.accepted)`)
-          .maybeSingle();
-
-        if (!followRelation) {
-          // No follow relationship - return empty array (no activities visible)
-          return [];
-        }
-      }
-
-      // If we get here, either:
-      // 1. User is not from a company (profile-to-profile view)
-      // 2. User is from a company with accepted follow relationship
-      // Show the posts
+      // For other users, check community_posts with visibility
       const { data: posts, error } = await supabase
-        .from('posts')
+        .from('community_posts')
         .select('*')
-        .eq('user_id', profile.id)
-        .eq('status', 'published')
+        .eq('actor_user_id', profile.id)
+        .eq('visibility', 'public')
         .order('created_at', { ascending: false })
         .limit(6);
 
       if (error) throw error;
 
-      let result = posts || [];
+      let result = (posts || []).map((post: any) => ({
+        ...post,
+        content: post.body_md || '',
+        user_id: post.actor_user_id,
+        image_url: post.media && Array.isArray(post.media) && post.media.length > 0 ? post.media[0] : null
+      }));
 
       if (!result.length) {
         const images = [
@@ -140,6 +140,47 @@ const isOwner = user?.id === profile?.id;
     },
     enabled: !!profile?.id,
   });
+
+  // Real-time subscription for user's posts
+  useEffect(() => {
+    if (!profile?.id || !user?.id || user.id !== profile.id) return;
+
+    const channel = supabase
+      .channel(`user-posts-${profile.id}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'community_posts',
+          filter: `actor_user_id=eq.${profile.id}`,
+        },
+        () => {
+          queryClient.invalidateQueries({ 
+            queryKey: ['recent-community-posts', profile.id] 
+          });
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'community_posts',
+          filter: `actor_user_id=eq.${profile.id}`,
+        },
+        () => {
+          queryClient.invalidateQueries({ 
+            queryKey: ['recent-community-posts', profile.id] 
+          });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [profile?.id, user?.id, queryClient]);
 
   const getDisplayName = (post: ActivityPost) => {
     if (post.author?.vorname && post.author?.nachname) {

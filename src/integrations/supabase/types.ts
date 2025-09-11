@@ -5628,13 +5628,20 @@ export type Database = {
         Returns: boolean
       }
       add_community_comment: {
-        Args: {
-          p_author_company_id?: string
-          p_author_user_id?: string
-          p_body_md: string
-          p_parent_comment_id?: string
-          p_post_id: string
-        }
+        Args:
+          | {
+              p_author_company_id?: string
+              p_author_user_id?: string
+              p_body_md: string
+              p_parent_comment_id?: string
+              p_post_id: string
+            }
+          | {
+              p_author_user_id: string
+              p_body_md: string
+              p_parent_comment_id?: string
+              p_post_id: string
+            }
         Returns: string
       }
       add_linkedin_comment: {
@@ -6784,12 +6791,14 @@ export type Database = {
         Returns: number
       }
       share_community_post: {
-        Args: {
-          p_comment?: string
-          p_post_id: string
-          p_sharer_company_id?: string
-          p_sharer_user_id?: string
-        }
+        Args:
+          | {
+              p_comment?: string
+              p_post_id: string
+              p_sharer_company_id?: string
+              p_sharer_user_id?: string
+            }
+          | { p_post_id: string; p_sharer_user_id: string }
         Returns: string
       }
       share_job_as_post: {
@@ -7926,11 +7935,13 @@ export type Database = {
         Returns: string
       }
       toggle_community_like: {
-        Args: {
-          p_liker_company_id?: string
-          p_liker_user_id?: string
-          p_post_id: string
-        }
+        Args:
+          | {
+              p_liker_company_id?: string
+              p_liker_user_id?: string
+              p_post_id: string
+            }
+          | { p_liker_user_id: string; p_post_id: string }
         Returns: Json
       }
       toggle_linkedin_like: {
