@@ -19,7 +19,7 @@ const visibilityOptions = [
 
 export const CommunityComposer = () => {
   const { canRender } = useComposerGuard('community-composer');
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const { createPost, isCreating } = useCreatePost();
   const [content, setContent] = useState('');
   const [visibility, setVisibility] = useState<PostVisibility>('public');
@@ -40,13 +40,22 @@ export const CommunityComposer = () => {
   const selectedOption = visibilityOptions.find(opt => opt.value === visibility)!;
   const Icon = selectedOption.icon;
 
+  const displayName = profile?.vorname 
+    ? `${profile.vorname} ${profile.nachname || ''}`.trim() 
+    : user?.email || 'Nutzer';
+
+  const avatarUrl = profile?.avatar_url;
+  const initials = profile?.vorname 
+    ? `${profile.vorname[0]}${profile.nachname?.[0] || ''}` 
+    : user?.email?.[0] || 'N';
+
   return (
     <Card className="p-4 space-y-4">
       <div className="flex items-start space-x-3">
         <Avatar className="h-10 w-10">
-          <AvatarImage src={user?.user_metadata?.avatar_url} />
+          <AvatarImage src={avatarUrl} alt={displayName} />
           <AvatarFallback>
-            {user?.email?.slice(0, 2).toUpperCase()}
+            {initials}
           </AvatarFallback>
         </Avatar>
         

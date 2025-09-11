@@ -27,13 +27,13 @@ const Dashboard = () => {
           {/* Center column (flex grows) */}
           <section className="flex-1 min-w-0">
             <div className="w-full max-w-[560px] mx-auto px-4 md:max-w-none md:px-0 space-y-4">
-              {/* Post Composer - Always visible */}
+              {/* Post Composer Teaser */}
               <CommunityComposerTeaser onOpenComposer={() => {}} />
               
               {/* Sort Bar */}
               <FeedSortBar />
               
-              {/* Community Feed with old posts */}
+              {/* Community Feed */}
               <CommunityFeed />
             </div>
           </section>
