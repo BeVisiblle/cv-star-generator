@@ -32,11 +32,7 @@ export default function CommunityComposer({ open, onOpenChange, initialTab = 'te
   const { user } = useAuth();
   const { company } = useCompany();
   
-  // Don't render if another composer is already mounted
-  if (!canRender) {
-    return null;
-  }
-  
+  // Move all state and hook calls before early return
   const [activeTab, setActiveTab] = useState(initialTab);
   const [postAs, setPostAs] = useState<'user' | 'company'>('user');
   const [visibility, setVisibility] = useState<'public' | 'followers' | 'connections' | 'org_only'>('public');
@@ -64,6 +60,12 @@ export default function CommunityComposer({ open, onOpenChange, initialTab = 'te
       return data;
     }
   });
+  
+  // Don't render if another composer is already mounted
+  if (!canRender) {
+    return null;
+  }
+  
 
   const canPost = () => {
     if (activeTab === 'text') {
