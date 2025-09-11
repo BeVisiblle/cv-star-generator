@@ -5,9 +5,15 @@ import { componentTagger } from "lovable-tagger";
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
+  define: {
+    __WS_TOKEN__: JSON.stringify(process.env.WS_TOKEN || ''),
+  },
   server: {
     host: "0.0.0.0",
     port: 8080,
+    hmr: {
+      port: 8080,
+    },
   },
   plugins: [
     react(),
