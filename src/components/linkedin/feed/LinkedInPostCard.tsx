@@ -71,14 +71,20 @@ export default function LinkedInPostCard({ post }: LinkedInPostCardProps) {
       
       {/* Meta Line - Engagement Stats */}
       {(localLikeCount > 0 || post.comment_count > 0 || post.repost_count > 0) && (
-        <div className="px-4 pb-2 text-xs text-muted-foreground">
-          <span>
+        <div className="px-4 pb-2 flex justify-between items-center text-xs text-muted-foreground">
+          <div>
             {localLikeCount > 0 && `${localLikeCount} Reaktionen`}
-            {localLikeCount > 0 && post.comment_count > 0 && ' · '}
-            {post.comment_count > 0 && `${post.comment_count} Kommentare`}
-            {(localLikeCount > 0 || post.comment_count > 0) && post.repost_count > 0 && ' · '}
+            {localLikeCount > 0 && post.repost_count > 0 && ' · '}
             {post.repost_count > 0 && `${post.repost_count} Reposts`}
-          </span>
+          </div>
+          {post.comment_count > 0 && (
+            <button 
+              onClick={() => setShowComments(!showComments)}
+              className="hover:underline cursor-pointer"
+            >
+              {post.comment_count} Kommentare
+            </button>
+          )}
         </div>
       )}
 

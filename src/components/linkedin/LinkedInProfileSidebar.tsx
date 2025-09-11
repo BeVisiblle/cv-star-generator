@@ -520,8 +520,8 @@ export const LinkedInProfileSidebar: React.FC<LinkedInProfileSidebarProps> = ({
     }
   };
   return <div className="space-y-6">
-      {/* CV Section - Always show CV for everyone */}
-      {(
+      {/* CV Section - Only show for owner */}
+      {showCVSection && (
         <Card>
           <CardHeader>
             <CardTitle className="text-lg font-semibold flex items-center justify-between flex-wrap gap-2">

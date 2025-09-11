@@ -40,7 +40,7 @@ export default function LinkedInPostActions({
       <Button 
         variant="ghost" 
         className={`justify-center gap-2 ${showComments ? 'text-primary' : ''}`}
-        onClick={onCommentFocus}
+        onClick={onToggleComments}
       >
         <MessageCircle className="h-4 w-4" />
         Kommentieren

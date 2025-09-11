@@ -77,21 +77,29 @@ export const CommunityCommentItem: React.FC<CommunityCommentItemProps> = ({
 
   return (
     <div className="flex gap-3">
-      <Avatar className="h-8 w-8">
+      <Avatar className="h-10 w-10">
         <AvatarImage src={getAvatarUrl()} />
-        <AvatarFallback className="text-xs">{getInitials()}</AvatarFallback>
+        <AvatarFallback className="text-xs bg-primary text-primary-foreground">{getInitials()}</AvatarFallback>
       </Avatar>
       
       <div className="flex-1 space-y-2">
         <div className="bg-muted/50 rounded-2xl px-4 py-3">
-          <div className="flex items-center gap-2 mb-1">
-            <span className="font-semibold text-sm">{getDisplayName()}</span>
-            {getSubtitle() && (
-              <>
+          <div className="flex items-start gap-2 mb-2">
+            <div className="flex-1">
+              <div className="flex items-center gap-2">
+                <span className="font-semibold text-sm text-foreground">{getDisplayName()}</span>
                 <span className="text-xs text-muted-foreground">•</span>
-                <span className="text-xs text-muted-foreground">{getSubtitle()}</span>
-              </>
-            )}
+                <span className="text-xs text-muted-foreground">
+                  {formatDistanceToNow(new Date(comment.created_at), { 
+                    addSuffix: true, 
+                    locale: de 
+                  })}
+                </span>
+              </div>
+              {getSubtitle() && (
+                <p className="text-xs text-muted-foreground mt-0.5">{getSubtitle()}</p>
+              )}
+            </div>
           </div>
           
           <p className="text-sm leading-relaxed whitespace-pre-wrap break-words">
@@ -99,14 +107,7 @@ export const CommunityCommentItem: React.FC<CommunityCommentItemProps> = ({
           </p>
         </div>
         
-        <div className="flex items-center gap-4 text-xs text-muted-foreground">
-          <span>
-            {formatDistanceToNow(new Date(comment.created_at), { 
-              addSuffix: true, 
-              locale: de 
-            })}
-          </span>
-          
+        <div className="flex items-center gap-4 text-xs">
           <Button
             variant="ghost"
             size="sm"

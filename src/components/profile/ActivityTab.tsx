@@ -148,77 +148,84 @@ export default function ActivityTab({ userId, orgId }: ActivityTabProps) {
 
   return (
     <div className="space-y-4">
-      {activities.map((activity, index) => (
-        <Card key={`${activity.kind}-${activity.ref_id}-${index}`} className="p-4">
-          <CardContent className="p-0">
-            <div className="flex items-start gap-3">
-              <div className={`p-2 rounded-full ${getActivityColor(activity.kind)}`}>
-                {getActivityIcon(activity.kind)}
-              </div>
-              
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-2">
-                  <Badge variant="secondary" className={getActivityColor(activity.kind)}>
-                    {getActivityLabel(activity.kind)}
-                  </Badge>
-                  <span className="text-sm text-muted-foreground">
-                    {formatDistanceToNow(new Date(activity.created_at), { 
-                      addSuffix: true, 
-                      locale: de 
-                    })}
-                  </span>
-                </div>
-
-                {activity.kind === 'post' && activity.body_md && (
-                  <div className="mt-2 text-sm whitespace-pre-wrap bg-muted/50 p-3 rounded-md">
-                    {activity.body_md}
+      <h3 className="text-lg font-semibold mb-4">Aktivität</h3>
+      
+      {/* Horizontal scrollable activity cards */}
+      <div className="relative">
+        <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide">
+          {activities.map((activity, index) => (
+            <Card key={`${activity.kind}-${activity.ref_id}-${index}`} className="flex-shrink-0 w-80 p-4">
+              <CardContent className="p-0">
+                <div className="flex items-start gap-3">
+                  <div className={`p-2 rounded-full ${getActivityColor(activity.kind)}`}>
+                    {getActivityIcon(activity.kind)}
                   </div>
-                )}
-
-                {activity.kind === 'comment' && activity.body_md && (
-                  <div className="mt-2 text-sm">
-                    <span className="text-muted-foreground">Kommentar:</span>
-                    <div className="mt-1 bg-muted/50 p-3 rounded-md whitespace-pre-wrap">
-                      {activity.body_md}
+                  
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Badge variant="secondary" className={getActivityColor(activity.kind)}>
+                        {getActivityLabel(activity.kind)}
+                      </Badge>
                     </div>
-                  </div>
-                )}
+                    <span className="text-xs text-muted-foreground">
+                      {formatDistanceToNow(new Date(activity.created_at), { 
+                        addSuffix: true, 
+                        locale: de 
+                      })}
+                    </span>
 
-                {(activity.kind === 'like' || activity.kind === 'share') && (
-                  <div className="mt-2 text-sm text-muted-foreground">
-                    {activity.kind === 'like' && 'Hat einen Beitrag geliked.'}
-                    {activity.kind === 'share' && 'Hat einen Beitrag geteilt.'}
-                  </div>
-                )}
+                    {activity.kind === 'post' && activity.body_md && (
+                      <div className="mt-2 text-sm whitespace-pre-wrap bg-muted/50 p-3 rounded-md line-clamp-3">
+                        {activity.body_md}
+                      </div>
+                    )}
 
-                {/* Show engagement stats for posts */}
-                {activity.kind === 'post' && (
-                  <div className="flex items-center gap-4 mt-3 text-xs text-muted-foreground">
-                    {activity.like_count && activity.like_count > 0 && (
-                      <span className="flex items-center gap-1">
-                        <Heart className="h-3 w-3" />
-                        {activity.like_count}
-                      </span>
+                    {activity.kind === 'comment' && activity.body_md && (
+                      <div className="mt-2 text-sm">
+                        <span className="text-muted-foreground">Kommentar:</span>
+                        <div className="mt-1 bg-muted/50 p-3 rounded-md whitespace-pre-wrap line-clamp-2">
+                          {activity.body_md}
+                        </div>
+                      </div>
                     )}
-                    {activity.comment_count && activity.comment_count > 0 && (
-                      <span className="flex items-center gap-1">
-                        <MessageCircle className="h-3 w-3" />
-                        {activity.comment_count}
-                      </span>
+
+                    {(activity.kind === 'like' || activity.kind === 'share') && (
+                      <div className="mt-2 text-sm text-muted-foreground">
+                        {activity.kind === 'like' && 'Hat einen Beitrag geliked.'}
+                        {activity.kind === 'share' && 'Hat einen Beitrag geteilt.'}
+                      </div>
                     )}
-                    {activity.share_count && activity.share_count > 0 && (
-                      <span className="flex items-center gap-1">
-                        <Share2 className="h-3 w-3" />
-                        {activity.share_count}
-                      </span>
+
+                    {/* Show engagement stats for posts */}
+                    {activity.kind === 'post' && (
+                      <div className="flex items-center gap-4 mt-3 text-xs text-muted-foreground">
+                        {activity.like_count && activity.like_count > 0 && (
+                          <span className="flex items-center gap-1">
+                            <Heart className="h-3 w-3" />
+                            {activity.like_count}
+                          </span>
+                        )}
+                        {activity.comment_count && activity.comment_count > 0 && (
+                          <span className="flex items-center gap-1">
+                            <MessageCircle className="h-3 w-3" />
+                            {activity.comment_count}
+                          </span>
+                        )}
+                        {activity.share_count && activity.share_count > 0 && (
+                          <span className="flex items-center gap-1">
+                            <Share2 className="h-3 w-3" />
+                            {activity.share_count}
+                          </span>
+                        )}
+                      </div>
                     )}
                   </div>
-                )}
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      ))}
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }
