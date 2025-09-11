@@ -13,14 +13,14 @@ export function useCommentLikes(commentId: string) {
     queryKey: ['comment-likes', commentId],
     queryFn: async () => {
       const { data: likes, error: likesError } = await supabase
-        .from('comment_likes')
-        .select('id, user_id')
-        .eq('comment_id', commentId);
+        .from('community_likes')
+        .select('id, liker_user_id')
+        .eq('post_id', commentId);
 
       if (likesError) throw likesError;
 
       const count = likes?.length || 0;
-      const liked = likes?.some(like => like.user_id === user?.id) || false;
+      const liked = likes?.some(like => like.liker_user_id === user?.id) || false;
 
       return { count, liked };
     },
@@ -37,19 +37,19 @@ export function useCommentLikes(commentId: string) {
       if (isCurrentlyLiked) {
         // Unlike
         const { error } = await supabase
-          .from('comment_likes')
+          .from('community_likes')
           .delete()
-          .eq('comment_id', commentId)
-          .eq('user_id', user.id);
+          .eq('post_id', commentId)
+          .eq('liker_user_id', user.id);
 
         if (error) throw error;
       } else {
         // Like
         const { error } = await supabase
-          .from('comment_likes')
+          .from('community_likes')
           .insert({
-            comment_id: commentId,
-            user_id: user.id,
+            post_id: commentId,
+            liker_user_id: user.id,
           });
 
         if (error) throw error;

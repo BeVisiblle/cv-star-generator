@@ -434,7 +434,7 @@ export const LinkedInProfileHeader: React.FC<LinkedInProfileHeaderProps> = ({
                <EmploymentBadge
                  companyName={company.name}
                  companyLogo={company.logo}
-                 companyId={company.id}
+                 companyId={undefined}
                  role="Mitarbeiter"
                  status="accepted"
                  size="md"

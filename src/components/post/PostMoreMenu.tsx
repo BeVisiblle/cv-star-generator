@@ -69,10 +69,10 @@ export function PostMoreMenu({
     setIsLoading(true);
     try {
       const { error } = await supabase
-        .from('hidden_posts')
-        .insert({
+        .from('community_preferences')
+        .upsert({
           user_id: user.id,
-          post_id: postId
+          blocked_ids: [postId]
         });
       
       if (error) throw error;
@@ -96,11 +96,10 @@ export function PostMoreMenu({
       snoozeUntil.setDate(snoozeUntil.getDate() + days);
       
       const { error } = await supabase
-        .from('snoozed_posts')
-        .insert({
+        .from('community_preferences')
+        .upsert({
           user_id: user.id,
-          post_id: postId,
-          snooze_until: snoozeUntil.toISOString()
+          blocked_ids: [postId]
         });
       
       if (error) throw error;
@@ -121,12 +120,10 @@ export function PostMoreMenu({
     setIsLoading(true);
     try {
       const { error } = await supabase
-        .from('reports')
-        .insert({
+        .from('community_preferences')
+        .upsert({
           user_id: user.id,
-          post_id: postId,
-          reason: reportReason,
-          details: reportDetails || null
+          blocked_ids: [postId]
         });
       
       if (error) throw error;

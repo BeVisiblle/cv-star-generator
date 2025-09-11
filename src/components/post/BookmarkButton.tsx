@@ -35,11 +35,11 @@ export function BookmarkButton({
     const checkBookmarkStatus = async () => {
       try {
         const { data, error } = await supabase
-          .from('bookmarks')
+          .from('community_likes')
           .select('id')
-          .eq('user_id', user.id)
+          .eq('liker_user_id', user.id)
           .eq('post_id', postId)
-          .single();
+          .maybeSingle();
         
         if (error && error.code !== 'PGRST116') {
           console.error('Error checking bookmark status:', error);
@@ -66,23 +66,20 @@ export function BookmarkButton({
       if (isBookmarked) {
         // Remove bookmark
         const { error } = await supabase
-          .from('bookmarks')
+          .from('community_likes')
           .delete()
-          .eq('user_id', user.id)
+          .eq('liker_user_id', user.id)
           .eq('post_id', postId);
         
         if (error) throw error;
-        
         setIsBookmarked(false);
-        toast.success(t('bookmark.toast_removed'));
-        onBookmarkChange?.(false);
+        toast.success('Bookmark entfernt');
       } else {
-        // Add bookmark
         const { error } = await supabase
-          .from('bookmarks')
+          .from('community_likes')
           .insert({
-            user_id: user.id,
-            post_id: postId
+            liker_user_id: user.id,
+            post_id: postId,
           });
         
         if (error) throw error;

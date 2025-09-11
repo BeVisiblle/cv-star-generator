@@ -275,7 +275,7 @@ export default function CommunityPostCard({ post }: CommunityPostCardProps) {
             <div className="min-h-[44px] min-w-[44px] flex items-center justify-center">
               <PostMoreMenu 
                 postId={post.id} 
-                authorId={post.author_id || post.user_id}
+                authorId={post.actor_user_id || post.actor_company_id}
                 onPostHidden={() => {
                   // Handle post hidden - could trigger a refresh or remove from view
                   console.log('Post hidden:', post.id);
