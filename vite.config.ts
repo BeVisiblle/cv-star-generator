@@ -9,7 +9,10 @@ export default defineConfig(({ mode }) => ({
     host: "::",
     port: 8080,
     hmr: {
-      port: 8081,
+      clientPort: 8080,
+    },
+    watch: {
+      usePolling: true,
     },
   },
   plugins: [
