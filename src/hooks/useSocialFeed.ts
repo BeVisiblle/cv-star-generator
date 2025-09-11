@@ -49,26 +49,63 @@ export function useSocialPosts() {
   return useQuery<Post[]>({
     queryKey: ['social-posts'],
     queryFn: async () => {
+      // Get posts with author information
       const { data: postsData, error: postsError } = await sb
         .from('posts')
-        .select(`*, author:profiles!author_id(id, vorname, nachname, headline, avatar_url)`) 
+        .select(`
+          *,
+          author:profiles!author_id(id, vorname, nachname, headline, avatar_url)
+        `) 
         .order('created_at', { ascending: false });
 
       if (postsError) throw postsError;
 
-      if (!user || !postsData?.length) return postsData || [];
+      if (!postsData?.length) {
+        return [];
+      }
 
+      // Get like counts for all posts
       const postIds = postsData.map((p: any) => p.id);
-      const { data: likesData } = await sb
+      const { data: likeCounts } = await sb
         .from('post_likes')
         .select('post_id')
-        .eq('user_id', user.id)
         .in('post_id', postIds);
 
-      const likedPostIds = new Set((likesData || []).map((l: any) => l.post_id));
+      // Get comment counts for all posts  
+      const { data: commentCounts } = await sb
+        .from('post_comments')
+        .select('post_id')
+        .in('post_id', postIds);
+
+      // Create counts maps
+      const likeCountMap = (likeCounts || []).reduce((acc: any, like: any) => {
+        acc[like.post_id] = (acc[like.post_id] || 0) + 1;
+        return acc;
+      }, {});
+
+      const commentCountMap = (commentCounts || []).reduce((acc: any, comment: any) => {
+        acc[comment.post_id] = (acc[comment.post_id] || 0) + 1;
+        return acc;
+      }, {});
+
+      let likedPostIds = new Set();
+      if (user) {
+        // Get user's likes for these posts
+        const { data: likesData } = await sb
+          .from('post_likes')
+          .select('post_id')
+          .eq('user_id', user.id)
+          .in('post_id', postIds);
+
+        likedPostIds = new Set((likesData || []).map((l: any) => l.post_id));
+      }
 
       return postsData.map((post: any) => ({
         ...post,
+        body: post.content || '',
+        attachments: [],
+        like_count: likeCountMap[post.id] || 0,
+        comment_count: commentCountMap[post.id] || 0,
         you_like: likedPostIds.has(post.id)
       }));
     },
@@ -88,8 +125,11 @@ export function useCreateSocialPost() {
         .from('posts')
         .insert({
           author_id: user.id,
-          body,
-          attachments
+          user_id: user.id,
+          content: body,
+          status: 'published',
+          visibility: 'CommunityAndCompanies',
+          author_type: 'user'
         })
         .select()
         .single();
@@ -156,28 +196,26 @@ export function useSocialPostComments(postId: string) {
     queryKey: ['social-comments', postId],
     queryFn: async () => {
       const { data: commentsData, error } = await sb
-        .from('comments')
-        .select(`*, author:profiles!author_id(id, vorname, nachname, headline, avatar_url)`) 
+        .from('post_comments')
+        .select(`*, author:profiles!user_id(id, vorname, nachname, headline, avatar_url)`) 
         .eq('post_id', postId)
-        .is('parent_id', null)
+        .is('parent_comment_id', null)
         .order('created_at', { ascending: true });
 
       if (error) throw error;
 
-      if (!user || !commentsData?.length) return commentsData || [];
-
-      const commentIds = commentsData.map((c: any) => c.id);
-      const { data: likesData } = await sb
-        .from('comment_likes')
-        .select('comment_id')
-        .eq('user_id', user.id)
-        .in('comment_id', commentIds);
-
-      const likedCommentIds = new Set((likesData || []).map((l: any) => l.comment_id));
+      if (!commentsData?.length) {
+        return [];
+      }
 
       return commentsData.map((comment: any) => ({
         ...comment,
-        you_like: likedCommentIds.has(comment.id)
+        body: comment.content || '',
+        author_id: comment.user_id,
+        attachments: [],
+        you_like: false,
+        like_count: 0,
+        reply_count: 0
       }));
     },
     enabled: !!postId
@@ -193,13 +231,12 @@ export function useAddSocialComment() {
       if (!user) throw new Error('User not authenticated');
 
       const { data, error } = await sb
-        .from('comments')
+        .from('post_comments')
         .insert({
           post_id: postId,
-          parent_id: parentId || null,
-          author_id: user.id,
-          body,
-          attachments: []
+          parent_comment_id: parentId || null,
+          user_id: user.id,
+          content: body
         })
         .select()
         .single();

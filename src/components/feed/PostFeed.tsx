@@ -9,7 +9,7 @@ export function PostFeed() {
   if (error) {
     return (
       <div className="text-center py-8">
-        <p className="text-muted-foreground">Fehler beim Laden der Beiträge.</p>
+        <p className="text-muted-foreground">Fehler beim Laden der Beiträge: {error.message}</p>
       </div>
     );
   }
