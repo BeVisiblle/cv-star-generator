@@ -44,6 +44,7 @@ export const useCreatePost = () => {
     onSuccess: () => {
       // Invalidate feed queries to show new post immediately
       queryClient.invalidateQueries({ queryKey: ['home-feed'] });
+      queryClient.invalidateQueries({ queryKey: ['community-feed'] });
       queryClient.invalidateQueries({ queryKey: ['recent-community-posts'] });
       
       toast({

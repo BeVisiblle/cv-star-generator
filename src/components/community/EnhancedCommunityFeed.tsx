@@ -11,6 +11,7 @@ import { useAuth } from '@/hooks/useAuth';
 export default function EnhancedCommunityFeed() {
   const { user } = useAuth();
   const [composerOpen, setComposerOpen] = useState(false);
+  const [sortBy, setSortBy] = useState('relevant');
   
   const {
     data,
@@ -19,7 +20,17 @@ export default function EnhancedCommunityFeed() {
     isFetchingNextPage,
     isLoading,
     isError
-  } = useCommunityFeed();
+  } = useCommunityFeed(sortBy);
+
+  // Listen for sort changes from FeedSortBar
+  React.useEffect(() => {
+    const handleSortChange = (event: CustomEvent<string>) => {
+      setSortBy(event.detail);
+    };
+
+    window.addEventListener('feed-sort-changed', handleSortChange as EventListener);
+    return () => window.removeEventListener('feed-sort-changed', handleSortChange as EventListener);
+  }, []);
 
   const posts = data?.pages.flatMap(page => page.posts) || [];
 
@@ -113,8 +124,7 @@ export default function EnhancedCommunityFeed() {
         )}
       </div>
 
-      {/* Composer Modal */}
-      {/* CommunityComposer is now embedded directly in the feed */}
+      {/* Composer Modal is now handled by CommunityComposerTeaser */}
     </div>
   );
 }
