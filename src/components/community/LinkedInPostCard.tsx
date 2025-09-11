@@ -3,7 +3,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Heart, MessageCircle, Share2, Send, MoreHorizontal, ThumbsUp, Laugh, Globe } from 'lucide-react';
+import { Heart, MessageCircle, Share2, Send, MoreHorizontal, ThumbsUp, Laugh, Globe, Smile, Image as ImageIcon } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { de } from 'date-fns/locale';
 import { useToast } from '@/hooks/use-toast';
@@ -190,6 +190,11 @@ export default function LinkedInPostCard({ post }: LinkedInPostCardProps) {
     <Card className="overflow-hidden">
       {/* Post Header */}
       <div className="p-4">
+        {post.recent_interaction && (
+          <div className="mb-2 text-xs text-muted-foreground">
+            {post.recent_interaction}
+          </div>
+        )}
         <div className="flex items-start gap-3">
           <Avatar 
             className="h-12 w-12 cursor-pointer" 
@@ -213,7 +218,9 @@ export default function LinkedInPostCard({ post }: LinkedInPostCardProps) {
               </button>
               {post.author_type === 'user' && (
                 <div className="flex items-center gap-1">
-                  <span className="text-blue-600">📘</span>
+                  <span className="inline-flex h-4 items-center justify-center rounded-[3px] bg-blue-600 px-1.5 text-[10px] font-bold leading-none text-white">
+                    in
+                  </span>
                 </div>
               )}
             </div>
@@ -262,6 +269,9 @@ export default function LinkedInPostCard({ post }: LinkedInPostCardProps) {
             </button>
           )}
         </div>
+        <button className="mt-2 text-xs text-muted-foreground hover:underline">
+          Übersetzung anzeigen
+        </button>
         {renderMedia()}
       </div>
 
@@ -344,24 +354,26 @@ export default function LinkedInPostCard({ post }: LinkedInPostCardProps) {
               {user?.user_metadata?.full_name?.charAt(0) || 'U'}
             </AvatarFallback>
           </Avatar>
-          <div className="flex-1 flex gap-2">
+          <div className="flex-1 flex items-center gap-2">
             <Input
               ref={commentInputRef}
               placeholder={replyTo ? `Antwort an ${replyTo.name}...` : 'Kommentar hinzufügen...'}
               value={newComment}
               onChange={(e) => setNewComment(e.target.value)}
-              className="flex-1 rounded-full border-gray-300"
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault();
+                  handleComment();
+                }
+              }}
+              className="flex-1 rounded-full"
             />
-            {newComment.trim() && (
-              <Button 
-                size="sm" 
-                onClick={handleComment} 
-                disabled={isAdding}
-                className="rounded-full"
-              >
-                Posten
-              </Button>
-            )}
+            <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full text-muted-foreground">
+              <Smile className="h-4 w-4" />
+            </Button>
+            <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full text-muted-foreground">
+              <ImageIcon className="h-4 w-4" />
+            </Button>
           </div>
         </div>
 
