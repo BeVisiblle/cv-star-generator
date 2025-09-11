@@ -6168,6 +6168,42 @@ export type Database = {
         Args: { "": string }
         Returns: unknown
       }
+      get_activity_for_org: {
+        Args: { p_limit?: number; p_offset?: number; p_org: string }
+        Returns: {
+          actor_org_id: string
+          actor_user_id: string
+          body_md: string
+          comment_count: number
+          comment_id: string
+          created_at: string
+          job_id: string
+          kind: string
+          like_count: number
+          post_kind: Database["public"]["Enums"]["post_kind"]
+          ref_id: string
+          share_count: number
+          share_id: string
+        }[]
+      }
+      get_activity_for_user: {
+        Args: { p_limit?: number; p_offset?: number; p_user: string }
+        Returns: {
+          actor_org_id: string
+          actor_user_id: string
+          body_md: string
+          comment_count: number
+          comment_id: string
+          created_at: string
+          job_id: string
+          kind: string
+          like_count: number
+          post_kind: Database["public"]["Enums"]["post_kind"]
+          ref_id: string
+          share_count: number
+          share_id: string
+        }[]
+      }
       get_community_feed: {
         Args: { p_limit?: number; p_offset?: number; p_user_id: string }
         Returns: {
