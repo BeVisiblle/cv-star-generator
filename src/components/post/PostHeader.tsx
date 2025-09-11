@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { MoreHorizontal } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { de } from 'date-fns/locale';
-import type { LinkedInPost } from '@/hooks/useLinkedInPosts';
+import type { Post } from '@/hooks/usePosts';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,59 +13,58 @@ import {
 } from '@/components/ui/dropdown-menu';
 
 interface PostHeaderProps {
-  post: LinkedInPost;
-  displayName: string;
-  initials: string;
+  post: Post;
 }
 
-export default function PostHeader({ post, displayName, initials }: PostHeaderProps) {
+export function PostHeader({ post }: PostHeaderProps) {
+  const getDisplayName = () => {
+    if (post.author?.vorname && post.author?.nachname) {
+      return `${post.author.vorname} ${post.author.nachname}`;
+    }
+    return 'Unbekannt';
+  };
+
+  const getInitials = () => {
+    if (post.author?.vorname && post.author?.nachname) {
+      return `${post.author.vorname[0]}${post.author.nachname[0]}`;
+    }
+    return 'U';
+  };
+
   const timeAgo = formatDistanceToNow(new Date(post.created_at), { 
     addSuffix: true, 
     locale: de 
   });
 
   return (
-    <div className="px-4 pt-4 pb-2 flex gap-3 items-start">
-      <Avatar className="h-10 w-10 flex-shrink-0">
-        <AvatarImage src={post.author?.avatar_url} alt={displayName} />
-        <AvatarFallback className="text-sm font-medium">{initials}</AvatarFallback>
-      </Avatar>
-      
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2">
-          <h3 className="font-semibold text-sm leading-tight">{displayName}</h3>
-          <span className="text-muted-foreground text-xs">•</span>
-          <time className="text-muted-foreground text-xs">{timeAgo}</time>
-        </div>
+    <div className="flex items-start justify-between p-4 pb-0">
+      <div className="flex items-center gap-3">
+        <Avatar className="h-12 w-12">
+          <AvatarImage src={post.author?.avatar_url} alt={getDisplayName()} />
+          <AvatarFallback>{getInitials()}</AvatarFallback>
+        </Avatar>
         
-        {post.author?.headline && (
-          <p className="text-muted-foreground text-sm leading-tight mt-0.5">
-            {post.author.headline}
+        <div>
+          <p className="font-semibold text-sm leading-tight">{getDisplayName()}</p>
+          <p className="text-xs text-muted-foreground leading-tight">
+            {post.author?.headline || 'Mitglied'}
           </p>
-        )}
+          <p className="text-xs text-muted-foreground leading-tight">
+            {timeAgo}
+          </p>
+        </div>
       </div>
 
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            className="h-8 w-8 p-0 flex-shrink-0"
-            aria-label="Mehr Optionen"
-          >
+          <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
             <MoreHorizontal className="h-4 w-4" />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
-          <DropdownMenuItem>
-            Beitrag melden
-          </DropdownMenuItem>
-          <DropdownMenuItem>
-            Link kopieren
-          </DropdownMenuItem>
-          <DropdownMenuItem>
-            Beitrag verbergen
-          </DropdownMenuItem>
+          <DropdownMenuItem>Beitrag melden</DropdownMenuItem>
+          <DropdownMenuItem>Link kopieren</DropdownMenuItem>
+          <DropdownMenuItem>Beitrag ausblenden</DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
     </div>

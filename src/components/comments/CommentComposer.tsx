@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Smile, Paperclip, Send } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
-import { useAddComment } from '@/hooks/useLinkedInPosts';
+import { useAddComment } from '@/hooks/usePosts';
 
 interface CommentComposerProps {
   postId: string;
@@ -14,7 +14,7 @@ interface CommentComposerProps {
   className?: string;
 }
 
-export default function CommentComposer({ 
+export function CommentComposer({ 
   postId, 
   parentId = null, 
   placeholder = "Kommentar hinzufügen ...",

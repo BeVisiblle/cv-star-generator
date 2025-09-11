@@ -5503,6 +5503,15 @@ export type Database = {
           },
         ]
       }
+      v_post_social_proof: {
+        Row: {
+          action: string | null
+          actor_id: string | null
+          created_at: string | null
+          post_id: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       _add_col_if_missing: {

@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import type { LinkedInPost } from '@/hooks/useLinkedInPosts';
+import type { Post } from '@/hooks/usePosts';
 
 interface PostBodyProps {
-  post: LinkedInPost;
+  post: Post;
 }
 
-export default function PostBody({ post }: PostBodyProps) {
+export function PostBody({ post }: PostBodyProps) {
   const [expanded, setExpanded] = useState(false);
   
   // Check if text needs truncation (more than 3 lines ~150 chars)
