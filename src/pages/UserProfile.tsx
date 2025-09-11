@@ -85,10 +85,10 @@ export default function UserProfilePage() {
   const displayProfile = useMemo(() => {
     if (!profile) return null;
     if (isConnected) return profile;
-    // restricted view: hide sensitive fields
+    // restricted view: hide sensitive fields for non-connected users
     return {
       ...profile,
-      nachname: profile.nachname ? `${String(profile.nachname).charAt(0)}.` : null,
+      nachname: profile.nachname, // Show full last name now
       email: null,
       telefon: null,
       strasse: null,
@@ -232,8 +232,8 @@ export default function UserProfilePage() {
                 isEditing={false} 
                 onProfileUpdate={() => {}} 
                 readOnly={!isOwner} 
-                showLanguagesAndSkills={true}
-                showLicenseAndStats={!isCompanyMember || isOwner} 
+                showLanguagesAndSkills={isConnected}
+                showLicenseAndStats={isOwner} 
                 showCVSection={isOwner} 
                 isCompanyViewing={isCompanyMember && !isOwner}
               />

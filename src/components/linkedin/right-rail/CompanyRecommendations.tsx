@@ -1,12 +1,10 @@
-import React from "react";
+import React, { useRef, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
-import { toast } from "@/hooks/use-toast";
-import { ChevronRight } from "lucide-react";
-import { useAuth } from "@/hooks/useAuth";
+import { ChevronRight, Lock } from "lucide-react";
+import { useGatedCompanyRecommendations } from "@/hooks/useGatedCompanyRecommendations";
 
 interface SimpleCompany {
   id: string;
@@ -23,90 +21,54 @@ interface CompanyRecommendationsProps {
 
 export const CompanyRecommendations: React.FC<CompanyRecommendationsProps> = ({ limit = 3, showMoreLink = "/entdecken/unternehmen", showMore = true }) => {
   const navigate = useNavigate();
-  const { user } = useAuth();
-  const [loading, setLoading] = React.useState(true);
-  const [items, setItems] = React.useState<SimpleCompany[]>([]);
-  const [following, setFollowing] = React.useState<Set<string>>(new Set());
+  const cardRef = useRef<HTMLDivElement>(null);
+  const {
+    loading,
+    companies,
+    following,
+    isFollowEnabled,
+    startViewTracking,
+    markAsScrolled,
+    toggleFollow
+  } = useGatedCompanyRecommendations(limit);
 
-  React.useEffect(() => {
-    const load = async () => {
-      setLoading(true);
-      try {
-        const { data, error } = await supabase
-          .rpc('get_companies_public', { search: null, limit_count: 12, offset_count: 0 });
-        if (error) throw error;
-        setItems(((data as any[]) || []).map(d => ({ id: d.id, name: d.name, logo_url: d.logo_url, industry: d.industry, main_location: d.main_location })).slice(0, limit));
-      } catch (e) {
-        // RLS kann den Zugriff beschränken – wir zeigen dann eine leere Liste
-        console.warn("Company recommendations restricted by RLS or error.", e);
-        setItems([]);
-      } finally {
-        setLoading(false);
-      }
+  // Start view tracking when component mounts
+  useEffect(() => {
+    companies.forEach(company => {
+      startViewTracking(company.id);
+    });
+  }, [companies, startViewTracking]);
+
+  // Handle scroll detection
+  useEffect(() => {
+    const cardElement = cardRef.current;
+    if (!cardElement) return;
+
+    const handleScroll = () => {
+      companies.forEach(company => {
+        markAsScrolled(company.id);
+      });
     };
-    load();
-  }, []);
 
-  React.useEffect(() => {
-    const loadFollows = async () => {
-      try {
-        if (!user || items.length === 0) {
-          setFollowing(new Set());
-          return;
-        }
-        const ids = items.map(i => i.id);
-        const { data, error } = await supabase
-          .from('follows')
-          .select('followee_id')
-          .eq('follower_id', user.id)
-          .eq('follower_type', 'profile')
-          .eq('followee_type', 'company')
-          .in('followee_id', ids);
-        if (!error && data) {
-          setFollowing(new Set((data as any[]).map((d: any) => d.followee_id as string)));
-        }
-      } catch (e) {
-        console.error(e);
-      }
+    cardElement.addEventListener('scroll', handleScroll);
+    // Also trigger on any scroll within the card
+    const scrollElements = cardElement.querySelectorAll('*');
+    scrollElements.forEach(el => {
+      el.addEventListener('scroll', handleScroll);
+    });
+
+    return () => {
+      cardElement.removeEventListener('scroll', handleScroll);
+      scrollElements.forEach(el => {
+        el.removeEventListener('scroll', handleScroll);
+      });
     };
-    loadFollows();
-  }, [items, user]);
-
-  const followCompany = async (id: string) => {
-    if (!user) { window.location.href = '/auth'; return; }
-    try {
-      if (following.has(id)) {
-        const { error } = await supabase.from('follows')
-          .delete()
-          .eq('follower_id', user.id)
-          .eq('followee_id', id)
-          .eq('follower_type', 'profile')
-          .eq('followee_type', 'company');
-        if (!error) {
-          setFollowing(prev => { const n = new Set(prev); n.delete(id); return n; });
-        }
-      } else {
-        const { error } = await supabase.from('follows').insert({ 
-          follower_id: user.id, 
-          followee_id: id,
-          follower_type: 'profile',
-          followee_type: 'company',
-          status: 'accepted' 
-        });
-        if (!error) {
-          setFollowing(prev => new Set(prev).add(id));
-        }
-      }
-    } catch (e) {
-      console.error(e);
-      toast({ title: 'Fehler', description: 'Aktion fehlgeschlagen.', variant: 'destructive' });
-    }
-  };
+  }, [companies, markAsScrolled]);
 
   return (
-    <Card className="p-3">
+    <Card ref={cardRef} className="p-3">
       <h3 className="text-sm font-semibold mb-2">Interessante Unternehmen</h3>
-      <div className="space-y-2">
+      <div className="space-y-2 max-h-80 overflow-y-auto">
         {loading && (
           <div className="space-y-2">
             {Array.from({ length: 3 }).map((_, i) => (
@@ -121,9 +83,12 @@ export const CompanyRecommendations: React.FC<CompanyRecommendationsProps> = ({ 
             ))}
           </div>
         )}
-        {!loading && items.map(c => {
+        {!loading && companies.map(c => {
           const name = c.name || "Unternehmen";
           const info = [c.main_location, c.industry].filter(Boolean).join(" • ");
+          const followEnabled = isFollowEnabled(c.id);
+          const isAlreadyFollowing = following.has(c.id);
+          
           return (
             <div key={c.id} className="flex items-center gap-3">
               <Avatar className="h-8 w-8 rounded">
@@ -135,15 +100,34 @@ export const CompanyRecommendations: React.FC<CompanyRecommendationsProps> = ({ 
                 {info && <div className="text-xs text-muted-foreground truncate">{info}</div>}
               </div>
               <div className="flex gap-1">
-                <Button size="sm" variant="secondary" className="h-7 px-2 text-xs" onClick={() => followCompany(c.id)}>Folgen</Button>
-                <Button size="sm" variant="outline" className="h-7 px-2 text-xs" onClick={() => navigate(`/companies/${c.id}`)}>Ansehen</Button>
+                <Button 
+                  size="sm" 
+                  variant={isAlreadyFollowing ? "outline" : "secondary"} 
+                  className="h-7 px-2 text-xs relative" 
+                  onClick={() => toggleFollow(c.id)}
+                  disabled={!followEnabled && !isAlreadyFollowing}
+                >
+                  {!followEnabled && !isAlreadyFollowing && (
+                    <Lock className="h-3 w-3 mr-1" />
+                  )}
+                  {isAlreadyFollowing ? "Folge ich" : "Folgen"}
+                </Button>
+                <Button 
+                  size="sm" 
+                  variant="outline" 
+                  className="h-7 px-2 text-xs" 
+                  onClick={() => navigate(`/companies/${c.id}`)}
+                >
+                  Ansehen
+                </Button>
               </div>
             </div>
           );
         })}
-        {!loading && items.length === 0 && (
+        {!loading && companies.length === 0 && (
           <p className="text-xs text-muted-foreground">Aktuell keine Unternehmensempfehlungen verfügbar.</p>
         )}
+      </div>
       {showMore && (
         <div className="pt-2">
           <Button variant="link" size="sm" className="px-0" onClick={() => (window.location.href = showMoreLink)}>
@@ -151,7 +135,6 @@ export const CompanyRecommendations: React.FC<CompanyRecommendationsProps> = ({ 
           </Button>
         </div>
       )}
-    </div>
-  </Card>
+    </Card>
   );
 };
