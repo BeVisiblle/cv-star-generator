@@ -6,6 +6,7 @@ import FeedSortBar from '@/components/community/FeedSortBar';
 import { PeopleRecommendations } from '@/components/linkedin/right-rail/PeopleRecommendations';
 import { CompanyRecommendations } from '@/components/linkedin/right-rail/CompanyRecommendations';
 import { RightRailAd } from '@/components/linkedin/right-rail/RightRailAd';
+import { PostFeed } from '@/components/feed/PostFeed';
 import useRealtimeFeed from '@/hooks/useRealtimeFeed';
 
 const Dashboard = () => {
@@ -33,13 +34,8 @@ const Dashboard = () => {
               {/* Sort Bar */}
               <FeedSortBar />
               
-              {/* NEW: LinkedIn-style Post Feed */}
-              <div className="bg-card rounded-lg p-4 border">
-                <h2 className="text-lg font-semibold mb-4">Social Feed (LinkedIn-Style)</h2>
-                <div id="social-feed-container">
-                  {/* This will be rendered by PostFeed component */}
-                </div>
-              </div>
+              {/* Social Feed */}
+              <PostFeed />
               
               {/* Community Feed */}
               <EnhancedCommunityFeed />

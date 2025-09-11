@@ -12,6 +12,7 @@ interface CommentComposerProps {
   placeholder?: string;
   onCommentAdded?: () => void;
   className?: string;
+  autoFocus?: boolean;
 }
 
 export function CommentComposer({ 
@@ -19,7 +20,8 @@ export function CommentComposer({
   parentId = null, 
   placeholder = "Kommentar hinzufügen ...",
   onCommentAdded,
-  className = ""
+  className = "",
+  autoFocus = false
 }: CommentComposerProps) {
   const [content, setContent] = useState('');
   const [isFocused, setIsFocused] = useState(false);
@@ -103,6 +105,7 @@ export function CommentComposer({
               isFocused || content ? 'min-h-[80px] rounded-lg' : ''
             }`}
             rows={isFocused || content ? 3 : 1}
+            autoFocus={autoFocus}
           />
           
           {(isFocused || content) && (

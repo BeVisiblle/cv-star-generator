@@ -7,9 +7,10 @@ interface CommentDrawerProps {
   postId: string;
   isOpen: boolean;
   onToggle: () => void;
+  autoFocus?: boolean;
 }
 
-export function CommentDrawer({ postId, isOpen, onToggle }: CommentDrawerProps) {
+export function CommentDrawer({ postId, isOpen, onToggle, autoFocus = false }: CommentDrawerProps) {
   const { data: comments, isLoading } = useSocialPostComments(postId);
 
   if (!isOpen) return null;
@@ -17,7 +18,7 @@ export function CommentDrawer({ postId, isOpen, onToggle }: CommentDrawerProps) 
   return (
     <div className="border-t border-border">
       <div className="p-4 space-y-4">
-        <CommentComposer postId={postId} />
+        <CommentComposer postId={postId} autoFocus={autoFocus} />
         
         <div className="space-y-3">
           {isLoading ? (

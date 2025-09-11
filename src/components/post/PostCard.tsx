@@ -58,11 +58,24 @@ export function PostCard({ post }: PostCardProps) {
         showComments={showComments}
         isLiking={toggleLike.isPending}
       />
+
+      {/* Collapsed Comment Composer */}
+      {!showComments && (
+        <div className="px-4 py-3 border-t border-border">
+          <button
+            onClick={handleToggleComments}
+            className="w-full text-left text-sm text-muted-foreground bg-muted rounded-full px-4 py-2 hover:bg-muted/80 transition-colors"
+          >
+            Schreibe einen Kommentar...
+          </button>
+        </div>
+      )}
       
       <CommentDrawer 
         postId={post.id}
         isOpen={showComments}
         onToggle={handleToggleComments}
+        autoFocus={showComments}
       />
     </Card>
   );
