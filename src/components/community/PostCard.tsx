@@ -245,121 +245,114 @@ const authorSubtitle = useMemo(() => {
         </div>
 
         {/* Post Actions */}
-        <div className="flex flex-wrap items-center justify-between gap-1 pt-2 border-t">
-          <div className="flex flex-wrap items-center gap-1 sm:gap-2">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleLike}
-              className={`text-muted-foreground hover:text-red-500 min-h-[44px] min-w-[44px] sm:min-w-auto ${liked ? 'text-red-500' : ''}`}
-              disabled={isToggling}
-            >
-              <Heart className={`h-4 w-4 sm:mr-1 ${liked ? 'fill-current' : ''}`} />
-              <span className="hidden sm:inline">Gefällt mir</span>
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setShowComments(!showComments)}
-              className="text-muted-foreground min-h-[44px] min-w-[44px] sm:min-w-auto"
-            >
-              <MessageCircle className="h-4 w-4 sm:mr-1" />
-              <span className="hidden sm:inline">Kommentieren</span>
-            </Button>
-            <div className="min-h-[44px] min-w-[44px] flex items-center justify-center">
-              <BookmarkButton postId={post.id} />
-            </div>
-            <div className="min-h-[44px] min-w-[44px] flex items-center justify-center">
-              <ShareMenu postId={post.id} />
-            </div>
-            <div className="min-h-[44px] min-w-[44px] flex items-center justify-center">
-              <PostMoreMenu 
-                postId={post.id} 
-                authorId={post.author_id || post.user_id}
-                onPostHidden={() => {
-                  // Handle post hidden - could trigger a refresh or remove from view
-                  console.log('Post hidden:', post.id);
-                }}
-                onPostSnoozed={() => {
-                  // Handle post snoozed - could trigger a refresh or remove from view
-                  console.log('Post snoozed:', post.id);
-                }}
-              />
-            </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setSendOpen(true)}
-              className="text-muted-foreground min-h-[44px] min-w-[44px] sm:min-w-auto"
-            >
-              <Send className="h-4 w-4 sm:mr-1" />
-              <span className="hidden sm:inline">Direkt senden</span>
-            </Button>
+        <div className="flex items-center justify-between pt-2 border-t">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleLike}
+            className={`flex-1 gap-2 hover:bg-red-50 ${liked ? 'text-red-500' : 'text-muted-foreground'}`}
+            disabled={isToggling}
+          >
+            <Heart className={`h-5 w-5 ${liked ? 'fill-current' : ''}`} />
+            <span>Gefällt mir</span>
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleOpenComments}
+            className="flex-1 gap-2 text-muted-foreground hover:bg-gray-50"
+          >
+            <MessageCircle className="h-5 w-5" />
+            <span>Kommentieren</span>
+          </Button>
+          <div className="flex-1 flex justify-center">
+            <BookmarkButton postId={post.id} />
           </div>
+          <div className="flex-1 flex justify-center">
+            <ShareMenu postId={post.id} />
+          </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setSendOpen(true)}
+            className="flex-1 gap-2 text-muted-foreground hover:bg-gray-50"
+          >
+            <Send className="h-5 w-5" />
+            <span>Senden</span>
+          </Button>
         </div>
 
-        {/* Comments Section */}
-        {showComments && (
-          <div className="space-y-3 pt-3 border-t">
-            <div className="flex flex-wrap gap-2">
+        {/* Comment Input - Always visible */}
+        <div className="pt-3 border-t border-gray-100">
+          <div className="flex gap-2 mb-4">
+            <Avatar className="h-8 w-8 flex-shrink-0">
+              <AvatarImage src={user?.user_metadata?.avatar_url} />
+              <AvatarFallback className="text-xs">
+                {user?.user_metadata?.full_name?.charAt(0) || 'U'}
+              </AvatarFallback>
+            </Avatar>
+            <div className="flex-1">
               <Input
                 ref={commentInputRef as any}
-                placeholder={replyTo ? `Antwort an ${replyTo.name}…` : 'Schreibe einen Kommentar...'}
+                placeholder={replyTo ? `Antwort an ${replyTo.name}...` : 'Kommentar hinzufügen...'}
                 value={newComment}
                 onChange={(e) => setNewComment(e.target.value)}
-                className="flex-1 min-w-0"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    handleComment();
+                  }
+                }}
+                className="rounded-full border-gray-200"
               />
-              <Button size="sm" onClick={handleComment} disabled={!newComment.trim() || isAdding}>
-                Senden
-              </Button>
             </div>
+          </div>
 
-            {commentsLoading ? (
-              <p className="text-xs text-muted-foreground">Kommentare werden geladen…</p>
-            ) : comments.length === 0 ? (
-              <p className="text-xs text-muted-foreground">Sei der Erste, der kommentiert.</p>
-            ) : (
-              <div className="space-y-3">
-                {comments.map((c) => {
-                  const name = c.author?.vorname && c.author?.nachname
-                    ? `${c.author.vorname} ${c.author.nachname}`
-                    : 'Unbekannt';
-                  const initials = c.author?.vorname && c.author?.nachname
-                    ? `${c.author.vorname[0]}${c.author.nachname[0]}`
-                    : 'U';
-                  const mention = `@${name.split(' ')[0]}`;
-                  return (
-                    <div key={c.id} className="flex items-start gap-2">
-                      <Avatar className="h-8 w-8 cursor-pointer" onClick={() => navigate(`/u/${c.author?.id || c.user_id}`)}>
-                        <AvatarImage src={c.author?.avatar_url ?? undefined} />
-                        <AvatarFallback className="text-xs">{initials}</AvatarFallback>
-                      </Avatar>
-                      <div className="flex-1 bg-muted/40 border rounded-lg p-2">
-                        <button className="text-xs font-medium hover:underline" onClick={() => navigate(`/u/${c.author?.id || c.user_id}`)}>{name}</button>
-                        <div className="text-sm whitespace-pre-wrap">{c.content}</div>
-                        <div className="mt-1">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-6 text-[11px] px-2"
-                            onClick={() => {
-                              setReplyTo({ id: c.id, name });
-                              setShowComments(true);
-                              setNewComment((prev) => (prev.startsWith(mention) ? prev : `${mention} `));
-                              setTimeout(() => commentInputRef.current?.focus(), 0);
-                            }}
-                          >
-                            Antworten
-                          </Button>
-                        </div>
+          {/* Comments Section */}
+          {commentsLoading ? (
+            <p className="text-sm text-muted-foreground py-2">Kommentare werden geladen…</p>
+          ) : comments.length === 0 ? (
+            <p className="text-sm text-muted-foreground py-2">{commentsCount} Kommentare</p>
+          ) : (
+            <div className="space-y-3">
+              <div className="text-sm text-muted-foreground mb-2">{commentsCount} Kommentare</div>
+              {comments.map((c) => {
+                const name = c.author?.vorname && c.author?.nachname
+                  ? `${c.author.vorname} ${c.author.nachname}`
+                  : 'Unbekannt';
+                const initials = c.author?.vorname && c.author?.nachname
+                  ? `${c.author.vorname[0]}${c.author.nachname[0]}`
+                  : 'U';
+                const mention = `@${name.split(' ')[0]}`;
+                return (
+                  <div key={c.id} className="flex items-start gap-2">
+                    <Avatar className="h-8 w-8 cursor-pointer" onClick={() => navigate(`/u/${c.author?.id || c.user_id}`)}>
+                      <AvatarImage src={c.author?.avatar_url ?? undefined} />
+                      <AvatarFallback className="text-xs">{initials}</AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1 bg-gray-100 rounded-2xl px-3 py-2">
+                      <button className="text-sm font-semibold hover:underline text-left" onClick={() => navigate(`/u/${c.author?.id || c.user_id}`)}>{name}</button>
+                      <div className="text-sm text-gray-900 mt-0.5 whitespace-pre-wrap break-words">{c.content}</div>
+                      <div className="flex items-center gap-4 mt-1 text-xs text-muted-foreground">
+                        <button 
+                          className="hover:underline font-medium"
+                          onClick={() => {
+                            setReplyTo({ id: c.id, name });
+                            setNewComment((prev) => (prev.startsWith(mention) ? prev : `${mention} `));
+                            setTimeout(() => commentInputRef.current?.focus(), 0);
+                          }}
+                        >
+                          Antworten
+                        </button>
+                        <span>{formatDistanceToNow(new Date(c.created_at), { addSuffix: true, locale: de })}</span>
                       </div>
                     </div>
-                  );
-                })}
-              </div>
-            )}
-          </div>
-        )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* DM dialog */}

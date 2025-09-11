@@ -366,7 +366,7 @@ export default function LinkedInPostCard({ post }: LinkedInPostCardProps) {
                   handleComment();
                 }
               }}
-              className="flex-1 rounded-full"
+              className="flex-1 rounded-full border-gray-200"
             />
             <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full text-muted-foreground">
               <Smile className="h-4 w-4" />
@@ -378,8 +378,9 @@ export default function LinkedInPostCard({ post }: LinkedInPostCardProps) {
         </div>
 
         {/* Comments List */}
-        {comments.length > 0 && (
+        {comments.length > 0 ? (
           <div className="space-y-3">
+            <div className="text-sm text-muted-foreground">{commentsCount} Kommentare</div>
             {comments.map((comment) => (
               <CommentItem 
                 key={comment.id}
@@ -394,6 +395,8 @@ export default function LinkedInPostCard({ post }: LinkedInPostCardProps) {
               </button>
             )}
           </div>
+        ) : (
+          <div className="text-sm text-muted-foreground">{commentsCount} Kommentare</div>
         )}
       </div>
 
