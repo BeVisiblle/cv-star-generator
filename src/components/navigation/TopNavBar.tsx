@@ -104,9 +104,7 @@ export default function TopNavBar() {
               if (type === 'person') {
                 navigate(`/profile/${payload.id}`);
               } else if (type === 'company') {
-                navigate(`/company/${payload.id}`);
-              } else if (type === 'post') {
-                navigate(`/post/${payload.id}`);
+                navigate(`/companies/${payload.id}`);
               }
             }}
           />

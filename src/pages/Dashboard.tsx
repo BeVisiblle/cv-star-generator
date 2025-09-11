@@ -1,8 +1,5 @@
 import React from 'react';
-import EnhancedCommunityFeed from '@/components/community/EnhancedCommunityFeed';
-import CommunityComposerTeaser from '@/components/community/CommunityComposerTeaser';
 import { LeftPanel } from '@/components/dashboard/LeftPanel';
-import FeedSortBar from '@/components/community/FeedSortBar';
 import { PeopleRecommendations } from '@/components/linkedin/right-rail/PeopleRecommendations';
 import { CompanyRecommendations } from '@/components/linkedin/right-rail/CompanyRecommendations';
 import { RightRailAd } from '@/components/linkedin/right-rail/RightRailAd';
@@ -28,17 +25,8 @@ const Dashboard = () => {
           {/* Center column (flex grows) */}
           <section className="flex-1 min-w-0">
             <div className="w-full max-w-[560px] mx-auto px-4 md:max-w-none md:px-0 space-y-4">
-              {/* Post Composer Teaser */}
-              <CommunityComposerTeaser onOpenComposer={() => {}} />
-              
-              {/* Sort Bar */}
-              <FeedSortBar />
-              
               {/* Social Feed */}
               <PostFeed />
-              
-              {/* Community Feed */}
-              <EnhancedCommunityFeed />
             </div>
           </section>
 

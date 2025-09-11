@@ -25,11 +25,8 @@ export const CompanyRecommendations: React.FC<CompanyRecommendationsProps> = ({ 
   const {
     loading,
     companies,
-    following,
-    isFollowEnabled,
     startViewTracking,
-    markAsScrolled,
-    toggleFollow
+    markAsScrolled
   } = useGatedCompanyRecommendations(limit);
 
   // Start view tracking when component mounts
@@ -86,8 +83,6 @@ export const CompanyRecommendations: React.FC<CompanyRecommendationsProps> = ({ 
         {!loading && companies.map(c => {
           const name = c.name || "Unternehmen";
           const info = [c.main_location, c.industry].filter(Boolean).join(" • ");
-          const followEnabled = isFollowEnabled(c.id);
-          const isAlreadyFollowing = following.has(c.id);
           
           return (
             <div key={c.id} className="flex items-center gap-3">
@@ -100,18 +95,6 @@ export const CompanyRecommendations: React.FC<CompanyRecommendationsProps> = ({ 
                 {info && <div className="text-xs text-muted-foreground truncate">{info}</div>}
               </div>
               <div className="flex gap-1">
-                <Button 
-                  size="sm" 
-                  variant={isAlreadyFollowing ? "outline" : "secondary"} 
-                  className="h-7 px-2 text-xs relative" 
-                  onClick={() => toggleFollow(c.id)}
-                  disabled={!followEnabled && !isAlreadyFollowing}
-                >
-                  {!followEnabled && !isAlreadyFollowing && (
-                    <Lock className="h-3 w-3 mr-1" />
-                  )}
-                  {isAlreadyFollowing ? "Folge ich" : "Folgen"}
-                </Button>
                 <Button 
                   size="sm" 
                   variant="outline" 
