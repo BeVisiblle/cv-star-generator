@@ -25,6 +25,7 @@ export default function JobShareDialog({
   const { mutate: shareJob, isPending } = useShareJobAsPost();
   const { toast } = useToast();
 
+  // Move early return and computation after all hooks
   const handleShare = () => {
     if (!job) return;
 

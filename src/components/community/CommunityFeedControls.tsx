@@ -9,6 +9,7 @@ export default function CommunityFeedControls() {
   const { data: preferences, isLoading } = useCommunityPreferences();
   const updatePreferences = useUpdateCommunityPreferences();
 
+  // Move early return after all hooks
   if (isLoading || !preferences) return null;
 
   const handlePreferenceChange = (key: string, value: any) => {

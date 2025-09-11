@@ -36,13 +36,14 @@ interface FullProfileModalProps {
 }
 
 export function FullProfileModal({ profile, isOpen, onClose, isUnlocked }: FullProfileModalProps) {
-  if (!profile) return null;
-
-  const displayName = isUnlocked 
+  // Move calculations before early return
+  const displayName = profile && isUnlocked 
     ? `${profile.vorname} ${profile.nachname?.charAt(0)}.`
-    : profile.vorname;
+    : profile?.vorname || '';
 
-  const avatarSrc = isUnlocked ? profile.avatar_url : undefined;
+  const avatarSrc = profile && isUnlocked ? profile.avatar_url : undefined;
+
+  if (!profile) return null;
 
   const getJobTitle = () => {
     if (profile.status === 'azubi' && profile.ausbildungsberuf) {
