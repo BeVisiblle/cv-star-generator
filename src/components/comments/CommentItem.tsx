@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { ThumbsUp, MessageCircle, MoreHorizontal } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { de } from 'date-fns/locale';
-import type { PostComment } from '@/hooks/usePosts';
+import type { PostComment } from '@/hooks/useSocialFeed';
 import { CommentComposer } from './CommentComposer';
 import {
   DropdownMenu,
@@ -115,3 +115,5 @@ export function CommentItem({ comment }: CommentItemProps) {
     </div>
   );
 }
+
+export default CommentItem;

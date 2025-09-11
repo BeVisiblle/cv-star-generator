@@ -1,7 +1,7 @@
 import React from 'react';
 import { CommentComposer } from './CommentComposer';
 import { CommentItem } from './CommentItem';
-import { usePostComments } from '@/hooks/usePosts';
+import { useSocialPostComments } from '@/hooks/useSocialFeed';
 
 interface CommentDrawerProps {
   postId: string;
@@ -10,7 +10,7 @@ interface CommentDrawerProps {
 }
 
 export function CommentDrawer({ postId, isOpen, onToggle }: CommentDrawerProps) {
-  const { data: comments, isLoading } = usePostComments(postId);
+  const { data: comments, isLoading } = useSocialPostComments(postId);
 
   if (!isOpen) return null;
 

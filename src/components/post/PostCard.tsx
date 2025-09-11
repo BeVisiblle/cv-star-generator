@@ -6,7 +6,7 @@ import { PostMeta } from './PostMeta';
 import { PostActions } from './PostActions';
 import { CommentDrawer } from '../comments/CommentDrawer';
 import { SocialProofBar } from './SocialProofBar';
-import { useTogglePostLike, useSocialProof, type Post } from '@/hooks/usePosts';
+import { useToggleSocialPostLike, useSocialProof, type Post } from '@/hooks/useSocialFeed';
 
 interface PostCardProps {
   post: Post;
@@ -17,7 +17,7 @@ export function PostCard({ post }: PostCardProps) {
   const [localLikeCount, setLocalLikeCount] = useState(post.like_count);
   const [localYouLike, setLocalYouLike] = useState(post.you_like || false);
   
-  const toggleLike = useTogglePostLike();
+  const toggleLike = useToggleSocialPostLike();
   const { data: socialProof } = useSocialProof(post.id);
 
   const handleLike = async () => {

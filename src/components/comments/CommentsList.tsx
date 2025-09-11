@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { ChevronDown, ChevronUp } from 'lucide-react';
-import { usePostComments } from '@/hooks/useLinkedInPosts';
-import CommentItem from './CommentItem';
+import { useSocialPostComments } from '@/hooks/useSocialFeed';
+import { CommentItem } from './CommentItem';
 
 interface CommentsListProps {
   postId: string;
@@ -10,7 +10,7 @@ interface CommentsListProps {
 
 export default function CommentsList({ postId }: CommentsListProps) {
   const [sortBy, setSortBy] = useState<'top' | 'newest'>('top');
-  const { data: comments, isLoading } = usePostComments(postId);
+  const { data: comments, isLoading } = useSocialPostComments(postId);
 
   if (isLoading) {
     return (
@@ -86,7 +86,6 @@ export default function CommentsList({ postId }: CommentsListProps) {
           <CommentItem 
             key={comment.id} 
             comment={comment}
-            postId={postId}
           />
         ))}
       </div>

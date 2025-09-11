@@ -1,10 +1,10 @@
 import React from 'react';
 import { PostComposer } from '@/components/post/PostComposer';
 import { PostCard } from '@/components/post/PostCard';
-import { usePosts } from '@/hooks/usePosts';
+import { useSocialPosts } from '@/hooks/useSocialFeed';
 
 export function PostFeed() {
-  const { data: posts, isLoading, error } = usePosts();
+  const { data: posts, isLoading, error } = useSocialPosts();
 
   if (error) {
     return (

@@ -1,10 +1,10 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Heart, MessageCircle, Share, Send } from 'lucide-react';
-import type { Post } from '@/hooks/usePosts';
+// using any to be compatible with different post shapes
 
 interface PostActionsProps {
-  post: Post;
+  post: any;
   onLike: () => void;
   onToggleComments: () => void;
   showComments: boolean;
@@ -67,3 +67,5 @@ export function PostActions({
     </div>
   );
 }
+
+export default PostActions;

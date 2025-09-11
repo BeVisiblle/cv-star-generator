@@ -6,7 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card } from '@/components/ui/card';
 import { ImageIcon, Paperclip } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
-import { useCreatePost } from '@/hooks/usePosts';
+import { useCreateSocialPost } from '@/hooks/useSocialFeed';
 import { AttachmentUploader } from '@/components/common/AttachmentUploader';
 
 export function PostComposer() {
@@ -14,7 +14,7 @@ export function PostComposer() {
   const [content, setContent] = useState('');
   const [attachments, setAttachments] = useState<any[]>([]);
   const [isOpen, setIsOpen] = useState(false);
-  const createPost = useCreatePost();
+  const createPost = useCreateSocialPost();
 
   const getUserName = () => {
     if (profile?.vorname && profile?.nachname) {

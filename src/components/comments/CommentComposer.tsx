@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Smile, Paperclip, Send } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
-import { useAddComment } from '@/hooks/usePosts';
+import { useAddSocialComment } from '@/hooks/useSocialFeed';
 
 interface CommentComposerProps {
   postId: string;
@@ -25,7 +25,7 @@ export function CommentComposer({
   const [isFocused, setIsFocused] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const { user } = useAuth();
-  const addComment = useAddComment();
+  const addComment = useAddSocialComment();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -148,3 +148,5 @@ export function CommentComposer({
     </div>
   );
 }
+
+export default CommentComposer;

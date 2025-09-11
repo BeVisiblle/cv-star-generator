@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import type { Post } from '@/hooks/usePosts';
+// using any to be compatible with different post shapes
 
 interface PostBodyProps {
-  post: Post;
+  post: any;
 }
 
 export function PostBody({ post }: PostBodyProps) {
@@ -39,3 +39,5 @@ export function PostBody({ post }: PostBodyProps) {
     </div>
   );
 }
+
+export default PostBody;

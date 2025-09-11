@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { MoreHorizontal } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { de } from 'date-fns/locale';
-import type { Post } from '@/hooks/usePosts';
+// using any to be compatible with different post shapes
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,7 +13,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 
 interface PostHeaderProps {
-  post: Post;
+  post: any;
 }
 
 export function PostHeader({ post }: PostHeaderProps) {
@@ -70,3 +70,5 @@ export function PostHeader({ post }: PostHeaderProps) {
     </div>
   );
 }
+
+export default PostHeader;
