@@ -3,6 +3,9 @@ import CommunityFeed from '@/components/community/CommunityFeed';
 import CommunityComposerTeaser from '@/components/community/CommunityComposerTeaser';
 import { LeftPanel } from '@/components/dashboard/LeftPanel';
 import FeedSortBar from '@/components/community/FeedSortBar';
+import { PeopleRecommendations } from '@/components/linkedin/right-rail/PeopleRecommendations';
+import { CompanyRecommendations } from '@/components/linkedin/right-rail/CompanyRecommendations';
+import { RightRailAd } from '@/components/linkedin/right-rail/RightRailAd';
 
 const Dashboard = () => {
   return (
@@ -28,10 +31,19 @@ const Dashboard = () => {
             </div>
           </section>
 
-          {/* Right column placeholder */}
+          {/* Right column */}
           <aside className="hidden xl:block w-[320px] shrink-0">
             <div className="sticky top-20 space-y-4">
-              {/* Placeholder for future widgets */}
+              <RightRailAd 
+                variant="card"
+                imageUrl="/lovable-uploads/hero-mobile-576x576.png"
+                title="Entdecke jetzt die Zukunft deiner Karriere"
+                description="Teste unsere Tools für Azubis und Fachkräfte – kostenlos starten!"
+                ctaText="Jetzt testen"
+                ctaHref="/cv-generator"
+              />
+              <PeopleRecommendations />
+              <CompanyRecommendations />
             </div>
           </aside>
         </div>

@@ -19,6 +19,7 @@ import { UploadedAttachment } from '@/lib/uploads';
 import { BookmarkButton } from '@/components/post/BookmarkButton';
 import { ShareMenu } from '@/components/post/ShareMenu';
 import { PostMoreMenu } from '@/components/post/PostMoreMenu';
+import EmploymentBadge from '@/components/employment/EmploymentBadge';
 
 interface PostCardProps {
   post: {
@@ -41,6 +42,10 @@ interface PostCardProps {
       ausbildungsbetrieb?: string;
       aktueller_beruf?: string;
       status?: string;
+      employment_status?: string;
+      company_name?: string;
+      company_logo?: string;
+      company_id?: string;
     } | null;
     company?: {
       id: string;
@@ -197,6 +202,19 @@ const authorSubtitle = useMemo(() => {
             </div>
             {authorSubtitle && (
               <p className="text-xs text-muted-foreground truncate">{authorSubtitle}</p>
+            )}
+            {/* Employment Badge */}
+            {post.author_type === 'user' && post.author?.employment_status === 'accepted' && post.author?.company_name && (
+              <div className="mt-1">
+                <EmploymentBadge
+                  companyName={post.author.company_name}
+                  companyLogo={post.author.company_logo}
+                  companyId={post.author.company_id}
+                  role="Mitarbeiter"
+                  status="accepted"
+                  size="sm"
+                />
+              </div>
             )}
           </div>
         </div>

@@ -4,7 +4,7 @@ import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import PostCard from './PostCard';
+import LinkedInPostCard from './LinkedInPostCard';
 import EnhancedCommunityFeed from './EnhancedCommunityFeed';
 import { Loader2 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
@@ -288,7 +288,7 @@ export function LegacyCommunityFeed() {
               `${names[(i+5) % names.length]} gefällt das`
             ];
             return (
-              <PostCard
+              <LinkedInPostCard
                 key={`demo-${i}`}
                 post={{
                   id: `demo-${i}`,
@@ -313,7 +313,7 @@ export function LegacyCommunityFeed() {
         <>
           <div className="space-y-4">
             {posts.map((post: any) => (
-              <PostCard key={post.id} post={post} />
+              <LinkedInPostCard key={post.id} post={post} />
             ))}
           </div>
 
