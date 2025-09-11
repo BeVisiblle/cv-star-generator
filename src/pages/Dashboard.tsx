@@ -6,7 +6,6 @@ import FeedSortBar from '@/components/community/FeedSortBar';
 import { PeopleRecommendations } from '@/components/linkedin/right-rail/PeopleRecommendations';
 import { CompanyRecommendations } from '@/components/linkedin/right-rail/CompanyRecommendations';
 import { RightRailAd } from '@/components/linkedin/right-rail/RightRailAd';
-import LinkedInFeed from '@/components/linkedin/feed/LinkedInFeed';
 
 const Dashboard = () => {
   return (
@@ -24,8 +23,14 @@ const Dashboard = () => {
           {/* Center column (flex grows) */}
           <section className="flex-1 min-w-0">
             <div className="w-full max-w-[560px] mx-auto px-4 md:max-w-none md:px-0 space-y-4">
-              {/* LinkedIn-style Feed */}
-              <LinkedInFeed />
+              {/* Post Composer - Always visible */}
+              <CommunityComposerTeaser onOpenComposer={() => {}} />
+              
+              {/* Sort Bar */}
+              <FeedSortBar />
+              
+              {/* Community Feed with old posts */}
+              <CommunityFeed />
             </div>
           </section>
 
