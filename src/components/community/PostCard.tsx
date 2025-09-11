@@ -282,9 +282,10 @@ const authorSubtitle = useMemo(() => {
           </Button>
         </div>
 
-        {/* Comments Section - Only show when showComments is true */}
+        {/* Enhanced Comments Section with LinkedIn-style features */}
         {showComments && (
           <div className="pt-3 border-t border-gray-100">
+            {/* Comment Composer */}
             <div className="flex gap-2 mb-4">
               <Avatar className="h-8 w-8 flex-shrink-0">
                 <AvatarImage src={user?.user_metadata?.avatar_url} />
@@ -292,31 +293,61 @@ const authorSubtitle = useMemo(() => {
                   {user?.user_metadata?.full_name?.charAt(0) || 'U'}
                 </AvatarFallback>
               </Avatar>
-              <div className="flex-1">
-                <Input
-                  ref={commentInputRef as any}
-                  placeholder={replyTo ? `Antwort an ${replyTo.name}...` : 'Kommentar hinzufügen...'}
-                  value={newComment}
-                  onChange={(e) => setNewComment(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' && !e.shiftKey) {
-                      e.preventDefault();
-                      handleComment();
-                    }
-                  }}
-                  className="rounded-full border-gray-200"
-                />
+              <div className="flex-1 relative">
+                {replyTo && (
+                  <div className="mb-2 text-xs text-muted-foreground flex items-center gap-1">
+                    <span>Antwort an {replyTo.name}</span>
+                    <button onClick={() => setReplyTo(null)} className="hover:text-foreground">✕</button>
+                  </div>
+                )}
+                <div className="flex items-center bg-muted rounded-full px-3 py-2 focus-within:ring-2 focus-within:ring-primary/20">
+                  <Input
+                    ref={commentInputRef as any}
+                    placeholder={replyTo ? `Antwort an ${replyTo.name}...` : 'Kommentar hinzufügen...'}
+                    value={newComment}
+                    onChange={(e) => setNewComment(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        handleComment();
+                      }
+                    }}
+                    className="border-0 bg-transparent focus-visible:ring-0 px-0"
+                  />
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={handleComment}
+                    disabled={!newComment.trim() || isAdding}
+                    className="ml-2 h-6 w-6 p-0 rounded-full"
+                  >
+                    <Send className="h-4 w-4" />
+                  </Button>
+                </div>
               </div>
             </div>
 
-            {/* Comments List */}
+            {/* Comments List with improved design */}
             {commentsLoading ? (
-              <p className="text-sm text-muted-foreground py-2">Kommentare werden geladen…</p>
+              <div className="flex items-center justify-center py-4">
+                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
+              </div>
             ) : comments.length === 0 ? (
-              <p className="text-sm text-muted-foreground py-2">Sei der Erste, der kommentiert.</p>
+              <div className="text-center py-6">
+                <MessageCircle className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
+                <p className="text-sm text-muted-foreground">Noch keine Kommentare</p>
+                <p className="text-xs text-muted-foreground">Sei der Erste, der kommentiert!</p>
+              </div>
             ) : (
               <div className="space-y-3">
-                <div className="text-sm text-muted-foreground mb-2">{commentsCount} Kommentare</div>
+                <div className="flex items-center justify-between">
+                  <div className="text-sm font-medium text-muted-foreground">
+                    {commentsCount} {commentsCount === 1 ? 'Kommentar' : 'Kommentare'}
+                  </div>
+                  <div className="text-xs text-muted-foreground">
+                    Neueste zuerst
+                  </div>
+                </div>
                 {comments.map((c) => {
                   const name = c.author?.vorname && c.author?.nachname
                     ? `${c.author.vorname} ${c.author.nachname}`
@@ -324,28 +355,47 @@ const authorSubtitle = useMemo(() => {
                   const initials = c.author?.vorname && c.author?.nachname
                     ? `${c.author.vorname[0]}${c.author.nachname[0]}`
                     : 'U';
-                  const mention = `@${name.split(' ')[0]}`;
+                  const firstName = c.author?.vorname || 'Nutzer';
+                  
                   return (
-                    <div key={c.id} className="flex items-start gap-2">
-                      <Avatar className="h-8 w-8 cursor-pointer" onClick={() => navigate(`/u/${c.author?.id || c.user_id}`)}>
-                        <AvatarImage src={c.author?.avatar_url ?? undefined} />
-                        <AvatarFallback className="text-xs">{initials}</AvatarFallback>
-                      </Avatar>
-                      <div className="flex-1 bg-gray-100 rounded-2xl px-3 py-2">
-                        <button className="text-sm font-semibold hover:underline text-left" onClick={() => navigate(`/u/${c.author?.id || c.user_id}`)}>{name}</button>
-                        <div className="text-sm text-gray-900 mt-0.5 whitespace-pre-wrap break-words">{c.content}</div>
-                        <div className="flex items-center gap-4 mt-1 text-xs text-muted-foreground">
-                          <button 
-                            className="hover:underline font-medium"
-                            onClick={() => {
-                              setReplyTo({ id: c.id, name });
-                              setNewComment((prev) => (prev.startsWith(mention) ? prev : `${mention} `));
-                              setTimeout(() => commentInputRef.current?.focus(), 0);
-                            }}
-                          >
-                            Antworten
-                          </button>
-                          <span>{formatDistanceToNow(new Date(c.created_at), { addSuffix: true, locale: de })}</span>
+                    <div key={c.id} className="group">
+                      <div className="flex items-start gap-3">
+                        <Avatar className="h-8 w-8 cursor-pointer hover:ring-2 hover:ring-primary/20 transition-all" onClick={() => navigate(`/u/${c.author?.id || c.user_id}`)}>
+                          <AvatarImage src={c.author?.avatar_url ?? undefined} />
+                          <AvatarFallback className="text-xs">{initials}</AvatarFallback>
+                        </Avatar>
+                        <div className="flex-1 min-w-0">
+                          <div className="bg-muted rounded-2xl px-4 py-3">
+                            <button 
+                              className="text-sm font-semibold hover:underline text-left block mb-1" 
+                              onClick={() => navigate(`/u/${c.author?.id || c.user_id}`)}
+                            >
+                              {name}
+                            </button>
+                            <div className="text-sm leading-relaxed whitespace-pre-wrap break-words">
+                              {c.content}
+                            </div>
+                          </div>
+                          
+                          {/* Comment Actions */}
+                          <div className="flex items-center gap-4 mt-2 px-2">
+                            <button className="text-xs text-muted-foreground hover:text-foreground hover:underline font-medium">
+                              Gefällt mir
+                            </button>
+                            <button 
+                              className="text-xs text-muted-foreground hover:text-foreground hover:underline font-medium"
+                              onClick={() => {
+                                setReplyTo({ id: c.id, name: firstName });
+                                setNewComment(`@${firstName} `);
+                                setTimeout(() => commentInputRef.current?.focus(), 0);
+                              }}
+                            >
+                              Antworten
+                            </button>
+                            <span className="text-xs text-muted-foreground">
+                              {formatDistanceToNow(new Date(c.created_at), { addSuffix: true, locale: de })}
+                            </span>
+                          </div>
                         </div>
                       </div>
                     </div>
