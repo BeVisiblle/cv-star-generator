@@ -4,13 +4,8 @@ import { Button } from '@/components/ui/button';
 import { FileText, Edit, Download } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
-// Import CV layout components
-import ModernLayout from '@/components/cv-layouts/ModernLayout';
-import ClassicLayout from '@/components/cv-layouts/ClassicLayout';
-import CreativeLayout from '@/components/cv-layouts/CreativeLayout';
-import MinimalLayout from '@/components/cv-layouts/MinimalLayout';
-import ProfessionalLayout from '@/components/cv-layouts/ProfessionalLayout';
-import LiveCareerLayout from '@/components/cv-layouts/LiveCareerLayout';
+// Import CV layout components - temporarily disabled
+// import SimpleTestLayout from '@/components/cv-layouts/SimpleTestLayout';
 
 interface CVPreviewCardProps {
   profile: any;
@@ -58,37 +53,30 @@ export const CVPreviewCard: React.FC<CVPreviewCardProps> = ({
   };
 
   const renderCVLayout = () => {
-    const layout = profile?.layout || 1;
-    const commonProps = { data: cvData, className: "scale-50 origin-top-left w-[200%]" };
-
-    switch (layout) {
-      case 1:
-        return <ModernLayout {...commonProps} />;
-      case 2:
-        return <ClassicLayout {...commonProps} />;
-      case 3:
-        return <CreativeLayout {...commonProps} />;
-      case 4:
-        return <MinimalLayout {...commonProps} />;
-      case 5:
-        return <ProfessionalLayout {...commonProps} />;
-      case 6:
-        return <LiveCareerLayout {...commonProps} />;
-      default:
-        return <ModernLayout {...commonProps} />;
-    }
+    // Simple preview without layout components
+    return (
+      <div className="scale-50 origin-top-left w-[200%] bg-white border p-4">
+        <h2 className="text-xl font-bold mb-4">CV Vorschau</h2>
+        <div className="space-y-2">
+          <div><strong>Name:</strong> {cvData.vorname} {cvData.nachname}</div>
+          <div><strong>E-Mail:</strong> {cvData.email}</div>
+          <div><strong>Telefon:</strong> {cvData.telefon}</div>
+          <div><strong>Adresse:</strong> {cvData.strasse} {cvData.hausnummer}, {cvData.plz} {cvData.ort}</div>
+        </div>
+      </div>
+    );
   };
 
   const getLayoutName = () => {
     const layout = profile?.layout || 1;
     switch (layout) {
-      case 1: return 'Modern';
-      case 2: return 'Classic';
-      case 3: return 'Creative';
-      case 4: return 'Minimal';
-      case 5: return 'Professional';
-      case 6: return 'LiveCareer';
-      default: return 'Modern';
+      case 1: return 'Klassisch Handwerk';
+      case 2: return 'Pflege Klar';
+      case 3: return 'Azubi Start';
+      case 4: return 'Service & Verkauf';
+      case 5: return 'Logistik & Produktion';
+      case 6: return 'ATS Kompakt';
+      default: return 'Klassisch Handwerk';
     }
   };
 

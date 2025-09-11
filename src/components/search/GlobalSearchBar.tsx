@@ -1,6 +1,6 @@
 'use client';
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
+import { useNavigate } from 'react-router-dom';
 import { Search, X, Hash, Users, Building2, Calendar, FileText } from 'lucide-react';
 import { useTranslation } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
@@ -30,7 +30,7 @@ export function GlobalSearchBar({
   showCategories = true 
 }: GlobalSearchBarProps) {
   const { t } = useTranslation();
-  const router = useRouter();
+  const navigate = useNavigate();
   const [query, setQuery] = useState('');
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -130,7 +130,7 @@ export function GlobalSearchBar({
     setIsOpen(false);
     setQuery('');
     setResults([]);
-    router.push(result.url);
+    navigate(result.url);
   };
 
   // Handle search submission
@@ -138,7 +138,7 @@ export function GlobalSearchBar({
     if (!query.trim()) return;
     
     setIsOpen(false);
-    router.push(`/search?q=${encodeURIComponent(query)}&type=${activeCategory}`);
+    navigate(`/search?q=${encodeURIComponent(query)}&type=${activeCategory}`);
   };
 
   // Handle category change

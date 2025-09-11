@@ -1,6 +1,6 @@
 'use client';
 import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useNavigate } from 'react-router-dom';
 import { Users, ArrowRight, UserPlus } from 'lucide-react';
 import { useTranslation } from '@/lib/i18n';
 import { useAuth } from '@/hooks/useAuth';
@@ -15,13 +15,13 @@ import { Skeleton } from '@/components/ui/skeleton';
 
 interface RecommendedGroup {
   id: string;
-  name: string;
+  title: string;
   description: string;
-  cover_url: string;
-  members_count: number;
-  recent_posts: number;
-  recent_members: number;
-  recommendation_score: number;
+  cover_image?: string;
+  max_members: number;
+  type: string;
+  visibility: string;
+  created_at: string;
 }
 
 interface RecommendedGroupsProps {
@@ -32,7 +32,7 @@ interface RecommendedGroupsProps {
 export function RecommendedGroups({ className, limit = 5 }: RecommendedGroupsProps) {
   const { t } = useTranslation();
   const { user } = useAuth();
-  const router = useRouter();
+  const navigate = useNavigate();
   const [groups, setGroups] = useState<RecommendedGroup[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -47,14 +47,16 @@ export function RecommendedGroups({ className, limit = 5 }: RecommendedGroupsPro
     setError(null);
     
     try {
-      const { data, error } = await fetch('/api/recommendations/groups', {
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json' },
-      }).then(res => res.json());
+      const { data, error } = await supabase
+        .from('groups')
+        .select('id, title, description, max_members, created_at, type, visibility')
+        .eq('visibility', 'public')
+        .order('created_at', { ascending: false })
+        .limit(limit);
 
       if (error) throw error;
       
-      setGroups(data?.slice(0, limit) || []);
+      setGroups(data || []);
     } catch (err: any) {
       console.error('Error loading recommended groups:', err);
       setError(err.message || 'Fehler beim Laden der Gruppen');
@@ -104,11 +106,11 @@ export function RecommendedGroups({ className, limit = 5 }: RecommendedGroupsPro
   };
 
   const handleGroupClick = (groupId: string) => {
-    router.push(`/groups/${groupId}`);
+    navigate(`/groups/${groupId}`);
   };
 
   const handleViewAll = () => {
-    router.push('/groups');
+    navigate('/groups');
   };
 
   const getActivityLevel = (score: number) => {
@@ -220,7 +222,7 @@ export function RecommendedGroups({ className, limit = 5 }: RecommendedGroupsPro
               {/* Avatar */}
               <div className="flex-shrink-0">
                 <Avatar className="h-10 w-10 cursor-pointer" onClick={() => handleGroupClick(group.id)}>
-                  <AvatarImage src={group.cover_url} alt={group.name} />
+                  <AvatarImage src={group.cover_image} alt={group.title} />
                   <AvatarFallback>
                     <Users className="h-5 w-5" />
                   </AvatarFallback>
@@ -234,10 +236,10 @@ export function RecommendedGroups({ className, limit = 5 }: RecommendedGroupsPro
                     className="font-medium text-sm truncate cursor-pointer hover:underline"
                     onClick={() => handleGroupClick(group.id)}
                   >
-                    {group.name}
+                    {group.title}
                   </h3>
                   <Badge variant="secondary" className="text-xs px-1.5 py-0.5">
-                    {group.members_count} Mitglieder
+                    {group.max_members} max
                   </Badge>
                 </div>
                 

@@ -13,6 +13,11 @@ import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { CommunityPost, useToggleCommunityLike, useAddCommunityComment } from '@/hooks/useCommunityPosts';
 import { useAuth } from '@/hooks/useAuth';
 import { useCompany } from '@/hooks/useCompany';
+import FilePreview from '@/components/upload/FilePreview';
+import { UploadedAttachment } from '@/lib/uploads';
+import { BookmarkButton } from '@/components/post/BookmarkButton';
+import { ShareMenu } from '@/components/post/ShareMenu';
+import { PostMoreMenu } from '@/components/post/PostMoreMenu';
 
 interface CommunityPostCardProps {
   post: CommunityPost;
@@ -150,25 +155,17 @@ export default function CommunityPostCard({ post }: CommunityPostCardProps) {
   const renderMedia = () => {
     if (!post.media || post.media.length === 0) return null;
 
-    const firstImage = post.media[0];
-    if (!firstImage?.url) return null;
+    // Convert media URLs to UploadedAttachment format for FilePreview
+    const attachments: UploadedAttachment[] = post.media.map((url, index) => ({
+      id: `media-${index}`,
+      storage_path: url,
+      mime_type: url.includes('.pdf') ? 'application/pdf' : 'image/jpeg', // Simple detection
+      url: url
+    }));
 
     return (
       <div className="mt-3">
-        <AspectRatio ratio={16 / 9} className="overflow-hidden rounded-lg border">
-          <img
-            src={firstImage.url}
-            alt="Post media"
-            className="h-full w-full object-cover cursor-zoom-in"
-            onClick={() => setImageOpen(true)}
-            loading="lazy"
-          />
-        </AspectRatio>
-        <Dialog open={imageOpen} onOpenChange={setImageOpen}>
-          <DialogContent className="max-w-3xl">
-            <img src={firstImage.url} alt="Media vergrößert" className="w-full h-auto rounded" />
-          </DialogContent>
-        </Dialog>
+        <FilePreview files={attachments} />
       </div>
     );
   };
@@ -247,36 +244,48 @@ export default function CommunityPostCard({ post }: CommunityPostCardProps) {
       <CardFooter className="px-6 py-3 border-t">
         {/* Action Buttons */}
         <div className="flex items-center justify-between w-full">
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1 sm:gap-2 flex-wrap">
             <Button
               variant="ghost"
               size="sm"
               onClick={handleLike}
-              className={`text-muted-foreground hover:text-red-500 ${
+              className={`text-muted-foreground hover:text-red-500 min-h-[44px] min-w-[44px] sm:min-w-auto ${
                 post.liked ? 'text-red-500' : ''
               }`}
               disabled={toggleLike.isPending}
             >
-              <Heart className={`h-4 w-4 mr-1 ${post.liked ? 'fill-current' : ''}`} />
-              Gefällt mir
+              <Heart className={`h-4 w-4 sm:mr-1 ${post.liked ? 'fill-current' : ''}`} />
+              <span className="hidden sm:inline">Gefällt mir</span>
             </Button>
             <Button
               variant="ghost"
               size="sm"
               onClick={() => setShowComments(!showComments)}
-              className="text-muted-foreground"
+              className="text-muted-foreground min-h-[44px] min-w-[44px] sm:min-w-auto"
             >
-              <MessageCircle className="h-4 w-4 mr-1" />
-              Kommentieren
+              <MessageCircle className="h-4 w-4 sm:mr-1" />
+              <span className="hidden sm:inline">Kommentieren</span>
             </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="text-muted-foreground"
-            >
-              <Share2 className="h-4 w-4 mr-1" />
-              Teilen
-            </Button>
+            <div className="min-h-[44px] min-w-[44px] flex items-center justify-center">
+              <BookmarkButton postId={post.id} />
+            </div>
+            <div className="min-h-[44px] min-w-[44px] flex items-center justify-center">
+              <ShareMenu postId={post.id} />
+            </div>
+            <div className="min-h-[44px] min-w-[44px] flex items-center justify-center">
+              <PostMoreMenu 
+                postId={post.id} 
+                authorId={post.author_id || post.user_id}
+                onPostHidden={() => {
+                  // Handle post hidden - could trigger a refresh or remove from view
+                  console.log('Post hidden:', post.id);
+                }}
+                onPostSnoozed={() => {
+                  // Handle post snoozed - could trigger a refresh or remove from view
+                  console.log('Post snoozed:', post.id);
+                }}
+              />
+            </div>
           </div>
         </div>
 

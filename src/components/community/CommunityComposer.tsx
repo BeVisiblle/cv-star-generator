@@ -15,6 +15,10 @@ import { useCompany } from '@/hooks/useCompany';
 import { useCreateCommunityPost, useShareJobAsPost } from '@/hooks/useCommunityPosts';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { useComposerGuard } from '@/components/feed/ComposerProvider';
+import AttachmentUploader from '@/components/upload/AttachmentUploader';
+import FilePreview from '@/components/upload/FilePreview';
+import { UploadedAttachment } from '@/lib/uploads';
 
 interface CommunityComposerProps {
   open: boolean;
@@ -23,9 +27,15 @@ interface CommunityComposerProps {
 }
 
 export default function CommunityComposer({ open, onOpenChange, initialTab = 'text' }: CommunityComposerProps) {
+  const { canRender } = useComposerGuard();
   const isMobile = useIsMobile();
   const { user } = useAuth();
   const { company } = useCompany();
+  
+  // Don't render if another composer is already mounted
+  if (!canRender) {
+    return null;
+  }
   
   const [activeTab, setActiveTab] = useState(initialTab);
   const [postAs, setPostAs] = useState<'user' | 'company'>('user');
@@ -33,7 +43,7 @@ export default function CommunityComposer({ open, onOpenChange, initialTab = 'te
   const [content, setContent] = useState('');
   const [selectedJob, setSelectedJob] = useState<string>('');
   const [customJobMessage, setCustomJobMessage] = useState('');
-  const [media, setMedia] = useState<File[]>([]);
+  const [attachments, setAttachments] = useState<UploadedAttachment[]>([]);
 
   const createPost = useCreateCommunityPost();
   const shareJob = useShareJobAsPost();
@@ -83,7 +93,7 @@ export default function CommunityComposer({ open, onOpenChange, initialTab = 'te
           actor_company_id: postAs === 'company' ? company?.id : undefined,
           visibility,
           body_md: content.trim(),
-          media: [], // TODO: Handle media uploads
+          media: attachments.map(a => a.url),
           mentions: []
         });
       }
@@ -92,7 +102,7 @@ export default function CommunityComposer({ open, onOpenChange, initialTab = 'te
       setContent('');
       setSelectedJob('');
       setCustomJobMessage('');
-      setMedia([]);
+      setAttachments([]);
       onOpenChange(false);
     } catch (error) {
       console.error('Error creating post:', error);
@@ -209,20 +219,18 @@ export default function CommunityComposer({ open, onOpenChange, initialTab = 'te
             maxLength={2000}
           />
           
-          <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-6">
-            <div className="text-center">
-              <Upload className="mx-auto h-12 w-12 text-muted-foreground" />
-              <div className="mt-4">
-                <Button variant="outline" size="sm">
-                  <Image className="h-4 w-4 mr-2" />
-                  Bild oder Video hochladen
-                </Button>
-              </div>
-              <p className="text-xs text-muted-foreground mt-2">
-                JPG, PNG, GIF oder MP4 bis 10 MB
-              </p>
+          <AttachmentUploader
+            maxFiles={6}
+            accept="image/*,application/pdf"
+            onUploaded={setAttachments}
+            className="w-full"
+          />
+          
+          {attachments.length > 0 && (
+            <div className="mt-4">
+              <FilePreview files={attachments} />
             </div>
-          </div>
+          )}
         </TabsContent>
 
         <TabsContent value="job" className="space-y-4">

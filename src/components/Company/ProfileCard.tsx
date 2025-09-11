@@ -219,19 +219,19 @@ export function ProfileCard({
 
       // Import CV layouts dynamically
       const [
-        { default: LiveCareerLayout },
-        { default: ClassicLayout },
-        { default: CreativeLayout },
-        { default: MinimalLayout },
-        { default: ProfessionalLayout },
-        { default: ModernLayout }
+        { default: HandwerkClassicLayout },
+        { default: PflegeClearLayout },
+        { default: AzubiStartLayout },
+        { default: ServiceSalesLayout },
+        { default: LogistikProduktionLayout },
+        { default: ATSCompactLayout }
       ] = await Promise.all([
-        import('@/components/cv-layouts/LiveCareerLayout'),
-        import('@/components/cv-layouts/ClassicLayout'),
-        import('@/components/cv-layouts/CreativeLayout'),
-        import('@/components/cv-layouts/MinimalLayout'),
-        import('@/components/cv-layouts/ProfessionalLayout'),
-        import('@/components/cv-layouts/ModernLayout')
+        import('@/components/cv-layouts/HandwerkClassicLayout'),
+        import('@/components/cv-layouts/PflegeClearLayout'),
+        import('@/components/cv-layouts/AzubiStartLayout'),
+        import('@/components/cv-layouts/ServiceSalesLayout'),
+        import('@/components/cv-layouts/LogistikProduktionLayout'),
+        import('@/components/cv-layouts/ATSCompactLayout')
       ]);
 
       // Determine layout component
@@ -240,25 +240,25 @@ export function ProfileCard({
       
       switch (layoutId) {
         case 1:
-          LayoutComponent = LiveCareerLayout;
+          LayoutComponent = HandwerkClassicLayout;
           break;
         case 2:
-          LayoutComponent = ClassicLayout;
+          LayoutComponent = PflegeClearLayout;
           break;
         case 3:
-          LayoutComponent = CreativeLayout;
+          LayoutComponent = AzubiStartLayout;
           break;
         case 4:
-          LayoutComponent = MinimalLayout;
+          LayoutComponent = ServiceSalesLayout;
           break;
         case 5:
-          LayoutComponent = ProfessionalLayout;
+          LayoutComponent = LogistikProduktionLayout;
           break;
         case 6:
-          LayoutComponent = ModernLayout;
+          LayoutComponent = ATSCompactLayout;
           break;
         default:
-          LayoutComponent = LiveCareerLayout;
+          LayoutComponent = HandwerkClassicLayout;
       }
 
       // Prepare CV data matching the profile structure

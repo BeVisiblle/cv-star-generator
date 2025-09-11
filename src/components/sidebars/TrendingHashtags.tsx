@@ -1,6 +1,6 @@
 'use client';
 import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useNavigate } from 'react-router-dom';
 import { Hash, TrendingUp, ArrowRight } from 'lucide-react';
 import { useTranslation } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
@@ -25,7 +25,7 @@ interface TrendingHashtagsProps {
 
 export function TrendingHashtags({ className, limit = 10 }: TrendingHashtagsProps) {
   const { t } = useTranslation();
-  const router = useRouter();
+  const navigate = useNavigate();
   const [hashtags, setHashtags] = useState<TrendingHashtag[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -39,14 +39,19 @@ export function TrendingHashtags({ className, limit = 10 }: TrendingHashtagsProp
     setError(null);
     
     try {
-      const { data, error } = await fetch('/api/trending/hashtags', {
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json' },
-      }).then(res => res.json());
-
-      if (error) throw error;
+      // Mock data since hashtags table doesn't exist yet
+      const mockHashtags = [
+        { tag: 'ausbildung', usage_count: 156, trend_score: 95 },
+        { tag: 'berufsausbildung', usage_count: 89, trend_score: 78 },
+        { tag: 'azubi', usage_count: 67, trend_score: 65 },
+        { tag: 'handwerk', usage_count: 45, trend_score: 52 },
+        { tag: 'it', usage_count: 38, trend_score: 48 },
+        { tag: 'kaufmann', usage_count: 32, trend_score: 41 },
+        { tag: 'elektroniker', usage_count: 28, trend_score: 35 },
+        { tag: 'mechatroniker', usage_count: 24, trend_score: 29 }
+      ];
       
-      setHashtags(data?.slice(0, limit) || []);
+      setHashtags(mockHashtags.slice(0, limit));
     } catch (err: any) {
       console.error('Error loading trending hashtags:', err);
       setError(err.message || 'Fehler beim Laden der Hashtags');
@@ -56,11 +61,11 @@ export function TrendingHashtags({ className, limit = 10 }: TrendingHashtagsProp
   };
 
   const handleHashtagClick = (tag: string) => {
-    router.push(`/search?q=%23${tag}&type=hashtags`);
+    navigate(`/search?q=%23${tag}&type=hashtags`);
   };
 
   const handleViewAll = () => {
-    router.push('/trending/hashtags');
+    navigate('/trending/hashtags');
   };
 
   const getTrendingLevel = (score: number) => {

@@ -84,25 +84,26 @@ export const LinkedInProfileSidebar: React.FC<LinkedInProfileSidebarProps> = ({
       const layoutId = profile.layout || 1;
       switch (layoutId) {
         case 1:
-          LayoutComponent = LiveCareerLayout;
+          LayoutComponent = (await import('@/components/cv-layouts/HandwerkClassicLayout')).default;
           break;
         case 2:
-          LayoutComponent = ClassicLayout;
+          LayoutComponent = (await import('@/components/cv-layouts/PflegeClearLayout')).default;
           break;
         case 3:
-          LayoutComponent = CreativeLayout;
+          LayoutComponent = (await import('@/components/cv-layouts/AzubiStartLayout')).default;
           break;
         case 4:
-          LayoutComponent = MinimalLayout;
+          LayoutComponent = (await import('@/components/cv-layouts/ServiceSalesLayout')).default;
           break;
         case 5:
-          LayoutComponent = ProfessionalLayout;
+          LayoutComponent = (await import('@/components/cv-layouts/LogistikProduktionLayout')).default;
           break;
         case 6:
-          LayoutComponent = ModernLayout;
+          LayoutComponent = (await import('@/components/cv-layouts/ATSCompactLayout')).default;
           break;
         default:
-          LayoutComponent = LiveCareerLayout;
+          LayoutComponent = (await import('@/components/cv-layouts/HandwerkClassicLayout')).default;
+          break;
       }
 
       // Create and render CV element with proper data formatting

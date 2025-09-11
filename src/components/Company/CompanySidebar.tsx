@@ -32,7 +32,7 @@ import {
 import {
   Home,
   Search,
-  Columns3,
+  Columns,
   MessageSquare,
   Settings as SettingsIcon,
   Building2,
@@ -53,7 +53,7 @@ const navItems = [
   { to: "/company/jobs", label: "Stellenanzeigen", icon: Briefcase },
   { to: "/company/search", label: "Kandidatensuche", icon: Search },
   { to: "/company/unlocked", label: "Freigeschaltete Azubis", icon: Users },
-  { to: "/company/candidates/pipeline", label: "Pipeline", icon: Columns3 },
+  { to: "/company/candidates/pipeline", label: "Pipeline", icon: Columns },
   { to: "/company/feed", label: "Community", icon: MessageSquare },
   { to: "/company/notifications", label: "Benachrichtigungen", icon: Bell },
   { to: "/company/settings", label: "Einstellungen", icon: SettingsIcon },

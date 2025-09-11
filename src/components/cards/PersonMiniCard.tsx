@@ -101,40 +101,37 @@ export function PersonMiniCard({ person, onConnect, onFollow }: PersonMiniCardPr
 
   return (
     <Card className="w-full hover:shadow-md transition-shadow">
-      <CardContent className="p-4">
-        <div className="flex items-start space-x-3">
-          {/* Emoji + Avatar */}
-          <div className="flex items-center space-x-2">
-            <span className="text-2xl">🙂</span>
-            <AvatarClickable
-              profileId={person.id}
-              profileType="user"
-              className="h-10 w-10"
-            >
-              <Avatar className="h-10 w-10">
-                <AvatarImage src={person.avatar_url} />
-                <AvatarFallback>
-                  {person.display_name.charAt(0).toUpperCase()}
-                </AvatarFallback>
-              </Avatar>
-            </AvatarClickable>
-          </div>
+      <CardContent className="p-3">
+        <div className="flex items-center space-x-3">
+          {/* Avatar */}
+          <AvatarClickable
+            profileId={person.id}
+            profileType="user"
+            className="h-10 w-10"
+          >
+            <Avatar className="h-10 w-10">
+              <AvatarImage src={person.avatar_url} />
+              <AvatarFallback>
+                {person.display_name.charAt(0).toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
+          </AvatarClickable>
 
           {/* Content */}
           <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 mb-1">
+            <div className="flex items-center gap-2">
               <h3 className="font-medium text-sm truncate">
                 {person.display_name}
               </h3>
               {person.verified && (
-                <Badge variant="secondary" className="text-xs">
+                <Badge variant="secondary" className="text-xs px-1 py-0">
                   ✓
                 </Badge>
               )}
             </div>
             
             {person.headline && (
-              <p className="text-xs text-muted-foreground truncate mb-2">
+              <p className="text-xs text-muted-foreground truncate">
                 {person.headline}
               </p>
             )}

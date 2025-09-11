@@ -97,19 +97,19 @@ export const CompanyRecommendations: React.FC<CompanyRecommendationsProps> = ({ 
   };
 
   return (
-    <Card className="p-4">
-      <h3 className="text-sm font-semibold mb-3">Interessante Unternehmen</h3>
-      <div className="space-y-3">
+    <Card className="p-3">
+      <h3 className="text-sm font-semibold mb-2">Interessante Unternehmen</h3>
+      <div className="space-y-2">
         {loading && (
-          <div className="space-y-3">
+          <div className="space-y-2">
             {Array.from({ length: 3 }).map((_, i) => (
               <div key={i} className="flex items-center gap-3">
-                <div className="h-10 w-10 rounded bg-muted animate-pulse" />
+                <div className="h-8 w-8 rounded bg-muted animate-pulse" />
                 <div className="flex-1 space-y-1">
                   <div className="h-3 w-1/2 bg-muted rounded animate-pulse" />
                   <div className="h-3 w-2/3 bg-muted rounded animate-pulse" />
                 </div>
-                <div className="h-8 w-24 bg-muted rounded animate-pulse" />
+                <div className="h-7 w-20 bg-muted rounded animate-pulse" />
               </div>
             ))}
           </div>
@@ -119,17 +119,17 @@ export const CompanyRecommendations: React.FC<CompanyRecommendationsProps> = ({ 
           const info = [c.main_location, c.industry].filter(Boolean).join(" • ");
           return (
             <div key={c.id} className="flex items-center gap-3">
-              <Avatar className="h-10 w-10 rounded">
+              <Avatar className="h-8 w-8 rounded">
                 <AvatarImage src={c.logo_url ?? undefined} alt={`${name} Logo`} />
-                <AvatarFallback>{name.slice(0, 2)}</AvatarFallback>
+                <AvatarFallback className="text-xs">{name.slice(0, 2)}</AvatarFallback>
               </Avatar>
               <div className="flex-1 min-w-0">
                 <div className="text-sm font-medium truncate">{name}</div>
                 {info && <div className="text-xs text-muted-foreground truncate">{info}</div>}
               </div>
-              <div className="flex gap-2">
-                <Button size="sm" variant="secondary" onClick={() => followCompany(c.id)}>Folgen</Button>
-                <Button size="sm" variant="outline" onClick={() => navigate(`/companies/${c.id}`)}>Ansehen</Button>
+              <div className="flex gap-1">
+                <Button size="sm" variant="secondary" className="h-7 px-2 text-xs" onClick={() => followCompany(c.id)}>Folgen</Button>
+                <Button size="sm" variant="outline" className="h-7 px-2 text-xs" onClick={() => navigate(`/companies/${c.id}`)}>Ansehen</Button>
               </div>
             </div>
           );

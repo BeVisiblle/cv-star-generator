@@ -1,10 +1,13 @@
 import React, { useState, useRef } from 'react';
 import { SidebarTrigger } from "@/components/ui/sidebar";
-import { Bell, Search as SearchIcon, MessageSquareMore, Users, User } from "lucide-react";
+import { Bell, Search as SearchIcon, MessageSquare, Users, User } from "lucide-react";
 import { useLocation, useNavigate, Link } from "react-router-dom";
 
 import { NotificationCenter } from "@/components/notifications/NotificationCenter";
 import { GlobalSearchBar } from "@/components/search/GlobalSearchBar";
+import { BrandMark } from "@/components/branding/BrandMark";
+import { BrandWordmark } from "@/components/branding/BrandWordmark";
+import { layoutConfig } from "@/lib/layoutConfig";
 
 import { Input } from "@/components/ui/input";
 import SearchAutosuggest, { SuggestionType } from "@/components/marketplace/SearchAutosuggest";
@@ -53,23 +56,24 @@ export default function TopNavBar() {
   // Sticky navbar at top with high z-index
   return (
     <div className="sticky top-0 z-[300] border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="flex h-14 items-center px-4 gap-4">
-        <div className="flex items-center gap-3">
-          <SidebarTrigger />
+      <div className="flex h-14 items-center px-2 sm:px-4 gap-2 sm:gap-4">
+        <div className="flex items-center gap-2 sm:gap-3">
+          <SidebarTrigger className="min-h-[44px] min-w-[44px]" />
           {/* Logo/Brand - only in navbar */}
-          <div 
-            className="flex items-center gap-2 cursor-pointer"
-            onClick={() => navigate('/dashboard')}
-          >
-            <img 
-              src="/lovable-uploads/59fd3c9b-c2d3-4613-b2c1-1366f349e1e9.png" 
-              alt="Ausbildungsbasis Logo" 
-              className="h-8 w-8"
-            />
-            <span className="font-bold text-primary hidden sm:block">
-              Ausbildungsbasis
-            </span>
-          </div>
+          {layoutConfig.brandPlacement === 'navbar' && (
+            <div 
+              className="flex items-center gap-2 cursor-pointer min-h-[44px]"
+              onClick={() => navigate('/dashboard')}
+            >
+              <BrandMark className="h-6 w-6 sm:h-8 sm:w-8" />
+              <BrandWordmark location="navbar" className="hidden sm:block" />
+            </div>
+          )}
+        </div>
+        
+        {/* Page Title for Mobile */}
+        <div className="flex-1 md:hidden">
+          <h1 className="text-sm font-semibold truncate">{title}</h1>
         </div>
         
         {/* Global Search Bar */}
@@ -82,21 +86,27 @@ export default function TopNavBar() {
         </div>
         
         {/* Icons aligned to the right */}
-        <div className="flex items-center gap-3 ml-auto">
+        <div className="flex items-center gap-1 sm:gap-3 ml-auto">
           {/* Mobile Search */}
-          <SearchIcon 
-            className="h-5 w-5 cursor-pointer hover:text-primary md:hidden" 
-            onClick={() => navigate('/marketplace')} 
-          />
+          <div className="min-h-[44px] min-w-[44px] flex items-center justify-center">
+            <SearchIcon 
+              className="h-5 w-5 cursor-pointer hover:text-primary md:hidden" 
+              onClick={() => navigate('/marketplace')} 
+            />
+          </div>
           
-          <Users 
-            className="h-5 w-5 cursor-pointer hover:text-primary" 
-            onClick={() => setDrawerOpen(true)} 
-          />
+          <div className="min-h-[44px] min-w-[44px] flex items-center justify-center">
+            <Users 
+              className="h-5 w-5 cursor-pointer hover:text-primary" 
+              onClick={() => setDrawerOpen(true)} 
+            />
+          </div>
           
           <Popover open={msgOpen} onOpenChange={setMsgOpen}>
             <PopoverTrigger asChild>
-              <MessageSquareMore className="h-5 w-5 cursor-pointer hover:text-primary" />
+              <div className="min-h-[44px] min-w-[44px] flex items-center justify-center">
+                <MessageSquare className="h-5 w-5 cursor-pointer hover:text-primary" />
+              </div>
             </PopoverTrigger>
             <PopoverContent className="w-80 p-0" align="end">
               <MessagePopoverPanel onCompose={() => setMsgOpen(false)} />

@@ -8,7 +8,7 @@ type Props = {
   'data-testid'?: string;
 };
 
-export default function BrandMark({ size = 32, className, 'data-testid': tid = 'brand-logomark' }: Props) {
+export function BrandMark({ size = 32, className, 'data-testid': tid = 'brand-logomark' }: Props) {
   return (
     <svg
       width={size}
@@ -23,8 +23,8 @@ export default function BrandMark({ size = 32, className, 'data-testid': tid = '
       {/* Minimaler, neutraler Logomark (anpassbar) */}
       <defs>
         <linearGradient id="g" x1="0" x2="1">
-          <stop offset="0%" stopOpacity="0.9" />
-          <stop offset="100%" stopOpacity="0.6" />
+          <stop offset="0%" stopColor="currentColor" stopOpacity="0.9" />
+          <stop offset="100%" stopColor="currentColor" stopOpacity="0.6" />
         </linearGradient>
       </defs>
       <rect x="2" y="2" width="28" height="28" rx="8" fill="url(#g)" />

@@ -1,6 +1,6 @@
 'use client';
 import React, { useState, useEffect } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Search, Users, Building2, Calendar, FileText, Hash, ArrowLeft } from 'lucide-react';
 import { useTranslation } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
@@ -30,7 +30,7 @@ interface SearchResultsProps {
 
 export function SearchResults({ className }: SearchResultsProps) {
   const { t } = useTranslation();
-  const router = useRouter();
+  const navigate = useNavigate();
   const searchParams = useSearchParams();
   
   const [query, setQuery] = useState('');
@@ -113,7 +113,7 @@ export function SearchResults({ className }: SearchResultsProps) {
     const params = new URLSearchParams();
     params.set('q', query);
     params.set('type', activeTab);
-    router.push(`/search?${params.toString()}`);
+    navigate(`/search?${params.toString()}`);
     
     // Perform search
     performSearch(query, activeTab, 0, true);
@@ -136,7 +136,7 @@ export function SearchResults({ className }: SearchResultsProps) {
 
   // Handle result click
   const handleResultClick = (result: SearchResult) => {
-    router.push(result.url);
+    navigate(result.url);
   };
 
   // Get type icon
@@ -192,7 +192,7 @@ export function SearchResults({ className }: SearchResultsProps) {
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => router.back()}
+            onClick={() => navigate(-1)}
             className="flex items-center gap-2"
           >
             <ArrowLeft className="h-4 w-4" />

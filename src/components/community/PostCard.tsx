@@ -14,12 +14,18 @@ import { AspectRatio } from '@/components/ui/aspect-ratio';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import QuickMessageDialog from '@/components/community/QuickMessageDialog';
 import { useAuth } from '@/hooks/useAuth';
+import FilePreview from '@/components/upload/FilePreview';
+import { UploadedAttachment } from '@/lib/uploads';
+import { BookmarkButton } from '@/components/post/BookmarkButton';
+import { ShareMenu } from '@/components/post/ShareMenu';
+import { PostMoreMenu } from '@/components/post/PostMoreMenu';
 
 interface PostCardProps {
   post: {
     id: string;
     content: string;
     image_url?: string;
+    media?: string[]; // Support for multiple media files
     created_at: string;
     user_id: string;
     author_type?: 'user' | 'company';
@@ -50,7 +56,6 @@ export default function PostCard({ post }: PostCardProps) {
   const [newComment, setNewComment] = useState('');
   const [expanded, setExpanded] = useState(false);
   const [replyTo, setReplyTo] = useState<{ id: string; name: string } | null>(null);
-  const [imageOpen, setImageOpen] = useState(false);
   const [sendOpen, setSendOpen] = useState(false);
   const { user } = useAuth();
   const { toast } = useToast();
@@ -142,6 +147,27 @@ const authorSubtitle = useMemo(() => {
 
   const postLink = `${window.location.origin}/marketplace#post-${post.id}`;
 
+  const renderMedia = () => {
+    // Support both old image_url and new media array
+    const mediaUrls = post.media || (post.image_url ? [post.image_url] : []);
+    
+    if (mediaUrls.length === 0) return null;
+
+    // Convert media URLs to UploadedAttachment format for FilePreview
+    const attachments: UploadedAttachment[] = mediaUrls.map((url, index) => ({
+      id: `media-${index}`,
+      storage_path: url,
+      mime_type: url.includes('.pdf') ? 'application/pdf' : 'image/jpeg', // Simple detection
+      url: url
+    }));
+
+    return (
+      <div className="mt-3">
+        <FilePreview files={attachments} />
+      </div>
+    );
+  };
+
   return (
     <Card id={`post-${post.id}`} className="p-0">
       {post.recent_interaction && (
@@ -186,24 +212,7 @@ const authorSubtitle = useMemo(() => {
             )}
           </p>
 
-          {post.image_url && (
-            <div>
-              <AspectRatio ratio={16 / 9} className="overflow-hidden rounded-lg border">
-                <img
-                  src={post.image_url}
-                  alt="Post Bild"
-                  className="h-full w-full object-cover cursor-zoom-in"
-                  onClick={() => setImageOpen(true)}
-                  loading="lazy"
-                />
-              </AspectRatio>
-              <Dialog open={imageOpen} onOpenChange={setImageOpen}>
-                <DialogContent className="max-w-3xl">
-                  <img src={post.image_url} alt="Bild groß" className="w-full h-auto rounded" />
-                </DialogContent>
-              </Dialog>
-            </div>
-          )}
+          {renderMedia()}
         </div>
 
         {/* Counts row */}
@@ -224,39 +233,49 @@ const authorSubtitle = useMemo(() => {
               variant="ghost"
               size="sm"
               onClick={handleLike}
-              className={`text-muted-foreground hover:text-red-500 ${liked ? 'text-red-500' : ''}`}
+              className={`text-muted-foreground hover:text-red-500 min-h-[44px] min-w-[44px] sm:min-w-auto ${liked ? 'text-red-500' : ''}`}
               disabled={isToggling}
             >
-              <Heart className={`h-4 w-4 mr-1 ${liked ? 'fill-current' : ''}`} />
-              Gefällt mir
+              <Heart className={`h-4 w-4 sm:mr-1 ${liked ? 'fill-current' : ''}`} />
+              <span className="hidden sm:inline">Gefällt mir</span>
             </Button>
             <Button
               variant="ghost"
               size="sm"
               onClick={() => setShowComments(!showComments)}
-              className="text-muted-foreground"
+              className="text-muted-foreground min-h-[44px] min-w-[44px] sm:min-w-auto"
             >
-              <MessageCircle className="h-4 w-4 mr-1" />
-              Kommentieren
+              <MessageCircle className="h-4 w-4 sm:mr-1" />
+              <span className="hidden sm:inline">Kommentieren</span>
             </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleShareCommunity}
-              className="text-muted-foreground"
-              disabled={isReposting}
-            >
-              <Share2 className="h-4 w-4 mr-1" />
-              {hasReposted ? 'Geteilt' : 'Teilen'}
-            </Button>
+            <div className="min-h-[44px] min-w-[44px] flex items-center justify-center">
+              <BookmarkButton postId={post.id} />
+            </div>
+            <div className="min-h-[44px] min-w-[44px] flex items-center justify-center">
+              <ShareMenu postId={post.id} />
+            </div>
+            <div className="min-h-[44px] min-w-[44px] flex items-center justify-center">
+              <PostMoreMenu 
+                postId={post.id} 
+                authorId={post.author_id || post.user_id}
+                onPostHidden={() => {
+                  // Handle post hidden - could trigger a refresh or remove from view
+                  console.log('Post hidden:', post.id);
+                }}
+                onPostSnoozed={() => {
+                  // Handle post snoozed - could trigger a refresh or remove from view
+                  console.log('Post snoozed:', post.id);
+                }}
+              />
+            </div>
             <Button
               variant="ghost"
               size="sm"
               onClick={() => setSendOpen(true)}
-              className="text-muted-foreground"
+              className="text-muted-foreground min-h-[44px] min-w-[44px] sm:min-w-auto"
             >
-              <Send className="h-4 w-4 mr-1" />
-              Direkt senden
+              <Send className="h-4 w-4 sm:mr-1" />
+              <span className="hidden sm:inline">Direkt senden</span>
             </Button>
           </div>
         </div>

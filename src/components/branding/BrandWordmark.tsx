@@ -8,7 +8,7 @@ type Props = {
   className?: string;
 };
 
-export default function BrandWordmark({ text = 'Ausbildungsbasis', location, className }: Props) {
+export function BrandWordmark({ text = 'Ausbildungsbasis', location, className }: Props) {
   const tid = location === 'navbar' ? 'brand-wordmark-navbar' : 'brand-wordmark-sidebar';
   return (
     <span

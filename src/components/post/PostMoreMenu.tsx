@@ -3,9 +3,10 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { MoreHorizontal, Flag, EyeOff, Clock, Undo2 } from 'lucide-react';
 import { useTranslation } from '@/lib/i18n';
+import { toast } from 'sonner';
+import { cn } from '@/lib/utils';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -21,15 +22,18 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface PostMoreMenuProps {
   postId: string;
-  authorId?: string;
+  authorId: string;
   className?: string;
   size?: 'sm' | 'default' | 'lg';
   variant?: 'ghost' | 'outline' | 'default';
+  onPostHidden?: () => void;
+  onPostSnoozed?: () => void;
 }
 
 export function PostMoreMenu({ 
@@ -37,15 +41,79 @@ export function PostMoreMenu({
   authorId,
   className,
   size = 'sm',
-  variant = 'ghost'
+  variant = 'ghost',
+  onPostHidden,
+  onPostSnoozed
 }: PostMoreMenuProps) {
   const { t } = useTranslation();
   const { user } = useAuth();
   const [showReportDialog, setShowReportDialog] = useState(false);
-  const [reportReason, setReportReason] = useState<string>('');
+  const [reportReason, setReportReason] = useState('');
+  const [reportDetails, setReportDetails] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
   const isOwnPost = user?.id === authorId;
+
+  const reportReasons = [
+    { value: 'spam', label: t('moderation.report_reasons.spam') },
+    { value: 'inappropriate', label: t('moderation.report_reasons.inappropriate') },
+    { value: 'harassment', label: t('moderation.report_reasons.harassment') },
+    { value: 'violence', label: t('moderation.report_reasons.violence') },
+    { value: 'false_info', label: t('moderation.report_reasons.false_info') },
+    { value: 'other', label: t('moderation.report_reasons.other') },
+  ];
+
+  const handleHidePost = async () => {
+    if (!user) return;
+    
+    setIsLoading(true);
+    try {
+      const { error } = await supabase
+        .from('hidden_posts')
+        .insert({
+          user_id: user.id,
+          post_id: postId
+        });
+      
+      if (error) throw error;
+      
+      toast.success('Post verborgen');
+      onPostHidden?.();
+    } catch (error) {
+      console.error('Error hiding post:', error);
+      toast.error('Fehler beim Verbergen des Posts');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSnoozePost = async (days: number) => {
+    if (!user) return;
+    
+    setIsLoading(true);
+    try {
+      const snoozeUntil = new Date();
+      snoozeUntil.setDate(snoozeUntil.getDate() + days);
+      
+      const { error } = await supabase
+        .from('snoozed_posts')
+        .insert({
+          user_id: user.id,
+          post_id: postId,
+          snooze_until: snoozeUntil.toISOString()
+        });
+      
+      if (error) throw error;
+      
+      toast.success(`Post für ${days} Tage gesnoozed`);
+      onPostSnoozed?.();
+    } catch (error) {
+      console.error('Error snoozing post:', error);
+      toast.error('Fehler beim Snoozen des Posts');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleReport = async () => {
     if (!user || !reportReason) return;
@@ -53,72 +121,27 @@ export function PostMoreMenu({
     setIsLoading(true);
     try {
       const { error } = await supabase
-        .from('post_reports')
+        .from('reports')
         .insert({
+          user_id: user.id,
           post_id: postId,
-          reporter_id: user.id,
           reason: reportReason,
+          details: reportDetails || null
         });
       
       if (error) throw error;
       
-      toast.success('Post wurde gemeldet');
+      toast.success('Meldung gesendet');
       setShowReportDialog(false);
       setReportReason('');
-    } catch (error: any) {
+      setReportDetails('');
+    } catch (error) {
       console.error('Error reporting post:', error);
       toast.error('Fehler beim Melden des Posts');
     } finally {
       setIsLoading(false);
     }
   };
-
-  const handleHide = async () => {
-    if (!user) return;
-    
-    try {
-      const { error } = await supabase
-        .from('post_mutes')
-        .insert({
-          profile_id: user.id,
-          post_id: postId,
-          until: null, // Permanent hide
-        });
-      
-      if (error) throw error;
-      
-      toast.success('Post wird nicht mehr angezeigt');
-    } catch (error: any) {
-      console.error('Error hiding post:', error);
-      toast.error('Fehler beim Verbergen des Posts');
-    }
-  };
-
-  const handleSnooze = async (days: number) => {
-    if (!user) return;
-    
-    try {
-      const until = new Date();
-      until.setDate(until.getDate() + days);
-      
-      const { error } = await supabase
-        .from('post_mutes')
-        .insert({
-          profile_id: user.id,
-          post_id: postId,
-          until: until.toISOString(),
-        });
-      
-      if (error) throw error;
-      
-      toast.success(`Post wird für ${days} Tage ausgeblendet`);
-    } catch (error: any) {
-      console.error('Error snoozing post:', error);
-      toast.error('Fehler beim Snoozen des Posts');
-    }
-  };
-
-  if (!user) return null;
 
   return (
     <>
@@ -127,6 +150,7 @@ export function PostMoreMenu({
           <Button
             variant={variant}
             size={size}
+            disabled={isLoading}
             className={cn(
               "h-8 px-2 text-muted-foreground hover:text-foreground",
               className
@@ -147,17 +171,17 @@ export function PostMoreMenu({
             </>
           )}
           
-          <DropdownMenuItem onClick={handleHide}>
+          <DropdownMenuItem onClick={handleHidePost} disabled={isLoading}>
             <EyeOff className="h-4 w-4 mr-2" />
             {t('moderation.hide')}
           </DropdownMenuItem>
           
-          <DropdownMenuItem onClick={() => handleSnooze(7)}>
+          <DropdownMenuItem onClick={() => handleSnoozePost(1)} disabled={isLoading}>
             <Clock className="h-4 w-4 mr-2" />
-            {t('moderation.snooze_7')}
+            {t('moderation.snooze_1')}
           </DropdownMenuItem>
           
-          <DropdownMenuItem onClick={() => handleSnooze(30)}>
+          <DropdownMenuItem onClick={() => handleSnoozePost(30)} disabled={isLoading}>
             <Clock className="h-4 w-4 mr-2" />
             {t('moderation.snooze_30')}
           </DropdownMenuItem>
@@ -167,39 +191,54 @@ export function PostMoreMenu({
       <Dialog open={showReportDialog} onOpenChange={setShowReportDialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Post melden</DialogTitle>
+            <DialogTitle>{t('moderation.report')}</DialogTitle>
             <DialogDescription>
-              Warum möchtest du diesen Post melden?
+              Bitte wähle einen Grund für die Meldung aus.
             </DialogDescription>
           </DialogHeader>
           
           <div className="space-y-4">
-            <RadioGroup value={reportReason} onValueChange={setReportReason}>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="spam" id="spam" />
-                <Label htmlFor="spam">{t('moderation.report_reasons.spam')}</Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="inappropriate" id="inappropriate" />
-                <Label htmlFor="inappropriate">{t('moderation.report_reasons.inappropriate')}</Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="misleading" id="misleading" />
-                <Label htmlFor="misleading">{t('moderation.report_reasons.misleading')}</Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="other" id="other" />
-                <Label htmlFor="other">{t('moderation.report_reasons.other')}</Label>
-              </div>
-            </RadioGroup>
+            <div>
+              <Label htmlFor="reason">Grund</Label>
+              <Select value={reportReason} onValueChange={setReportReason}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Grund auswählen" />
+                </SelectTrigger>
+                <SelectContent>
+                  {reportReasons.map((reason) => (
+                    <SelectItem key={reason.value} value={reason.value}>
+                      {reason.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div>
+              <Label htmlFor="details">Zusätzliche Details (optional)</Label>
+              <Textarea
+                id="details"
+                placeholder="Beschreibe das Problem..."
+                value={reportDetails}
+                onChange={(e) => setReportDetails(e.target.value)}
+                rows={3}
+              />
+            </div>
           </div>
           
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowReportDialog(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setShowReportDialog(false)}
+              disabled={isLoading}
+            >
               Abbrechen
             </Button>
-            <Button onClick={handleReport} disabled={!reportReason || isLoading}>
-              Melden
+            <Button
+              onClick={handleReport}
+              disabled={isLoading || !reportReason}
+            >
+              {isLoading ? 'Wird gesendet...' : 'Melden'}
             </Button>
           </DialogFooter>
         </DialogContent>

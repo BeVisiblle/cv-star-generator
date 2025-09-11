@@ -72,40 +72,37 @@ export function CompanyMiniCard({ company, onFollow }: CompanyMiniCardProps) {
 
   return (
     <Card className="w-full hover:shadow-md transition-shadow">
-      <CardContent className="p-4">
-        <div className="flex items-start space-x-3">
-          {/* Emoji + Avatar */}
-          <div className="flex items-center space-x-2">
-            <span className="text-2xl">🏢</span>
-            <AvatarClickable
-              profileId={company.id}
-              profileType="company"
-              className="h-10 w-10"
-            >
-              <Avatar className="h-10 w-10">
-                <AvatarImage src={company.avatar_url} />
-                <AvatarFallback>
-                  {company.display_name.charAt(0).toUpperCase()}
-                </AvatarFallback>
-              </Avatar>
-            </AvatarClickable>
-          </div>
+      <CardContent className="p-3">
+        <div className="flex items-center space-x-3">
+          {/* Avatar */}
+          <AvatarClickable
+            profileId={company.id}
+            profileType="company"
+            className="h-10 w-10"
+          >
+            <Avatar className="h-10 w-10">
+              <AvatarImage src={company.avatar_url} />
+              <AvatarFallback>
+                {company.display_name.charAt(0).toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
+          </AvatarClickable>
 
           {/* Content */}
           <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 mb-1">
+            <div className="flex items-center gap-2">
               <h3 className="font-medium text-sm truncate">
                 {company.display_name}
               </h3>
               {company.verified && (
-                <Badge variant="secondary" className="text-xs">
+                <Badge variant="secondary" className="text-xs px-1 py-0">
                   ✓
                 </Badge>
               )}
             </div>
             
             {company.headline && (
-              <p className="text-xs text-muted-foreground truncate mb-2">
+              <p className="text-xs text-muted-foreground truncate">
                 {company.headline}
               </p>
             )}

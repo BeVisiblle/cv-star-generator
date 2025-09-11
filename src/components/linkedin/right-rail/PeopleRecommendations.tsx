@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
-import { UserPlus, Check, ChevronRight, MessageSquareMore, X } from "lucide-react";
+import { UserPlus, Check, ChevronRight, MessageSquare, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useConnections, type ConnectionState } from "@/hooks/useConnections";
 
@@ -105,19 +105,19 @@ export const PeopleRecommendations: React.FC<PeopleRecommendationsProps> = ({ li
   };
 
   return (
-    <Card className="p-4">
-      <h3 className="text-sm font-semibold mb-3">Empfehlungen für Azubis</h3>
-      <div className="space-y-3">
+    <Card className="p-3">
+      <h3 className="text-sm font-semibold mb-2">Empfehlungen für Azubis</h3>
+      <div className="space-y-2">
         {loading && (
-          <div className="space-y-3">
+          <div className="space-y-2">
             {Array.from({ length: 3 }).map((_, i) => (
               <div key={i} className="flex items-center gap-3">
-                <div className="h-10 w-10 rounded-full bg-muted animate-pulse" />
+                <div className="h-8 w-8 rounded-full bg-muted animate-pulse" />
                 <div className="flex-1 space-y-1">
                   <div className="h-3 w-1/2 bg-muted rounded animate-pulse" />
                   <div className="h-3 w-2/3 bg-muted rounded animate-pulse" />
                 </div>
-                <div className="h-8 w-20 bg-muted rounded animate-pulse" />
+                <div className="h-7 w-16 bg-muted rounded animate-pulse" />
               </div>
             ))}
           </div>
@@ -130,9 +130,9 @@ export const PeopleRecommendations: React.FC<PeopleRecommendationsProps> = ({ li
             const st = statusMap[p.id] || "none";
             return (
               <div key={p.id} className="flex items-center gap-3">
-                <Avatar className="h-10 w-10 cursor-pointer" onClick={() => navigate(`/u/${p.id}`)}>
+                <Avatar className="h-8 w-8 cursor-pointer" onClick={() => navigate(`/u/${p.id}`)}>
                   <AvatarImage src={p.avatar_url ?? undefined} alt={`${name} Avatar`} />
-                  <AvatarFallback>{name.slice(0, 2)}</AvatarFallback>
+                  <AvatarFallback className="text-xs">{name.slice(0, 2)}</AvatarFallback>
                 </Avatar>
                 <div className="flex-1 min-w-0 cursor-pointer" onClick={() => navigate(`/u/${p.id}`)}>
                   <div className="text-sm font-medium truncate">{name}</div>
@@ -140,33 +140,33 @@ export const PeopleRecommendations: React.FC<PeopleRecommendationsProps> = ({ li
                   {infoLine && <div className="text-xs text-muted-foreground truncate">{infoLine}</div>}
                 </div>
                 {st === "accepted" && (
-                  <Button size="sm" onClick={() => navigate(`/community/messages`)}> 
-                    <MessageSquareMore className="h-4 w-4 mr-1" /> Nachricht
+                  <Button size="sm" className="h-7 px-2 text-xs" onClick={() => navigate(`/community/messages`)}> 
+                    <MessageSquare className="h-3 w-3 mr-1" /> Nachricht
                   </Button>
                 )}
                 {st === "none" && (
-                  <Button size="sm" onClick={() => onConnect(p.id)}>
-                    <UserPlus className="h-4 w-4 mr-1" /> Vernetzen
+                  <Button size="sm" className="h-7 px-2 text-xs" onClick={() => onConnect(p.id)}>
+                    <UserPlus className="h-3 w-3 mr-1" /> Vernetzen
                   </Button>
                 )}
                 {st === "pending" && (
-                  <div className="flex items-center gap-2">
-                    <Button size="sm" variant="secondary" disabled>
-                      <Check className="h-4 w-4 mr-1" /> Ausstehend
+                  <div className="flex items-center gap-1">
+                    <Button size="sm" variant="secondary" className="h-7 px-2 text-xs" disabled>
+                      <Check className="h-3 w-3 mr-1" /> Ausstehend
                     </Button>
-                    <Button size="icon" variant="ghost" aria-label="Anfrage zurückziehen" onClick={() => onCancel(p.id)}>
-                      <X className="h-4 w-4" />
+                    <Button size="icon" variant="ghost" className="h-7 w-7" aria-label="Anfrage zurückziehen" onClick={() => onCancel(p.id)}>
+                      <X className="h-3 w-3" />
                     </Button>
                   </div>
                 )}
                 {st === "incoming" && (
-                  <div className="flex items-center gap-2">
-                    <Button size="sm" onClick={() => onAccept(p.id)}>Annehmen</Button>
-                    <Button size="sm" variant="outline" onClick={() => onDecline(p.id)}>Ablehnen</Button>
+                  <div className="flex items-center gap-1">
+                    <Button size="sm" className="h-7 px-2 text-xs" onClick={() => onAccept(p.id)}>Annehmen</Button>
+                    <Button size="sm" variant="outline" className="h-7 px-2 text-xs" onClick={() => onDecline(p.id)}>Ablehnen</Button>
                   </div>
                 )}
                 {st === "declined" && (
-                  <Button size="sm" variant="outline" onClick={() => onConnect(p.id)}>Erneut senden</Button>
+                  <Button size="sm" variant="outline" className="h-7 px-2 text-xs" onClick={() => onConnect(p.id)}>Erneut senden</Button>
                 )}
               </div>
             );

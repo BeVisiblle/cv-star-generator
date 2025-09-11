@@ -3,64 +3,95 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Bookmark, BookmarkCheck } from 'lucide-react';
 import { useTranslation } from '@/lib/i18n';
-import { useAuth } from '@/hooks/useAuth';
-import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
+import { useAuth } from '@/hooks/useAuth';
+import { supabase } from '@/integrations/supabase/client';
 
 interface BookmarkButtonProps {
   postId: string;
-  isBookmarked?: boolean;
   className?: string;
   size?: 'sm' | 'default' | 'lg';
   variant?: 'ghost' | 'outline' | 'default';
+  onBookmarkChange?: (isBookmarked: boolean) => void;
 }
 
 export function BookmarkButton({ 
   postId, 
-  isBookmarked = false, 
   className,
   size = 'sm',
-  variant = 'ghost'
+  variant = 'ghost',
+  onBookmarkChange
 }: BookmarkButtonProps) {
   const { t } = useTranslation();
   const { user } = useAuth();
-  const [bookmarked, setBookmarked] = useState(isBookmarked);
+  const [isBookmarked, setIsBookmarked] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleToggle = async () => {
-    if (!user || isLoading) return;
+  // Check if post is bookmarked on mount
+  React.useEffect(() => {
+    if (!user) return;
     
+    const checkBookmarkStatus = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('bookmarks')
+          .select('id')
+          .eq('user_id', user.id)
+          .eq('post_id', postId)
+          .single();
+        
+        if (error && error.code !== 'PGRST116') {
+          console.error('Error checking bookmark status:', error);
+          return;
+        }
+        
+        setIsBookmarked(!!data);
+      } catch (error) {
+        console.error('Error checking bookmark status:', error);
+      }
+    };
+
+    checkBookmarkStatus();
+  }, [user, postId]);
+
+  const handleBookmark = async () => {
+    if (!user) {
+      toast.error('Bitte melde dich an, um Posts zu speichern');
+      return;
+    }
+
     setIsLoading(true);
-    
     try {
-      if (bookmarked) {
+      if (isBookmarked) {
         // Remove bookmark
         const { error } = await supabase
-          .from('saved_posts')
+          .from('bookmarks')
           .delete()
-          .eq('profile_id', user.id)
+          .eq('user_id', user.id)
           .eq('post_id', postId);
         
         if (error) throw error;
         
-        setBookmarked(false);
+        setIsBookmarked(false);
         toast.success(t('bookmark.toast_removed'));
+        onBookmarkChange?.(false);
       } else {
         // Add bookmark
         const { error } = await supabase
-          .from('saved_posts')
+          .from('bookmarks')
           .insert({
-            profile_id: user.id,
-            post_id: postId,
+            user_id: user.id,
+            post_id: postId
           });
         
         if (error) throw error;
         
-        setBookmarked(true);
+        setIsBookmarked(true);
         toast.success(t('bookmark.toast_saved'));
+        onBookmarkChange?.(true);
       }
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error toggling bookmark:', error);
       toast.error('Fehler beim Speichern des Posts');
     } finally {
@@ -68,22 +99,20 @@ export function BookmarkButton({
     }
   };
 
-  if (!user) return null;
-
   return (
     <Button
       variant={variant}
       size={size}
-      onClick={handleToggle}
       disabled={isLoading}
+      onClick={handleBookmark}
       className={cn(
         "h-8 px-2 text-muted-foreground hover:text-foreground",
-        bookmarked && "text-primary",
+        isBookmarked && "text-primary hover:text-primary",
         className
       )}
-      aria-label={bookmarked ? t('bookmark.remove') : t('bookmark.save')}
+      aria-label={isBookmarked ? t('bookmark.saved') : t('bookmark.save')}
     >
-      {bookmarked ? (
+      {isBookmarked ? (
         <BookmarkCheck className="h-4 w-4" />
       ) : (
         <Bookmark className="h-4 w-4" />
