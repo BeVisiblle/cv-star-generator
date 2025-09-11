@@ -306,11 +306,8 @@ export default function PublicJobsList() {
           {filteredJobs.map(job => (
             <JobCard 
               key={job.id} 
-              job={{
-                ...job,
-                description_md: job.description_snippet
-              }} 
-              onApply={handleApply}
+              job={job}
+              onClick={() => window.open(`/jobs/${job.id}`, '_blank')}
             />
           ))}
         </div>

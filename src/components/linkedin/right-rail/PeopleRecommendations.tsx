@@ -140,8 +140,13 @@ export const PeopleRecommendations: React.FC<PeopleRecommendationsProps> = ({ li
                   {infoLine && <div className="text-xs text-muted-foreground truncate">{infoLine}</div>}
                 </div>
                 {st === "accepted" && (
+<<<<<<< HEAD
                   <Button size="sm" className="h-7 px-2 text-xs" onClick={() => navigate(`/community/messages`)}> 
                     <MessageSquare className="h-3 w-3 mr-1" /> Nachricht
+=======
+                  <Button size="sm" onClick={() => navigate(`/community/messages`)}> 
+                    <MessageSquare className="h-4 w-4 mr-1" /> Nachricht
+>>>>>>> d046ce00db74c472b3a5130b9a2c5a136a0c492b
                   </Button>
                 )}
                 {st === "none" && (

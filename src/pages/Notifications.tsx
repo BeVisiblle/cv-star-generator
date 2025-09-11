@@ -2,7 +2,6 @@ import NotificationsList from '@/components/notifications/NotificationsList';
 import { useAuth } from '@/hooks/useAuth';
 import { useRecipientNotifications } from '@/hooks/useRecipientNotifications';
 import { LeftPanel } from '@/components/dashboard/LeftPanel';
-import { RightPanel } from '@/components/dashboard/RightPanel';
 
 export default function NotificationsPage() {
   const { profile } = useAuth();
@@ -54,10 +53,10 @@ export default function NotificationsPage() {
             </div>
           </section>
 
-          {/* Right column (fixed width) */}
+          {/* Right column placeholder */}
           <aside className="hidden xl:block w-[320px] shrink-0">
             <div className="sticky top-20 space-y-4">
-              <RightPanel />
+              {/* Placeholder for future widgets */}
             </div>
           </aside>
         </div>

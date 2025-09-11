@@ -4,7 +4,6 @@ import { Bell, Search as SearchIcon, MessageSquare, Users, User } from "lucide-r
 import { useLocation, useNavigate, Link } from "react-router-dom";
 
 import { NotificationCenter } from "@/components/notifications/NotificationCenter";
-import { GlobalSearchBar } from "@/components/search/GlobalSearchBar";
 import { BrandMark } from "@/components/branding/BrandMark";
 import { BrandWordmark } from "@/components/branding/BrandWordmark";
 import { layoutConfig } from "@/lib/layoutConfig";
@@ -76,11 +75,10 @@ export default function TopNavBar() {
           <h1 className="text-sm font-semibold truncate">{title}</h1>
         </div>
         
-        {/* Global Search Bar */}
+        {/* Global Search Bar - Temporarily disabled */}
         <div className="hidden md:flex flex-1 max-w-md mx-4">
-          <GlobalSearchBar 
+          <Input 
             placeholder="Personen, Unternehmen, Events suchen..."
-            showCategories={false}
             className="w-full"
           />
         </div>

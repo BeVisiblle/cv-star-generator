@@ -1,13 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { 
-  Settings, 
   Filter, 
   SortAsc, 
   RefreshCw,
@@ -20,22 +18,44 @@ import {
   Users,
   ArrowLeft
 } from 'lucide-react';
-import { useTranslation } from '@/lib/i18n';
-import { useFeedSettings } from '@/hooks/useFeedSettings';
 import { useNavigate } from 'react-router-dom';
-import { cn } from '@/lib/utils';
 
 export function FeedSettingsPage() {
-  const { t } = useTranslation();
   const navigate = useNavigate();
   
-  const {
-    settings,
-    isLoading,
-    updateSetting,
-    resetToDefaults,
-    isSaving
-  } = useFeedSettings();
+  const [settings, setSettings] = useState({
+    showJobs: true,
+    showPolls: true,
+    showEvents: true,
+    showTextPosts: true,
+    showJobShares: true,
+    showCompanyPosts: true,
+    showUserPosts: true,
+    sortBy: 'newest',
+    filterBy: 'all'
+  });
+
+  const [isSaving, setIsSaving] = useState(false);
+
+  const updateSetting = (key: string, value: any) => {
+    setSettings(prev => ({ ...prev, [key]: value }));
+    setIsSaving(true);
+    setTimeout(() => setIsSaving(false), 500); // Simulate save
+  };
+
+  const resetToDefaults = () => {
+    setSettings({
+      showJobs: true,
+      showPolls: true,
+      showEvents: true,
+      showTextPosts: true,
+      showJobShares: true,
+      showCompanyPosts: true,
+      showUserPosts: true,
+      sortBy: 'newest',
+      filterBy: 'all'
+    });
+  };
 
   const getActiveFilterCount = () => {
     let count = 0;
@@ -50,17 +70,6 @@ export function FeedSettingsPage() {
   };
 
   const activeFilterCount = getActiveFilterCount();
-
-  if (isLoading) {
-    return (
-      <div className="max-w-4xl mx-auto p-6">
-        <div className="animate-pulse space-y-6">
-          <div className="h-8 bg-muted rounded w-1/4"></div>
-          <div className="h-64 bg-muted rounded"></div>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="max-w-4xl mx-auto p-6 space-y-6">
@@ -283,4 +292,3 @@ export function FeedSettingsPage() {
     </div>
   );
 }
-

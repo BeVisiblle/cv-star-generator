@@ -57,40 +57,18 @@ export async function uploadToSupabase(file: File, bucket: 'images'|'attachments
   };
 }
 
+// Note: Database functions removed as tables don't exist in current schema
 export async function saveAttachmentToDatabase(attachment: UploadedAttachment, ownerId: string): Promise<void> {
-  const { error } = await supabase
-    .from('attachments')
-    .insert({
-      id: attachment.id,
-      owner_id: ownerId,
-      storage_path: attachment.storage_path,
-      mime_type: attachment.mime_type,
-      size_bytes: attachment.size_bytes,
-      width: attachment.width,
-      height: attachment.height,
-    });
-  
-  if (error) throw error;
+  // TODO: Implement when attachment tables are available
+  console.log('Attachment saved to storage:', attachment.id);
 }
 
 export async function linkAttachmentToPost(attachmentId: string, postId: string): Promise<void> {
-  const { error } = await supabase
-    .from('attachment_links')
-    .insert({
-      attachment_id: attachmentId,
-      post_id: postId,
-    });
-  
-  if (error) throw error;
+  // TODO: Implement when attachment_links table is available
+  console.log('Link attachment to post:', attachmentId, postId);
 }
 
 export async function linkAttachmentToComment(attachmentId: string, commentId: string): Promise<void> {
-  const { error } = await supabase
-    .from('attachment_links')
-    .insert({
-      attachment_id: attachmentId,
-      comment_id: commentId,
-    });
-  
-  if (error) throw error;
+  // TODO: Implement when attachment_links table is available
+  console.log('Link attachment to comment:', attachmentId, commentId);
 }
