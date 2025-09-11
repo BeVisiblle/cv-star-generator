@@ -33,7 +33,7 @@ export function LegacyCommunityFeed() {
     queryFn: async ({ pageParam }) => {
       console.log('[feed] fetching page', pageParam, sort);
 
-      const { data: posts, error } = await (supabase as any).rpc('get_feed_sorted', {
+      const { data: posts, error } = await (supabase as any).rpc('get_community_feed', {
         viewer_id: viewerId as string,
         after_published: pageParam.after_published,
         after_id: pageParam.after_id,
