@@ -102,7 +102,7 @@ export default function TopNavBar() {
               
               // Navigate based on type
               if (type === 'person') {
-                navigate(`/profile/${payload.id}`);
+                navigate(`/u/${payload.id}`);
               } else if (type === 'company') {
                 navigate(`/companies/${payload.id}`);
               }

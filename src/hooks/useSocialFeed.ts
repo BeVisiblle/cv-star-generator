@@ -49,14 +49,10 @@ export function useSocialPosts() {
   return useQuery<Post[]>({
     queryKey: ['social-posts'],
     queryFn: async () => {
-      // Get community posts with actor information
+      // Get community posts first
       const { data: postsData, error: postsError } = await sb
         .from('community_posts')
-        .select(`
-          *,
-          actor_user:profiles!actor_user_id(id, vorname, nachname, headline, avatar_url),
-          actor_company:companies!actor_company_id(id, name, logo_url)
-        `) 
+        .select('*') 
         .order('created_at', { ascending: false });
 
       if (postsError) throw postsError;
@@ -64,6 +60,25 @@ export function useSocialPosts() {
       if (!postsData?.length) {
         return [];
       }
+
+      // Get user and company data for actors
+      const userIds = postsData.filter((p: any) => p.actor_user_id).map((p: any) => p.actor_user_id);
+      const companyIds = postsData.filter((p: any) => p.actor_company_id).map((p: any) => p.actor_company_id);
+
+      const [usersData, companiesData] = await Promise.all([
+        userIds.length > 0 ? sb.from('profiles').select('id, vorname, nachname, headline, avatar_url').in('id', userIds) : { data: [] },
+        companyIds.length > 0 ? sb.from('companies').select('id, name, logo_url').in('id', companyIds) : { data: [] }
+      ]);
+
+      const usersMap = (usersData.data || []).reduce((acc: any, user: any) => {
+        acc[user.id] = user;
+        return acc;
+      }, {});
+
+      const companiesMap = (companiesData.data || []).reduce((acc: any, company: any) => {
+        acc[company.id] = company;
+        return acc;
+      }, {});
 
       // Get like counts from community_likes
       const postIds = postsData.map((p: any) => p.id);
@@ -101,22 +116,26 @@ export function useSocialPosts() {
         likedPostIds = new Set((likesData || []).map((l: any) => l.post_id));
       }
 
-      return postsData.map((post: any) => ({
-        ...post,
-        author_id: post.actor_user_id || post.actor_company_id,
-        body: post.body_md || '',
-        attachments: post.media || [],
-        like_count: post.like_count || likeCountMap[post.id] || 0,
-        comment_count: post.comment_count || commentCountMap[post.id] || 0,
-        author: post.actor_user || (post.actor_company ? {
-          id: post.actor_company.id,
-          vorname: post.actor_company.name,
-          nachname: '',
-          headline: 'Unternehmen',
-          avatar_url: post.actor_company.logo_url
-        } : null),
-        you_like: likedPostIds.has(post.id)
-      }));
+      return postsData.map((post: any) => {
+        const actor = post.actor_user_id ? usersMap[post.actor_user_id] : companiesMap[post.actor_company_id];
+        
+        return {
+          ...post,
+          author_id: post.actor_user_id || post.actor_company_id,
+          body: post.body_md || '',
+          attachments: post.media || [],
+          like_count: post.like_count || likeCountMap[post.id] || 0,
+          comment_count: post.comment_count || commentCountMap[post.id] || 0,
+          author: actor ? {
+            id: actor.id,
+            vorname: actor.vorname || actor.name || 'Unbekannt',
+            nachname: actor.nachname || '',
+            headline: actor.headline || (post.actor_company_id ? 'Unternehmen' : ''),
+            avatar_url: actor.avatar_url || actor.logo_url
+          } : null,
+          you_like: likedPostIds.has(post.id)
+        };
+      });
     },
     enabled: !!user
   });
@@ -205,11 +224,7 @@ export function useSocialPostComments(postId: string) {
     queryFn: async () => {
       const { data: commentsData, error } = await sb
         .from('community_comments')
-        .select(`
-          *,
-          author_user:profiles!author_user_id(id, vorname, nachname, headline, avatar_url),
-          author_company:companies!author_company_id(id, name, logo_url)
-        `) 
+        .select('*') 
         .eq('post_id', postId)
         .is('parent_comment_id', null)
         .order('created_at', { ascending: true });
@@ -220,22 +235,45 @@ export function useSocialPostComments(postId: string) {
         return [];
       }
 
-      return commentsData.map((comment: any) => ({
-        ...comment,
-        body: comment.body_md || '',
-        author_id: comment.author_user_id || comment.author_company_id,
-        attachments: [],
-        author: comment.author_user || (comment.author_company ? {
-          id: comment.author_company.id,
-          vorname: comment.author_company.name,
-          nachname: '',
-          headline: 'Unternehmen',
-          avatar_url: comment.author_company.logo_url
-        } : null),
-        you_like: false,
-        like_count: 0,
-        reply_count: 0
-      }));
+      // Get user and company data for comment authors
+      const userIds = commentsData.filter((c: any) => c.author_user_id).map((c: any) => c.author_user_id);
+      const companyIds = commentsData.filter((c: any) => c.author_company_id).map((c: any) => c.author_company_id);
+
+      const [usersData, companiesData] = await Promise.all([
+        userIds.length > 0 ? sb.from('profiles').select('id, vorname, nachname, headline, avatar_url').in('id', userIds) : { data: [] },
+        companyIds.length > 0 ? sb.from('companies').select('id, name, logo_url').in('id', companyIds) : { data: [] }
+      ]);
+
+      const usersMap = (usersData.data || []).reduce((acc: any, user: any) => {
+        acc[user.id] = user;
+        return acc;
+      }, {});
+
+      const companiesMap = (companiesData.data || []).reduce((acc: any, company: any) => {
+        acc[company.id] = company;
+        return acc;
+      }, {});
+
+      return commentsData.map((comment: any) => {
+        const author = comment.author_user_id ? usersMap[comment.author_user_id] : companiesMap[comment.author_company_id];
+        
+        return {
+          ...comment,
+          body: comment.body_md || '',
+          author_id: comment.author_user_id || comment.author_company_id,
+          attachments: [],
+          author: author ? {
+            id: author.id,
+            vorname: author.vorname || author.name || 'Unbekannt',
+            nachname: author.nachname || '',
+            headline: author.headline || (comment.author_company_id ? 'Unternehmen' : ''),
+            avatar_url: author.avatar_url || author.logo_url
+          } : null,
+          you_like: false,
+          like_count: 0,
+          reply_count: 0
+        };
+      });
     },
     enabled: !!postId
   });
