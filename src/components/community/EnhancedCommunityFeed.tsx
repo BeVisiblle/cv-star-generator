@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Plus, Loader2 } from 'lucide-react';
 import { useCommunityFeed } from '@/hooks/useCommunityPosts';
 import CommunityPostCard from './CommunityPostCard';
-import CommunityComposer from './CommunityComposer';
+import { CommunityComposer } from './CommunityComposer';
 import CommunityComposerTeaser from './CommunityComposerTeaser';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -114,10 +114,7 @@ export default function EnhancedCommunityFeed() {
       </div>
 
       {/* Composer Modal */}
-      <CommunityComposer 
-        open={composerOpen} 
-        onOpenChange={setComposerOpen} 
-      />
+      {/* CommunityComposer is now embedded directly in the feed */}
     </div>
   );
 }

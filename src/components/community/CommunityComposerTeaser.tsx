@@ -7,7 +7,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useCompany } from '@/hooks/useCompany';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import CommunityComposer from './CommunityComposer';
+import { CommunityComposer } from './CommunityComposer';
 import JobShareDialog from '@/components/company/jobs/JobShareDialog';
 
 interface CommunityComposerTeaserProps {
@@ -127,11 +127,7 @@ export default function CommunityComposerTeaser({ onOpenComposer }: CommunityCom
         </CardContent>
       </Card>
 
-      <CommunityComposer 
-        open={composerOpen} 
-        onOpenChange={setComposerOpen}
-        initialTab={activeTab}
-      />
+      {/* Removed CommunityComposer usage here since it's now embedded in CommunityFeed */}
 
       {jobs.length > 0 && company && (
         <JobShareDialog

@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import PostCard from './PostCard';
 import { Loader2 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
+import { CommunityComposer } from './CommunityComposer';
 
 type PostWithAuthor = any;
 
@@ -230,6 +231,8 @@ export function LegacyCommunityFeed() {
 
   return (
     <div className="space-y-4">
+      <CommunityComposer />
+      
       {incoming.length > 0 && (
         <div className="sticky top-0 z-10">
           <Card className="p-3 border-primary/30 bg-primary/10 backdrop-blur supports-[backdrop-filter]:bg-primary/15">

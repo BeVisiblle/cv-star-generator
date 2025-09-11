@@ -5847,16 +5847,25 @@ export type Database = {
         }[]
       }
       create_community_post: {
-        Args: {
-          p_actor_company_id?: string
-          p_actor_user_id?: string
-          p_body_md?: string
-          p_job_id?: string
-          p_media?: Json
-          p_mentions?: Json
-          p_post_kind?: Database["public"]["Enums"]["post_kind"]
-          p_visibility?: Database["public"]["Enums"]["post_visibility"]
-        }
+        Args:
+          | {
+              p_actor_company_id?: string
+              p_actor_user_id?: string
+              p_body_md: string
+              p_job_id?: string
+              p_media?: Json
+              p_visibility?: Database["public"]["Enums"]["post_visibility"]
+            }
+          | {
+              p_actor_company_id?: string
+              p_actor_user_id?: string
+              p_body_md?: string
+              p_job_id?: string
+              p_media?: Json
+              p_mentions?: Json
+              p_post_kind?: Database["public"]["Enums"]["post_kind"]
+              p_visibility?: Database["public"]["Enums"]["post_visibility"]
+            }
         Returns: string
       }
       create_company_account: {
