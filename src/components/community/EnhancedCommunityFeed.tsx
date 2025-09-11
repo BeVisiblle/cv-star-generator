@@ -23,6 +23,7 @@ export default function EnhancedCommunityFeed() {
 
   const posts = data?.pages.flatMap(page => page.posts) || [];
 
+  // Move all early returns after all hooks
   if (!user) {
     return (
       <Card>

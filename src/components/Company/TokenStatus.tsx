@@ -9,13 +9,11 @@ import { Coins, Briefcase, AlertCircle } from 'lucide-react';
 export function TokenStatus() {
   const { company } = useCompany();
 
-  if (!company) return null;
-
-  const activeTokens = company.active_tokens || 0;
-  // The company object from the network request shows token_balance doesn't exist in the schema
-  // Using only active_tokens which is available
+  // Move early return after all hooks
+  const activeTokens = company?.active_tokens || 0;
   const totalTokens = activeTokens;
 
+  if (!company) return null;
 
   return (
     <Card>

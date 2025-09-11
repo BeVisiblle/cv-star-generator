@@ -12,14 +12,15 @@ export function UserDrawer({ user, open, onOpenChange }: { user: AdminUser | nul
   const { role } = useAdminSession();
   const canSupport = role === "SuperAdmin" || role === "SupportAgent";
 
-  if (!user) return null;
-
-  const statusBadges = (
+  // Move computations before early return
+  const statusBadges = user ? (
     <div className="flex gap-2">
       {user.profile_published ? <Badge>Published</Badge> : <Badge variant="secondary">Draft</Badge>}
       {user.profile_complete ? <Badge>Complete</Badge> : <Badge variant="destructive">Incomplete</Badge>}
     </div>
-  );
+  ) : null;
+
+  if (!user) return null;
 
   const handleResetPassword = async () => {
     if (!user.email) return;
