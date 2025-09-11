@@ -5,7 +5,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useConnections, type ConnectionState } from "@/hooks/useConnections";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Loader2, UserPlus, Check, X, MessageSquareMore, ArrowLeft, HandHeart } from "lucide-react";
+import { Loader2, UserPlus, Check, X, MessageSquare, ArrowLeft, Heart } from "lucide-react";
 import { LinkedInProfileHeader } from "@/components/linkedin/LinkedInProfileHeader";
 import { LinkedInProfileMain } from "@/components/linkedin/LinkedInProfileMain";
 import { LinkedInProfileSidebar } from "@/components/linkedin/LinkedInProfileSidebar";
@@ -158,7 +158,7 @@ export default function UserProfilePage() {
       return (
         <div className="flex gap-2">
           <Button onClick={() => navigate("/community/messages")} className="min-h-[44px]">
-            <MessageSquareMore className="h-4 w-4 mr-1" /> Nachricht
+            <MessageSquare className="h-4 w-4 mr-1" /> Nachricht
           </Button>
         </div>
       );
@@ -207,7 +207,7 @@ export default function UserProfilePage() {
             <div className="flex items-center gap-2">
               {isCompanyMember && !isOwner && (
                 <Button onClick={toggleInterest} disabled={interestLoading} variant={interested ? 'secondary' : 'default'} className="min-h-[44px]">
-                  <HandHeart className="h-4 w-4 mr-1" /> {interested ? 'Interesse gezeigt' : 'Interesse zeigen'}
+                  <Heart className="h-4 w-4 mr-1" /> {interested ? 'Interesse gezeigt' : 'Interesse zeigen'}
                 </Button>
               )}
               {renderActions()}
