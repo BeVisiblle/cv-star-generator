@@ -22,7 +22,7 @@ export function HeaderWithSearch({ value, onChange, onSubmit, className }: Heade
       <div className="mx-auto w-full max-w-7xl px-3 sm:px-6 py-3 flex items-center gap-3">
         {/* Logo */}
         <div className="flex items-center gap-2 shrink-0">
-          <img src="/lovable-uploads/0281de01-883e-4f71-b770-0b6aa1919d3b.png" alt="bevisiblle Logo" className="h-9 w-9 object-contain" />
+          <img src="/lovable-uploads/c231961f-8b4e-4578-b385-444c56ef5e82.png" alt="bevisiblle Logo" className="h-9 w-9 object-contain" />
           <div className="text-base font-semibold hidden sm:block">Azubi Marketplace</div>
         </div>
 
