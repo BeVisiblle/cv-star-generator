@@ -92,6 +92,7 @@ const SupportPage = lazy(() => import("./pages/Admin/Support"));
 const AdminTools = lazy(() => import("./pages/Admin/Tools"));
 const AdminAuthGate = lazy(() => import("@/components/admin/AdminAuthGate"));
 const CreateAdmin = lazy(() => import("./pages/Admin/CreateAdmin"));
+const LinkedInFeedPage = lazy(() => import("./pages/LinkedInFeedPage"));
 const PublicJobs = lazy(() => import("./pages/PublicJobs"));
 const PublicJobDetail = lazy(() => import("./pages/PublicJobDetail"));
 // Temporarily removed due to build issues

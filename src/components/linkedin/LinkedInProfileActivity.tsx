@@ -8,6 +8,9 @@ import { ThumbsUp, MessageCircle, Repeat2, Send, ArrowRight, Pencil, ChevronLeft
 import { formatDistanceToNow } from 'date-fns';
 import { de } from 'date-fns/locale';
 import { useNavigate } from 'react-router-dom';
+import { useUserLinkedInActivity } from '@/hooks/useLinkedInFeed';
+import LinkedInPostCard from '@/components/linkedin/feed/LinkedInPostCard';
+import LinkedInCommentItem from '@/components/linkedin/feed/LinkedInCommentItem';
 import { openPostComposer } from '@/lib/event-bus';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';

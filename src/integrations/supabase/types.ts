@@ -2931,6 +2931,256 @@ export type Database = {
         }
         Relationships: []
       }
+      linkedin_comment_likes: {
+        Row: {
+          comment_id: string
+          created_at: string | null
+          user_id: string
+        }
+        Insert: {
+          comment_id: string
+          created_at?: string | null
+          user_id: string
+        }
+        Update: {
+          comment_id?: string
+          created_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "linkedin_comment_likes_comment_id_fkey"
+            columns: ["comment_id"]
+            isOneToOne: false
+            referencedRelation: "linkedin_comments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "linkedin_comment_likes_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "linkedin_comment_likes_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      linkedin_comments: {
+        Row: {
+          attachments: Json | null
+          author_id: string
+          body: string
+          created_at: string | null
+          id: string
+          like_count: number
+          parent_id: string | null
+          post_id: string
+          reply_count: number
+        }
+        Insert: {
+          attachments?: Json | null
+          author_id: string
+          body: string
+          created_at?: string | null
+          id?: string
+          like_count?: number
+          parent_id?: string | null
+          post_id: string
+          reply_count?: number
+        }
+        Update: {
+          attachments?: Json | null
+          author_id?: string
+          body?: string
+          created_at?: string | null
+          id?: string
+          like_count?: number
+          parent_id?: string | null
+          post_id?: string
+          reply_count?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "linkedin_comments_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "linkedin_comments_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "profiles_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "linkedin_comments_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "linkedin_comments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "linkedin_comments_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "linkedin_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      linkedin_company_posts: {
+        Row: {
+          attachments: Json | null
+          author_id: string
+          body: string
+          comment_count: number
+          company_id: string
+          created_at: string | null
+          id: string
+          job_id: string | null
+          like_count: number
+        }
+        Insert: {
+          attachments?: Json | null
+          author_id: string
+          body: string
+          comment_count?: number
+          company_id: string
+          created_at?: string | null
+          id?: string
+          job_id?: string | null
+          like_count?: number
+        }
+        Update: {
+          attachments?: Json | null
+          author_id?: string
+          body?: string
+          comment_count?: number
+          company_id?: string
+          created_at?: string | null
+          id?: string
+          job_id?: string | null
+          like_count?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "linkedin_company_posts_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "linkedin_company_posts_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "profiles_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      linkedin_post_likes: {
+        Row: {
+          created_at: string | null
+          post_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          post_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          post_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "linkedin_post_likes_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "linkedin_posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "linkedin_post_likes_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "linkedin_post_likes_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      linkedin_posts: {
+        Row: {
+          attachments: Json | null
+          author_id: string
+          body: string
+          comment_count: number
+          created_at: string | null
+          id: string
+          like_count: number
+          repost_count: number
+          updated_at: string | null
+          visibility: string | null
+        }
+        Insert: {
+          attachments?: Json | null
+          author_id: string
+          body: string
+          comment_count?: number
+          created_at?: string | null
+          id?: string
+          like_count?: number
+          repost_count?: number
+          updated_at?: string | null
+          visibility?: string | null
+        }
+        Update: {
+          attachments?: Json | null
+          author_id?: string
+          body?: string
+          comment_count?: number
+          created_at?: string | null
+          id?: string
+          like_count?: number
+          repost_count?: number
+          updated_at?: string | null
+          visibility?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "linkedin_posts_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "linkedin_posts_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "profiles_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       locations: {
         Row: {
           city: string
@@ -5387,6 +5637,15 @@ export type Database = {
         }
         Returns: string
       }
+      add_linkedin_comment: {
+        Args: {
+          p_author_user_id: string
+          p_body_md: string
+          p_parent_comment_id?: string
+          p_post_id: string
+        }
+        Returns: string
+      }
       add_seats: {
         Args: { _add: number; _client_request_id?: string; _company_id: string }
         Returns: {
@@ -7672,6 +7931,10 @@ export type Database = {
           p_liker_user_id?: string
           p_post_id: string
         }
+        Returns: Json
+      }
+      toggle_linkedin_like: {
+        Args: { p_liker_user_id: string; p_post_id: string }
         Returns: Json
       }
       unfollow_company: {
