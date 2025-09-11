@@ -55,12 +55,12 @@ export default function TopNavBar() {
             onClick={() => navigate('/dashboard')}
           >
             <img 
-              src="/lovable-uploads/59fd3c9b-c2d3-4613-b2c1-1366f349e1e9.png" 
-              alt="Ausbildungsbasis Logo" 
+              src="/lovable-uploads/0281de01-883e-4f71-b770-0b6aa1919d3b.png" 
+              alt="bevisiblle Logo" 
               className="h-8 w-8"
             />
             <span className="font-bold text-primary hidden sm:block">
-              Ausbildungsbasis
+              bevisiblle
             </span>
           </div>
         </div>

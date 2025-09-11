@@ -8,14 +8,14 @@ export default function Footer() {
         <div>
           <div className="flex items-center gap-3 justify-center md:justify-start">
             <img 
-              src="/lovable-uploads/59fd3c9b-c2d3-4613-b2c1-1366f349e1e9.png" 
-              alt="Ausbildungsbasis Logo" 
+              src="/lovable-uploads/0281de01-883e-4f71-b770-0b6aa1919d3b.png" 
+              alt="bevisiblle Logo" 
               className="h-8 w-8 object-contain" 
               width="32" 
               height="32"
               loading="lazy"
             />
-            <span className="text-lg font-semibold">Ausbildungsbasis</span>
+            <span className="text-lg font-semibold">bevisiblle</span>
           </div>
           <p className="mt-3 text-sm text-zinc-300 max-w-xs">
             Die smarte Brücke zwischen Schülern, Azubis und Fachkräften und Unternehmen – 
@@ -64,7 +64,7 @@ export default function Footer() {
       </div>
       
       <div className="px-4 pb-8 mx-auto max-w-7xl text-xs text-zinc-400 text-center">
-        © {new Date().getFullYear()} Ausbildungsbasis. Alle Rechte vorbehalten.
+        © {new Date().getFullYear()} bevisiblle. Alle Rechte vorbehalten.
       </div>
     </footer>
   );
