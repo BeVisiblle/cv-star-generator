@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Share2, Copy, ExternalLink } from 'lucide-react';
 import { useTranslation } from '@/lib/i18n';
 import { toast } from 'sonner';
+import { cn } from '@/lib/utils';
 import {
   DropdownMenu,
   DropdownMenuContent,

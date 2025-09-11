@@ -1,10 +1,10 @@
 import React, { useState, useRef } from 'react';
 import { SidebarTrigger } from "@/components/ui/sidebar";
-import { Bell, Search as SearchIcon, MessageSquareMore, Users, User } from "lucide-react";
+import { Bell, Search as SearchIcon, MessageSquare, Users, User } from "lucide-react";
 import { useLocation, useNavigate, Link } from "react-router-dom";
 
 import { NotificationCenter } from "@/components/notifications/NotificationCenter";
-import { GlobalSearchBar } from "@/components/search/GlobalSearchBar";
+// import { GlobalSearchBar } from "@/components/search/GlobalSearchBar";
 
 import { Input } from "@/components/ui/input";
 import SearchAutosuggest, { SuggestionType } from "@/components/marketplace/SearchAutosuggest";
@@ -72,11 +72,10 @@ export default function TopNavBar() {
           </div>
         </div>
         
-        {/* Global Search Bar */}
+        {/* Global Search Bar - Temporarily disabled */}
         <div className="hidden md:flex flex-1 max-w-md mx-4">
-          <GlobalSearchBar 
+          <Input 
             placeholder="Personen, Unternehmen, Events suchen..."
-            showCategories={false}
             className="w-full"
           />
         </div>
@@ -96,7 +95,7 @@ export default function TopNavBar() {
           
           <Popover open={msgOpen} onOpenChange={setMsgOpen}>
             <PopoverTrigger asChild>
-              <MessageSquareMore className="h-5 w-5 cursor-pointer hover:text-primary" />
+              <MessageSquare className="h-5 w-5 cursor-pointer hover:text-primary" />
             </PopoverTrigger>
             <PopoverContent className="w-80 p-0" align="end">
               <MessagePopoverPanel onCompose={() => setMsgOpen(false)} />

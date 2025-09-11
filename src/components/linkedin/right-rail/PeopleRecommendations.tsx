@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
-import { UserPlus, Check, ChevronRight, MessageSquareMore, X } from "lucide-react";
+import { UserPlus, Check, ChevronRight, MessageSquare, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useConnections, type ConnectionState } from "@/hooks/useConnections";
 
@@ -141,7 +141,7 @@ export const PeopleRecommendations: React.FC<PeopleRecommendationsProps> = ({ li
                 </div>
                 {st === "accepted" && (
                   <Button size="sm" onClick={() => navigate(`/community/messages`)}> 
-                    <MessageSquareMore className="h-4 w-4 mr-1" /> Nachricht
+                    <MessageSquare className="h-4 w-4 mr-1" /> Nachricht
                   </Button>
                 )}
                 {st === "none" && (

@@ -1,7 +1,7 @@
 
 import React from "react";
 import { Input } from "@/components/ui/input";
-import { Bell, MessageSquareMore, Search } from "lucide-react";
+import { Bell, MessageSquare, Search } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -56,7 +56,7 @@ export function HeaderWithSearch({ value, onChange, onSubmit, className }: Heade
             <Bell className="h-5 w-5" />
           </Button>
           <Button variant="ghost" size="icon" className="h-9 w-9">
-            <MessageSquareMore className="h-5 w-5" />
+            <MessageSquare className="h-5 w-5" />
           </Button>
           <Avatar className="h-8 w-8">
             <AvatarImage src={profile?.avatar_url || undefined} />
