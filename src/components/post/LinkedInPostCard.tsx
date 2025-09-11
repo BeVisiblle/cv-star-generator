@@ -38,8 +38,6 @@ export default function LinkedInPostCard({ post }: LinkedInPostCardProps) {
     <Card className="rounded-2xl border bg-card shadow-sm">
       <PostHeader 
         post={post}
-        displayName={getDisplayName()}
-        initials={getInitials()}
       />
       
       <PostBody post={post} />
@@ -62,6 +60,7 @@ export default function LinkedInPostCard({ post }: LinkedInPostCardProps) {
 
       <PostActions 
         post={post} 
+        onLike={() => {}}
         onToggleComments={() => setShowComments(!showComments)}
         showComments={showComments}
       />

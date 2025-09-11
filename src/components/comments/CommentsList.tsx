@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import { useSocialPostComments } from '@/hooks/useSocialFeed';
-import { CommentItem } from './CommentItem';
+import CommentItem from './CommentItem';
 
 interface CommentsListProps {
   postId: string;

@@ -33,6 +33,14 @@ const Dashboard = () => {
               {/* Sort Bar */}
               <FeedSortBar />
               
+              {/* NEW: LinkedIn-style Post Feed */}
+              <div className="bg-card rounded-lg p-4 border">
+                <h2 className="text-lg font-semibold mb-4">Social Feed (LinkedIn-Style)</h2>
+                <div id="social-feed-container">
+                  {/* This will be rendered by PostFeed component */}
+                </div>
+              </div>
+              
               {/* Community Feed */}
               <EnhancedCommunityFeed />
             </div>

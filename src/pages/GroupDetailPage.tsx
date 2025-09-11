@@ -28,7 +28,7 @@ export default function GroupDetailPage() {
   const [activeTab, setActiveTab] = useState('posts');
   
   const { data: group, isLoading: groupLoading } = useGroup(id!);
-  const { data: posts = [] } = usePosts(id!, { type: activeTab === 'posts' ? undefined : 'thread' });
+  const { data: posts = [] } = usePosts();
   const { data: files = [] } = useFiles(id!);
   const { data: questions = [] } = useQuestions(id!);
   const { data: joinRequests = [] } = useGroupJoinRequests(id!);
@@ -198,7 +198,7 @@ export default function GroupDetailPage() {
                 {posts.map((post) => (
                   <Card key={post.id}>
                     <CardHeader>
-                      <CardTitle className="text-lg">{post.title}</CardTitle>
+                      <CardTitle className="text-lg">{post.body?.slice(0, 50) || 'Untitled'}</CardTitle>
                     </CardHeader>
                     <CardContent>
                       <p className="text-muted-foreground">{post.body}</p>
