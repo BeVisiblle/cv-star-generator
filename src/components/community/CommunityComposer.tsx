@@ -4,10 +4,11 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Globe, Users, UserCheck, Send, Loader2 } from 'lucide-react';
+import { Globe, Users, UserCheck, Send, Loader2, Image } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
-import { useCreatePost } from '@/hooks/useCreatePost';
-import { useComposerGuard } from '@/components/feed/ComposerProvider';
+import { useCreateCommunityPost } from '@/hooks/useCommunityPosts';
+import AttachmentUploader from '@/components/upload/AttachmentUploader';
+import { UploadedAttachment } from '@/lib/uploads';
 
 type PostVisibility = "public" | "followers" | "connections";
 
@@ -18,23 +19,35 @@ const visibilityOptions = [
 ];
 
 export const CommunityComposer = () => {
-  const { canRender } = useComposerGuard('community-composer');
   const { user, profile } = useAuth();
-  const { createPost, isCreating } = useCreatePost();
+  const createPost = useCreateCommunityPost();
   const [content, setContent] = useState('');
   const [visibility, setVisibility] = useState<PostVisibility>('public');
+  const [attachments, setAttachments] = useState<UploadedAttachment[]>([]);
 
-  if (!canRender || !user) return null;
+  if (!user) return null;
 
-  const handleSubmit = () => {
-    if (!content.trim()) return;
+  const handleSubmit = async () => {
+    if (!content.trim() && attachments.length === 0) return;
 
-    createPost({
-      content: content.trim(),
-      visibility,
-    });
+    try {
+      await createPost.mutateAsync({
+        post_kind: attachments.length > 0 ? 'media' : 'text',
+        body_md: content.trim(),
+        visibility,
+        media: attachments.map(att => ({
+          type: att.mime_type.startsWith('image/') ? 'image' : 'document',
+          url: att.url,
+          filename: att.storage_path.split('/').pop(),
+          size: att.size_bytes
+        }))
+      });
 
-    setContent('');
+      setContent('');
+      setAttachments([]);
+    } catch (error) {
+      console.error('Error creating post:', error);
+    }
   };
 
   const selectedOption = visibilityOptions.find(opt => opt.value === visibility)!;
@@ -64,8 +77,15 @@ export const CommunityComposer = () => {
             placeholder="Was gibt's Neues?"
             value={content}
             onChange={(e) => setContent(e.target.value)}
-            className="min-h-[80px] resize-none border-0 p-0 shadow-none focus-visible:ring-0"
+            className="min-h-[120px] resize-none border-0 p-0 shadow-none focus-visible:ring-0"
             maxLength={5000}
+          />
+          
+          <AttachmentUploader
+            maxFiles={4}
+            accept="image/*,application/pdf"
+            onUploaded={setAttachments}
+            className="w-full"
           />
           
           <div className="flex items-center justify-between">
@@ -93,10 +113,10 @@ export const CommunityComposer = () => {
 
             <Button 
               onClick={handleSubmit}
-              disabled={!content.trim() || isCreating}
+              disabled={(!content.trim() && attachments.length === 0) || createPost.isPending}
               size="sm"
             >
-              {isCreating ? (
+              {createPost.isPending ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
               ) : (
                 <>

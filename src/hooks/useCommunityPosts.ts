@@ -37,11 +37,11 @@ export interface CreatePostData {
 }
 
 // Hook to get community feed
-export function useCommunityFeed() {
+export function useCommunityFeed(sortBy?: string) {
   const { user } = useAuth();
 
   return useInfiniteQuery({
-    queryKey: ['community-feed', user?.id],
+    queryKey: ['community-feed', user?.id, sortBy],
     enabled: !!user?.id,
     queryFn: async ({ pageParam = 0 }) => {
       const { data, error } = await supabase.rpc('get_community_feed', {
@@ -102,9 +102,27 @@ export function useCommunityFeed() {
         })
       );
 
+      // Apply client-side sorting based on sortBy parameter
+      let sortedPosts = [...enrichedPosts];
+      if (sortBy === 'newest') {
+        sortedPosts.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+      } else {
+        // 'relevant' sorting - based on engagement (likes + comments + shares)
+        sortedPosts.sort((a, b) => {
+          const scoreA = (a.like_count || 0) + (a.comment_count || 0) + (a.share_count || 0);
+          const scoreB = (b.like_count || 0) + (b.comment_count || 0) + (b.share_count || 0);
+          
+          if (scoreA === scoreB) {
+            // If same engagement, show newer posts first
+            return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+          }
+          return scoreB - scoreA;
+        });
+      }
+
       return {
-        posts: enrichedPosts,
-        nextPageParam: enrichedPosts.length === 20 ? pageParam + 1 : undefined
+        posts: sortedPosts,
+        nextPageParam: sortedPosts.length === 20 ? pageParam + 1 : undefined
       };
     },
     getNextPageParam: (lastPage) => lastPage.nextPageParam,

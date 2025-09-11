@@ -7,7 +7,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useCompany } from '@/hooks/useCompany';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import NewPostComposer from '@/components/community/NewPostComposer';
+import { CommunityComposer } from '@/components/community/CommunityComposer';
 import JobShareDialog from '@/components/company/jobs/JobShareDialog';
 
 interface CommunityComposerTeaserProps {
@@ -126,7 +126,19 @@ export default function CommunityComposerTeaser({ onOpenComposer }: CommunityCom
           </div>
         </CardContent>
       </Card>
-      <NewPostComposer open={composerOpen} onOpenChange={setComposerOpen} />
+      {composerOpen && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-background rounded-lg shadow-lg w-full max-w-2xl max-h-[90vh] overflow-hidden">
+            <div className="p-4 border-b flex justify-between items-center">
+              <h2 className="text-lg font-semibold">Neuer Beitrag</h2>
+              <Button variant="ghost" size="sm" onClick={() => setComposerOpen(false)}>×</Button>
+            </div>
+            <div className="overflow-y-auto max-h-[70vh] p-4">
+              <CommunityComposer />
+            </div>
+          </div>
+        </div>
+      )}
 
       {jobs.length > 0 && company && (
         <JobShareDialog
