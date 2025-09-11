@@ -70,7 +70,7 @@ interface Comment {
 }
 
 export default function LinkedInPostCard({ post }: LinkedInPostCardProps) {
-  const [showComments, setShowComments] = useState(true); // Always show comments
+  const [showComments, setShowComments] = useState(false); // Initially hidden
   const [newComment, setNewComment] = useState('');
   const [expanded, setExpanded] = useState(false);
   const [replyTo, setReplyTo] = useState<{ id: string; name: string } | null>(null);
@@ -318,6 +318,7 @@ export default function LinkedInPostCard({ post }: LinkedInPostCardProps) {
         <Button
           variant="ghost"
           size="sm"
+          onClick={() => setShowComments(!showComments)}
           className="flex-1 gap-2 text-muted-foreground hover:bg-gray-50"
         >
           <MessageCircle className="h-5 w-5" />
@@ -344,7 +345,8 @@ export default function LinkedInPostCard({ post }: LinkedInPostCardProps) {
         </Button>
       </div>
 
-      {/* Comments Section - Always visible */}
+      {/* Comments Section - Only show when showComments is true */}
+      {showComments && (
       <div className="px-4 py-3">
         {/* Comment Input */}
         <div className="flex gap-2 mb-4">
@@ -399,6 +401,7 @@ export default function LinkedInPostCard({ post }: LinkedInPostCardProps) {
           <div className="text-sm text-muted-foreground">{commentsCount} Kommentare</div>
         )}
       </div>
+      )}
 
       {/* DM dialog */}
       <QuickMessageDialog 

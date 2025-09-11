@@ -259,7 +259,7 @@ const authorSubtitle = useMemo(() => {
           <Button
             variant="ghost"
             size="sm"
-            onClick={handleOpenComments}
+            onClick={() => setShowComments(!showComments)}
             className="flex-1 gap-2 text-muted-foreground hover:bg-gray-50"
           >
             <MessageCircle className="h-5 w-5" />
@@ -282,77 +282,79 @@ const authorSubtitle = useMemo(() => {
           </Button>
         </div>
 
-        {/* Comment Input - Always visible */}
-        <div className="pt-3 border-t border-gray-100">
-          <div className="flex gap-2 mb-4">
-            <Avatar className="h-8 w-8 flex-shrink-0">
-              <AvatarImage src={user?.user_metadata?.avatar_url} />
-              <AvatarFallback className="text-xs">
-                {user?.user_metadata?.full_name?.charAt(0) || 'U'}
-              </AvatarFallback>
-            </Avatar>
-            <div className="flex-1">
-              <Input
-                ref={commentInputRef as any}
-                placeholder={replyTo ? `Antwort an ${replyTo.name}...` : 'Kommentar hinzufügen...'}
-                value={newComment}
-                onChange={(e) => setNewComment(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault();
-                    handleComment();
-                  }
-                }}
-                className="rounded-full border-gray-200"
-              />
+        {/* Comments Section - Only show when showComments is true */}
+        {showComments && (
+          <div className="pt-3 border-t border-gray-100">
+            <div className="flex gap-2 mb-4">
+              <Avatar className="h-8 w-8 flex-shrink-0">
+                <AvatarImage src={user?.user_metadata?.avatar_url} />
+                <AvatarFallback className="text-xs">
+                  {user?.user_metadata?.full_name?.charAt(0) || 'U'}
+                </AvatarFallback>
+              </Avatar>
+              <div className="flex-1">
+                <Input
+                  ref={commentInputRef as any}
+                  placeholder={replyTo ? `Antwort an ${replyTo.name}...` : 'Kommentar hinzufügen...'}
+                  value={newComment}
+                  onChange={(e) => setNewComment(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                      e.preventDefault();
+                      handleComment();
+                    }
+                  }}
+                  className="rounded-full border-gray-200"
+                />
+              </div>
             </div>
-          </div>
 
-          {/* Comments Section */}
-          {commentsLoading ? (
-            <p className="text-sm text-muted-foreground py-2">Kommentare werden geladen…</p>
-          ) : comments.length === 0 ? (
-            <p className="text-sm text-muted-foreground py-2">{commentsCount} Kommentare</p>
-          ) : (
-            <div className="space-y-3">
-              <div className="text-sm text-muted-foreground mb-2">{commentsCount} Kommentare</div>
-              {comments.map((c) => {
-                const name = c.author?.vorname && c.author?.nachname
-                  ? `${c.author.vorname} ${c.author.nachname}`
-                  : 'Unbekannt';
-                const initials = c.author?.vorname && c.author?.nachname
-                  ? `${c.author.vorname[0]}${c.author.nachname[0]}`
-                  : 'U';
-                const mention = `@${name.split(' ')[0]}`;
-                return (
-                  <div key={c.id} className="flex items-start gap-2">
-                    <Avatar className="h-8 w-8 cursor-pointer" onClick={() => navigate(`/u/${c.author?.id || c.user_id}`)}>
-                      <AvatarImage src={c.author?.avatar_url ?? undefined} />
-                      <AvatarFallback className="text-xs">{initials}</AvatarFallback>
-                    </Avatar>
-                    <div className="flex-1 bg-gray-100 rounded-2xl px-3 py-2">
-                      <button className="text-sm font-semibold hover:underline text-left" onClick={() => navigate(`/u/${c.author?.id || c.user_id}`)}>{name}</button>
-                      <div className="text-sm text-gray-900 mt-0.5 whitespace-pre-wrap break-words">{c.content}</div>
-                      <div className="flex items-center gap-4 mt-1 text-xs text-muted-foreground">
-                        <button 
-                          className="hover:underline font-medium"
-                          onClick={() => {
-                            setReplyTo({ id: c.id, name });
-                            setNewComment((prev) => (prev.startsWith(mention) ? prev : `${mention} `));
-                            setTimeout(() => commentInputRef.current?.focus(), 0);
-                          }}
-                        >
-                          Antworten
-                        </button>
-                        <span>{formatDistanceToNow(new Date(c.created_at), { addSuffix: true, locale: de })}</span>
+            {/* Comments List */}
+            {commentsLoading ? (
+              <p className="text-sm text-muted-foreground py-2">Kommentare werden geladen…</p>
+            ) : comments.length === 0 ? (
+              <p className="text-sm text-muted-foreground py-2">Sei der Erste, der kommentiert.</p>
+            ) : (
+              <div className="space-y-3">
+                <div className="text-sm text-muted-foreground mb-2">{commentsCount} Kommentare</div>
+                {comments.map((c) => {
+                  const name = c.author?.vorname && c.author?.nachname
+                    ? `${c.author.vorname} ${c.author.nachname}`
+                    : 'Unbekannt';
+                  const initials = c.author?.vorname && c.author?.nachname
+                    ? `${c.author.vorname[0]}${c.author.nachname[0]}`
+                    : 'U';
+                  const mention = `@${name.split(' ')[0]}`;
+                  return (
+                    <div key={c.id} className="flex items-start gap-2">
+                      <Avatar className="h-8 w-8 cursor-pointer" onClick={() => navigate(`/u/${c.author?.id || c.user_id}`)}>
+                        <AvatarImage src={c.author?.avatar_url ?? undefined} />
+                        <AvatarFallback className="text-xs">{initials}</AvatarFallback>
+                      </Avatar>
+                      <div className="flex-1 bg-gray-100 rounded-2xl px-3 py-2">
+                        <button className="text-sm font-semibold hover:underline text-left" onClick={() => navigate(`/u/${c.author?.id || c.user_id}`)}>{name}</button>
+                        <div className="text-sm text-gray-900 mt-0.5 whitespace-pre-wrap break-words">{c.content}</div>
+                        <div className="flex items-center gap-4 mt-1 text-xs text-muted-foreground">
+                          <button 
+                            className="hover:underline font-medium"
+                            onClick={() => {
+                              setReplyTo({ id: c.id, name });
+                              setNewComment((prev) => (prev.startsWith(mention) ? prev : `${mention} `));
+                              setTimeout(() => commentInputRef.current?.focus(), 0);
+                            }}
+                          >
+                            Antworten
+                          </button>
+                          <span>{formatDistanceToNow(new Date(c.created_at), { addSuffix: true, locale: de })}</span>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       {/* DM dialog */}
