@@ -38,15 +38,18 @@ export const PeopleRecommendations: React.FC<PeopleRecommendationsProps> = ({ li
 
   React.useEffect(() => {
     const load = async () => {
-      if (!user) return;
       setLoading(true);
       try {
         const { data, error } = await supabase
           .from("profiles")
           .select("id, vorname, nachname, avatar_url, ort, branche, headline, ausbildungsberuf, geplanter_abschluss, status")
           .eq("profile_published", true)
-          .in("status", ["azubi", "schueler"]) as any;
+        .in("status", ["azubi", "schueler"]) as any;
         if (error) throw error;
+        if (!user) {
+          setItems([]);
+          return;
+        }
         const filtered = (data as SimpleProfile[]).filter(p => p.id !== user.id).slice(0, limit);
         setItems(filtered);
         // Preload connection statuses

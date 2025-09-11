@@ -49,17 +49,24 @@ export const CompanyRecommendations: React.FC<CompanyRecommendationsProps> = ({ 
 
   React.useEffect(() => {
     const loadFollows = async () => {
-      if (!user || items.length === 0) return;
-      const ids = items.map(i => i.id);
-      const { data, error } = await supabase
-        .from('follows')
-        .select('followee_id')
-        .eq('follower_id', user.id)
-        .eq('follower_type', 'profile')
-        .eq('followee_type', 'company')
-        .in('followee_id', ids);
-      if (!error && data) {
-        setFollowing(new Set((data as any[]).map((d: any) => d.followee_id as string)));
+      try {
+        if (!user || items.length === 0) {
+          setFollowing(new Set());
+          return;
+        }
+        const ids = items.map(i => i.id);
+        const { data, error } = await supabase
+          .from('follows')
+          .select('followee_id')
+          .eq('follower_id', user.id)
+          .eq('follower_type', 'profile')
+          .eq('followee_type', 'company')
+          .in('followee_id', ids);
+        if (!error && data) {
+          setFollowing(new Set((data as any[]).map((d: any) => d.followee_id as string)));
+        }
+      } catch (e) {
+        console.error(e);
       }
     };
     loadFollows();
