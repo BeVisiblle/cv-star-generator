@@ -1,13 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { SidebarTrigger } from "@/components/ui/sidebar";
-import { Bell, Search as SearchIcon, MessageSquare, Users, User } from "lucide-react";
-import { useLocation, useNavigate, Link } from "react-router-dom";
-
-import { NotificationCenter } from "@/components/notifications/NotificationCenter";
-import { BrandMark } from "@/components/branding/BrandMark";
-import { BrandWordmark } from "@/components/branding/BrandWordmark";
-import { layoutConfig } from "@/lib/layoutConfig";
-
+import { Bell, Search as SearchIcon, MessageSquareMore, Users, User } from "lucide-react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import SearchAutosuggest, { SuggestionType } from "@/components/marketplace/SearchAutosuggest";
 import ConnectionsDrawer from "@/components/community/ConnectionsDrawer";
@@ -36,10 +30,7 @@ export default function TopNavBar() {
   const [open, setOpen] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [msgOpen, setMsgOpen] = useState(false);
-  const [isNotificationCenterOpen, setIsNotificationCenterOpen] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
-  
-  const unreadCount = 0; // Temporarily disabled
 
   const handleSubmit = () => {
     const term = q.trim();
@@ -55,101 +46,82 @@ export default function TopNavBar() {
   // Sticky navbar at top with high z-index
   return (
     <div className="sticky top-0 z-[300] border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="flex h-14 items-center px-2 sm:px-4 gap-2 sm:gap-4">
-        <div className="flex items-center gap-2 sm:gap-3">
-          <SidebarTrigger className="min-h-[44px] min-w-[44px]" />
-          {/* Logo/Brand - only in navbar */}
-          {layoutConfig.brandPlacement === 'navbar' && (
-            <div 
-              className="flex items-center gap-2 cursor-pointer min-h-[44px]"
-              onClick={() => navigate('/dashboard')}
-            >
-              <BrandMark className="h-6 w-6 sm:h-8 sm:w-8" />
-              <BrandWordmark location="navbar" className="hidden sm:block" />
-            </div>
-          )}
+      <div className="flex h-14 items-center px-4 gap-4">
+        <div className="flex items-center gap-3">
+          <SidebarTrigger />
+          {/* Logo */}
+          <div 
+            className="flex items-center gap-2 cursor-pointer"
+            onClick={() => navigate('/dashboard')}
+          >
+            <img 
+              src="/lovable-uploads/59fd3c9b-c2d3-4613-b2c1-1366f349e1e9.png" 
+              alt="Ausbildungsbasis Logo" 
+              className="h-8 w-8"
+            />
+            <span className="font-bold text-primary hidden sm:block">
+              Ausbildungsbasis
+            </span>
+          </div>
         </div>
         
-        {/* Page Title for Mobile */}
-        <div className="flex-1 md:hidden">
-          <h1 className="text-sm font-semibold truncate">{title}</h1>
-        </div>
-        
-        {/* Global Search Bar */}
+        {/* Desktop Search Bar */}
         <div className="hidden md:flex flex-1 max-w-md mx-4 relative">
-          <Input 
+          <Input
             ref={inputRef}
+            placeholder="Personen, Unternehmen suchen..."
             value={q}
-            onChange={(e) => setQ(e.target.value)}
-            onFocus={() => setOpen(true)}
-            placeholder="Personen, Unternehmen, Events suchen..."
-            className="w-full"
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                e.preventDefault();
-                handleSubmit();
-              }
+            onChange={(e) => {
+              setQ(e.target.value);
+              setOpen(e.target.value.trim().length >= 2);
             }}
+            onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
+            onFocus={() => setOpen(q.trim().length >= 2)}
+            className="pr-10"
           />
-          <SearchAutosuggest
-            query={q}
-            open={open && q.length >= 2}
+          <SearchIcon 
+            className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground cursor-pointer" 
+            onClick={handleSubmit}
+          />
+          <SearchAutosuggest 
+            query={q} 
+            open={open}
             anchorRef={inputRef}
             onClose={handleSearchClose}
-            onSelect={(type: SuggestionType, payload: { id: string; label: string }) => {
+            onSelect={(type: SuggestionType, item: { id: string; label: string }) => {
               setOpen(false);
-              setQ('');
-              
-              // Navigate based on type
               if (type === 'person') {
-                navigate(`/u/${payload.id}`);
+                navigate(`/u/${item.id}`);
               } else if (type === 'company') {
-                navigate(`/companies/${payload.id}`);
+                navigate(`/companies/${item.id}`);
               }
-            }}
+            }} 
           />
         </div>
         
         {/* Icons aligned to the right */}
-        <div className="flex items-center gap-1 sm:gap-3 ml-auto">
+        <div className="flex items-center gap-3 ml-auto">
           {/* Mobile Search */}
-          <div className="min-h-[44px] min-w-[44px] flex items-center justify-center">
-            <SearchIcon 
-              className="h-5 w-5 cursor-pointer hover:text-primary md:hidden" 
-              onClick={() => navigate('/marketplace')} 
-            />
-          </div>
+          <SearchIcon 
+            className="h-5 w-5 cursor-pointer hover:text-primary md:hidden" 
+            onClick={() => navigate('/marketplace')} 
+          />
           
-          <div className="min-h-[44px] min-w-[44px] flex items-center justify-center">
-            <Users 
-              className="h-5 w-5 cursor-pointer hover:text-primary" 
-              onClick={() => setDrawerOpen(true)} 
-            />
-          </div>
+          <Users 
+            className="h-5 w-5 cursor-pointer hover:text-primary" 
+            onClick={() => setDrawerOpen(true)} 
+          />
           
           <Popover open={msgOpen} onOpenChange={setMsgOpen}>
             <PopoverTrigger asChild>
-              <div className="min-h-[44px] min-w-[44px] flex items-center justify-center">
-                <MessageSquare className="h-5 w-5 cursor-pointer hover:text-primary" />
-              </div>
+              <MessageSquareMore className="h-5 w-5 cursor-pointer hover:text-primary" />
             </PopoverTrigger>
             <PopoverContent className="w-80 p-0" align="end">
               <MessagePopoverPanel onCompose={() => setMsgOpen(false)} />
             </PopoverContent>
           </Popover>
           
-          <div className="relative">
-            <Bell 
-              className="h-5 w-5 cursor-pointer hover:text-primary" 
-              onClick={() => setIsNotificationCenterOpen(true)} 
-            />
-            {unreadCount > 0 && (
-              <span className="absolute -top-1 -right-1 h-4 w-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
-                {unreadCount > 9 ? '9+' : unreadCount}
-              </span>
-            )}
-          </div>
-          
+          <Bell className="h-5 w-5 cursor-pointer hover:text-primary" onClick={() => navigate('/notifications')} />
           
           <User 
             className="h-5 w-5 cursor-pointer hover:text-primary" 
@@ -160,12 +132,6 @@ export default function TopNavBar() {
       
       {/* Connections Drawer */}
       <ConnectionsDrawer open={drawerOpen} onOpenChange={setDrawerOpen} />
-
-          {/* Notification Center */}
-      <NotificationCenter 
-        isOpen={isNotificationCenterOpen} 
-        onClose={() => setIsNotificationCenterOpen(false)} 
-      />
     </div>
   );
 }

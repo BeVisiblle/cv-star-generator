@@ -2,7 +2,7 @@ import React from "react";
 import { Card } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Image as ImageIcon, Calendar, FileText, BarChart3 } from "lucide-react";
+import { Image as ImageIcon, Calendar, FileText, ChartBar } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { openPostComposer } from "@/lib/event-bus";
 
@@ -43,7 +43,7 @@ export const ComposerTeaser: React.FC = () => {
               <FileText className="h-4 w-4 mr-2" /> Dokument
             </Button>
             <Button type="button" variant="ghost" size="sm" className="h-8 px-2 text-xs" onClick={openPostComposer}>
-              <BarChart3 className="h-4 w-4 mr-2" /> Umfrage
+              <ChartBar className="h-4 w-4 mr-2" /> Umfrage
             </Button>
           </div>
         </div>

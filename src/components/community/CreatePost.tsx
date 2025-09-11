@@ -10,9 +10,6 @@ import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import { Send, Image, X, FileText } from "lucide-react";
-import AttachmentUploader from "@/components/upload/AttachmentUploader";
-import FilePreview from "@/components/upload/FilePreview";
-import { UploadedAttachment } from "@/lib/uploads";
 
 export interface CreatePostProps {
   container?: "card" | "none"; // render inside Card (default) or bare content for composer dialog
@@ -32,7 +29,9 @@ export interface CreatePostProps {
 
 export const CreatePost = ({ container = "card", hideHeader = false, variant = "default", hideBottomBar = false, onStateChange, scheduledAt, showPoll = false, showEvent = false, celebration = false, visibility = 'public', context = 'user', companyId }: CreatePostProps) => {
   const [content, setContent] = useState("");
-  const [attachments, setAttachments] = useState<UploadedAttachment[]>([]);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [documentFile, setDocumentFile] = useState<File | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const queryClient = useQueryClient();
   const { toast } = useToast();
@@ -91,7 +90,8 @@ export const CreatePost = ({ container = "card", hideHeader = false, variant = "
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["community-posts"] });
       setContent("");
-      setAttachments([]);
+      setImageFile(null);
+      setImagePreview(null);
       toast({
         title: "Beitrag veröffentlicht",
         description: "Dein Beitrag wurde erfolgreich geteilt.",
@@ -113,17 +113,59 @@ export const CreatePost = ({ container = "card", hideHeader = false, variant = "
     const eventValid = showEvent ? Boolean(eventTitle.trim() && eventStartDate && eventStartTime && eventEndDate && eventEndTime) : false;
 
     // Min. 10 Zeichen, wenn Umfrage oder Dokument vorhanden ist
-    const needsMinText = (showPoll && pollValid) || attachments.length > 0;
+    const needsMinText = (showPoll && pollValid) || !!documentFile;
     const hasMinText = content.trim().length >= 10;
 
     const canPost = needsMinText
       ? hasMinText
-      : Boolean(content.trim() || attachments.length > 0 || pollValid || eventValid);
+      : Boolean(content.trim() || imageFile || documentFile || pollValid || eventValid);
 
     onStateChange?.({ canPost, isSubmitting });
-  }, [content, attachments, pollQuestion, pollOptions, eventTitle, eventStartDate, eventStartTime, eventEndDate, eventEndTime, showPoll, showEvent, isSubmitting, onStateChange]);
+  }, [content, imageFile, documentFile, pollQuestion, pollOptions, eventTitle, eventStartDate, eventStartTime, eventEndDate, eventEndTime, showPoll, showEvent, isSubmitting, onStateChange]);
 
-  // File handling is now done by AttachmentUploader
+  const handleImageSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      toast({ title: 'Ungültiger Dateityp', description: 'Bitte ein Bild auswählen.', variant: 'destructive' });
+      return;
+    }
+    const maxBytes = 10 * 1024 * 1024; // 10MB
+    if (file.size > maxBytes) {
+      toast({ title: 'Datei zu groß', description: 'Bilder dürfen max. 10 MB groß sein.', variant: 'destructive' });
+      return;
+    }
+
+    setImageFile(file);
+    const reader = new FileReader();
+    reader.onload = (e) => setImagePreview(e.target?.result as string);
+    reader.readAsDataURL(file);
+  };
+
+  const removeImage = () => {
+    setImageFile(null);
+    setImagePreview(null);
+  };
+
+  const handleDocumentSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    if (file.type !== 'application/pdf') {
+      toast({ title: 'Nur PDF erlaubt', description: 'Bitte lade ein PDF-Dokument hoch.', variant: 'destructive' });
+      return;
+    }
+    const maxBytes = 20 * 1024 * 1024; // 20MB
+    if (file.size > maxBytes) {
+      toast({ title: 'Datei zu groß', description: 'PDFs dürfen max. 20 MB groß sein.', variant: 'destructive' });
+      return;
+    }
+    setDocumentFile(file);
+  };
+
+  const removeDocument = () => {
+    setDocumentFile(null);
+  };
 
   const uploadImage = async (file: File): Promise<string> => {
     const result = await uploadFile(file, 'post-media', 'images');
@@ -132,13 +174,13 @@ export const CreatePost = ({ container = "card", hideHeader = false, variant = "
 
   const handleSubmit = async () => {
     // Pflichttext bei Umfrage oder Dokument
-    const needsMinText = (showPoll && Boolean(pollQuestion.trim() && pollOptions.filter(o => o.trim()).length >= 2)) || attachments.length > 0;
+    const needsMinText = (showPoll && Boolean(pollQuestion.trim() && pollOptions.filter(o => o.trim()).length >= 2)) || !!documentFile;
     if (needsMinText && content.trim().length < 10) {
       toast({ title: 'Bitte mehr schreiben', description: 'Du musst mind. 10 Zeichen zum Beitrag schreiben.', variant: 'destructive' });
       return;
     }
 
-    if (!content.trim() && attachments.length === 0 && !(showPoll && pollQuestion.trim() && pollOptions.filter(o=>o.trim()).length>=2) && !(showEvent && eventTitle.trim() && eventStartDate && eventStartTime && eventEndDate && eventEndTime)) {
+    if (!content.trim() && !imageFile && !documentFile && !(showPoll && pollQuestion.trim() && pollOptions.filter(o=>o.trim()).length>=2) && !(showEvent && eventTitle.trim() && eventStartDate && eventStartTime && eventEndDate && eventEndTime)) {
       return;
     }
 
@@ -165,11 +207,27 @@ export const CreatePost = ({ container = "card", hideHeader = false, variant = "
         return;
       }
 
-      // Use attachments for media
-      const mediaUrls = attachments.map(a => a.url);
+      let imageUrl;
+      if (imageFile) {
+        imageUrl = await uploadImage(imageFile);
+      }
 
       const postId = crypto.randomUUID();
-      const newPost = await createPostMutation.mutateAsync({ id: postId, content, imageUrl: mediaUrls[0] || null });
+      const newPost = await createPostMutation.mutateAsync({ id: postId, content, imageUrl });
+
+      // Upload and attach document if present
+      if (documentFile) {
+        const docUpload = await uploadFile(documentFile, 'post-media', 'documents');
+        const { error: docErr } = await supabase
+          .from('post_documents')
+          .insert({
+            post_id: newPost.id,
+            storage_path: docUpload.path,
+            file_name: documentFile.name,
+            file_size: documentFile.size,
+          });
+        if (docErr) throw docErr;
+      }
 
       // Create poll if requested and valid
       if (showPoll && pollQuestion.trim()) {
@@ -208,7 +266,7 @@ export const CreatePost = ({ container = "card", hideHeader = false, variant = "
       }
 
       // Reset add-on states
-      setAttachments([]);
+      setDocumentFile(null);
       setPollQuestion("");
       setPollOptions(["", ""]);
       setPollDurationDays(7);
@@ -248,16 +306,27 @@ export const CreatePost = ({ container = "card", hideHeader = false, variant = "
         }
       />
 
-      <AttachmentUploader
-        maxFiles={6}
-        accept="image/*,application/pdf"
-        onUploaded={setAttachments}
-        className="w-full"
-      />
-      
-      {attachments.length > 0 && (
-        <div className="mt-4">
-          <FilePreview files={attachments} />
+      {imagePreview && (
+        <div className="relative inline-block">
+          <img src={imagePreview} alt="Bildvorschau des Beitrags" className="max-h-60 rounded-lg border" />
+          <Button
+            variant="destructive"
+            size="sm"
+            className="absolute -top-2 -right-2 h-6 w-6 rounded-full p-0"
+            onClick={removeImage}
+          >
+            <X className="h-3 w-3" />
+          </Button>
+        </div>
+      )}
+
+      {documentFile && (
+        <div className="flex items-center gap-2">
+          <FileText className="h-4 w-4" />
+          <span className="text-sm truncate max-w-[260px]" title={documentFile.name}>{documentFile.name}</span>
+          <Button variant="destructive" size="sm" className="h-6 px-2" onClick={removeDocument}>
+            <X className="h-3 w-3" />
+          </Button>
         </div>
       )}
 
@@ -323,7 +392,20 @@ export const CreatePost = ({ container = "card", hideHeader = false, variant = "
       )}
 
       {/* External toolbars can point to these inputs via htmlFor */}
-      {/* File uploads are now handled by AttachmentUploader */}
+      <input
+        type="file"
+        accept="image/*"
+        onChange={handleImageSelect}
+        className="hidden"
+        id="image-upload"
+      />
+      <input
+        type="file"
+        accept="application/pdf"
+        onChange={handleDocumentSelect}
+        className="hidden"
+        id="document-upload"
+      />
 
       {/* Hidden submit button for external triggers */}
       <button id="createpost-submit" onClick={handleSubmit} className="sr-only" aria-hidden="true">
@@ -332,17 +414,27 @@ export const CreatePost = ({ container = "card", hideHeader = false, variant = "
 
       {!hideBottomBar && (
         <div className="flex justify-between items-center">
-          <div className="text-sm text-muted-foreground">
-            {content.length}/500 Zeichen
+          <label htmlFor="image-upload">
+            <Button variant="outline" size="sm" asChild className="cursor-pointer">
+              <span>
+                <Image className="h-4 w-4 mr-2" />
+                Bild hinzufügen
+              </span>
+            </Button>
+          </label>
+          <div className="flex items-center gap-3">
+            <div className="text-sm text-muted-foreground">
+              {content.length}/500 Zeichen
+            </div>
+            <Button 
+              disabled={isSubmitting || !((() => { const pollValid = showPoll && !!pollQuestion.trim() && pollOptions.filter(o=>o.trim()).length>=2; const eventValid = showEvent && !!eventTitle.trim() && eventStartDate && eventStartTime && eventEndDate && eventEndTime; const needsMinText = pollValid || !!documentFile; return needsMinText ? content.trim().length >= 10 : Boolean(content.trim() || imageFile || documentFile || pollValid || eventValid); })())}
+              onClick={handleSubmit}
+              className="flex items-center gap-2"
+            >
+              <Send className="h-4 w-4" />
+              {isSubmitting ? "Wird veröffentlicht..." : "Posten"}
+            </Button>
           </div>
-          <Button 
-            disabled={isSubmitting || !((() => { const pollValid = showPoll && !!pollQuestion.trim() && pollOptions.filter(o=>o.trim()).length>=2; const eventValid = showEvent && !!eventTitle.trim() && eventStartDate && eventStartTime && eventEndDate && eventEndTime; const needsMinText = pollValid || attachments.length > 0; return needsMinText ? content.trim().length >= 10 : Boolean(content.trim() || attachments.length > 0 || pollValid || eventValid); })())}
-            onClick={handleSubmit}
-            className="flex items-center gap-2"
-          >
-            <Send className="h-4 w-4" />
-            {isSubmitting ? "Wird veröffentlicht..." : "Posten"}
-          </Button>
         </div>
       )}
     </div>

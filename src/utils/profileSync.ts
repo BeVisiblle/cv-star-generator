@@ -156,30 +156,25 @@ export const regenerateCVFromProfile = async (userId: string, profile: any) => {
 
     try {
       // Import and render the correct CV layout
-      let LayoutComponent;
+      const LiveCareerLayout = await import('@/components/cv-layouts/LiveCareerLayout');
+      let LayoutComponent = LiveCareerLayout.default;
+
       const layoutId = profile.layout || 1;
-      
       switch (layoutId) {
-        case 1:
-          LayoutComponent = (await import('@/components/cv-layouts/HandwerkClassicLayout')).default;
-          break;
         case 2:
-          LayoutComponent = (await import('@/components/cv-layouts/PflegeClearLayout')).default;
+          LayoutComponent = (await import('@/components/cv-layouts/ClassicLayout')).default;
           break;
         case 3:
-          LayoutComponent = (await import('@/components/cv-layouts/AzubiStartLayout')).default;
+          LayoutComponent = (await import('@/components/cv-layouts/CreativeLayout')).default;
           break;
         case 4:
-          LayoutComponent = (await import('@/components/cv-layouts/ServiceSalesLayout')).default;
+          LayoutComponent = (await import('@/components/cv-layouts/MinimalLayout')).default;
           break;
         case 5:
-          LayoutComponent = (await import('@/components/cv-layouts/LogistikProduktionLayout')).default;
+          LayoutComponent = (await import('@/components/cv-layouts/ProfessionalLayout')).default;
           break;
         case 6:
-          LayoutComponent = (await import('@/components/cv-layouts/ATSCompactLayout')).default;
-          break;
-        default:
-          LayoutComponent = (await import('@/components/cv-layouts/HandwerkClassicLayout')).default;
+          LayoutComponent = (await import('@/components/cv-layouts/ModernLayout')).default;
           break;
       }
 

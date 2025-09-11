@@ -55,7 +55,7 @@ export function AuthenticatedLayout() {
 
         {/* Global UI */}
         <VisibilityPrompt />
-        <NewPostComposer open={false} onOpenChange={() => {}} />
+        <NewPostComposer />
         
         {/* Entry Gates */}
         {entryGates.addressData && (

@@ -14,19 +14,12 @@ import { AspectRatio } from '@/components/ui/aspect-ratio';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import QuickMessageDialog from '@/components/community/QuickMessageDialog';
 import { useAuth } from '@/hooks/useAuth';
-import FilePreview from '@/components/upload/FilePreview';
-import { UploadedAttachment } from '@/lib/uploads';
-import { BookmarkButton } from '@/components/post/BookmarkButton';
-import { ShareMenu } from '@/components/post/ShareMenu';
-import { PostMoreMenu } from '@/components/post/PostMoreMenu';
-import EmploymentBadge from '@/components/employment/EmploymentBadge';
 
 interface PostCardProps {
   post: {
     id: string;
     content: string;
     image_url?: string;
-    media?: string[]; // Support for multiple media files
     created_at: string;
     user_id: string;
     author_type?: 'user' | 'company';
@@ -42,10 +35,6 @@ interface PostCardProps {
       ausbildungsbetrieb?: string;
       aktueller_beruf?: string;
       status?: string;
-      employment_status?: string;
-      company_name?: string;
-      company_logo?: string;
-      company_id?: string;
     } | null;
     company?: {
       id: string;
@@ -61,6 +50,7 @@ export default function PostCard({ post }: PostCardProps) {
   const [newComment, setNewComment] = useState('');
   const [expanded, setExpanded] = useState(false);
   const [replyTo, setReplyTo] = useState<{ id: string; name: string } | null>(null);
+  const [imageOpen, setImageOpen] = useState(false);
   const [sendOpen, setSendOpen] = useState(false);
   const { user } = useAuth();
   const { toast } = useToast();
@@ -152,27 +142,6 @@ const authorSubtitle = useMemo(() => {
 
   const postLink = `${window.location.origin}/marketplace#post-${post.id}`;
 
-  const renderMedia = () => {
-    // Support both old image_url and new media array
-    const mediaUrls = post.media || (post.image_url ? [post.image_url] : []);
-    
-    if (mediaUrls.length === 0) return null;
-
-    // Convert media URLs to UploadedAttachment format for FilePreview
-    const attachments: UploadedAttachment[] = mediaUrls.map((url, index) => ({
-      id: `media-${index}`,
-      storage_path: url,
-      mime_type: url.includes('.pdf') ? 'application/pdf' : 'image/jpeg', // Simple detection
-      url: url
-    }));
-
-    return (
-      <div className="mt-3">
-        <FilePreview files={attachments} />
-      </div>
-    );
-  };
-
   return (
     <Card id={`post-${post.id}`} className="p-0">
       {post.recent_interaction && (
@@ -203,19 +172,6 @@ const authorSubtitle = useMemo(() => {
             {authorSubtitle && (
               <p className="text-xs text-muted-foreground truncate">{authorSubtitle}</p>
             )}
-            {/* Employment Badge */}
-            {post.author_type === 'user' && post.author?.employment_status === 'accepted' && post.author?.company_name && (
-              <div className="mt-1">
-                <EmploymentBadge
-                  companyName={post.author.company_name}
-                  companyLogo={post.author.company_logo}
-                  companyId={post.author.company_id}
-                  role="Mitarbeiter"
-                  status="accepted"
-                  size="sm"
-                />
-              </div>
-            )}
           </div>
         </div>
 
@@ -230,7 +186,24 @@ const authorSubtitle = useMemo(() => {
             )}
           </p>
 
-          {renderMedia()}
+          {post.image_url && (
+            <div>
+              <AspectRatio ratio={16 / 9} className="overflow-hidden rounded-lg border">
+                <img
+                  src={post.image_url}
+                  alt="Post Bild"
+                  className="h-full w-full object-cover cursor-zoom-in"
+                  onClick={() => setImageOpen(true)}
+                  loading="lazy"
+                />
+              </AspectRatio>
+              <Dialog open={imageOpen} onOpenChange={setImageOpen}>
+                <DialogContent className="max-w-3xl">
+                  <img src={post.image_url} alt="Bild groß" className="w-full h-auto rounded" />
+                </DialogContent>
+              </Dialog>
+            </div>
+          )}
         </div>
 
         {/* Counts row */}
@@ -245,109 +218,71 @@ const authorSubtitle = useMemo(() => {
         </div>
 
         {/* Post Actions */}
-        <div className="flex items-center justify-between pt-2 border-t">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleLike}
-            className={`flex-1 gap-2 hover:bg-red-50 ${liked ? 'text-red-500' : 'text-muted-foreground'}`}
-            disabled={isToggling}
-          >
-            <Heart className={`h-5 w-5 ${liked ? 'fill-current' : ''}`} />
-            <span>Gefällt mir</span>
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setShowComments(!showComments)}
-            className="flex-1 gap-2 text-muted-foreground hover:bg-gray-50"
-          >
-            <MessageCircle className="h-5 w-5" />
-            <span>Kommentieren</span>
-          </Button>
-          <div className="flex-1 flex justify-center">
-            <BookmarkButton postId={post.id} />
+        <div className="flex flex-wrap items-center justify-between gap-1 pt-2 border-t">
+          <div className="flex flex-wrap items-center gap-1 sm:gap-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleLike}
+              className={`text-muted-foreground hover:text-red-500 ${liked ? 'text-red-500' : ''}`}
+              disabled={isToggling}
+            >
+              <Heart className={`h-4 w-4 mr-1 ${liked ? 'fill-current' : ''}`} />
+              Gefällt mir
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowComments(!showComments)}
+              className="text-muted-foreground"
+            >
+              <MessageCircle className="h-4 w-4 mr-1" />
+              Kommentieren
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleShareCommunity}
+              className="text-muted-foreground"
+              disabled={isReposting}
+            >
+              <Share2 className="h-4 w-4 mr-1" />
+              {hasReposted ? 'Geteilt' : 'Teilen'}
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setSendOpen(true)}
+              className="text-muted-foreground"
+            >
+              <Send className="h-4 w-4 mr-1" />
+              Direkt senden
+            </Button>
           </div>
-          <div className="flex-1 flex justify-center">
-            <ShareMenu postId={post.id} />
-          </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setSendOpen(true)}
-            className="flex-1 gap-2 text-muted-foreground hover:bg-gray-50"
-          >
-            <Send className="h-5 w-5" />
-            <span>Senden</span>
-          </Button>
         </div>
 
-        {/* Enhanced Comments Section with LinkedIn-style features */}
+        {/* Comments Section */}
         {showComments && (
-          <div className="pt-3 border-t border-gray-100">
-            {/* Comment Composer */}
-            <div className="flex gap-2 mb-4">
-              <Avatar className="h-8 w-8 flex-shrink-0">
-                <AvatarImage src={user?.user_metadata?.avatar_url} />
-                <AvatarFallback className="text-xs">
-                  {user?.user_metadata?.full_name?.charAt(0) || 'U'}
-                </AvatarFallback>
-              </Avatar>
-              <div className="flex-1 relative">
-                {replyTo && (
-                  <div className="mb-2 text-xs text-muted-foreground flex items-center gap-1">
-                    <span>Antwort an {replyTo.name}</span>
-                    <button onClick={() => setReplyTo(null)} className="hover:text-foreground">✕</button>
-                  </div>
-                )}
-                <div className="flex items-center bg-muted rounded-full px-3 py-2 focus-within:ring-2 focus-within:ring-primary/20">
-                  <Input
-                    ref={commentInputRef as any}
-                    placeholder={replyTo ? `Antwort an ${replyTo.name}...` : 'Kommentar hinzufügen...'}
-                    value={newComment}
-                    onChange={(e) => setNewComment(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' && !e.shiftKey) {
-                        e.preventDefault();
-                        handleComment();
-                      }
-                    }}
-                    className="border-0 bg-transparent focus-visible:ring-0 px-0"
-                  />
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    onClick={handleComment}
-                    disabled={!newComment.trim() || isAdding}
-                    className="ml-2 h-6 w-6 p-0 rounded-full"
-                  >
-                    <Send className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
+          <div className="space-y-3 pt-3 border-t">
+            <div className="flex flex-wrap gap-2">
+              <Input
+                ref={commentInputRef as any}
+                placeholder={replyTo ? `Antwort an ${replyTo.name}…` : 'Schreibe einen Kommentar...'}
+                value={newComment}
+                onChange={(e) => setNewComment(e.target.value)}
+                className="flex-1 min-w-0"
+              />
+              <Button size="sm" onClick={handleComment} disabled={!newComment.trim() || isAdding}>
+                Senden
+              </Button>
             </div>
 
-            {/* Comments List with improved design */}
             {commentsLoading ? (
-              <div className="flex items-center justify-center py-4">
-                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
-              </div>
+              <p className="text-xs text-muted-foreground">Kommentare werden geladen…</p>
             ) : comments.length === 0 ? (
-              <div className="text-center py-6">
-                <MessageCircle className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
-                <p className="text-sm text-muted-foreground">Noch keine Kommentare</p>
-                <p className="text-xs text-muted-foreground">Sei der Erste, der kommentiert!</p>
-              </div>
+              <p className="text-xs text-muted-foreground">Sei der Erste, der kommentiert.</p>
             ) : (
               <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <div className="text-sm font-medium text-muted-foreground">
-                    {commentsCount} {commentsCount === 1 ? 'Kommentar' : 'Kommentare'}
-                  </div>
-                  <div className="text-xs text-muted-foreground">
-                    Neueste zuerst
-                  </div>
-                </div>
                 {comments.map((c) => {
                   const name = c.author?.vorname && c.author?.nachname
                     ? `${c.author.vorname} ${c.author.nachname}`
@@ -355,47 +290,30 @@ const authorSubtitle = useMemo(() => {
                   const initials = c.author?.vorname && c.author?.nachname
                     ? `${c.author.vorname[0]}${c.author.nachname[0]}`
                     : 'U';
-                  const firstName = c.author?.vorname || 'Nutzer';
-                  
+                  const mention = `@${name.split(' ')[0]}`;
                   return (
-                    <div key={c.id} className="group">
-                      <div className="flex items-start gap-3">
-                        <Avatar className="h-8 w-8 cursor-pointer hover:ring-2 hover:ring-primary/20 transition-all" onClick={() => navigate(`/u/${c.author?.id || c.user_id}`)}>
-                          <AvatarImage src={c.author?.avatar_url ?? undefined} />
-                          <AvatarFallback className="text-xs">{initials}</AvatarFallback>
-                        </Avatar>
-                        <div className="flex-1 min-w-0">
-                          <div className="bg-muted rounded-2xl px-4 py-3">
-                            <button 
-                              className="text-sm font-semibold hover:underline text-left block mb-1" 
-                              onClick={() => navigate(`/u/${c.author?.id || c.user_id}`)}
-                            >
-                              {name}
-                            </button>
-                            <div className="text-sm leading-relaxed whitespace-pre-wrap break-words">
-                              {c.content}
-                            </div>
-                          </div>
-                          
-                          {/* Comment Actions */}
-                          <div className="flex items-center gap-4 mt-2 px-2">
-                            <button className="text-xs text-muted-foreground hover:text-foreground hover:underline font-medium">
-                              Gefällt mir
-                            </button>
-                            <button 
-                              className="text-xs text-muted-foreground hover:text-foreground hover:underline font-medium"
-                              onClick={() => {
-                                setReplyTo({ id: c.id, name: firstName });
-                                setNewComment(`@${firstName} `);
-                                setTimeout(() => commentInputRef.current?.focus(), 0);
-                              }}
-                            >
-                              Antworten
-                            </button>
-                            <span className="text-xs text-muted-foreground">
-                              {formatDistanceToNow(new Date(c.created_at), { addSuffix: true, locale: de })}
-                            </span>
-                          </div>
+                    <div key={c.id} className="flex items-start gap-2">
+                      <Avatar className="h-8 w-8 cursor-pointer" onClick={() => navigate(`/u/${c.author?.id || c.user_id}`)}>
+                        <AvatarImage src={c.author?.avatar_url ?? undefined} />
+                        <AvatarFallback className="text-xs">{initials}</AvatarFallback>
+                      </Avatar>
+                      <div className="flex-1 bg-muted/40 border rounded-lg p-2">
+                        <button className="text-xs font-medium hover:underline" onClick={() => navigate(`/u/${c.author?.id || c.user_id}`)}>{name}</button>
+                        <div className="text-sm whitespace-pre-wrap">{c.content}</div>
+                        <div className="mt-1">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-6 text-[11px] px-2"
+                            onClick={() => {
+                              setReplyTo({ id: c.id, name });
+                              setShowComments(true);
+                              setNewComment((prev) => (prev.startsWith(mention) ? prev : `${mention} `));
+                              setTimeout(() => commentInputRef.current?.focus(), 0);
+                            }}
+                          >
+                            Antworten
+                          </Button>
                         </div>
                       </div>
                     </div>

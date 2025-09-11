@@ -1,15 +1,11 @@
 import React from 'react';
+import CommunityFeed from '@/components/community/CommunityFeed';
+import { ComposerTeaser } from '@/components/dashboard/ComposerTeaser';
 import { LeftPanel } from '@/components/dashboard/LeftPanel';
-import { PeopleRecommendations } from '@/components/linkedin/right-rail/PeopleRecommendations';
-import { CompanyRecommendations } from '@/components/linkedin/right-rail/CompanyRecommendations';
-import { RightRailAd } from '@/components/linkedin/right-rail/RightRailAd';
-import { PostFeed } from '@/components/feed/PostFeed';
-import useRealtimeFeed from '@/hooks/useRealtimeFeed';
+import { RightPanel } from '@/components/dashboard/RightPanel';
+import FeedSortBar from '@/components/community/FeedSortBar';
 
 const Dashboard = () => {
-  // Initialize realtime subscriptions
-  useRealtimeFeed();
-  
   return (
     <main className="w-full overflow-x-hidden">
       <h1 className="sr-only">Dashboard</h1>
@@ -25,24 +21,18 @@ const Dashboard = () => {
           {/* Center column (flex grows) */}
           <section className="flex-1 min-w-0">
             <div className="w-full max-w-[560px] mx-auto px-4 md:max-w-none md:px-0 space-y-4">
-              {/* Social Feed */}
-              <PostFeed />
+              <ComposerTeaser />
+              <div className="my-2">
+                <FeedSortBar />
+              </div>
+              <CommunityFeed />
             </div>
           </section>
 
-          {/* Right column */}
+          {/* Right column (fixed width) */}
           <aside className="hidden xl:block w-[320px] shrink-0">
             <div className="sticky top-20 space-y-4">
-              <RightRailAd 
-                variant="card"
-                imageUrl="/lovable-uploads/hero-mobile-576x576.png"
-                title="Entdecke jetzt die Zukunft deiner Karriere"
-                description="Teste unsere Tools für Azubis und Fachkräfte – kostenlos starten!"
-                ctaText="Jetzt testen"
-                ctaHref="/cv-generator"
-              />
-              <PeopleRecommendations />
-              <CompanyRecommendations />
+              <RightPanel />
             </div>
           </aside>
         </div>

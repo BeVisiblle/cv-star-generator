@@ -126,7 +126,7 @@ export default function LandingPage() {
                   <Link to="/cv-generator" className="inline-flex items-center justify-center rounded-2xl px-6 py-3 text-base font-semibold border border-[color:var(--brand)] text-[color:var(--brand)] bg-transparent hover:bg-[color:var(--brand)]/10">
                     Profil erstellen – kostenlos
                   </Link>
-                  <Link to="/so-funktionierts" className="inline-flex items-center justify-center rounded-2xl px-6 py-3 text-base font-semibold border border-zinc-700 text-white hover:bg-zinc-900">
+                  <Link to="#so-funktionierts" className="inline-flex items-center justify-center rounded-2xl px-6 py-3 text-base font-semibold border border-zinc-700 text-white hover:bg-zinc-900">
                     So funktioniert's
                   </Link>
                 </div>
@@ -136,15 +136,16 @@ export default function LandingPage() {
               </div>
               <div className="relative lg:ml-8 mx-0">
                 <picture>
+                  <source srcSet="/lovable-uploads/hero-mobile-576x576.webp" type="image/webp" />
                   <img 
-                    src="/lovable-uploads/f4832110-7607-4707-9ab7-0c354dd85de5.png" 
-                    alt="CV Generator Mobile App Screenshots" 
-                    className="w-full max-w-sm mx-auto lg:max-w-none lg:w-full xl:w-[120%] transform lg:translate-x-8" 
-                    width="1200" 
-                    height="600"
+                    src="/lovable-uploads/hero-mobile-576x576.png" 
+                    alt="CV Generator Mobile App" 
+                    className="w-full max-w-md mx-auto lg:max-w-lg xl:max-w-xl transform lg:translate-x-8" 
+                    width="576" 
+                    height="576"
                     loading="eager"
                     fetchPriority="high"
-                    style={{ height: 'auto' }}
+                    style={{ maxWidth: '576px', height: 'auto' }}
                   />
                 </picture>
               </div>
@@ -161,12 +162,13 @@ export default function LandingPage() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
               <div className="relative lg:mr-8">
                 <picture>
+                  <source srcSet="/lovable-uploads/hero-mobile-576x576.webp" type="image/webp" />
                   <img 
-                    src="/lovable-uploads/c2a9bc2e-3848-456e-bd06-6570a63f062f.png" 
-                    alt="CV Generator Mobile App Screenshots" 
-                    className="w-full max-w-lg mx-auto lg:max-w-xl rounded-lg" 
-                    width="1200" 
-                    height="600"
+                    src="/lovable-uploads/hero-mobile-576x576.png" 
+                    alt="CV Generator Mobile App" 
+                    className="w-full max-w-md mx-auto rounded-lg" 
+                    width="576" 
+                    height="576"
                     loading="lazy"
                   />
                 </picture>
@@ -179,20 +181,12 @@ export default function LandingPage() {
                   Lade deinen Lebenslauf hoch und erhalte ein vollständiges Profil, das überzeugt. 
                   Teile relevante Erfahrungen, Fähigkeiten und Nachweise – klar strukturiert und sofort einsatzbereit.
                 </p>
-                <div className="flex flex-col sm:flex-row gap-4">
-                  <Link 
-                    to="/cv-generator" 
-                    className="inline-flex items-center justify-center rounded-2xl px-6 py-3 text-base font-semibold border border-zinc-700 text-white hover:bg-zinc-900"
-                  >
-                    Profil jetzt erstellen
-                  </Link>
-                  <Link 
-                    to="/so-funktionierts" 
-                    className="inline-flex items-center justify-center rounded-2xl px-6 py-3 text-base font-semibold border border-[color:var(--brand)] text-[color:var(--brand)] bg-transparent hover:bg-[color:var(--brand)]/10"
-                  >
-                    So funktioniert's
-                  </Link>
-                </div>
+                <Link 
+                  to="/onboarding" 
+                  className="inline-flex items-center justify-center rounded-2xl px-6 py-3 text-base font-semibold border border-zinc-700 text-white hover:bg-zinc-900"
+                >
+                  Profil jetzt erstellen
+                </Link>
               </div>
             </div>
           </div>
@@ -215,7 +209,7 @@ export default function LandingPage() {
               <h3 className="text-2xl font-semibold">Talente schneller finden</h3>
               <p className="mt-2 text-sm text-zinc-300">Registrieren Sie Ihr Unternehmen und schalten Sie passende Profile frei.</p>
               <div className="mt-6 flex flex-wrap gap-3">
-                <Link to="/company/onboarding" className="inline-flex items-center justify-center rounded-2xl px-5 py-3 text-sm font-semibold bg-white text-black">Unternehmensaccount erstellen</Link>
+                <Link to="/unternehmen/onboarding" className="inline-flex items-center justify-center rounded-2xl px-5 py-3 text-sm font-semibold bg-white text-black">Unternehmen-Account erstellen</Link>
                 <Link to="/auth" className="inline-flex items-center justify-center rounded-2xl px-5 py-3 text-sm font-semibold border border-zinc-700">Login</Link>
               </div>
             </div>

@@ -5,13 +5,13 @@ import { useAuth } from "@/hooks/useAuth";
 import { useConnections, type ConnectionState } from "@/hooks/useConnections";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Loader2, UserPlus, Check, X, MessageSquare, ArrowLeft, Heart } from "lucide-react";
+import { Loader2, UserPlus, Check, X, MessageSquareMore, ArrowLeft, HandHeart } from "lucide-react";
 import { LinkedInProfileHeader } from "@/components/linkedin/LinkedInProfileHeader";
 import { LinkedInProfileMain } from "@/components/linkedin/LinkedInProfileMain";
 import { LinkedInProfileSidebar } from "@/components/linkedin/LinkedInProfileSidebar";
 import { LinkedInProfileExperience } from "@/components/linkedin/LinkedInProfileExperience";
 import { LinkedInProfileEducation } from "@/components/linkedin/LinkedInProfileEducation";
-import ActivityTab from "@/components/profile/ActivityTab";
+import { LinkedInProfileActivity } from "@/components/linkedin/LinkedInProfileActivity";
 import { RightRailAd } from "@/components/linkedin/right-rail/RightRailAd";
 import { PeopleRecommendations } from "@/components/linkedin/right-rail/PeopleRecommendations";
 import { CompanyRecommendations } from "@/components/linkedin/right-rail/CompanyRecommendations";
@@ -85,10 +85,10 @@ export default function UserProfilePage() {
   const displayProfile = useMemo(() => {
     if (!profile) return null;
     if (isConnected) return profile;
-    // restricted view: hide sensitive fields for non-connected users
+    // restricted view: hide sensitive fields
     return {
       ...profile,
-      nachname: profile.nachname, // Show full last name now
+      nachname: profile.nachname ? `${String(profile.nachname).charAt(0)}.` : null,
       email: null,
       telefon: null,
       strasse: null,
@@ -158,7 +158,7 @@ export default function UserProfilePage() {
       return (
         <div className="flex gap-2">
           <Button onClick={() => navigate("/community/messages")} className="min-h-[44px]">
-            <MessageSquare className="h-4 w-4 mr-1" /> Nachricht
+            <MessageSquareMore className="h-4 w-4 mr-1" /> Nachricht
           </Button>
         </div>
       );
@@ -207,7 +207,7 @@ export default function UserProfilePage() {
             <div className="flex items-center gap-2">
               {isCompanyMember && !isOwner && (
                 <Button onClick={toggleInterest} disabled={interestLoading} variant={interested ? 'secondary' : 'default'} className="min-h-[44px]">
-                  <Heart className="h-4 w-4 mr-1" /> {interested ? 'Interesse gezeigt' : 'Interesse zeigen'}
+                  <HandHeart className="h-4 w-4 mr-1" /> {interested ? 'Interesse gezeigt' : 'Interesse zeigen'}
                 </Button>
               )}
               {renderActions()}
@@ -222,21 +222,12 @@ export default function UserProfilePage() {
               <LinkedInProfileMain profile={displayProfile} isEditing={false} onProfileUpdate={() => {}} readOnly={!isOwner} />
               <LinkedInProfileExperience experiences={displayProfile?.berufserfahrung || []} isEditing={false} onExperiencesUpdate={() => {}} />
               <LinkedInProfileEducation education={displayProfile?.schulbildung || []} isEditing={false} onEducationUpdate={() => {}} />
-              <ActivityTab userId={displayProfile?.id} />
+              <LinkedInProfileActivity profile={displayProfile} />
             </div>
           </main>
           <aside className="lg:col-span-4">
             <div className="lg:sticky lg:top-24 space-y-4 md:space-y-6">
-              <LinkedInProfileSidebar 
-                profile={displayProfile} 
-                isEditing={false} 
-                onProfileUpdate={() => {}} 
-                readOnly={!isOwner} 
-                showLanguagesAndSkills={isConnected}
-                showLicenseAndStats={isOwner} 
-                showCVSection={isOwner} 
-                isCompanyViewing={isCompanyMember && !isOwner}
-              />
+              <LinkedInProfileSidebar profile={displayProfile} isEditing={false} onProfileUpdate={() => {}} readOnly={!isOwner} showLanguagesAndSkills={isOwner} showLicenseAndStats={isOwner} showCVSection={isOwner} />
               <RightRailAd variant="card" size="sm" />
               <InView rootMargin="300px" placeholder={<div className="h-32 rounded-md bg-muted/50 animate-pulse" />}> 
                 <PeopleRecommendations limit={5} showMoreLink="/entdecken/azubis" showMore={true} />

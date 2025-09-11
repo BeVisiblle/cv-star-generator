@@ -26,9 +26,3 @@ verify_jwt = true
 
 [functions.create-token-checkout]
 verify_jwt = true
-
-[functions.publish_job_with_tokens]
-verify_jwt = true
-
-[functions.delete_job_with_access]
-verify_jwt = true

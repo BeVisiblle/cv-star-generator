@@ -3,14 +3,15 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent } from '@/components/ui/card';
-import { ArrowLeft, Upload, Building2, MapPin, User, Globe } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Checkbox } from '@/components/ui/checkbox';
+import { ArrowLeft, Upload, Building } from 'lucide-react';
 import { OnboardingData } from './OnboardingWizard';
 import { useToast } from '@/hooks/use-toast';
 
 interface OnboardingStep4Props {
   data: OnboardingData;
-  updateData: (newData: Partial<OnboardingData>) => void;
+  updateData: (data: Partial<OnboardingData>) => void;
   onNext: () => void;
   onPrev: () => void;
 }
@@ -18,38 +19,66 @@ interface OnboardingStep4Props {
 export function OnboardingStep4({ data, updateData, onNext, onPrev }: OnboardingStep4Props) {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
-  const [coverPreview, setCoverPreview] = useState<string | null>(null);
   const { toast } = useToast();
 
-  const handleLogoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
+  const companySizes = [
+    { value: '1-10', label: '1-10 Mitarbeiter' },
+    { value: '11-50', label: '11-50 Mitarbeiter' },
+    { value: '51-200', label: '51-200 Mitarbeiter' },
+    { value: '200+', label: '200+ Mitarbeiter' },
+  ];
+
+  const benefitOptions = [
+    'Übernahmechance',
+    'Weiterbildung',
+    'Fahrtkostenzuschuss',
+    'Wohnheim',
+    'Azubi-Events',
+    'Flexible Arbeitszeiten',
+    'Mentoring',
+    'Moderne Ausstattung'
+  ];
+
+  const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
     if (file) {
       updateData({ logo: file });
+      
+      // Create preview
       const reader = new FileReader();
-      reader.onload = (e) => setLogoPreview(e.target?.result as string);
+      reader.onload = (e) => {
+        setLogoPreview(e.target?.result as string);
+      };
       reader.readAsDataURL(file);
     }
   };
 
-  const handleCoverUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      updateData({ coverImage: file });
-      const reader = new FileReader();
-      reader.onload = (e) => setCoverPreview(e.target?.result as string);
-      reader.readAsDataURL(file);
-    }
+  const handleBenefitChange = (benefit: string, checked: boolean) => {
+    const newBenefits = checked 
+      ? [...data.benefits, benefit]
+      : data.benefits.filter(b => b !== benefit);
+    updateData({ benefits: newBenefits });
   };
 
   const validateStep = () => {
     const newErrors: Record<string, string> = {};
     
-    if (!data.location.trim()) newErrors.location = 'Standort ist erforderlich';
-    if (!data.contactPersonName.trim()) newErrors.contactPersonName = 'Name ist erforderlich';
-    if (!data.contactPersonRole.trim()) newErrors.contactPersonRole = 'Rolle ist erforderlich';
-    if (!data.contactPersonEmail.trim()) newErrors.contactPersonEmail = 'E-Mail ist erforderlich';
-    if (!data.shortDescription.trim()) newErrors.shortDescription = 'Kurzbeschreibung ist erforderlich';
-    
+    if (!data.shortDescription.trim()) {
+      newErrors.shortDescription = 'Kurzbeschreibung ist erforderlich';
+    }
+    if (!data.companySize) {
+      newErrors.companySize = 'Unternehmensgröße auswählen';
+    }
+    if (!data.contactName.trim()) {
+      newErrors.contactName = 'Ansprechpartner Name ist erforderlich';
+    }
+    if (!data.contactRole.trim()) {
+      newErrors.contactRole = 'Rolle ist erforderlich';
+    }
+    if (!data.contactEmail.trim()) {
+      newErrors.contactEmail = 'Ansprechpartner E-Mail ist erforderlich';
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -59,252 +88,189 @@ export function OnboardingStep4({ data, updateData, onNext, onPrev }: Onboarding
       onNext();
     } else {
       toast({
-        title: "Bitte korrigieren Sie die Fehler",
+        title: "Bitte alle Pflichtfelder ausfüllen",
         variant: "destructive",
       });
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-black to-slate-900 flex items-center justify-center py-20">
-      <div className="w-full max-w-4xl mx-auto px-4">
-        {/* Header */}
-        <div className="text-center mb-12">
-          <div className="text-sm text-green-400 font-medium tracking-wide uppercase mb-2">
-            PROFIL EINRICHTEN
+    <div className="space-y-6">
+      <div className="text-center mb-8">
+        <h2 className="text-2xl font-semibold mb-2">Ihr Unternehmensprofil</h2>
+        <p className="text-muted-foreground">
+          Erstellen Sie ein ansprechendes Profil für potentielle Kandidaten
+        </p>
+      </div>
+
+      <div className="grid gap-6 md:grid-cols-2">
+        {/* Logo Upload */}
+        <div className="md:col-span-2">
+          <Label>Firmenlogo</Label>
+          <div className="mt-2 border-2 border-dashed border-muted-foreground/25 rounded-lg p-6 text-center hover:border-[hsl(var(--accent))] transition-colors">
+            {logoPreview ? (
+              <div className="space-y-4">
+                <img 
+                  src={logoPreview} 
+                  alt="Logo Preview" 
+                  className="h-20 w-20 object-contain mx-auto rounded"
+                />
+                <p className="text-sm text-muted-foreground">Logo hochgeladen</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <Building className="h-12 w-12 mx-auto text-muted-foreground" />
+                <div>
+                  <p className="text-sm font-medium">Logo hochladen</p>
+                  <p className="text-xs text-muted-foreground">Quadratisches Format empfohlen</p>
+                </div>
+              </div>
+            )}
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleLogoUpload}
+              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+            />
           </div>
-          <h1 className="text-4xl font-bold text-white mb-4">
-            Vervollständigen Sie Ihr Profil
-          </h1>
-          <p className="text-slate-300 text-lg">
-            Ein vollständiges Profil erhöht Ihre Sichtbarkeit bei Kandidaten
+        </div>
+
+        {/* Short Description */}
+        <div className="space-y-2">
+          <Label htmlFor="shortDescription">Kurzbeschreibung * (200 Zeichen)</Label>
+          <Textarea
+            id="shortDescription"
+            value={data.shortDescription}
+            onChange={(e) => updateData({ shortDescription: e.target.value })}
+            placeholder="Was macht Ihr Unternehmen besonders?"
+            maxLength={200}
+            className={`h-20 ${errors.shortDescription ? 'border-destructive' : ''}`}
+          />
+          <p className="text-xs text-muted-foreground text-right">
+            {data.shortDescription.length}/200
+          </p>
+          {errors.shortDescription && (
+            <p className="text-sm text-destructive">{errors.shortDescription}</p>
+          )}
+        </div>
+
+        {/* Long Description */}
+        <div className="space-y-2">
+          <Label htmlFor="longDescription">Detailbeschreibung (600 Zeichen)</Label>
+          <Textarea
+            id="longDescription"
+            value={data.longDescription}
+            onChange={(e) => updateData({ longDescription: e.target.value })}
+            placeholder="Detaillierte Beschreibung Ihres Unternehmens..."
+            maxLength={600}
+            className="h-20"
+          />
+          <p className="text-xs text-muted-foreground text-right">
+            {data.longDescription.length}/600
           </p>
         </div>
 
-        <div className="grid lg:grid-cols-2 gap-8 mb-8">
-          {/* Left Column - Images */}
-          <Card className="bg-white/10 backdrop-blur-lg border-white/20 shadow-2xl">
-            <CardContent className="p-8 space-y-6">
-              <div className="flex items-center gap-2 mb-4">
-                <Building2 className="h-5 w-5 text-white" />
-                <h3 className="text-lg font-semibold text-white">Logo & Titelbild</h3>
-              </div>
+        {/* Company Size */}
+        <div className="space-y-2">
+          <Label>Unternehmensgröße *</Label>
+          <Select value={data.companySize} onValueChange={(value) => updateData({ companySize: value })}>
+            <SelectTrigger className={errors.companySize ? 'border-destructive' : ''}>
+              <SelectValue placeholder="Größe auswählen" />
+            </SelectTrigger>
+            <SelectContent className="bg-background border z-50">
+              {companySizes.map((size) => (
+                <SelectItem key={size.value} value={size.value}>
+                  {size.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          {errors.companySize && (
+            <p className="text-sm text-destructive">{errors.companySize}</p>
+          )}
+        </div>
 
-              {/* Logo Upload */}
-              <div className="space-y-3">
-                <Label className="text-white">Firmenlogo</Label>
-                <div className="flex items-center gap-4">
-                  <div className="w-20 h-20 border-2 border-dashed border-white/20 rounded-lg flex items-center justify-center overflow-hidden bg-white/5">
-                    {logoPreview ? (
-                      <img src={logoPreview} alt="Logo Preview" className="w-full h-full object-cover" />
-                    ) : (
-                      <Upload className="h-6 w-6 text-white/60" />
-                    )}
-                  </div>
-                  <div>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={handleLogoUpload}
-                      className="hidden"
-                      id="logo-upload"
-                    />
-                    <Button variant="outline" asChild className="bg-white/10 border-white/20 text-white hover:bg-white/20">
-                      <label htmlFor="logo-upload" className="cursor-pointer">
-                        Logo hochladen
-                      </label>
-                    </Button>
-                    <p className="text-xs text-white/60 mt-1">
-                      Empfohlen: 200x200px, PNG oder JPG
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Cover Image Upload */}
-              <div className="space-y-3">
-                <Label className="text-white">Titelbild</Label>
-                <div className="w-full h-32 border-2 border-dashed border-white/20 rounded-lg flex items-center justify-center overflow-hidden bg-white/5">
-                  {coverPreview ? (
-                    <img src={coverPreview} alt="Cover Preview" className="w-full h-full object-cover" />
-                  ) : (
-                    <div className="text-center">
-                      <Upload className="h-8 w-8 text-white/60 mx-auto mb-2" />
-                      <p className="text-sm text-white/60">Titelbild hochladen</p>
-                    </div>
-                  )}
-                </div>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleCoverUpload}
-                  className="hidden"
-                  id="cover-upload"
+        {/* Benefits */}
+        <div className="md:col-span-2 space-y-4">
+          <Label>Benefits für Azubis</Label>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            {benefitOptions.map((benefit) => (
+              <div key={benefit} className="flex items-center space-x-2">
+                <Checkbox
+                  id={benefit}
+                  checked={data.benefits.includes(benefit)}
+                  onCheckedChange={(checked) => handleBenefitChange(benefit, checked as boolean)}
                 />
-                <Button variant="outline" className="w-full bg-white/10 border-white/20 text-white hover:bg-white/20" asChild>
-                  <label htmlFor="cover-upload" className="cursor-pointer">
-                    Titelbild auswählen
-                  </label>
-                </Button>
-                <p className="text-xs text-white/60">
-                  Empfohlen: 1200x400px, PNG oder JPG
-                </p>
+                <Label htmlFor={benefit} className="text-sm">
+                  {benefit}
+                </Label>
               </div>
-            </CardContent>
-          </Card>
-
-          {/* Right Column - Form */}
-          <div className="space-y-6">
-            {/* Location */}
-            <Card className="bg-white/10 backdrop-blur-lg border-white/20 shadow-2xl">
-              <CardContent className="p-6">
-                <div className="flex items-center gap-2 mb-4">
-                  <MapPin className="h-5 w-5 text-white" />
-                  <h3 className="text-lg font-semibold text-white">Standort</h3>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="location" className="text-white">Adresse / Ort *</Label>
-                  <Input
-                    id="location"
-                    value={data.location}
-                    onChange={(e) => updateData({ location: e.target.value })}
-                    placeholder="Musterstraße 123, 10115 Berlin"
-                    className="bg-white/10 border-white/20 text-white placeholder:text-white/60"
-                  />
-                  {errors.location && (
-                    <p className="text-sm text-red-400">{errors.location}</p>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Contact Person */}
-            <Card className="bg-white/10 backdrop-blur-lg border-white/20 shadow-2xl">
-              <CardContent className="p-6 space-y-4">
-                <div className="flex items-center gap-2">
-                  <User className="h-5 w-5 text-white" />
-                  <h3 className="text-lg font-semibold text-white">Ansprechperson</h3>
-                </div>
-                
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="contactPersonName" className="text-white">Name *</Label>
-                    <Input
-                      id="contactPersonName"
-                      value={data.contactPersonName}
-                      onChange={(e) => updateData({ contactPersonName: e.target.value })}
-                      placeholder="Max Mustermann"
-                      className="bg-white/10 border-white/20 text-white placeholder:text-white/60"
-                    />
-                    {errors.contactPersonName && (
-                      <p className="text-sm text-red-400">{errors.contactPersonName}</p>
-                    )}
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="contactPersonRole" className="text-white">Rolle *</Label>
-                    <Input
-                      id="contactPersonRole"
-                      value={data.contactPersonRole}
-                      onChange={(e) => updateData({ contactPersonRole: e.target.value })}
-                      placeholder="HR Manager"
-                      className="bg-white/10 border-white/20 text-white placeholder:text-white/60"
-                    />
-                    {errors.contactPersonRole && (
-                      <p className="text-sm text-red-400">{errors.contactPersonRole}</p>
-                    )}
-                  </div>
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="contactPersonEmail" className="text-white">E-Mail *</Label>
-                  <Input
-                    id="contactPersonEmail"
-                    type="email"
-                    value={data.contactPersonEmail}
-                    onChange={(e) => updateData({ contactPersonEmail: e.target.value })}
-                    placeholder="max.mustermann@unternehmen.de"
-                    className="bg-white/10 border-white/20 text-white placeholder:text-white/60"
-                  />
-                  {errors.contactPersonEmail && (
-                    <p className="text-sm text-red-400">{errors.contactPersonEmail}</p>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Description & Socials */}
-            <Card className="bg-white/10 backdrop-blur-lg border-white/20 shadow-2xl">
-              <CardContent className="p-6 space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="shortDescription" className="text-white">Kurzbeschreibung *</Label>
-                  <Textarea
-                    id="shortDescription"
-                    value={data.shortDescription}
-                    onChange={(e) => updateData({ shortDescription: e.target.value })}
-                    placeholder="Beschreiben Sie Ihr Unternehmen, Mission und Benefits..."
-                    rows={3}
-                    maxLength={500}
-                    className="bg-white/10 border-white/20 text-white placeholder:text-white/60"
-                  />
-                  <div className="flex justify-between items-center">
-                    {errors.shortDescription && (
-                      <p className="text-sm text-red-400">{errors.shortDescription}</p>
-                    )}
-                    <p className="text-xs text-white/60 ml-auto">
-                      {data.shortDescription.length}/500 Zeichen
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-2 pt-2">
-                  <Globe className="h-5 w-5 text-white" />
-                  <h4 className="font-medium text-white">Web & Socials</h4>
-                </div>
-                
-                <div className="space-y-3">
-                  <div className="space-y-2">
-                    <Label htmlFor="website" className="text-white">Website</Label>
-                    <Input
-                      id="website"
-                      value={data.website}
-                      onChange={(e) => updateData({ website: e.target.value })}
-                      placeholder="https://www.ihr-unternehmen.de"
-                      className="bg-white/10 border-white/20 text-white placeholder:text-white/60"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="linkedin" className="text-white">LinkedIn</Label>
-                    <Input
-                      id="linkedin"
-                      value={data.linkedin}
-                      onChange={(e) => updateData({ linkedin: e.target.value })}
-                      placeholder="https://linkedin.com/company/ihr-unternehmen"
-                      className="bg-white/10 border-white/20 text-white placeholder:text-white/60"
-                    />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+            ))}
           </div>
         </div>
 
-        {/* Navigation */}
-        <div className="flex justify-between">
-          <Button 
-            variant="outline" 
-            onClick={onPrev}
-            className="bg-white/10 border-white/20 text-white hover:bg-white/20"
-          >
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Zurück
-          </Button>
-          <Button 
-            onClick={handleNext} 
-            className="bg-green-400 text-black hover:bg-green-500 px-8"
-          >
-            Weiter
-          </Button>
+        {/* Contact Person */}
+        <div className="md:col-span-2">
+          <h3 className="font-semibold mb-4">Ansprechpartner</h3>
+          <div className="grid gap-4 md:grid-cols-3">
+            <div className="space-y-2">
+              <Label htmlFor="contactName">Name *</Label>
+              <Input
+                id="contactName"
+                value={data.contactName}
+                onChange={(e) => updateData({ contactName: e.target.value })}
+                placeholder="Max Mustermann"
+                className={errors.contactName ? 'border-destructive' : ''}
+              />
+              {errors.contactName && (
+                <p className="text-sm text-destructive">{errors.contactName}</p>
+              )}
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="contactRole">Rolle *</Label>
+              <Input
+                id="contactRole"
+                value={data.contactRole}
+                onChange={(e) => updateData({ contactRole: e.target.value })}
+                placeholder="Ausbildungsleiter"
+                className={errors.contactRole ? 'border-destructive' : ''}
+              />
+              {errors.contactRole && (
+                <p className="text-sm text-destructive">{errors.contactRole}</p>
+              )}
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="contactEmail">E-Mail *</Label>
+              <Input
+                id="contactEmail"
+                type="email"
+                value={data.contactEmail}
+                onChange={(e) => updateData({ contactEmail: e.target.value })}
+                placeholder="max@firma.de"
+                className={errors.contactEmail ? 'border-destructive' : ''}
+              />
+              {errors.contactEmail && (
+                <p className="text-sm text-destructive">{errors.contactEmail}</p>
+              )}
+            </div>
+          </div>
         </div>
+      </div>
+
+      <div className="flex justify-between pt-6">
+        <Button variant="outline" onClick={onPrev}>
+          <ArrowLeft className="h-4 w-4 mr-2" />
+          Zurück
+        </Button>
+        
+        <Button 
+          onClick={handleNext}
+          className="bg-[hsl(var(--accent))] hover:bg-[hsl(var(--accent-hover))] text-white px-8"
+        >
+          Weiter
+        </Button>
       </div>
     </div>
   );

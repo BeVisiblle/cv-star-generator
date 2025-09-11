@@ -346,49 +346,8 @@ const Settings = () => {
         </TabsContent>
 
         <TabsContent value="notifications">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="max-w-3xl">
             <NotifSettingsPanel userId={profile?.id ?? null} />
-            
-            {/* Community Feed Settings */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Community-Feed Einstellungen</CardTitle>
-                <CardDescription>
-                  Personalisiere deinen Community-Feed
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <Label htmlFor="show-user-posts">Nutzer-Posts anzeigen</Label>
-                    <p className="text-sm text-muted-foreground">
-                      Posts von anderen Nutzern in deinem Feed anzeigen
-                    </p>
-                  </div>
-                  <Switch id="show-user-posts" defaultChecked />
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <Label htmlFor="show-company-posts">Unternehmens-Posts anzeigen</Label>
-                    <p className="text-sm text-muted-foreground">
-                      Posts von Unternehmen in deinem Feed anzeigen
-                    </p>
-                  </div>
-                  <Switch id="show-company-posts" defaultChecked />
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <Label htmlFor="show-job-shares">Job-Shares anzeigen</Label>
-                    <p className="text-sm text-muted-foreground">
-                      Geteilte Stellenausschreibungen in deinem Feed anzeigen
-                    </p>
-                  </div>
-                  <Switch id="show-job-shares" defaultChecked />
-                </div>
-              </CardContent>
-            </Card>
           </div>
         </TabsContent>
       </Tabs>

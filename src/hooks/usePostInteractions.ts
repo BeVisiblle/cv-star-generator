@@ -2,18 +2,15 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
-import { useEffect } from "react";
 
 export interface PostComment {
   id: string;
   post_id: string;
-  user_id?: string;
-  author_user_id?: string;
-  content?: string;
-  body_md?: string;
+  user_id: string;
+  content: string;
   parent_comment_id: string | null;
   created_at: string;
-  updated_at?: string;
+  updated_at: string;
   author?: {
     id: string;
     vorname?: string | null;
@@ -26,76 +23,34 @@ export const usePostLikes = (postId: string) => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  // Use an untyped Supabase reference for tables not present in generated types
+  const sb: any = supabase;
 
   const { data, isLoading } = useQuery<{ count: number; liked: boolean }>({
     queryKey: ["post-likes", postId, user?.id ?? "anon"],
     queryFn: async (): Promise<{ count: number; liked: boolean }> => {
       console.debug("[likes] fetch", { postId });
-      
-      // Get like count from community_posts
-      const { data: post, error: postError } = await supabase
-        .from("community_posts")
-        .select("like_count")
-        .eq("id", postId)
-        .single();
-      
-      if (postError) throw postError;
+      const { count, error } = await sb
+        .from("post_likes")
+        .select("*", { count: "exact", head: true })
+        .eq("post_id", postId);
+      if (error) throw error;
 
       let liked = false;
       if (user?.id) {
-        const { data: myLike, error: likeError } = await supabase
-          .from("community_likes")
+        const { data: mine, error: mineErr } = await sb
+          .from("post_likes")
           .select("id")
           .eq("post_id", postId)
-          .eq("liker_user_id", user.id)
+          .eq("user_id", user.id)
           .maybeSingle();
-        
-        if (likeError && (likeError as any).code !== "PGRST116") throw likeError;
-        liked = Boolean(myLike);
+        // PGRST116 = no rows found for .single(); with maybeSingle it's fine to ignore null result
+        if (mineErr && (mineErr as any).code !== "PGRST116") throw mineErr;
+        liked = Boolean(mine);
       }
-      
-      return { count: post?.like_count ?? 0, liked };
+      return { count: count ?? 0, liked };
     },
   });
-
-  // Real-time subscription for likes
-  useEffect(() => {
-    if (!postId) return;
-
-    const channel = supabase
-      .channel(`likes-${postId}`)
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'community_likes',
-          filter: `post_id=eq.${postId}`,
-        },
-        () => {
-          // Invalidate likes query when likes change
-          queryClient.invalidateQueries({ queryKey: ["post-likes", postId] });
-        }
-      )
-      .on(
-        'postgres_changes',
-        {
-          event: 'UPDATE',
-          schema: 'public',
-          table: 'community_posts',
-          filter: `id=eq.${postId}`,
-        },
-        () => {
-          // Invalidate when post like_count updates
-          queryClient.invalidateQueries({ queryKey: ["post-likes", postId] });
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [postId, queryClient]);
 
   const toggleLikeMutation = useMutation({
     mutationFn: async () => {
@@ -107,16 +62,25 @@ export const usePostLikes = (postId: string) => {
         });
         return { changed: false };
       }
-      
-      const { data, error } = await supabase.rpc('toggle_community_like', {
-        p_post_id: postId,
-        p_liker_user_id: user.id
-      });
-      
-      if (error) throw error;
-      return { changed: true, result: data };
+      const liked = data?.liked ?? false;
+      if (liked) {
+        const { error } = await sb
+          .from("post_likes")
+          .delete()
+          .eq("post_id", postId)
+          .eq("user_id", user.id);
+        if (error) throw error;
+      } else {
+        const { error } = await sb.from("post_likes").insert({
+          post_id: postId,
+          user_id: user.id,
+        });
+        if (error) throw error;
+      }
+      return { changed: true };
     },
     onSuccess: () => {
+      // Invalidate all like queries for this post (for any user key)
       queryClient.invalidateQueries({ queryKey: ["post-likes", postId] });
     },
   });
@@ -134,25 +98,24 @@ export const usePostComments = (postId: string) => {
   const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  // Use an untyped Supabase reference for tables not present in generated types
+  const sb: any = supabase;
 
   const commentsQuery = useQuery<PostComment[]>({
     queryKey: ["post-comments", postId],
     queryFn: async (): Promise<PostComment[]> => {
       console.debug("[comments] fetch", { postId });
-      
-      const { data: comments, error } = await supabase
-        .from("community_comments")
+      const { data: comments, error } = await sb
+        .from("post_comments")
         .select("*")
         .eq("post_id", postId)
         .order("created_at", { ascending: true });
-      
       if (error) throw error;
 
       const items = (comments ?? []) as any[];
       const userIds = Array.from(
-        new Set(items.map((c: any) => c.author_user_id).filter(Boolean))
+        new Set(items.map((c: any) => c.user_id).filter(Boolean))
       );
-      
       let profilesMap: Record<string, any> = {};
       if (userIds.length) {
         const { data: profiles, error: profErr } = await supabase
@@ -167,51 +130,10 @@ export const usePostComments = (postId: string) => {
 
       return items.map((c: any) => ({
         ...c,
-        content: c.body_md || c.content,
-        user_id: c.author_user_id || c.user_id,
-        author: profilesMap[c.author_user_id || c.user_id] ?? null,
+        author: profilesMap[c.user_id] ?? null,
       })) as PostComment[];
     },
   });
-
-  // Real-time subscription for comments
-  useEffect(() => {
-    if (!postId) return;
-
-    const channel = supabase
-      .channel(`comments-${postId}`)
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'community_comments',
-          filter: `post_id=eq.${postId}`,
-        },
-        () => {
-          // Invalidate comments query when comments change
-          queryClient.invalidateQueries({ queryKey: ["post-comments", postId] });
-        }
-      )
-      .on(
-        'postgres_changes',
-        {
-          event: 'UPDATE',
-          schema: 'public',
-          table: 'community_posts',
-          filter: `id=eq.${postId}`,
-        },
-        () => {
-          // Invalidate when post comment_count updates
-          queryClient.invalidateQueries({ queryKey: ["post-comments", postId] });
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [postId, queryClient]);
 
   const addCommentMutation = useMutation({
     mutationFn: async (payload: { content: string; parentId?: string | null }) => {
@@ -223,16 +145,13 @@ export const usePostComments = (postId: string) => {
         });
         return;
       }
-      
-      const { data, error } = await supabase.rpc('add_community_comment', {
-        p_post_id: postId,
-        p_body_md: payload.content,
-        p_author_user_id: user.id,
-        p_parent_comment_id: payload.parentId ?? null
+      const { error } = await sb.from("post_comments").insert({
+        post_id: postId,
+        user_id: user.id,
+        content: payload.content,
+        parent_comment_id: payload.parentId ?? null,
       });
-      
       if (error) throw error;
-      return data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["post-comments", postId] });
@@ -295,15 +214,12 @@ export const usePostReposts = (postId: string) => {
         toast({ title: "Bereits geteilt", description: "Du hast diesen Beitrag schon geteilt." });
         return { changed: false };
       }
-      
-      // Use RPC function for community shares
-      const { data: shareData, error } = await sb.rpc('share_community_post', {
-        p_post_id: postId,
-        p_sharer_user_id: user.id
+      const { error } = await sb.from("post_reposts").insert({
+        post_id: postId,
+        reposter_id: user.id,
       });
-      
       if (error) throw error;
-      return { changed: true, result: shareData };
+      return { changed: true };
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["post-reposts", postId] });

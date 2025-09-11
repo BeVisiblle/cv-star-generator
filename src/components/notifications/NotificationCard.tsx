@@ -1,92 +1,207 @@
-import React from 'react';
-import { formatDistanceToNow } from 'date-fns';
-import { de } from 'date-fns/locale';
-import { Check, Bell, MessageSquare, Users, UserPlus, FileText } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { timeAgo } from '@/utils/timeAgo';
 import type { NotificationRow, NotifType } from '@/types/notifications';
+import { useAcceptEmployment, useDeclineEmployment } from '@/hooks/useEmployment';
+import { useState } from 'react';
 
-interface NotificationCardProps {
+type Props = {
   n: NotificationRow;
-  onRead: (id: string) => Promise<void>;
-  onAction?: (notification: NotificationRow, action: string) => void;
-}
+  onRead: (id: string) => void;
+  onAction?: (n: NotificationRow, action: string) => void; // e.g. 'accept', 'decline', 'allow_contact'
+};
 
-export default function NotificationCard({ n, onRead, onAction }: NotificationCardProps) {
-  const getNotificationIcon = (type: NotifType) => {
-    switch (type) {
-      case 'post_interaction':
-        return <MessageSquare className="h-4 w-4" />;
-      case 'follow_request_received':
-        return <UserPlus className="h-4 w-4" />;
-      case 'employment_request':
-        return <FileText className="h-4 w-4" />;
-      case 'company_unlocked_you':
-        return <Users className="h-4 w-4" />;
-      default:
-        return <Bell className="h-4 w-4" />;
+const typeIcon: Record<NotifType, string> = {
+  company_unlocked_you: '🔓',
+  follow_request_received: '➕',
+  pipeline_move_for_you: '📌',
+  post_interaction: '💬',
+  profile_incomplete_reminder: '⚠️',
+  weekly_digest_user: '📈',
+  new_matches_available: '✨',
+  follow_accepted_chat_unlocked: '✉️',
+  candidate_response_to_unlock: '✅',
+  pipeline_activity_team: '🗂️',
+  low_tokens: '🪙',
+  weekly_digest_company: '📊',
+  billing_update: '🧾',
+  product_update: '🧩',
+  employment_request: '👋',
+  employment_accepted: '✅',
+  employment_declined: 'ℹ️',
+};
+
+export default function NotificationCard({ n, onRead, onAction }: Props) {
+  const [busy, setBusy] = useState(false);
+  const accept = useAcceptEmployment();
+  const decline = useDeclineEmployment();
+  
+  const unread = !n.read_at;
+  const icon = typeIcon[n.type] || '🔔';
+
+  // Handle employment request actions
+  const handleAcceptEmployment = async () => {
+    if (!n.payload?.request_id || busy) return;
+    setBusy(true);
+    try {
+      await accept.mutateAsync({ request_id: n.payload.request_id });
+      onAction?.(n, 'accept');
+    } finally {
+      setBusy(false);
     }
   };
 
-  const getNotificationColor = (type: NotifType) => {
-    switch (type) {
-      case 'post_interaction':
-        return 'text-green-600';
-      case 'follow_request_received':
-        return 'text-blue-600';
+  const handleDeclineEmployment = async () => {
+    if (!n.payload?.request_id || busy) return;
+    setBusy(true);
+    try {
+      await decline.mutateAsync({ request_id: n.payload.request_id });
+      onAction?.(n, 'decline');
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const ActionButtons = () => {
+    switch (n.type) {
       case 'employment_request':
-        return 'text-purple-600';
+        return (
+          <div className="mt-3 flex gap-2">
+            <button
+              onClick={handleAcceptEmployment}
+              disabled={busy}
+              className="h-9 rounded-lg px-3 text-sm text-white disabled:opacity-60"
+              style={{ backgroundColor: '#5CE1E6' }}
+              title="Beschäftigung bestätigen"
+            >
+              {busy && accept.isPending ? 'Bestätige…' : 'Annehmen'}
+            </button>
+            <button
+              onClick={handleDeclineEmployment}
+              disabled={busy}
+              className="h-9 rounded-lg border px-3 text-sm hover:bg-gray-50 disabled:opacity-60"
+              title="Beschäftigung ablehnen"
+            >
+              {busy && decline.isPending ? 'Lehne ab…' : 'Ablehnen'}
+            </button>
+            {n.payload?.user_id && (
+              <a
+                href={`/profile/${n.payload.user_id}`}
+                className="h-9 rounded-lg border px-3 text-sm hover:bg-gray-50 flex items-center"
+                title="Profil ansehen"
+              >
+                Profil ansehen
+              </a>
+            )}
+          </div>
+        );
+      case 'employment_accepted':
+      case 'employment_declined':
+        return null; // Info-only notifications
       case 'company_unlocked_you':
-        return 'text-orange-600';
+        return (
+          <div className="mt-3 flex gap-2">
+            <button
+              onClick={() => onAction?.(n, 'allow_contact')}
+              className="h-9 rounded-lg px-3 text-sm text-white"
+              style={{ backgroundColor: '#5CE1E6' }}
+            >
+              Kontakt erlauben
+            </button>
+            <button
+              onClick={() => onAction?.(n, 'not_interested')}
+              className="h-9 rounded-lg px-3 text-sm border hover:bg-gray-50"
+            >
+              Kein Interesse
+            </button>
+          </div>
+        );
+      case 'follow_request_received':
+        return (
+          <div className="mt-3 flex gap-2">
+            <button
+              onClick={() => onAction?.(n, 'accept')}
+              className="h-9 rounded-lg px-3 text-sm text-white"
+              style={{ backgroundColor: '#5CE1E6' }}
+            >
+              Annehmen
+            </button>
+            <button
+              onClick={() => onAction?.(n, 'decline')}
+              className="h-9 rounded-lg px-3 text-sm border hover:bg-gray-50"
+            >
+              Ablehnen
+            </button>
+          </div>
+        );
+      case 'pipeline_move_for_you':
+        if (n.payload?.interview_at) {
+          return (
+            <div className="mt-3">
+              <a
+                href={`/calendar/add?ref=${n.id}`}
+                className="text-sm underline"
+              >
+                Zum Kalender hinzufügen
+              </a>
+            </div>
+          );
+        }
+        return null;
+      case 'new_matches_available':
+        return (
+          <div className="mt-3">
+            <a href="/company/search" className="text-sm underline">
+              Jetzt ansehen
+            </a>
+          </div>
+        );
+      case 'low_tokens':
+        return (
+          <div className="mt-3">
+            <a href="/company/settings#upgrade" className="text-sm underline">
+              Tokens nachkaufen
+            </a>
+          </div>
+        );
       default:
-        return 'text-gray-600';
+        return null;
     }
   };
 
   return (
-    <div
-      className={`p-4 rounded-lg border transition-colors ${
-        n.read_at 
-          ? 'bg-muted/30' 
-          : 'bg-primary/5 border-l-4 border-l-primary'
+    <article
+      className={`rounded-2xl border bg-card p-4 shadow-sm transition hover:shadow ${
+        unread ? 'border-[#5CE1E6]/50' : 'border-border'
       }`}
+      onClick={() => unread && onRead(n.id)}
     >
       <div className="flex items-start gap-3">
-        <div className={`mt-1 ${getNotificationColor(n.type)}`}>
-          {getNotificationIcon(n.type)}
-        </div>
-        
-        <div className="flex-1 min-w-0">
-          <div className="flex items-start justify-between">
-            <div className="flex-1">
-              <h4 className="font-medium text-sm">{n.title}</h4>
-              <p className="text-sm text-muted-foreground mt-1">
-                {n.body}
-              </p>
-              <div className="flex items-center gap-2 mt-2">
-                <span className="text-xs text-muted-foreground">
-                  {formatDistanceToNow(new Date(n.created_at), { 
-                    addSuffix: true, 
-                    locale: de 
-                  })}
-                </span>
-              </div>
-            </div>
-            
-            <div className="flex items-center gap-1 ml-2">
-              {!n.read_at && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => onRead(n.id)}
-                  className="h-6 w-6 p-0"
-                >
-                  <Check className="h-3 w-3" />
-                </Button>
+        <div className="mt-0.5 text-xl" aria-hidden>{icon}</div>
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-2">
+            <h3 className={`truncate text-sm ${unread ? 'font-semibold' : 'font-medium'}`}>
+              {n.title}
+            </h3>
+            {unread && <span className="h-2 w-2 rounded-full bg-[#5CE1E6]" aria-label="ungelesen" />}
+          </div>
+          {n.body && <p className="mt-1 text-sm text-muted-foreground">{n.body}</p>}
+          
+          {/* Employment request meta info */}
+          {n.type === 'employment_request' && n.payload && (
+            <div className="mt-2 text-xs text-muted-foreground">
+              Anfrage von{' '}
+              <span className="font-medium">
+                {n.payload.user_name ?? 'Mitarbeiter:in'}
+              </span>
+              {n.payload.company_name && (
+                <span> für {n.payload.company_name}</span>
               )}
             </div>
-          </div>
+          )}
+
+          <div className="mt-1 text-xs text-muted-foreground">{timeAgo(n.created_at)}</div>
+          <ActionButtons />
         </div>
       </div>
-    </div>
+    </article>
   );
 }

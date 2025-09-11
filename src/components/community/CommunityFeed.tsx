@@ -7,7 +7,6 @@ import { Button } from '@/components/ui/button';
 import PostCard from './PostCard';
 import { Loader2 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
-import { CommunityComposer } from './CommunityComposer';
 
 type PostWithAuthor = any;
 
@@ -15,7 +14,7 @@ const PAGE_SIZE = 20;
 
 type FeedSortOption = "relevant" | "newest";
 
-export function LegacyCommunityFeed() {
+export default function CommunityFeed() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const viewerId = user?.id || null;
@@ -34,7 +33,7 @@ export function LegacyCommunityFeed() {
     queryFn: async ({ pageParam }) => {
       console.log('[feed] fetching page', pageParam, sort);
 
-      const { data: posts, error } = await (supabase as any).rpc('get_community_feed', {
+      const { data: posts, error } = await (supabase as any).rpc('get_feed_sorted', {
         viewer_id: viewerId as string,
         after_published: pageParam.after_published,
         after_id: pageParam.after_id,
@@ -54,9 +53,9 @@ export function LegacyCommunityFeed() {
       let profilesMap: Record<string, any> = {};
       if (authorIds.length > 0) {
         const { data: profiles, error: profileErr } = await supabase
-          .from('profiles')
-          .select('id, vorname, nachname, avatar_url, headline')
-          .in('id', authorIds as any);
+          .from('profiles_public')
+          .select('id, vorname, nachname, avatar_url, headline, full_name, company_id, company_name, company_logo, employment_status')
+          .in('id', authorIds);
 
         if (profileErr) {
           console.error('[feed] profiles join error', profileErr);
@@ -119,13 +118,28 @@ export function LegacyCommunityFeed() {
 
       // Nur veröffentlichte Posts berücksichtigen (INSERT published oder UPDATE → published)
       const justPublished =
-        newRow?.visibility === 'public' &&
-        (evt === 'INSERT' || (evt === 'UPDATE' && oldRow?.visibility !== 'public'));
+        newRow?.status === 'published' &&
+        (evt === 'INSERT' || (evt === 'UPDATE' && oldRow?.status !== 'published'));
 
       if (!justPublished) return;
 
       const postId = newRow.id as string;
       if (!postId) return;
+
+      // Sichtbarkeit per can_view_post absichern
+      const { data: allowed, error: allowErr } = await supabase.rpc('can_view_post', {
+        _post_id: postId,
+        _viewer: viewerId as string,
+      });
+
+      if (allowErr) {
+        console.error('[feed] can_view_post error', allowErr);
+        return;
+      }
+      if (!allowed) {
+        console.log('[feed] event ignored: viewer cannot see post', postId);
+        return;
+      }
 
       // Duplikate vermeiden
       if (loadedIds.has(postId) || incoming.some((p) => p.id === postId)) {
@@ -134,36 +148,31 @@ export function LegacyCommunityFeed() {
 
       // Autor anreichern
       let author = null;
-      if (newRow.actor_user_id) {
+      if (newRow.user_id) {
         const { data: profiles, error: profErr } = await supabase
-          .from('profiles')
+          .from('profiles_public')
           .select('id, vorname, nachname, avatar_url, headline, full_name, company_id, company_name, company_logo, employment_status')
-          .eq('id', newRow.actor_user_id)
+          .eq('id', newRow.user_id)
           .limit(1);
         if (!profErr && profiles && profiles.length) {
           author = profiles[0];
         }
       }
 
-      const enriched: PostWithAuthor = { 
-        ...newRow, 
-        author,
-        content: newRow.body_md || newRow.content,
-        user_id: newRow.actor_user_id || newRow.user_id
-      };
+      const enriched: PostWithAuthor = { ...newRow, author };
       setIncoming((prev) => [enriched, ...prev]);
     };
 
     const channel = supabase
-      .channel('community-feed-changes')
+      .channel('home-feed-changes')
       .on(
         'postgres_changes',
-        { event: 'INSERT', schema: 'public', table: 'community_posts' },
+        { event: 'INSERT', schema: 'public', table: 'posts' },
         handleIncoming
       )
       .on(
         'postgres_changes',
-        { event: 'UPDATE', schema: 'public', table: 'community_posts' },
+        { event: 'UPDATE', schema: 'public', table: 'posts' },
         handleIncoming
       )
       .subscribe();
@@ -231,8 +240,6 @@ export function LegacyCommunityFeed() {
 
   return (
     <div className="space-y-4">
-      <CommunityComposer />
-      
       {incoming.length > 0 && (
         <div className="sticky top-0 z-10">
           <Card className="p-3 border-primary/30 bg-primary/10 backdrop-blur supports-[backdrop-filter]:bg-primary/15">
@@ -332,9 +339,4 @@ export function LegacyCommunityFeed() {
       )}
     </div>
   );
-}
-
-// Export the legacy community feed as the default
-export default function CommunityFeed() {
-  return <LegacyCommunityFeed />;
 }

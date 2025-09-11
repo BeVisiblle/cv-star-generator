@@ -1,6 +1,10 @@
 import React from "react";
-import PublicJobsList from "@/components/public/PublicJobsList";
 
 export default function CommunityJobs() {
-  return <PublicJobsList />;
+  return (
+    <main className="w-full py-6">
+      <h1 className="text-xl font-semibold mb-2">Jobs</h1>
+      <p className="text-muted-foreground">Job‑Empfehlungen und Bewerbungen. (Platzhalterseite)</p>
+    </main>
+  );
 }

@@ -94,18 +94,17 @@ export function UnlockProfileModal({
   tokenCost,
   isLoading = false
 }: UnlockProfileModalProps) {
-  // Move calculations after all hooks would be called
-  const displayName = profile ? `${profile.vorname} ${profile.nachname?.charAt(0)}.` : '';
+  if (!profile) return null;
+
+  const displayName = `${profile.vorname} ${profile.nachname?.charAt(0)}.`;
   
-  const age = profile?.geburtsdatum 
+  const age = profile.geburtsdatum 
     ? new Date().getFullYear() - new Date(profile.geburtsdatum).getFullYear()
     : null;
 
-  const skills = profile?.faehigkeiten && Array.isArray(profile.faehigkeiten) 
+  const skills = profile.faehigkeiten && Array.isArray(profile.faehigkeiten) 
     ? profile.faehigkeiten 
     : [];
-
-  if (!profile) return null;
 
   const getJobTitle = () => {
     if (profile.status === 'azubi' && profile.ausbildungsberuf) {

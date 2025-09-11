@@ -1,6 +1,5 @@
 import React, { useState, useRef } from 'react';
 import { Camera, Edit3, MapPin, Building2, X, Check, Loader2 } from 'lucide-react';
-import EmploymentBadge from '@/components/employment/EmploymentBadge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -431,14 +430,15 @@ export const LinkedInProfileHeader: React.FC<LinkedInProfileHeaderProps> = ({
            {/* Show company employment badge */}
            {company && (
              <div className="flex items-center gap-2 mt-2">
-               <EmploymentBadge
-                 companyName={company.name}
-                 companyLogo={company.logo}
-                 companyId={undefined}
-                 role="Mitarbeiter"
-                 status="accepted"
-                 size="md"
-               />
+               <Building2 className="h-4 w-4 text-muted-foreground" />
+               <a href={company.href} className="hover:underline">
+                 <Badge variant="secondary" className="flex items-center gap-1">
+                   {company.logo && (
+                     <img src={company.logo} alt="" className="w-4 h-4 rounded-sm" />
+                   )}
+                   {company.name}
+                 </Badge>
+               </a>
              </div>
            )}
            

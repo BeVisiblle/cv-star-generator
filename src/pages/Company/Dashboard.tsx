@@ -14,7 +14,7 @@ import {
   FileText, 
   Eye,
   Building2,
-  Briefcase,
+  Target,
   CreditCard
 } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
@@ -315,9 +315,9 @@ export default function CompanyDashboard() {
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
-          <Button onClick={() => navigate('/company/jobs')}>
-            <Briefcase className="h-4 w-4 mr-2" />
-            Stellenanzeigen
+          <Button onClick={() => navigate('/company/needs')}>
+            <Target className="h-4 w-4 mr-2" />
+            Anforderungsprofile
           </Button>
           <Button variant="outline" onClick={() => navigate('/company/search')}>
             <Search className="h-4 w-4 mr-2" />

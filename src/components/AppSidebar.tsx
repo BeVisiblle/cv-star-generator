@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
-import { LayoutDashboard, User, Users, Settings, FileText, LogOut, ChevronRight, Plus, MessageSquare, Briefcase, Building2, BookOpen } from "lucide-react";
+import { LayoutDashboard, User, Users, Settings, FileText, LogOut, ChevronRight, Plus, MessageSquare, Briefcase, Building2 } from "lucide-react";
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarMenuSub, SidebarMenuSubItem, SidebarMenuSubButton, SidebarHeader, SidebarFooter, useSidebar } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -19,10 +19,6 @@ const navigationItems = [{
   title: "Einstellungen",
   url: "/settings",
   icon: Settings
-}, {
-  title: "Lerngruppen",
-  url: "/groups",
-  icon: BookOpen
 }];
 export function AppSidebar() {
   const { state, setOpen } = useSidebar();
@@ -91,10 +87,26 @@ export function AppSidebar() {
         data-sidebar="sidebar"
       >
       <SidebarHeader className={`p-4 ${collapsed ? 'px-2' : ''}`}>
-        {/* No logo/brand in sidebar - only in navbar */}
-        <div className="text-xs uppercase tracking-wide text-muted-foreground">
-          {!collapsed ? "Navigation" : ""}
-        </div>
+        {!collapsed ? (
+          <div className="flex items-center space-x-3">
+            <img
+              src="/lovable-uploads/59fd3c9b-c2d3-4613-b2c1-1366f349e1e9.png"
+              alt="Ausbildungsbasis Logo"
+              className="h-8 w-8 rounded-md object-contain"
+              loading="eager"
+            />
+            <h2 className="text-lg font-semibold">Ausbildungsbasis</h2>
+          </div>
+        ) : (
+          <div className="flex justify-center">
+            <img
+              src="/lovable-uploads/59fd3c9b-c2d3-4613-b2c1-1366f349e1e9.png"
+              alt="Ausbildungsbasis Logo"
+              className="h-8 w-8 rounded-md object-contain"
+              loading="eager"
+            />
+          </div>
+        )}
       </SidebarHeader>
 
       <SidebarContent>
@@ -219,7 +231,11 @@ export function AppSidebar() {
               </div>
             </div>
 
-            {/* Create Post Button removed - composer only in main feed */}
+            {/* Create Post Button */}
+            <Button className="w-full justify-start" onClick={() => { openPostComposer(); setOpen(false); }}>
+              <Plus className="h-4 w-4 mr-2" />
+              Neuer Beitrag
+            </Button>
 
             {/* Sign Out Button */}
             <Button variant="ghost" size="sm" onClick={handleSignOut} className="w-full justify-start text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground">
@@ -233,7 +249,9 @@ export function AppSidebar() {
                 {profile?.vorname && profile?.nachname ? `${profile.vorname[0]}${profile.nachname[0]}` : 'U'}
               </AvatarFallback>
             </Avatar>
-            {/* Create Post Button removed - composer only in main feed */}
+            <Button size="sm" onClick={() => { openPostComposer(); setOpen(false); }} className="w-full p-2 justify-center">
+              <Plus className="h-4 w-4" />
+            </Button>
             <Button variant="ghost" size="sm" onClick={handleSignOut} className="w-full p-2 justify-center">
               <LogOut className="h-4 w-4" />
             </Button>

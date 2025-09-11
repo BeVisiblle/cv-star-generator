@@ -12,7 +12,6 @@ interface PreviewAsApplicantModalProps {
 export function PreviewAsApplicantModal({ isOpen, onClose }: PreviewAsApplicantModalProps) {
   const { company } = useCompany();
 
-  // Move early return after hooks
   if (!company) return null;
 
   return (

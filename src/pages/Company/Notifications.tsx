@@ -1,11 +1,11 @@
 import NotificationsList from '@/components/notifications/NotificationsList';
 import { useCompany } from '@/hooks/useCompany';
-import { useRecipientNotifications } from '@/hooks/useRecipientNotifications';
+import { useNotifications } from '@/hooks/useNotifications';
 
 export default function CompanyNotifications() {
   const { company } = useCompany();
   
-  const { markAllRead } = useRecipientNotifications(
+  const { markAllRead } = useNotifications(
     'company',
     company?.id ?? null
   );

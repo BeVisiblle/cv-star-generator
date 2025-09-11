@@ -32,7 +32,7 @@ import {
 import {
   Home,
   Search,
-  Columns,
+  Columns3,
   MessageSquare,
   Settings as SettingsIcon,
   Building2,
@@ -40,7 +40,7 @@ import {
   LogOut,
   X,
   Users,
-  Briefcase,
+  Target,
 } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 import { useCompany } from "@/hooks/useCompany";
@@ -50,10 +50,10 @@ import { supabase } from "@/integrations/supabase/client";
 const navItems = [
   { to: "/company/dashboard", label: "Dashboard", icon: Home },
   { to: "/company/profile", label: "Unternehmensprofil", icon: Building2 },
-  { to: "/company/jobs", label: "Stellenanzeigen", icon: Briefcase },
+  { to: "/company/needs", label: "Anforderungsprofile", icon: Target },
   { to: "/company/search", label: "Kandidatensuche", icon: Search },
   { to: "/company/unlocked", label: "Freigeschaltete Azubis", icon: Users },
-  { to: "/company/candidates/pipeline", label: "Pipeline", icon: Columns },
+  { to: "/company/candidates/pipeline", label: "Pipeline", icon: Columns3 },
   { to: "/company/feed", label: "Community", icon: MessageSquare },
   { to: "/company/notifications", label: "Benachrichtigungen", icon: Bell },
   { to: "/company/settings", label: "Einstellungen", icon: SettingsIcon },

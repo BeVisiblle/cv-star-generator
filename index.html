@@ -44,23 +44,6 @@
 
   <body>
     <div id="root"></div>
-    <!-- HMR token fallback to avoid __WS_TOKEN__ runtime errors in preview -->
-    <script>
-      (function () {
-        try {
-          var token = new URL(window.location.href).searchParams.get('__lovable_token') || '';
-          if (typeof __WS_TOKEN__ === 'undefined') {
-            // Define as global to satisfy @vite/client in preview
-            // eslint-disable-next-line no-var
-            var __WS_TOKEN__ = token;
-            window.__WS_TOKEN__ = token;
-          }
-        } catch (e) {
-          // no-op
-        }
-      })();
-    </script>
-    <script type="module" src="/@vite/client"></script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

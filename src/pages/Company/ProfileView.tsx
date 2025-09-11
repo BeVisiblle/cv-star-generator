@@ -11,7 +11,7 @@ import { LinkedInProfileMain } from '@/components/linkedin/LinkedInProfileMain';
 import { LinkedInProfileSidebar } from '@/components/linkedin/LinkedInProfileSidebar';
 import { LinkedInProfileExperience } from '@/components/linkedin/LinkedInProfileExperience';
 import { LinkedInProfileEducation } from '@/components/linkedin/LinkedInProfileEducation';
-import ActivityTab from '@/components/profile/ActivityTab';
+import { LinkedInProfileActivity } from '@/components/linkedin/LinkedInProfileActivity';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
 import { useCompany } from '@/hooks/useCompany';
@@ -237,7 +237,9 @@ const CompanyProfileView = () => {
           />
 
           {/* Activity Section */}
-          <ActivityTab userId={displayProfile?.id} />
+          <LinkedInProfileActivity 
+            profile={displayProfile}
+          />
         </main>
 
         {/* Right Sidebar */}
@@ -248,10 +250,6 @@ const CompanyProfileView = () => {
               isEditing={false}
               onProfileUpdate={() => {}} // Read-only
               readOnly={true}
-              showLanguagesAndSkills={true}
-              showLicenseAndStats={false}
-              showCVSection={false}
-              isCompanyViewing={true}
             />
             
             {/* Kontaktdaten Box */}

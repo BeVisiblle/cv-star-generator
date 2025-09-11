@@ -1,14 +1,15 @@
 import NotificationsList from '@/components/notifications/NotificationsList';
 import { useAuth } from '@/hooks/useAuth';
-import { useRecipientNotifications } from '@/hooks/useRecipientNotifications';
+import { useNotifications } from '@/hooks/useNotifications';
 import { LeftPanel } from '@/components/dashboard/LeftPanel';
+import { RightPanel } from '@/components/dashboard/RightPanel';
 
 export default function NotificationsPage() {
   const { profile } = useAuth();
   const isCompany = false; // TODO: Implement company context detection
   const companyId = null; // TODO: Get from company context
 
-  const { markAllRead } = useRecipientNotifications(
+  const { markAllRead } = useNotifications(
     isCompany ? 'company' : 'profile',
     isCompany ? companyId : profile?.id ?? null
   );
@@ -53,10 +54,10 @@ export default function NotificationsPage() {
             </div>
           </section>
 
-          {/* Right column placeholder */}
+          {/* Right column (fixed width) */}
           <aside className="hidden xl:block w-[320px] shrink-0">
             <div className="sticky top-20 space-y-4">
-              {/* Placeholder for future widgets */}
+              <RightPanel />
             </div>
           </aside>
         </div>
