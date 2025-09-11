@@ -27,7 +27,6 @@ export const useRealtimeFeed = () => {
           
           // Invalidate community feed queries
           queryClient.invalidateQueries({ queryKey: ['home-feed'] });
-          queryClient.invalidateQueries({ queryKey: ['community-feed'] });
           queryClient.invalidateQueries({ queryKey: ['recent-community-posts'] });
           
           // If it's the current user's post, also invalidate their profile activity
@@ -49,13 +48,12 @@ export const useRealtimeFeed = () => {
         (payload) => {
           console.log('[realtime-feed] Like changed:', payload);
           
-          // Invalidate like queries for the specific post and community feed
+          // Invalidate like queries for the specific post
           const newLike = payload.new as any;
           const oldLike = payload.old as any;
           if (newLike?.post_id || oldLike?.post_id) {
             const postId = newLike?.post_id || oldLike?.post_id;
             queryClient.invalidateQueries({ queryKey: ['post-likes', postId] });
-            queryClient.invalidateQueries({ queryKey: ['community-feed'] });
           }
         }
       )
@@ -69,13 +67,12 @@ export const useRealtimeFeed = () => {
         (payload) => {
           console.log('[realtime-feed] Comment changed:', payload);
           
-          // Invalidate comment queries for the specific post and community feed
+          // Invalidate comment queries for the specific post
           const newComment = payload.new as any;
           const oldComment = payload.old as any;
           if (newComment?.post_id || oldComment?.post_id) {
             const postId = newComment?.post_id || oldComment?.post_id;
             queryClient.invalidateQueries({ queryKey: ['post-comments', postId] });
-            queryClient.invalidateQueries({ queryKey: ['community-feed'] });
           }
         }
       )

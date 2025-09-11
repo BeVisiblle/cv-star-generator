@@ -1,5 +1,5 @@
 import React from 'react';
-import EnhancedCommunityFeed from '@/components/community/EnhancedCommunityFeed';
+import CommunityFeed from '@/components/community/CommunityFeed';
 import CommunityComposerTeaser from '@/components/community/CommunityComposerTeaser';
 import { LeftPanel } from '@/components/dashboard/LeftPanel';
 import FeedSortBar from '@/components/community/FeedSortBar';
@@ -34,7 +34,7 @@ const Dashboard = () => {
               <FeedSortBar />
               
               {/* Community Feed */}
-              <EnhancedCommunityFeed />
+              <CommunityFeed />
             </div>
           </section>
 
