@@ -24,14 +24,19 @@ export const useCreatePost = () => {
         throw new Error("User must be logged in or company ID provided");
       }
 
-      const { data, error } = await supabase.rpc('create_community_post', {
-        p_body_md: payload.content,
-        p_visibility: payload.visibility,
-        p_media: JSON.stringify(payload.media || []),
-        p_job_id: payload.jobId || null,
-        p_actor_user_id: payload.companyId ? null : user?.id,
-        p_actor_company_id: payload.companyId || null
-      });
+      // Write directly to community_posts to avoid missing RPC issues
+      const { data, error } = await supabase
+        .from('community_posts')
+        .insert({
+          body_md: payload.content,
+          visibility: payload.visibility as any,
+          media: payload.media || [],
+          job_id: payload.jobId || null,
+          actor_user_id: payload.companyId ? null : user?.id,
+          actor_company_id: payload.companyId || null
+        })
+        .select('id')
+        .single();
 
       if (error) throw error;
       return data;
