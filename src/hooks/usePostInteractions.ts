@@ -30,58 +30,29 @@ export const usePostLikes = (postId: string) => {
       console.debug("[likes] fetch", { postId });
       
       // Get like count from the post itself
-      let { data: postData, error: postError } = await supabase
-        .from("community_posts")
-        .select("like_count")
+      const { data: postData, error: postError } = await supabase
+        .from("posts")
+        .select("likes_count")
         .eq("id", postId)
         .single();
       
-      // Fallback to posts table if community_posts doesn't exist
-      if (postError && postError.message.includes('relation "public.community_posts" does not exist')) {
-        const fallbackResult = await supabase
-          .from("posts")
-          .select("likes_count")
-          .eq("id", postId)
-          .single();
-        
-        if (fallbackResult.error) throw fallbackResult.error;
-        
-        postData = { like_count: fallbackResult.data?.likes_count || 0 };
-        postError = null;
-      } else if (postError) {
-        throw postError;
-      }
+      if (postError) throw postError;
       
       let liked = false;
       if (user?.id) {
-        let { data: userLike, error: likeError } = await supabase
-          .from("community_likes")
+        const { data: userLike, error: likeError } = await supabase
+          .from("likes")
           .select("id")
           .eq("post_id", postId)
-          .eq("liker_user_id", user.id)
+          .eq("user_id", user.id)
           .maybeSingle();
         
-        // Fallback to likes table if community_likes doesn't exist
-        if (likeError && likeError.message.includes('relation "public.community_likes" does not exist')) {
-          const fallbackResult = await supabase
-            .from("likes")
-            .select("id")
-            .eq("post_id", postId)
-            .eq("user_id", user.id)
-            .maybeSingle();
-          
-          if (fallbackResult.error) throw fallbackResult.error;
-          userLike = fallbackResult.data;
-          likeError = null;
-        } else if (likeError) {
-          throw likeError;
-        }
-        
+        if (likeError) throw likeError;
         liked = Boolean(userLike);
       }
 
       return {
-        count: postData?.like_count || 0,
+        count: postData?.likes_count || 0,
         liked
       };
     },
@@ -102,42 +73,21 @@ export const usePostLikes = (postId: string) => {
       const liked = data?.liked ?? false;
       if (liked) {
         // Unlike
-        let { error } = await supabase
-          .from("community_likes")
+        const { error } = await supabase
+          .from("likes")
           .delete()
           .eq("post_id", postId)
-          .eq("liker_user_id", user.id);
-        
-        // Fallback to likes table if community_likes doesn't exist
-        if (error && error.message.includes('relation "public.community_likes" does not exist')) {
-          const fallbackResult = await supabase
-            .from("likes")
-            .delete()
-            .eq("post_id", postId)
-            .eq("user_id", user.id);
-          error = fallbackResult.error;
-        }
+          .eq("user_id", user.id);
         
         if (error) throw error;
       } else {
         // Like
-        let { error } = await supabase
-          .from("community_likes")
+        const { error } = await supabase
+          .from("likes")
           .insert({
             post_id: postId,
-            liker_user_id: user.id,
+            user_id: user.id,
           });
-        
-        // Fallback to likes table if community_likes doesn't exist
-        if (error && error.message.includes('relation "public.community_likes" does not exist')) {
-          const fallbackResult = await supabase
-            .from("likes")
-            .insert({
-              post_id: postId,
-              user_id: user.id,
-            });
-          error = fallbackResult.error;
-        }
         
         if (error) throw error;
       }

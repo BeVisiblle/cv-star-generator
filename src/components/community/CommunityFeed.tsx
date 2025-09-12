@@ -32,56 +32,36 @@ export default function CommunityFeed() {
     queryFn: async ({ pageParam }) => {
       console.log('[feed] fetching page', pageParam, sort);
 
-      // First, try to get posts from community_posts table
-      let { data: posts, error } = await supabase
-        .from('community_posts')
+      // Try to get posts from posts table (existing structure)
+      const { data: posts, error } = await supabase
+        .from('posts')
         .select('*')
-        .eq('status', 'published')
         .order('created_at', { ascending: false })
         .limit(PAGE_SIZE);
 
-      // If community_posts doesn't exist, fallback to posts table
-      if (error && error.message.includes('relation "public.community_posts" does not exist')) {
-        console.log('[feed] community_posts table not found, falling back to posts table');
-        
-        const fallbackResult = await supabase
-          .from('posts')
-          .select('*')
-          .order('created_at', { ascending: false })
-          .limit(PAGE_SIZE);
-        
-        if (fallbackResult.error) {
-          console.error('[feed] fallback error', fallbackResult.error);
-          throw fallbackResult.error;
-        }
-        
-        // Transform posts table data to match community_posts structure
-        posts = fallbackResult.data?.map(post => ({
-          id: post.id,
-          body_md: post.content,
-          media: post.image_url ? [{ type: 'image', url: post.image_url }] : [],
-          status: 'published',
-          visibility: 'CommunityOnly',
-          actor_user_id: post.user_id,
-          actor_company_id: null,
-          like_count: post.likes_count || 0,
-          comment_count: post.comments_count || 0,
-          share_count: 0,
-          created_at: post.created_at,
-          updated_at: post.updated_at
-        })) || [];
-        
-        error = null;
-      } else if (error) {
+      if (error) {
         console.error('[feed] get_feed error', error);
         throw error;
       }
 
-      const rows: any[] = (posts as any[]) || [];
-      
-      // Get unique user and company IDs
-      const userIds = [...new Set(rows.map(post => post.actor_user_id).filter(Boolean))];
-      const companyIds = [...new Set(rows.map(post => post.actor_company_id).filter(Boolean))];
+      // Transform posts table data to match expected structure
+      const transformedPosts = posts?.map(post => ({
+        id: post.id,
+        body_md: post.content,
+        media: post.image_url ? [{ type: 'image', url: post.image_url }] : [],
+        status: 'published',
+        visibility: 'CommunityOnly',
+        actor_user_id: post.user_id,
+        actor_company_id: null,
+        like_count: post.likes_count || 0,
+        comment_count: post.comments_count || 0,
+        share_count: 0,
+        created_at: post.created_at,
+        updated_at: post.updated_at
+      })) || [];
+
+      // Get unique user IDs
+      const userIds = [...new Set(transformedPosts.map(post => post.actor_user_id).filter(Boolean))];
 
       // Fetch user profiles
       let userProfiles: any[] = [];
@@ -98,38 +78,21 @@ export default function CommunityFeed() {
         }
       }
 
-      // Fetch company data
-      let companies: any[] = [];
-      if (companyIds.length > 0) {
-        const { data: companyData, error: companyError } = await supabase
-          .from('companies')
-          .select('id, name, logo_url, description')
-          .in('id', companyIds);
-        
-        if (companyError) {
-          console.error('[feed] company error', companyError);
-        } else {
-          companies = companyData || [];
-        }
-      }
-
-      // Create lookup maps
+      // Create lookup map
       const userMap = Object.fromEntries(userProfiles.map(p => [p.id, p]));
-      const companyMap = Object.fromEntries(companies.map(c => [c.id, c]));
       
       // Transform posts to match PostCard interface
-      const transformedPosts = rows.map(post => {
+      const finalPosts = transformedPosts.map(post => {
         const author = userMap[post.actor_user_id] || null;
-        const company = companyMap[post.actor_company_id] || null;
 
         return {
           id: post.id,
           content: post.body_md || '',
           image_url: post.media?.[0]?.url || null,
           created_at: post.created_at,
-          user_id: post.actor_user_id || post.actor_company_id,
-          author_type: post.actor_user_id ? 'user' : 'company',
-          author_id: post.actor_user_id || post.actor_company_id,
+          user_id: post.actor_user_id,
+          author_type: 'user' as const,
+          author_id: post.actor_user_id,
           like_count: post.like_count || 0,
           comment_count: post.comment_count || 0,
           share_count: post.share_count || 0,
@@ -147,20 +110,15 @@ export default function CommunityFeed() {
             headline: null,
             company_name: null
           } : null,
-          company: company ? {
-            id: company.id,
-            name: company.name,
-            logo_url: company.logo_url,
-            description: company.description
-          } : null
+          company: null
         };
       });
 
       return {
-        posts: transformedPosts,
-        nextPage: transformedPosts.length === PAGE_SIZE ? {
-          after_published: transformedPosts[transformedPosts.length - 1]?.created_at,
-          after_id: transformedPosts[transformedPosts.length - 1]?.id
+        posts: finalPosts,
+        nextPage: finalPosts.length === PAGE_SIZE ? {
+          after_published: finalPosts[finalPosts.length - 1]?.created_at,
+          after_id: finalPosts[finalPosts.length - 1]?.id
         } : null
       };
     },
