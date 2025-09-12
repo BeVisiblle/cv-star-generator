@@ -16,7 +16,6 @@ export const FeedSortBar: React.FC = () => {
     setSort(value);
     localStorage.setItem("feed_sort", value);
     window.dispatchEvent(new CustomEvent('feed-sort-changed', { detail: value }));
-    // Hinweis: Sortierung war bisher nur UI – jetzt wird sie serverseitig genutzt
   };
 
   return (
@@ -29,8 +28,8 @@ export const FeedSortBar: React.FC = () => {
               <SelectValue placeholder="Relevanteste zuerst" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="relevant">Relevanteste zuerst</SelectItem>
-              <SelectItem value="newest">Neueste zuerst</SelectItem>
+              <SelectItem value="relevant">🔥 Relevanteste zuerst</SelectItem>
+              <SelectItem value="newest">⏰ Neueste zuerst</SelectItem>
             </SelectContent>
           </Select>
         </div>

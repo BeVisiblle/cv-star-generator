@@ -6,9 +6,8 @@ import { useAuth } from "@/hooks/useAuth";
 export interface PostComment {
   id: string;
   post_id: string;
-  author_user_id: string;
-  body_md: string;
-  parent_comment_id: string | null;
+  user_id: string;
+  content: string;
   created_at: string;
   updated_at: string;
   author?: {
@@ -25,7 +24,7 @@ export const usePostLikes = (postId: string) => {
   const { toast } = useToast();
 
   const { data, isLoading } = useQuery<{ count: number; liked: boolean }>({
-    queryKey: ["community-post-likes", postId, user?.id ?? "anon"],
+    queryKey: ["post-likes", postId, user?.id ?? "anon"],
     queryFn: async (): Promise<{ count: number; liked: boolean }> => {
       console.debug("[likes] fetch", { postId });
       
@@ -43,7 +42,8 @@ export const usePostLikes = (postId: string) => {
         const { data: userLike, error: likeError } = await supabase
           .from("likes")
           .select("id")
-          .eq("post_id", postId)
+          .eq("likeable_id", postId)
+          .eq("likeable_type", "post")
           .eq("user_id", user.id)
           .maybeSingle();
         
@@ -76,7 +76,8 @@ export const usePostLikes = (postId: string) => {
         const { error } = await supabase
           .from("likes")
           .delete()
-          .eq("post_id", postId)
+          .eq("likeable_id", postId)
+          .eq("likeable_type", "post")
           .eq("user_id", user.id);
         
         if (error) throw error;
@@ -85,7 +86,8 @@ export const usePostLikes = (postId: string) => {
         const { error } = await supabase
           .from("likes")
           .insert({
-            post_id: postId,
+            likeable_id: postId,
+            likeable_type: "post",
             user_id: user.id,
           });
         
@@ -95,7 +97,7 @@ export const usePostLikes = (postId: string) => {
     },
     onSuccess: () => {
       // Invalidate queries
-      queryClient.invalidateQueries({ queryKey: ["community-post-likes", postId] });
+      queryClient.invalidateQueries({ queryKey: ["post-likes", postId] });
       queryClient.invalidateQueries({ queryKey: ["home-feed"] });
     },
   });
@@ -115,11 +117,11 @@ export const usePostComments = (postId: string) => {
   const queryClient = useQueryClient();
 
   const commentsQuery = useQuery<PostComment[]>({
-    queryKey: ["community-post-comments", postId],
+    queryKey: ["post-comments", postId],
     queryFn: async (): Promise<PostComment[]> => {
       console.debug("[comments] fetch", { postId });
       const { data: comments, error } = await supabase
-        .from("community_comments")
+        .from("comments")
         .select("*")
         .eq("post_id", postId)
         .order("created_at", { ascending: true });
@@ -127,7 +129,7 @@ export const usePostComments = (postId: string) => {
 
       const items = (comments ?? []) as any[];
       const userIds = Array.from(
-        new Set(items.map((c: any) => c.author_user_id).filter(Boolean))
+        new Set(items.map((c: any) => c.user_id).filter(Boolean))
       );
       
       let profilesMap: Record<string, any> = {};
@@ -144,7 +146,7 @@ export const usePostComments = (postId: string) => {
 
       return items.map((c: any) => ({
         ...c,
-        author: profilesMap[c.author_user_id] ?? null,
+        author: profilesMap[c.user_id] ?? null,
       })) as PostComment[];
     },
     enabled: Boolean(postId)
@@ -161,17 +163,16 @@ export const usePostComments = (postId: string) => {
         return;
       }
       const { error } = await supabase
-        .from("community_comments")
+        .from("comments")
         .insert({
           post_id: postId,
-          author_user_id: user.id,
-          body_md: payload.content,
-          parent_comment_id: payload.parentId ?? null,
+          user_id: user.id,
+          content: payload.content,
         });
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["community-post-comments", postId] });
+      queryClient.invalidateQueries({ queryKey: ["post-comments", postId] });
       queryClient.invalidateQueries({ queryKey: ["home-feed"] });
     },
   });
@@ -193,14 +194,14 @@ export const usePostReposts = (postId: string) => {
   const { toast } = useToast();
 
   const { data, isLoading } = useQuery<{ count: number; hasReposted: boolean}>({
-    queryKey: ["community-post-shares", postId, user?.id ?? "anon"],
+    queryKey: ["post-shares", postId, user?.id ?? "anon"],
     queryFn: async (): Promise<{ count: number; hasReposted: boolean }> => {
       console.debug("[shares] fetch", { postId });
       
       // Get share count from the post itself
       const { data: postData, error: postError } = await supabase
-        .from("community_posts")
-        .select("share_count")
+        .from("posts")
+        .select("shares_count")
         .eq("id", postId)
         .single();
       
@@ -208,18 +209,19 @@ export const usePostReposts = (postId: string) => {
 
       let hasReposted = false;
       if (user?.id) {
+        // Check if user has shared this post
         const { data: userShare, error: shareError } = await supabase
-          .from("community_shares")
+          .from("shares")
           .select("id")
           .eq("post_id", postId)
-          .eq("sharer_user_id", user.id)
+          .eq("user_id", user.id)
           .maybeSingle();
         if (shareError) throw shareError;
         hasReposted = Boolean(userShare);
       }
       
       return { 
-        count: postData?.share_count || 0, 
+        count: postData?.shares_count || 0, 
         hasReposted 
       };
     },
@@ -237,22 +239,29 @@ export const usePostReposts = (postId: string) => {
         return { changed: false };
       }
       
-      if (data?.hasReposted) {
-        toast({ title: "Bereits geteilt", description: "Du hast diesen Beitrag schon geteilt." });
-        return { changed: false };
+      const hasReposted = data?.hasReposted ?? false;
+      if (hasReposted) {
+        // Unrepost
+        const { error } = await supabase
+          .from("shares")
+          .delete()
+          .eq("post_id", postId)
+          .eq("user_id", user.id);
+        if (error) throw error;
+      } else {
+        // Repost
+        const { error } = await supabase
+          .from("shares")
+          .insert({
+            post_id: postId,
+            user_id: user.id,
+          });
+        if (error) throw error;
       }
-      
-      const { error } = await supabase
-        .from("community_shares")
-        .insert({
-          post_id: postId,
-          sharer_user_id: user.id,
-        });
-      if (error) throw error;
       return { changed: true };
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["community-post-shares", postId] });
+      queryClient.invalidateQueries({ queryKey: ["post-shares", postId] });
       queryClient.invalidateQueries({ queryKey: ["home-feed"] });
     },
   });
