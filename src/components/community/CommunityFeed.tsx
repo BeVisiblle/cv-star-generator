@@ -1,4 +1,3 @@
-
 import React, { useEffect, useMemo, useState } from 'react';
 import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -35,10 +34,20 @@ export default function CommunityFeed() {
 
       const { data: posts, error } = await supabase
         .from('community_posts')
-        .select('*')
+        .select(`
+          *,
+          actor_user_profile:profiles_public!community_posts_actor_user_id_fkey(
+            id, vorname, nachname, avatar_url, status, ausbildungsberuf, 
+            schule, ausbildungsbetrieb, aktueller_beruf, employment_status,
+            headline, company_name, company_logo
+          ),
+          actor_company:companies!community_posts_actor_company_id_fkey(
+            id, name, logo_url, description
+          )
+        `)
         .eq('status', 'published')
         .order('created_at', { ascending: false })
-        .limit(PAGE_SIZE) as { data: any[] | null; error: any };
+        .limit(PAGE_SIZE);
 
       if (error) {
         console.error('[feed] get_feed error', error);
@@ -46,133 +55,71 @@ export default function CommunityFeed() {
       }
 
       const rows: any[] = (posts as any[]) || [];
-      const authorIds = Array.from(new Set(rows.map((p: any) => p.actor_user_id).filter(Boolean))) as string[];
-      const companyIds = Array.from(new Set(rows.filter((p: any) => p.actor_company_id).map((p: any) => p.actor_company_id))) as string[];
-
-      let profilesMap: Record<string, any> = {};
-      if (authorIds.length > 0) {
-        const { data: profiles, error: profileErr } = await supabase
-          .from('profiles_public')
-          .select('id, vorname, nachname, avatar_url, full_name, company_id, company_name, company_logo, employment_status')
-          .in('id', authorIds);
-
-        if (profileErr) {
-          console.error('[feed] profiles join error', profileErr);
-          throw profileErr;
-        }
-        profilesMap = Object.fromEntries((profiles || []).map((p: any) => [p.id, p]));
-      }
-
-      let companiesMap: Record<string, any> = {};
-      if (companyIds.length > 0) {
-        const { data: companies, error: compErr } = await supabase
-          .rpc('get_companies_public_by_ids', { ids: companyIds as any });
-        if (compErr) {
-          console.error('[feed] companies join error', compErr);
-        } else {
-          companiesMap = Object.fromEntries((companies || []).map((c: any) => [c.id, c]));
-        }
-      }
-
-      const items: PostWithAuthor[] = rows.map((p: any) => ({
-        ...p,
-        author: profilesMap[p.actor_user_id] || null,
-        company: companiesMap[p.actor_company_id] || null,
+      
+      // Transform posts to match PostCard interface
+      const transformedPosts = rows.map(post => ({
+        id: post.id,
+        content: post.body_md || '', // Map body_md to content
+        image_url: post.media?.[0]?.url, // Get first media item
+        created_at: post.created_at,
+        user_id: post.actor_user_id || post.actor_company_id,
+        author_type: post.actor_user_id ? 'user' : 'company',
+        author_id: post.actor_user_id || post.actor_company_id,
+        like_count: post.like_count || 0,
+        comment_count: post.comment_count || 0,
+        share_count: post.share_count || 0,
+        author: post.actor_user_profile ? {
+          id: post.actor_user_profile.id,
+          vorname: post.actor_user_profile.vorname,
+          nachname: post.actor_user_profile.nachname,
+          avatar_url: post.actor_user_profile.avatar_url,
+          ausbildungsberuf: post.actor_user_profile.ausbildungsberuf,
+          schule: post.actor_user_profile.schule,
+          ausbildungsbetrieb: post.actor_user_profile.ausbildungsbetrieb,
+          aktueller_beruf: post.actor_user_profile.aktueller_beruf,
+          status: post.actor_user_profile.status,
+          employment_status: post.actor_user_profile.employment_status,
+          headline: post.actor_user_profile.headline,
+          company_name: post.actor_user_profile.company_name
+        } : null,
+        company: post.actor_company ? {
+          id: post.actor_company.id,
+          name: post.actor_company.name,
+          logo_url: post.actor_company.logo_url,
+          description: post.actor_company.description
+        } : null
       }));
 
-      const last = rows.length ? rows[rows.length - 1] : null;
-      const nextPageParam =
-        last ? { after_published: last.created_at, after_id: last.id } : null;
-
-      return { items, nextPageParam };
+      return {
+        posts: transformedPosts,
+        nextPage: transformedPosts.length === PAGE_SIZE ? {
+          after_published: transformedPosts[transformedPosts.length - 1]?.created_at,
+          after_id: transformedPosts[transformedPosts.length - 1]?.id
+        } : null
+      };
     },
-    getNextPageParam: (lastPage) => lastPage.nextPageParam,
-    meta: {
-      onError: (err: any) => {
-        console.error('[feed] error meta', err);
-      },
-    },
+    getNextPageParam: (lastPage) => lastPage.nextPage,
   });
 
-  const posts: PostWithAuthor[] = useMemo(
-    () => (feedQuery.data?.pages || []).flatMap((p: any) => p.items) as PostWithAuthor[],
-    [feedQuery.data]
-  );
-
-  const loadedIds = useMemo(() => new Set((posts || []).map((p: any) => p.id)), [posts]);
-
-  // Buffer für neue Echtzeit-Posts bis der Nutzer "Anzeigen" klickt
-  const [incoming, setIncoming] = useState<PostWithAuthor[]>([]);
-
-  // Realtime-Subscription auf Posts (publish-Ereignisse)
+  // Real-time updates
   useEffect(() => {
-    if (!viewerId) return;
+    if (!user?.id) return;
 
-    console.log('[feed] subscribing to realtime');
-
-    const handleIncoming = async (payload: any) => {
-      const evt = payload.eventType as 'INSERT' | 'UPDATE';
-      const newRow = payload.new;
-      const oldRow = payload.old;
-
-      // Nur veröffentlichte Posts berücksichtigen (INSERT published oder UPDATE → published)
-      const justPublished =
-        newRow?.status === 'published' &&
-        (evt === 'INSERT' || (evt === 'UPDATE' && oldRow?.status !== 'published'));
-
-      if (!justPublished) return;
-
-      const postId = newRow.id as string;
-      if (!postId) return;
-
-      // Sichtbarkeit per can_view_post absichern
-      const { data: allowed, error: allowErr } = await supabase.rpc('can_view_post', {
-        _post_id: postId,
-        _viewer: viewerId as string,
-      });
-
-      if (allowErr) {
-        console.error('[feed] can_view_post error', allowErr);
-        return;
-      }
-      if (!allowed) {
-        console.log('[feed] event ignored: viewer cannot see post', postId);
-        return;
-      }
-
-      // Duplikate vermeiden
-      if (loadedIds.has(postId) || incoming.some((p) => p.id === postId)) {
-        return;
-      }
-
-      // Autor anreichern
-      let author = null;
-      if (newRow.actor_user_id) {
-        const { data: profiles, error: profErr } = await supabase
-          .from('profiles_public')
-          .select('id, vorname, nachname, avatar_url, full_name, company_id, company_name, company_logo, employment_status')
-          .eq('id', newRow.actor_user_id)
-          .limit(1);
-        if (!profErr && profiles && profiles.length) {
-          author = profiles[0];
-        }
-      }
-
-      const enriched: PostWithAuthor = { ...newRow, author };
-      setIncoming((prev) => [enriched, ...prev]);
-    };
-
+    console.log('[feed] subscribing realtime');
     const channel = supabase
-      .channel('home-feed-changes')
+      .channel('schema-db-changes')
       .on(
         'postgres_changes',
-        { event: 'INSERT', schema: 'public', table: 'community_posts' },
-        handleIncoming
-      )
-      .on(
-        'postgres_changes',
-        { event: 'UPDATE', schema: 'public', table: 'community_posts' },
-        handleIncoming
+        {
+          event: '*',
+          schema: 'public',
+          table: 'community_posts',
+          filter: 'status=eq.published'
+        },
+        (payload) => {
+          console.log('[feed] realtime update', payload);
+          queryClient.invalidateQueries({ queryKey: ['home-feed'] });
+        }
       )
       .subscribe();
 
@@ -180,32 +127,12 @@ export default function CommunityFeed() {
       console.log('[feed] unsubscribing realtime');
       supabase.removeChannel(channel);
     };
-  }, [viewerId, loadedIds, incoming]);
+  }, [user?.id, queryClient]);
 
-  const mergeIncoming = () => {
-    if (!incoming.length) return;
-
-    queryClient.setQueryData(['home-feed', viewerId], (oldData: any) => {
-      if (!oldData?.pages?.length) return oldData;
-
-      const existingIds = new Set(
-        oldData.pages.flatMap((p: any) => p.items.map((it: any) => it.id))
-      );
-      const toAdd = incoming.filter((p) => !existingIds.has(p.id));
-
-      // prepend in erste Seite, Rest bleibt
-      const firstPage = oldData.pages[0];
-      const newFirstPage = {
-        ...firstPage,
-        items: [...toAdd, ...firstPage.items],
-      };
-      const newPages = [newFirstPage, ...oldData.pages.slice(1)];
-
-      return { ...oldData, pages: newPages };
-    });
-
-    setIncoming([]);
-  };
+  const posts: PostWithAuthor[] = useMemo(
+    () => (feedQuery.data?.pages || []).flatMap((p: any) => p.posts || []) as PostWithAuthor[],
+    [feedQuery.data]
+  );
 
   if (!viewerId) {
     return (
@@ -239,21 +166,6 @@ export default function CommunityFeed() {
 
   return (
     <div className="space-y-4">
-      {incoming.length > 0 && (
-        <div className="sticky top-0 z-10">
-          <Card className="p-3 border-primary/30 bg-primary/10 backdrop-blur supports-[backdrop-filter]:bg-primary/15">
-            <div className="flex items-center justify-between">
-              <span className="text-sm font-medium">
-                {incoming.length} neue Beiträge – Anzeigen
-              </span>
-              <Button size="sm" onClick={mergeIncoming}>
-                Anzeigen
-              </Button>
-            </div>
-          </Card>
-        </div>
-      )}
-
       {isEmpty ? (
         <>
           {Array.from({ length: 10 }).map((_, i) => {
