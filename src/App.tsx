@@ -9,6 +9,7 @@ import { CVGeneratorGate } from "@/components/CVGeneratorGate";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect, useState, lazy, Suspense } from "react";
+import { useSupabaseInit } from "@/hooks/useSupabaseInit";
 import TopNavBar from "@/components/navigation/TopNavBar";
 import { SidebarProvider } from "@/components/ui/sidebar";
 
@@ -213,12 +214,46 @@ function UniversalLayout({ children }: { children: React.ReactNode }) {
   );
 }
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <AuthProvider>
-        <Toaster />
-        <Sonner />
+const App = () => {
+  const { isInitialized, error } = useSupabaseInit();
+
+  // Show loading screen until Supabase is initialized
+  if (!isInitialized) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-background">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Initialisiere Verbindung...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show error screen if Supabase initialization failed
+  if (error) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-background">
+        <div className="text-center">
+          <div className="text-red-500 mb-4">⚠️</div>
+          <h1 className="text-xl font-semibold mb-2">Verbindungsfehler</h1>
+          <p className="text-muted-foreground mb-4">{error}</p>
+          <button 
+            onClick={() => window.location.reload()} 
+            className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90"
+          >
+            Seite neu laden
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <AuthProvider>
+          <Toaster />
+          <Sonner />
         <BrowserRouter>
           <UniversalLayout>
             <Routes>
@@ -346,6 +381,7 @@ const App = () => (
       </AuthProvider>
     </TooltipProvider>
   </QueryClientProvider>
-);
+  );
+};
 
 export default App;
