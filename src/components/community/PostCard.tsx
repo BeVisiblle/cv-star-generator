@@ -108,12 +108,13 @@ const authorSubtitle = useMemo(() => {
 
   const truncated = useMemo(() => {
     const maxLen = 240;
-    if (expanded) return post.content;
-    if (post.content.length <= maxLen) return post.content;
-    return post.content.slice(0, maxLen) + '…';
+    const content = post.content || '';
+    if (expanded) return content;
+    if (content.length <= maxLen) return content;
+    return content.slice(0, maxLen) + '…';
   }, [post.content, expanded]);
 
-  const isLong = post.content.length > 240;
+  const isLong = (post.content || '').length > 240;
 
   const handleLike = () => toggleLike();
 
