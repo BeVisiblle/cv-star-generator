@@ -32,63 +32,129 @@ export default function CommunityFeed() {
     queryFn: async ({ pageParam }) => {
       console.log('[feed] fetching page', pageParam, sort);
 
-      const { data: posts, error } = await supabase
+      // First, try to get posts from community_posts table
+      let { data: posts, error } = await supabase
         .from('community_posts')
-        .select(`
-          *,
-          actor_user_profile:profiles_public!community_posts_actor_user_id_fkey(
-            id, vorname, nachname, avatar_url, status, ausbildungsberuf, 
-            schule, ausbildungsbetrieb, aktueller_beruf, employment_status,
-            headline, company_name, company_logo
-          ),
-          actor_company:companies!community_posts_actor_company_id_fkey(
-            id, name, logo_url, description
-          )
-        `)
+        .select('*')
         .eq('status', 'published')
         .order('created_at', { ascending: false })
         .limit(PAGE_SIZE);
 
-      if (error) {
+      // If community_posts doesn't exist, fallback to posts table
+      if (error && error.message.includes('relation "public.community_posts" does not exist')) {
+        console.log('[feed] community_posts table not found, falling back to posts table');
+        
+        const fallbackResult = await supabase
+          .from('posts')
+          .select('*')
+          .order('created_at', { ascending: false })
+          .limit(PAGE_SIZE);
+        
+        if (fallbackResult.error) {
+          console.error('[feed] fallback error', fallbackResult.error);
+          throw fallbackResult.error;
+        }
+        
+        // Transform posts table data to match community_posts structure
+        posts = fallbackResult.data?.map(post => ({
+          id: post.id,
+          body_md: post.content,
+          media: post.image_url ? [{ type: 'image', url: post.image_url }] : [],
+          status: 'published',
+          visibility: 'CommunityOnly',
+          actor_user_id: post.user_id,
+          actor_company_id: null,
+          like_count: post.likes_count || 0,
+          comment_count: post.comments_count || 0,
+          share_count: 0,
+          created_at: post.created_at,
+          updated_at: post.updated_at
+        })) || [];
+        
+        error = null;
+      } else if (error) {
         console.error('[feed] get_feed error', error);
         throw error;
       }
 
       const rows: any[] = (posts as any[]) || [];
       
+      // Get unique user and company IDs
+      const userIds = [...new Set(rows.map(post => post.actor_user_id).filter(Boolean))];
+      const companyIds = [...new Set(rows.map(post => post.actor_company_id).filter(Boolean))];
+
+      // Fetch user profiles
+      let userProfiles: any[] = [];
+      if (userIds.length > 0) {
+        const { data: profiles, error: profileError } = await supabase
+          .from('profiles')
+          .select('id, vorname, nachname, avatar_url, ausbildungsberuf, schule, ausbildungsbetrieb, aktueller_beruf, status')
+          .in('id', userIds);
+        
+        if (profileError) {
+          console.error('[feed] profile error', profileError);
+        } else {
+          userProfiles = profiles || [];
+        }
+      }
+
+      // Fetch company data
+      let companies: any[] = [];
+      if (companyIds.length > 0) {
+        const { data: companyData, error: companyError } = await supabase
+          .from('companies')
+          .select('id, name, logo_url, description')
+          .in('id', companyIds);
+        
+        if (companyError) {
+          console.error('[feed] company error', companyError);
+        } else {
+          companies = companyData || [];
+        }
+      }
+
+      // Create lookup maps
+      const userMap = Object.fromEntries(userProfiles.map(p => [p.id, p]));
+      const companyMap = Object.fromEntries(companies.map(c => [c.id, c]));
+      
       // Transform posts to match PostCard interface
-      const transformedPosts = rows.map(post => ({
-        id: post.id,
-        content: post.body_md || '', // Map body_md to content
-        image_url: post.media?.[0]?.url, // Get first media item
-        created_at: post.created_at,
-        user_id: post.actor_user_id || post.actor_company_id,
-        author_type: post.actor_user_id ? 'user' : 'company',
-        author_id: post.actor_user_id || post.actor_company_id,
-        like_count: post.like_count || 0,
-        comment_count: post.comment_count || 0,
-        share_count: post.share_count || 0,
-        author: post.actor_user_profile ? {
-          id: post.actor_user_profile.id,
-          vorname: post.actor_user_profile.vorname,
-          nachname: post.actor_user_profile.nachname,
-          avatar_url: post.actor_user_profile.avatar_url,
-          ausbildungsberuf: post.actor_user_profile.ausbildungsberuf,
-          schule: post.actor_user_profile.schule,
-          ausbildungsbetrieb: post.actor_user_profile.ausbildungsbetrieb,
-          aktueller_beruf: post.actor_user_profile.aktueller_beruf,
-          status: post.actor_user_profile.status,
-          employment_status: post.actor_user_profile.employment_status,
-          headline: post.actor_user_profile.headline,
-          company_name: post.actor_user_profile.company_name
-        } : null,
-        company: post.actor_company ? {
-          id: post.actor_company.id,
-          name: post.actor_company.name,
-          logo_url: post.actor_company.logo_url,
-          description: post.actor_company.description
-        } : null
-      }));
+      const transformedPosts = rows.map(post => {
+        const author = userMap[post.actor_user_id] || null;
+        const company = companyMap[post.actor_company_id] || null;
+
+        return {
+          id: post.id,
+          content: post.body_md || '',
+          image_url: post.media?.[0]?.url || null,
+          created_at: post.created_at,
+          user_id: post.actor_user_id || post.actor_company_id,
+          author_type: post.actor_user_id ? 'user' : 'company',
+          author_id: post.actor_user_id || post.actor_company_id,
+          like_count: post.like_count || 0,
+          comment_count: post.comment_count || 0,
+          share_count: post.share_count || 0,
+          author: author ? {
+            id: author.id,
+            vorname: author.vorname,
+            nachname: author.nachname,
+            avatar_url: author.avatar_url,
+            ausbildungsberuf: author.ausbildungsberuf,
+            schule: author.schule,
+            ausbildungsbetrieb: author.ausbildungsbetrieb,
+            aktueller_beruf: author.aktueller_beruf,
+            status: author.status,
+            employment_status: null,
+            headline: null,
+            company_name: null
+          } : null,
+          company: company ? {
+            id: company.id,
+            name: company.name,
+            logo_url: company.logo_url,
+            description: company.description
+          } : null
+        };
+      });
 
       return {
         posts: transformedPosts,
