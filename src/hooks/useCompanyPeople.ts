@@ -7,7 +7,6 @@ export type CompanyPerson = {
   vorname: string | null;
   nachname: string | null;
   avatar_url: string | null;
-  headline: string | null;
   created_at: string;
 };
 
@@ -17,11 +16,20 @@ export function useCompanyPeople(companyId?: string) {
     enabled: !!companyId,
     queryFn: async (): Promise<CompanyPerson[]> => {
       const { data, error } = await supabase
-        .rpc("company_people_public", { p_company_id: companyId! });
+        .from("profiles_public")
+        .select("id, full_name, vorname, nachname, avatar_url, employment_status")
+        .eq("company_id", companyId!);
       
       if (error) throw error;
       
-      return data || [];
+      return (data || []).map(item => ({
+        user_id: item.id,
+        full_name: item.full_name,
+        vorname: item.vorname,
+        nachname: item.nachname,
+        avatar_url: item.avatar_url,
+        created_at: new Date().toISOString()
+      }));
     },
     staleTime: 30_000,
   });

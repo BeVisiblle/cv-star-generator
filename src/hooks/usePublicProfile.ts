@@ -6,7 +6,6 @@ export type PublicProfile = {
   vorname: string | null;
   nachname: string | null;
   avatar_url: string | null;
-  headline: string | null;
   full_name: string;
   company_id: string | null;
   company_name: string | null;

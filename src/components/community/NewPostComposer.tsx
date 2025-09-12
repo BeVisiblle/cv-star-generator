@@ -193,7 +193,7 @@ export const NewPostComposer: React.FC = () => {
             <SheetTitle>Neuer Beitrag</SheetTitle>
           </SheetHeader>
           {Header}
-          <div className="flex-1 overflow-y-auto px-6 pb-6">
+          <div className="flex-1 overflow-y-auto px-6 pb-6 max-h-[calc(92vh-180px)]">
             <CreatePost container="none" hideHeader variant="composer" hideBottomBar onStateChange={handleStateChange} scheduledAt={scheduledAt} showPoll={showPoll} showEvent={showEvent} celebration={celebration} visibility={audience} />
           </div>
           <div className="sticky bottom-0">{BottomToolbar}</div>
@@ -204,11 +204,11 @@ export const NewPostComposer: React.FC = () => {
 
   return (
     <Dialog open={open} onOpenChange={(v) => { setOpen(v); setTrayOpen(false); }}>
-      <DialogContent className="md:max-w-3xl w-full p-0 rounded-xl overflow-hidden">
+      <DialogContent className="md:max-w-3xl w-full p-0 rounded-xl overflow-hidden max-h-[90vh] flex flex-col">
         <DialogTitle className="sr-only">Neuer Beitrag</DialogTitle>
         <DialogDescription className="sr-only">Verfasse und veröffentliche einen neuen Beitrag.</DialogDescription>
         {Header}
-        <div className="px-6 py-5">
+        <div className="px-6 py-5 flex-1 overflow-y-auto">
           <CreatePost container="none" hideHeader variant="composer" hideBottomBar onStateChange={handleStateChange} scheduledAt={scheduledAt} showPoll={showPoll} showEvent={showEvent} celebration={celebration} visibility={audience} />
         </div>
         {BottomToolbar}

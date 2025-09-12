@@ -33,13 +33,12 @@ export default function CommunityFeed() {
     queryFn: async ({ pageParam }) => {
       console.log('[feed] fetching page', pageParam, sort);
 
-      const { data: posts, error } = await (supabase as any).rpc('get_feed_sorted', {
-        viewer_id: viewerId as string,
-        after_published: pageParam.after_published,
-        after_id: pageParam.after_id,
-        limit_count: PAGE_SIZE,
-        sort: sort,
-      }) as { data: any[] | null; error: any };
+      const { data: posts, error } = await supabase
+        .from('community_posts')
+        .select('*')
+        .eq('status', 'published')
+        .order('created_at', { ascending: false })
+        .limit(PAGE_SIZE) as { data: any[] | null; error: any };
 
       if (error) {
         console.error('[feed] get_feed error', error);
@@ -47,14 +46,14 @@ export default function CommunityFeed() {
       }
 
       const rows: any[] = (posts as any[]) || [];
-      const authorIds = Array.from(new Set(rows.map((p: any) => p.user_id).filter(Boolean))) as string[];
-      const companyIds = Array.from(new Set(rows.filter((p: any) => p.author_type === 'company' && p.author_id).map((p: any) => p.author_id))) as string[];
+      const authorIds = Array.from(new Set(rows.map((p: any) => p.actor_user_id).filter(Boolean))) as string[];
+      const companyIds = Array.from(new Set(rows.filter((p: any) => p.actor_company_id).map((p: any) => p.actor_company_id))) as string[];
 
       let profilesMap: Record<string, any> = {};
       if (authorIds.length > 0) {
         const { data: profiles, error: profileErr } = await supabase
           .from('profiles_public')
-          .select('id, vorname, nachname, avatar_url, headline, full_name, company_id, company_name, company_logo, employment_status')
+          .select('id, vorname, nachname, avatar_url, full_name, company_id, company_name, company_logo, employment_status')
           .in('id', authorIds);
 
         if (profileErr) {
@@ -77,13 +76,13 @@ export default function CommunityFeed() {
 
       const items: PostWithAuthor[] = rows.map((p: any) => ({
         ...p,
-        author: profilesMap[p.user_id] || null,
-        company: companiesMap[p.author_id] || null,
+        author: profilesMap[p.actor_user_id] || null,
+        company: companiesMap[p.actor_company_id] || null,
       }));
 
       const last = rows.length ? rows[rows.length - 1] : null;
       const nextPageParam =
-        last ? { after_published: last.published_at, after_id: last.id } : null;
+        last ? { after_published: last.created_at, after_id: last.id } : null;
 
       return { items, nextPageParam };
     },
@@ -148,11 +147,11 @@ export default function CommunityFeed() {
 
       // Autor anreichern
       let author = null;
-      if (newRow.user_id) {
+      if (newRow.actor_user_id) {
         const { data: profiles, error: profErr } = await supabase
           .from('profiles_public')
-          .select('id, vorname, nachname, avatar_url, headline, full_name, company_id, company_name, company_logo, employment_status')
-          .eq('id', newRow.user_id)
+          .select('id, vorname, nachname, avatar_url, full_name, company_id, company_name, company_logo, employment_status')
+          .eq('id', newRow.actor_user_id)
           .limit(1);
         if (!profErr && profiles && profiles.length) {
           author = profiles[0];
@@ -167,12 +166,12 @@ export default function CommunityFeed() {
       .channel('home-feed-changes')
       .on(
         'postgres_changes',
-        { event: 'INSERT', schema: 'public', table: 'posts' },
+        { event: 'INSERT', schema: 'public', table: 'community_posts' },
         handleIncoming
       )
       .on(
         'postgres_changes',
-        { event: 'UPDATE', schema: 'public', table: 'posts' },
+        { event: 'UPDATE', schema: 'public', table: 'community_posts' },
         handleIncoming
       )
       .subscribe();

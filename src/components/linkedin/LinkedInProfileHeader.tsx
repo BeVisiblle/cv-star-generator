@@ -42,7 +42,7 @@ export const LinkedInProfileHeader: React.FC<LinkedInProfileHeaderProps> = ({
   const [currentPosition, setCurrentPosition] = useState('');
   const coverInputRef = useRef<HTMLInputElement>(null);
   const avatarInputRef = useRef<HTMLInputElement>(null);
-  const hasHeadline = typeof (liveProfile?.headline || profile?.headline) === 'string' && (liveProfile?.headline || profile?.headline).trim().length > 0;
+  const hasHeadline = false;
   const { user } = useAuth();
   const isOwner = user?.id === profile?.id;
 
@@ -424,7 +424,7 @@ export const LinkedInProfileHeader: React.FC<LinkedInProfileHeaderProps> = ({
           )}
           
            <p className="text-sm md:text-lg font-medium text-muted-foreground line-clamp-2">
-             {hasHeadline ? (liveProfile?.headline || profile?.headline) : '—'}
+             {hasHeadline ? () : '—'}
            </p>
            
            {/* Show company employment badge */}

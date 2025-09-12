@@ -105,7 +105,7 @@ export function CompanyPeople({ companyId }: CompanyPeopleProps) {
               <AuthorLine
                 avatarUrl={person.avatar_url}
                 name={person.full_name}
-                headline={person.headline}
+                headline=""
                 showCompany={false}
               />
             </div>

@@ -39,8 +39,11 @@ serve(async (req) => {
     const admin = createClient(supabaseUrl, serviceRoleKey);
 
     const { data, error } = await admin
-      .from("posts")
-      .update({ status: "published", published_at: nowIso })
+      .from("community_posts")
+      .update({ 
+        status: "published", 
+        created_at: nowIso // Update created_at for proper feed ordering
+      })
       .eq("status", "scheduled")
       .lte("scheduled_at", nowIso)
       .select("id");

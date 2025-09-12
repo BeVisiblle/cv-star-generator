@@ -70,16 +70,15 @@ export const CreatePost = ({ container = "card", hideHeader = false, variant = "
       const dbVisibility = visibilityMap[visibility ?? 'public'] ?? 'CommunityAndCompanies';
 
       const { error } = await supabase
-        .from("posts")
+        .from("community_posts")
         .insert({
           id,
-          content,
-          image_url: imageUrl,
-          user_id: user.id,
-          author_id: context === 'company' ? (companyId as string) : user.id,
-          author_type: context === 'company' ? 'company' : 'user',
-          celebration,
-          visibility: dbVisibility,
+          body_md: content,
+          media: imageUrl ? [{ type: 'image', url: imageUrl }] : [],
+          actor_user_id: context === 'company' ? null : user.id,
+          actor_company_id: context === 'company' ? (companyId as string) : null,
+          post_kind: 'text',
+          visibility: dbVisibility === 'CommunityAndCompanies' ? 'public' : 'connections',
           status: scheduledISO ? 'scheduled' : 'published',
           scheduled_at: scheduledISO
         });
