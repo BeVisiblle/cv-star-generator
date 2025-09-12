@@ -14,6 +14,308 @@ export type Database = {
   }
   public: {
     Tables: {
+      annotations: {
+        Row: {
+          anchor: Json
+          author_id: string | null
+          created_at: string
+          file_id: string
+          id: string
+          note: string | null
+          page_id: string
+          quote: string | null
+          visibility: string
+        }
+        Insert: {
+          anchor: Json
+          author_id?: string | null
+          created_at?: string
+          file_id: string
+          id?: string
+          note?: string | null
+          page_id: string
+          quote?: string | null
+          visibility?: string
+        }
+        Update: {
+          anchor?: Json
+          author_id?: string | null
+          created_at?: string
+          file_id?: string
+          id?: string
+          note?: string | null
+          page_id?: string
+          quote?: string | null
+          visibility?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "annotations_file_id_fkey"
+            columns: ["file_id"]
+            isOneToOne: false
+            referencedRelation: "files"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "annotations_page_id_fkey"
+            columns: ["page_id"]
+            isOneToOne: false
+            referencedRelation: "file_pages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      answers: {
+        Row: {
+          author_id: string | null
+          body: string
+          created_at: string
+          id: string
+          is_accepted: boolean
+          question_id: string
+          updated_at: string
+        }
+        Insert: {
+          author_id?: string | null
+          body: string
+          created_at?: string
+          id?: string
+          is_accepted?: boolean
+          question_id: string
+          updated_at?: string
+        }
+        Update: {
+          author_id?: string | null
+          body?: string
+          created_at?: string
+          id?: string
+          is_accepted?: boolean
+          question_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "answers_question_id_fkey"
+            columns: ["question_id"]
+            isOneToOne: false
+            referencedRelation: "questions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      app_settings: {
+        Row: {
+          id: boolean
+          require_password_after_verify: boolean
+        }
+        Insert: {
+          id?: boolean
+          require_password_after_verify?: boolean
+        }
+        Update: {
+          id?: boolean
+          require_password_after_verify?: boolean
+        }
+        Relationships: []
+      }
+      application_events: {
+        Row: {
+          actor_id: string | null
+          application_id: string
+          created_at: string
+          id: number
+          payload: Json | null
+          type: string
+        }
+        Insert: {
+          actor_id?: string | null
+          application_id: string
+          created_at?: string
+          id?: number
+          payload?: Json | null
+          type: string
+        }
+        Update: {
+          actor_id?: string | null
+          application_id?: string
+          created_at?: string
+          id?: number
+          payload?: Json | null
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "application_events_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: false
+            referencedRelation: "applications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      applications: {
+        Row: {
+          applied_at: string | null
+          candidate_id: string
+          company_id: string
+          cover_letter: string | null
+          created_at: string
+          id: string
+          job_id: string
+          job_post_id: string | null
+          portfolio_url: string | null
+          resume_url: string | null
+          source: string
+          stage: string
+          status: string | null
+          unread: boolean
+          updated_at: string
+          user_id: string | null
+          viewed_by_company: boolean | null
+        }
+        Insert: {
+          applied_at?: string | null
+          candidate_id: string
+          company_id: string
+          cover_letter?: string | null
+          created_at?: string
+          id?: string
+          job_id: string
+          job_post_id?: string | null
+          portfolio_url?: string | null
+          resume_url?: string | null
+          source?: string
+          stage?: string
+          status?: string | null
+          unread?: boolean
+          updated_at?: string
+          user_id?: string | null
+          viewed_by_company?: boolean | null
+        }
+        Update: {
+          applied_at?: string | null
+          candidate_id?: string
+          company_id?: string
+          cover_letter?: string | null
+          created_at?: string
+          id?: string
+          job_id?: string
+          job_post_id?: string | null
+          portfolio_url?: string | null
+          resume_url?: string | null
+          source?: string
+          stage?: string
+          status?: string | null
+          unread?: boolean
+          updated_at?: string
+          user_id?: string | null
+          viewed_by_company?: boolean | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "applications_candidate_id_fkey"
+            columns: ["candidate_id"]
+            isOneToOne: false
+            referencedRelation: "candidates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "applications_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "applications_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies_public_secure"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "applications_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "company_need_quota"
+            referencedColumns: ["company_id"]
+          },
+          {
+            foreignKeyName: "applications_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "job_posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "applications_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "public_job_listings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "applications_job_post_id_fkey"
+            columns: ["job_post_id"]
+            isOneToOne: false
+            referencedRelation: "job_posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "applications_job_post_id_fkey"
+            columns: ["job_post_id"]
+            isOneToOne: false
+            referencedRelation: "public_job_listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      billing_events: {
+        Row: {
+          created_at: string
+          event_type: string
+          id: string
+          org_id: string | null
+          payload: Json
+        }
+        Insert: {
+          created_at?: string
+          event_type: string
+          id?: string
+          org_id?: string | null
+          payload?: Json
+        }
+        Update: {
+          created_at?: string
+          event_type?: string
+          id?: string
+          org_id?: string | null
+          payload?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "billing_events_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "billing_events_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "companies_public_secure"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "billing_events_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "company_need_quota"
+            referencedColumns: ["company_id"]
+          },
+        ]
+      }
       blocks: {
         Row: {
           blocked_id: string
@@ -72,6 +374,13 @@ export type Database = {
             foreignKeyName: "fk_candidate_contacts_company"
             columns: ["company_id"]
             isOneToOne: false
+            referencedRelation: "companies_public_secure"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_candidate_contacts_company"
+            columns: ["company_id"]
+            isOneToOne: false
             referencedRelation: "company_need_quota"
             referencedColumns: ["company_id"]
           },
@@ -86,7 +395,7 @@ export type Database = {
             foreignKeyName: "fk_candidate_contacts_profile"
             columns: ["candidate_id"]
             isOneToOne: false
-            referencedRelation: "profiles_public"
+            referencedRelation: "profiles_public_secure"
             referencedColumns: ["id"]
           },
         ]
@@ -195,6 +504,13 @@ export type Database = {
             foreignKeyName: "fk_candidate_notes_company"
             columns: ["company_id"]
             isOneToOne: false
+            referencedRelation: "companies_public_secure"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_candidate_notes_company"
+            columns: ["company_id"]
+            isOneToOne: false
             referencedRelation: "company_need_quota"
             referencedColumns: ["company_id"]
           },
@@ -209,7 +525,7 @@ export type Database = {
             foreignKeyName: "fk_candidate_notes_profile"
             columns: ["candidate_id"]
             isOneToOne: false
-            referencedRelation: "profiles_public"
+            referencedRelation: "profiles_public_secure"
             referencedColumns: ["id"]
           },
         ]
@@ -282,6 +598,619 @@ export type Database = {
           },
         ]
       }
+      candidates: {
+        Row: {
+          city: string | null
+          company_id: string
+          country: string | null
+          created_at: string
+          cv_url: string | null
+          email: string | null
+          full_name: string | null
+          id: string
+          languages: string[] | null
+          phone: string | null
+          skills: string[] | null
+          user_id: string | null
+        }
+        Insert: {
+          city?: string | null
+          company_id: string
+          country?: string | null
+          created_at?: string
+          cv_url?: string | null
+          email?: string | null
+          full_name?: string | null
+          id?: string
+          languages?: string[] | null
+          phone?: string | null
+          skills?: string[] | null
+          user_id?: string | null
+        }
+        Update: {
+          city?: string | null
+          company_id?: string
+          country?: string | null
+          created_at?: string
+          cv_url?: string | null
+          email?: string | null
+          full_name?: string | null
+          id?: string
+          languages?: string[] | null
+          phone?: string | null
+          skills?: string[] | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "candidates_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "candidates_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies_public_secure"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "candidates_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "company_need_quota"
+            referencedColumns: ["company_id"]
+          },
+        ]
+      }
+      comment_likes: {
+        Row: {
+          comment_id: string
+          created_at: string | null
+          user_id: string
+        }
+        Insert: {
+          comment_id: string
+          created_at?: string | null
+          user_id: string
+        }
+        Update: {
+          comment_id?: string
+          created_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "comment_likes_comment_id_fkey"
+            columns: ["comment_id"]
+            isOneToOne: false
+            referencedRelation: "comments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "comment_likes_comment_id_fkey"
+            columns: ["comment_id"]
+            isOneToOne: false
+            referencedRelation: "v_comments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "comment_likes_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "comment_likes_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles_public_secure"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      comments: {
+        Row: {
+          attachments: Json | null
+          author_id: string
+          body: string
+          created_at: string | null
+          id: string
+          like_count: number
+          parent_id: string | null
+          post_id: string
+          reply_count: number
+        }
+        Insert: {
+          attachments?: Json | null
+          author_id: string
+          body: string
+          created_at?: string | null
+          id?: string
+          like_count?: number
+          parent_id?: string | null
+          post_id: string
+          reply_count?: number
+        }
+        Update: {
+          attachments?: Json | null
+          author_id?: string
+          body?: string
+          created_at?: string | null
+          id?: string
+          like_count?: number
+          parent_id?: string | null
+          post_id?: string
+          reply_count?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "comments_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "comments_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "profiles_public_secure"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "comments_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "comments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "comments_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "v_comments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "comments_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "comments_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts_authenticated"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      community_comments: {
+        Row: {
+          author_company_id: string | null
+          author_user_id: string | null
+          body_md: string
+          created_at: string | null
+          id: string
+          parent_comment_id: string | null
+          post_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          author_company_id?: string | null
+          author_user_id?: string | null
+          body_md: string
+          created_at?: string | null
+          id?: string
+          parent_comment_id?: string | null
+          post_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          author_company_id?: string | null
+          author_user_id?: string | null
+          body_md?: string
+          created_at?: string | null
+          id?: string
+          parent_comment_id?: string | null
+          post_id?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "community_comments_author_company_id_fkey"
+            columns: ["author_company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "community_comments_author_company_id_fkey"
+            columns: ["author_company_id"]
+            isOneToOne: false
+            referencedRelation: "companies_public_secure"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "community_comments_author_company_id_fkey"
+            columns: ["author_company_id"]
+            isOneToOne: false
+            referencedRelation: "company_need_quota"
+            referencedColumns: ["company_id"]
+          },
+          {
+            foreignKeyName: "community_comments_parent_comment_id_fkey"
+            columns: ["parent_comment_id"]
+            isOneToOne: false
+            referencedRelation: "community_comments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "community_comments_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "community_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      community_job_limits: {
+        Row: {
+          company_id: string
+          job_id: string
+          shares_used: number | null
+          week_start: string
+        }
+        Insert: {
+          company_id: string
+          job_id: string
+          shares_used?: number | null
+          week_start: string
+        }
+        Update: {
+          company_id?: string
+          job_id?: string
+          shares_used?: number | null
+          week_start?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "community_job_limits_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "community_job_limits_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies_public_secure"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "community_job_limits_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "company_need_quota"
+            referencedColumns: ["company_id"]
+          },
+          {
+            foreignKeyName: "community_job_limits_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "job_posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "community_job_limits_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "public_job_listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      community_likes: {
+        Row: {
+          created_at: string | null
+          id: string
+          liker_company_id: string | null
+          liker_user_id: string | null
+          post_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          liker_company_id?: string | null
+          liker_user_id?: string | null
+          post_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          liker_company_id?: string | null
+          liker_user_id?: string | null
+          post_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "community_likes_liker_company_id_fkey"
+            columns: ["liker_company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "community_likes_liker_company_id_fkey"
+            columns: ["liker_company_id"]
+            isOneToOne: false
+            referencedRelation: "companies_public_secure"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "community_likes_liker_company_id_fkey"
+            columns: ["liker_company_id"]
+            isOneToOne: false
+            referencedRelation: "company_need_quota"
+            referencedColumns: ["company_id"]
+          },
+          {
+            foreignKeyName: "community_likes_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "community_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      community_mentions: {
+        Row: {
+          created_at: string | null
+          end_pos: number | null
+          id: string
+          mentioned_company_id: string | null
+          mentioned_user_id: string | null
+          post_id: string
+          start_pos: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          end_pos?: number | null
+          id?: string
+          mentioned_company_id?: string | null
+          mentioned_user_id?: string | null
+          post_id: string
+          start_pos?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          end_pos?: number | null
+          id?: string
+          mentioned_company_id?: string | null
+          mentioned_user_id?: string | null
+          post_id?: string
+          start_pos?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "community_mentions_mentioned_company_id_fkey"
+            columns: ["mentioned_company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "community_mentions_mentioned_company_id_fkey"
+            columns: ["mentioned_company_id"]
+            isOneToOne: false
+            referencedRelation: "companies_public_secure"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "community_mentions_mentioned_company_id_fkey"
+            columns: ["mentioned_company_id"]
+            isOneToOne: false
+            referencedRelation: "company_need_quota"
+            referencedColumns: ["company_id"]
+          },
+          {
+            foreignKeyName: "community_mentions_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "community_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      community_posts: {
+        Row: {
+          actor_company_id: string | null
+          actor_user_id: string | null
+          applies_enabled: boolean | null
+          body_md: string | null
+          comment_count: number | null
+          created_at: string | null
+          id: string
+          job_id: string | null
+          like_count: number | null
+          media: Json | null
+          post_kind: Database["public"]["Enums"]["post_kind"]
+          share_count: number | null
+          updated_at: string | null
+          visibility: Database["public"]["Enums"]["post_visibility"]
+        }
+        Insert: {
+          actor_company_id?: string | null
+          actor_user_id?: string | null
+          applies_enabled?: boolean | null
+          body_md?: string | null
+          comment_count?: number | null
+          created_at?: string | null
+          id?: string
+          job_id?: string | null
+          like_count?: number | null
+          media?: Json | null
+          post_kind?: Database["public"]["Enums"]["post_kind"]
+          share_count?: number | null
+          updated_at?: string | null
+          visibility?: Database["public"]["Enums"]["post_visibility"]
+        }
+        Update: {
+          actor_company_id?: string | null
+          actor_user_id?: string | null
+          applies_enabled?: boolean | null
+          body_md?: string | null
+          comment_count?: number | null
+          created_at?: string | null
+          id?: string
+          job_id?: string | null
+          like_count?: number | null
+          media?: Json | null
+          post_kind?: Database["public"]["Enums"]["post_kind"]
+          share_count?: number | null
+          updated_at?: string | null
+          visibility?: Database["public"]["Enums"]["post_visibility"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "community_posts_actor_company_id_fkey"
+            columns: ["actor_company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "community_posts_actor_company_id_fkey"
+            columns: ["actor_company_id"]
+            isOneToOne: false
+            referencedRelation: "companies_public_secure"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "community_posts_actor_company_id_fkey"
+            columns: ["actor_company_id"]
+            isOneToOne: false
+            referencedRelation: "company_need_quota"
+            referencedColumns: ["company_id"]
+          },
+          {
+            foreignKeyName: "community_posts_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "job_posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "community_posts_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "public_job_listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      community_preferences: {
+        Row: {
+          blocked_ids: string[] | null
+          created_at: string | null
+          muted_company_ids: string[] | null
+          muted_user_ids: string[] | null
+          origin_filter: string | null
+          radius_km: number | null
+          show_company_posts: boolean | null
+          show_job_shares: boolean | null
+          show_user_posts: boolean | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          blocked_ids?: string[] | null
+          created_at?: string | null
+          muted_company_ids?: string[] | null
+          muted_user_ids?: string[] | null
+          origin_filter?: string | null
+          radius_km?: number | null
+          show_company_posts?: boolean | null
+          show_job_shares?: boolean | null
+          show_user_posts?: boolean | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          blocked_ids?: string[] | null
+          created_at?: string | null
+          muted_company_ids?: string[] | null
+          muted_user_ids?: string[] | null
+          origin_filter?: string | null
+          radius_km?: number | null
+          show_company_posts?: boolean | null
+          show_job_shares?: boolean | null
+          show_user_posts?: boolean | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      community_shares: {
+        Row: {
+          created_at: string | null
+          id: string
+          post_id: string
+          sharer_company_id: string | null
+          sharer_user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          post_id: string
+          sharer_company_id?: string | null
+          sharer_user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          post_id?: string
+          sharer_company_id?: string | null
+          sharer_user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "community_shares_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "community_posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "community_shares_sharer_company_id_fkey"
+            columns: ["sharer_company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "community_shares_sharer_company_id_fkey"
+            columns: ["sharer_company_id"]
+            isOneToOne: false
+            referencedRelation: "companies_public_secure"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "community_shares_sharer_company_id_fkey"
+            columns: ["sharer_company_id"]
+            isOneToOne: false
+            referencedRelation: "company_need_quota"
+            referencedColumns: ["company_id"]
+          },
+        ]
+      }
       companies: {
         Row: {
           account_status: string
@@ -314,6 +1243,8 @@ export type Database = {
           onboarding_completed: boolean | null
           package_id: string | null
           phone: string | null
+          plan: Database["public"]["Enums"]["plan_code"] | null
+          plan_status: string | null
           plan_type: string | null
           primary_email: string | null
           seats: number | null
@@ -355,6 +1286,8 @@ export type Database = {
           onboarding_completed?: boolean | null
           package_id?: string | null
           phone?: string | null
+          plan?: Database["public"]["Enums"]["plan_code"] | null
+          plan_status?: string | null
           plan_type?: string | null
           primary_email?: string | null
           seats?: number | null
@@ -396,6 +1329,8 @@ export type Database = {
           onboarding_completed?: boolean | null
           package_id?: string | null
           phone?: string | null
+          plan?: Database["public"]["Enums"]["plan_code"] | null
+          plan_status?: string | null
           plan_type?: string | null
           primary_email?: string | null
           seats?: number | null
@@ -454,6 +1389,13 @@ export type Database = {
             columns: ["company_id"]
             isOneToOne: false
             referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_company_activity_company"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies_public_secure"
             referencedColumns: ["id"]
           },
           {
@@ -536,6 +1478,13 @@ export type Database = {
             foreignKeyName: "fk_company_candidates_company"
             columns: ["company_id"]
             isOneToOne: false
+            referencedRelation: "companies_public_secure"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_company_candidates_company"
+            columns: ["company_id"]
+            isOneToOne: false
             referencedRelation: "company_need_quota"
             referencedColumns: ["company_id"]
           },
@@ -550,7 +1499,7 @@ export type Database = {
             foreignKeyName: "fk_company_candidates_profile"
             columns: ["candidate_id"]
             isOneToOne: false
-            referencedRelation: "profiles_public"
+            referencedRelation: "profiles_public_secure"
             referencedColumns: ["id"]
           },
         ]
@@ -592,6 +1541,13 @@ export type Database = {
             foreignKeyName: "company_employment_requests_company_id_fkey"
             columns: ["company_id"]
             isOneToOne: false
+            referencedRelation: "companies_public_secure"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "company_employment_requests_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
             referencedRelation: "company_need_quota"
             referencedColumns: ["company_id"]
           },
@@ -606,7 +1562,7 @@ export type Database = {
             foreignKeyName: "company_employment_requests_confirmed_by_fkey"
             columns: ["confirmed_by"]
             isOneToOne: false
-            referencedRelation: "profiles_public"
+            referencedRelation: "profiles_public_secure"
             referencedColumns: ["id"]
           },
           {
@@ -620,7 +1576,7 @@ export type Database = {
             foreignKeyName: "company_employment_requests_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
-            referencedRelation: "profiles_public"
+            referencedRelation: "profiles_public_secure"
             referencedColumns: ["id"]
           },
         ]
@@ -662,6 +1618,13 @@ export type Database = {
             foreignKeyName: "company_follow_prefs_company_id_fkey"
             columns: ["company_id"]
             isOneToOne: false
+            referencedRelation: "companies_public_secure"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "company_follow_prefs_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
             referencedRelation: "company_need_quota"
             referencedColumns: ["company_id"]
           },
@@ -676,7 +1639,7 @@ export type Database = {
             foreignKeyName: "company_follow_prefs_profile_id_fkey"
             columns: ["profile_id"]
             isOneToOne: false
-            referencedRelation: "profiles_public"
+            referencedRelation: "profiles_public_secure"
             referencedColumns: ["id"]
           },
         ]
@@ -730,6 +1693,13 @@ export type Database = {
             columns: ["company_id"]
             isOneToOne: false
             referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "company_needs_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies_public_secure"
             referencedColumns: ["id"]
           },
           {
@@ -811,6 +1781,13 @@ export type Database = {
             foreignKeyName: "company_posts_company_id_fkey"
             columns: ["company_id"]
             isOneToOne: false
+            referencedRelation: "companies_public_secure"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "company_posts_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
             referencedRelation: "company_need_quota"
             referencedColumns: ["company_id"]
           },
@@ -853,6 +1830,13 @@ export type Database = {
             columns: ["company_id"]
             isOneToOne: false
             referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "company_purchases_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies_public_secure"
             referencedColumns: ["id"]
           },
           {
@@ -907,6 +1891,13 @@ export type Database = {
             foreignKeyName: "company_settings_company_id_fkey"
             columns: ["company_id"]
             isOneToOne: true
+            referencedRelation: "companies_public_secure"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "company_settings_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: true
             referencedRelation: "company_need_quota"
             referencedColumns: ["company_id"]
           },
@@ -955,6 +1946,13 @@ export type Database = {
             foreignKeyName: "company_subscriptions_company_id_fkey"
             columns: ["company_id"]
             isOneToOne: true
+            referencedRelation: "companies_public_secure"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "company_subscriptions_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: true
             referencedRelation: "company_need_quota"
             referencedColumns: ["company_id"]
           },
@@ -989,6 +1987,13 @@ export type Database = {
             columns: ["company_id"]
             isOneToOne: false
             referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "company_tags_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies_public_secure"
             referencedColumns: ["id"]
           },
           {
@@ -1068,6 +2073,13 @@ export type Database = {
             foreignKeyName: "company_users_company_id_fkey"
             columns: ["company_id"]
             isOneToOne: false
+            referencedRelation: "companies_public_secure"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "company_users_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
             referencedRelation: "company_need_quota"
             referencedColumns: ["company_id"]
           },
@@ -1121,6 +2133,97 @@ export type Database = {
         }
         Relationships: []
       }
+      file_pages: {
+        Row: {
+          bbox: Json | null
+          created_at: string
+          file_id: string
+          id: string
+          page_number: number
+          text: string | null
+          thumb_path: string | null
+        }
+        Insert: {
+          bbox?: Json | null
+          created_at?: string
+          file_id: string
+          id?: string
+          page_number: number
+          text?: string | null
+          thumb_path?: string | null
+        }
+        Update: {
+          bbox?: Json | null
+          created_at?: string
+          file_id?: string
+          id?: string
+          page_number?: number
+          text?: string | null
+          thumb_path?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "file_pages_file_id_fkey"
+            columns: ["file_id"]
+            isOneToOne: false
+            referencedRelation: "files"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      files: {
+        Row: {
+          byte_size: number | null
+          checksum: string
+          created_at: string
+          filename: string
+          group_id: string
+          id: string
+          license: string | null
+          mime_type: string | null
+          source: string | null
+          storage_path: string
+          uploader_id: string | null
+          version: number
+        }
+        Insert: {
+          byte_size?: number | null
+          checksum: string
+          created_at?: string
+          filename: string
+          group_id: string
+          id?: string
+          license?: string | null
+          mime_type?: string | null
+          source?: string | null
+          storage_path: string
+          uploader_id?: string | null
+          version?: number
+        }
+        Update: {
+          byte_size?: number | null
+          checksum?: string
+          created_at?: string
+          filename?: string
+          group_id?: string
+          id?: string
+          license?: string | null
+          mime_type?: string | null
+          source?: string | null
+          storage_path?: string
+          uploader_id?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "files_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       follow_request_counters: {
         Row: {
           company_id: string
@@ -1146,6 +2249,13 @@ export type Database = {
             columns: ["company_id"]
             isOneToOne: true
             referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "follow_request_counters_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: true
+            referencedRelation: "companies_public_secure"
             referencedColumns: ["id"]
           },
           {
@@ -1190,6 +2300,773 @@ export type Database = {
         }
         Relationships: []
       }
+      group_join_requests: {
+        Row: {
+          group_id: string
+          id: string
+          message: string | null
+          requested_at: string
+          responded_at: string | null
+          responded_by: string | null
+          status: string
+          user_id: string
+        }
+        Insert: {
+          group_id: string
+          id?: string
+          message?: string | null
+          requested_at?: string
+          responded_at?: string | null
+          responded_by?: string | null
+          status?: string
+          user_id: string
+        }
+        Update: {
+          group_id?: string
+          id?: string
+          message?: string | null
+          requested_at?: string
+          responded_at?: string | null
+          responded_by?: string | null
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "group_join_requests_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      group_members: {
+        Row: {
+          group_id: string
+          joined_at: string
+          role: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          group_id: string
+          joined_at?: string
+          role?: string
+          status?: string
+          user_id: string
+        }
+        Update: {
+          group_id?: string
+          joined_at?: string
+          role?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "group_members_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      groups: {
+        Row: {
+          allow_member_invites: boolean | null
+          course_code: string | null
+          cover_image: string | null
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          max_members: number | null
+          region: string | null
+          require_approval: boolean | null
+          school: string | null
+          title: string
+          type: string
+          updated_at: string
+          visibility: string
+        }
+        Insert: {
+          allow_member_invites?: boolean | null
+          course_code?: string | null
+          cover_image?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          max_members?: number | null
+          region?: string | null
+          require_approval?: boolean | null
+          school?: string | null
+          title: string
+          type?: string
+          updated_at?: string
+          visibility?: string
+        }
+        Update: {
+          allow_member_invites?: boolean | null
+          course_code?: string | null
+          cover_image?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          max_members?: number | null
+          region?: string | null
+          require_approval?: boolean | null
+          school?: string | null
+          title?: string
+          type?: string
+          updated_at?: string
+          visibility?: string
+        }
+        Relationships: []
+      }
+      job_certifications: {
+        Row: {
+          certification_name: string
+          created_at: string | null
+          id: string
+          is_required: boolean | null
+          issuing_authority: string | null
+          job_id: string | null
+        }
+        Insert: {
+          certification_name: string
+          created_at?: string | null
+          id?: string
+          is_required?: boolean | null
+          issuing_authority?: string | null
+          job_id?: string | null
+        }
+        Update: {
+          certification_name?: string
+          created_at?: string | null
+          id?: string
+          is_required?: boolean | null
+          issuing_authority?: string | null
+          job_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "job_certifications_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "job_posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "job_certifications_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "public_job_listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      job_driving_licenses: {
+        Row: {
+          created_at: string | null
+          id: string
+          is_required: boolean | null
+          job_id: string | null
+          license_class: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          is_required?: boolean | null
+          job_id?: string | null
+          license_class: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          is_required?: boolean | null
+          job_id?: string | null
+          license_class?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "job_driving_licenses_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "job_posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "job_driving_licenses_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "public_job_listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      job_languages: {
+        Row: {
+          created_at: string | null
+          id: string
+          is_required: boolean | null
+          job_id: string | null
+          language: string
+          level: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          is_required?: boolean | null
+          job_id?: string | null
+          language: string
+          level?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          is_required?: boolean | null
+          job_id?: string | null
+          language?: string
+          level?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "job_languages_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "job_posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "job_languages_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "public_job_listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      job_post_apprenticeships: {
+        Row: {
+          apprenticeship_profession: string
+          chamber: string | null
+          created_at: string | null
+          duration_months: number | null
+          exam_support: boolean | null
+          id: string
+          job_id: string | null
+          minimum_education: string | null
+          rotation_plan: string | null
+          salary_year_1_cents: number | null
+          salary_year_2_cents: number | null
+          salary_year_3_cents: number | null
+          salary_year_4_cents: number | null
+          training_start_date: string | null
+          vocational_school: string | null
+        }
+        Insert: {
+          apprenticeship_profession: string
+          chamber?: string | null
+          created_at?: string | null
+          duration_months?: number | null
+          exam_support?: boolean | null
+          id?: string
+          job_id?: string | null
+          minimum_education?: string | null
+          rotation_plan?: string | null
+          salary_year_1_cents?: number | null
+          salary_year_2_cents?: number | null
+          salary_year_3_cents?: number | null
+          salary_year_4_cents?: number | null
+          training_start_date?: string | null
+          vocational_school?: string | null
+        }
+        Update: {
+          apprenticeship_profession?: string
+          chamber?: string | null
+          created_at?: string | null
+          duration_months?: number | null
+          exam_support?: boolean | null
+          id?: string
+          job_id?: string | null
+          minimum_education?: string | null
+          rotation_plan?: string | null
+          salary_year_1_cents?: number | null
+          salary_year_2_cents?: number | null
+          salary_year_3_cents?: number | null
+          salary_year_4_cents?: number | null
+          training_start_date?: string | null
+          vocational_school?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "job_post_apprenticeships_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "job_posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "job_post_apprenticeships_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "public_job_listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      job_post_internships: {
+        Row: {
+          created_at: string | null
+          duration_weeks_max: number | null
+          duration_weeks_min: number | null
+          enrollment_required: boolean | null
+          field_of_study: string | null
+          id: string
+          internship_type: string | null
+          job_id: string | null
+          learning_objectives: string | null
+          mentor_assigned: boolean | null
+        }
+        Insert: {
+          created_at?: string | null
+          duration_weeks_max?: number | null
+          duration_weeks_min?: number | null
+          enrollment_required?: boolean | null
+          field_of_study?: string | null
+          id?: string
+          internship_type?: string | null
+          job_id?: string | null
+          learning_objectives?: string | null
+          mentor_assigned?: boolean | null
+        }
+        Update: {
+          created_at?: string | null
+          duration_weeks_max?: number | null
+          duration_weeks_min?: number | null
+          enrollment_required?: boolean | null
+          field_of_study?: string | null
+          id?: string
+          internship_type?: string | null
+          job_id?: string | null
+          learning_objectives?: string | null
+          mentor_assigned?: boolean | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "job_post_internships_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "job_posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "job_post_internships_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "public_job_listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      job_post_professionals: {
+        Row: {
+          created_at: string | null
+          degree_required: boolean | null
+          id: string
+          job_id: string | null
+          min_experience_years: number | null
+          minimum_degree: string | null
+          on_call_duty: boolean | null
+          probation_period_months: number | null
+          professional_qualification: string | null
+          relocation_assistance: boolean | null
+          shift_work: boolean | null
+          weekend_work: boolean | null
+        }
+        Insert: {
+          created_at?: string | null
+          degree_required?: boolean | null
+          id?: string
+          job_id?: string | null
+          min_experience_years?: number | null
+          minimum_degree?: string | null
+          on_call_duty?: boolean | null
+          probation_period_months?: number | null
+          professional_qualification?: string | null
+          relocation_assistance?: boolean | null
+          shift_work?: boolean | null
+          weekend_work?: boolean | null
+        }
+        Update: {
+          created_at?: string | null
+          degree_required?: boolean | null
+          id?: string
+          job_id?: string | null
+          min_experience_years?: number | null
+          minimum_degree?: string | null
+          on_call_duty?: boolean | null
+          probation_period_months?: number | null
+          professional_qualification?: string | null
+          relocation_assistance?: boolean | null
+          shift_work?: boolean | null
+          weekend_work?: boolean | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "job_post_professionals_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "job_posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "job_post_professionals_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "public_job_listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      job_post_views: {
+        Row: {
+          created_at: string | null
+          id: string
+          ip_address: unknown | null
+          job_post_id: string | null
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          ip_address?: unknown | null
+          job_post_id?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          ip_address?: unknown | null
+          job_post_id?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "job_post_views_job_post_id_fkey"
+            columns: ["job_post_id"]
+            isOneToOne: false
+            referencedRelation: "job_posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "job_post_views_job_post_id_fkey"
+            columns: ["job_post_id"]
+            isOneToOne: false
+            referencedRelation: "public_job_listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      job_posts: {
+        Row: {
+          address_number: string | null
+          address_street: string | null
+          application_count: number | null
+          application_deadline: string | null
+          application_email: string | null
+          application_instructions: string | null
+          application_url: string | null
+          apprenticeship_data: Json | null
+          barrier_free_access: boolean | null
+          benefits_description: string | null
+          category: string | null
+          certifications: Json | null
+          city: string | null
+          commute_distance_km: number | null
+          company_description: string | null
+          company_id: string
+          contact_person_email: string | null
+          contact_person_name: string | null
+          contact_person_phone: string | null
+          contact_person_photo_url: string | null
+          contact_person_role: string | null
+          country: string | null
+          created_at: string
+          description_md: string | null
+          driving_licenses: Json | null
+          duration_months: number | null
+          employment: string | null
+          employment_type: string | null
+          end_date: string | null
+          external_id: string | null
+          featured_until: string | null
+          hours_per_week_max: number | null
+          hours_per_week_min: number | null
+          id: string
+          internship_data: Json | null
+          is_active: boolean
+          is_draft: boolean | null
+          is_featured: boolean | null
+          is_public: boolean
+          is_urgent: boolean | null
+          job_type: string | null
+          languages: Json | null
+          location_lat: number | null
+          location_lng: number | null
+          parking_available: boolean | null
+          postal_code: string | null
+          professional_data: Json | null
+          public_transport: boolean | null
+          published_at: string | null
+          relocation_support: boolean | null
+          requirements_description: string | null
+          requirements_md: string | null
+          role_family: string | null
+          salary_currency: string | null
+          salary_interval: string | null
+          salary_max: number | null
+          salary_min: number | null
+          skills: Json | null
+          slug: string | null
+          source: string | null
+          start_date: string | null
+          start_immediately: boolean | null
+          state: string | null
+          tags: string[] | null
+          tasks_description: string | null
+          tasks_md: string | null
+          team_department: string | null
+          title: string
+          travel_percentage: number | null
+          updated_at: string
+          view_count: number | null
+          visa_sponsorship: boolean | null
+          work_mode: string | null
+        }
+        Insert: {
+          address_number?: string | null
+          address_street?: string | null
+          application_count?: number | null
+          application_deadline?: string | null
+          application_email?: string | null
+          application_instructions?: string | null
+          application_url?: string | null
+          apprenticeship_data?: Json | null
+          barrier_free_access?: boolean | null
+          benefits_description?: string | null
+          category?: string | null
+          certifications?: Json | null
+          city?: string | null
+          commute_distance_km?: number | null
+          company_description?: string | null
+          company_id: string
+          contact_person_email?: string | null
+          contact_person_name?: string | null
+          contact_person_phone?: string | null
+          contact_person_photo_url?: string | null
+          contact_person_role?: string | null
+          country?: string | null
+          created_at?: string
+          description_md?: string | null
+          driving_licenses?: Json | null
+          duration_months?: number | null
+          employment?: string | null
+          employment_type?: string | null
+          end_date?: string | null
+          external_id?: string | null
+          featured_until?: string | null
+          hours_per_week_max?: number | null
+          hours_per_week_min?: number | null
+          id?: string
+          internship_data?: Json | null
+          is_active?: boolean
+          is_draft?: boolean | null
+          is_featured?: boolean | null
+          is_public?: boolean
+          is_urgent?: boolean | null
+          job_type?: string | null
+          languages?: Json | null
+          location_lat?: number | null
+          location_lng?: number | null
+          parking_available?: boolean | null
+          postal_code?: string | null
+          professional_data?: Json | null
+          public_transport?: boolean | null
+          published_at?: string | null
+          relocation_support?: boolean | null
+          requirements_description?: string | null
+          requirements_md?: string | null
+          role_family?: string | null
+          salary_currency?: string | null
+          salary_interval?: string | null
+          salary_max?: number | null
+          salary_min?: number | null
+          skills?: Json | null
+          slug?: string | null
+          source?: string | null
+          start_date?: string | null
+          start_immediately?: boolean | null
+          state?: string | null
+          tags?: string[] | null
+          tasks_description?: string | null
+          tasks_md?: string | null
+          team_department?: string | null
+          title: string
+          travel_percentage?: number | null
+          updated_at?: string
+          view_count?: number | null
+          visa_sponsorship?: boolean | null
+          work_mode?: string | null
+        }
+        Update: {
+          address_number?: string | null
+          address_street?: string | null
+          application_count?: number | null
+          application_deadline?: string | null
+          application_email?: string | null
+          application_instructions?: string | null
+          application_url?: string | null
+          apprenticeship_data?: Json | null
+          barrier_free_access?: boolean | null
+          benefits_description?: string | null
+          category?: string | null
+          certifications?: Json | null
+          city?: string | null
+          commute_distance_km?: number | null
+          company_description?: string | null
+          company_id?: string
+          contact_person_email?: string | null
+          contact_person_name?: string | null
+          contact_person_phone?: string | null
+          contact_person_photo_url?: string | null
+          contact_person_role?: string | null
+          country?: string | null
+          created_at?: string
+          description_md?: string | null
+          driving_licenses?: Json | null
+          duration_months?: number | null
+          employment?: string | null
+          employment_type?: string | null
+          end_date?: string | null
+          external_id?: string | null
+          featured_until?: string | null
+          hours_per_week_max?: number | null
+          hours_per_week_min?: number | null
+          id?: string
+          internship_data?: Json | null
+          is_active?: boolean
+          is_draft?: boolean | null
+          is_featured?: boolean | null
+          is_public?: boolean
+          is_urgent?: boolean | null
+          job_type?: string | null
+          languages?: Json | null
+          location_lat?: number | null
+          location_lng?: number | null
+          parking_available?: boolean | null
+          postal_code?: string | null
+          professional_data?: Json | null
+          public_transport?: boolean | null
+          published_at?: string | null
+          relocation_support?: boolean | null
+          requirements_description?: string | null
+          requirements_md?: string | null
+          role_family?: string | null
+          salary_currency?: string | null
+          salary_interval?: string | null
+          salary_max?: number | null
+          salary_min?: number | null
+          skills?: Json | null
+          slug?: string | null
+          source?: string | null
+          start_date?: string | null
+          start_immediately?: boolean | null
+          state?: string | null
+          tags?: string[] | null
+          tasks_description?: string | null
+          tasks_md?: string | null
+          team_department?: string | null
+          title?: string
+          travel_percentage?: number | null
+          updated_at?: string
+          view_count?: number | null
+          visa_sponsorship?: boolean | null
+          work_mode?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "job_posts_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "job_posts_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies_public_secure"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "job_posts_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "company_need_quota"
+            referencedColumns: ["company_id"]
+          },
+        ]
+      }
+      job_skills: {
+        Row: {
+          created_at: string | null
+          id: string
+          is_required: boolean | null
+          job_id: string | null
+          skill_level: number | null
+          skill_name: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          is_required?: boolean | null
+          job_id?: string | null
+          skill_level?: number | null
+          skill_name: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          is_required?: boolean | null
+          job_id?: string | null
+          skill_level?: number | null
+          skill_name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "job_skills_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "job_posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "job_skills_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "public_job_listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       languages: {
         Row: {
           code: string | null
@@ -1228,6 +3105,256 @@ export type Database = {
           name_en?: string
         }
         Relationships: []
+      }
+      linkedin_comment_likes: {
+        Row: {
+          comment_id: string
+          created_at: string | null
+          user_id: string
+        }
+        Insert: {
+          comment_id: string
+          created_at?: string | null
+          user_id: string
+        }
+        Update: {
+          comment_id?: string
+          created_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "linkedin_comment_likes_comment_id_fkey"
+            columns: ["comment_id"]
+            isOneToOne: false
+            referencedRelation: "linkedin_comments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "linkedin_comment_likes_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "linkedin_comment_likes_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles_public_secure"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      linkedin_comments: {
+        Row: {
+          attachments: Json | null
+          author_id: string
+          body: string
+          created_at: string | null
+          id: string
+          like_count: number
+          parent_id: string | null
+          post_id: string
+          reply_count: number
+        }
+        Insert: {
+          attachments?: Json | null
+          author_id: string
+          body: string
+          created_at?: string | null
+          id?: string
+          like_count?: number
+          parent_id?: string | null
+          post_id: string
+          reply_count?: number
+        }
+        Update: {
+          attachments?: Json | null
+          author_id?: string
+          body?: string
+          created_at?: string | null
+          id?: string
+          like_count?: number
+          parent_id?: string | null
+          post_id?: string
+          reply_count?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "linkedin_comments_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "linkedin_comments_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "profiles_public_secure"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "linkedin_comments_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "linkedin_comments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "linkedin_comments_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "linkedin_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      linkedin_company_posts: {
+        Row: {
+          attachments: Json | null
+          author_id: string
+          body: string
+          comment_count: number
+          company_id: string
+          created_at: string | null
+          id: string
+          job_id: string | null
+          like_count: number
+        }
+        Insert: {
+          attachments?: Json | null
+          author_id: string
+          body: string
+          comment_count?: number
+          company_id: string
+          created_at?: string | null
+          id?: string
+          job_id?: string | null
+          like_count?: number
+        }
+        Update: {
+          attachments?: Json | null
+          author_id?: string
+          body?: string
+          comment_count?: number
+          company_id?: string
+          created_at?: string | null
+          id?: string
+          job_id?: string | null
+          like_count?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "linkedin_company_posts_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "linkedin_company_posts_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "profiles_public_secure"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      linkedin_post_likes: {
+        Row: {
+          created_at: string | null
+          post_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          post_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          post_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "linkedin_post_likes_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "linkedin_posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "linkedin_post_likes_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "linkedin_post_likes_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles_public_secure"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      linkedin_posts: {
+        Row: {
+          attachments: Json | null
+          author_id: string
+          body: string
+          comment_count: number
+          created_at: string | null
+          id: string
+          like_count: number
+          repost_count: number
+          updated_at: string | null
+          visibility: string | null
+        }
+        Insert: {
+          attachments?: Json | null
+          author_id: string
+          body: string
+          comment_count?: number
+          created_at?: string | null
+          id?: string
+          like_count?: number
+          repost_count?: number
+          updated_at?: string | null
+          visibility?: string | null
+        }
+        Update: {
+          attachments?: Json | null
+          author_id?: string
+          body?: string
+          comment_count?: number
+          created_at?: string | null
+          id?: string
+          like_count?: number
+          repost_count?: number
+          updated_at?: string | null
+          visibility?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "linkedin_posts_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "linkedin_posts_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "profiles_public_secure"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       locations: {
         Row: {
@@ -1299,6 +3426,13 @@ export type Database = {
             foreignKeyName: "matches_company_id_fkey"
             columns: ["company_id"]
             isOneToOne: false
+            referencedRelation: "companies_public_secure"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "matches_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
             referencedRelation: "company_need_quota"
             referencedColumns: ["company_id"]
           },
@@ -1313,7 +3447,7 @@ export type Database = {
             foreignKeyName: "matches_profile_id_fkey"
             columns: ["profile_id"]
             isOneToOne: false
-            referencedRelation: "profiles_public"
+            referencedRelation: "profiles_public_secure"
             referencedColumns: ["id"]
           },
         ]
@@ -1563,7 +3697,7 @@ export type Database = {
             foreignKeyName: "notification_prefs_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
-            referencedRelation: "profiles_public"
+            referencedRelation: "profiles_public_secure"
             referencedColumns: ["id"]
           },
         ]
@@ -1621,6 +3755,165 @@ export type Database = {
           type?: Database["public"]["Enums"]["notif_type"]
         }
         Relationships: []
+      }
+      onboarding_sessions: {
+        Row: {
+          claimed_by: string | null
+          completed: boolean
+          created_at: string
+          email: string
+          id: string
+          org_id: string | null
+          payload: Json
+          selected_plan: Database["public"]["Enums"]["plan_code"] | null
+          stripe_status: string | null
+          updated_at: string
+        }
+        Insert: {
+          claimed_by?: string | null
+          completed?: boolean
+          created_at?: string
+          email: string
+          id?: string
+          org_id?: string | null
+          payload?: Json
+          selected_plan?: Database["public"]["Enums"]["plan_code"] | null
+          stripe_status?: string | null
+          updated_at?: string
+        }
+        Update: {
+          claimed_by?: string | null
+          completed?: boolean
+          created_at?: string
+          email?: string
+          id?: string
+          org_id?: string | null
+          payload?: Json
+          selected_plan?: Database["public"]["Enums"]["plan_code"] | null
+          stripe_status?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "onboarding_sessions_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "onboarding_sessions_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "companies_public_secure"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "onboarding_sessions_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "company_need_quota"
+            referencedColumns: ["company_id"]
+          },
+        ]
+      }
+      org_entitlements: {
+        Row: {
+          ads_enabled: boolean
+          created_at: string
+          job_postings_limit: number
+          matching_tier: string | null
+          org_id: string
+          unlock_tokens_total: number
+          unlock_tokens_used: number
+          updated_at: string
+        }
+        Insert: {
+          ads_enabled?: boolean
+          created_at?: string
+          job_postings_limit?: number
+          matching_tier?: string | null
+          org_id: string
+          unlock_tokens_total?: number
+          unlock_tokens_used?: number
+          updated_at?: string
+        }
+        Update: {
+          ads_enabled?: boolean
+          created_at?: string
+          job_postings_limit?: number
+          matching_tier?: string | null
+          org_id?: string
+          unlock_tokens_total?: number
+          unlock_tokens_used?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "org_entitlements_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: true
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "org_entitlements_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: true
+            referencedRelation: "companies_public_secure"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "org_entitlements_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: true
+            referencedRelation: "company_need_quota"
+            referencedColumns: ["company_id"]
+          },
+        ]
+      }
+      org_preferences: {
+        Row: {
+          created_at: string
+          looking_for: Database["public"]["Enums"]["looking_tag"][]
+          org_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          looking_for?: Database["public"]["Enums"]["looking_tag"][]
+          org_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          looking_for?: Database["public"]["Enums"]["looking_tag"][]
+          org_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "org_preferences_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: true
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "org_preferences_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: true
+            referencedRelation: "companies_public_secure"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "org_preferences_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: true
+            referencedRelation: "company_need_quota"
+            referencedColumns: ["company_id"]
+          },
+        ]
       }
       page_revisions: {
         Row: {
@@ -1786,6 +4079,13 @@ export type Database = {
             foreignKeyName: "plan_changes_company_id_fkey"
             columns: ["company_id"]
             isOneToOne: false
+            referencedRelation: "companies_public_secure"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "plan_changes_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
             referencedRelation: "company_need_quota"
             referencedColumns: ["company_id"]
           },
@@ -1811,27 +4111,33 @@ export type Database = {
           id: string
           included_seats: number
           included_tokens: number
+          max_job_posts: number | null
           max_seats: number
           monthly_price_cents: number
           name: string
+          tokens_per_post: number | null
         }
         Insert: {
           active?: boolean
           id: string
           included_seats?: number
           included_tokens?: number
+          max_job_posts?: number | null
           max_seats?: number
           monthly_price_cents: number
           name: string
+          tokens_per_post?: number | null
         }
         Update: {
           active?: boolean
           id?: string
           included_seats?: number
           included_tokens?: number
+          max_job_posts?: number | null
           max_seats?: number
           monthly_price_cents?: number
           name?: string
+          tokens_per_post?: number | null
         }
         Relationships: []
       }
@@ -1878,6 +4184,13 @@ export type Database = {
             referencedRelation: "posts"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "post_comments_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts_authenticated"
+            referencedColumns: ["id"]
+          },
         ]
       }
       post_documents: {
@@ -1911,6 +4224,13 @@ export type Database = {
             columns: ["post_id"]
             isOneToOne: false
             referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "post_documents_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts_authenticated"
             referencedColumns: ["id"]
           },
         ]
@@ -1957,6 +4277,13 @@ export type Database = {
             referencedRelation: "posts"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "post_events_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: true
+            referencedRelation: "posts_authenticated"
+            referencedColumns: ["id"]
+          },
         ]
       }
       post_likes: {
@@ -1984,6 +4311,13 @@ export type Database = {
             columns: ["post_id"]
             isOneToOne: false
             referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "post_likes_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts_authenticated"
             referencedColumns: ["id"]
           },
         ]
@@ -2025,6 +4359,13 @@ export type Database = {
             columns: ["post_id"]
             isOneToOne: false
             referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "post_media_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts_authenticated"
             referencedColumns: ["id"]
           },
         ]
@@ -2121,6 +4462,13 @@ export type Database = {
             referencedRelation: "posts"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "post_polls_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: true
+            referencedRelation: "posts_authenticated"
+            referencedColumns: ["id"]
+          },
         ]
       }
       post_reposts: {
@@ -2148,6 +4496,13 @@ export type Database = {
             columns: ["post_id"]
             isOneToOne: false
             referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "post_reposts_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts_authenticated"
             referencedColumns: ["id"]
           },
         ]
@@ -2237,7 +4592,7 @@ export type Database = {
             foreignKeyName: "posts_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
-            referencedRelation: "profiles_public"
+            referencedRelation: "profiles_public_secure"
             referencedColumns: ["id"]
           },
         ]
@@ -2270,7 +4625,7 @@ export type Database = {
             foreignKeyName: "profile_tags_profile_id_fkey"
             columns: ["profile_id"]
             isOneToOne: false
-            referencedRelation: "profiles_public"
+            referencedRelation: "profiles_public_secure"
             referencedColumns: ["id"]
           },
           {
@@ -2295,10 +4650,13 @@ export type Database = {
           berufserfahrung: Json | null
           bio: string | null
           branche: string | null
+          consent_date: string | null
           cover_image_url: string | null
           created_at: string | null
           current_company_id: string | null
           cv_url: string | null
+          data_processing_consent: boolean | null
+          data_retention_until: string | null
           driver_license_class: string | null
           einwilligung: boolean | null
           email: string | null
@@ -2322,6 +4680,7 @@ export type Database = {
           location_id: number | null
           login_count: number | null
           longitude: number | null
+          marketing_consent: boolean | null
           motivation: string | null
           nachname: string | null
           onboarding_completed: boolean | null
@@ -2332,6 +4691,8 @@ export type Database = {
           praktische_erfahrung: string | null
           profile_complete: boolean | null
           profile_published: boolean | null
+          public_employment_visible: boolean | null
+          public_profile_consent: boolean | null
           schulbildung: Json | null
           schule: string | null
           sprachen: Json | null
@@ -2362,10 +4723,13 @@ export type Database = {
           berufserfahrung?: Json | null
           bio?: string | null
           branche?: string | null
+          consent_date?: string | null
           cover_image_url?: string | null
           created_at?: string | null
           current_company_id?: string | null
           cv_url?: string | null
+          data_processing_consent?: boolean | null
+          data_retention_until?: string | null
           driver_license_class?: string | null
           einwilligung?: boolean | null
           email?: string | null
@@ -2389,6 +4753,7 @@ export type Database = {
           location_id?: number | null
           login_count?: number | null
           longitude?: number | null
+          marketing_consent?: boolean | null
           motivation?: string | null
           nachname?: string | null
           onboarding_completed?: boolean | null
@@ -2399,6 +4764,8 @@ export type Database = {
           praktische_erfahrung?: string | null
           profile_complete?: boolean | null
           profile_published?: boolean | null
+          public_employment_visible?: boolean | null
+          public_profile_consent?: boolean | null
           schulbildung?: Json | null
           schule?: string | null
           sprachen?: Json | null
@@ -2429,10 +4796,13 @@ export type Database = {
           berufserfahrung?: Json | null
           bio?: string | null
           branche?: string | null
+          consent_date?: string | null
           cover_image_url?: string | null
           created_at?: string | null
           current_company_id?: string | null
           cv_url?: string | null
+          data_processing_consent?: boolean | null
+          data_retention_until?: string | null
           driver_license_class?: string | null
           einwilligung?: boolean | null
           email?: string | null
@@ -2456,6 +4826,7 @@ export type Database = {
           location_id?: number | null
           login_count?: number | null
           longitude?: number | null
+          marketing_consent?: boolean | null
           motivation?: string | null
           nachname?: string | null
           onboarding_completed?: boolean | null
@@ -2466,6 +4837,8 @@ export type Database = {
           praktische_erfahrung?: string | null
           profile_complete?: boolean | null
           profile_published?: boolean | null
+          public_employment_visible?: boolean | null
+          public_profile_consent?: boolean | null
           schulbildung?: Json | null
           schule?: string | null
           sprachen?: Json | null
@@ -2496,6 +4869,13 @@ export type Database = {
             foreignKeyName: "profiles_current_company_id_fkey"
             columns: ["current_company_id"]
             isOneToOne: false
+            referencedRelation: "companies_public_secure"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "profiles_current_company_id_fkey"
+            columns: ["current_company_id"]
+            isOneToOne: false
             referencedRelation: "company_need_quota"
             referencedColumns: ["company_id"]
           },
@@ -2504,6 +4884,73 @@ export type Database = {
             columns: ["location_id"]
             isOneToOne: false
             referencedRelation: "locations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      questions: {
+        Row: {
+          accepted_answer_id: string | null
+          anchor: Json | null
+          author_id: string | null
+          body: string | null
+          created_at: string
+          file_id: string | null
+          group_id: string
+          id: string
+          page_id: string | null
+          status: string
+          tags: string[] | null
+          title: string
+        }
+        Insert: {
+          accepted_answer_id?: string | null
+          anchor?: Json | null
+          author_id?: string | null
+          body?: string | null
+          created_at?: string
+          file_id?: string | null
+          group_id: string
+          id?: string
+          page_id?: string | null
+          status?: string
+          tags?: string[] | null
+          title: string
+        }
+        Update: {
+          accepted_answer_id?: string | null
+          anchor?: Json | null
+          author_id?: string | null
+          body?: string | null
+          created_at?: string
+          file_id?: string | null
+          group_id?: string
+          id?: string
+          page_id?: string | null
+          status?: string
+          tags?: string[] | null
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "questions_file_id_fkey"
+            columns: ["file_id"]
+            isOneToOne: false
+            referencedRelation: "files"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "questions_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "groups"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "questions_page_id_fkey"
+            columns: ["page_id"]
+            isOneToOne: false
+            referencedRelation: "file_pages"
             referencedColumns: ["id"]
           },
         ]
@@ -2537,6 +4984,106 @@ export type Database = {
           window_start?: string
         }
         Relationships: []
+      }
+      requirement_profiles: {
+        Row: {
+          category: string
+          city: string | null
+          company_id: string
+          country: string | null
+          created_at: string
+          description_md: string | null
+          duration_months: number | null
+          employment: string | null
+          hours_per_week_max: number | null
+          hours_per_week_min: number | null
+          id: string
+          postal_code: string | null
+          ready_for_publish: boolean
+          requirements_md: string | null
+          salary_currency: string | null
+          salary_interval: string | null
+          salary_max: number | null
+          salary_min: number | null
+          state: string | null
+          tasks_md: string | null
+          title: string
+          updated_at: string
+          work_mode: string | null
+        }
+        Insert: {
+          category?: string
+          city?: string | null
+          company_id: string
+          country?: string | null
+          created_at?: string
+          description_md?: string | null
+          duration_months?: number | null
+          employment?: string | null
+          hours_per_week_max?: number | null
+          hours_per_week_min?: number | null
+          id?: string
+          postal_code?: string | null
+          ready_for_publish?: boolean
+          requirements_md?: string | null
+          salary_currency?: string | null
+          salary_interval?: string | null
+          salary_max?: number | null
+          salary_min?: number | null
+          state?: string | null
+          tasks_md?: string | null
+          title: string
+          updated_at?: string
+          work_mode?: string | null
+        }
+        Update: {
+          category?: string
+          city?: string | null
+          company_id?: string
+          country?: string | null
+          created_at?: string
+          description_md?: string | null
+          duration_months?: number | null
+          employment?: string | null
+          hours_per_week_max?: number | null
+          hours_per_week_min?: number | null
+          id?: string
+          postal_code?: string | null
+          ready_for_publish?: boolean
+          requirements_md?: string | null
+          salary_currency?: string | null
+          salary_interval?: string | null
+          salary_max?: number | null
+          salary_min?: number | null
+          state?: string | null
+          tasks_md?: string | null
+          title?: string
+          updated_at?: string
+          work_mode?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "requirement_profiles_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "requirement_profiles_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies_public_secure"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "requirement_profiles_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "company_need_quota"
+            referencedColumns: ["company_id"]
+          },
+        ]
       }
       school_types: {
         Row: {
@@ -2596,6 +5143,13 @@ export type Database = {
             foreignKeyName: "seat_ledger_company_id_fkey"
             columns: ["company_id"]
             isOneToOne: false
+            referencedRelation: "companies_public_secure"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "seat_ledger_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
             referencedRelation: "company_need_quota"
             referencedColumns: ["company_id"]
           },
@@ -2632,6 +5186,39 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      security_audit_log: {
+        Row: {
+          action: string
+          created_at: string
+          id: string
+          ip_address: unknown | null
+          resource_id: string | null
+          resource_type: string
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          id?: string
+          ip_address?: unknown | null
+          resource_id?: string | null
+          resource_type: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          id?: string
+          ip_address?: unknown | null
+          resource_id?: string | null
+          resource_type?: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
       }
       skills: {
         Row: {
@@ -2781,6 +5368,13 @@ export type Database = {
             foreignKeyName: "subscriptions_company_id_fkey"
             columns: ["company_id"]
             isOneToOne: false
+            referencedRelation: "companies_public_secure"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "subscriptions_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
             referencedRelation: "company_need_quota"
             referencedColumns: ["company_id"]
           },
@@ -2841,6 +5435,13 @@ export type Database = {
             columns: ["company_id"]
             isOneToOne: false
             referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "token_ledger_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies_public_secure"
             referencedColumns: ["id"]
           },
           {
@@ -2928,6 +5529,13 @@ export type Database = {
             foreignKeyName: "tokens_used_company_id_fkey"
             columns: ["company_id"]
             isOneToOne: false
+            referencedRelation: "companies_public_secure"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tokens_used_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
             referencedRelation: "company_need_quota"
             referencedColumns: ["company_id"]
           },
@@ -2942,7 +5550,7 @@ export type Database = {
             foreignKeyName: "tokens_used_profile_id_fkey"
             columns: ["profile_id"]
             isOneToOne: false
-            referencedRelation: "profiles_public"
+            referencedRelation: "profiles_public_secure"
             referencedColumns: ["id"]
           },
         ]
@@ -3048,6 +5656,45 @@ export type Database = {
       }
     }
     Views: {
+      companies_public_secure: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          founded_year: number | null
+          id: string | null
+          industry: string | null
+          logo_url: string | null
+          main_location: string | null
+          name: string | null
+          size_range: string | null
+          website_url: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          founded_year?: number | null
+          id?: string | null
+          industry?: string | null
+          logo_url?: string | null
+          main_location?: string | null
+          name?: string | null
+          size_range?: string | null
+          website_url?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          founded_year?: number | null
+          id?: string | null
+          industry?: string | null
+          logo_url?: string | null
+          main_location?: string | null
+          name?: string | null
+          size_range?: string | null
+          website_url?: string | null
+        }
+        Relationships: []
+      }
       company_conversion: {
         Row: {
           company_id: string | null
@@ -3063,6 +5710,13 @@ export type Database = {
             columns: ["company_id"]
             isOneToOne: false
             referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "company_employment_requests_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies_public_secure"
             referencedColumns: ["id"]
           },
           {
@@ -3126,29 +5780,88 @@ export type Database = {
         }
         Relationships: []
       }
-      profiles_public: {
+      posts_authenticated: {
+        Row: {
+          author_avatar: string | null
+          author_name: string | null
+          content: string | null
+          created_at: string | null
+          id: string | null
+          image_url: string | null
+          user_id: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "posts_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "posts_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles_public_secure"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles_public_secure: {
         Row: {
           avatar_url: string | null
+          branche: string | null
           company_id: string | null
           company_logo: string | null
           company_name: string | null
           employment_status: string | null
           full_name: string | null
-          headline: string | null
           id: string | null
           nachname: string | null
+          ort: string | null
+          public_employment_visible: boolean | null
+          public_profile_consent: boolean | null
+          status: string | null
           vorname: string | null
+        }
+        Relationships: []
+      }
+      public_job_listings: {
+        Row: {
+          category: string | null
+          city: string | null
+          company_id: string | null
+          company_name: string | null
+          country: string | null
+          description_snippet: string | null
+          employment: string | null
+          id: string | null
+          published_at: string | null
+          salary_currency: string | null
+          salary_interval: string | null
+          salary_max: number | null
+          salary_min: number | null
+          slug: string | null
+          title: string | null
+          work_mode: string | null
         }
         Relationships: [
           {
-            foreignKeyName: "company_employment_requests_company_id_fkey"
+            foreignKeyName: "job_posts_company_id_fkey"
             columns: ["company_id"]
             isOneToOne: false
             referencedRelation: "companies"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "company_employment_requests_company_id_fkey"
+            foreignKeyName: "job_posts_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies_public_secure"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "job_posts_company_id_fkey"
             columns: ["company_id"]
             isOneToOne: false
             referencedRelation: "company_need_quota"
@@ -3156,8 +5869,87 @@ export type Database = {
           },
         ]
       }
+      v_comments: {
+        Row: {
+          attachments: Json | null
+          author_id: string | null
+          avatar_url: string | null
+          body: string | null
+          created_at: string | null
+          full_name: string | null
+          headline: string | null
+          id: string | null
+          like_count: number | null
+          nachname: string | null
+          parent_id: string | null
+          post_id: string | null
+          reply_count: number | null
+          vorname: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "comments_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "comments_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "profiles_public_secure"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "comments_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "comments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "comments_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "v_comments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "comments_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "comments_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts_authenticated"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      v_post_social_proof: {
+        Row: {
+          action: string | null
+          actor_id: string | null
+          created_at: string | null
+          post_id: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
+      _add_col_if_missing: {
+        Args: {
+          p_column_def: string
+          p_column_name: string
+          p_table_name: string
+        }
+        Returns: undefined
+      }
       _postgis_deprecate: {
         Args: { newname: string; oldname: string; version: string }
         Returns: undefined
@@ -3272,6 +6064,32 @@ export type Database = {
         Args: { geom1: unknown; geom2: unknown }
         Returns: boolean
       }
+      add_community_comment: {
+        Args:
+          | {
+              p_author_company_id?: string
+              p_author_user_id?: string
+              p_body_md: string
+              p_parent_comment_id?: string
+              p_post_id: string
+            }
+          | {
+              p_author_user_id: string
+              p_body_md: string
+              p_parent_comment_id?: string
+              p_post_id: string
+            }
+        Returns: string
+      }
+      add_linkedin_comment: {
+        Args: {
+          p_author_user_id: string
+          p_body_md: string
+          p_parent_comment_id?: string
+          p_post_id: string
+        }
+        Returns: string
+      }
       add_seats: {
         Args: { _add: number; _client_request_id?: string; _company_id: string }
         Returns: {
@@ -3313,6 +6131,38 @@ export type Database = {
               use_typmod?: boolean
             }
         Returns: string
+      }
+      apply_entitlements: {
+        Args: {
+          p_org_id: string
+          p_plan: Database["public"]["Enums"]["plan_code"]
+        }
+        Returns: undefined
+      }
+      apply_from_community_post: {
+        Args: {
+          p_applicant_user_id: string
+          p_cv_url?: string
+          p_email: string
+          p_full_name: string
+          p_phone?: string
+          p_post_id: string
+        }
+        Returns: string
+      }
+      apply_one_click: {
+        Args: {
+          p_cv_url?: string
+          p_email: string
+          p_full_name: string
+          p_job: string
+          p_phone?: string
+        }
+        Returns: string
+      }
+      approve_join_request: {
+        Args: { approve: boolean; request_id: string }
+        Returns: boolean
       }
       box: {
         Args: { "": unknown } | { "": unknown }
@@ -3371,6 +6221,10 @@ export type Database = {
         Args: { _conv_id: string; _uid: string }
         Returns: boolean
       }
+      can_view_community_post: {
+        Args: { p_post_id: string; p_viewer_id: string }
+        Returns: boolean
+      }
       can_view_post: {
         Args: { _post_id: string; _viewer: string }
         Returns: boolean
@@ -3387,7 +6241,11 @@ export type Database = {
           token_balance: number
         }[]
       }
-      company_people_public: {
+      cleanup_expired_data: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
+      company_people_secure: {
         Args: { p_company_id: string }
         Returns: {
           avatar_url: string
@@ -3428,6 +6286,28 @@ export type Database = {
           lat: number
           lon: number
         }[]
+      }
+      create_community_post: {
+        Args:
+          | {
+              p_actor_company_id?: string
+              p_actor_user_id?: string
+              p_body_md: string
+              p_job_id?: string
+              p_media?: Json
+              p_visibility?: Database["public"]["Enums"]["post_visibility"]
+            }
+          | {
+              p_actor_company_id?: string
+              p_actor_user_id?: string
+              p_body_md?: string
+              p_job_id?: string
+              p_media?: Json
+              p_mentions?: Json
+              p_post_kind?: Database["public"]["Enums"]["post_kind"]
+              p_visibility?: Database["public"]["Enums"]["post_visibility"]
+            }
+        Returns: string
       }
       create_company_account: {
         Args: {
@@ -3475,9 +6355,21 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: string
       }
+      ensure_community_preferences: {
+        Args: { p_user_id: string }
+        Returns: undefined
+      }
+      ensure_job_slug: {
+        Args: { p_job: string }
+        Returns: string
+      }
       equals: {
         Args: { geom1: unknown; geom2: unknown }
         Returns: boolean
+      }
+      finalize_onboarding_from_session: {
+        Args: { p_session: string }
+        Returns: string
       }
       find_locations_within_radius: {
         Args: { p_center_location_id: number; p_radius_km: number }
@@ -3717,6 +6609,103 @@ export type Database = {
         Args: { "": string }
         Returns: unknown
       }
+      get_activity_for_org: {
+        Args: { p_limit?: number; p_offset?: number; p_org: string }
+        Returns: {
+          actor_org_id: string
+          actor_user_id: string
+          body_md: string
+          comment_count: number
+          comment_id: string
+          created_at: string
+          job_id: string
+          kind: string
+          like_count: number
+          post_kind: Database["public"]["Enums"]["post_kind"]
+          ref_id: string
+          share_count: number
+          share_id: string
+        }[]
+      }
+      get_activity_for_user: {
+        Args: { p_limit?: number; p_offset?: number; p_user: string }
+        Returns: {
+          actor_org_id: string
+          actor_user_id: string
+          body_md: string
+          comment_count: number
+          comment_id: string
+          created_at: string
+          job_id: string
+          kind: string
+          like_count: number
+          post_kind: Database["public"]["Enums"]["post_kind"]
+          ref_id: string
+          share_count: number
+          share_id: string
+        }[]
+      }
+      get_authorized_applications: {
+        Args: { p_company_id: string; p_requester_id: string }
+        Returns: {
+          application_id: string
+          applied_at: string
+          candidate_id: string
+          candidate_name: string
+          cover_letter: string
+          job_id: string
+          resume_url: string
+          status: string
+        }[]
+      }
+      get_authorized_candidates: {
+        Args: { p_company_id: string; p_requester_id: string }
+        Returns: {
+          availability_date: string
+          avatar_url: string
+          candidate_id: string
+          city: string
+          experience_level: string
+          full_name: string
+          headline: string
+          skills: string[]
+        }[]
+      }
+      get_community_feed: {
+        Args: { p_limit?: number; p_offset?: number; p_user_id: string }
+        Returns: {
+          actor_company_id: string
+          actor_user_id: string
+          applies_enabled: boolean
+          body_md: string
+          comment_count: number
+          created_at: string
+          id: string
+          job_id: string
+          like_count: number
+          media: Json
+          post_kind: Database["public"]["Enums"]["post_kind"]
+          share_count: number
+          updated_at: string
+          visibility: Database["public"]["Enums"]["post_visibility"]
+        }[]
+      }
+      get_community_preferences: {
+        Args: { p_user_id: string }
+        Returns: {
+          blocked_ids: string[] | null
+          created_at: string | null
+          muted_company_ids: string[] | null
+          muted_user_ids: string[] | null
+          origin_filter: string | null
+          radius_km: number | null
+          show_company_posts: boolean | null
+          show_job_shares: boolean | null
+          show_user_posts: boolean | null
+          updated_at: string | null
+          user_id: string
+        }
+      }
       get_companies_public: {
         Args: { limit_count?: number; offset_count?: number; search?: string }
         Returns: {
@@ -3872,10 +6861,13 @@ export type Database = {
           berufserfahrung: Json | null
           bio: string | null
           branche: string | null
+          consent_date: string | null
           cover_image_url: string | null
           created_at: string | null
           current_company_id: string | null
           cv_url: string | null
+          data_processing_consent: boolean | null
+          data_retention_until: string | null
           driver_license_class: string | null
           einwilligung: boolean | null
           email: string | null
@@ -3899,6 +6891,7 @@ export type Database = {
           location_id: number | null
           login_count: number | null
           longitude: number | null
+          marketing_consent: boolean | null
           motivation: string | null
           nachname: string | null
           onboarding_completed: boolean | null
@@ -3909,6 +6902,8 @@ export type Database = {
           praktische_erfahrung: string | null
           profile_complete: boolean | null
           profile_published: boolean | null
+          public_employment_visible: boolean | null
+          public_profile_consent: boolean | null
           schulbildung: Json | null
           schule: string | null
           sprachen: Json | null
@@ -3995,6 +6990,18 @@ export type Database = {
         Args: { _uid?: string }
         Returns: boolean
       }
+      is_group_member: {
+        Args: { _group_id: string }
+        Returns: boolean
+      }
+      is_public_group: {
+        Args: { _group_id: string }
+        Returns: boolean
+      }
+      join_group: {
+        Args: { group_uuid: string; join_message?: string }
+        Returns: string
+      }
       json: {
         Args: { "": unknown }
         Returns: Json
@@ -4002,6 +7009,14 @@ export type Database = {
       jsonb: {
         Args: { "": unknown }
         Returns: Json
+      }
+      log_security_event: {
+        Args: {
+          p_action: string
+          p_resource_id?: string
+          p_resource_type: string
+        }
+        Returns: undefined
       }
       longtransactionsenabled: {
         Args: Record<PropertyKey, never>
@@ -4015,6 +7030,10 @@ export type Database = {
           reasons: string[]
           score: number
         }[]
+      }
+      must_set_password: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
       }
       path: {
         Args: { "": unknown }
@@ -4225,6 +7244,10 @@ export type Database = {
           skills: string[]
         }[]
       }
+      publish_requirement_profile: {
+        Args: { p_profile: string; p_public?: boolean }
+        Returns: string
+      }
       purchase_tokens: {
         Args: { _client_request_id?: string; _company_id: string; _qty: number }
         Returns: {
@@ -4264,9 +7287,54 @@ export type Database = {
           postal_code: string
         }[]
       }
+      set_community_preferences: {
+        Args: {
+          p_muted_company_ids?: string[]
+          p_muted_user_ids?: string[]
+          p_origin_filter?: string
+          p_radius_km?: number
+          p_show_company_posts?: boolean
+          p_show_job_shares?: boolean
+          p_show_user_posts?: boolean
+          p_user_id: string
+        }
+        Returns: {
+          blocked_ids: string[] | null
+          created_at: string | null
+          muted_company_ids: string[] | null
+          muted_user_ids: string[] | null
+          origin_filter: string | null
+          radius_km: number | null
+          show_company_posts: boolean | null
+          show_job_shares: boolean | null
+          show_user_posts: boolean | null
+          updated_at: string | null
+          user_id: string
+        }
+      }
       set_limit: {
         Args: { "": number }
         Returns: number
+      }
+      share_community_post: {
+        Args:
+          | {
+              p_comment?: string
+              p_post_id: string
+              p_sharer_company_id?: string
+              p_sharer_user_id?: string
+            }
+          | { p_post_id: string; p_sharer_user_id: string }
+        Returns: string
+      }
+      share_job_as_post: {
+        Args: {
+          p_company_id: string
+          p_custom_message?: string
+          p_job_id: string
+          p_visibility?: Database["public"]["Enums"]["post_visibility"]
+        }
+        Returns: string
       }
       show_limit: {
         Args: Record<PropertyKey, never>
@@ -4275,6 +7343,10 @@ export type Database = {
       show_trgm: {
         Args: { "": string }
         Returns: string[]
+      }
+      slugify: {
+        Args: { txt: string }
+        Returns: string
       }
       spheroid_in: {
         Args: { "": unknown }
@@ -5388,6 +8460,20 @@ export type Database = {
         Args: { "": unknown }
         Returns: string
       }
+      toggle_community_like: {
+        Args:
+          | {
+              p_liker_company_id?: string
+              p_liker_user_id?: string
+              p_post_id: string
+            }
+          | { p_liker_user_id: string; p_post_id: string }
+        Returns: Json
+      }
+      toggle_linkedin_like: {
+        Args: { p_liker_user_id: string; p_post_id: string }
+        Returns: Json
+      }
       unfollow_company: {
         Args: { p_company_id: string; p_profile_id: string }
         Returns: undefined
@@ -5438,9 +8524,12 @@ export type Database = {
       }
     }
     Enums: {
+      actor_kind: "user" | "company"
       app_role: "admin" | "editor" | "viewer"
+      company_size_band: "1-9" | "10-49" | "50-249" | "250-999" | "1000+"
       follow_entity: "profile" | "company"
       follow_status: "pending" | "accepted" | "rejected" | "blocked"
+      looking_tag: "Praktikanten" | "Auszubildende" | "Fachkräfte"
       notif_channel: "in_app" | "email"
       notif_recipient: "profile" | "company"
       notif_type:
@@ -5458,6 +8547,9 @@ export type Database = {
         | "weekly_digest_company"
         | "billing_update"
         | "product_update"
+      plan_code: "free" | "starter" | "premium"
+      post_kind: "text" | "media" | "job_share" | "poll"
+      post_visibility: "public" | "followers" | "connections" | "org_only"
       tag_type:
         | "profession"
         | "target_group"
@@ -5600,9 +8692,12 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      actor_kind: ["user", "company"],
       app_role: ["admin", "editor", "viewer"],
+      company_size_band: ["1-9", "10-49", "50-249", "250-999", "1000+"],
       follow_entity: ["profile", "company"],
       follow_status: ["pending", "accepted", "rejected", "blocked"],
+      looking_tag: ["Praktikanten", "Auszubildende", "Fachkräfte"],
       notif_channel: ["in_app", "email"],
       notif_recipient: ["profile", "company"],
       notif_type: [
@@ -5621,6 +8716,9 @@ export const Constants = {
         "billing_update",
         "product_update",
       ],
+      plan_code: ["free", "starter", "premium"],
+      post_kind: ["text", "media", "job_share", "poll"],
+      post_visibility: ["public", "followers", "connections", "org_only"],
       tag_type: [
         "profession",
         "target_group",
