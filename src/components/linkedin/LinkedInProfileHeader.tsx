@@ -424,7 +424,7 @@ export const LinkedInProfileHeader: React.FC<LinkedInProfileHeaderProps> = ({
           )}
           
            <p className="text-sm md:text-lg font-medium text-muted-foreground line-clamp-2">
-             {hasHeadline ? () : '—'}
+             {headline || '—'}
            </p>
            
            {/* Show company employment badge */}
