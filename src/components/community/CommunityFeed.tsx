@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import PostCard from './PostCard';
+import NewPostsNotification from './NewPostsNotification';
 import { Loader2 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useState, useEffect } from 'react';
@@ -159,6 +160,7 @@ export default function CommunityFeed() {
   });
 
   const posts = feedQuery.data?.pages.flatMap(page => page.posts) ?? [];
+  const postIds = posts.map(post => post.id);
 
   if (feedQuery.isLoading) {
     return (
@@ -196,6 +198,11 @@ export default function CommunityFeed() {
 
   return (
     <div className="space-y-4">
+      <NewPostsNotification 
+        onRefresh={() => feedQuery.refetch()} 
+        currentPostIds={postIds}
+      />
+      
       {posts.map((post) => (
         <PostCard key={post.id} post={post} />
       ))}
