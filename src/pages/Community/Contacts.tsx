@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useConnections } from "@/hooks/useConnections";
 import { useNavigate } from "react-router-dom";
+import { CompanyRecommendations } from "@/components/linkedin/right-rail/CompanyRecommendations";
 
 interface BasicProfile {
   id: string; vorname: string | null; nachname: string | null; avatar_url: string | null;
@@ -122,6 +123,11 @@ export default function Contacts() {
             ))}
           </div>
         </Card>
+      </section>
+
+      {/* Company Recommendations */}
+      <section>
+        <CompanyRecommendations limit={3} showMore={true} showMoreLink="/entdecken/unternehmen" />
       </section>
 
     </main>

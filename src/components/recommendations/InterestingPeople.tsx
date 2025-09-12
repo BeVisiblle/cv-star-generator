@@ -20,7 +20,7 @@ export function InterestingPeople() {
 
   return (
     <AnySuggestionList
-      title="Interesting People for You"
+      title="Interessante Menschen für dich"
       fetchFn={() =>
         (supabase as any).rpc("suggest_people", { p_viewer: viewerId, p_limit: 3 }) as Promise<{
           data: Person[] | null;
@@ -34,12 +34,12 @@ export function InterestingPeople() {
       onSkip={async (p: Person) => {
         await supabase.rpc("suggestions_touch", { p_viewer: viewerId, p_type: "profile", p_target: p.id });
       }}
-      primaryLabel="Connect"
+      primaryLabel="Vernetzen"
       itemKey={(p) => p.id}
       renderItem={(p) => ({
         id: p.id,
         avatar: p.avatar_url || null,
-        title: p.display_name || "Profile",
+        title: p.display_name || "Profil",
         subtitle: [p.status, p.branche].filter(Boolean).join(" • "),
         meta: p.ort || "",
       })}

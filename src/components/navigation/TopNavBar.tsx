@@ -13,11 +13,11 @@ const titleMap: Record<string, string> = {
   "/community/messages": "Nachrichten",
   "/community/jobs": "Jobs",
   "/marketplace": "Community",
-  "/dashboard": "Home Feed",
-  "/network": "My Network",
-  "/companies": "Companies",
-  "/messages": "Messages",
-  "/notifications": "Notifications",
+  "/dashboard": "Feed",
+  "/network": "Mein Netzwerk",
+  "/companies": "Unternehmen",
+  "/messages": "Nachrichten",
+  "/notifications": "Benachrichtigungen",
   "/profile": "Profil"
 };
 export default function TopNavBar() {
