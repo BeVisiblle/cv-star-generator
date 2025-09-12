@@ -72,21 +72,23 @@ export default function CommunityFeed() {
         throw error;
       }
 
+      console.log('[feed] raw posts from DB:', posts?.length, posts);
+
       // Transform posts table data to match expected structure
       const transformedPosts = posts?.map(post => ({
         id: post.id,
-        body_md: post.content,
-        media: post.image_url ? [{ type: 'image', url: post.image_url }] : [],
-        status: 'published',
+        body_md: post.content || post.body_md || '',
+        media: post.image_url ? [{ type: 'image', url: post.image_url }] : (post.media || []),
+        status: post.status || 'published',
         visibility: post.visibility || 'public',
-        actor_user_id: post.user_id,
-        actor_company_id: post.company_id,
-        like_count: post.likes_count || 0,
-        comment_count: post.comments_count || 0,
-        share_count: post.shares_count || 0,
+        actor_user_id: post.user_id || post.actor_user_id,
+        actor_company_id: post.company_id || post.actor_company_id,
+        like_count: post.likes_count || post.like_count || 0,
+        comment_count: post.comments_count || post.comment_count || 0,
+        share_count: post.shares_count || post.share_count || 0,
         created_at: post.created_at,
         updated_at: post.updated_at,
-        published_at: post.published_at
+        published_at: post.published_at || post.created_at
       })) || [];
 
       // Get unique user IDs
@@ -104,6 +106,7 @@ export default function CommunityFeed() {
           console.error('[feed] profile error', profileError);
         } else {
           userProfiles = profiles || [];
+          console.log('[feed] loaded profiles:', userProfiles.length, 'for users:', userIds);
         }
       }
 
@@ -128,12 +131,14 @@ export default function CommunityFeed() {
         const author = userProfiles.find(p => p.id === post.actor_user_id);
         const company = companyProfiles.find(c => c.id === post.actor_company_id);
         
+        console.log('[feed] mapping post:', post.id, 'author_id:', post.actor_user_id, 'found_author:', !!author);
+        
         return {
           ...post,
           author: author ? {
             id: author.id,
-            vorname: author.vorname,
-            nachname: author.nachname,
+            vorname: author.vorname || 'Unbekannt',
+            nachname: author.nachname || 'User',
             avatar_url: author.avatar_url,
             ausbildungsberuf: author.ausbildungsberuf,
             schule: author.schule,
@@ -143,7 +148,20 @@ export default function CommunityFeed() {
             employment_status: author.employment_status,
             headline: author.headline,
             company_name: author.company_name
-          } : null,
+          } : {
+            id: post.actor_user_id,
+            vorname: 'Unbekannt',
+            nachname: 'User',
+            avatar_url: null,
+            ausbildungsberuf: null,
+            schule: null,
+            ausbildungsbetrieb: null,
+            aktueller_beruf: null,
+            status: null,
+            employment_status: null,
+            headline: null,
+            company_name: null
+          },
           company: company || null
         };
       });
