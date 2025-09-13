@@ -77,15 +77,24 @@ export default function CommunityFeed() {
       // Transform posts table data to match expected structure
       const transformedPosts = posts?.map(post => ({
         id: post.id,
-        body_md: post.content || post.body_md || '',
-        media: post.image_url ? [{ type: 'image', url: post.image_url }] : (post.media || []),
+        content: post.content || '',
+        body_md: post.content || '',
+        image_url: post.image_url,
+        media: post.image_url ? [{ type: 'image', url: post.image_url }] : [],
         status: post.status || 'published',
         visibility: post.visibility || 'public',
-        actor_user_id: post.user_id || post.actor_user_id,
-        actor_company_id: post.company_id || post.actor_company_id,
-        like_count: post.likes_count || post.like_count || 0,
-        comment_count: post.comments_count || post.comment_count || 0,
-        share_count: post.shares_count || post.share_count || 0,
+        user_id: post.user_id,
+        actor_user_id: post.user_id,
+        author_type: (post.author_type || 'user') as 'user' | 'company',
+        author_id: post.author_id || post.user_id,
+        company_id: null,
+        actor_company_id: null,
+        like_count: 0, // Will be loaded separately
+        likes_count: 0,
+        comment_count: 0, // Will be loaded separately
+        comments_count: 0,
+        share_count: 0, // Will be loaded separately
+        shares_count: 0,
         created_at: post.created_at,
         updated_at: post.updated_at,
         published_at: post.published_at || post.created_at
@@ -94,19 +103,36 @@ export default function CommunityFeed() {
       // Get unique user IDs
       const userIds = [...new Set(transformedPosts.map(post => post.actor_user_id).filter(Boolean))];
 
-      // Fetch user profiles
+      // Fetch user profiles with all necessary fields
       let userProfiles: any[] = [];
       if (userIds.length > 0) {
         const { data: profiles, error: profileError } = await supabase
           .from('profiles')
-          .select('id, vorname, nachname, avatar_url, ausbildungsberuf, schule, ausbildungsbetrieb, aktueller_beruf, status, employment_status, headline, company_name')
-          .in('id', userIds);
+          .select(`
+            id, 
+            vorname, 
+            nachname, 
+            avatar_url, 
+            ausbildungsberuf, 
+            schule, 
+            ausbildungsbetrieb, 
+            aktueller_beruf, 
+            status, 
+            headline,
+            branche,
+            ort,
+            plz,
+            profile_published
+          `)
+          .in('id', userIds)
+          .eq('profile_published', true); // Only published profiles
         
         if (profileError) {
           console.error('[feed] profile error', profileError);
         } else {
           userProfiles = profiles || [];
           console.log('[feed] loaded profiles:', userProfiles.length, 'for users:', userIds);
+          console.log('[feed] profile details:', userProfiles);
         }
       }
 
@@ -145,9 +171,11 @@ export default function CommunityFeed() {
             ausbildungsbetrieb: author.ausbildungsbetrieb,
             aktueller_beruf: author.aktueller_beruf,
             status: author.status,
-            employment_status: author.employment_status,
             headline: author.headline,
-            company_name: author.company_name
+            branche: author.branche,
+            ort: author.ort,
+            plz: author.plz,
+            full_name: `${author.vorname || ''} ${author.nachname || ''}`.trim() || 'Unbekannt User'
           } : {
             id: post.actor_user_id,
             vorname: 'Unbekannt',
@@ -158,9 +186,11 @@ export default function CommunityFeed() {
             ausbildungsbetrieb: null,
             aktueller_beruf: null,
             status: null,
-            employment_status: null,
             headline: null,
-            company_name: null
+            branche: null,
+            ort: null,
+            plz: null,
+            full_name: 'Unbekannt User'
           },
           company: company || null
         };
