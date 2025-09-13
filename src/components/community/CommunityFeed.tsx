@@ -40,7 +40,7 @@ export default function CommunityFeed({ feedHeadHeight = 0 }: CommunityFeedProps
     queryFn: async ({ pageParam }) => {
       console.log('[feed] fetching page', pageParam, sort);
 
-      // Use the unified posts_with_authors view
+      // Try the new unified system first, fallback to old system if needed
       let query = supabase
         .from('posts_with_authors')
         .select('*')
@@ -68,7 +68,44 @@ export default function CommunityFeed({ feedHeadHeight = 0 }: CommunityFeedProps
         }
       }
 
-      const { data: posts, error } = await query;
+      let { data: posts, error } = await query;
+
+      // If the new view doesn't exist, fallback to old system
+      if (error && error.code === 'PGRST116') {
+        console.log('[feed] New view not found, trying old posts table...');
+        
+        // Fallback to old posts table
+        let fallbackQuery = supabase
+          .from('posts')
+          .select('*, likes_count, comments_count, shares_count')
+          .eq('status', 'published')
+          .limit(PAGE_SIZE);
+
+        // Apply sorting
+        if (sort === 'newest') {
+          fallbackQuery = fallbackQuery.order('published_at', { ascending: false });
+        } else {
+          fallbackQuery = fallbackQuery
+            .order('likes_count', { ascending: false })
+            .order('comments_count', { ascending: false })
+            .order('published_at', { ascending: false });
+        }
+
+        // Apply pagination
+        if (pageParam?.after_published) {
+          if (sort === 'newest') {
+            fallbackQuery = fallbackQuery.lt('published_at', pageParam.after_published);
+          } else {
+            if (pageParam?.after_id) {
+              fallbackQuery = fallbackQuery.lt('id', pageParam.after_id);
+            }
+          }
+        }
+
+        const fallbackResult = await fallbackQuery;
+        posts = fallbackResult.data;
+        error = fallbackResult.error;
+      }
 
       if (error) {
         console.error('[feed] get_feed error', error);
@@ -94,40 +131,90 @@ export default function CommunityFeed({ feedHeadHeight = 0 }: CommunityFeedProps
       }
 
       // Transform posts data to match expected structure
-      const transformedPosts = posts?.map(post => ({
-        id: post.id,
-        content: post.content || '',
-        body_md: post.content || '',
-        image_url: post.image_url,
-        media: post.image_url ? [{ type: 'image', url: post.image_url }] : (post.media_urls || []).map((url: string) => ({ type: 'image', url })),
-        status: post.status || 'published',
-        visibility: post.visibility || 'public',
-        user_id: post.user_id,
-        actor_user_id: post.user_id,
-        author_type: (post.author_type || 'user') as 'user' | 'company',
-        author_id: post.author_id || post.user_id,
-        company_id: post.company_id,
-        actor_company_id: post.company_id,
-        like_count: post.likes_count || 0,
-        likes_count: post.likes_count || 0,
-        comment_count: post.comments_count || 0,
-        comments_count: post.comments_count || 0,
-        share_count: post.shares_count || 0,
-        shares_count: post.shares_count || 0,
-        created_at: post.created_at,
-        updated_at: post.updated_at,
-        published_at: post.published_at || post.created_at,
-        // Author information from the posts_with_authors view
-        author: {
-          id: post.author_id,
-          full_name: post.author_name,
-          avatar_url: post.author_avatar,
-          headline: post.author_headline,
-          type: post.author_type,
-        }
-      })) || [];
+      const transformedPosts = posts?.map(post => {
+        // Check if this is from the new view (has author_name) or old table
+        const hasAuthorInfo = post.author_name || post.author_avatar;
+        
+        return {
+          id: post.id,
+          content: post.content || '',
+          body_md: post.content || '',
+          image_url: post.image_url,
+          media: post.image_url ? [{ type: 'image', url: post.image_url }] : (post.media_urls || []).map((url: string) => ({ type: 'image', url })),
+          status: post.status || 'published',
+          visibility: post.visibility || 'public',
+          user_id: post.user_id,
+          actor_user_id: post.user_id,
+          author_type: (post.author_type || 'user') as 'user' | 'company',
+          author_id: post.author_id || post.user_id,
+          company_id: post.company_id,
+          actor_company_id: post.company_id,
+          like_count: post.likes_count || 0,
+          likes_count: post.likes_count || 0,
+          comment_count: post.comments_count || 0,
+          comments_count: post.comments_count || 0,
+          share_count: post.shares_count || 0,
+          shares_count: post.shares_count || 0,
+          created_at: post.created_at,
+          updated_at: post.updated_at,
+          published_at: post.published_at || post.created_at,
+          // Author information - from view if available, otherwise will be fetched separately
+          author: hasAuthorInfo ? {
+            id: post.author_id,
+            full_name: post.author_name,
+            avatar_url: post.author_avatar,
+            headline: post.author_headline,
+            type: post.author_type,
+          } : null
+        };
+      }) || [];
 
       console.log('[feed] transformed posts:', transformedPosts.length, transformedPosts);
+
+      // If we don't have author info from the view, fetch it separately
+      const postsNeedingAuthorInfo = transformedPosts.filter(post => !post.author);
+      if (postsNeedingAuthorInfo.length > 0) {
+        console.log('[feed] Fetching author info for', postsNeedingAuthorInfo.length, 'posts');
+        
+        const userIds = [...new Set(postsNeedingAuthorInfo.map(p => p.actor_user_id).filter(Boolean))];
+        const companyIds = [...new Set(postsNeedingAuthorInfo.map(p => p.company_id).filter(Boolean))];
+
+        let userProfiles: any[] = [];
+        let companyProfiles: any[] = [];
+
+        if (userIds.length > 0) {
+          const { data: profiles } = await supabase
+            .from('profiles')
+            .select('id, full_name, avatar_url, headline')
+            .in('id', userIds);
+          userProfiles = profiles || [];
+        }
+
+        if (companyIds.length > 0) {
+          const { data: companies } = await supabase
+            .from('companies')
+            .select('id, name, logo_url, description')
+            .in('id', companyIds);
+          companyProfiles = companies || [];
+        }
+
+        // Add author info to posts that need it
+        transformedPosts.forEach(post => {
+          if (!post.author) {
+            const author = post.author_type === 'company'
+              ? companyProfiles.find(c => c.id === post.company_id)
+              : userProfiles.find(p => p.id === post.actor_user_id);
+
+            post.author = {
+              id: post.author_id,
+              full_name: author?.full_name || author?.name || 'Unbekannt',
+              avatar_url: author?.avatar_url || author?.logo_url || null,
+              headline: author?.headline || author?.description || null,
+              type: post.author_type,
+            };
+          }
+        });
+      }
 
       return {
         posts: transformedPosts,
