@@ -35,7 +35,7 @@ const Dashboard = () => {
           </section>
 
           {/* Right column - sticky, content flows naturally */}
-          <aside className="hidden xl:block w-[320px] shrink-0 sticky top-20 self-start">
+          <aside className="hidden lg:block w-[320px] shrink-0 sticky top-20 self-start">
             <div className="space-y-4">
               <RightPanel />
             </div>
