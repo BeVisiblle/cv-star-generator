@@ -123,7 +123,7 @@ export default function CommunityFeed({ feedHeadHeight = 0 }: CommunityFeedProps
           status: post.status || 'published',
           visibility: post.visibility || 'public',
           user_id: post.user_id,
-          actor_user_id: post.user_id,
+          actor_user_id: post.author_id || post.user_id,
           author_type: (post.author_type || 'user') as 'user' | 'company',
           author_id: post.author_id || post.user_id,
           company_id: post.company_id,
@@ -155,25 +155,31 @@ export default function CommunityFeed({ feedHeadHeight = 0 }: CommunityFeedProps
       if (postsNeedingAuthorInfo.length > 0) {
         console.log('[feed] Fetching author info for', postsNeedingAuthorInfo.length, 'posts');
         
-        const userIds = [...new Set(postsNeedingAuthorInfo.map(p => p.actor_user_id).filter(Boolean))];
+        const userIds = [...new Set(postsNeedingAuthorInfo.map(p => p.actor_user_id || p.author_id).filter(Boolean))];
         const companyIds = [...new Set(postsNeedingAuthorInfo.map(p => p.company_id).filter(Boolean))];
 
         let userProfiles: any[] = [];
         let companyProfiles: any[] = [];
 
         if (userIds.length > 0) {
-          const { data: profiles } = await supabase
+          console.log('[feed] Fetching user profiles for IDs:', userIds);
+          const { data: profiles, error: profileError } = await supabase
             .from('profiles')
             .select('id, full_name, avatar_url, headline')
             .in('id', userIds);
+          
+          console.log('[feed] User profiles result:', profiles, profileError);
           userProfiles = profiles || [];
         }
 
         if (companyIds.length > 0) {
-          const { data: companies } = await supabase
+          console.log('[feed] Fetching company profiles for IDs:', companyIds);
+          const { data: companies, error: companyError } = await supabase
             .from('companies')
             .select('id, name, logo_url, description')
             .in('id', companyIds);
+          
+          console.log('[feed] Company profiles result:', companies, companyError);
           companyProfiles = companies || [];
         }
 
@@ -182,11 +188,30 @@ export default function CommunityFeed({ feedHeadHeight = 0 }: CommunityFeedProps
           if (!post.author) {
             const author = post.author_type === 'company'
               ? companyProfiles.find(c => c.id === post.company_id)
-              : userProfiles.find(p => p.id === post.actor_user_id);
+              : userProfiles.find(p => p.id === (post.actor_user_id || post.author_id));
+
+            console.log('[feed] Post author lookup:', {
+              postId: post.id,
+              authorType: post.author_type,
+              authorId: post.author_id,
+              actorUserId: post.actor_user_id,
+              companyId: post.company_id,
+              foundAuthor: author,
+              userProfilesCount: userProfiles.length,
+              companyProfilesCount: companyProfiles.length
+            });
+
+            // Split full_name into vorname and nachname for PostCard compatibility
+            const fullName = author?.full_name || author?.name || 'Unbekannt';
+            const nameParts = fullName.split(' ');
+            const vorname = nameParts[0] || '';
+            const nachname = nameParts.slice(1).join(' ') || '';
 
             post.author = {
               id: post.author_id,
-              full_name: author?.full_name || author?.name || 'Unbekannt',
+              full_name: fullName,
+              vorname: vorname,
+              nachname: nachname,
               avatar_url: author?.avatar_url || author?.logo_url || null,
               headline: author?.headline || author?.description || null,
               type: post.author_type,
