@@ -60,21 +60,19 @@ export const CreatePost = ({
       // Map UI visibility to DB values
       const dbVisibility = visibility || 'public';
 
+      // Simple insert with basic fields first
       const { error } = await supabase
         .from("posts")
         .insert({
           id,
           content,
           image_url: imageUrl,
-          user_id: context === 'company' ? null : user.id,
-          author_type: context === 'company' ? 'company' : 'user',
-          author_id: context === 'company' ? (companyId as string) : user.id,
-          company_id: context === 'company' ? (companyId as string) : null,
+          user_id: user.id,
           post_type: 'text',
           visibility: dbVisibility,
           status: scheduledISO ? 'scheduled' : 'published',
-          scheduled_at: scheduledISO,
-          published_at: scheduledISO || new Date().toISOString()
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
         });
 
       if (error) throw error;
@@ -95,7 +93,7 @@ export const CreatePost = ({
       console.error("Error creating post:", error);
       toast({
         title: "Fehler",
-        description: "Beitrag konnte nicht veröffentlicht werden.",
+        description: `Beitrag konnte nicht veröffentlicht werden: ${error.message}`,
         variant: "destructive",
       });
     },
@@ -132,30 +130,36 @@ export const CreatePost = ({
     const postId = crypto.randomUUID();
     let imageUrl: string | undefined;
 
-    // Upload image if present
+    // Upload image if present (simplified for now)
     if (imageFile) {
-      const fileExt = imageFile.name.split('.').pop();
-      const fileName = `${postId}.${fileExt}`;
-      const filePath = `${user.id}/posts/${fileName}`;
+      try {
+        const fileExt = imageFile.name.split('.').pop();
+        const fileName = `${postId}.${fileExt}`;
+        const filePath = `${user.id}/posts/${fileName}`;
 
-      const { error: uploadError } = await supabase.storage
-        .from('post-media')
-        .upload(filePath, imageFile);
+        const { error: uploadError } = await supabase.storage
+          .from('post-media')
+          .upload(filePath, imageFile);
 
-      if (uploadError) {
-        toast({
-          title: "Fehler beim Hochladen",
-          description: "Das Bild konnte nicht hochgeladen werden.",
-          variant: "destructive",
-        });
-        return;
+        if (uploadError) {
+          console.error("Upload error:", uploadError);
+          toast({
+            title: "Fehler beim Hochladen",
+            description: "Das Bild konnte nicht hochgeladen werden. Post wird ohne Bild erstellt.",
+            variant: "destructive",
+          });
+          // Continue without image instead of returning
+          imageUrl = undefined;
+        } else {
+          const { data: { publicUrl } } = supabase.storage
+            .from('post-media')
+            .getPublicUrl(filePath);
+          imageUrl = publicUrl;
+        }
+      } catch (error) {
+        console.error("Image upload failed:", error);
+        imageUrl = undefined;
       }
-
-      const { data: { publicUrl } } = supabase.storage
-        .from('post-media')
-        .getPublicUrl(filePath);
-
-      imageUrl = publicUrl;
     }
 
     createPostMutation.mutate({ id: postId, content, imageUrl });
