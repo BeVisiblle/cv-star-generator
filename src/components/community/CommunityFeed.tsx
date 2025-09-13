@@ -14,7 +14,11 @@ const PAGE_SIZE = 20;
 
 type FeedSortOption = "relevant" | "newest";
 
-export default function CommunityFeed() {
+interface CommunityFeedProps {
+  feedHeadHeight?: number; // Höhe der Feed-Header-Sektion für Sticky-Position
+}
+
+export default function CommunityFeed({ feedHeadHeight = 0 }: CommunityFeedProps) {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const viewerId = user?.id || null;
@@ -249,6 +253,7 @@ export default function CommunityFeed() {
       <NewPostsNotification 
         onRefresh={() => feedQuery.refetch()} 
         currentPostIds={postIds}
+        feedHeadHeight={feedHeadHeight}
       />
       
       {posts.map((post) => (

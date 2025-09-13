@@ -7,11 +7,13 @@ import { useAuth } from '@/hooks/useAuth';
 interface NewPostsNotificationProps {
   onRefresh: () => void;
   currentPostIds: string[];
+  feedHeadHeight?: number; // Höhe der Feed-Header-Sektion für Sticky-Position
 }
 
 export const NewPostsNotification: React.FC<NewPostsNotificationProps> = ({
   onRefresh,
-  currentPostIds
+  currentPostIds,
+  feedHeadHeight = 0
 }) => {
   const [newPostsCount, setNewPostsCount] = useState(0);
   const [isVisible, setIsVisible] = useState(false);
@@ -55,8 +57,15 @@ export const NewPostsNotification: React.FC<NewPostsNotificationProps> = ({
     return null;
   }
 
+  // Berechne die Sticky-Position: Navbar (64px) + Feed-Header-Höhe + 8px Abstand
+  const stickyTop = 64 + feedHeadHeight + 8;
+
   return (
-    <div className="sticky top-32 z-10 bg-primary text-primary-foreground rounded-lg p-4 mx-4 mb-4 shadow-lg">
+    <div 
+      className="sticky z-30 bg-primary text-primary-foreground rounded-lg p-4 mb-4 shadow-lg"
+      style={{ top: `${stickyTop}px` }}
+      aria-live="polite"
+    >
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <ArrowUp className="h-5 w-5 animate-bounce" />
