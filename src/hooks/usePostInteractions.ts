@@ -39,26 +39,26 @@ export const usePostLikes = (postId: string) => {
       
       let liked = false;
       if (user?.id) {
-        // Try new system first (post_likes), fallback to old system (likes)
+        // Try old system first (likes), fallback to new system (post_likes)
         const { data: userLike, error: likeError } = await supabase
-          .from("post_likes")
+          .from("likes")
           .select("id")
           .eq("post_id", postId)
           .eq("user_id", user.id)
           .maybeSingle();
         
         if (likeError && likeError.code === 'PGRST116') {
-          // Table doesn't exist, try old system
-          const { data: userLikeOld, error: likeErrorOld } = await supabase
-            .from("likes")
+          // Table doesn't exist, try new system
+          const { data: userLikeNew, error: likeErrorNew } = await supabase
+            .from("post_likes")
             .select("id")
             .eq("likeable_id", postId)
             .eq("likeable_type", "post")
             .eq("user_id", user.id)
             .maybeSingle();
           
-          if (likeErrorOld) throw likeErrorOld;
-          liked = Boolean(userLikeOld);
+          if (likeErrorNew) throw likeErrorNew;
+          liked = Boolean(userLikeNew);
         } else if (likeError) {
           throw likeError;
         } else {
@@ -87,46 +87,44 @@ export const usePostLikes = (postId: string) => {
       
       const liked = data?.liked ?? false;
       if (liked) {
-        // Unlike - try new system first
+        // Unlike - try old system first
         const { error } = await supabase
-          .from("post_likes")
+          .from("likes")
           .delete()
           .eq("post_id", postId)
           .eq("user_id", user.id);
         
         if (error && error.code === 'PGRST116') {
-          // Table doesn't exist, try old system
-          const { error: oldError } = await supabase
-            .from("likes")
+          // Table doesn't exist, try new system
+          const { error: newError } = await supabase
+            .from("post_likes")
             .delete()
-            .eq("likeable_id", postId)
-            .eq("likeable_type", "post")
+            .eq("post_id", postId)
             .eq("user_id", user.id);
           
-          if (oldError) throw oldError;
+          if (newError) throw newError;
         } else if (error) {
           throw error;
         }
       } else {
-        // Like - try new system first
+        // Like - try old system first
         const { error } = await supabase
-          .from("post_likes")
+          .from("likes")
           .insert({
             post_id: postId,
             user_id: user.id,
           });
         
         if (error && error.code === 'PGRST116') {
-          // Table doesn't exist, try old system
-          const { error: oldError } = await supabase
-            .from("likes")
+          // Table doesn't exist, try new system
+          const { error: newError } = await supabase
+            .from("post_likes")
             .insert({
-              likeable_id: postId,
-              likeable_type: "post",
+              post_id: postId,
               user_id: user.id,
             });
           
-          if (oldError) throw oldError;
+          if (newError) throw newError;
         } else if (error) {
           throw error;
         }
@@ -159,17 +157,17 @@ export const usePostComments = (postId: string) => {
     queryFn: async (): Promise<PostComment[]> => {
       console.debug("[comments] fetch", { postId });
       
-      // Try new system first (post_comments), fallback to old system (comments)
+      // Try old system first (comments), fallback to new system (post_comments)
       let { data: comments, error } = await supabase
-        .from("post_comments")
+        .from("comments")
         .select("*")
         .eq("post_id", postId)
         .order("created_at", { ascending: true });
       
       if (error && error.code === 'PGRST116') {
-        // Table doesn't exist, try old system
+        // Table doesn't exist, try new system
         const result = await supabase
-          .from("comments")
+          .from("post_comments")
           .select("*")
           .eq("post_id", postId)
           .order("created_at", { ascending: true });
@@ -215,9 +213,9 @@ export const usePostComments = (postId: string) => {
         });
         return;
       }
-      // Try new system first (post_comments), fallback to old system (comments)
+      // Try old system first (comments), fallback to new system (post_comments)
       let { error } = await supabase
-        .from("post_comments")
+        .from("comments")
         .insert({
           post_id: postId,
           user_id: user.id,
@@ -225,9 +223,9 @@ export const usePostComments = (postId: string) => {
         });
       
       if (error && error.code === 'PGRST116') {
-        // Table doesn't exist, try old system
+        // Table doesn't exist, try new system
         const result = await supabase
-          .from("comments")
+          .from("post_comments")
           .insert({
             post_id: postId,
             user_id: user.id,

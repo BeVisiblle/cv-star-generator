@@ -40,10 +40,11 @@ export default function CommunityFeed({ feedHeadHeight = 0 }: CommunityFeedProps
     queryFn: async ({ pageParam }) => {
       console.log('[feed] fetching page', pageParam, sort);
 
-      // Try the new unified system first, fallback to old system if needed
+      // Try posts table first (where existing posts are), then fallback to unified view
       let query = supabase
-        .from('posts_with_authors')
-        .select('*')
+        .from('posts')
+        .select('*, likes_count, comments_count, shares_count')
+        .eq('status', 'published')
         .limit(PAGE_SIZE);
 
       // Apply sorting based on the selected option
@@ -70,15 +71,14 @@ export default function CommunityFeed({ feedHeadHeight = 0 }: CommunityFeedProps
 
       let { data: posts, error } = await query;
 
-      // If the new view doesn't exist, fallback to old system
+      // If posts table fails, try the unified view
       if (error && error.code === 'PGRST116') {
-        console.log('[feed] New view not found, trying old posts table...');
+        console.log('[feed] posts table not found, trying posts_with_authors view...');
         
-        // Fallback to old posts table
+        // Fallback to posts_with_authors view
         let fallbackQuery = supabase
-          .from('posts')
-          .select('*, likes_count, comments_count, shares_count')
-          .eq('status', 'published')
+          .from('posts_with_authors')
+          .select('*')
           .limit(PAGE_SIZE);
 
         // Apply sorting
