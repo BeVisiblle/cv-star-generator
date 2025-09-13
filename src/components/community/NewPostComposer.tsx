@@ -34,6 +34,14 @@ export const NewPostComposer: React.FC = () => {
     setIsSubmitting(s.isSubmitting);
   }, []);
 
+  // Close dialog when post is successfully created
+  React.useEffect(() => {
+    if (!isSubmitting && canPost === false && open) {
+      // Post was successfully created, close dialog
+      setOpen(false);
+    }
+  }, [isSubmitting, canPost, open]);
+
   const AudienceIcon = audience === 'public' ? Globe : Users;
 
   const [scheduledAt, setScheduledAt] = React.useState<Date | null>(null);
@@ -173,11 +181,13 @@ export const NewPostComposer: React.FC = () => {
     <div className="relative border-t bg-background/95 supports-[backdrop-filter]:bg-background/80 backdrop-blur px-4 py-3">
       {ActionTray}
       <div className="flex items-center justify-between">
-        <label htmlFor="image-upload" className="cursor-pointer">
-          <span className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
-            <ImageIcon className="h-5 w-5" /> Bild/Video
-          </span>
-        </label>
+        <button 
+          type="button"
+          onClick={() => document.getElementById('image-upload')?.click()}
+          className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+        >
+          <ImageIcon className="h-5 w-5" /> Bild/Video
+        </button>
         <Button variant="secondary" size="icon" className="h-10 w-10 rounded-full" onClick={() => setTrayOpen((v) => !v)} aria-expanded={trayOpen} aria-label="Weitere Aktionen">
           <Plus className="h-5 w-5" />
         </Button>

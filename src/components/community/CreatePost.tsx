@@ -103,8 +103,10 @@ export const CreatePost = ({
 
   // Notify parent on state changes
   useEffect(() => {
-    onStateChange?.(isExpanded);
-  }, [isExpanded, onStateChange]);
+    const canPost = (content.trim() || imageFile) && !createPostMutation.isPending;
+    const isSubmitting = createPostMutation.isPending;
+    onStateChange?.({ canPost, isSubmitting });
+  }, [content, imageFile, createPostMutation.isPending, onStateChange]);
 
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -215,18 +217,20 @@ export const CreatePost = ({
           )}
         </div>
 
+        {/* Hidden image upload input - always present for external triggers */}
+        <input
+          id="image-upload"
+          type="file"
+          accept="image/*"
+          onChange={handleImageUpload}
+          className="hidden"
+        />
+
         {!hideBottomBar && (
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <label htmlFor="image-upload" className="cursor-pointer">
                 <ImageIcon className="h-5 w-5 text-muted-foreground hover:text-foreground" />
-                <input
-                  id="image-upload"
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageUpload}
-                  className="hidden"
-                />
               </label>
             </div>
 
@@ -239,6 +243,7 @@ export const CreatePost = ({
                 Abbrechen
               </Button>
               <Button
+                id="createpost-submit"
                 type="submit"
                 disabled={!content.trim() && !imageFile}
                 loading={createPostMutation.isPending}
