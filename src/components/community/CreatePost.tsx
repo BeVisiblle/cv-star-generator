@@ -134,10 +134,10 @@ export const CreatePost = ({
     if (imageFile) {
       const fileExt = imageFile.name.split('.').pop();
       const fileName = `${postId}.${fileExt}`;
-      const filePath = `posts/${fileName}`;
+      const filePath = `${user.id}/posts/${fileName}`;
 
       const { error: uploadError } = await supabase.storage
-        .from('post-images')
+        .from('post-media')
         .upload(filePath, imageFile);
 
       if (uploadError) {
@@ -150,7 +150,7 @@ export const CreatePost = ({
       }
 
       const { data: { publicUrl } } = supabase.storage
-        .from('post-images')
+        .from('post-media')
         .getPublicUrl(filePath);
 
       imageUrl = publicUrl;
