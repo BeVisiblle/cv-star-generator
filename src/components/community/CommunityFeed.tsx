@@ -44,30 +44,21 @@ export default function CommunityFeed({ feedHeadHeight = 0 }: CommunityFeedProps
       // Try posts table first (where existing posts are), then fallback to unified view
       let query = supabase
         .from('posts')
-        .select('*, likes_count, comments_count, shares_count')
+        .select('*')
         .eq('status', 'published')
         .limit(PAGE_SIZE);
 
       // Apply sorting based on the selected option
       if (sort === 'newest') {
-        query = query.order('published_at', { ascending: false });
+        query = query.order('created_at', { ascending: false });
       } else {
         // Sort by relevance (combination of engagement and recency)
-        query = query
-          .order('likes_count', { ascending: false })
-          .order('comments_count', { ascending: false })
-          .order('published_at', { ascending: false });
+        query = query.order('created_at', { ascending: false });
       }
 
       // Apply pagination
       if (pageParam?.after_published) {
-        if (sort === 'newest') {
-          query = query.lt('published_at', pageParam.after_published);
-        } else {
-          if (pageParam?.after_id) {
-            query = query.lt('id', pageParam.after_id);
-          }
-        }
+        query = query.lt('created_at', pageParam.after_published);
       }
 
       let { data: posts, error } = await query;
@@ -83,24 +74,11 @@ export default function CommunityFeed({ feedHeadHeight = 0 }: CommunityFeedProps
           .limit(PAGE_SIZE);
 
         // Apply sorting
-        if (sort === 'newest') {
-          fallbackQuery = fallbackQuery.order('published_at', { ascending: false });
-        } else {
-          fallbackQuery = fallbackQuery
-            .order('likes_count', { ascending: false })
-            .order('comments_count', { ascending: false })
-            .order('published_at', { ascending: false });
-        }
+        fallbackQuery = fallbackQuery.order('created_at', { ascending: false });
 
         // Apply pagination
         if (pageParam?.after_published) {
-          if (sort === 'newest') {
-            fallbackQuery = fallbackQuery.lt('published_at', pageParam.after_published);
-          } else {
-            if (pageParam?.after_id) {
-              fallbackQuery = fallbackQuery.lt('id', pageParam.after_id);
-            }
-          }
+          fallbackQuery = fallbackQuery.lt('created_at', pageParam.after_published);
         }
 
         const fallbackResult = await fallbackQuery;
@@ -122,7 +100,7 @@ export default function CommunityFeed({ feedHeadHeight = 0 }: CommunityFeedProps
         // Try to get all posts without filters to debug
         const { data: allPosts, error: allError } = await supabase
           .from('posts')
-          .select('id, status, published_at, created_at, content')
+          .select('id, status, created_at, content')
           .limit(5);
         
         console.log('[feed] All posts (any status):', allPosts?.length, allPosts);
@@ -150,12 +128,12 @@ export default function CommunityFeed({ feedHeadHeight = 0 }: CommunityFeedProps
           author_id: post.author_id || post.user_id,
           company_id: post.company_id,
           actor_company_id: post.company_id,
-          like_count: post.likes_count || 0,
-          likes_count: post.likes_count || 0,
-          comment_count: post.comments_count || 0,
-          comments_count: post.comments_count || 0,
-          share_count: post.shares_count || 0,
-          shares_count: post.shares_count || 0,
+          like_count: 0,
+          likes_count: 0,
+          comment_count: 0,
+          comments_count: 0,
+          share_count: 0,
+          shares_count: 0,
           created_at: post.created_at,
           updated_at: post.updated_at,
           published_at: post.published_at || post.created_at,
@@ -221,8 +199,8 @@ export default function CommunityFeed({ feedHeadHeight = 0 }: CommunityFeedProps
         posts: transformedPosts,
         nextPage: posts && posts.length === PAGE_SIZE
           ? {
-              after_published: sort === 'newest' ? posts[posts.length - 1].published_at : null,
-              after_id: sort !== 'newest' ? posts[posts.length - 1].id : null,
+              after_published: posts[posts.length - 1].created_at,
+              after_id: posts[posts.length - 1].id,
             }
           : undefined,
       };
