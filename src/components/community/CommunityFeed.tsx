@@ -7,6 +7,7 @@ import NewPostsNotification from './NewPostsNotification';
 import { Loader2 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useState, useEffect } from 'react';
+import { LogoSpinner } from '@/components/shared/LoadingSkeleton';
 
 type PostWithAuthor = any;
 
@@ -233,22 +234,7 @@ export default function CommunityFeed({ feedHeadHeight = 0 }: CommunityFeedProps
   const postIds = posts.map(post => post.id);
 
   if (feedQuery.isLoading && posts.length === 0) {
-    return (
-      <div className="space-y-4">
-        {Array.from({ length: 3 }).map((_, i) => (
-          <Card key={i} className="p-4">
-            <div className="flex items-center space-x-4">
-              <div className="h-10 w-10 rounded-full bg-muted animate-pulse"></div>
-              <div className="flex-1 space-y-2">
-                <div className="h-4 bg-muted animate-pulse w-3/4"></div>
-                <div className="h-4 bg-muted animate-pulse w-1/2"></div>
-              </div>
-            </div>
-            <div className="h-20 bg-muted animate-pulse mt-4 rounded-md"></div>
-          </Card>
-        ))}
-      </div>
-    );
+    return <LogoSpinner size="lg" text="Posts werden geladen..." />;
   }
 
   if (feedQuery.isError) {

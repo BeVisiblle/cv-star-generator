@@ -12,6 +12,7 @@ import { useEffect, useState, lazy, Suspense } from "react";
 import { useSupabaseInit } from "@/hooks/useSupabaseInit";
 import TopNavBar from "@/components/navigation/TopNavBar";
 import { SidebarProvider } from "@/components/ui/sidebar";
+import { LogoSpinner } from "@/components/shared/LoadingSkeleton";
 
 // Critical pages - loaded immediately for landing page
 import Index from "./pages/Index";
@@ -220,11 +221,8 @@ const App = () => {
   // Show loading screen until Supabase is initialized
   if (!isInitialized) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-background">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Initialisiere Verbindung...</p>
-        </div>
+      <div className="flex items-center justify-center min-h-screen bg-black">
+        <LogoSpinner size="xl" text="CV Star Generator wird geladen..." />
       </div>
     );
   }
