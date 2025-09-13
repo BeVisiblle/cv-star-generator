@@ -32,7 +32,7 @@ export default function CommunityFeed({ feedHeadHeight = 0 }: CommunityFeedProps
 
   const feedQuery = useInfiniteQuery({
     queryKey: ['home-feed', viewerId, sort],
-    enabled: !!viewerId,
+    enabled: true, // Always enabled to load posts
     initialPageParam: { after_published: null as string | null, after_id: null as string | null },
     queryFn: async ({ pageParam }) => {
       console.log('[feed] fetching page', pageParam, sort);

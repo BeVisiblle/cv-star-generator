@@ -188,9 +188,18 @@ export const NewPostComposer: React.FC = () => {
         >
           <ImageIcon className="h-5 w-5" /> Bild/Video
         </button>
-        <Button variant="secondary" size="icon" className="h-10 w-10 rounded-full" onClick={() => setTrayOpen((v) => !v)} aria-expanded={trayOpen} aria-label="Weitere Aktionen">
-          <Plus className="h-5 w-5" />
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button variant="secondary" size="icon" className="h-10 w-10 rounded-full" onClick={() => setTrayOpen((v) => !v)} aria-expanded={trayOpen} aria-label="Weitere Aktionen">
+            <Plus className="h-5 w-5" />
+          </Button>
+          <Button
+            onClick={() => document.getElementById('createpost-submit')?.click()}
+            disabled={!canPost || isSubmitting}
+            className="px-6"
+          >
+            {isSubmitting ? 'Wird veröffentlicht...' : 'Posten'}
+          </Button>
+        </div>
       </div>
     </div>
   );
