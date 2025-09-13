@@ -34,11 +34,11 @@ export default function CommunityFeed() {
       console.log('[feed] fetching page', pageParam, sort);
 
       // Build the query based on sort option
-      let query = supabase
-        .from('posts')
-        .select('*')
-        .eq('status', 'published') // Only published posts
-        .limit(PAGE_SIZE);
+          let query = supabase
+            .from('posts')
+            .select('*, likes_count, comments_count, shares_count')
+            .eq('status', 'published') // Only published posts
+            .limit(PAGE_SIZE);
 
       // Apply sorting based on the selected option
       if (sort === 'newest') {
@@ -89,12 +89,12 @@ export default function CommunityFeed() {
         author_id: post.author_id || post.user_id,
         company_id: null,
         actor_company_id: null,
-        like_count: 0, // Will be loaded separately
-        likes_count: 0,
-        comment_count: 0, // Will be loaded separately
-        comments_count: 0,
-        share_count: 0, // Will be loaded separately
-        shares_count: 0,
+        like_count: post.likes_count || 0,
+        likes_count: post.likes_count || 0,
+        comment_count: post.comments_count || 0,
+        comments_count: post.comments_count || 0,
+        share_count: post.shares_count || 0,
+        shares_count: post.shares_count || 0,
         created_at: post.created_at,
         updated_at: post.updated_at,
         published_at: post.published_at || post.created_at

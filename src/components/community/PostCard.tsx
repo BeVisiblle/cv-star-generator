@@ -306,7 +306,7 @@ const authorSubtitle = useMemo(() => {
                       </Avatar>
                       <div className="flex-1 bg-muted/40 border rounded-lg p-2">
                         <button className="text-xs font-medium hover:underline" onClick={() => navigate(`/u/${c.author?.id || c.author_user_id}`)}>{name}</button>
-                        <div className="text-sm whitespace-pre-wrap">{c.body_md}</div>
+                        <div className="text-sm whitespace-pre-wrap">{c.content}</div>
                         <div className="mt-1">
                           <Button
                             variant="ghost"
