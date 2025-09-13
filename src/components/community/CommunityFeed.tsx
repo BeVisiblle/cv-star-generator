@@ -40,24 +40,21 @@ export default function CommunityFeed({ feedHeadHeight = 0 }: CommunityFeedProps
     queryFn: async ({ pageParam }) => {
       console.log('[feed] fetching page', pageParam, sort);
 
-      // Build the query based on sort option
-          let query = supabase
-            .from('posts')
-            .select('*, likes_count, comments_count, shares_count')
-            .eq('status', 'published') // Only published posts
-            .limit(PAGE_SIZE);
+      // Use the unified posts_with_authors view
+      let query = supabase
+        .from('posts_with_authors')
+        .select('*')
+        .limit(PAGE_SIZE);
 
       // Apply sorting based on the selected option
       if (sort === 'newest') {
-        // Sort by newest posts first
         query = query.order('published_at', { ascending: false });
       } else {
         // Sort by relevance (combination of engagement and recency)
-        // For now, we'll use a simple approach since complex scoring requires custom SQL
         query = query
-          .order('likes_count', { ascending: false }) // Posts with more likes first
-          .order('comments_count', { ascending: false }) // Then by comments
-          .order('published_at', { ascending: false }); // Finally by time
+          .order('likes_count', { ascending: false })
+          .order('comments_count', { ascending: false })
+          .order('published_at', { ascending: false });
       }
 
       // Apply pagination
@@ -65,7 +62,6 @@ export default function CommunityFeed({ feedHeadHeight = 0 }: CommunityFeedProps
         if (sort === 'newest') {
           query = query.lt('published_at', pageParam.after_published);
         } else {
-          // For relevance, we'll use a cursor-based approach with ID
           if (pageParam?.after_id) {
             query = query.lt('id', pageParam.after_id);
           }
@@ -88,7 +84,7 @@ export default function CommunityFeed({ feedHeadHeight = 0 }: CommunityFeedProps
         // Try to get all posts without filters to debug
         const { data: allPosts, error: allError } = await supabase
           .from('posts')
-          .select('id, status, published_at, created_at')
+          .select('id, status, published_at, created_at, content')
           .limit(5);
         
         console.log('[feed] All posts (any status):', allPosts?.length, allPosts);
@@ -97,21 +93,21 @@ export default function CommunityFeed({ feedHeadHeight = 0 }: CommunityFeedProps
         }
       }
 
-      // Transform posts table data to match expected structure
+      // Transform posts data to match expected structure
       const transformedPosts = posts?.map(post => ({
         id: post.id,
         content: post.content || '',
         body_md: post.content || '',
         image_url: post.image_url,
-        media: post.image_url ? [{ type: 'image', url: post.image_url }] : [],
+        media: post.image_url ? [{ type: 'image', url: post.image_url }] : (post.media_urls || []).map((url: string) => ({ type: 'image', url })),
         status: post.status || 'published',
         visibility: post.visibility || 'public',
         user_id: post.user_id,
         actor_user_id: post.user_id,
         author_type: (post.author_type || 'user') as 'user' | 'company',
         author_id: post.author_id || post.user_id,
-        company_id: null,
-        actor_company_id: null,
+        company_id: post.company_id,
+        actor_company_id: post.company_id,
         like_count: post.likes_count || 0,
         likes_count: post.likes_count || 0,
         comment_count: post.comments_count || 0,
@@ -120,111 +116,27 @@ export default function CommunityFeed({ feedHeadHeight = 0 }: CommunityFeedProps
         shares_count: post.shares_count || 0,
         created_at: post.created_at,
         updated_at: post.updated_at,
-        published_at: post.published_at || post.created_at
+        published_at: post.published_at || post.created_at,
+        // Author information from the posts_with_authors view
+        author: {
+          id: post.author_id,
+          full_name: post.author_name,
+          avatar_url: post.author_avatar,
+          headline: post.author_headline,
+          type: post.author_type,
+        }
       })) || [];
 
-      // Get unique user IDs
-      const userIds = [...new Set(transformedPosts.map(post => post.actor_user_id).filter(Boolean))];
-
-      // Fetch user profiles with all necessary fields
-      let userProfiles: any[] = [];
-      if (userIds.length > 0) {
-        const { data: profiles, error: profileError } = await supabase
-          .from('profiles')
-          .select(`
-            id, 
-            vorname, 
-            nachname, 
-            avatar_url, 
-            ausbildungsberuf, 
-            schule, 
-            ausbildungsbetrieb, 
-            aktueller_beruf, 
-            status, 
-            headline,
-            branche,
-            ort,
-            plz,
-            profile_published
-          `)
-          .in('id', userIds)
-          .eq('profile_published', true); // Only published profiles
-        
-        if (profileError) {
-          console.error('[feed] profile error', profileError);
-        } else {
-          userProfiles = profiles || [];
-          console.log('[feed] loaded profiles:', userProfiles.length, 'for users:', userIds);
-          console.log('[feed] profile details:', userProfiles);
-        }
-      }
-
-      // Get company profiles for company posts
-      const companyIds = [...new Set(transformedPosts.map(post => post.actor_company_id).filter(Boolean))];
-      let companyProfiles: any[] = [];
-      if (companyIds.length > 0) {
-        const { data: companies, error: companyError } = await supabase
-          .from('companies')
-          .select('id, name, logo_url, description, industry')
-          .in('id', companyIds);
-        
-        if (companyError) {
-          console.error('[feed] company error', companyError);
-        } else {
-          companyProfiles = companies || [];
-        }
-      }
-
-      // Map posts with author information
-      const finalPosts = transformedPosts.map(post => {
-        const author = userProfiles.find(p => p.id === post.actor_user_id);
-        const company = companyProfiles.find(c => c.id === post.actor_company_id);
-        
-        console.log('[feed] mapping post:', post.id, 'author_id:', post.actor_user_id, 'found_author:', !!author);
-        
-        return {
-          ...post,
-          author: author ? {
-            id: author.id,
-            vorname: author.vorname || 'Unbekannt',
-            nachname: author.nachname || 'User',
-            avatar_url: author.avatar_url,
-            ausbildungsberuf: author.ausbildungsberuf,
-            schule: author.schule,
-            ausbildungsbetrieb: author.ausbildungsbetrieb,
-            aktueller_beruf: author.aktueller_beruf,
-            status: author.status,
-            headline: author.headline,
-            branche: author.branche,
-            ort: author.ort,
-            plz: author.plz,
-            full_name: `${author.vorname || ''} ${author.nachname || ''}`.trim() || 'Unbekannt User'
-          } : {
-            id: post.actor_user_id,
-            vorname: 'Unbekannt',
-            nachname: 'User',
-            avatar_url: null,
-            ausbildungsberuf: null,
-            schule: null,
-            ausbildungsbetrieb: null,
-            aktueller_beruf: null,
-            status: null,
-            headline: null,
-            branche: null,
-            ort: null,
-            plz: null,
-            full_name: 'Unbekannt User'
-          },
-          company: company || null
-        };
-      });
+      console.log('[feed] transformed posts:', transformedPosts.length, transformedPosts);
 
       return {
-        posts: finalPosts,
-        nextPage: finalPosts.length === PAGE_SIZE ? {
-          after_published: finalPosts[finalPosts.length - 1]?.published_at || finalPosts[finalPosts.length - 1]?.created_at,
-          after_id: finalPosts[finalPosts.length - 1]?.id
-        } : null
+        posts: transformedPosts,
+        nextPage: posts && posts.length === PAGE_SIZE
+          ? {
+              after_published: sort === 'newest' ? posts[posts.length - 1].published_at : null,
+              after_id: sort !== 'newest' ? posts[posts.length - 1].id : null,
+            }
+          : undefined,
       };
     },
     getNextPageParam: (lastPage) => lastPage.nextPage,
@@ -233,23 +145,30 @@ export default function CommunityFeed({ feedHeadHeight = 0 }: CommunityFeedProps
   const posts = feedQuery.data?.pages.flatMap(page => page.posts) ?? [];
   const postIds = posts.map(post => post.id);
 
-  if (feedQuery.isLoading) {
+  if (feedQuery.isLoading && posts.length === 0) {
     return (
-      <div className="flex items-center justify-center py-8">
-        <Loader2 className="h-6 w-6 animate-spin" />
+      <div className="space-y-4">
+        {Array.from({ length: 3 }).map((_, i) => (
+          <Card key={i} className="p-4">
+            <div className="flex items-center space-x-4">
+              <div className="h-10 w-10 rounded-full bg-muted animate-pulse"></div>
+              <div className="flex-1 space-y-2">
+                <div className="h-4 bg-muted animate-pulse w-3/4"></div>
+                <div className="h-4 bg-muted animate-pulse w-1/2"></div>
+              </div>
+            </div>
+            <div className="h-20 bg-muted animate-pulse mt-4 rounded-md"></div>
+          </Card>
+        ))}
       </div>
     );
   }
 
   if (feedQuery.isError) {
     return (
-      <Card className="p-6 text-center">
-        <p className="text-muted-foreground">Fehler beim Laden der Beiträge</p>
-        <Button 
-          onClick={() => feedQuery.refetch()} 
-          variant="outline" 
-          className="mt-2"
-        >
+      <Card className="p-6 text-center text-destructive">
+        <p>Fehler beim Laden der Beiträge: {feedQuery.error.message}</p>
+        <Button onClick={() => feedQuery.refetch()} className="mt-4">
           Erneut versuchen
         </Button>
       </Card>
