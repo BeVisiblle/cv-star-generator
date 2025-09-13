@@ -4,6 +4,7 @@ import { ComposerTeaser } from '@/components/dashboard/ComposerTeaser';
 import { LeftPanel } from '@/components/dashboard/LeftPanel';
 import { RightPanel } from '@/components/dashboard/RightPanel';
 import FeedSortBar from '@/components/community/FeedSortBar';
+import PostingTest from '@/components/test/PostingTest';
 
 /** Globale Annahme: Navbar ist fixed top-0 mit Höhe 64px */
 const NAVBAR_H = 64; // px
@@ -60,6 +61,8 @@ const Dashboard = () => {
 
             {/* (3) Post-Liste - kompakterer Abstand */}
             <div className="mt-2 space-y-3 relative z-10" role="feed">
+              {/* Test Component - Remove this after testing */}
+              <PostingTest />
               <CommunityFeed feedHeadHeight={feedHeadH} />
             </div>
           </section>
