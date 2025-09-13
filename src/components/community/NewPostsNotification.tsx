@@ -57,8 +57,8 @@ export const NewPostsNotification: React.FC<NewPostsNotificationProps> = ({
     return null;
   }
 
-  // Berechne die Sticky-Position: Navbar (64px) + Feed-Header-Höhe + 8px Abstand
-  const stickyTop = 64 + feedHeadHeight + 8;
+  // Berechne die Sticky-Position: Navbar (64px) + Feed-Header-Höhe + 6px Abstand
+  const stickyTop = 64 + feedHeadHeight + 6;
 
   return (
     <div 

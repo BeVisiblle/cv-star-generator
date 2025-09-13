@@ -26,63 +26,50 @@ const Dashboard = () => {
   }, []);
 
   return (
-    <main className="w-full min-h-dvh bg-gray-50">
+    <main className="w-full min-h-dvh bg-white">
       <h1 className="sr-only">Dashboard</h1>
       
-      {/* Inhalt unter der Navbar */}
+      {/* Inhalt direkt unter der Navbar - nur nötiger Offset */}
       <div className="pt-16"> {/* 64px Offset für fixed Navbar */}
         <div className="mx-auto max-w-screen-2xl grid grid-cols-12 gap-4 px-3 sm:px-6 lg:px-8">
           
-          {/* (1) Left Panel - sticky, nur scrollen wenn Content länger ist */}
+          {/* (1) Left Panel - normaler Flow, keine eigene Scrollbar */}
           <aside
             className="hidden lg:block col-span-3"
             aria-label="Linke Spalte"
           >
-            <div
-              className="sticky"
-              style={{ top: NAVBAR_H }}
-            >
-              <div
-                className="max-h-[calc(100dvh-64px)] overflow-y-auto"
-              >
-                <LeftPanel />
-              </div>
-            </div>
+            <LeftPanel />
           </aside>
 
           {/* Main - Center Column */}
           <section className="col-span-12 lg:col-span-9 xl:col-span-6 relative">
             
-            {/* (2) Sticky: Composer + Feed Controls - bleibt fix unter Navbar */}
+            {/* (2) Sticky: Composer + Feed Controls - kompakter ohne Border */}
             <div
               ref={feedHeadRef}
-              className="sticky z-40 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60 border-b border-border/40 rounded-b-xl"
+              className="sticky z-40 bg-white"
               style={{ top: NAVBAR_H }}
             >
-              <div className="p-4">
+              <div className="px-3 py-2">
                 <ComposerTeaser />
-                <div className="my-2">
+                <div className="px-3 py-1">
                   <FeedSortBar />
                 </div>
               </div>
             </div>
 
-            {/* (3) Post-Liste - läuft hinter (2) durch, da (2) z-40 hat */}
-            <div className="mt-4 space-y-4 relative z-10" role="feed">
+            {/* (3) Post-Liste - kompakterer Abstand */}
+            <div className="mt-2 space-y-3 relative z-10" role="feed">
               <CommunityFeed feedHeadHeight={feedHeadH} />
             </div>
           </section>
 
-          {/* (4) Right Panel - sticky, nur scrollen wenn Content länger ist */}
+          {/* (4) Right Panel - normaler Flow, keine eigene Scrollbar */}
           <aside
             className="hidden xl:block col-span-3"
             aria-label="Rechte Spalte"
           >
-            <div className="sticky" style={{ top: NAVBAR_H }}>
-              <div className="max-h-[calc(100dvh-64px)] overflow-y-auto">
-                <RightPanel />
-              </div>
-            </div>
+            <RightPanel />
           </aside>
         </div>
       </div>
