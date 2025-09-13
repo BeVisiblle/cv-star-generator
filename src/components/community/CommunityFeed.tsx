@@ -24,6 +24,9 @@ export default function CommunityFeed({ feedHeadHeight = 0 }: CommunityFeedProps
   const viewerId = user?.id || null;
   const [sort, setSort] = useState<FeedSortOption>((localStorage.getItem('feed_sort') as FeedSortOption) || 'relevant');
 
+  // Debug: Log auth state
+  console.log('[feed] Auth state:', { user: !!user, userId: user?.id, viewerId });
+
   useEffect(() => {
     const handler = (e: any) => setSort(e.detail as FeedSortOption);
     window.addEventListener('feed-sort-changed', handler);
@@ -77,6 +80,22 @@ export default function CommunityFeed({ feedHeadHeight = 0 }: CommunityFeedProps
       }
 
       console.log('[feed] raw posts from DB:', posts?.length, posts);
+      
+      // Debug: Check if we have any posts at all
+      if (!posts || posts.length === 0) {
+        console.warn('[feed] No posts found in database!');
+        
+        // Try to get all posts without filters to debug
+        const { data: allPosts, error: allError } = await supabase
+          .from('posts')
+          .select('id, status, published_at, created_at')
+          .limit(5);
+        
+        console.log('[feed] All posts (any status):', allPosts?.length, allPosts);
+        if (allError) {
+          console.error('[feed] Error fetching all posts:', allError);
+        }
+      }
 
       // Transform posts table data to match expected structure
       const transformedPosts = posts?.map(post => ({
