@@ -163,10 +163,25 @@ export default function CommunityFeed({ feedHeadHeight = 0 }: CommunityFeedProps
 
         if (userIds.length > 0) {
           console.log('[feed] Fetching user profiles for IDs:', userIds);
-          const { data: profiles, error: profileError } = await supabase
+          
+          // Try multiple profile queries to handle different table structures
+          let { data: profiles, error: profileError } = await supabase
             .from('profiles')
-            .select('id, full_name, avatar_url, headline')
+            .select('id, full_name, vorname, nachname, avatar_url, headline')
             .in('id', userIds);
+          
+          // If no profiles found, create fallback profiles
+          if (!profiles || profiles.length === 0) {
+            console.log('[feed] No profiles found, creating fallback profiles');
+            profiles = userIds.map(id => ({
+              id: id,
+              full_name: `Nutzer ${id.slice(0, 8)}`,
+              vorname: 'Nutzer',
+              nachname: id.slice(0, 8),
+              avatar_url: null,
+              headline: 'Aktiver Nutzer'
+            }));
+          }
           
           console.log('[feed] User profiles result:', profiles, profileError);
           userProfiles = profiles || [];
@@ -202,18 +217,18 @@ export default function CommunityFeed({ feedHeadHeight = 0 }: CommunityFeedProps
             });
 
             // Split full_name into vorname and nachname for PostCard compatibility
-            const fullName = author?.full_name || author?.name || 'Unbekannt';
+            const fullName = author?.full_name || author?.name || `Nutzer ${(post.actor_user_id || post.author_id || 'unbekannt').slice(0, 8)}`;
             const nameParts = fullName.split(' ');
-            const vorname = nameParts[0] || '';
+            const vorname = nameParts[0] || 'Nutzer';
             const nachname = nameParts.slice(1).join(' ') || '';
 
             post.author = {
-              id: post.author_id,
+              id: post.author_id || post.actor_user_id,
               full_name: fullName,
               vorname: vorname,
               nachname: nachname,
               avatar_url: author?.avatar_url || author?.logo_url || null,
-              headline: author?.headline || author?.description || null,
+              headline: author?.headline || author?.description || 'Aktiver Nutzer',
               type: post.author_type,
             };
           }

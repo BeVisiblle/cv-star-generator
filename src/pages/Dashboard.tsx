@@ -4,7 +4,6 @@ import { ComposerTeaser } from '@/components/dashboard/ComposerTeaser';
 import { LeftPanel } from '@/components/dashboard/LeftPanel';
 import { RightPanel } from '@/components/dashboard/RightPanel';
 import FeedSortBar from '@/components/community/FeedSortBar';
-import PostingTest from '@/components/test/PostingTest';
 
 /** Globale Annahme: Navbar ist fixed top-0 mit Höhe 64px */
 const NAVBAR_H = 64; // px
