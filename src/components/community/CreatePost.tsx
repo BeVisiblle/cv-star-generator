@@ -14,7 +14,7 @@ interface CreatePostProps {
   hideHeader?: boolean;
   variant?: "default" | "compact";
   hideBottomBar?: boolean;
-  onStateChange?: (isOpen: boolean) => void;
+  onStateChange?: (isSubmitting: boolean) => void;
   scheduledAt?: string;
   showPoll?: boolean;
   showEvent?: boolean;
@@ -60,16 +60,16 @@ export const CreatePost = ({
       // Map UI visibility to DB values
       const dbVisibility = visibility || 'public';
 
-      // Simple insert with basic fields first
+      // Insert into community_posts table
       const { error } = await supabase
-        .from("posts")
+        .from("community_posts")
         .insert({
           id,
-          content,
-          image_url: imageUrl,
-          user_id: user.id,
-          post_type: 'text',
-          visibility: dbVisibility,
+          body_md: content,
+          media: imageUrl ? [{ type: 'image', url: imageUrl }] : [],
+          actor_user_id: user.id,
+          actor_company_id: companyId || null,
+          visibility: dbVisibility as any,
           status: scheduledISO ? 'scheduled' : 'published',
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString()
@@ -103,7 +103,7 @@ export const CreatePost = ({
   useEffect(() => {
     const canPost = (content.trim() || imageFile) && !createPostMutation.isPending;
     const isSubmitting = createPostMutation.isPending;
-    onStateChange?.({ canPost, isSubmitting });
+    onStateChange?.(isSubmitting);
   }, [content, imageFile, createPostMutation.isPending, onStateChange]);
 
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -249,8 +249,7 @@ export const CreatePost = ({
               <Button
                 id="createpost-submit"
                 type="submit"
-                disabled={!content.trim() && !imageFile}
-                loading={createPostMutation.isPending}
+                disabled={(!content.trim() && !imageFile) || createPostMutation.isPending}
               >
                 Posten
               </Button>

@@ -30,8 +30,8 @@ export const usePostLikes = (postId: string) => {
       
       // Get like count from the post itself
       const { data: postData, error: postError } = await supabase
-        .from("posts")
-        .select("likes_count")
+        .from("community_posts")
+        .select("like_count")
         .eq("id", postId)
         .single();
       
@@ -39,35 +39,20 @@ export const usePostLikes = (postId: string) => {
       
       let liked = false;
       if (user?.id) {
-        // Try old system first (likes), fallback to new system (post_likes)
+        // Check if user has liked this post
         const { data: userLike, error: likeError } = await supabase
-          .from("likes")
+          .from("community_likes")
           .select("id")
           .eq("post_id", postId)
-          .eq("user_id", user.id)
+          .eq("liker_user_id", user.id)
           .maybeSingle();
         
-        if (likeError && likeError.code === 'PGRST116') {
-          // Table doesn't exist, try new system
-          const { data: userLikeNew, error: likeErrorNew } = await supabase
-            .from("post_likes")
-            .select("id")
-            .eq("likeable_id", postId)
-            .eq("likeable_type", "post")
-            .eq("user_id", user.id)
-            .maybeSingle();
-          
-          if (likeErrorNew) throw likeErrorNew;
-          liked = Boolean(userLikeNew);
-        } else if (likeError) {
-          throw likeError;
-        } else {
-          liked = Boolean(userLike);
-        }
+        if (likeError) throw likeError;
+        liked = Boolean(userLike);
       }
 
       return {
-        count: postData?.likes_count || 0,
+        count: postData?.like_count || 0,
         liked
       };
     },
@@ -87,47 +72,24 @@ export const usePostLikes = (postId: string) => {
       
       const liked = data?.liked ?? false;
       if (liked) {
-        // Unlike - try old system first
+        // Unlike
         const { error } = await supabase
-          .from("likes")
+          .from("community_likes")
           .delete()
           .eq("post_id", postId)
-          .eq("user_id", user.id);
+          .eq("liker_user_id", user.id);
         
-        if (error && error.code === 'PGRST116') {
-          // Table doesn't exist, try new system
-          const { error: newError } = await supabase
-            .from("post_likes")
-            .delete()
-            .eq("post_id", postId)
-            .eq("user_id", user.id);
-          
-          if (newError) throw newError;
-        } else if (error) {
-          throw error;
-        }
+        if (error) throw error;
       } else {
-        // Like - try old system first
+        // Like
         const { error } = await supabase
-          .from("likes")
+          .from("community_likes")
           .insert({
             post_id: postId,
-            user_id: user.id,
+            liker_user_id: user.id,
           });
         
-        if (error && error.code === 'PGRST116') {
-          // Table doesn't exist, try new system
-          const { error: newError } = await supabase
-            .from("post_likes")
-            .insert({
-              post_id: postId,
-              user_id: user.id,
-            });
-          
-          if (newError) throw newError;
-        } else if (error) {
-          throw error;
-        }
+        if (error) throw error;
       }
       return { changed: true };
     },
@@ -157,36 +119,24 @@ export const usePostComments = (postId: string) => {
     queryFn: async (): Promise<PostComment[]> => {
       console.debug("[comments] fetch", { postId });
       
-      // Try old system first (comments), fallback to new system (post_comments)
-      let { data: comments, error } = await supabase
-        .from("comments")
+      // Use community_comments table
+      const { data: comments, error } = await supabase
+        .from("community_comments")
         .select("*")
         .eq("post_id", postId)
         .order("created_at", { ascending: true });
       
-      if (error && error.code === 'PGRST116') {
-        // Table doesn't exist, try new system
-        const result = await supabase
-          .from("post_comments")
-          .select("*")
-          .eq("post_id", postId)
-          .order("created_at", { ascending: true });
-        
-        if (result.error) throw result.error;
-        comments = result.data;
-      } else if (error) {
-        throw error;
-      }
+      if (error) throw error;
 
       const items = (comments ?? []) as any[];
       const userIds = Array.from(
-        new Set(items.map((c: any) => c.user_id).filter(Boolean))
+        new Set(items.map((c: any) => c.author_user_id).filter(Boolean))
       );
       
       let profilesMap: Record<string, any> = {};
       if (userIds.length) {
         const { data: profiles, error: profErr } = await supabase
-          .from("profiles_public")
+          .from("profiles")
           .select("id, vorname, nachname, avatar_url")
           .in("id", userIds as any);
         if (profErr) throw profErr;
@@ -196,8 +146,13 @@ export const usePostComments = (postId: string) => {
       }
 
       return items.map((c: any) => ({
-        ...c,
-        author: profilesMap[c.user_id] ?? null,
+        id: c.id,
+        post_id: c.post_id,
+        user_id: c.author_user_id,
+        content: c.body_md,
+        created_at: c.created_at,
+        updated_at: c.updated_at,
+        author: profilesMap[c.author_user_id] ?? null,
       })) as PostComment[];
     },
     enabled: Boolean(postId)
@@ -213,29 +168,16 @@ export const usePostComments = (postId: string) => {
         });
         return;
       }
-      // Try old system first (comments), fallback to new system (post_comments)
-      let { error } = await supabase
-        .from("comments")
+      // Use community_comments table
+      const { error } = await supabase
+        .from("community_comments")
         .insert({
           post_id: postId,
-          user_id: user.id,
-          content: payload.content,
+          author_user_id: user.id,
+          body_md: payload.content,
         });
       
-      if (error && error.code === 'PGRST116') {
-        // Table doesn't exist, try new system
-        const result = await supabase
-          .from("post_comments")
-          .insert({
-            post_id: postId,
-            user_id: user.id,
-            content: payload.content,
-          });
-        
-        if (result.error) throw result.error;
-      } else if (error) {
-        throw error;
-      }
+      if (error) throw error;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["post-comments", postId] });
@@ -266,8 +208,8 @@ export const usePostReposts = (postId: string) => {
       
       // Get share count from the post itself
       const { data: postData, error: postError } = await supabase
-        .from("posts")
-        .select("shares_count")
+        .from("community_posts")
+        .select("share_count")
         .eq("id", postId)
         .single();
       
@@ -275,26 +217,20 @@ export const usePostReposts = (postId: string) => {
 
       let hasReposted = false;
       if (user?.id) {
-        // Try new system first (shares), fallback to old system if needed
+        // Check if user has shared this post
         const { data: userShare, error: shareError } = await supabase
-          .from("shares")
+          .from("community_shares")
           .select("id")
           .eq("post_id", postId)
-          .eq("user_id", user.id)
+          .eq("sharer_user_id", user.id)
           .maybeSingle();
         
-        if (shareError && shareError.code === 'PGRST116') {
-          // Table doesn't exist, assume no shares for now
-          hasReposted = false;
-        } else if (shareError) {
-          throw shareError;
-        } else {
-          hasReposted = Boolean(userShare);
-        }
+        if (shareError) throw shareError;
+        hasReposted = Boolean(userShare);
       }
       
       return { 
-        count: postData?.shares_count || 0, 
+        count: postData?.share_count || 0, 
         hasReposted 
       };
     },
@@ -316,30 +252,22 @@ export const usePostReposts = (postId: string) => {
       if (hasReposted) {
         // Unrepost
         const { error } = await supabase
-          .from("shares")
+          .from("community_shares")
           .delete()
           .eq("post_id", postId)
-          .eq("user_id", user.id);
+          .eq("sharer_user_id", user.id);
         
-        if (error && error.code === 'PGRST116') {
-          // Table doesn't exist, ignore
-        } else if (error) {
-          throw error;
-        }
+        if (error) throw error;
       } else {
         // Repost
         const { error } = await supabase
-          .from("shares")
+          .from("community_shares")
           .insert({
             post_id: postId,
-            user_id: user.id,
+            sharer_user_id: user.id,
           });
         
-        if (error && error.code === 'PGRST116') {
-          // Table doesn't exist, ignore
-        } else if (error) {
-          throw error;
-        }
+        if (error) throw error;
       }
       return { changed: true };
     },

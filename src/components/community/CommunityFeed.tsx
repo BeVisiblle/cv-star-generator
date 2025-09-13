@@ -41,9 +41,9 @@ export default function CommunityFeed({ feedHeadHeight = 0 }: CommunityFeedProps
     queryFn: async ({ pageParam }) => {
       console.log('[feed] fetching page', pageParam, sort);
 
-      // Try posts table first (where existing posts are), then fallback to unified view
+      // Use community_posts table directly
       let query = supabase
-        .from('posts')
+        .from('community_posts')
         .select('*')
         .eq('status', 'published')
         .limit(PAGE_SIZE);
@@ -61,30 +61,7 @@ export default function CommunityFeed({ feedHeadHeight = 0 }: CommunityFeedProps
         query = query.lt('created_at', pageParam.after_published);
       }
 
-      let { data: posts, error } = await query;
-
-      // If posts table fails, try the unified view
-      if (error && error.code === 'PGRST116') {
-        console.log('[feed] posts table not found, trying posts_with_authors view...');
-        
-        // Fallback to posts_with_authors view
-        let fallbackQuery = supabase
-          .from('posts_with_authors')
-          .select('*')
-          .limit(PAGE_SIZE);
-
-        // Apply sorting
-        fallbackQuery = fallbackQuery.order('created_at', { ascending: false });
-
-        // Apply pagination
-        if (pageParam?.after_published) {
-          fallbackQuery = fallbackQuery.lt('created_at', pageParam.after_published);
-        }
-
-        const fallbackResult = await fallbackQuery;
-        posts = fallbackResult.data;
-        error = fallbackResult.error;
-      }
+      const { data: posts, error } = await query;
 
       if (error) {
         console.error('[feed] get_feed error', error);
@@ -110,41 +87,31 @@ export default function CommunityFeed({ feedHeadHeight = 0 }: CommunityFeedProps
       }
 
       // Transform posts data to match expected structure
-      const transformedPosts = posts?.map(post => {
-        // Check if this is from the new view (has author_name) or old table
-        const hasAuthorInfo = post.author_name || post.author_avatar;
-        
+      const transformedPosts = posts?.map(post => {        
         return {
           id: post.id,
-          content: post.content || '',
-          body_md: post.content || '',
-          image_url: post.image_url,
-          media: post.image_url ? [{ type: 'image', url: post.image_url }] : (post.media_urls || []).map((url: string) => ({ type: 'image', url })),
+          content: post.body_md || '',
+          body_md: post.body_md || '',
+          image_url: post.media?.[0]?.url || null,
+          media: post.media || [],
           status: post.status || 'published',
           visibility: post.visibility || 'public',
-          user_id: post.user_id,
-          actor_user_id: post.author_id || post.user_id,
-          author_type: (post.author_type || 'user') as 'user' | 'company',
-          author_id: post.author_id || post.user_id,
-          company_id: post.company_id,
-          actor_company_id: post.company_id,
-          like_count: 0,
-          likes_count: 0,
-          comment_count: 0,
-          comments_count: 0,
-          share_count: 0,
-          shares_count: 0,
+          user_id: post.actor_user_id,
+          actor_user_id: post.actor_user_id,
+          author_type: (post.actor_company_id ? 'company' : 'user') as 'user' | 'company',
+          author_id: post.actor_user_id,
+          company_id: post.actor_company_id,
+          actor_company_id: post.actor_company_id,
+          like_count: post.like_count || 0,
+          likes_count: post.like_count || 0,
+          comment_count: post.comment_count || 0,
+          comments_count: post.comment_count || 0,
+          share_count: post.share_count || 0,
+          shares_count: post.share_count || 0,
           created_at: post.created_at,
           updated_at: post.updated_at,
-          published_at: post.published_at || post.created_at,
-          // Author information - from view if available, otherwise will be fetched separately
-          author: hasAuthorInfo ? {
-            id: post.author_id,
-            full_name: post.author_name,
-            avatar_url: post.author_avatar,
-            headline: post.author_headline,
-            type: post.author_type,
-          } : null
+          published_at: post.created_at,
+          author: null // Will be fetched separately
         };
       }) || [];
 
@@ -167,7 +134,7 @@ export default function CommunityFeed({ feedHeadHeight = 0 }: CommunityFeedProps
           // Try multiple profile queries to handle different table structures
           let { data: profiles, error: profileError } = await supabase
             .from('profiles')
-            .select('id, full_name, vorname, nachname, avatar_url, headline')
+            .select('id, vorname, nachname, avatar_url')
             .in('id', userIds);
           
           // If no profiles found, create fallback profiles
@@ -175,11 +142,9 @@ export default function CommunityFeed({ feedHeadHeight = 0 }: CommunityFeedProps
             console.log('[feed] No profiles found, creating fallback profiles');
             profiles = userIds.map(id => ({
               id: id,
-              full_name: `Nutzer ${id.slice(0, 8)}`,
               vorname: 'Nutzer',
               nachname: id.slice(0, 8),
-              avatar_url: null,
-              headline: 'Aktiver Nutzer'
+              avatar_url: null
             }));
           }
           
@@ -216,19 +181,14 @@ export default function CommunityFeed({ feedHeadHeight = 0 }: CommunityFeedProps
               companyProfilesCount: companyProfiles.length
             });
 
-            // Split full_name into vorname and nachname for PostCard compatibility
-            const fullName = author?.full_name || author?.name || `Nutzer ${(post.actor_user_id || post.author_id || 'unbekannt').slice(0, 8)}`;
-            const nameParts = fullName.split(' ');
-            const vorname = nameParts[0] || 'Nutzer';
-            const nachname = nameParts.slice(1).join(' ') || '';
+            // Use author data directly
+            const fullName = author ? `${author.vorname || ''} ${author.nachname || ''}`.trim() : `Nutzer ${(post.actor_user_id || 'unbekannt').slice(0, 8)}`;
 
             post.author = {
               id: post.author_id || post.actor_user_id,
               full_name: fullName,
-              vorname: vorname,
-              nachname: nachname,
               avatar_url: author?.avatar_url || author?.logo_url || null,
-              headline: author?.headline || author?.description || 'Aktiver Nutzer',
+              headline: author?.description || 'Aktiver Nutzer',
               type: post.author_type,
             };
           }

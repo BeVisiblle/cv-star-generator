@@ -29,9 +29,8 @@ export const NewPostComposer: React.FC = () => {
     return subscribeOpenPostComposer(() => setOpen(true));
   }, []);
 
-  const handleStateChange = React.useCallback((s: { canPost: boolean; isSubmitting: boolean }) => {
-    setCanPost(s.canPost);
-    setIsSubmitting(s.isSubmitting);
+  const handleStateChange = React.useCallback((isSubmitting: boolean) => {
+    setIsSubmitting(isSubmitting);
   }, []);
 
   // Close dialog when post is successfully created
@@ -213,7 +212,7 @@ export const NewPostComposer: React.FC = () => {
           </SheetHeader>
           {Header}
           <div className="flex-1 overflow-y-auto px-6 pb-6 max-h-[calc(92vh-180px)]">
-            <CreatePost container="none" hideHeader variant="composer" hideBottomBar onStateChange={handleStateChange} scheduledAt={scheduledAt} showPoll={showPoll} showEvent={showEvent} celebration={celebration} visibility={audience} />
+            <CreatePost container="none" hideHeader hideBottomBar onStateChange={handleStateChange} scheduledAt={scheduledAt?.toISOString()} celebration={celebration} visibility={audience} />
           </div>
           <div className="sticky bottom-0">{BottomToolbar}</div>
         </SheetContent>
@@ -228,7 +227,7 @@ export const NewPostComposer: React.FC = () => {
         <DialogDescription className="sr-only">Verfasse und veröffentliche einen neuen Beitrag.</DialogDescription>
         {Header}
         <div className="px-6 py-5 flex-1 overflow-y-auto">
-          <CreatePost container="none" hideHeader variant="composer" hideBottomBar onStateChange={handleStateChange} scheduledAt={scheduledAt} showPoll={showPoll} showEvent={showEvent} celebration={celebration} visibility={audience} />
+          <CreatePost container="none" hideHeader hideBottomBar onStateChange={handleStateChange} scheduledAt={scheduledAt?.toISOString()} celebration={celebration} visibility={audience} />
         </div>
         {BottomToolbar}
       </DialogContent>

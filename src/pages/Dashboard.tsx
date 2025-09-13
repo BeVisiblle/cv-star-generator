@@ -60,8 +60,6 @@ const Dashboard = () => {
 
             {/* (3) Post-Liste - kompakterer Abstand */}
             <div className="mt-2 space-y-3 relative z-10" role="feed">
-              {/* Test Component - Remove this after testing */}
-              <PostingTest />
               <CommunityFeed feedHeadHeight={feedHeadH} />
             </div>
           </section>
