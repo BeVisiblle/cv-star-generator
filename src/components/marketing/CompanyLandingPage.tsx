@@ -88,7 +88,7 @@ export default function CompanyLandingPage() {
       {/* Header */}
       <Header variant="business" />
       
-      {/* Hero Section with Black Background */}
+      <main className="bg-black text-white w-full">{/* Hero Section with Black Background */}
       <section className="hero-section relative overflow-hidden bg-[#0B0B0B] text-white">
         <div className="absolute inset-0 bg-gradient-to-r from-black/50 to-transparent z-10" />
         <div className="absolute inset-0">
@@ -110,10 +110,10 @@ export default function CompanyLandingPage() {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 mb-8">
               <Button asChild size="lg" className="text-lg px-8 py-3">
-                <Link to="/unternehmen/onboarding">Unternehmen-Account erstellen</Link>
+                <Link to="/unternehmensregistrierung">Unternehmen-Account erstellen</Link>
               </Button>
               <Button asChild variant="outline" size="lg" className="text-lg px-8 py-3 bg-transparent border-white text-white hover:bg-white hover:text-black">
-                <Link to="/produkt#demo">Demo ansehen</Link>
+                <a href="https://calendly.com/todd-bevisiblle/gettoknowbeviviblle" target="_blank" rel="noopener noreferrer">Demo buchen</a>
               </Button>
             </div>
             
@@ -133,35 +133,35 @@ export default function CompanyLandingPage() {
       </section>
 
       {/* So funktioniert's Section */}
-      <section id="so-funktionierts" className="py-16 bg-background">
+      <section id="so-funktionierts" className="py-16 bg-black">
         <div className="mx-auto max-w-7xl px-4">
-          <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">So funktioniert's</h2>
+          <h2 className="text-3xl md:text-4xl font-bold text-center mb-12 text-white">So funktioniert's</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
             <div className="text-center">
               <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto mb-4">
                 <span className="text-2xl font-bold text-primary-foreground">1</span>
               </div>
-              <h3 className="text-xl font-semibold mb-2">Registrieren & Unternehmensprofil anlegen</h3>
-              <p className="text-muted-foreground">Erstellen Sie Ihr Firmenprofil in wenigen Minuten.</p>
+              <h3 className="text-xl font-semibold mb-2 text-white">Registrieren & Unternehmensprofil anlegen</h3>
+              <p className="text-gray-300">Erstellen Sie Ihr Firmenprofil in wenigen Minuten.</p>
             </div>
             <div className="text-center">
               <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto mb-4">
                 <span className="text-2xl font-bold text-primary-foreground">2</span>
               </div>
-              <h3 className="text-xl font-semibold mb-2">Gezielt Profile filtern & kontaktieren</h3>
-              <p className="text-muted-foreground">Nutzen Sie intelligente Filter für passende Kandidaten.</p>
+              <h3 className="text-xl font-semibold mb-2 text-white">Gezielt Profile filtern & kontaktieren</h3>
+              <p className="text-gray-300">Nutzen Sie intelligente Filter für passende Kandidaten.</p>
             </div>
             <div className="text-center">
               <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto mb-4">
                 <span className="text-2xl font-bold text-primary-foreground">3</span>
               </div>
-              <h3 className="text-xl font-semibold mb-2">Matches verwalten & Stellen besetzen</h3>
-              <p className="text-muted-foreground">Verwalten Sie Ihre Pipeline effizient bis zur Besetzung.</p>
+              <h3 className="text-xl font-semibold mb-2 text-white">Matches verwalten & Stellen besetzen</h3>
+              <p className="text-gray-300">Verwalten Sie Ihre Pipeline effizient bis zur Besetzung.</p>
             </div>
           </div>
           <div className="text-center">
             <Button asChild size="lg">
-              <Link to="/unternehmen/onboarding">Jetzt kostenlos starten</Link>
+              <Link to="/unternehmensregistrierung">Jetzt kostenlos starten</Link>
             </Button>
           </div>
         </div>
@@ -170,11 +170,11 @@ export default function CompanyLandingPage() {
       {/* Feature Grid */}
       <section className="py-16 bg-muted/30">
         <div className="mx-auto max-w-7xl px-4">
-          <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">
+          <h2 className="text-3xl md:text-4xl font-bold text-center mb-12 text-white">
             Warum Unternehmen auf uns vertrauen
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <Card>
+            <Card className="bg-zinc-800 border-zinc-700 text-white">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Target className="h-5 w-5 text-primary" />
@@ -182,13 +182,13 @@ export default function CompanyLandingPage() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-muted-foreground">
+                <p className="text-gray-300">
                   Alle relevanten Daten auf einen Blick: Ausbildung, Skills, Sprachen, Dokumente.
                 </p>
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="bg-zinc-800 border-zinc-700 text-white">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Zap className="h-5 w-5 text-primary" />
@@ -196,13 +196,13 @@ export default function CompanyLandingPage() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-muted-foreground">
+                <p className="text-gray-300">
                   Kontakt per Klick – schneller zum Gespräch statt Postfach-Pingpong.
                 </p>
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="bg-zinc-800 border-zinc-700 text-white">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <TrendingUp className="h-5 w-5 text-primary" />
@@ -210,13 +210,13 @@ export default function CompanyLandingPage() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-muted-foreground">
+                <p className="text-gray-300">
                   Erhalte Vorschläge, die wirklich zu euren Anforderungen passen.
                 </p>
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="bg-zinc-800 border-zinc-700 text-white">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Shield className="h-5 w-5 text-primary" />
@@ -224,13 +224,13 @@ export default function CompanyLandingPage() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-muted-foreground">
+                <p className="text-gray-300">
                   Daten in Frankfurt gehostet; Freigaben nur mit Einwilligung.
                 </p>
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="bg-zinc-800 border-zinc-700 text-white">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Users2 className="h-5 w-5 text-primary" />
@@ -238,13 +238,13 @@ export default function CompanyLandingPage() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-muted-foreground">
+                <p className="text-gray-300">
                   Kollegen einladen, Sichten teilen, Notizen hinterlegen.
                 </p>
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="bg-zinc-800 border-zinc-700 text-white">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <BarChart3 className="h-5 w-5 text-primary" />
@@ -252,7 +252,7 @@ export default function CompanyLandingPage() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-muted-foreground">
+                <p className="text-gray-300">
                   Behalte Pipeline, Antwortraten und Besetzungen im Blick.
                 </p>
               </CardContent>
@@ -268,7 +268,7 @@ export default function CompanyLandingPage() {
             Bereit, passende Kandidaten schneller zu finden?
           </h2>
           <Button asChild size="lg" variant="secondary" className="text-lg px-8 py-3">
-            <Link to="/unternehmen/onboarding">Kostenlos registrieren</Link>
+            <Link to="/unternehmensregistrierung">Kostenlos registrieren</Link>
           </Button>
         </div>
       </section>
@@ -278,10 +278,10 @@ export default function CompanyLandingPage() {
         <div className="mx-auto max-w-7xl px-4">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
             <div>
-              <h2 className="text-3xl md:text-4xl font-bold mb-6">
+              <h2 className="text-3xl md:text-4xl font-bold mb-6 text-white">
                 Das Produkt – klar, einfach, effektiv.
               </h2>
-              <ul className="space-y-3 mb-6">
+              <ul className="space-y-3 mb-6 text-gray-300">
                 <li className="flex items-center gap-2">
                   <CheckCircle className="h-5 w-5 text-primary flex-shrink-0" />
                   <span>Kandidaten-Datenbank</span>
@@ -295,8 +295,8 @@ export default function CompanyLandingPage() {
                   <span>Matching</span>
                 </li>
               </ul>
-              <Button asChild variant="outline">
-                <Link to="/produkt">Produkt ansehen</Link>
+              <Button asChild variant="outline" className="bg-transparent border-white text-white hover:bg-white hover:text-black">
+                <Link to="/unternehmen/features">Produkt ansehen</Link>
               </Button>
             </div>
             <div className="relative">
@@ -314,21 +314,23 @@ export default function CompanyLandingPage() {
       {/* Kontakt Teaser */}
       <section className="py-16 bg-muted/30">
         <div className="mx-auto max-w-4xl px-4 text-center">
-          <h2 className="text-2xl md:text-3xl font-bold mb-4">Fragen? Wir helfen gern.</h2>
-          <p className="text-muted-foreground mb-6">
+          <h2 className="text-2xl md:text-3xl font-bold mb-4 text-white">Fragen? Wir helfen gern.</h2>
+          <p className="text-gray-300 mb-6">
             Sprechen Sie mit unserem Team über Ihre individuellen Anforderungen.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button asChild>
-              <Link to="/kontakt">Kontakt aufnehmen</Link>
+              <a href="mailto:Todd@Bevisiblle.de">Kontakt aufnehmen</a>
             </Button>
             <Button asChild variant="outline">
-              <Link to="/kontakt?type=demo">Demo anfragen</Link>
+              <a href="https://calendly.com/todd-bevisiblle/gettoknowbeviviblle" target="_blank" rel="noopener noreferrer">Demo buchen</a>
             </Button>
           </div>
         </div>
       </section>
 
+      </main>
+      
       {/* Footer */}
       <Footer />
     </div>

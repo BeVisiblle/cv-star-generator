@@ -84,6 +84,8 @@ const SupportPage = lazy(() => import("./pages/Admin/Support"));
 const AdminTools = lazy(() => import("./pages/Admin/Tools"));
 const AdminAuthGate = lazy(() => import("@/components/admin/AdminAuthGate"));
 const CreateAdmin = lazy(() => import("./pages/Admin/CreateAdmin"));
+const Unternehmensregistrierung = lazy(() => import("./pages/Unternehmensregistrierung"));
+const UnternehmenFeatures = lazy(() => import("./pages/UnternehmenFeatures"));
 
 const queryClient = new QueryClient();
 
@@ -279,6 +281,10 @@ const App = () => {
               <Route path="/cv-generator" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><CVGeneratorGate><CVGenerator /></CVGeneratorGate></Suspense>} />
               <Route path="/cv-layout-selector" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><CVGeneratorGate><CVGenerator /></CVGeneratorGate></Suspense>} />
               <Route path="/Lebenslauferstellen" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><CVGeneratorGate><CVGenerator /></CVGeneratorGate></Suspense>} />
+              
+              {/* Company registration pages */}
+              <Route path="/unternehmensregistrierung" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><Unternehmensregistrierung /></Suspense>} />
+              <Route path="/unternehmen/features" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><UnternehmenFeatures /></Suspense>} />
               
               {/* Company routes */}
               <Route path="/company/onboarding" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><CompanyOnboarding /></Suspense>} />
