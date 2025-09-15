@@ -161,17 +161,12 @@ export default function LandingPage() {
           <div className="mx-auto max-w-7xl px-4">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
               <div className="relative lg:mr-8">
-                <picture>
-                  <source srcSet="/lovable-uploads/hero-mobile-576x576.webp" type="image/webp" />
-                  <img 
-                    src="/lovable-uploads/hero-mobile-576x576.png" 
-                    alt="CV Generator Mobile App" 
-                    className="w-full max-w-md mx-auto rounded-lg" 
-                    width="576" 
-                    height="576"
-                    loading="lazy"
-                  />
-                </picture>
+                <img 
+                  src="/lovable-uploads/multiple-phones-cv-generator.png" 
+                  alt="CV Generator auf mehreren Handys - Step by Step Anleitung" 
+                  className="w-full max-w-2xl mx-auto rounded-lg" 
+                  loading="lazy"
+                />
               </div>
               <div>
                 <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
@@ -182,7 +177,7 @@ export default function LandingPage() {
                   Teile relevante Erfahrungen, Fähigkeiten und Nachweise – klar strukturiert und sofort einsatzbereit.
                 </p>
                 <Link 
-                  to="/onboarding" 
+                  to="/Lebenslauferstellen" 
                   className="inline-flex items-center justify-center rounded-2xl px-6 py-3 text-base font-semibold border border-zinc-700 text-white hover:bg-zinc-900"
                 >
                   Profil jetzt erstellen
@@ -202,7 +197,7 @@ export default function LandingPage() {
               <h3 className="text-2xl font-semibold">Bereit, dein Profil zu erstellen?</h3>
               <p className="mt-2 text-sm text-zinc-300">Starte kostenlos und werde von Unternehmen gefunden.</p>
               <div className="mt-6 flex flex-wrap gap-3">
-                <Link to="/onboarding" className="inline-flex items-center justify-center rounded-2xl px-5 py-3 text-sm font-semibold bg-[color:var(--brand)] text-black">Für Schüler, Azubis und Fachkräfte: Jetzt starten</Link>
+                <Link to="/Lebenslauferstellen" className="inline-flex items-center justify-center rounded-2xl px-5 py-3 text-sm font-semibold bg-[color:var(--brand)] text-black">Für Schüler, Azubis und Fachkräfte: Jetzt starten</Link>
               </div>
             </div>
             <div className="rounded-2xl ring-1 ring-zinc-800 p-8 bg-zinc-900/40">
@@ -344,22 +339,6 @@ export function FeatureCardsSection() {
             </div>
           </article>
 
-          {/* Support - Support card */}
-          <article className="relative rounded-2xl bg-orange-600 p-6 text-white animate-fade-in hover-scale overflow-hidden" style={{
-          animationDelay: '0.6s'
-        }}>
-            <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1553484771-371a605b060b?q=80&w=2070&auto=format&fit=crop')] bg-cover bg-center opacity-20" />
-            <div className="relative">
-              <div className="flex items-center gap-2 text-white/90">
-                <PhoneCall className="h-5 w-5" />
-                <span className="uppercase tracking-wide text-xs font-semibold">Support</span>
-              </div>
-              <h3 className="mt-2 text-xl font-semibold">Persönlicher Support</h3>
-              <p className="mt-3 text-sm leading-relaxed text-white/90">
-                Unser Team steht dir bei Fragen zur Seite – per Chat, E-Mail oder Telefon.
-              </p>
-            </div>
-          </article>
         </div>
       </div>
     </section>
