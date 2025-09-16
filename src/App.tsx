@@ -362,7 +362,7 @@ const App = () => {
                 <Route path="/entdecken/unternehmen" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><DiscoverCompanies /></Suspense>} />
                 <Route path="/u/:id" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><UserProfilePage /></Suspense>} />
                 
-                {/* New 6 Prompts Routes */}
+                {/* Job-related pages */}
                 <Route path="/jobs" element={<Suspense fallback={<LogoSpinner size="lg" text="Jobs werden geladen..." />}><Jobs /></Suspense>} />
                 <Route path="/foryou" element={<Suspense fallback={<LogoSpinner size="lg" text="Empfehlungen werden geladen..." />}><ForYou /></Suspense>} />
               </Route>
