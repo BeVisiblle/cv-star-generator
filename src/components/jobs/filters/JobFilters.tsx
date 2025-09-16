@@ -15,7 +15,7 @@ interface JobFiltersProps {
 }
 
 const TRACK_OPTIONS = [
-  { value: '', label: 'Alle Bereiche' },
+  { value: 'all', label: 'Alle Bereiche' },
   { value: 'ausbildung', label: 'Ausbildung' },
   { value: 'praktikum', label: 'Praktikum' },
   { value: 'werkstudent', label: 'Werkstudent' },
@@ -23,7 +23,7 @@ const TRACK_OPTIONS = [
 ];
 
 const CONTRACT_OPTIONS = [
-  { value: '', label: 'Alle Verträge' },
+  { value: 'all', label: 'Alle Verträge' },
   { value: 'vollzeit', label: 'Vollzeit' },
   { value: 'teilzeit', label: 'Teilzeit' },
   { value: 'minijob', label: 'Minijob' }
@@ -110,7 +110,7 @@ export function JobFilters({ filters, onFiltersChange, hasLocation = false }: Jo
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         <div>
           <Label htmlFor="track">Bereich</Label>
-          <Select value={filters.track || ''} onValueChange={(value) => updateFilter('track', value)}>
+          <Select value={filters.track || 'all'} onValueChange={(value) => updateFilter('track', value === 'all' ? '' : value)}>
             <SelectTrigger>
               <SelectValue placeholder="Bereich wählen" />
             </SelectTrigger>
