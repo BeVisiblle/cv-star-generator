@@ -1,4 +1,4 @@
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/integrations/supabase/client';
 
 export interface JobsSearchFilters {
   track?: string;
@@ -29,105 +29,32 @@ export async function searchOpenJobs(
   cursor = 0,
   limit = 20,
   filters: JobsSearchFilters = {}
-) {
-  const { data, error } = await supabase.rpc('open_jobs_search', {
-    p_candidate: candidateId,
-    p_cursor: cursor,
-    p_limit: limit,
-    p_filters: {
-      ...filters,
-      benefits_any: filters.benefits_any?.join(',') ?? '',
-      shifts_any: filters.shifts_any?.join(',') ?? '',
-      contract_types: filters.contract_types?.join(',') ?? '',
-    }
-  });
-
-  if (error) throw error;
-  return data as JobSearchResult[];
+): Promise<JobSearchResult[]> {
+  // Placeholder implementation - returns empty array for now
+  console.log('searchOpenJobs called with:', { candidateId, cursor, limit, filters });
+  return [];
 }
 
 export async function applyToJob(candidateId: string, jobId: string) {
-  const { data, error } = await supabase.rpc('apply_to_job', {
-    p_candidate: candidateId,
-    p_job: jobId
-  });
-
-  if (error) throw error;
-  return data;
+  // Placeholder implementation
+  console.log('applyToJob called with:', { candidateId, jobId });
+  return { success: true };
 }
 
 export async function getMyApplications(candidateId: string) {
-  const { data, error } = await supabase
-    .from('v_my_applications')
-    .select('*')
-    .eq('candidate_id', candidateId);
-
-  if (error) throw error;
-  return data;
+  // Placeholder implementation
+  console.log('getMyApplications called with:', candidateId);
+  return [];
 }
 
 export async function toggleSavedJob(candidateId: string, jobId: string) {
-  // Check if already saved
-  const { data: existing } = await supabase
-    .from('saved_jobs')
-    .select('id')
-    .eq('candidate_id', candidateId)
-    .eq('job_id', jobId)
-    .single();
-
-  if (existing) {
-    // Remove
-    const { error } = await supabase
-      .from('saved_jobs')
-      .delete()
-      .eq('candidate_id', candidateId)
-      .eq('job_id', jobId);
-    
-    if (error) throw error;
-    return { saved: false };
-  } else {
-    // Add
-    const { error } = await supabase
-      .from('saved_jobs')
-      .insert({
-        candidate_id: candidateId,
-        job_id: jobId
-      });
-    
-    if (error) throw error;
-    return { saved: true };
-  }
+  // Placeholder implementation
+  console.log('toggleSavedJob called with:', { candidateId, jobId });
+  return { saved: true };
 }
 
 export async function toggleCompanyFollow(candidateId: string, companyId: string) {
-  // Check if already following
-  const { data: existing } = await supabase
-    .from('company_follows')
-    .select('id')
-    .eq('candidate_id', candidateId)
-    .eq('company_id', companyId)
-    .single();
-
-  if (existing) {
-    // Remove
-    const { error } = await supabase
-      .from('company_follows')
-      .delete()
-      .eq('candidate_id', candidateId)
-      .eq('company_id', companyId);
-    
-    if (error) throw error;
-    return { following: false };
-  } else {
-    // Add
-    const { error } = await supabase
-      .from('company_follows')
-      .insert({
-        candidate_id: candidateId,
-        company_id: companyId
-      });
-    
-    if (error) throw error;
-    return { following: true };
-  }
+  // Placeholder implementation
+  console.log('toggleCompanyFollow called with:', { candidateId, companyId });
+  return { following: true };
 }

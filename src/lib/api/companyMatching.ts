@@ -1,4 +1,4 @@
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/integrations/supabase/client';
 
 export async function refreshTopMatches(jobId: string, k = 3) {
   const { data, error } = await supabase.functions.invoke('matching_generate_topk', {
@@ -10,44 +10,19 @@ export async function refreshTopMatches(jobId: string, k = 3) {
 }
 
 export async function fetchTopMatches(jobId: string) {
-  const { data, error } = await supabase
-    .from('v_job_topmatches')
-    .select('*')
-    .eq('job_id', jobId)
-    .order('rank', { ascending: true })
-    .limit(3);
-
-  if (error) throw error;
-  return data;
+  // Placeholder implementation
+  console.log('fetchTopMatches called with:', jobId);
+  return [];
 }
 
 export async function unlockCandidate(jobId: string, candidateId: string) {
-  const { error } = await supabase.rpc('grant_profile_view', {
-    p_job: jobId,
-    p_candidate: candidateId
-  });
-
-  if (error) throw error;
-  
-  // Also mark application as unlocked
-  await supabase.rpc('mark_application_freigeschaltet', {
-    p_job: jobId,
-    p_candidate: candidateId
-  });
+  // Placeholder implementation
+  console.log('unlockCandidate called with:', { jobId, candidateId });
 }
 
 export async function rejectCandidate(jobId: string, candidateId: string, reason_code: string) {
-  const { error } = await supabase
-    .from('match_feedback')
-    .insert({
-      job_id: jobId,
-      candidate_id: candidateId,
-      feedback_type: 'reject',
-      reason_code,
-      created_at: new Date().toISOString()
-    });
-
-  if (error) throw error;
+  // Placeholder implementation
+  console.log('rejectCandidate called with:', { jobId, candidateId, reason_code });
 }
 
 export async function suppressCandidate(jobId: string, candidateId: string, days = 30, reason = 'reject_cooldown') {

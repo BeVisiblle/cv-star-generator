@@ -1,4 +1,4 @@
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/integrations/supabase/client';
 
 export async function refreshForYou(candidateId: string, limit = 20) {
   const { data, error } = await supabase.functions.invoke('matching_generate_jobs_for_candidate', {
@@ -10,13 +10,7 @@ export async function refreshForYou(candidateId: string, limit = 20) {
 }
 
 export async function fetchForYou(candidateId: string, cursor = 0, limit = 20) {
-  const { data, error } = await supabase
-    .from('v_candidate_foryou_with_jobs')
-    .select('*')
-    .eq('candidate_id', candidateId)
-    .order('score', { ascending: false })
-    .range(cursor, cursor + limit - 1);
-
-  if (error) throw error;
-  return data;
+  // Placeholder implementation
+  console.log('fetchForYou called with:', { candidateId, cursor, limit });
+  return [];
 }

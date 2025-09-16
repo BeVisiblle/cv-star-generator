@@ -4,7 +4,7 @@ import { JobCard } from './JobCard';
 import { JobFilters } from './filters/JobFilters';
 import { LoadingSkeleton } from '@/components/shared/LoadingSkeleton';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { searchOpenJobs, applyToJob, toggleSavedJob, toggleCompanyFollow } from '@/lib/api/jobsSearch';
+import { searchOpenJobs, applyToJob, toggleSavedJob, toggleCompanyFollow, JobsSearchFilters } from '@/lib/api/jobsSearch';
 import { trackJobSearchEvent } from '@/lib/telemetry';
 
 interface JobListProps {
@@ -12,14 +12,14 @@ interface JobListProps {
 }
 
 export function JobList({ candidateId }: JobListProps) {
-  const [filters, setFilters] = useState({
+  const [filters, setFilters] = useState<JobsSearchFilters>({
     track: '',
     remote_only: false,
-    benefits_any: [] as string[],
-    shifts_any: [] as string[],
-    contract_types: [] as string[],
+    benefits_any: [],
+    shifts_any: [],
+    contract_types: [],
     radius_km: 25,
-    order_by: 'newest' as 'newest' | 'nearest'
+    order_by: 'newest'
   });
 
   const loadMoreRef = useRef<HTMLDivElement>(null);
