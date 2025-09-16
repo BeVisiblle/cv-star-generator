@@ -8,13 +8,14 @@ import { useAuth } from '@/hooks/useAuth';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import { Calendar as CalendarIcon, Image as ImageIcon, Plus, PartyPopper, FileText, BarChart3, Users, Globe } from 'lucide-react';
+import { Calendar as CalendarIcon, Image as ImageIcon, Plus, PartyPopper, FileText, BarChart3, Users, Globe, Building2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar as DateCalendar } from '@/components/ui/calendar';
 import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { formatNameWithJob } from '@/utils/profileUtils';
 
 export const NewPostComposer: React.FC = () => {
   const isMobile = useIsMobile();
@@ -50,6 +51,8 @@ export const NewPostComposer: React.FC = () => {
   const [showPoll, setShowPoll] = React.useState(false);
   const [showEvent, setShowEvent] = React.useState(false);
   const [celebration, setCelebration] = React.useState(false);
+  
+  const nameInfo = formatNameWithJob(profile);
 
   const applySchedule = () => {
     if (scheduleDate && scheduleTime) {
@@ -75,8 +78,24 @@ export const NewPostComposer: React.FC = () => {
           </AvatarFallback>
         </Avatar>
         <div className="flex-1 min-w-0">
-          <div className="text-sm font-medium leading-tight truncate">
-            {profile?.vorname && profile?.nachname ? `${profile.vorname} ${profile.nachname}` : 'Unbekannter Nutzer'}
+          <div className="text-sm font-medium leading-tight">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span>{nameInfo.name}</span>
+              {nameInfo.jobTitle && nameInfo.company && (
+                <span className="text-xs text-muted-foreground">
+                  {nameInfo.jobTitle} @
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      // TODO: Navigate to company page
+                    }}
+                    className="text-primary hover:underline ml-1"
+                  >
+                    {nameInfo.company}
+                  </button>
+                </span>
+              )}
+            </div>
           </div>
           <div className="mt-1">
             <Select value={audience} onValueChange={(v) => setAudience(v as any)}>
