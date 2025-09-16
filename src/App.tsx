@@ -44,6 +44,11 @@ const CommunityMessages = lazy(() => import("./pages/Community/Messages"));
 const CommunityJobs = lazy(() => import("./pages/Community/Jobs"));
 const NotificationsPage = lazy(() => import("./pages/Notifications"));
 
+// New 6 Prompts Pages
+const Jobs = lazy(() => import("./pages/Jobs"));
+const ForYou = lazy(() => import("./pages/ForYou"));
+const CompanyMatches = lazy(() => import("./pages/CompanyMatches"));
+
 // Company components - lazy loaded
 const CompanyLayout = lazy(() => import("@/components/Company/CompanyLayout").then(m => ({ default: m.CompanyLayout })));
 const CompanyOnboarding = lazy(() => import("./pages/Company/Onboarding"));
@@ -336,6 +341,9 @@ const App = () => {
                 <Route path="help/center" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><CompanyComingSoon /></Suspense>} />
                 <Route path="help/support" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><CompanyComingSoon /></Suspense>} />
                 <Route path="help/feedback" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><CompanyComingSoon /></Suspense>} />
+                
+                {/* Company Matching Routes */}
+                <Route path="matches" element={<Suspense fallback={<LogoSpinner size="lg" text="Matches werden geladen..." />}><CompanyMatches /></Suspense>} />
               </Route>
               
               {/* Authenticated routes */}
@@ -353,6 +361,10 @@ const App = () => {
                 <Route path="/entdecken/azubis" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><DiscoverAzubis /></Suspense>} />
                 <Route path="/entdecken/unternehmen" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><DiscoverCompanies /></Suspense>} />
                 <Route path="/u/:id" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><UserProfilePage /></Suspense>} />
+                
+                {/* New 6 Prompts Routes */}
+                <Route path="/jobs" element={<Suspense fallback={<LogoSpinner size="lg" text="Jobs werden geladen..." />}><Jobs /></Suspense>} />
+                <Route path="/foryou" element={<Suspense fallback={<LogoSpinner size="lg" text="Empfehlungen werden geladen..." />}><ForYou /></Suspense>} />
               </Route>
 
               {/* Admin routes */}

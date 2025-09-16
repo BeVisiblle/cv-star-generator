@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
-import { LayoutDashboard, User, Users, Settings, FileText, LogOut, ChevronRight, Plus, MessageSquare, Briefcase, Building2 } from "lucide-react";
+import { LayoutDashboard, User, Users, Settings, FileText, LogOut, ChevronRight, Plus, MessageSquare, Briefcase, Building2, Search, Sparkles } from "lucide-react";
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarMenuSub, SidebarMenuSubItem, SidebarMenuSubButton, SidebarHeader, SidebarFooter, useSidebar } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -205,6 +205,42 @@ export function AppSidebar() {
                     </SidebarMenuSubButton>
                   </SidebarMenuSubItem>
                 </SidebarMenuSub>
+              </SidebarMenuItem>
+
+              {/* Job Search */}
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild>
+                  <button
+                    onClick={() => handleNavigation("/jobs")}
+                    className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-all w-full text-left ${
+                      isActive("/jobs")
+                        ? "bg-sidebar-accent text-sidebar-accent-foreground" 
+                        : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                    }`}
+                  >
+                    <Search className="h-4 w-4" />
+                    {!collapsed && <span>Jobsuche</span>}
+                    {!collapsed && isActive("/jobs") && <ChevronRight className="ml-auto h-4 w-4" />}
+                  </button>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+
+              {/* ForYou Recommendations */}
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild>
+                  <button
+                    onClick={() => handleNavigation("/foryou")}
+                    className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-all w-full text-left ${
+                      isActive("/foryou")
+                        ? "bg-sidebar-accent text-sidebar-accent-foreground" 
+                        : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                    }`}
+                  >
+                    <Sparkles className="h-4 w-4" />
+                    {!collapsed && <span>Für dich</span>}
+                    {!collapsed && isActive("/foryou") && <ChevronRight className="ml-auto h-4 w-4" />}
+                  </button>
+                </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroupContent>
