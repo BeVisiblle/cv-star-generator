@@ -187,7 +187,9 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
     '/profile',
     '/companies',
     '/entdecken',
-    '/u/'
+    '/u/',
+    '/jobs',
+    '/foryou'
   ];
   const isPortalRoute = portalPrefixes.some(p => location.pathname.startsWith(p));
   const showTopNav = isPortalRoute && !isLegalRoute && !isLandingPage && !isAuthRoute && !isCvRoute;

@@ -13,6 +13,14 @@ const navigationItems = [{
   url: "/dashboard",
   icon: LayoutDashboard
 }, {
+  title: "Für Dich",
+  url: "/foryou",
+  icon: Sparkles
+}, {
+  title: "Jobsuche",
+  url: "/jobs",
+  icon: Search
+}, {
   title: "Mein Profil",
   url: "/profile",
   icon: User
