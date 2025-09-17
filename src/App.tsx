@@ -50,6 +50,9 @@ const ForYou = lazy(() => import("./pages/ForYou"));
 const CompanyMatches = lazy(() => import("./pages/CompanyMatches"));
 const NewCompanyDashboard = lazy(() => import("./pages/CompanyDashboard"));
 const CandidateProfile = lazy(() => import("./pages/CandidateProfile"));
+const DiscoverPeople = lazy(() => import("./pages/DiscoverPeople"));
+const DiscoverCompanies = lazy(() => import("./pages/DiscoverCompanies"));
+const Discover = lazy(() => import("./pages/Discover"));
 
 // Company components - lazy loaded
 const CompanyLayout = lazy(() => import("@/components/Company/CompanyLayout").then(m => ({ default: m.CompanyLayout })));
@@ -371,6 +374,9 @@ const App = () => {
                 <Route path="/jobs" element={<Suspense fallback={<LogoSpinner size="lg" text="Jobs werden geladen..." />}><Jobs /></Suspense>} />
                 <Route path="/foryou" element={<Suspense fallback={<LogoSpinner size="lg" text="Empfehlungen werden geladen..." />}><ForYou /></Suspense>} />
                 <Route path="/profile" element={<Suspense fallback={<LogoSpinner size="lg" text="Profil wird geladen..." />}><CandidateProfile /></Suspense>} />
+                <Route path="/discover/people" element={<Suspense fallback={<LogoSpinner size="lg" text="Personen werden geladen..." />}><DiscoverPeople /></Suspense>} />
+                <Route path="/discover/companies" element={<Suspense fallback={<LogoSpinner size="lg" text="Unternehmen werden geladen..." />}><DiscoverCompanies /></Suspense>} />
+                <Route path="/discover" element={<Suspense fallback={<LogoSpinner size="lg" text="Entdecken wird geladen..." />}><Discover /></Suspense>} />
               </Route>
 
               {/* Admin routes */}

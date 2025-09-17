@@ -7,6 +7,7 @@ import { Card } from "@/components/ui/card";
 import { useConnections } from "@/hooks/useConnections";
 import { useNavigate } from "react-router-dom";
 import { CompanyRecommendations } from "@/components/linkedin/right-rail/CompanyRecommendations";
+import { DiscoverSection } from "@/components/community/DiscoverSection";
 
 interface BasicProfile {
   id: string; vorname: string | null; nachname: string | null; avatar_url: string | null;
@@ -126,8 +127,13 @@ export default function Contacts() {
       </section>
 
       {/* Company Recommendations */}
-      <section>
+      <section className="mb-8">
         <CompanyRecommendations limit={3} showMore={true} showMoreLink="/entdecken/unternehmen" />
+      </section>
+
+      {/* Discover Section */}
+      <section>
+        <DiscoverSection />
       </section>
 
     </main>
