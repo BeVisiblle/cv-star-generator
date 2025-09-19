@@ -2,9 +2,6 @@ import React from 'react';
 import { JobList } from '@/components/jobs/JobList';
 
 export default function Jobs() {
-  // In a real app, you'd get the candidate ID from auth context
-  const candidateId = 'temp-candidate-id';
-
   return (
     <div className="max-w-4xl mx-auto p-6">
       <div className="mb-6">
@@ -14,7 +11,11 @@ export default function Jobs() {
         </p>
       </div>
       
-      <JobList candidateId={candidateId} />
+      <div className="text-center py-8">
+        <p className="text-gray-600">
+          Jobsuche wird verfügbar, sobald die Datenbank konfiguriert ist.
+        </p>
+      </div>
     </div>
   );
 }
