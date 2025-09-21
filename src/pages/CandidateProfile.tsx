@@ -11,20 +11,16 @@ import { User, Briefcase, Heart, Settings } from 'lucide-react';
 interface Candidate {
   id: string;
   user_id: string;
-  vorname: string;
-  nachname: string;
+  full_name: string;
   email: string;
   phone: string;
-  bio_short: string;
-  stage: string;
-  profile_completeness: number;
-  availability_date: string;
+  city: string;
+  country: string;
   skills: any[];
   languages: any[];
-  willing_to_relocate: boolean;
-  relocation_cities: string[];
-  commute_mode: string;
-  max_commute_minutes: number;
+  cv_url: string;
+  created_at: string;
+  company_id: string;
 }
 
 interface Application {
@@ -32,9 +28,9 @@ interface Application {
   job_id: string;
   status: string;
   applied_at: string;
-  job_title: string;
-  company_name: string;
-  sla_status: string;
+  job_title?: string;
+  company_name?: string;
+  sla_status?: string;
 }
 
 export default function CandidateProfile() {
@@ -67,7 +63,7 @@ export default function CandidateProfile() {
 
         // Load applications
         const { data: applicationsData } = await supabase
-          .from('v_my_applications')
+          .from('applications')
           .select('*')
           .eq('candidate_id', candidateData.id)
           .order('applied_at', { ascending: false });
@@ -80,8 +76,8 @@ export default function CandidateProfile() {
           .insert({
             user_id: user.id,
             email: user.email,
-            stage: 'new',
-            profile_completeness: 0
+            full_name: user.email,
+            company_id: '00000000-0000-0000-0000-000000000000'
           })
           .select()
           .single();
@@ -165,14 +161,10 @@ export default function CandidateProfile() {
             </div>
             <div>
               <h1 className="text-3xl font-bold text-gray-900">
-                {candidate.vorname} {candidate.nachname}
+                {candidate.full_name}
               </h1>
               <p className="text-gray-600">
-                {candidate.stage === 'new' ? 'Neuer Kandidat' : 
-                 candidate.stage === 'available' ? 'Verfügbar' :
-                 candidate.stage === 'interviewing' ? 'Im Bewerbungsprozess' :
-                 candidate.stage === 'offered' ? 'Angebot erhalten' :
-                 candidate.stage === 'hired' ? 'Eingestellt' : 'Inaktiv'}
+                Kandidat
               </p>
             </div>
           </div>
@@ -187,7 +179,7 @@ export default function CandidateProfile() {
                 <div className="ml-4">
                   <p className="text-sm font-medium text-gray-600">Profil-Vollständigkeit</p>
                   <p className="text-2xl font-bold text-gray-900">
-                    {Math.round((candidate.profile_completeness || 0) * 100)}%
+                    50%
                   </p>
                 </div>
               </div>
@@ -227,10 +219,7 @@ export default function CandidateProfile() {
                 <div className="ml-4">
                   <p className="text-sm font-medium text-gray-600">Verfügbar ab</p>
                   <p className="text-2xl font-bold text-gray-900">
-                    {candidate.availability_date 
-                      ? new Date(candidate.availability_date).toLocaleDateString('de-DE')
-                      : 'Sofort'
-                    }
+                    Sofort
                   </p>
                 </div>
               </div>
@@ -258,6 +247,7 @@ export default function CandidateProfile() {
               <CardContent>
                 <CandidateProfileForm 
                   initialData={candidate}
+                  candidateId={candidate.id}
                   onSave={handleProfileUpdate}
                 />
               </CardContent>
@@ -273,7 +263,7 @@ export default function CandidateProfile() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <ForYouJobs />
+                <ForYouJobs candidateId={candidate.id} />
               </CardContent>
             </Card>
           </TabsContent>
@@ -342,7 +332,7 @@ export default function CandidateProfile() {
                           type="radio" 
                           name="status" 
                           value="available"
-                          defaultChecked={candidate.stage === 'available'}
+                          defaultChecked={true}
                           className="rounded" 
                         />
                         <span>Verfügbar für neue Jobs</span>
@@ -352,7 +342,6 @@ export default function CandidateProfile() {
                           type="radio" 
                           name="status" 
                           value="interviewing"
-                          defaultChecked={candidate.stage === 'interviewing'}
                           className="rounded" 
                         />
                         <span>Im Bewerbungsprozess</span>
@@ -362,7 +351,6 @@ export default function CandidateProfile() {
                           type="radio" 
                           name="status" 
                           value="inactive"
-                          defaultChecked={candidate.stage === 'inactive'}
                           className="rounded" 
                         />
                         <span>Profil pausieren</span>

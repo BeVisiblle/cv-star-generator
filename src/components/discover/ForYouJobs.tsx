@@ -9,10 +9,10 @@ import { buildWhyBullets } from '@/utils/whyBullets';
 import { trackForYouEvent } from '@/lib/telemetry';
 
 interface ForYouJobsProps {
-  candidateId: string;
+  candidateId?: string;
 }
 
-export function ForYouJobs({ candidateId }: ForYouJobsProps) {
+export function ForYouJobs({ candidateId }: ForYouJobsProps = {}) {
   const {
     data: jobs,
     isLoading,

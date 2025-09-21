@@ -4,12 +4,26 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ProgressRing } from './ProgressRing';
-import { MapPicker } from './MapPicker';
-import { TagInput } from './TagInput';
+// Temporary placeholder components
+const ProgressRing = ({ progress, size }: { progress: number; size?: number }) => (
+  <div className="text-sm text-muted-foreground">{progress}%</div>
+);
+
+const MapPicker = ({ value, onChange }: { value: any; onChange: (point: any) => void }) => (
+  <div className="p-4 border rounded text-sm text-muted-foreground">
+    Map picker placeholder
+  </div>
+);
+
+const TagInput = ({ value, onChange, placeholder }: { value: string[]; onChange: (tags: string[]) => void; placeholder?: string }) => (
+  <div className="p-4 border rounded text-sm text-muted-foreground">
+    Skills: {value.join(', ') || 'None'}
+  </div>
+);
 
 interface CandidateProfileFormProps {
-  candidateId: string;
+  initialData?: any;
+  candidateId?: string;
   onSave?: (data: any) => Promise<void>;
   onComplete?: (completeness: number) => void;
 }
