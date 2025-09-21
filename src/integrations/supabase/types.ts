@@ -471,6 +471,42 @@ export type Database = {
           },
         ]
       }
+      candidate_match_cache: {
+        Row: {
+          candidate_id: string
+          created_at: string
+          explanation: Json | null
+          id: string
+          is_explore: boolean | null
+          job_id: string
+          rank: number | null
+          score: number
+          updated_at: string
+        }
+        Insert: {
+          candidate_id: string
+          created_at?: string
+          explanation?: Json | null
+          id?: string
+          is_explore?: boolean | null
+          job_id: string
+          rank?: number | null
+          score: number
+          updated_at?: string
+        }
+        Update: {
+          candidate_id?: string
+          created_at?: string
+          explanation?: Json | null
+          id?: string
+          is_explore?: boolean | null
+          job_id?: string
+          rank?: number | null
+          score?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       candidate_notes: {
         Row: {
           body: string
@@ -614,46 +650,79 @@ export type Database = {
       }
       candidates: {
         Row: {
+          bio_short: string | null
           city: string | null
           company_id: string
+          company_name: string | null
           country: string | null
           created_at: string
           cv_url: string | null
           email: string | null
           full_name: string | null
           id: string
+          industry: string | null
+          is_verified: boolean | null
+          language_level: string | null
           languages: string[] | null
+          location: string | null
+          nachname: string | null
           phone: string | null
+          profile_image: string | null
           skills: string[] | null
+          stage: string | null
+          title: string | null
           user_id: string | null
+          vorname: string | null
         }
         Insert: {
+          bio_short?: string | null
           city?: string | null
           company_id: string
+          company_name?: string | null
           country?: string | null
           created_at?: string
           cv_url?: string | null
           email?: string | null
           full_name?: string | null
           id?: string
+          industry?: string | null
+          is_verified?: boolean | null
+          language_level?: string | null
           languages?: string[] | null
+          location?: string | null
+          nachname?: string | null
           phone?: string | null
+          profile_image?: string | null
           skills?: string[] | null
+          stage?: string | null
+          title?: string | null
           user_id?: string | null
+          vorname?: string | null
         }
         Update: {
+          bio_short?: string | null
           city?: string | null
           company_id?: string
+          company_name?: string | null
           country?: string | null
           created_at?: string
           cv_url?: string | null
           email?: string | null
           full_name?: string | null
           id?: string
+          industry?: string | null
+          is_verified?: boolean | null
+          language_level?: string | null
           languages?: string[] | null
+          location?: string | null
+          nachname?: string | null
           phone?: string | null
+          profile_image?: string | null
           skills?: string[] | null
+          stage?: string | null
+          title?: string | null
           user_id?: string | null
+          vorname?: string | null
         }
         Relationships: [
           {
@@ -1263,6 +1332,7 @@ export type Database = {
           industry: string | null
           instagram_url: string | null
           linkedin_url: string | null
+          location: string | null
           location_id: number | null
           location_radius_km: number | null
           logo_url: string | null
@@ -1306,6 +1376,7 @@ export type Database = {
           industry?: string | null
           instagram_url?: string | null
           linkedin_url?: string | null
+          location?: string | null
           location_id?: number | null
           location_radius_km?: number | null
           logo_url?: string | null
@@ -1349,6 +1420,7 @@ export type Database = {
           industry?: string | null
           instagram_url?: string | null
           linkedin_url?: string | null
+          location?: string | null
           location_id?: number | null
           location_radius_km?: number | null
           logo_url?: string | null
@@ -2612,6 +2684,33 @@ export type Database = {
           },
         ]
       }
+      job_locations: {
+        Row: {
+          city: string
+          country: string
+          created_at: string
+          id: string
+          is_remote: boolean | null
+          job_id: string
+        }
+        Insert: {
+          city: string
+          country: string
+          created_at?: string
+          id?: string
+          is_remote?: boolean | null
+          job_id: string
+        }
+        Update: {
+          city?: string
+          country?: string
+          created_at?: string
+          id?: string
+          is_remote?: boolean | null
+          job_id?: string
+        }
+        Relationships: []
+      }
       job_post_apprenticeships: {
         Row: {
           apprenticeship_profession: string
@@ -3129,6 +3228,63 @@ export type Database = {
           },
         ]
       }
+      jobs: {
+        Row: {
+          benefits: string | null
+          company_id: string
+          created_at: string
+          currency: string | null
+          description: string | null
+          employment_type: string
+          expires_at: string | null
+          id: string
+          is_active: boolean
+          is_public: boolean
+          requirements: string | null
+          salary_max: number | null
+          salary_min: number | null
+          seniority: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          benefits?: string | null
+          company_id: string
+          created_at?: string
+          currency?: string | null
+          description?: string | null
+          employment_type?: string
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean
+          is_public?: boolean
+          requirements?: string | null
+          salary_max?: number | null
+          salary_min?: number | null
+          seniority?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          benefits?: string | null
+          company_id?: string
+          created_at?: string
+          currency?: string | null
+          description?: string | null
+          employment_type?: string
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean
+          is_public?: boolean
+          requirements?: string | null
+          salary_max?: number | null
+          salary_min?: number | null
+          seniority?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       languages: {
         Row: {
           code: string | null
@@ -3483,6 +3639,75 @@ export type Database = {
           lon?: number
           postal_code?: string
           state?: string | null
+        }
+        Relationships: []
+      }
+      match_cache: {
+        Row: {
+          candidate_id: string
+          created_at: string
+          explanation: Json | null
+          id: string
+          is_explore: boolean | null
+          job_id: string
+          rank: number | null
+          score: number
+          updated_at: string
+        }
+        Insert: {
+          candidate_id: string
+          created_at?: string
+          explanation?: Json | null
+          id?: string
+          is_explore?: boolean | null
+          job_id: string
+          rank?: number | null
+          score: number
+          updated_at?: string
+        }
+        Update: {
+          candidate_id?: string
+          created_at?: string
+          explanation?: Json | null
+          id?: string
+          is_explore?: boolean | null
+          job_id?: string
+          rank?: number | null
+          score?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      match_feedback: {
+        Row: {
+          candidate_id: string
+          company_id: string
+          created_at: string
+          created_by: string
+          feedback_type: string
+          id: string
+          job_id: string
+          reason_code: string | null
+        }
+        Insert: {
+          candidate_id: string
+          company_id: string
+          created_at?: string
+          created_by: string
+          feedback_type: string
+          id?: string
+          job_id: string
+          reason_code?: string | null
+        }
+        Update: {
+          candidate_id?: string
+          company_id?: string
+          created_at?: string
+          created_by?: string
+          feedback_type?: string
+          id?: string
+          job_id?: string
+          reason_code?: string | null
         }
         Relationships: []
       }
@@ -5523,6 +5748,36 @@ export type Database = {
           profile_id?: string
           target_id?: string
           target_type?: string
+        }
+        Relationships: []
+      }
+      suppression: {
+        Row: {
+          candidate_id: string
+          created_at: string
+          created_by: string
+          id: string
+          job_id: string
+          reason: string
+          suppressed_until: string
+        }
+        Insert: {
+          candidate_id: string
+          created_at?: string
+          created_by: string
+          id?: string
+          job_id: string
+          reason?: string
+          suppressed_until: string
+        }
+        Update: {
+          candidate_id?: string
+          created_at?: string
+          created_by?: string
+          id?: string
+          job_id?: string
+          reason?: string
+          suppressed_until?: string
         }
         Relationships: []
       }
