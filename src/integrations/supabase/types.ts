@@ -650,79 +650,118 @@ export type Database = {
       }
       candidates: {
         Row: {
+          availability_status: string | null
+          bio: string | null
           bio_short: string | null
+          certifications: string[] | null
           city: string | null
           company_id: string
           company_name: string | null
           country: string | null
           created_at: string
           cv_url: string | null
+          education: string[] | null
           email: string | null
+          experience_years: number | null
           full_name: string | null
+          github_url: string | null
           id: string
           industry: string | null
           is_verified: boolean | null
           language_level: string | null
           languages: string[] | null
+          linkedin_url: string | null
           location: string | null
+          mutual_connections: number | null
           nachname: string | null
           phone: string | null
+          portfolio_url: string | null
+          preferred_work_type: string | null
           profile_image: string | null
+          salary_expectation_max: number | null
+          salary_expectation_min: number | null
           skills: string[] | null
           stage: string | null
           title: string | null
           user_id: string | null
           vorname: string | null
+          website_url: string | null
         }
         Insert: {
+          availability_status?: string | null
+          bio?: string | null
           bio_short?: string | null
+          certifications?: string[] | null
           city?: string | null
           company_id: string
           company_name?: string | null
           country?: string | null
           created_at?: string
           cv_url?: string | null
+          education?: string[] | null
           email?: string | null
+          experience_years?: number | null
           full_name?: string | null
+          github_url?: string | null
           id?: string
           industry?: string | null
           is_verified?: boolean | null
           language_level?: string | null
           languages?: string[] | null
+          linkedin_url?: string | null
           location?: string | null
+          mutual_connections?: number | null
           nachname?: string | null
           phone?: string | null
+          portfolio_url?: string | null
+          preferred_work_type?: string | null
           profile_image?: string | null
+          salary_expectation_max?: number | null
+          salary_expectation_min?: number | null
           skills?: string[] | null
           stage?: string | null
           title?: string | null
           user_id?: string | null
           vorname?: string | null
+          website_url?: string | null
         }
         Update: {
+          availability_status?: string | null
+          bio?: string | null
           bio_short?: string | null
+          certifications?: string[] | null
           city?: string | null
           company_id?: string
           company_name?: string | null
           country?: string | null
           created_at?: string
           cv_url?: string | null
+          education?: string[] | null
           email?: string | null
+          experience_years?: number | null
           full_name?: string | null
+          github_url?: string | null
           id?: string
           industry?: string | null
           is_verified?: boolean | null
           language_level?: string | null
           languages?: string[] | null
+          linkedin_url?: string | null
           location?: string | null
+          mutual_connections?: number | null
           nachname?: string | null
           phone?: string | null
+          portfolio_url?: string | null
+          preferred_work_type?: string | null
           profile_image?: string | null
+          salary_expectation_max?: number | null
+          salary_expectation_min?: number | null
           skills?: string[] | null
           stage?: string | null
           title?: string | null
           user_id?: string | null
           vorname?: string | null
+          website_url?: string | null
         }
         Relationships: [
           {
