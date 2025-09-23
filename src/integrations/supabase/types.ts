@@ -7684,12 +7684,12 @@ export type Database = {
           p_company_id: string
           p_limit?: number
           p_offset?: number
-          p_variant: string
+          p_variant?: string
         }
         Returns: {
           avatar_url: string
           city: string
-          fs: boolean
+          fs: string
           id: string
           match: number
           name: string
