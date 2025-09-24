@@ -43,6 +43,7 @@ const CommunityCompanies = lazy(() => import("./pages/Community/Companies"));
 const CommunityMessages = lazy(() => import("./pages/Community/Messages"));
 const CommunityJobs = lazy(() => import("./pages/Community/Jobs"));
 const NotificationsPage = lazy(() => import("./pages/Notifications"));
+const Feed = lazy(() => import("./pages/Feed"));
 
 // New 6 Prompts Pages
 const Jobs = lazy(() => import("./pages/Jobs"));
@@ -193,7 +194,8 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
     '/entdecken',
     '/u/',
     '/jobs',
-    '/foryou'
+    '/foryou',
+    '/feed'
   ];
   const isPortalRoute = portalPrefixes.some(p => location.pathname.startsWith(p));
   const showTopNav = isPortalRoute && !isLegalRoute && !isLandingPage && !isAuthRoute && !isCvRoute;
@@ -371,6 +373,7 @@ const App = () => {
                 
                 {/* Job-related pages */}
                 <Route path="/jobs" element={<Suspense fallback={<LogoSpinner size="lg" text="Jobs werden geladen..." />}><Jobs /></Suspense>} />
+                <Route path="/feed" element={<Suspense fallback={<LogoSpinner size="lg" text="Feed wird geladen..." />}><Feed /></Suspense>} />
                 <Route path="/foryou" element={<Suspense fallback={<LogoSpinner size="lg" text="Empfehlungen werden geladen..." />}><ForYou /></Suspense>} />
                 <Route path="/profile" element={<Suspense fallback={<LogoSpinner size="lg" text="Profil wird geladen..." />}><CandidateProfile /></Suspense>} />
                 <Route path="/discover/people" element={<Suspense fallback={<LogoSpinner size="lg" text="Personen werden geladen..." />}><DiscoverPeople /></Suspense>} />
