@@ -4,6 +4,7 @@ import { ComposerTeaser } from '@/components/dashboard/ComposerTeaser';
 import { LeftPanel } from '@/components/dashboard/LeftPanel';
 import { RightPanel } from '@/components/dashboard/RightPanel';
 import FeedSortBar from '@/components/community/FeedSortBar';
+import { NewPostComposer } from '@/components/community/NewPostComposer';
 
 /** Globale Annahme: Navbar ist fixed top-0 mit Höhe 64px */
 const NAVBAR_H = 64; // px
@@ -73,6 +74,9 @@ const Dashboard = () => {
           </aside>
         </div>
       </div>
+      
+      {/* NewPostComposer für Event-Handling */}
+      <NewPostComposer />
     </main>
   );
 };

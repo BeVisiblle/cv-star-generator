@@ -181,15 +181,17 @@ export default function CommunityFeed({ feedHeadHeight = 0 }: CommunityFeedProps
               companyProfilesCount: companyProfiles.length
             });
 
-            // Use author data directly - fix the name display
-            const fullName = author ? `${author.vorname || ''} ${author.nachname || ''}`.trim() : null;
-            const displayName = fullName || `Unbekannter Nutzer`;
+            // Use author data correctly
+            const firstName = author?.vorname || '';
+            const lastName = author?.nachname || '';
+            const fullName = `${firstName} ${lastName}`.trim();
+            const displayName = fullName || author?.full_name || author?.name || 'Unbekannter Nutzer';
 
             post.author = {
               id: post.author_id || post.actor_user_id,
               full_name: displayName,
               avatar_url: author?.avatar_url || author?.logo_url || null,
-              headline: author?.headline || author?.aktueller_beruf || author?.description || null,
+              headline: author?.headline || author?.description || '',
               type: post.author_type,
             };
           }
