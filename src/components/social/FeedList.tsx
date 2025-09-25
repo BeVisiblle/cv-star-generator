@@ -54,16 +54,25 @@ export default function FeedList() {
       const postsWithAuthors = await Promise.all(
         (postsData || []).map(async (post) => {
           if (post.actor_user_id) {
-            const { data: authorData } = await supabase
-              .from("profiles")
-              .select("id, vorname, nachname, headline, aktueller_beruf, ausbildungsbetrieb, avatar_url")
-              .eq("id", post.actor_user_id)
-              .single();
-            
-            return {
-              ...post,
-              author: authorData
-            };
+            try {
+              const { data: authorData, error: authorError } = await supabase
+                .from("profiles")
+                .select("id, vorname, nachname, headline, aktueller_beruf, ausbildungsbetrieb, avatar_url")
+                .eq("id", post.actor_user_id)
+                .maybeSingle();
+              
+              if (authorError) {
+                console.error("Error loading author:", authorError);
+              }
+              
+              return {
+                ...post,
+                author: authorData || undefined
+              };
+            } catch (error) {
+              console.error("Error loading author for post:", post.id, error);
+              return post;
+            }
           }
           return post;
         })
@@ -104,12 +113,13 @@ export default function FeedList() {
   }, []);
 
   const getDisplayName = (author?: PostAuthor) => {
-    if (!author) return "Nutzer";
+    if (!author) return "Unbekannter Nutzer";
     if (author.vorname && author.nachname) {
       return `${author.vorname} ${author.nachname}`;
     }
     if (author.vorname) return author.vorname;
-    return "Nutzer";
+    if (author.nachname) return author.nachname;
+    return "Aktiver Nutzer";
   };
 
   const getSubline = (author?: PostAuthor) => {

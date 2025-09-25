@@ -28,7 +28,8 @@ export default function PostComposer({ authorId, companyId, onPostCreated }: Pos
     setIsPosting(true);
     try {
       const payload: any = {
-        author_user_id: authorId,
+        actor_user_id: companyId ? null : authorId,
+        actor_company_id: companyId || null,
         body_md: content,
         status: schedule ? "scheduled" : "published",
         post_kind: "text",
@@ -39,12 +40,9 @@ export default function PostComposer({ authorId, companyId, onPostCreated }: Pos
         payload.scheduled_at = scheduledAt.toISOString();
       }
 
-      if (companyId) {
-        payload.actor_company_id = companyId;
-        payload.author_user_id = null;
-      }
+      console.log("Creating post with payload:", payload);
 
-      const { error } = await supabase.from("community_posts").insert(payload);
+      const { data, error } = await supabase.from("community_posts").insert(payload).select().single();
 
       if (error) {
         console.error("Post creation error:", error);
