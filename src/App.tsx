@@ -107,23 +107,6 @@ function CompanyProtectedRoute({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     async function checkCompanyAccess() {
-      // AUTO-ENABLE DEMO MODE for immediate company access
-      console.log('Auto-enabling demo mode for company dashboard access');
-      localStorage.setItem('demoMode', 'true');
-      localStorage.setItem('demoCompanyData', JSON.stringify({
-        id: 'demo-company-123',
-        name: 'Demo Unternehmen GmbH',
-        logo_url: null,
-        industry: 'Technologie',
-        main_location: 'Frankfurt',
-        plan_type: 'starter',
-        active_tokens: 50,
-        seats: 5
-      }));
-      setUserType('company');
-      setIsLoading(false);
-      return;
-
       // Check demo mode FIRST and IMMEDIATELY
       const demoMode = localStorage.getItem('demoMode') === 'true';
       console.log('Demo mode check:', demoMode);
