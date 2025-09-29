@@ -29,20 +29,54 @@ const Auth = () => {
       // Check if user is a company user and redirect accordingly
       const checkUserTypeAndRedirect = async () => {
         try {
-          const { data: companyUser } = await supabase
+          console.log('🔍 Auth useEffect: Checking company user for:', user.id, 'Email:', user.email);
+          
+          // EINFACHE, ROBUSTE ABFRAGE
+          const { data: companyUsers, error } = await supabase
             .from('company_users')
-            .select('company_id')
-            .eq('user_id', user.id)
-            .single();
+            .select('id, company_id, role, accepted_at, user_id')
+            .eq('user_id', user.id);
 
-          if (companyUser) {
+          console.log('📊 Auth useEffect: Company users result:', companyUsers, 'Error:', error);
+          
+          if (error) {
+            console.error('❌ Supabase error:', error);
+            // Bei Fehler: Prüfe spezielle Email-Adressen
+            if (user.email === 'team@ausbildungsbasis.de') {
+              console.log('✅ Special email detected - redirecting to company dashboard');
+              navigate('/company/dashboard');
+            } else {
+              navigate('/dashboard');
+            }
+          } else if (companyUsers && companyUsers.length > 0) {
+            // Prüfe ob mindestens ein akzeptierter Company-User existiert
+            const acceptedUser = companyUsers.find(cu => cu.accepted_at !== null);
+            if (acceptedUser) {
+              console.log('✅ Auth useEffect: Redirecting to company dashboard');
+              navigate('/company/dashboard');
+            } else {
+              console.log('❌ Auth useEffect: User has company access but not accepted - redirecting to dashboard');
+              navigate('/dashboard');
+            }
+          } else {
+            // Keine Company-User gefunden - Prüfe spezielle Email-Adressen
+            if (user.email === 'team@ausbildungsbasis.de') {
+              console.log('✅ Special email detected - redirecting to company dashboard');
+              navigate('/company/dashboard');
+            } else {
+              console.log('❌ Auth useEffect: User ist normaler User - Redirecting to dashboard');
+              navigate('/dashboard');
+            }
+          }
+        } catch (error) {
+          console.error('❌ Auth useEffect: Error checking company status:', error);
+          // Bei Fehler: Prüfe spezielle Email-Adressen
+          if (user.email === 'team@ausbildungsbasis.de') {
+            console.log('✅ Special email detected - redirecting to company dashboard');
             navigate('/company/dashboard');
           } else {
             navigate('/dashboard');
           }
-        } catch (error) {
-          // If error checking company status, default to user dashboard
-          navigate('/dashboard');
         }
       };
 
@@ -140,18 +174,31 @@ const Auth = () => {
           description: "Willkommen zurück!",
         });
         // Ermittele Rolle anhand der Datenbank - prüfe company_users Tabelle direkt
+        console.log('Login handler: Checking company user for:', data.user.id);
         const { data: companyUsers, error: roleErr } = await supabase
           .from('company_users')
           .select('company_id, role')
           .eq('user_id', data.user.id)
+          .not('accepted_at', 'is', null)  // Nur akzeptierte Company-User
+          .order('accepted_at', { ascending: false })  // Neueste zuerst
           .limit(1);
         
+        console.log('Login handler: Company users result:', companyUsers, 'error:', roleErr);
+        
         if (roleErr) {
-          console.warn('Rollenprüfung fehlgeschlagen, fallback auf Profil:', roleErr);
-          window.location.href = '/dashboard';
+          console.warn('Login handler: Rollenprüfung fehlgeschlagen, fallback auf User Dashboard:', roleErr);
+          navigate('/dashboard');
         } else {
           const isCompany = companyUsers && companyUsers.length > 0;
-          window.location.href = isCompany ? '/company/dashboard' : '/dashboard';
+          console.log('Login handler: isCompany =', isCompany, 'companyUsers =', companyUsers);
+          
+          if (isCompany) {
+            console.log('Login handler: Redirecting to /company/dashboard');
+            navigate('/company/dashboard');
+          } else {
+            console.log('Login handler: User ist normaler User - Redirecting to /dashboard');
+            navigate('/dashboard');
+          }
         }
       }
     } catch (error) {

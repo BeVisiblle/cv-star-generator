@@ -80,9 +80,16 @@ serve(async (req) => {
       target_groups 
     }: CreateNeedRequest = await req.json();
 
-    // Get user's company
-    const { data: userCompany, error: companyError } = await supabase
-      .rpc('get_user_company_id');
+    // Get user's company - REPARIERT: Direkte Abfrage statt fehlende Funktion
+    const { data: companyUsers, error: companyError } = await supabase
+      .from('company_users')
+      .select('company_id')
+      .eq('user_id', (await supabase.auth.getUser()).data.user?.id)
+      .not('accepted_at', 'is', null)
+      .limit(1)
+      .single();
+
+    const userCompany = companyUsers?.company_id;
 
     if (companyError || !userCompany) {
       console.error('Company error:', companyError);

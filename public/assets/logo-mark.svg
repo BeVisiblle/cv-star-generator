@@ -1,0 +1,12 @@
+<svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect width="48" height="48" rx="8" fill="white"/>
+<defs>
+<linearGradient id="blueGradient" x1="0" y1="0" x2="1" y2="1">
+<stop offset="0%" stop-color="#5170ff"/>
+<stop offset="100%" stop-color="#3b82f6"/>
+</linearGradient>
+</defs>
+<!-- Einfaches, elegantes Logo -->
+<circle cx="24" cy="24" r="18" fill="url(#blueGradient)" stroke="#5170ff" stroke-width="2"/>
+<path d="M16 24L20 16L24 24L28 16L32 24L28 32L24 24L20 32L16 24Z" fill="white" stroke="white" stroke-width="1"/>
+</svg>

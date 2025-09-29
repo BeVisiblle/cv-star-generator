@@ -55,8 +55,9 @@ export default function CompanyDashboard() {
   const [recentlyViewed, setRecentlyViewed] = useState<Profile[]>([]);
   const [activeRecentTab, setActiveRecentTab] = useState<'unlocked' | 'viewed'>('unlocked');
   const [loading, setLoading] = useState(true);
-  const [demoMode, setDemoMode] = useState(false);
-  const [demoCompanyData, setDemoCompanyData] = useState<any>(null);
+  // REMOVED: Demo mode state - this was causing wrong layout selection
+  // const [demoMode, setDemoMode] = useState(false);
+  // const [demoCompanyData, setDemoCompanyData] = useState<any>(null);
   const [showTokenModal, setShowTokenModal] = useState(false);
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -64,15 +65,20 @@ export default function CompanyDashboard() {
 
 
   useEffect(() => {
-    // Check for demo mode
-    const isDemoMode = localStorage.getItem('demoMode') === 'true';
-    const storedDemoData = localStorage.getItem('demoCompanyData');
-    
-    if (isDemoMode && storedDemoData) {
-      setDemoMode(true);
-      setDemoCompanyData(JSON.parse(storedDemoData));
-      loadDemoData();
-    } else if (company) {
+    // REMOVED: Demo mode check - this was causing wrong layout selection
+    // const isDemoMode = localStorage.getItem('demoMode') === 'true';
+    // const storedDemoData = localStorage.getItem('demoCompanyData');
+    // 
+    // if (isDemoMode && storedDemoData) {
+    //   setDemoMode(true);
+    //   setDemoCompanyData(JSON.parse(storedDemoData));
+    //   loadDemoData();
+    // } else if (company) {
+    //   loadDashboardData();
+    // }
+
+    // Load real company data only
+    if (company) {
       loadDashboardData();
     }
   }, [company]);
@@ -248,7 +254,7 @@ export default function CompanyDashboard() {
     );
   }
 
-  if (!company && !demoMode) {
+  if (!company ) {
     return (
       <div className="text-center py-12">
         <Building2 className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
@@ -263,8 +269,8 @@ export default function CompanyDashboard() {
     );
   }
 
-  const displayCompany = demoMode ? demoCompanyData : company;
-  const currentTokens = demoMode ? 50 : (company?.active_tokens ?? 0);
+  const displayCompany = company;
+  const currentTokens = (company?.active_tokens ?? 0);
 
   const handleTokenBalanceUpdate = (balance: number) => {
     if (company) {
@@ -275,36 +281,6 @@ export default function CompanyDashboard() {
 
   return (
     <div className="p-3 md:p-6 min-h-screen bg-background max-w-full overflow-x-hidden space-y-6">
-      {/* Demo Mode Banner */}
-      {demoMode && (
-        <div className="bg-yellow-100 border border-yellow-400 rounded-lg p-4">
-          <div className="flex items-center">
-            <div className="flex-shrink-0">
-              <svg className="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-              </svg>
-            </div>
-            <div className="ml-3">
-              <p className="text-sm text-yellow-800">
-                <strong>Demo-Modus aktiv:</strong> Dies ist eine Vorschau. Echte Registrierung folgt später.
-              </p>
-            </div>
-            <div className="ml-auto">
-              <Button 
-                variant="ghost" 
-                size="sm"
-                onClick={() => {
-                  localStorage.removeItem('demoMode');
-                  localStorage.removeItem('demoCompanyData');
-                  navigate('/company/onboarding');
-                }}
-              >
-                Beenden
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Welcome Section */}
       <div className="flex items-center justify-between">
@@ -331,7 +307,7 @@ export default function CompanyDashboard() {
       </div>
 
       {/* Top Matched Candidates */}
-      {(company || demoMode) && (
+      {(company) && (
         <div className="mb-6">
           <TopMatchedCandidates companyId={company?.id || 'demo'} />
         </div>
@@ -381,7 +357,7 @@ export default function CompanyDashboard() {
         </div>
         <KpiCard title="Matches (Monat)" value={stats.monthlyMatches} hint={`${stats.totalMatches} insgesamt`} />
         <KpiCard title="Freigeschaltet" value={stats.unlockedProfiles} hint="Profile angesehen" />
-        <KpiCard title="Team Größe" value={demoMode ? 5 : (company?.seats ?? 0)} hint="aktive Mitglieder" />
+        <KpiCard title="Team Größe" value={(company?.seats ?? 0)} hint="aktive Mitglieder" />
       </div>
 
       {/* Recently Unlocked / Viewed */}

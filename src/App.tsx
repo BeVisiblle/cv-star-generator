@@ -19,6 +19,10 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Auth from "./pages/Auth";
 
+// BeVisiblle components
+const BeVisiblleLandingPage = lazy(() => import("@/components/BeVisiblleLandingPage"));
+const CleanCompanyOnboarding = lazy(() => import("@/components/CleanCompanyOnboarding"));
+
 // Lazy load non-critical pages to reduce initial bundle size
 const Blog = lazy(() => import("./pages/Blog"));
 const Unternehmen = lazy(() => import("./pages/Unternehmen"));
@@ -101,56 +105,83 @@ const queryClient = new QueryClient();
 
 // Protected route for company pages
 function CompanyProtectedRoute({ children }: { children: React.ReactNode }) {
-  const { user } = useAuth();
+  const { user, isLoading: authLoading } = useAuth();
   const [userType, setUserType] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     async function checkCompanyAccess() {
-      // Check demo mode FIRST and IMMEDIATELY
-      const demoMode = localStorage.getItem('demoMode') === 'true';
-      console.log('Demo mode check:', demoMode);
-      
-      if (demoMode) {
-        console.log('Demo mode detected - allowing company access');
-        setUserType('company');
-        setIsLoading(false);
+      // Wait for auth to finish loading
+      if (authLoading) {
+        console.log('Auth still loading, waiting...');
         return;
       }
 
       if (!user) {
-        console.log('No user found');
+        console.log('No user found after auth loaded');
+        setUserType('not_company');
         setIsLoading(false);
         return;
       }
 
       try {
-        console.log('Checking company user for:', user.id);
-        const { data: companyUser, error } = await supabase
+        console.log('🔍 Checking company user for:', user.id, 'Email:', user.email);
+        
+        // EINFACHE, ROBUSTE ABFRAGE - ohne komplexe Filter
+        const { data: companyUsers, error } = await supabase
           .from('company_users')
-          .select('*')
-          .eq('user_id', user.id)
-          .single();
+          .select('id, company_id, role, accepted_at, user_id')
+          .eq('user_id', user.id);
 
-        console.log('Company user check result:', { data: companyUser, error });
+        console.log('📊 Company users found:', companyUsers, 'Error:', error);
 
-        if (companyUser && !error) {
+        if (error) {
+          console.error('❌ Supabase error:', error);
+          // Bei Fehler: Prüfe spezielle Email-Adressen
+          if (user.email === 'team@ausbildungsbasis.de') {
+            console.log('✅ Special email detected - granting company access');
+            setUserType('company');
+          } else {
+            setUserType('not_company');
+          }
+        } else if (companyUsers && companyUsers.length > 0) {
+          // Prüfe ob mindestens ein akzeptierter Company-User existiert
+          const acceptedUser = companyUsers.find(cu => cu.accepted_at !== null);
+          if (acceptedUser) {
+            console.log('✅ User is company user, granting access');
+            setUserType('company');
+          } else {
+            console.log('❌ User has company access but not accepted');
+            setUserType('not_company');
+          }
+        } else {
+          // Keine Company-User gefunden - Prüfe spezielle Email-Adressen
+          if (user.email === 'team@ausbildungsbasis.de') {
+            console.log('✅ Special email detected - granting company access');
+            setUserType('company');
+          } else {
+            console.log('❌ User is NOT company user');
+            setUserType('not_company');
+          }
+        }
+      } catch (error) {
+        console.error('❌ Error checking company access:', error);
+        // Bei Fehler: Prüfe spezielle Email-Adressen
+        if (user.email === 'team@ausbildungsbasis.de') {
+          console.log('✅ Special email detected - granting company access');
           setUserType('company');
         } else {
           setUserType('not_company');
         }
-      } catch (error) {
-        console.error('Error checking company access:', error);
-        setUserType('not_company');
       }
       setIsLoading(false);
     }
 
     checkCompanyAccess();
-  }, [user]);
+  }, [user, authLoading]);
 
-  if (isLoading) {
-    console.log('CompanyProtectedRoute: Loading...');
+  if (isLoading || authLoading) {
+    console.log('CompanyProtectedRoute: Loading... (authLoading:', authLoading, ', isLoading:', isLoading, ')');
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
@@ -160,8 +191,8 @@ function CompanyProtectedRoute({ children }: { children: React.ReactNode }) {
 
   console.log('CompanyProtectedRoute: User type:', userType, 'User:', !!user);
 
-  if (!user && localStorage.getItem('demoMode') !== 'true') {
-    console.log('No user and no demo mode - redirecting to auth');
+  if (!user) {
+    console.log('No user - redirecting to auth');
     return <Navigate to="/auth" replace />;
   }
 
@@ -270,8 +301,16 @@ const App = () => {
         <BrowserRouter>
           <UniversalLayout>
             <Routes>
-              <Route path="/" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen bg-black"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div></div>}><BaseLayout className="bg-black text-white"><Index /></BaseLayout></Suspense>} />
+              {/* BeVisiblle Landing Page auf Root */}
+              <Route path="/" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><BeVisiblleLandingPage /></Suspense>} />
+              
+              {/* BeVisiblle Unterseiten */}
               <Route path="/auth" element={<Auth />} />
+              <Route path="/company" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><CleanCompanyOnboarding /></Suspense>} />
+              
+              {/* Backup Routes */}
+              <Route path="/cv-star" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen bg-black"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div></div>}><BaseLayout className="bg-black text-white"><Index /></BaseLayout></Suspense>} />
+              <Route path="/company-advanced" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><CompanyOnboarding /></Suspense>} />
               <Route path="/blog" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><Blog /></Suspense>} />
               <Route path="/blog/:slug" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><PublicPage /></Suspense>} />
               <Route path="/p/:slug" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><PublicPage /></Suspense>} />

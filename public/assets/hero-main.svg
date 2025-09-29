@@ -1,0 +1,84 @@
+<svg width="800" height="600" viewBox="0 0 800 600" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Dunkler Hintergrund -->
+  <rect width="800" height="600" fill="#1a1a1a"/>
+  
+  <!-- Frau links (dunkle Haare, weißes T-Shirt) -->
+  <g transform="translate(150, 200)">
+    <!-- Körper -->
+    <ellipse cx="0" cy="80" rx="35" ry="60" fill="#f8f8f8"/>
+    <!-- Kopf -->
+    <circle cx="0" cy="-20" r="25" fill="#d4af8c"/>
+    <!-- Haare (dunkelbraun im Dutt) -->
+    <ellipse cx="0" cy="-25" rx="28" ry="20" fill="#4a3429"/>
+    <circle cx="0" cy="-35" r="20" fill="#4a3429"/>
+    <!-- Lächeln -->
+    <path d="M-8 -5 Q0 5 8 -5" stroke="#4a3429" stroke-width="2" fill="none"/>
+  </g>
+  
+  <!-- Frau rechts (blonde Haare, bunte Kette) -->
+  <g transform="translate(450, 180)">
+    <!-- Körper -->
+    <ellipse cx="0" cy="80" rx="35" ry="60" fill="#f8f8f8"/>
+    <!-- Kopf -->
+    <circle cx="0" cy="-20" r="25" fill="#d4af8c"/>
+    <!-- Haare (blond) -->
+    <ellipse cx="0" cy="-25" rx="30" ry="22" fill="#f4d03f"/>
+    <path d="M-25 -20 Q0 -40 25 -20" fill="#f4d03f"/>
+    <!-- Lächeln -->
+    <path d="M-10 -5 Q0 8 10 -5" stroke="#4a3429" stroke-width="2" fill="none"/>
+    <!-- Dokument in der Hand -->
+    <rect x="15" y="40" width="20" height="30" fill="white" rx="2"/>
+    <!-- Stift -->
+    <rect x="32" y="45" width="2" height="15" fill="#3b82f6"/>
+  </g>
+  
+  <!-- UI-Karte 1: Dr. Müller & Ko (oben links) -->
+  <g transform="translate(80, 80)">
+    <rect width="200" height="120" fill="white" rx="12" stroke="#e5e7eb" stroke-width="1"/>
+    <!-- Logo -->
+    <g transform="translate(15, 15)">
+      <path d="M0 0 L10 0 L5 15 L0 0" fill="#3b82f6"/>
+      <path d="M10 0 L20 0 L15 15 L10 0" fill="#3b82f6"/>
+      <path d="M20 0 L30 0 L25 15 L20 0" fill="#3b82f6"/>
+    </g>
+    <!-- Text -->
+    <text x="15" y="35" font-family="Arial" font-size="14" font-weight="bold" fill="#1f2937">Dr. Müller &amp; Ko</text>
+    <text x="15" y="50" font-family="Arial" font-size="12" fill="#6b7280">Zahnarztpraxis</text>
+    <text x="15" y="65" font-family="Arial" font-size="12" fill="#6b7280">60329 Frankfurt am Main</text>
+    <text x="15" y="85" font-family="Arial" font-size="10" fill="#6b7280">+6 gemeinsame Follower</text>
+    <!-- Profile Bilder -->
+    <circle cx="20" cy="100" r="8" fill="#e5e7eb"/>
+    <circle cx="35" cy="100" r="8" fill="#e5e7eb"/>
+    <circle cx="50" cy="100" r="8" fill="#e5e7eb"/>
+  </g>
+  
+  <!-- UI-Karte 2: Julia Mayer (oben rechts) -->
+  <g transform="translate(520, 60)">
+    <rect width="180" height="100" fill="white" rx="12" stroke="#e5e7eb" stroke-width="1"/>
+    <!-- Profilbild -->
+    <circle cx="20" cy="20" r="12" fill="#e5e7eb"/>
+    <!-- Text -->
+    <text x="40" y="25" font-family="Arial" font-size="14" font-weight="bold" fill="#1f2937">Julia Mayer</text>
+    <text x="40" y="40" font-family="Arial" font-size="12" fill="#6b7280">Zahnmedizinische Fachangestellte</text>
+    <text x="40" y="60" font-family="Arial" font-size="10" fill="#6b7280">Kontakte</text>
+    <!-- Profile Bilder -->
+    <circle cx="45" cy="75" r="6" fill="#e5e7eb"/>
+    <circle cx="60" cy="75" r="6" fill="#e5e7eb"/>
+    <circle cx="75" cy="75" r="6" fill="#e5e7eb"/>
+  </g>
+  
+  <!-- UI-Karte 3: Thomas Freilmann (unten rechts) -->
+  <g transform="translate(520, 380)">
+    <rect width="180" height="80" fill="white" rx="12" stroke="#e5e7eb" stroke-width="1"/>
+    <!-- Profilbild -->
+    <circle cx="20" cy="20" r="12" fill="#e5e7eb"/>
+    <!-- Text -->
+    <text x="40" y="25" font-family="Arial" font-size="14" font-weight="bold" fill="#1f2937">Thomas Freilmann</text>
+    <text x="40" y="40" font-family="Arial" font-size="12" fill="#6b7280">Zahntechniker @Schwack</text>
+    <!-- Buttons -->
+    <rect x="40" y="50" width="50" height="20" fill="#f3f4f6" rx="4"/>
+    <text x="55" y="62" font-family="Arial" font-size="10" fill="#374151">Profil</text>
+    <rect x="100" y="50" width="60" height="20" fill="#f3f4f6" rx="4"/>
+    <text x="120" y="62" font-family="Arial" font-size="10" fill="#374151">Nachricht</text>
+  </g>
+</svg>
