@@ -33,11 +33,6 @@ const Impressum = lazy(() => import("./pages/Impressum"));
 const AGB = lazy(() => import("./pages/AGB"));
 const Talent = lazy(() => import("./pages/Talent"));
 const CVGenerator = lazy(() => import("./components/CVGenerator"));
-const EmergencyCVGenerator = lazy(() => import("./components/EmergencyCVGenerator"));
-const EmergencyLanding = lazy(() => import("./components/EmergencyLanding"));
-const RobustDashboard = lazy(() => import("./components/RobustDashboard"));
-const RobustCompanyDashboard = lazy(() => import("./components/RobustCompanyDashboard"));
-const SupabaseCVGenerator = lazy(() => import("./components/SupabaseCVGenerator"));
 const Profile = lazy(() => import("./pages/Profile"));
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const Marketplace = lazy(() => import("./pages/Marketplace"));
@@ -308,8 +303,8 @@ const App = () => {
         <BrowserRouter>
           <UniversalLayout>
             <Routes>
-              {/* BeVisiblle Landing Page auf Root */}
-              <Route path="/" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><BeVisiblleLandingPage /></Suspense>} />
+              {/* Main Landing Page */}
+              <Route path="/" element={<Index />} />
               
               {/* BeVisiblle Unterseiten */}
               <Route path="/auth" element={<Auth />} />
@@ -342,10 +337,10 @@ const App = () => {
               <Route path="/cv-layout-selector" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><CVGeneratorGate><CVGenerator /></CVGeneratorGate></Suspense>} />
               <Route path="/Lebenslauferstellen" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><CVGeneratorGate><CVGenerator /></CVGeneratorGate></Suspense>} />
               
-              {/* Emergency CV Generator - Always works */}
-              <Route path="/cv-emergency" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><EmergencyCVGenerator /></Suspense>} />
-              <Route path="/cv-supabase" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><SupabaseCVGenerator /></Suspense>} />
-              <Route path="/emergency" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><EmergencyLanding /></Suspense>} />
+              {/* Emergency CV Generator Routes - Commented out (components not found) */}
+              {/* <Route path="/cv-emergency" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><EmergencyCVGenerator /></Suspense>} /> */}
+              {/* <Route path="/cv-supabase" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><SupabaseCVGenerator /></Suspense>} /> */}
+              {/* <Route path="/emergency" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><EmergencyLanding /></Suspense>} /> */}
               
               {/* Company marketing pages */}
               <Route path="/company" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><CompanyLanding /></Suspense>} />

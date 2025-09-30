@@ -7,7 +7,6 @@ import SearchAutosuggest, { SuggestionType } from "@/components/marketplace/Sear
 import ConnectionsDrawer from "@/components/community/ConnectionsDrawer";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import MessagePopoverPanel from "@/components/community/MessagePopoverPanel";
-import WalletChip from "@/components/nav/WalletChip";
 const titleMap: Record<string, string> = {
   "/community/contacts": "Meine Kontakte",
   "/community/companies": "Unternehmen",
@@ -108,10 +107,10 @@ export default function TopNavBar() {
             onClick={() => navigate('/marketplace')} 
           />
           
-          {/* Wallet Chip - only show for company users */}
-          <WalletChip className="hidden sm:flex" />
+          {/* Wallet Chip - commented out (component not found) */}
+          {/* <WalletChip className="hidden sm:flex" /> */}
           
-          <Users 
+          <Users
             className="h-5 w-5 cursor-pointer hover:text-primary" 
             onClick={() => setDrawerOpen(true)} 
           />

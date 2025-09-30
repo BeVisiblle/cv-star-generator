@@ -174,19 +174,20 @@ export default function CompanyOnboarding() {
       if (authError) throw new Error(`Registrierung fehlgeschlagen: ${authError.message}`);
       if (!authData.user) throw new Error('Benutzer konnte nicht erstellt werden');
 
+      // Calculate industriesLabel outside of retry function
+      const industriesLabel = data.industries
+        .map((key) => {
+          if (key === "custom") {
+            return data.customIndustry?.trim();
+          }
+          return branchLabelMap[key] ?? key;
+        })
+        .filter(Boolean)
+        .join(', ');
+
       // Retry helper with exponential backoff
       const attemptCreate = async (attempt = 1): Promise<string> => {
         try {
-          const industriesLabel = data.industries
-            .map((key) => {
-              if (key === "custom") {
-                return data.customIndustry?.trim();
-              }
-              return branchLabelMap[key] ?? key;
-            })
-            .filter(Boolean)
-            .join(', ');
-
           const { data: companyId, error } = await supabase.rpc('create_company_account', {
             p_name: data.companyName,
             p_primary_email: data.email,

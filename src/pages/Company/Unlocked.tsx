@@ -185,17 +185,7 @@ export default function CompanyUnlocked() {
               faehigkeiten: ['Elektrotechnik', 'Schaltpläne', 'Messgeräte'],
               email: 'max.mustermann@example.com',
               telefon: '+49 30 12345678',
-              cv_url: null,
-              geburtsdatum: '2005-03-15',
-              has_drivers_license: true,
-              driver_license_class: 'B',
-              ueberMich: 'Leidenschaftlicher Elektroniker mit Interesse an modernen Technologien.',
-              bio: 'Leidenschaftlicher Elektroniker mit Interesse an modernen Technologien.',
-              schulbildung: [],
-              berufserfahrung: [],
-              sprachen: [],
-              hobbys: [],
-              job_search_preferences: ['Ausbildungsplatzwechsel']
+              cv_url: null
             },
             {
               id: 'test-profile-2',
@@ -210,17 +200,7 @@ export default function CompanyUnlocked() {
               faehigkeiten: ['Pflege', 'Medizin', 'Patientenbetreuung'],
               email: 'anna.schmidt@example.com',
               telefon: '+49 89 87654321',
-              cv_url: null,
-              geburtsdatum: '2004-07-22',
-              has_drivers_license: false,
-              driver_license_class: '',
-              ueberMich: 'Engagierte Krankenpflegerin mit Herz für Menschen.',
-              bio: 'Engagierte Krankenpflegerin mit Herz für Menschen.',
-              schulbildung: [],
-              berufserfahrung: [],
-              sprachen: [],
-              hobbys: [],
-              job_search_preferences: ['Ausbildungsplatzwechsel']
+              cv_url: null
             }
           ];
           

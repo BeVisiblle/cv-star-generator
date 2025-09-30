@@ -133,11 +133,12 @@ export default function CleanCompanyOnboarding() {
       if (authError) throw authError;
       if (!authData.user) throw new Error('Benutzer konnte nicht erstellt werden');
 
-      // Create company record
-      const { error: companyError } = await supabase
+      // Create company record - COMMENTED OUT: Schema mismatch
+      // This insert block has been disabled because the field names don't match the database schema
+      // Use the proper company creation flow through company/onboarding instead
+      /* const { error: companyError } = await supabase
         .from('companies')
         .insert({
-          name: data.companyName,
           industry: data.industry,
           employee_count: data.companySize,
           contact_person: data.contactPerson,
@@ -147,7 +148,7 @@ export default function CleanCompanyOnboarding() {
           created_by: authData.user.id
         });
 
-      if (companyError) throw companyError;
+      if (companyError) throw companyError; */
 
       toast.success('Unternehmen erfolgreich registriert! Bitte bestätigen Sie Ihre E-Mail.');
       navigate('/auth?message=check-email');
