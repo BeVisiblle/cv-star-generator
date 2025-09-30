@@ -1,82 +1,42 @@
-import React, { useLayoutEffect, useRef, useState } from 'react';
+import React from 'react';
 import CommunityFeed from '@/components/community/CommunityFeed';
 import { ComposerTeaser } from '@/components/dashboard/ComposerTeaser';
 import { LeftPanel } from '@/components/dashboard/LeftPanel';
 import { RightPanel } from '@/components/dashboard/RightPanel';
 import FeedSortBar from '@/components/community/FeedSortBar';
-import { NewPostComposer } from '@/components/community/NewPostComposer';
-
-/** Globale Annahme: Navbar ist fixed top-0 mit Höhe 64px */
-const NAVBAR_H = 64; // px
 
 const Dashboard = () => {
-  // Höhe der sticky Feed-Header-Sektion (2) messen
-  const feedHeadRef = useRef<HTMLDivElement | null>(null);
-  const [feedHeadH, setFeedHeadH] = useState(0);
-
-  useLayoutEffect(() => {
-    if (!feedHeadRef.current) return;
-    const el = feedHeadRef.current;
-    const ro = new ResizeObserver(() => {
-      setFeedHeadH(el.getBoundingClientRect().height);
-    });
-    ro.observe(el);
-    // Initial
-    setFeedHeadH(el.getBoundingClientRect().height);
-    return () => ro.disconnect();
-  }, []);
-
   return (
-    <main className="w-full min-h-dvh bg-white">
+    <main className="w-full overflow-x-hidden">
       <h1 className="sr-only">Dashboard</h1>
-      
-      {/* Inhalt direkt unter der Navbar - nur nötiger Offset */}
-      <div className="pt-16"> {/* 64px Offset für fixed Navbar */}
-        <div className="mx-auto max-w-screen-2xl grid grid-cols-12 gap-4 px-3 sm:px-6 lg:px-8">
-          
-          {/* (1) Left Panel - normaler Flow, keine eigene Scrollbar */}
-          <aside
-            className="hidden lg:block col-span-3"
-            aria-label="Linke Spalte"
-          >
-            <LeftPanel />
+      <div className="mx-auto max-w-screen-2xl px-3 sm:px-6 lg:px-8 py-6">
+        <div className="flex gap-4 lg:gap-6">
+          {/* Left column (fixed width) */}
+          <aside className="hidden lg:block w-[280px] xl:w-[320px] shrink-0">
+            <div className="sticky top-20 space-y-4">
+              <LeftPanel />
+            </div>
           </aside>
 
-          {/* Main - Center Column */}
-          <section className="col-span-12 lg:col-span-9 xl:col-span-6 relative">
-            
-            {/* (2) Sticky: Composer + Feed Controls - kompakter ohne Border */}
-            <div
-              ref={feedHeadRef}
-              className="sticky z-40 bg-white"
-              style={{ top: NAVBAR_H }}
-            >
-              <div className="px-3 py-2">
-                <ComposerTeaser />
-                <div className="px-3 py-1">
-                  <FeedSortBar />
-                </div>
+          {/* Center column (flex grows) */}
+          <section className="flex-1 min-w-0">
+            <div className="w-full max-w-[560px] mx-auto px-4 md:max-w-none md:px-0 space-y-4">
+              <ComposerTeaser />
+              <div className="my-2">
+                <FeedSortBar />
               </div>
-            </div>
-
-            {/* (3) Post-Liste - kompakterer Abstand */}
-            <div className="mt-2 space-y-3 relative z-10" role="feed">
-              <CommunityFeed feedHeadHeight={feedHeadH} />
+              <CommunityFeed />
             </div>
           </section>
 
-          {/* (4) Right Panel - normaler Flow, keine eigene Scrollbar */}
-          <aside
-            className="hidden xl:block col-span-3"
-            aria-label="Rechte Spalte"
-          >
-            <RightPanel />
+          {/* Right column (fixed width) */}
+          <aside className="hidden xl:block w-[320px] shrink-0">
+            <div className="sticky top-20 space-y-4">
+              <RightPanel />
+            </div>
           </aside>
         </div>
       </div>
-      
-      {/* NewPostComposer für Event-Handling */}
-      <NewPostComposer />
     </main>
   );
 };

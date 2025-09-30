@@ -1,13 +1,11 @@
+import React, { useEffect, useMemo, useState } from 'react';
 import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import PostCard from './PostCard';
-import NewPostsNotification from './NewPostsNotification';
 import { Loader2 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
-import { useState, useEffect } from 'react';
-import { LogoSpinner } from '@/components/shared/LoadingSkeleton';
 
 type PostWithAuthor = any;
 
@@ -15,18 +13,11 @@ const PAGE_SIZE = 20;
 
 type FeedSortOption = "relevant" | "newest";
 
-interface CommunityFeedProps {
-  feedHeadHeight?: number; // Höhe der Feed-Header-Sektion für Sticky-Position
-}
-
-export default function CommunityFeed({ feedHeadHeight = 0 }: CommunityFeedProps) {
+export default function CommunityFeed() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const viewerId = user?.id || null;
   const [sort, setSort] = useState<FeedSortOption>((localStorage.getItem('feed_sort') as FeedSortOption) || 'relevant');
-
-  // Debug: Log auth state
-  console.log('[feed] Auth state:', { user: !!user, userId: user?.id, viewerId });
 
   useEffect(() => {
     const handler = (e: any) => setSort(e.detail as FeedSortOption);
@@ -36,239 +27,226 @@ export default function CommunityFeed({ feedHeadHeight = 0 }: CommunityFeedProps
 
   const feedQuery = useInfiniteQuery({
     queryKey: ['home-feed', viewerId, sort],
-    enabled: true, // Always enabled to load posts
+    enabled: !!viewerId,
     initialPageParam: { after_published: null as string | null, after_id: null as string | null },
     queryFn: async ({ pageParam }) => {
       console.log('[feed] fetching page', pageParam, sort);
 
-      // Use community_posts table directly
-      let query = supabase
+      const { data: posts, error } = await supabase
         .from('community_posts')
-        .select('*')
+        .select(`
+          *,
+          actor_user_profile:profiles_public!community_posts_actor_user_id_fkey(
+            id, vorname, nachname, avatar_url, status, ausbildungsberuf, 
+            schule, ausbildungsbetrieb, aktueller_beruf, employment_status,
+            headline, company_name, company_logo
+          ),
+          actor_company:companies!community_posts_actor_company_id_fkey(
+            id, name, logo_url, description
+          )
+        `)
         .eq('status', 'published')
+        .order('created_at', { ascending: false })
         .limit(PAGE_SIZE);
-
-      // Apply sorting based on the selected option
-      if (sort === 'newest') {
-        query = query.order('created_at', { ascending: false });
-      } else {
-        // Sort by relevance (combination of engagement and recency)
-        query = query.order('created_at', { ascending: false });
-      }
-
-      // Apply pagination
-      if (pageParam?.after_published) {
-        query = query.lt('created_at', pageParam.after_published);
-      }
-
-      const { data: posts, error } = await query;
 
       if (error) {
         console.error('[feed] get_feed error', error);
         throw error;
       }
 
-      console.log('[feed] raw posts from DB:', posts?.length, posts);
+      const rows: any[] = (posts as any[]) || [];
       
-      // Debug: Check if we have any posts at all
-      if (!posts || posts.length === 0) {
-        console.warn('[feed] No posts found in database!');
-        
-        // Try to get all posts without filters to debug
-        const { data: allPosts, error: allError } = await supabase
-          .from('posts')
-          .select('id, status, created_at, content')
-          .limit(5);
-        
-        console.log('[feed] All posts (any status):', allPosts?.length, allPosts);
-        if (allError) {
-          console.error('[feed] Error fetching all posts:', allError);
-        }
-      }
-
-      // Transform posts data to match expected structure
-      const transformedPosts = posts?.map(post => {        
-        return {
-          id: post.id,
-          content: post.body_md || '',
-          body_md: post.body_md || '',
-          image_url: post.media?.[0]?.url || null,
-          media: post.media || [],
-          status: post.status || 'published',
-          visibility: post.visibility || 'public',
-          user_id: post.actor_user_id,
-          actor_user_id: post.actor_user_id,
-          author_type: (post.actor_company_id ? 'company' : 'user') as 'user' | 'company',
-          author_id: post.actor_user_id,
-          company_id: post.actor_company_id,
-          actor_company_id: post.actor_company_id,
-          like_count: post.like_count || 0,
-          likes_count: post.like_count || 0,
-          comment_count: post.comment_count || 0,
-          comments_count: post.comment_count || 0,
-          share_count: post.share_count || 0,
-          shares_count: post.share_count || 0,
-          created_at: post.created_at,
-          updated_at: post.updated_at,
-          published_at: post.created_at,
-          author: null // Will be fetched separately
-        };
-      }) || [];
-
-      console.log('[feed] transformed posts:', transformedPosts.length, transformedPosts);
-
-      // If we don't have author info from the view, fetch it separately
-      const postsNeedingAuthorInfo = transformedPosts.filter(post => !post.author);
-      if (postsNeedingAuthorInfo.length > 0) {
-        console.log('[feed] Fetching author info for', postsNeedingAuthorInfo.length, 'posts');
-        
-        const userIds = [...new Set(postsNeedingAuthorInfo.map(p => p.actor_user_id || p.author_id).filter(Boolean))];
-        const companyIds = [...new Set(postsNeedingAuthorInfo.map(p => p.company_id).filter(Boolean))];
-
-        let userProfiles: any[] = [];
-        let companyProfiles: any[] = [];
-
-        if (userIds.length > 0) {
-          console.log('[feed] Fetching user profiles for IDs:', userIds);
-          
-          // Try multiple profile queries to handle different table structures
-          let { data: profiles, error: profileError } = await supabase
-            .from('profiles')
-            .select('id, vorname, nachname, avatar_url')
-            .in('id', userIds);
-          
-          // If no profiles found, create fallback profiles
-          if (!profiles || profiles.length === 0) {
-            console.log('[feed] No profiles found, creating fallback profiles');
-            profiles = userIds.map(id => ({
-              id: id,
-              vorname: 'Nutzer',
-              nachname: id.slice(0, 8),
-              avatar_url: null
-            }));
-          }
-          
-          console.log('[feed] User profiles result:', profiles, profileError);
-          userProfiles = profiles || [];
-        }
-
-        if (companyIds.length > 0) {
-          console.log('[feed] Fetching company profiles for IDs:', companyIds);
-          const { data: companies, error: companyError } = await supabase
-            .from('companies')
-            .select('id, name, logo_url, description')
-            .in('id', companyIds);
-          
-          console.log('[feed] Company profiles result:', companies, companyError);
-          companyProfiles = companies || [];
-        }
-
-        // Add author info to posts that need it
-        transformedPosts.forEach(post => {
-          if (!post.author) {
-            const author = post.author_type === 'company'
-              ? companyProfiles.find(c => c.id === post.company_id)
-              : userProfiles.find(p => p.id === (post.actor_user_id || post.author_id));
-
-            console.log('[feed] Post author lookup:', {
-              postId: post.id,
-              authorType: post.author_type,
-              authorId: post.author_id,
-              actorUserId: post.actor_user_id,
-              companyId: post.company_id,
-              foundAuthor: author,
-              userProfilesCount: userProfiles.length,
-              companyProfilesCount: companyProfiles.length
-            });
-
-            // Use author data correctly
-            const firstName = author?.vorname || '';
-            const lastName = author?.nachname || '';
-            const fullName = `${firstName} ${lastName}`.trim();
-            const displayName = fullName || author?.full_name || author?.name || 'Unbekannter Nutzer';
-
-            post.author = {
-              id: post.author_id || post.actor_user_id,
-              full_name: displayName,
-              avatar_url: author?.avatar_url || author?.logo_url || null,
-              headline: author?.headline || author?.description || '',
-              type: post.author_type,
-            };
-          }
-        });
-      }
+      // Transform posts to match PostCard interface
+      const transformedPosts = rows.map(post => ({
+        id: post.id,
+        content: post.body_md || '', // Map body_md to content
+        image_url: post.media?.[0]?.url, // Get first media item
+        created_at: post.created_at,
+        user_id: post.actor_user_id || post.actor_company_id,
+        author_type: post.actor_user_id ? 'user' : 'company',
+        author_id: post.actor_user_id || post.actor_company_id,
+        like_count: post.like_count || 0,
+        comment_count: post.comment_count || 0,
+        share_count: post.share_count || 0,
+        author: post.actor_user_profile ? {
+          id: post.actor_user_profile.id,
+          vorname: post.actor_user_profile.vorname,
+          nachname: post.actor_user_profile.nachname,
+          avatar_url: post.actor_user_profile.avatar_url,
+          ausbildungsberuf: post.actor_user_profile.ausbildungsberuf,
+          schule: post.actor_user_profile.schule,
+          ausbildungsbetrieb: post.actor_user_profile.ausbildungsbetrieb,
+          aktueller_beruf: post.actor_user_profile.aktueller_beruf,
+          status: post.actor_user_profile.status,
+          employment_status: post.actor_user_profile.employment_status,
+          headline: post.actor_user_profile.headline,
+          company_name: post.actor_user_profile.company_name
+        } : null,
+        company: post.actor_company ? {
+          id: post.actor_company.id,
+          name: post.actor_company.name,
+          logo_url: post.actor_company.logo_url,
+          description: post.actor_company.description
+        } : null
+      }));
 
       return {
         posts: transformedPosts,
-        nextPage: posts && posts.length === PAGE_SIZE
-          ? {
-              after_published: posts[posts.length - 1].created_at,
-              after_id: posts[posts.length - 1].id,
-            }
-          : undefined,
+        nextPage: transformedPosts.length === PAGE_SIZE ? {
+          after_published: transformedPosts[transformedPosts.length - 1]?.created_at,
+          after_id: transformedPosts[transformedPosts.length - 1]?.id
+        } : null
       };
     },
     getNextPageParam: (lastPage) => lastPage.nextPage,
   });
 
-  const posts = feedQuery.data?.pages.flatMap(page => page.posts) ?? [];
-  const postIds = posts.map(post => post.id);
+  // Real-time updates
+  useEffect(() => {
+    if (!user?.id) return;
 
-  if (feedQuery.isLoading && posts.length === 0) {
-    return <LogoSpinner size="lg" text="Posts werden geladen..." />;
-  }
+    console.log('[feed] subscribing realtime');
+    const channel = supabase
+      .channel('schema-db-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'community_posts',
+          filter: 'status=eq.published'
+        },
+        (payload) => {
+          console.log('[feed] realtime update', payload);
+          queryClient.invalidateQueries({ queryKey: ['home-feed'] });
+        }
+      )
+      .subscribe();
 
-  if (feedQuery.isError) {
+    return () => {
+      console.log('[feed] unsubscribing realtime');
+      supabase.removeChannel(channel);
+    };
+  }, [user?.id, queryClient]);
+
+  const posts: PostWithAuthor[] = useMemo(
+    () => (feedQuery.data?.pages || []).flatMap((p: any) => p.posts || []) as PostWithAuthor[],
+    [feedQuery.data]
+  );
+
+  if (!viewerId) {
     return (
-      <Card className="p-6 text-center text-destructive">
-        <p>Fehler beim Laden der Beiträge: {feedQuery.error.message}</p>
-        <Button onClick={() => feedQuery.refetch()} className="mt-4">
-          Erneut versuchen
-        </Button>
-      </Card>
-    );
-  }
-
-  if (posts.length === 0) {
-    return (
-      <Card className="p-6 text-center">
-        <p className="text-muted-foreground">Noch keine Beiträge vorhanden</p>
-        <p className="text-sm text-muted-foreground mt-1">
-          Sei der Erste und teile etwas mit der Community!
+      <Card className="p-6">
+        <p className="text-center text-muted-foreground">
+          Bitte melde dich an, um deinen Community‑Feed zu sehen.
         </p>
       </Card>
     );
   }
 
+  if (feedQuery.isLoading) {
+    return (
+      <div className="flex items-center justify-center p-8">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
+
+  if (feedQuery.isError) {
+    return (
+      <Card className="p-6">
+        <p className="text-center text-muted-foreground">
+          Fehler beim Laden der Beiträge. Bitte versuche es später erneut.
+        </p>
+      </Card>
+    );
+  }
+
+  const isEmpty = !posts || posts.length === 0;
+
   return (
     <div className="space-y-4">
-      <NewPostsNotification 
-        onRefresh={() => feedQuery.refetch()} 
-        currentPostIds={postIds}
-        feedHeadHeight={feedHeadHeight}
-      />
-      
-      {posts.map((post) => (
-        <PostCard key={post.id} post={post} />
-      ))}
-      
-      {feedQuery.hasNextPage && (
-        <div className="flex justify-center py-4">
-          <Button
-            onClick={() => feedQuery.fetchNextPage()}
-            disabled={feedQuery.isFetchingNextPage}
-            variant="outline"
-          >
-            {feedQuery.isFetchingNextPage ? (
-              <>
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                Lade mehr...
-              </>
+      {isEmpty ? (
+        <>
+          {Array.from({ length: 10 }).map((_, i) => {
+            const names = ['Lena','Max','Sara','Jonas','Mia','Paul','Amira','Leo','Nina','Tom'];
+            const surns = ['K.','M.','S.','J.','B.','P.','A.','L.','N.','T.'];
+            const roles = ['Kaufmännische Ausbildung','IT‑Support','Marketing','Handwerk','Technik'];
+            const images = [
+              'https://images.unsplash.com/photo-1516251193007-45ef944ab0c6?q=80&w=1200&auto=format&fit=crop',
+              'https://images.unsplash.com/photo-1498050108023-c5249f4df085?q=80&w=1200&auto=format&fit=crop',
+              'https://images.unsplash.com/photo-1520975867597-0f0a113a2d97?q=80&w=1200&auto=format&fit=crop',
+              'https://images.unsplash.com/photo-1520974722171-5f69e34f56b0?q=80&w=1200&auto=format&fit=crop',
+              'https://images.unsplash.com/photo-1520975967075-3f1f3c2d7b68?q=80&w=1200&auto=format&fit=crop'
+            ];
+            const texts = [
+              'Heute habe ich mich für drei neue Ausbildungsstellen beworben – drückt mir die Daumen!',
+              'Tipps für ein gelungenes Anschreiben: kurz, prägnant und persönlich.',
+              'Mein Wochenziel: Lebenslauf überarbeiten und ein neues Projekt starten.',
+              'Wer hat Erfahrungen mit Praktika in Frankfurt? Empfehlungen willkommen!',
+              'Kleiner Erfolg: Mein erstes Vorstellungsgespräch steht – ich bin gespannt!',
+              'Ich übe gerade technische Basics täglich 30 Minuten – Kontinuität hilft.',
+              'Kennt ihr gute Online‑Kurse für Handwerk/IT? Würde mich über Links freuen.',
+              'Feedback gesucht: Wie wirkt mein Profiltext? Kurze Hinweise sehr willkommen.',
+              'Community‑Frage: Welche Soft Skills sind euch im Team am wichtigsten?',
+              'Motivation des Tages: Jeden Tag eine kleine Sache besser machen.'
+            ];
+            const interactions = [
+              "Ein Mitglied hat das kommentiert",
+              "Zwei Mitglieder gefällt das",
+              `${names[(i+3) % names.length]} hat das kommentiert`,
+              `${names[(i+5) % names.length]} gefällt das`
+            ];
+            return (
+              <PostCard
+                key={`demo-${i}`}
+                post={{
+                  id: `demo-${i}`,
+                  content: texts[i % texts.length],
+                  created_at: new Date(Date.now() - i * 3600_000).toISOString(),
+                  user_id: "demo",
+                  image_url: images[i % images.length],
+                  recent_interaction: interactions[i % interactions.length],
+                  author: {
+                    id: "demo",
+                    vorname: names[i % names.length],
+                    nachname: surns[i % surns.length],
+                    avatar_url: `https://i.pravatar.cc/150?img=${(i % 70) + 1}`,
+                    ausbildungsberuf: roles[i % roles.length]
+                  }
+                }}
+              />
+            );
+          })}
+        </>
+      ) : (
+        <>
+          <div className="space-y-4">
+            {posts.map((post: any) => (
+              <PostCard key={post.id} post={post} />
+            ))}
+          </div>
+
+          <div className="flex items-center justify-center py-6">
+            {feedQuery.hasNextPage ? (
+              <Button
+                variant="outline"
+                disabled={feedQuery.isFetchingNextPage}
+                onClick={() => feedQuery.fetchNextPage()}
+              >
+                {feedQuery.isFetchingNextPage ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Lädt …
+                  </>
+                ) : (
+                  'Mehr laden'
+                )}
+              </Button>
             ) : (
-              'Mehr laden'
+              <span className="text-xs text-muted-foreground">Alles geladen</span>
             )}
-          </Button>
-        </div>
+          </div>
+        </>
       )}
     </div>
   );

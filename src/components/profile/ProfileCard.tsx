@@ -96,19 +96,6 @@ export function ProfileCard({
             <span>Führerschein</span>
           </div>
         )}
-        {/* UNLOCKED: Zeige zusätzliche Kontaktdaten */}
-        {variant === "unlocked" && p.email && (
-          <div className="flex items-center gap-1">
-            <Mail className="h-3 w-3 text-gray-400" />
-            <span className="truncate">{p.email}</span>
-          </div>
-        )}
-        {variant === "unlocked" && p.phone && (
-          <div className="flex items-center gap-1">
-            <Phone className="h-3 w-3 text-gray-400" />
-            <span className="truncate">{p.phone}</span>
-          </div>
-        )}
       </div>
 
       {/* 3) Intent */}

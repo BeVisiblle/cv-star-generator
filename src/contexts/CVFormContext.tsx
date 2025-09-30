@@ -130,17 +130,8 @@ export const CVFormProvider = ({ children }: { children: ReactNode }) => {
     return localStorage.getItem('cvLayoutEditMode') === 'true';
   });
 
-  // Load form data from localStorage only when CV Generator is actually needed
+  // Load form data from localStorage on initial load
   useEffect(() => {
-    // Only load CV data if we're on CV-related routes
-    const currentPath = window.location.pathname;
-    const isCVRoute = currentPath.includes('/cv-') || currentPath.includes('/Lebenslauferstellen');
-    
-    if (!isCVRoute) {
-      console.log('CV Generator: Skipping CV data load - not on CV route');
-      return;
-    }
-    
     const savedData = localStorage.getItem('cvFormData');
     if (savedData) {
       try {

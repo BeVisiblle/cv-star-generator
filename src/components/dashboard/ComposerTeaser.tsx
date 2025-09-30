@@ -2,14 +2,12 @@ import React from "react";
 import { Card } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Image as ImageIcon, Calendar, FileText, ChartBar, Building2 } from "lucide-react";
+import { Image as ImageIcon, Calendar, FileText, ChartBar } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { openPostComposer } from "@/lib/event-bus";
-import { formatNameWithJob } from "@/utils/profileUtils";
 
 export const ComposerTeaser: React.FC = () => {
   const { profile } = useAuth();
-  const nameInfo = formatNameWithJob(profile);
 
   return (
     <Card
@@ -29,25 +27,6 @@ export const ComposerTeaser: React.FC = () => {
         </Avatar>
 
         <div className="flex-1 min-w-0">
-          <div className="mb-2">
-            <div className="flex items-center gap-2 flex-wrap">
-              <span className="font-medium text-sm">{nameInfo.name}</span>
-              {nameInfo.jobTitle && nameInfo.company && (
-                <span className="text-xs text-muted-foreground">
-                  {nameInfo.jobTitle} @
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      // TODO: Navigate to company page
-                    }}
-                    className="text-primary hover:underline ml-1"
-                  >
-                    {nameInfo.company}
-                  </button>
-                </span>
-              )}
-            </div>
-          </div>
           <div className="w-full px-4 py-2 rounded-md border bg-background text-muted-foreground text-sm">
             Was möchtest du posten?
           </div>

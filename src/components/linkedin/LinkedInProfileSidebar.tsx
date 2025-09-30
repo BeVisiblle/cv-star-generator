@@ -11,7 +11,6 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { uploadFile, deleteFile } from '@/lib/supabase-storage';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { CompanyRecommendations } from '@/components/linkedin/right-rail/CompanyRecommendations';
 
 // Import CV layout components
 import ModernLayout from '@/components/cv-layouts/ModernLayout';
@@ -730,8 +729,5 @@ export const LinkedInProfileSidebar: React.FC<LinkedInProfileSidebarProps> = ({
     </CardContent>
   </Card>
 )}
-
-      {/* Company Recommendations */}
-      <CompanyRecommendations limit={3} showMore={true} showMoreLink="/entdecken/unternehmen" />
     </div>;
 };

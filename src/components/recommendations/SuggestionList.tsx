@@ -118,10 +118,10 @@ export function SuggestionList<T>({
                   <Button
                     size="sm"
                     variant="outline"
-                    aria-label={secondaryLabel || "Ansehen"}
+                    aria-label={secondaryLabel || "View"}
                     onClick={() => onView(item)}
                   >
-                    {secondaryLabel || "Ansehen"}
+                    {secondaryLabel || "View"}
                   </Button>
                 )}
                 <Button size="sm" onClick={() => handlePrimary(idx)} aria-label={primaryLabel}>
@@ -130,7 +130,7 @@ export function SuggestionList<T>({
                 <Button
                   size="icon"
                   variant="ghost"
-                  aria-label="Überspringen"
+                  aria-label="Skip"
                   onClick={() => handleSkip(idx)}
                 >
                   <X className="h-4 w-4" />

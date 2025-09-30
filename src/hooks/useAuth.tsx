@@ -39,13 +39,15 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   useEffect(() => {
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
+      (event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
         
-        // Load profile when user is authenticated - no setTimeout to avoid timing vulnerabilities
+        // Load profile when user is authenticated
         if (session?.user) {
-          await loadProfile(session.user.id);
+          setTimeout(() => {
+            loadProfile(session.user.id);
+          }, 0);
         } else {
           setProfile(null);
           setIsLoading(false);
@@ -54,12 +56,12 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     );
 
     // Check for existing session
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
       
       if (session?.user) {
-        await loadProfile(session.user.id);
+        loadProfile(session.user.id);
       } else {
         setIsLoading(false);
       }
@@ -73,7 +75,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     try {
       console.debug('Loading profile');
       
-      // Use secure profile loading - users can only access their own full profile
       const { data: profile, error } = await supabase
         .from('profiles')
         .select('*')
@@ -89,17 +90,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       } else {
         setProfile(profile);
         console.debug('Profile loaded');
-        
-        // Log profile access for security audit
-        try {
-          await supabase.rpc('log_security_event', {
-            p_action: 'profile_access',
-            p_resource_type: 'profile',
-            p_resource_id: userId
-          });
-        } catch (auditError) {
-          console.warn('Failed to log security event:', auditError);
-        }
       }
     } catch (error) {
       console.error('Unexpected error loading profile:', error);

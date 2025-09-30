@@ -8,14 +8,13 @@ import { useAuth } from '@/hooks/useAuth';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import { Calendar as CalendarIcon, Image as ImageIcon, Plus, PartyPopper, FileText, BarChart3, Users, Globe, Building2 } from 'lucide-react';
+import { Calendar as CalendarIcon, Image as ImageIcon, Plus, PartyPopper, FileText, BarChart3, Users, Globe } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar as DateCalendar } from '@/components/ui/calendar';
 import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { formatNameWithJob } from '@/utils/profileUtils';
 
 export const NewPostComposer: React.FC = () => {
   const isMobile = useIsMobile();
@@ -30,17 +29,10 @@ export const NewPostComposer: React.FC = () => {
     return subscribeOpenPostComposer(() => setOpen(true));
   }, []);
 
-  const handleStateChange = React.useCallback((isSubmitting: boolean) => {
-    setIsSubmitting(isSubmitting);
+  const handleStateChange = React.useCallback((s: { canPost: boolean; isSubmitting: boolean }) => {
+    setCanPost(s.canPost);
+    setIsSubmitting(s.isSubmitting);
   }, []);
-
-  // Close dialog when post is successfully created
-  React.useEffect(() => {
-    if (!isSubmitting && canPost === false && open) {
-      // Post was successfully created, close dialog
-      setOpen(false);
-    }
-  }, [isSubmitting, canPost, open]);
 
   const AudienceIcon = audience === 'public' ? Globe : Users;
 
@@ -51,8 +43,6 @@ export const NewPostComposer: React.FC = () => {
   const [showPoll, setShowPoll] = React.useState(false);
   const [showEvent, setShowEvent] = React.useState(false);
   const [celebration, setCelebration] = React.useState(false);
-  
-  const nameInfo = formatNameWithJob(profile);
 
   const applySchedule = () => {
     if (scheduleDate && scheduleTime) {
@@ -78,24 +68,8 @@ export const NewPostComposer: React.FC = () => {
           </AvatarFallback>
         </Avatar>
         <div className="flex-1 min-w-0">
-          <div className="text-sm font-medium leading-tight">
-            <div className="flex items-center gap-2 flex-wrap">
-              <span>{nameInfo.name}</span>
-              {nameInfo.jobTitle && nameInfo.company && (
-                <span className="text-xs text-muted-foreground">
-                  {nameInfo.jobTitle} @
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      // TODO: Navigate to company page
-                    }}
-                    className="text-primary hover:underline ml-1"
-                  >
-                    {nameInfo.company}
-                  </button>
-                </span>
-              )}
-            </div>
+          <div className="text-sm font-medium leading-tight truncate">
+            {profile?.vorname && profile?.nachname ? `${profile.vorname} ${profile.nachname}` : 'Unbekannter Nutzer'}
           </div>
           <div className="mt-1">
             <Select value={audience} onValueChange={(v) => setAudience(v as any)}>
@@ -199,25 +173,14 @@ export const NewPostComposer: React.FC = () => {
     <div className="relative border-t bg-background/95 supports-[backdrop-filter]:bg-background/80 backdrop-blur px-4 py-3">
       {ActionTray}
       <div className="flex items-center justify-between">
-        <button 
-          type="button"
-          onClick={() => document.getElementById('image-upload')?.click()}
-          className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
-        >
-          <ImageIcon className="h-5 w-5" /> Bild/Video
-        </button>
-        <div className="flex items-center gap-2">
-          <Button variant="secondary" size="icon" className="h-10 w-10 rounded-full" onClick={() => setTrayOpen((v) => !v)} aria-expanded={trayOpen} aria-label="Weitere Aktionen">
-            <Plus className="h-5 w-5" />
-          </Button>
-          <Button
-            onClick={() => document.getElementById('createpost-submit')?.click()}
-            disabled={!canPost || isSubmitting}
-            className="px-6"
-          >
-            {isSubmitting ? 'Wird veröffentlicht...' : 'Posten'}
-          </Button>
-        </div>
+        <label htmlFor="image-upload" className="cursor-pointer">
+          <span className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
+            <ImageIcon className="h-5 w-5" /> Bild/Video
+          </span>
+        </label>
+        <Button variant="secondary" size="icon" className="h-10 w-10 rounded-full" onClick={() => setTrayOpen((v) => !v)} aria-expanded={trayOpen} aria-label="Weitere Aktionen">
+          <Plus className="h-5 w-5" />
+        </Button>
       </div>
     </div>
   );
@@ -231,7 +194,7 @@ export const NewPostComposer: React.FC = () => {
           </SheetHeader>
           {Header}
           <div className="flex-1 overflow-y-auto px-6 pb-6 max-h-[calc(92vh-180px)]">
-            <CreatePost container="none" hideHeader hideBottomBar onStateChange={handleStateChange} scheduledAt={scheduledAt?.toISOString()} celebration={celebration} visibility={audience} />
+            <CreatePost container="none" hideHeader variant="composer" hideBottomBar onStateChange={handleStateChange} scheduledAt={scheduledAt} showPoll={showPoll} showEvent={showEvent} celebration={celebration} visibility={audience} />
           </div>
           <div className="sticky bottom-0">{BottomToolbar}</div>
         </SheetContent>
@@ -246,7 +209,7 @@ export const NewPostComposer: React.FC = () => {
         <DialogDescription className="sr-only">Verfasse und veröffentliche einen neuen Beitrag.</DialogDescription>
         {Header}
         <div className="px-6 py-5 flex-1 overflow-y-auto">
-          <CreatePost container="none" hideHeader hideBottomBar onStateChange={handleStateChange} scheduledAt={scheduledAt?.toISOString()} celebration={celebration} visibility={audience} />
+          <CreatePost container="none" hideHeader variant="composer" hideBottomBar onStateChange={handleStateChange} scheduledAt={scheduledAt} showPoll={showPoll} showEvent={showEvent} celebration={celebration} visibility={audience} />
         </div>
         {BottomToolbar}
       </DialogContent>

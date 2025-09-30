@@ -24,8 +24,9 @@ export function MarketplaceComposer({ open, onOpenChange }: MarketplaceComposerP
 
   const AudienceIcon = audience === "public" ? Globe : audience === "connections" ? Users : Lock;
 
-  const handleState = (isSubmitting: boolean) => {
-    setIsSubmitting(isSubmitting);
+  const handleState = (s: { canPost: boolean; isSubmitting: boolean }) => {
+    setCanPost(s.canPost);
+    setIsSubmitting(s.isSubmitting);
   };
 
   const Header = (
@@ -75,7 +76,7 @@ export function MarketplaceComposer({ open, onOpenChange }: MarketplaceComposerP
           </SheetHeader>
           {Header}
           <div className="flex-1 overflow-y-auto px-6 pb-6">
-            <CreatePost container="none" hideHeader hideBottomBar onStateChange={handleState} />
+            <CreatePost container="none" hideHeader variant="composer" hideBottomBar onStateChange={handleState} />
           </div>
         </SheetContent>
       </Sheet>
@@ -90,7 +91,7 @@ export function MarketplaceComposer({ open, onOpenChange }: MarketplaceComposerP
         </DialogHeader>
         {Header}
         <div className="px-6 py-5">
-          <CreatePost container="none" hideHeader hideBottomBar onStateChange={handleState} />
+          <CreatePost container="none" hideHeader variant="composer" hideBottomBar onStateChange={handleState} />
         </div>
       </DialogContent>
     </Dialog>

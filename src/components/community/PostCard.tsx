@@ -300,13 +300,13 @@ const authorSubtitle = useMemo(() => {
                   const mention = `@${name.split(' ')[0]}`;
                   return (
                     <div key={c.id} className="flex items-start gap-2">
-                       <Avatar className="h-8 w-8 cursor-pointer" onClick={() => navigate(`/u/${c.author?.id || c.user_id}`)}>
-                         <AvatarImage src={c.author?.avatar_url ?? undefined} />
-                         <AvatarFallback className="text-xs">{initials}</AvatarFallback>
-                       </Avatar>
-                       <div className="flex-1 bg-muted/40 border rounded-lg p-2">
-                         <button className="text-xs font-medium hover:underline" onClick={() => navigate(`/u/${c.author?.id || c.user_id}`)}>{name}</button>
-                        <div className="text-sm whitespace-pre-wrap">{c.content}</div>
+                      <Avatar className="h-8 w-8 cursor-pointer" onClick={() => navigate(`/u/${c.author?.id || c.author_user_id}`)}>
+                        <AvatarImage src={c.author?.avatar_url ?? undefined} />
+                        <AvatarFallback className="text-xs">{initials}</AvatarFallback>
+                      </Avatar>
+                      <div className="flex-1 bg-muted/40 border rounded-lg p-2">
+                        <button className="text-xs font-medium hover:underline" onClick={() => navigate(`/u/${c.author?.id || c.author_user_id}`)}>{name}</button>
+                        <div className="text-sm whitespace-pre-wrap">{c.body_md}</div>
                         <div className="mt-1">
                           <Button
                             variant="ghost"

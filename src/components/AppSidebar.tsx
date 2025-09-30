@@ -1,25 +1,16 @@
 import { useState, useEffect } from "react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
-import { LayoutDashboard, User, Users, Settings, FileText, LogOut, ChevronRight, Plus, MessageSquare, Briefcase, Building2, Search, Sparkles } from "lucide-react";
+import { LayoutDashboard, User, Users, Settings, FileText, LogOut, ChevronRight, Plus, MessageSquare, Briefcase, Building2 } from "lucide-react";
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarMenuSub, SidebarMenuSubItem, SidebarMenuSubButton, SidebarHeader, SidebarFooter, useSidebar } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { openPostComposer } from "@/lib/event-bus";
-import { formatNameWithJob } from "@/utils/profileUtils";
 const navigationItems = [{
   title: "Dashboard",
   url: "/dashboard",
   icon: LayoutDashboard
-}, {
-  title: "Für Dich",
-  url: "/foryou",
-  icon: Sparkles
-}, {
-  title: "Jobsuche",
-  url: "/jobs",
-  icon: Search
 }, {
   title: "Mein Profil",
   url: "/profile",
@@ -46,8 +37,6 @@ export function AppSidebar() {
       return data;
     }
   });
-
-  const nameInfo = formatNameWithJob(profile);
 
   const isActive = (path: string) => currentPath === path;
 
@@ -139,7 +128,7 @@ export function AppSidebar() {
                       }`}
                     >
                       <item.icon className="h-4 w-4" />
-                      <span className={collapsed ? "sr-only" : ""}>{item.title}</span>
+                      {!collapsed && <span>{item.title}</span>}
                       {!collapsed && isActive(item.url) && <ChevronRight className="ml-auto h-4 w-4" />}
                     </button>
                   </SidebarMenuButton>
@@ -158,7 +147,7 @@ export function AppSidebar() {
                     }`}
                   >
                     <Users className="h-4 w-4" />
-                    <span className={collapsed ? "sr-only" : ""}>Community</span>
+                    {!collapsed && <span>Community</span>}
                     {!collapsed && (currentPath === "/marketplace" || currentPath.startsWith("/community")) && <ChevronRight className="ml-auto h-4 w-4" />}
                   </button>
                 </SidebarMenuButton>
@@ -172,7 +161,7 @@ export function AppSidebar() {
                         }`}
                       >
                         <Users className="h-4 w-4" />
-                        <span className={collapsed ? "sr-only" : ""}>Meine Freunde / Kontakte</span>
+                        {!collapsed && <span>Meine Freunde / Kontakte</span>}
                       </button>
                     </SidebarMenuSubButton>
                   </SidebarMenuSubItem>
@@ -185,7 +174,7 @@ export function AppSidebar() {
                         }`}
                       >
                         <Building2 className="h-4 w-4" />
-                        <span className={collapsed ? "sr-only" : ""}>Unternehmen</span>
+                        {!collapsed && <span>Unternehmen</span>}
                       </button>
                     </SidebarMenuSubButton>
                   </SidebarMenuSubItem>
@@ -198,7 +187,7 @@ export function AppSidebar() {
                         }`}
                       >
                         <MessageSquare className="h-4 w-4" />
-                        <span className={collapsed ? "sr-only" : ""}>Nachrichten</span>
+                        {!collapsed && <span>Nachrichten</span>}
                       </button>
                     </SidebarMenuSubButton>
                   </SidebarMenuSubItem>
@@ -211,47 +200,11 @@ export function AppSidebar() {
                         }`}
                       >
                         <Briefcase className="h-4 w-4" />
-                        <span className={collapsed ? "sr-only" : ""}>Jobs</span>
+                        {!collapsed && <span>Jobs</span>}
                       </button>
                     </SidebarMenuSubButton>
                   </SidebarMenuSubItem>
                 </SidebarMenuSub>
-              </SidebarMenuItem>
-
-              {/* Job Search */}
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild>
-                  <button
-                    onClick={() => handleNavigation("/jobs")}
-                    className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-all w-full text-left ${
-                      isActive("/jobs")
-                        ? "bg-sidebar-accent text-sidebar-accent-foreground" 
-                        : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-                    }`}
-                  >
-                    <Search className="h-4 w-4" />
-                    <span className={collapsed ? "sr-only" : ""}>Jobsuche</span>
-                    {!collapsed && isActive("/jobs") && <ChevronRight className="ml-auto h-4 w-4" />}
-                  </button>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-
-              {/* ForYou Recommendations */}
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild>
-                  <button
-                    onClick={() => handleNavigation("/foryou")}
-                    className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-all w-full text-left ${
-                      isActive("/foryou")
-                        ? "bg-sidebar-accent text-sidebar-accent-foreground" 
-                        : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-                    }`}
-                  >
-                    <Sparkles className="h-4 w-4" />
-                    <span className={collapsed ? "sr-only" : ""}>Für dich</span>
-                    {!collapsed && isActive("/foryou") && <ChevronRight className="ml-auto h-4 w-4" />}
-                  </button>
-                </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroupContent>
@@ -270,21 +223,11 @@ export function AppSidebar() {
               </Avatar>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-sidebar-accent-foreground truncate">
-                  {nameInfo.name}
+                  {profile?.vorname && profile?.nachname ? `${profile.vorname} ${profile.nachname}` : 'Unbekannter Nutzer'}
                 </p>
-                {nameInfo.jobTitle && nameInfo.company ? (
-                  <p className="text-xs text-sidebar-foreground/60 truncate">
-                    {nameInfo.jobTitle} @ {nameInfo.company}
-                  </p>
-                ) : nameInfo.jobTitle ? (
-                  <p className="text-xs text-sidebar-foreground/60 truncate">
-                    {nameInfo.jobTitle}
-                  </p>
-                ) : (
-                  <p className="text-xs text-sidebar-foreground/60 truncate">
-                    {profile?.email || ''}
-                  </p>
-                )}
+                <p className="text-xs text-sidebar-foreground/60 truncate">
+                  {profile?.email || ''}
+                </p>
               </div>
             </div>
 

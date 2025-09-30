@@ -228,7 +228,7 @@ const ProduktAzubis: React.FC = () => {
                   </div>
                 </div>
                 <div className="flex gap-1">
-                  <Button size="sm">Vernetzen</Button>
+                  <Button size="sm">Connect</Button>
                   <Button size="sm" variant="ghost">×</Button>
                 </div>
               </div>

@@ -9,7 +9,6 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Slider } from "@/components/ui/slider";
 import { useCompany } from "@/hooks/useCompany";
-import { useSimpleToken } from "@/hooks/useSimpleToken";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { SearchHeader } from "@/components/Company/SearchHeader";
@@ -72,12 +71,11 @@ const ITEMS_PER_PAGE = 20;
 
 export default function CompanySearch() {
   const navigate = useNavigate();
-  const { company } = useCompany();
-  const { useToken, isProfileUnlocked, tokenCount } = useSimpleToken();
+  const { company, useToken, hasUsedToken } = useCompany();
   const { user } = useAuth();
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [loading, setLoading] = useState(false);
-  // unlockedProfiles wird jetzt vom useSimpleToken Hook verwaltet
+  const [unlockedProfiles, setUnlockedProfiles] = useState<Set<string>>(new Set());
   const [savedMatches, setSavedMatches] = useState<Profile[]>([]);
   const [selectedProfile, setSelectedProfile] = useState<Profile | null>(null);
   const [isUnlockModalOpen, setIsUnlockModalOpen] = useState(false);
@@ -105,6 +103,7 @@ export default function CompanySearch() {
   
   useEffect(() => {
     if (company) {
+      loadUnlockedProfiles();
       loadSavedMatches();
     }
   }, [company?.id]);
@@ -208,6 +207,21 @@ export default function CompanySearch() {
     }
   };
 
+  const loadUnlockedProfiles = async () => {
+    if (!company) return;
+
+    try {
+      const { data } = await supabase
+        .from('tokens_used')
+        .select('profile_id')
+        .eq('company_id', company.id);
+
+      setUnlockedProfiles(new Set(data?.map(item => item.profile_id) || []));
+    } catch (error) {
+      console.error('Error loading unlocked profiles:', error);
+    }
+  };
+
   const loadSavedMatches = async () => {
     if (!company) return;
 
@@ -249,9 +263,16 @@ export default function CompanySearch() {
     setIsUnlocking(true);
     
     try {
-      // Prüfe ob bereits freigeschaltet
-      if (isProfileUnlocked(selectedProfile.id)) {
+      // Check if already unlocked
+      if (unlockedProfiles.has(selectedProfile.id)) {
         toast({ title: "Profil bereits freigeschaltet", variant: "destructive" });
+        return;
+      }
+
+      // Check if already used token for this profile
+      const alreadyUsed = await hasUsedToken(selectedProfile.id);
+      if (alreadyUsed) {
+        toast({ title: "Token bereits für dieses Profil verwendet", variant: "destructive" });
         return;
       }
 
@@ -295,7 +316,7 @@ export default function CompanySearch() {
           console.error('Failed to add to pipeline', e);
         }
 
-        // Profil wird automatisch vom useSimpleToken Hook als freigeschaltet markiert
+        setUnlockedProfiles(prev => new Set([...prev, selectedProfile.id]));
         toast({ title: "Profil erfolgreich freigeschaltet!" });
 
         // Ensure tokens_used row exists (fallback if RPC didn't create it)
@@ -362,37 +383,11 @@ export default function CompanySearch() {
     }
   };
 
-  const handleDownloadCV = async (profile: Profile) => {
-    if (!profile.cv_url) {
-      toast({ title: "Kein CV verfügbar", variant: "destructive" });
-      return;
-    }
-
-    try {
-      // Download CV from URL
-      const response = await fetch(profile.cv_url);
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `${profile.vorname}_${profile.nachname}_CV.pdf`;
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
-      
-      toast({ title: "CV wird heruntergeladen" });
-    } catch (error) {
-      console.error('Error downloading CV:', error);
-      toast({ title: "Fehler beim Download", variant: "destructive" });
-    }
-  };
-
   const updateFilter = (key: keyof SearchFilters, value: any) => {
     setFilters(prev => ({ ...prev, [key]: value }));
   };
 
-  // Verwende isUnlocked aus useSimpleToken Hook
+  const isProfileUnlocked = (profileId: string) => unlockedProfiles.has(profileId);
 
   const calculateMatchPercentage = (profile: Profile) => {
     // Simple matching algorithm
@@ -450,7 +445,7 @@ export default function CompanySearch() {
             )}
             <Badge variant="secondary" className="px-3 py-1">
               <Coins className="h-4 w-4 mr-1" />
-              {tokenCount} Tokens
+              {company?.active_tokens || 0} Tokens
             </Badge>
             <Badge variant="outline" className="px-3 py-1">
               {totalCount} Kandidaten
@@ -583,24 +578,19 @@ export default function CompanySearch() {
                     key={profile.id}
                     profile={{
                       id: profile.id,
-                      name: unlocked ? `${profile.vorname} ${profile.nachname}` : profile.vorname, // Full name if unlocked
-                      avatar_url: unlocked ? profile.avatar_url : null, // Avatar if unlocked
+                      name: profile.vorname, // Only first name for anonymity
+                      avatar_url: null, // No avatar for anonymity
                       role: profile.branche,
                       city: profile.ort,
                       fs: true, // Default for search results
                       seeking: Array.isArray(profile.job_search_preferences) && profile.job_search_preferences.length > 0
                         ? profile.job_search_preferences.join(', ')
                         : undefined,
-                      status: profile.status,
-                      email: unlocked ? profile.email : undefined, // Email if unlocked
-                      phone: unlocked ? profile.telefon : undefined, // Phone if unlocked
                       skills: Array.isArray(profile.faehigkeiten) ? profile.faehigkeiten : [],
                       match: matchPercentage,
                     }}
-                    variant={unlocked ? "unlocked" : "search"}
+                    variant="search"
                     onUnlock={() => handleUnlockProfile(profile)}
-                    onView={() => handlePreviewProfile(profile)}
-                    onDownload={() => handleDownloadCV(profile)}
                     onToggleFavorite={() => handleSaveMatch(profile)}
                   />
                 );

@@ -50,8 +50,7 @@ import { supabase } from "@/integrations/supabase/client";
 const navItems = [
   { to: "/company/dashboard", label: "Dashboard", icon: Home },
   { to: "/company/profile", label: "Unternehmensprofil", icon: Building2 },
-  { to: "/company/needs", label: "Stellenanzeigen", icon: Target },
-  { to: "/company/matches", label: "Top-Matches", icon: Users },
+  { to: "/company/needs", label: "Anforderungsprofile", icon: Target },
   { to: "/company/search", label: "Kandidatensuche", icon: Search },
   { to: "/company/unlocked", label: "Freigeschaltete Azubis", icon: Users },
   { to: "/company/candidates/pipeline", label: "Pipeline", icon: Columns3 },

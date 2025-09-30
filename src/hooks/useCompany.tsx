@@ -83,158 +83,30 @@ export const useCompany = () => {
       setLoading(true);
       setError(null);
 
-      console.log('🔍 Loading company data for user:', user?.id, 'Email:', user?.email);
-
-      // EINFACHE, ROBUSTE ABFRAGE
-      const { data: companyUsers, error: companyUserError } = await supabase
+      const { data: companyUserData, error: companyUserError } = await supabase
         .from('company_users')
         .select(`
           *,
           companies (*)
         `)
-        .eq('user_id', user?.id);
-
-      console.log('📊 Company users found:', companyUsers, 'Error:', companyUserError);
+        .eq('user_id', user?.id)
+        .single();
 
       if (companyUserError) {
-        console.error('❌ Company user error:', companyUserError);
-        // Bei Fehler: Prüfe spezielle Email-Adressen
-        if (user?.email === 'team@ausbildungsbasis.de') {
-          console.log('✅ Special email detected - creating dummy company data');
-          // Erstelle Dummy-Company-Daten für team@ausbildungsbasis.de
-          setCompany({
-            id: 'team-company-123',
-            name: 'Ausbildungsbasis',
-            description: 'Ausbildungsbasis Team',
-            industry: 'Bildung',
-            plan_type: 'premium',
-            active_tokens: 1000,
-            seats: 5,
-            subscription_status: 'active',
-            website_url: 'https://ausbildungsbasis.de',
-            main_location: 'Deutschland',
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString()
-          });
-          setCompanyUser({
-            id: 'team-user-123',
-            user_id: user.id,
-            company_id: 'team-company-123',
-            role: 'admin',
-            invited_at: new Date().toISOString(),
-            accepted_at: new Date().toISOString()
-          });
-        } else {
+        if (companyUserError.code === 'PGRST116') {
+          // No company found for user
           setCompany(null);
           setCompanyUser(null);
-        }
-      } else if (companyUsers && companyUsers.length > 0) {
-        // Finde den neuesten akzeptierten Company-User
-        const acceptedUsers = companyUsers.filter(cu => cu.accepted_at !== null);
-        if (acceptedUsers.length > 0) {
-          const latestUser = acceptedUsers.sort((a, b) => 
-            new Date(b.accepted_at).getTime() - new Date(a.accepted_at).getTime()
-          )[0];
-          
-          setCompanyUser(latestUser);
-          setCompany(latestUser.companies);
         } else {
-          // Keine akzeptierten User - Prüfe spezielle Email-Adressen
-          if (user?.email === 'team@ausbildungsbasis.de') {
-            console.log('✅ Special email detected - creating dummy company data');
-            // Erstelle Dummy-Company-Daten
-            setCompany({
-              id: 'team-company-123',
-              name: 'Ausbildungsbasis',
-              description: 'Ausbildungsbasis Team',
-              industry: 'Bildung',
-              plan_type: 'premium',
-              active_tokens: 1000,
-              seats: 5,
-              subscription_status: 'active',
-              website_url: 'https://ausbildungsbasis.de',
-              main_location: 'Deutschland',
-              created_at: new Date().toISOString(),
-              updated_at: new Date().toISOString()
-            });
-            setCompanyUser({
-              id: 'team-user-123',
-              user_id: user.id,
-              company_id: 'team-company-123',
-              role: 'admin',
-              invited_at: new Date().toISOString(),
-              accepted_at: new Date().toISOString()
-            });
-          } else {
-            setCompany(null);
-            setCompanyUser(null);
-          }
+          throw companyUserError;
         }
       } else {
-        // Keine Company-User gefunden - Prüfe spezielle Email-Adressen
-        if (user?.email === 'team@ausbildungsbasis.de') {
-          console.log('✅ Special email detected - creating dummy company data');
-          // Erstelle Dummy-Company-Daten
-          setCompany({
-            id: 'team-company-123',
-            name: 'Ausbildungsbasis',
-            description: 'Ausbildungsbasis Team',
-            industry: 'Bildung',
-            plan_type: 'premium',
-            active_tokens: 1000,
-            seats: 5,
-            subscription_status: 'active',
-            website_url: 'https://ausbildungsbasis.de',
-            main_location: 'Deutschland',
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString()
-          });
-          setCompanyUser({
-            id: 'team-user-123',
-            user_id: user.id,
-            company_id: 'team-company-123',
-            role: 'admin',
-            invited_at: new Date().toISOString(),
-            accepted_at: new Date().toISOString()
-          });
-        } else {
-          setCompany(null);
-          setCompanyUser(null);
-        }
+        setCompanyUser(companyUserData);
+        setCompany(companyUserData.companies);
       }
     } catch (err: any) {
-      console.error('❌ Error loading company data:', err);
+      console.error('Error loading company data:', err);
       setError(err.message);
-      // Bei Fehler: Prüfe spezielle Email-Adressen
-      if (user?.email === 'team@ausbildungsbasis.de') {
-        console.log('✅ Special email detected - creating dummy company data');
-        // Erstelle Dummy-Company-Daten
-        setCompany({
-          id: 'team-company-123',
-          name: 'Ausbildungsbasis',
-          description: 'Ausbildungsbasis Team',
-          industry: 'Bildung',
-          plan_type: 'premium',
-          active_tokens: 1000,
-          seats: 5,
-          subscription_status: 'active',
-          website_url: 'https://ausbildungsbasis.de',
-          main_location: 'Deutschland',
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        });
-        setCompanyUser({
-          id: 'team-user-123',
-          user_id: user.id,
-          company_id: 'team-company-123',
-          role: 'admin',
-          invited_at: new Date().toISOString(),
-          accepted_at: new Date().toISOString()
-        });
-      } else {
-        setCompany(null);
-        setCompanyUser(null);
-      }
     } finally {
       setLoading(false);
     }
@@ -262,22 +134,18 @@ export const useCompany = () => {
   const useToken = async (profileId: string) => {
     if (!company) return { success: false, error: 'No company found' };
 
-    console.log('🔍 Using token for profile:', profileId);
-
     try {
-      // SCHRITT 1: Token abziehen
-      const newTokenCount = Math.max(0, company.active_tokens - 1);
-      setCompany({ ...company, active_tokens: newTokenCount });
-      
-      console.log('✅ Token abgezogen:', company.active_tokens, '->', newTokenCount);
-      
-      // SCHRITT 2: Profil als freigeschaltet markieren (lokaler State)
-      // Das wird in der Search-Komponente gehandhabt
-      
+      const { data, error } = await supabase.rpc('use_token', { p_profile_id: profileId });
+      if (error) throw error;
+
+      const remaining = Array.isArray(data) ? (data[0] as any)?.remaining_tokens : (data as any)?.remaining_tokens;
+      if (typeof remaining === 'number') {
+        setCompany({ ...company, active_tokens: remaining });
+      }
+
       return { success: true };
-      
     } catch (err: any) {
-      console.error('❌ Error using token:', err);
+      console.error('Error using token:', err);
       return { success: false, error: err.message };
     }
   };
@@ -285,26 +153,16 @@ export const useCompany = () => {
   const hasUsedToken = async (profileId: string): Promise<boolean> => {
     if (!company) return false;
 
-    console.log('🔍 DEBUG: Checking if token was used for profile:', profileId);
-
     try {
-      const { data, error } = await supabase
+      const { data } = await supabase
         .from('tokens_used')
         .select('id')
         .eq('company_id', company.id)
         .eq('profile_id', profileId)
         .single();
 
-      if (error) {
-        console.log('⚠️ tokens_used query error:', error);
-        return false;
-      }
-
-      const wasUsed = !!data;
-      console.log('✅ Token usage check result:', wasUsed);
-      return wasUsed;
-    } catch (err) {
-      console.error('❌ hasUsedToken error:', err);
+      return !!data;
+    } catch {
       return false;
     }
   };

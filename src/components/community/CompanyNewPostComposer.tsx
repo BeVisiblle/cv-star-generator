@@ -20,8 +20,9 @@ const CompanyNewPostComposer: React.FC<Props> = ({ open, onOpenChange }) => {
   const [canPost, setCanPost] = React.useState(false);
   const [isSubmitting, setIsSubmitting] = React.useState(false);
 
-  const handleStateChange = React.useCallback((isSubmitting: boolean) => {
-    setIsSubmitting(isSubmitting);
+  const handleStateChange = React.useCallback((s: { canPost: boolean; isSubmitting: boolean }) => {
+    setCanPost(s.canPost);
+    setIsSubmitting(s.isSubmitting);
   }, []);
 
   const Header = (
@@ -65,7 +66,7 @@ const CompanyNewPostComposer: React.FC<Props> = ({ open, onOpenChange }) => {
           </SheetHeader>
           {Header}
           <div className="flex-1 overflow-y-auto px-6 pb-6">
-            <CreatePost container="none" hideHeader hideBottomBar onStateChange={handleStateChange} visibility={audience} context="company" companyId={company?.id} />
+            <CreatePost container="none" hideHeader variant="composer" hideBottomBar onStateChange={handleStateChange} visibility={audience} context="company" companyId={company?.id} />
           </div>
         </SheetContent>
       </Sheet>
@@ -79,7 +80,7 @@ const CompanyNewPostComposer: React.FC<Props> = ({ open, onOpenChange }) => {
         <DialogDescription className="sr-only">Verfassen und veröffentlichen Sie einen neuen Beitrag als Unternehmen.</DialogDescription>
         {Header}
         <div className="px-6 py-5">
-          <CreatePost container="none" hideHeader hideBottomBar onStateChange={handleStateChange} visibility={audience} context="company" companyId={company?.id} />
+          <CreatePost container="none" hideHeader variant="composer" hideBottomBar onStateChange={handleStateChange} visibility={audience} context="company" companyId={company?.id} />
         </div>
       </DialogContent>
     </Dialog>

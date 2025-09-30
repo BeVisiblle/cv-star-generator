@@ -13,11 +13,11 @@ const titleMap: Record<string, string> = {
   "/community/messages": "Nachrichten",
   "/community/jobs": "Jobs",
   "/marketplace": "Community",
-  "/dashboard": "Feed",
-  "/network": "Mein Netzwerk",
-  "/companies": "Unternehmen",
-  "/messages": "Nachrichten",
-  "/notifications": "Benachrichtigungen",
+  "/dashboard": "Home Feed",
+  "/network": "My Network",
+  "/companies": "Companies",
+  "/messages": "Messages",
+  "/notifications": "Notifications",
   "/profile": "Profil"
 };
 export default function TopNavBar() {
@@ -107,10 +107,7 @@ export default function TopNavBar() {
             onClick={() => navigate('/marketplace')} 
           />
           
-          {/* Wallet Chip - commented out (component not found) */}
-          {/* <WalletChip className="hidden sm:flex" /> */}
-          
-          <Users
+          <Users 
             className="h-5 w-5 cursor-pointer hover:text-primary" 
             onClick={() => setDrawerOpen(true)} 
           />
