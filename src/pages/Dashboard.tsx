@@ -1,10 +1,9 @@
 import React, { useLayoutEffect, useRef, useState } from 'react';
-import CommunityFeed from '@/components/community/CommunityFeed';
+import CleanCommunityFeed from '@/components/community/CleanCommunityFeed';
 import { ComposerTeaser } from '@/components/dashboard/ComposerTeaser';
 import { LeftPanel } from '@/components/dashboard/LeftPanel';
 import { RightPanel } from '@/components/dashboard/RightPanel';
 import FeedSortBar from '@/components/community/FeedSortBar';
-import { NewPostComposer } from '@/components/community/NewPostComposer';
 
 /** Globale Annahme: Navbar ist fixed top-0 mit Höhe 64px */
 const NAVBAR_H = 64; // px
@@ -61,7 +60,7 @@ const Dashboard = () => {
 
             {/* (3) Post-Liste - kompakterer Abstand */}
             <div className="mt-2 space-y-3 relative z-10" role="feed">
-              <CommunityFeed feedHeadHeight={feedHeadH} />
+              <CleanCommunityFeed feedHeadHeight={feedHeadH} />
             </div>
           </section>
 
@@ -75,8 +74,7 @@ const Dashboard = () => {
         </div>
       </div>
       
-      {/* NewPostComposer für Event-Handling */}
-      <NewPostComposer />
+      {/* NewPostComposer is in AuthenticatedLayout - no need here */}
     </main>
   );
 };

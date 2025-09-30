@@ -14,7 +14,8 @@ interface CreatePostProps {
   hideHeader?: boolean;
   variant?: "default" | "compact";
   hideBottomBar?: boolean;
-  onStateChange?: (isSubmitting: boolean) => void;
+  onStateChange?: (isSubmitting: boolean, canPost: boolean) => void;
+  onPostSuccess?: () => void;
   scheduledAt?: string;
   showPoll?: boolean;
   showEvent?: boolean;
@@ -29,7 +30,8 @@ export const CreatePost = ({
   hideHeader = false, 
   variant = "default", 
   hideBottomBar = false, 
-  onStateChange, 
+  onStateChange,
+  onPostSuccess,
   scheduledAt, 
   showPoll = false, 
   showEvent = false, 
@@ -60,17 +62,15 @@ export const CreatePost = ({
       // Map UI visibility to DB values
       const dbVisibility = visibility || 'public';
 
-      // Insert into community_posts table
+      // Insert into clean posts table
       const { error } = await supabase
-        .from("community_posts")
+        .from("posts")
         .insert({
           id,
-          body_md: content,
-          media: imageUrl ? [{ type: 'image', url: imageUrl }] : [],
-          actor_user_id: user.id,
-          actor_company_id: companyId || null,
-          visibility: dbVisibility as any,
-          status: scheduledISO ? 'scheduled' : 'published',
+          content: content,
+          image_url: imageUrl || null,
+          user_id: user.id,
+          status: scheduledISO ? 'draft' : 'published',
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString()
         });
@@ -79,7 +79,7 @@ export const CreatePost = ({
       return { id };
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["home-feed"] });
+      queryClient.invalidateQueries({ queryKey: ["clean-feed"] });
       setContent("");
       setImageFile(null);
       setImagePreview(null);
@@ -88,6 +88,8 @@ export const CreatePost = ({
         title: "Beitrag veröffentlicht",
         description: "Dein Beitrag wurde erfolgreich geteilt.",
       });
+      // Notify parent to close modal
+      onPostSuccess?.();
     },
     onError: (error) => {
       console.error("Error creating post:", error);
@@ -101,9 +103,9 @@ export const CreatePost = ({
 
   // Notify parent on state changes
   useEffect(() => {
-    const canPost = (content.trim() || imageFile) && !createPostMutation.isPending;
+    const canPost = !!(content.trim() || imageFile) && !createPostMutation.isPending;
     const isSubmitting = createPostMutation.isPending;
-    onStateChange?.(isSubmitting);
+    onStateChange?.(isSubmitting, canPost);
   }, [content, imageFile, createPostMutation.isPending, onStateChange]);
 
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {

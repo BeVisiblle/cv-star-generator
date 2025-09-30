@@ -92,24 +92,33 @@ const authorSubtitle = useMemo(() => {
   const a = post.author as any;
   if (!a) return '';
   
-  // Use live employment data from profiles_public
-  if (a.employment_status && a.headline && a.company_name) {
-    return `${a.headline} @${a.company_name}`;
+  // Für Schüler: "Schüler [Branche] [Ort]"
+  if (a.status === 'schueler') {
+    const parts = [];
+    if (a.status === 'schueler') parts.push('Schüler');
+    if (a.branche) parts.push(a.branche);
+    if (a.ort) parts.push(a.ort);
+    return parts.length > 1 ? parts.join(' ') : '';
   }
   
-  // Fallback to legacy fields for backwards compatibility
-  if (a.status === 'schueler' && a.schule) return `Schüler @ ${a.schule}`;
+  // Für Azubis: "Azubi [Beruf] @ [Betrieb]"
   if (a.status === 'azubi') {
-    const job = a.ausbildungsberuf ? `im Bereich ${a.ausbildungsberuf}` : '';
-    const company = a.ausbildungsbetrieb ? ` @ ${a.ausbildungsbetrieb}` : '';
-    return `Auszubildender ${job}${company}`.trim();
+    const parts = [];
+    if (a.ausbildungsberuf) parts.push(a.ausbildungsberuf);
+    if (a.ausbildungsbetrieb) parts.push(`@ ${a.ausbildungsbetrieb}`);
+    return parts.length > 0 ? parts.join(' ') : '';
   }
+  
+  // Für Ausgelernte: "[Beruf] @ [Betrieb]"
   if (a.status === 'ausgelernt') {
-    const job = a.aktueller_beruf || a.ausbildungsberuf || 'Mitarbeiter';
-    const company = a.ausbildungsbetrieb ? ` @ ${a.ausbildungsbetrieb}` : '';
-    return `${job}${company}`;
+    const parts = [];
+    if (a.aktueller_beruf) parts.push(a.aktueller_beruf);
+    if (a.ausbildungsbetrieb) parts.push(`@ ${a.ausbildungsbetrieb}`);
+    return parts.length > 0 ? parts.join(' ') : '';
   }
-  return a.ausbildungsberuf || a.headline || '';
+  
+  // Fallback: Über mich Text
+  return a.ueber_mich || '';
 }, [post.author, post.author_type]);
 
   const truncated = useMemo(() => {

@@ -22,6 +22,48 @@ function getAbout(profile: any): string | null {
   if (!profile) return null;
   return profile.ueber_mich || profile.ueberMich || profile.uebermich || profile.about || profile.bio || profile.beschreibung || profile.motivation || null;
 }
+
+function getDisplayName(profile: any): string {
+  if (!profile) return "Unbekannter Nutzer";
+  if (profile.vorname && profile.nachname) {
+    return `${profile.vorname} ${profile.nachname}`;
+  }
+  if (profile.vorname) return profile.vorname;
+  if (profile.nachname) return profile.nachname;
+  return "Unbekannter Nutzer";
+}
+
+function getDescription(profile: any): string | null {
+  if (!profile) return null;
+  
+  // Für Schüler: "Schüler [Branche] [Ort]"
+  if (profile.status === 'schueler') {
+    const parts = [];
+    if (profile.status === 'schueler') parts.push('Schüler');
+    if (profile.branche) parts.push(profile.branche);
+    if (profile.ort) parts.push(profile.ort);
+    return parts.length > 1 ? parts.join(' ') : null;
+  }
+  
+  // Für Azubis: "Azubi [Beruf] @ [Betrieb]"
+  if (profile.status === 'azubi') {
+    const parts = [];
+    if (profile.ausbildungsberuf) parts.push(profile.ausbildungsberuf);
+    if (profile.ausbildungsbetrieb) parts.push(`@ ${profile.ausbildungsbetrieb}`);
+    return parts.length > 0 ? parts.join(' ') : null;
+  }
+  
+  // Für Ausgelernte: "[Beruf] @ [Betrieb]"
+  if (profile.status === 'ausgelernt') {
+    const parts = [];
+    if (profile.aktueller_beruf) parts.push(profile.aktueller_beruf);
+    if (profile.ausbildungsbetrieb) parts.push(`@ ${profile.ausbildungsbetrieb}`);
+    return parts.length > 0 ? parts.join(' ') : null;
+  }
+  
+  // Fallback: Über mich Text
+  return getAbout(profile);
+}
 function getEmployerOrSchool(p: any): string | null {
   if (!p) return null;
   if (p.status === 'schueler') {
@@ -39,8 +81,10 @@ export const LeftPanel: React.FC = () => {
   } = useAuth();
   const navigate = useNavigate();
   const { company } = useCompany();
+  
+  const displayName = getDisplayName(profile);
+  const description = getDescription(profile);
   const about = getAbout(profile);
-  const about10 = firstChars(about, 10);
   return <aside aria-label="Profilübersicht" className="space-y-4">
       {/* Profilkarte mit Titelbild */}
       <Card className="p-0 overflow-hidden">
@@ -66,9 +110,9 @@ export const LeftPanel: React.FC = () => {
         <div className="px-5 pt-10 pb-5">
           <div className="min-w-0">
             <h2 className="text-xl font-semibold leading-tight truncate">
-              {profile?.vorname && profile?.nachname ? `${profile.vorname} ${profile.nachname}` : "Dein Profil"}
+              {displayName}
             </h2>
-            {about10 && <p className="mt-1 text-sm text-muted-foreground line-clamp-1">{about10}</p>}
+            {description && <p className="mt-1 text-sm text-muted-foreground line-clamp-1">{description}</p>}
             {(profile?.ort || profile?.branche || getEmployerOrSchool(profile)) && <div className="mt-1 text-sm text-muted-foreground flex items-center gap-1.5">
                 <MapPin className="h-4 w-4" aria-hidden />
                 <span>

@@ -1,104 +1,52 @@
-# 🚀 6 Prompts Integration - Migration Guide
+# 🚀 Clean Posts System Migration - Manual Steps
 
-## ✅ **WAS BEREITS FERTIG IST:**
+## Schritt 1: Supabase Dashboard öffnen
+1. Gehe zu https://supabase.com/dashboard
+2. Wähle dein Projekt aus
+3. Klicke auf "SQL Editor" im linken Menü
 
-### 1. **React Komponenten** ✅
-- ✅ `JobCreateWizard.tsx` - Job Erstellung
-- ✅ `JobPreview.tsx` - Job Vorschau
-- ✅ `JobShiftsEditor.tsx` - Schicht-Editor
-- ✅ `JobFilters.tsx` - Job Filter
-- ✅ `JobCard.tsx` - Job Karten
-- ✅ `JobList.tsx` - Job Liste
-- ✅ `ForYouJobs.tsx` - AI Empfehlungen
-- ✅ `TopMatches.tsx` - Top Matches
-- ✅ `MatchCard.tsx` - Match Karten
-- ✅ `MyApplications.tsx` - Bewerbungen
+## Schritt 2: Hauptmigration ausführen
+Kopiere den gesamten Inhalt der Datei `supabase/migrations/20250130000000_clean_posts_system.sql` und füge ihn in den SQL Editor ein.
 
-### 2. **API Clients** ✅
-- ✅ `src/lib/api/jobs.ts` - Job Management
-- ✅ `src/lib/api/jobsSearch.ts` - Job Suche
-- ✅ `src/lib/api/matching.ts` - ForYou Matching
-- ✅ `src/lib/api/companyMatching.ts` - Company Matching
+**WICHTIG:** Diese Migration wird alle bestehenden Posts-Tabellen löschen und neu erstellen!
 
-### 3. **Database Migrationen** ✅
-- ✅ `20250115000015_matching_system_foundation.sql` - Grundstruktur
-- ✅ `20250115000016_job_search_system.sql` - Job Suche
-- ✅ `20250115000017_foryou_matching_system.sql` - ForYou System
-- ✅ `20250115000018_company_topmatches_system.sql` - Company Matches
-- ✅ `20250115000019_job_wizard_system.sql` - Job Wizard
+## Schritt 3: Migration ausführen
+1. Klicke auf "Run" (oder Strg+Enter)
+2. Warte bis die Migration erfolgreich abgeschlossen ist
+3. Du solltest eine Erfolgsmeldung sehen
 
-### 4. **Edge Functions** ✅
-- ✅ `matching_generate_jobs_for_candidate` - ForYou AI Matching
-- ✅ `matching_generate_topk` - Company TopMatches
+## Schritt 4: Testdaten einfügen
+Kopiere den gesamten Inhalt der Datei `supabase/migrations/20250130000001_test_posts_data.sql` und füge ihn in den SQL Editor ein.
 
-## 🔧 **NÄCHSTE SCHRITTE:**
+## Schritt 5: Testdaten ausführen
+1. Klicke auf "Run" (oder Strg+Enter)
+2. Warte bis die Testdaten erfolgreich eingefügt sind
 
-### **Schritt 1: Supabase Migrationen ausführen**
-```bash
-# In Supabase Dashboard oder CLI:
-supabase db push
+## Schritt 6: Überprüfung
+Gehe zu "Table Editor" und überprüfe, dass folgende Tabellen existieren:
+- ✅ `posts` (mit Testdaten)
+- ✅ `comments` (leer)
+- ✅ `likes` (leer)
+- ✅ `shares` (leer)
 
-# Oder manuell in Supabase SQL Editor:
-# 1. 20250115000015_matching_system_foundation.sql
-# 2. 20250115000016_job_search_system.sql  
-# 3. 20250115000017_foryou_matching_system.sql
-# 4. 20250115000018_company_topmatches_system.sql
-# 5. 20250115000019_job_wizard_system.sql
-```
+## Schritt 7: Anwendung testen
+1. Gehe zu http://localhost:3000
+2. Logge dich ein
+3. Gehe zum Dashboard
+4. Du solltest die Test-Posts sehen mit Namen und Beschreibungen
+5. Teste das Erstellen neuer Posts
+6. Teste das Liken, Kommentieren und Teilen
 
-### **Schritt 2: Edge Functions deployen**
-```bash
-# In Supabase Dashboard oder CLI:
-supabase functions deploy matching_generate_jobs_for_candidate
-supabase functions deploy matching_generate_topk
-```
+## Was passiert nach der Migration:
+- ✅ Alle alten Posts-Tabellen werden gelöscht
+- ✅ Neue, saubere Tabellen werden erstellt
+- ✅ Test-Posts werden eingefügt
+- ✅ Alle Interaktionen (Like, Comment, Share) funktionieren
+- ✅ Namen und Beschreibungen werden korrekt angezeigt
 
-### **Schritt 3: Testen**
-- ✅ Jobsuche: `/jobs`
-- ✅ Für dich: `/foryou` 
-- ✅ Company Matches: `/company/matches`
-
-## 🎯 **WARUM DAS UX/UI NICHT FUNKTIONIERTE:**
-
-Das Problem war, dass **nur die React-Komponenten** erstellt wurden, aber die **Backend-Infrastruktur fehlte**:
-
-1. ❌ **Keine Datenbank-Tabellen** - Jobs, Candidates, Matches existierten nicht
-2. ❌ **Keine Edge Functions** - AI-Matching Logik fehlte
-3. ❌ **Keine RPC Functions** - Datenbank-Operationen unmöglich
-4. ❌ **Keine RLS Policies** - Sicherheitsregeln fehlten
-
-## 🚀 **JETZT IST ALLES DA:**
-
-- ✅ **Vollständige Datenbank-Struktur**
-- ✅ **AI-Matching Edge Functions**
-- ✅ **Alle React-Komponenten**
-- ✅ **API Clients**
-- ✅ **Navigation Integration**
-
-## 📱 **FEATURES NACH MIGRATION:**
-
-### **Für Kandidaten:**
-- 🔍 **Jobsuche** mit Filtern
-- ✨ **"Für dich"** AI-Empfehlungen
-- 📋 **Bewerbungsmanagement**
-- 💾 **Jobs speichern**
-- 👥 **Unternehmen folgen**
-
-### **Für Unternehmen:**
-- 📝 **Job Wizard** mit Qualitäts-Score
-- 🎯 **Top 3 Matches** mit AI-Scoring
-- 🔓 **Kandidaten freischalten**
-- ❌ **Matches ablehnen**
-- 🚫 **30-Tage Unterdrückung**
-
-## 🔄 **NACH DER MIGRATION:**
-
-1. **Code pushen** zu GitHub ✅
-2. **Migrationen ausführen** in Supabase
-3. **Edge Functions deployen**
-4. **In Lovable importieren**
-5. **Alle Features testen**
-
----
-
-**🎉 Alle 6 Prompts sind jetzt vollständig implementiert und bereit für die Migration!**
+## Bei Problemen:
+Falls etwas nicht funktioniert, überprüfe:
+1. Ob alle Tabellen korrekt erstellt wurden
+2. Ob die RLS Policies aktiv sind
+3. Ob die Testdaten eingefügt wurden
+4. Ob der Server läuft (http://localhost:3000)
