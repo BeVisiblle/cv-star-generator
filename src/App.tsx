@@ -33,6 +33,11 @@ const Impressum = lazy(() => import("./pages/Impressum"));
 const AGB = lazy(() => import("./pages/AGB"));
 const Talent = lazy(() => import("./pages/Talent"));
 const CVGenerator = lazy(() => import("./components/CVGenerator"));
+const EmergencyCVGenerator = lazy(() => import("./components/EmergencyCVGenerator"));
+const EmergencyLanding = lazy(() => import("./components/EmergencyLanding"));
+const RobustDashboard = lazy(() => import("./components/RobustDashboard"));
+const RobustCompanyDashboard = lazy(() => import("./components/RobustCompanyDashboard"));
+const SupabaseCVGenerator = lazy(() => import("./components/SupabaseCVGenerator"));
 const Profile = lazy(() => import("./pages/Profile"));
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const Marketplace = lazy(() => import("./pages/Marketplace"));
@@ -60,7 +65,9 @@ const Discover = lazy(() => import("./pages/Discover"));
 
 // Company components - lazy loaded
 const CompanyLayout = lazy(() => import("@/components/Company/CompanyLayout").then(m => ({ default: m.CompanyLayout })));
-const CompanyOnboarding = lazy(() => import("./pages/Company/Onboarding"));
+const CompanyLanding = lazy(() => import('@/pages/CompanyLanding'));
+const AboutUsPage = lazy(() => import('@/pages/AboutUs'));
+const CompanyOnboarding = lazy(() => import('@/pages/Company/Onboarding'));
 const CompanyDashboard = lazy(() => import("./pages/Company/CompanyDashboard"));
 const CompanyProfile = lazy(() => import("./pages/Company/Profile"));
 const CompanySearch = lazy(() => import("./pages/Company/Search"));
@@ -306,7 +313,8 @@ const App = () => {
               
               {/* BeVisiblle Unterseiten */}
               <Route path="/auth" element={<Auth />} />
-              <Route path="/company" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><CleanCompanyOnboarding /></Suspense>} />
+              <Route path="/company" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><CompanyLanding /></Suspense>} />
+              <Route path="/about" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><AboutUsPage /></Suspense>} />
               
               {/* Backup Routes */}
               <Route path="/cv-star" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen bg-black"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div></div>}><BaseLayout className="bg-black text-white"><Index /></BaseLayout></Suspense>} />
@@ -334,12 +342,18 @@ const App = () => {
               <Route path="/cv-layout-selector" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><CVGeneratorGate><CVGenerator /></CVGeneratorGate></Suspense>} />
               <Route path="/Lebenslauferstellen" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><CVGeneratorGate><CVGenerator /></CVGeneratorGate></Suspense>} />
               
-              {/* Company registration pages */}
+              {/* Emergency CV Generator - Always works */}
+              <Route path="/cv-emergency" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><EmergencyCVGenerator /></Suspense>} />
+              <Route path="/cv-supabase" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><SupabaseCVGenerator /></Suspense>} />
+              <Route path="/emergency" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><EmergencyLanding /></Suspense>} />
+              
+              {/* Company marketing pages */}
+              <Route path="/company" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><CompanyLanding /></Suspense>} />
+              <Route path="/company/onboarding" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><CompanyOnboarding /></Suspense>} />
               <Route path="/unternehmensregistrierung" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><Unternehmensregistrierung /></Suspense>} />
               <Route path="/unternehmen/features" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><UnternehmenFeatures /></Suspense>} />
-              
+
               {/* Company routes */}
-              <Route path="/company/onboarding" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><CompanyOnboarding /></Suspense>} />
               <Route path="/company/dashboard-new" element={<Suspense fallback={<LogoSpinner size="lg" text="Dashboard wird geladen..." />}><NewCompanyDashboard /></Suspense>} />
               <Route
                 path="/company/*"

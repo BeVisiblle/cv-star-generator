@@ -1,16 +1,15 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Link, useNavigate } from "react-router-dom";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Building2 } from "lucide-react";
-import { BranchSelector } from "@/components/Company/BranchSelector";
+import { Building2, Sparkles, Users, Clock } from "lucide-react";
+import { BranchSelector, branchLabelMap } from "@/components/Company/BranchSelector";
 import { TargetGroupSelector } from "@/components/Company/TargetGroupSelector";
-import { PriceCalculator } from "@/components/Company/PriceCalculator";
 
 interface OnboardingData {
   // Company Info
@@ -24,6 +23,7 @@ interface OnboardingData {
   // Business Details
   industries: string[];
   targetGroups: string[];
+  customIndustry?: string;
   
   // Auth (at the end)
   email: string; // also used as primary contact email
@@ -42,6 +42,7 @@ export default function CompanyOnboarding() {
     phone: "",
     industries: [],
     targetGroups: [],
+    customIndustry: "",
     email: "",
     password: "",
     confirmPassword: "",
@@ -50,6 +51,7 @@ export default function CompanyOnboarding() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [agreedToPrivacy, setAgreedToPrivacy] = useState(false);
+  const [isMobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -62,12 +64,12 @@ export default function CompanyOnboarding() {
     "250+"
   ];
 
-  const updateData = (field: string, value: any) => {
+  const updateData = <K extends keyof OnboardingData>(field: K, value: OnboardingData[K]) => {
     setData(prev => ({ ...prev, [field]: value }));
     setErrors(prev => ({ ...prev, [field]: "" }));
   };
 
-  const validateStep1 = () => {
+  const validateCompanyInfo = () => {
     const newErrors: Record<string, string> = {};
     
     if (!data.companyName.trim()) newErrors.companyName = "Unternehmensname ist erforderlich";
@@ -76,14 +78,29 @@ export default function CompanyOnboarding() {
     if (data.location && !data.location.includes(',')) newErrors.location = "Bitte Stadt und Land angeben (z.B. Berlin, Deutschland)";
     if (!data.contactPerson.trim()) newErrors.contactPerson = "Ansprechpartner ist erforderlich";
     if (!data.phone.trim()) newErrors.phone = "Telefonnummer ist erforderlich";
-    if (data.industries.length === 0) newErrors.industries = "Mindestens eine Branche auswählen";
-    if (data.targetGroups.length === 0) newErrors.targetGroups = "Mindestens eine Zielgruppe auswählen";
     
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  const validateStep2 = () => {
+  const validateSelections = () => {
+    const newErrors: Record<string, string> = {};
+
+    if (data.industries.length === 0) {
+      newErrors.industries = "Mindestens eine Branche auswählen";
+    }
+
+    if (data.industries.includes("custom") && !data.customIndustry?.trim()) {
+      newErrors.industries = "Bitte gib deine Branche an";
+    }
+
+    if (data.targetGroups.length === 0) newErrors.targetGroups = "Mindestens eine Zielgruppe auswählen";
+
+    setErrors(prev => ({ ...prev, ...newErrors }));
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const validateAuthStep = () => {
     const newErrors: Record<string, string> = {};
     
     if (!data.email.trim()) newErrors.email = "E-Mail ist erforderlich";
@@ -97,15 +114,23 @@ export default function CompanyOnboarding() {
   };
 
   const handleStep1Continue = () => {
-    if (validateStep1()) {
+    if (validateCompanyInfo()) {
       setCurrentStep(2);
     } else {
       toast({ title: "Bitte korrigieren Sie die Fehler", variant: "destructive" });
     }
   };
 
+  const handleStep2Continue = () => {
+    if (validateSelections()) {
+      setCurrentStep(3);
+    } else {
+      toast({ title: "Bitte Branchen und Zielgruppen auswählen", variant: "destructive" });
+    }
+  };
+
   const handleSubmit = async () => {
-    if (!validateStep2()) {
+    if (!validateAuthStep()) {
       toast({ title: "Bitte korrigieren Sie die Fehler", variant: "destructive" });
       return;
     }
@@ -152,10 +177,20 @@ export default function CompanyOnboarding() {
       // Retry helper with exponential backoff
       const attemptCreate = async (attempt = 1): Promise<string> => {
         try {
+          const industriesLabel = data.industries
+            .map((key) => {
+              if (key === "custom") {
+                return data.customIndustry?.trim();
+              }
+              return branchLabelMap[key] ?? key;
+            })
+            .filter(Boolean)
+            .join(', ');
+
           const { data: companyId, error } = await supabase.rpc('create_company_account', {
             p_name: data.companyName,
             p_primary_email: data.email,
-            p_industry: data.industries.join(', '),
+            p_industry: industriesLabel,
             p_city: city,
             p_country: country,
             p_size_range: data.companySize,
@@ -189,7 +224,7 @@ export default function CompanyOnboarding() {
       const expected = {
         name: data.companyName,
         primary_email: data.email,
-        industry: data.industries.join(', '),
+        industry: industriesLabel,
         main_location: city,
         country: country,
         size_range: data.companySize,
@@ -233,33 +268,119 @@ export default function CompanyOnboarding() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-accent/5 to-primary/5 p-4">
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="flex items-center justify-center mb-12">
-          <div className="flex items-center space-x-4">
-            <div className="w-12 h-12 bg-primary rounded-lg flex items-center justify-center">
-              <Building2 className="h-6 w-6 text-white" />
-            </div>
-            <div>
-              <h1 className="text-2xl font-bold text-foreground">Endlich passende Mitarbeiter finden</h1>
-              <p className="text-muted-foreground">Lege jetzt los - kostenfrei. Keine Kreditkarte erforderlich.</p>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+      <header className="fixed top-0 left-0 right-0 z-40">
+        <nav className="mx-auto max-w-6xl px-6 pt-6">
+          <div className="bg-white/90 backdrop-blur rounded-[24px] shadow-lg border px-5 py-3">
+            <div className="flex items-center justify-between gap-3">
+              <Link to="/" className="flex items-center gap-3">
+                <img src="/assets/Logo_visiblle.svg" alt="BeVisiblle" className="h-10 w-10 rounded-xl" />
+                <span className="text-xl font-semibold tracking-tight text-slate-800">BeVisiblle</span>
+              </Link>
+
+              <div className="hidden items-center gap-2 text-sm font-medium text-slate-600 md:flex">
+                <Link to="/cv-generator" className="rounded-lg px-3.5 py-2 transition hover:bg-slate-100 hover:text-slate-900">Lebenslauf</Link>
+                <Link to="/company" className="rounded-lg px-3.5 py-2 transition hover:bg-slate-100 hover:text-slate-900">Unternehmen</Link>
+                <a href="#community" className="rounded-lg px-3.5 py-2 transition hover:bg-slate-100 hover:text-slate-900">Community</a>
+                <Link to="/about" className="rounded-lg px-3.5 py-2 transition hover:bg-slate-100 hover:text-slate-900">Über uns</Link>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <Link to="/auth" className="hidden rounded-lg px-3.5 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-100 hover:text-slate-900 lg:inline-flex">
+                  Login
+                </Link>
+                <Link
+                  to="/company/onboarding"
+                  className="hidden md:inline-flex rounded-full bg-[#5170ff] px-5 py-2 text-sm font-semibold text-white shadow-sm shadow-blue-300 transition hover:bg-[#3f5bff]"
+                >
+                  Kostenlos starten
+                </Link>
+                <button
+                  onClick={() => setMobileMenuOpen((prev) => !prev)}
+                  className="md:hidden p-2 rounded-lg text-slate-700 hover:text-slate-900 hover:bg-slate-100"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
+                  </svg>
+                </button>
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* Main Content */}
-        {currentStep === 1 ? (
-          <div className="grid lg:grid-cols-3 gap-8">
-            {/* Left Column - Form */}
-            <div className="lg:col-span-2 space-y-6">
-              <Card className="p-6">
-                <div className="space-y-6">
+          {isMobileMenuOpen && (
+            <div className="mt-3 rounded-2xl border bg-white/95 px-5 py-4 shadow-lg md:hidden">
+              <Link to="/cv-generator" className="block py-2 text-slate-700 hover:text-slate-900">
+                Lebenslauf
+              </Link>
+              <Link to="/company" className="block py-2 text-slate-700 hover:text-slate-900">
+                Unternehmen
+              </Link>
+              <a href="#community" className="block py-2 text-slate-700 hover:text-slate-900">
+                Community
+              </a>
+              <Link to="/about" className="block py-2 text-slate-700 hover:text-slate-900">
+                Über uns
+              </Link>
+              <Link to="/company/onboarding" className="block py-2 text-slate-700 hover:text-slate-900">
+                Kostenlos starten
+              </Link>
+              <Link to="/auth" className="block py-2 text-slate-700 hover:text-slate-900">
+                Login
+              </Link>
+            </div>
+          )}
+        </nav>
+      </header>
+
+      <div className="relative mx-auto flex min-h-screen w-full max-w-6xl flex-col px-4 pb-12 pt-36 lg:flex-row lg:gap-12">
+        {currentStep === 1 && (
+          <aside className="relative mb-10 hidden w-full rounded-3xl border border-white/60 bg-white/80 p-8 shadow-xl shadow-blue-200/60 backdrop-blur lg:order-1 lg:block lg:max-w-sm">
+            <img
+              src="/assets/hero-main.png"
+              alt="BeVisiblle Unternehmensnetzwerk"
+              className="h-full w-full rounded-2xl object-cover"
+            />
+          </aside>
+        )}
+ 
+        <div className={`w-full ${currentStep === 1 ? "lg:order-2" : ""}`}>
+          <div className={`mx-auto ${currentStep === 1 ? "max-w-3xl" : "max-w-6xl"}`}>
+            {currentStep === 1 && (
+              <div className="mb-8 space-y-6">
+                <div className="space-y-2">
+                  <h1 className="text-3xl font-semibold text-slate-900">
+                    BeVisiblle für Unternehmen
+                  </h1>
+                  <p className="text-sm text-slate-600">
+                    Erstelle dein Unternehmensprofil, teile Einblicke mit deiner Community und vernetze dich mit Talenten aus Ausbildung und Fachkräftenetzwerk.
+                  </p>
+                </div>
+
+                <div className="rounded-3xl border border-white/60 bg-white/90 p-5 shadow-md shadow-blue-200/40">
+                  <h2 className="text-lg font-semibold text-slate-900">Kostenlose Registrierung</h2>
+                  <p className="text-sm text-slate-600">
+                    Keine Kreditkarte benötigt. Du kannst sofort loslegen und dein Team sichtbar machen.
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {currentStep === 1 && (
+              <Card className="border-none bg-white/95 p-6 shadow-xl shadow-blue-200/50 backdrop-blur">
+                <div className="space-y-6 md:space-y-8">
                   {/* Company Basic Info */}
-                  <div className="space-y-4">
-                    <h2 className="text-2xl font-semibold">Unternehmensdaten</h2>
+                  <div className="space-y-4 md:space-y-5">
+                    <div className="flex items-center gap-3 text-primary">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-white shadow-md shadow-primary/30">
+                        <Building2 className="h-5 w-5" />
+                      </div>
+                      <div>
+                        <h2 className="text-lg font-semibold text-foreground md:text-xl">Unternehmensdaten</h2>
+                        <p className="text-xs text-muted-foreground md:text-sm">Erzähl uns ein wenig über dein Unternehmen, damit wir dich bestmöglich präsentieren können.</p>
+                      </div>
+                    </div>
                     
-                    <div className="grid md:grid-cols-2 gap-4">
+                    <div className="grid gap-3 md:grid-cols-2 md:gap-4">
                       <div className="space-y-2">
                         <Label htmlFor="companyName">Unternehmensname *</Label>
                         <Input
@@ -292,7 +413,7 @@ export default function CompanyOnboarding() {
                       </div>
                     </div>
 
-                    <div className="grid md:grid-cols-2 gap-4">
+                    <div className="grid gap-3 md:grid-cols-2 md:gap-4">
                       <div className="space-y-2">
                         <Label htmlFor="location">Standort *</Label>
                         <Input
@@ -318,7 +439,7 @@ export default function CompanyOnboarding() {
                       </div>
                     </div>
 
-                    <div className="grid md:grid-cols-2 gap-4">
+                    <div className="grid gap-3 md:grid-cols-2 md:gap-4">
                       <div className="space-y-2">
                         <Label htmlFor="contactPerson">Ansprechpartner *</Label>
                         <Input
@@ -349,191 +470,197 @@ export default function CompanyOnboarding() {
                     </div>
                   </div>
 
-                  {/* Branch Selection */}
-                  <BranchSelector
-                    selectedBranches={data.industries}
-                    onSelectionChange={(branches) => updateData('industries', branches)}
-                    error={errors.industries}
-                  />
-
-                  {/* Target Groups */}
-                  <TargetGroupSelector
-                    selectedGroups={data.targetGroups}
-                    onSelectionChange={(groups) => updateData('targetGroups', groups)}
-                    error={errors.targetGroups}
-                  />
-
-                  <Button 
+                  <Button
                     onClick={handleStep1Continue}
                     className="w-full h-12 text-lg font-semibold"
                     size="lg"
                   >
-                    Account erstellen
+                    Weiter zu Branchen & Zielgruppen
                   </Button>
                 </div>
               </Card>
-            </div>
+            )}
 
-            {/* Right Column - Price Calculator */}
-            <div className="lg:col-span-1">
-              <PriceCalculator
-                selectedGroups={data.targetGroups}
-                selectedBranches={data.industries}
-                companyName={data.companyName}
-                companySize={data.companySize}
-              />
-            </div>
-          </div>
-        ) : (
-          /* Step 2 - Authentication */
-          <div className="max-w-md mx-auto">
-            <Card className="p-8">
-              <div className="text-center mb-8">
-                <h2 className="text-2xl font-bold mb-2">Nächster Schritt</h2>
-                <p className="text-muted-foreground">Account-Erstellung mit E-Mail oder Google</p>
-              </div>
-
-              <div className="space-y-4">
-                <Button variant="outline" className="w-full h-12" disabled>
-                  <svg className="w-5 h-5 mr-3" viewBox="0 0 24 24">
-                    <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                    <path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                    <path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-                    <path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-                  </svg>
-                  Fortfahren mit Google
-                </Button>
-
-                <div className="relative">
-                  <div className="absolute inset-0 flex items-center">
-                    <span className="w-full border-t" />
+            {currentStep === 2 && (
+              <Card className="border-none bg-white/95 p-8 shadow-xl shadow-blue-200/40 backdrop-blur">
+                <div className="space-y-8">
+                  <div className="flex justify-between items-center">
+                    <Button
+                      variant="ghost"
+                      onClick={() => setCurrentStep(1)}
+                      className="sm:w-auto"
+                    >
+                      ← Zurück
+                    </Button>
+                    <span className="text-xs uppercase tracking-wide text-muted-foreground">Schritt 2 von 3</span>
                   </div>
-                  <div className="relative flex justify-center text-xs uppercase">
-                    <span className="bg-background px-2 text-muted-foreground">ODER</span>
+
+                  <div className="grid gap-6 lg:grid-cols-2">
+                    <BranchSelector
+                      selectedBranches={data.industries}
+                      onSelectionChange={(branches) => updateData('industries', branches)}
+                      error={errors.industries}
+                      customIndustry={data.customIndustry}
+                      onCustomIndustryChange={(value) => updateData('customIndustry', value)}
+                    />
+
+                    <TargetGroupSelector
+                      selectedGroups={data.targetGroups}
+                      onSelectionChange={(groups) => updateData('targetGroups', groups)}
+                      error={errors.targetGroups}
+                    />
+                  </div>
+
+                  <div className="flex justify-end pt-2">
+                    <Button
+                      onClick={handleStep2Continue}
+                      className="h-11 px-6"
+                    >
+                      Weiter zur Registrierung
+                    </Button>
                   </div>
                 </div>
+              </Card>
+            )}
 
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="email">E-Mail-Adresse *</Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      value={data.email}
-                      onChange={(e) => updateData('email', e.target.value)}
-                      placeholder="unternehmen@beispiel.de"
-                      className={errors.email ? "border-destructive" : ""}
-                    />
-                    {errors.email && (
-                      <p className="text-sm text-destructive">{errors.email}</p>
+            {currentStep === 3 && (
+              <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_320px]">
+                <Card className="border-none bg-white/95 p-8 shadow-xl shadow-blue-200/50 backdrop-blur">
+                  <div className="flex justify-between items-center mb-6">
+                    <span className="text-xs uppercase tracking-wide text-muted-foreground">Schritt 3 von 3</span>
+                    <Button
+                      variant="ghost"
+                      onClick={() => setCurrentStep(2)}
+                      className="sm:w-auto"
+                    >
+                      ← Zurück
+                    </Button>
+                  </div>
+
+                  <div className="text-center mb-8">
+                    <h2 className="text-2xl font-bold mb-2">Letzter Schritt</h2>
+                    <p className="text-muted-foreground">Registriere dein Konto, um loszulegen.</p>
+                  </div>
+
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="email">E-Mail-Adresse *</Label>
+                      <Input
+                        id="email"
+                        type="email"
+                        value={data.email}
+                        onChange={(e) => updateData('email', e.target.value)}
+                        placeholder="unternehmen@beispiel.de"
+                        className={errors.email ? "border-destructive" : ""}
+                      />
+                      {errors.email && (
+                        <p className="text-sm text-destructive">{errors.email}</p>
+                      )}
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="password">Passwort *</Label>
+                      <Input
+                        id="password"
+                        type="password"
+                        value={data.password}
+                        onChange={(e) => updateData('password', e.target.value)}
+                        placeholder="Mindestens 6 Zeichen"
+                        className={errors.password ? "border-destructive" : ""}
+                      />
+                      {errors.password && (
+                        <p className="text-sm text-destructive">{errors.password}</p>
+                      )}
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="confirmPassword">Passwort bestätigen *</Label>
+                      <Input
+                        id="confirmPassword"
+                        type="password"
+                        value={data.confirmPassword}
+                        onChange={(e) => updateData('confirmPassword', e.target.value)}
+                        placeholder="Passwort wiederholen"
+                        className={errors.confirmPassword ? "border-destructive" : ""}
+                      />
+                      {errors.confirmPassword && (
+                        <p className="text-sm text-destructive">{errors.confirmPassword}</p>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="space-y-3 pt-6">
+                    <div className="flex items-start space-x-3">
+                      <input
+                        type="checkbox"
+                        id="terms"
+                        checked={agreedToTerms}
+                        onChange={(e) => setAgreedToTerms(e.target.checked)}
+                        className="mt-1"
+                      />
+                      <Label htmlFor="terms" className="text-sm leading-relaxed">
+                        Ich akzeptiere die{" "}
+                        <span className="text-primary cursor-pointer underline">
+                          Nutzungsbedingungen
+                        </span>
+                      </Label>
+                    </div>
+                    {errors.terms && (
+                      <p className="text-sm text-destructive ml-6">{errors.terms}</p>
+                    )}
+
+                    <div className="flex items-start space-x-3">
+                      <input
+                        type="checkbox"
+                        id="privacy"
+                        checked={agreedToPrivacy}
+                        onChange={(e) => setAgreedToPrivacy(e.target.checked)}
+                        className="mt-1"
+                      />
+                      <Label htmlFor="privacy" className="text-sm leading-relaxed">
+                        Ich akzeptiere die{" "}
+                        <span className="text-primary cursor-pointer underline">
+                          Datenschutzerklärung
+                        </span>
+                      </Label>
+                    </div>
+                    {errors.privacy && (
+                      <p className="text-sm text-destructive ml-6">{errors.privacy}</p>
                     )}
                   </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="password">Passwort *</Label>
-                    <Input
-                      id="password"
-                      type="password"
-                      value={data.password}
-                      onChange={(e) => updateData('password', e.target.value)}
-                      placeholder="Mindestens 6 Zeichen"
-                      className={errors.password ? "border-destructive" : ""}
-                    />
-                    {errors.password && (
-                      <p className="text-sm text-destructive">{errors.password}</p>
-                    )}
+                  <div className="flex justify-end pt-8">
+                    <Button
+                      onClick={handleSubmit}
+                      disabled={loading}
+                      className="px-6"
+                    >
+                      {loading ? "Unternehmen wird erstellt..." : "Unternehmen erstellen"}
+                    </Button>
                   </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="confirmPassword">Passwort bestätigen *</Label>
-                    <Input
-                      id="confirmPassword"
-                      type="password"
-                      value={data.confirmPassword}
-                      onChange={(e) => updateData('confirmPassword', e.target.value)}
-                      placeholder="Passwort wiederholen"
-                      className={errors.confirmPassword ? "border-destructive" : ""}
-                    />
-                    {errors.confirmPassword && (
-                      <p className="text-sm text-destructive">{errors.confirmPassword}</p>
-                    )}
+                  <div className="bg-blue-100 border border-blue-400 rounded-lg p-3 mt-4">
+                    <p className="text-xs text-blue-800">
+                      <strong>Hinweis:</strong> Nach der Registrierung erhältst du eine E-Mail zur Bestätigung. Du kannst jedoch direkt im Dashboard starten.
+                    </p>
                   </div>
-                </div>
 
-                {/* GDPR & Terms Checkboxes */}
-                <div className="space-y-3 pt-4">
-                  <div className="flex items-start space-x-3">
-                    <input
-                      type="checkbox"
-                      id="terms"
-                      checked={agreedToTerms}
-                      onChange={(e) => setAgreedToTerms(e.target.checked)}
-                      className="mt-1"
-                    />
-                    <Label htmlFor="terms" className="text-sm leading-relaxed">
-                      Ich akzeptiere die{" "}
-                      <span className="text-primary cursor-pointer underline">
-                        Nutzungsbedingungen
-                      </span>
-                    </Label>
-                  </div>
-                  {errors.terms && (
-                    <p className="text-sm text-destructive ml-6">{errors.terms}</p>
-                  )}
-
-                  <div className="flex items-start space-x-3">
-                    <input
-                      type="checkbox"
-                      id="privacy"
-                      checked={agreedToPrivacy}
-                      onChange={(e) => setAgreedToPrivacy(e.target.checked)}
-                      className="mt-1"
-                    />
-                    <Label htmlFor="privacy" className="text-sm leading-relaxed">
-                      Ich akzeptiere die{" "}
-                      <span className="text-primary cursor-pointer underline">
-                        Datenschutzerklärung
-                      </span>
-                    </Label>
-                  </div>
-                  {errors.privacy && (
-                    <p className="text-sm text-destructive ml-6">{errors.privacy}</p>
-                  )}
-                </div>
-
-                <Button 
-                  onClick={handleSubmit} 
-                  disabled={loading}
-                  className="w-full h-12 text-lg font-semibold mt-6"
-                  size="lg"
-                >
-                  {loading ? "Unternehmen wird erstellt..." : "Unternehmen erstellen"}
-                </Button>
-
-                <div className="bg-blue-100 border border-blue-400 rounded-lg p-3 mt-4">
-                  <p className="text-xs text-blue-800">
-                    <strong>Hinweis:</strong> Nach der Registrierung erhalten Sie eine E-Mail zur Bestätigung. 
-                    Sie können jedoch bereits sofort mit Ihrem Unternehmensprofil beginnen.
+                  <p className="text-xs text-muted-foreground text-center mt-4">
+                    Mit dem Start erklärst du dich mit unseren Nutzungsbedingungen einverstanden.
                   </p>
-                </div>
+                </Card>
 
-                <p className="text-xs text-muted-foreground text-center mt-4">
-                  Mit dem Start erklärst du dich mit unseren Nutzungsbedingungen einverstanden.
-                </p>
-
-                <div className="text-center mt-6">
-                  <Button
-                    variant="ghost"
-                    onClick={() => setCurrentStep(1)}
-                    className="text-sm"
-                  >
-                    ← Zurück zu den Unternehmensdaten
-                  </Button>
+                <div className="hidden lg:flex lg:flex-col lg:items-center lg:justify-center">
+                  <img
+                    src="/assets/hero-main.png"
+                    alt="BeVisiblle Team"
+                    className="h-[360px] w-full max-w-sm rounded-[32px] object-cover shadow-xl shadow-blue-200/30"
+                  />
                 </div>
               </div>
-            </Card>
+            )}
           </div>
-        )}
+        </div>
       </div>
     </div>
   );

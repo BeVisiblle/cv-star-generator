@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import LandingExtras from '@/components/LandingExtras';
+import SmartInteractions from '@/components/landing/SmartInteractions';
 
 export default function BeVisiblleLandingPage() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [activeFeature, setActiveFeature] = useState<number | null>(null);
 
   // Mobile menu toggle
   const toggleMobileMenu = () => {
@@ -60,15 +61,15 @@ export default function BeVisiblleLandingPage() {
                 <Link to="/cv-generator" className="rounded-md px-3 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50">
                   Lebenslauf
                 </Link>
-                <a href="#netzwerk" className="rounded-md px-3 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50">
-                  Netzwerk
+                <a href="#community" className="rounded-md px-3 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50">
+                  Community
                 </a>
                 <Link to="/company" className="rounded-md px-3 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50">
                   Unternehmen
                 </Link>
-                <a href="#about" className="rounded-md px-3 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50">
+                <Link to="/about" className="rounded-md px-3 py-2 text-sm font-medium text-[#5170ff] hover:bg-blue-50">
                   Über uns
-                </a>
+                </Link>
               </nav>
 
               {/* Right: Actions */}
@@ -97,15 +98,15 @@ export default function BeVisiblleLandingPage() {
             <Link to="/cv-generator" className="block py-2 text-gray-700 hover:text-gray-900">
               Lebenslauf
             </Link>
-            <a href="#netzwerk" className="block py-2 text-gray-700 hover:text-gray-900">
-              Netzwerk
+            <a href="#community" className="block py-2 text-gray-700 hover:text-gray-900">
+              Community
             </a>
             <Link to="/company" className="block py-2 text-gray-700 hover:text-gray-900">
               Unternehmen
             </Link>
-            <a href="#about" className="block py-2 text-gray-700 hover:text-gray-900">
+            <Link to="/about" className="block py-2 font-semibold text-[#5170ff]">
               Über uns
-            </a>
+            </Link>
             <Link to="/auth" className="block py-2 text-gray-700 hover:text-gray-900">
               Login
             </Link>
@@ -128,7 +129,7 @@ export default function BeVisiblleLandingPage() {
             </p>
 
             {/* CTA + Profile cluster */}
-            <div className="mt-8 flex items-center justify-center gap-6 flex-wrap">
+            <div className="mt-8 flex items-center justify-center gap-4 flex-wrap">
               <Link 
                 to="/cv-generator" 
                 className="inline-flex items-center gap-2 rounded-full px-8 py-4 text-base font-semibold text-white shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105"
@@ -139,9 +140,9 @@ export default function BeVisiblleLandingPage() {
               >
                 Jetzt registrieren
               </Link>
-              <div className="bg-white/20 backdrop-blur-sm rounded-full border border-white/30 px-6 py-3 flex items-center justify-center gap-3">
-                <img src="/assets/Cluster1.png" alt="Profile Cluster" className="h-8 w-auto object-contain" />
-                <span className="text-sm font-medium text-gray-700">+345 weitere Profile</span>
+              <div className="inline-flex items-center gap-3 rounded-full border border-white/40 bg-white/30 px-5 py-2 shadow-sm">
+                <img src="/assets/Cluster1.png" alt="Profile Cluster" className="h-10 w-auto object-contain" />
+                <span className="text-xs font-medium text-gray-700 tracking-wide">+345 weitere Profile</span>
               </div>
             </div>
           </div>
@@ -155,12 +156,14 @@ export default function BeVisiblleLandingPage() {
 
       {/* CTA Section unter den Frauen */}
       <section className="relative -mt-8 z-10 flex justify-center gap-6">
-        <button 
-          onClick={openCalendly}
+        <a
+          href="https://calendly.com/todd-bevisiblle/gettoknowbeviviblle"
+          target="_blank"
+          rel="noopener noreferrer"
           className="inline-flex items-center rounded-full border border-gray-300 px-8 py-4 text-base font-semibold text-gray-700 bg-white shadow-lg hover:bg-gray-50 transition-all duration-300 hover:scale-105"
         >
           Demo buchen
-        </button>
+        </a>
         <Link 
           to="/cv-generator" 
           className="inline-flex items-center rounded-full px-8 py-4 text-base font-semibold text-white shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105"
@@ -199,7 +202,7 @@ export default function BeVisiblleLandingPage() {
       </section>
 
       {/* ABOUT Section (links Pill, rechts Text) */}
-      <section id="about" className="mt-12">
+      <section id="about" className="mt-16">
         <div className="mx-auto max-w-5xl px-4">
           <div className="grid grid-cols-1 md:grid-cols-[auto,1fr] items-start gap-6">
             {/* Links: Pill */}
@@ -223,87 +226,38 @@ export default function BeVisiblleLandingPage() {
         </div>
       </section>
 
-      {/* Landing Extras: Feature-Switcher, Stats, Testimonials */}
-      <LandingExtras />
-
-      {/* 3 FEATURE-CARDS (Text links, Bild rechts) */}
-      <section id="netzwerk" className="mt-16">
-        <div className="mx-auto max-w-5xl px-4 space-y-8">
-          {/* Feature 1 */}
-          <div className="rounded-3xl border bg-white p-6 shadow-sm hover:shadow-md transition">
-            <div className="grid gap-6 md:grid-cols-[1fr,0.8fr] items-center">
-              {/* Left: Text */}
-              <div>
-                <h3 className="text-2xl font-semibold mb-3">Erstelle deinen CV in Minuten</h3>
-                <p className="text-gray-700 mb-4">
-                  Mit unserem intuitiven CV-Generator erstellst du in wenigen Schritten einen 
-                  professionellen Lebenslauf. Automatische Formatierung, moderne Vorlagen 
-                  und direkte Bewerbungsmöglichkeiten inklusive.
-                </p>
-                <Link 
-                  to="/cv-generator" 
-                  className="inline-flex items-center text-[#5170ff] font-medium hover:underline"
-                >
-                  Jetzt CV erstellen →
-                </Link>
-              </div>
-              {/* Right: Image */}
-              <div className="rounded-2xl overflow-hidden">
-                <img src="/assets/feature-1.png" alt="CV Generator" className="w-full h-48 object-cover" />
-              </div>
-            </div>
-          </div>
-
-          {/* Feature 2 */}
-          <div className="rounded-3xl border bg-white p-6 shadow-sm hover:shadow-md transition">
-            <div className="grid gap-6 md:grid-cols-[1fr,0.8fr] items-center">
-              {/* Left: Text */}
-              <div>
-                <h3 className="text-2xl font-semibold mb-3">Vernetze dich authentisch</h3>
-                <p className="text-gray-700 mb-4">
-                  Tausche dich mit Kolleg:innen aus deiner Branche aus. Teile Erfahrungen, 
-                  lerne von anderen und baue echte berufliche Beziehungen auf – 
-                  ohne Spam oder oberflächliche Kontakte.
-                </p>
-                <Link 
-                  to="/auth" 
-                  className="inline-flex items-center text-[#5170ff] font-medium hover:underline"
-                >
-                  Community beitreten →
-                </Link>
-              </div>
-              {/* Right: Image */}
-              <div className="rounded-2xl overflow-hidden">
-                <img src="/assets/feature-2.png" alt="Community" className="w-full h-48 object-cover" />
-              </div>
-            </div>
-          </div>
-
-          {/* Feature 3 */}
-          <div className="rounded-3xl border bg-white p-6 shadow-sm hover:shadow-md transition">
-            <div className="grid gap-6 md:grid-cols-[1fr,0.8fr] items-center">
-              {/* Left: Text */}
-              <div>
-                <h3 className="text-2xl font-semibold mb-3">Finde passende Jobs</h3>
-                <p className="text-gray-700 mb-4">
-                  Entdecke Stellenanzeigen von Unternehmen, die wirklich zu dir passen. 
-                  Bewirb dich mit 1-Klick über dein Profil und erhalte direktes 
-                  Feedback von Arbeitgebern.
-                </p>
-                <Link 
-                  to="/jobs" 
-                  className="inline-flex items-center text-[#5170ff] font-medium hover:underline"
-                >
-                  Jobs entdecken →
-                </Link>
-              </div>
-              {/* Right: Image */}
-              <div className="rounded-2xl overflow-hidden">
-                <img src="/assets/feature-3.png" alt="Jobs" className="w-full h-48 object-cover" />
-              </div>
-            </div>
-          </div>
+      {/* Feature Cards */}
+      <section id="community" className="mt-16">
+        <div className="mx-auto max-w-6xl px-6 grid gap-8 md:grid-cols-3">
+          {[{
+            title: "Community",
+            img: "/assets/feature-2.png",
+            link: "/auth"
+          }, {
+            title: "CV",
+            img: "/assets/feature-1.png",
+            link: "/cv-generator"
+          }, {
+            title: "Jobs",
+            img: "/assets/feature-3.png",
+            link: "/jobs"
+          }].map((card, idx) => (
+            <Link
+              key={card.title}
+              to={card.link}
+              className="group relative block rounded-[32px] overflow-hidden shadow-[0_18px_45px_rgba(81,112,255,0.28)] transition hover:-translate-y-1"
+            >
+              <img src={card.img} alt={card.title} className="w-full h-60 object-cover transition duration-300 group-hover:scale-105" />
+              <div className="absolute inset-0 bg-black/35 opacity-0 group-hover:opacity-100 transition" />
+              <span className="absolute bottom-4 left-5 text-white text-2xl font-semibold tracking-tight">{card.title}</span>
+            </Link>
+          ))}
         </div>
+      </section>
+
+      {/* Smart Interactions Section */}
+      <section className="mt-20">
+        <SmartInteractions />
       </section>
 
       {/* Newsletter Card */}
