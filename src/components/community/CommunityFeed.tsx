@@ -138,7 +138,7 @@ export default function CommunityFeed({ feedHeadHeight = 0 }: CommunityFeedProps
           // Try multiple profile queries to handle different table structures
           let { data: profiles, error: profileError } = await supabase
             .from('profiles')
-            .select('id, vorname, nachname, avatar_url, headline, employer_free, company_name, aktueller_beruf, ausbildungsberuf, ausbildungsbetrieb, status, branche, ort')
+            .select('id, vorname, nachname, avatar_url')
             .in('id', userIds);
           
           // If no profiles found, create fallback profiles
@@ -174,16 +174,7 @@ export default function CommunityFeed({ feedHeadHeight = 0 }: CommunityFeedProps
                 id: author.id,
                 vorname: author.vorname,
                 nachname: author.nachname,
-                avatar_url: author.avatar_url,
-                headline: author.headline,
-                employer_free: author.employer_free,
-                company_name: author.company_name,
-                aktueller_beruf: author.aktueller_beruf,
-                ausbildungsberuf: author.ausbildungsberuf,
-                ausbildungsbetrieb: author.ausbildungsbetrieb,
-                status: author.status,
-                branche: author.branche,
-                ort: author.ort
+                avatar_url: author.avatar_url
               };
             }
           }
