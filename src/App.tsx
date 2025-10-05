@@ -12,7 +12,6 @@ import { useEffect, useState, lazy, Suspense } from "react";
 import { useSupabaseInit } from "@/hooks/useSupabaseInit";
 import TopNavBar from "@/components/navigation/TopNavBar";
 import { SidebarProvider } from "@/components/ui/sidebar";
-import { LogoSpinner } from "@/components/shared/LoadingSkeleton";
 
 // Critical pages - loaded immediately for landing page
 import Index from "./pages/Index";
@@ -21,7 +20,6 @@ import Auth from "./pages/Auth";
 
 // Landing Page
 const LandingPage = lazy(() => import("@/components/LandingPage"));
-const CleanCompanyOnboarding = lazy(() => import("@/components/CleanCompanyOnboarding"));
 
 // Lazy load non-critical pages to reduce initial bundle size
 const Blog = lazy(() => import("./pages/Blog"));
@@ -48,21 +46,9 @@ const CommunityCompanies = lazy(() => import("./pages/Community/Companies"));
 const CommunityMessages = lazy(() => import("./pages/Community/Messages"));
 const CommunityJobs = lazy(() => import("./pages/Community/Jobs"));
 const NotificationsPage = lazy(() => import("./pages/Notifications"));
-const Feed = lazy(() => import("./pages/Feed"));
-
-// New 6 Prompts Pages
-const Jobs = lazy(() => import("./pages/Jobs"));
-const ForYou = lazy(() => import("./pages/ForYou"));
-const CompanyMatches = lazy(() => import("./pages/CompanyMatches"));
-const NewCompanyDashboard = lazy(() => import("./pages/CompanyDashboard"));
-const CandidateProfile = lazy(() => import("./pages/CandidateProfile"));
-const DiscoverPeople = lazy(() => import("./pages/DiscoverPeople"));
-const Discover = lazy(() => import("./pages/Discover"));
 
 // Company components - lazy loaded
 const CompanyLayout = lazy(() => import("@/components/Company/CompanyLayout").then(m => ({ default: m.CompanyLayout })));
-const CompanyLanding = lazy(() => import('@/pages/CompanyLanding'));
-const AboutUsPage = lazy(() => import('@/pages/AboutUs'));
 const CompanyOnboarding = lazy(() => import('@/pages/Company/Onboarding'));
 const CompanyDashboard = lazy(() => import("./pages/Company/CompanyDashboard"));
 const CompanyProfile = lazy(() => import("./pages/Company/Profile"));
@@ -101,8 +87,6 @@ const SupportPage = lazy(() => import("./pages/Admin/Support"));
 const AdminTools = lazy(() => import("./pages/Admin/Tools"));
 const AdminAuthGate = lazy(() => import("@/components/admin/AdminAuthGate"));
 const CreateAdmin = lazy(() => import("./pages/Admin/CreateAdmin"));
-const Unternehmensregistrierung = lazy(() => import("./pages/Unternehmensregistrierung"));
-const UnternehmenFeatures = lazy(() => import("./pages/UnternehmenFeatures"));
 
 const queryClient = new QueryClient();
 
@@ -271,7 +255,7 @@ const App = () => {
   if (!isInitialized) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-black">
-        <LogoSpinner size="xl" text="CV Star Generator wird geladen..." />
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-white"></div>
       </div>
     );
   }
@@ -307,10 +291,8 @@ const App = () => {
               {/* Landing Page */}
               <Route path="/" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><LandingPage /></Suspense>} />
               
-              {/* BeVisiblle Unterseiten */}
+              {/* Auth */}
               <Route path="/auth" element={<Auth />} />
-              <Route path="/company" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><CompanyLanding /></Suspense>} />
-              <Route path="/about" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><AboutUsPage /></Suspense>} />
               
               {/* Backup Routes */}
               <Route path="/cv-star" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen bg-black"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div></div>}><BaseLayout className="bg-black text-white"><Index /></BaseLayout></Suspense>} />
@@ -341,13 +323,9 @@ const App = () => {
               
               
               {/* Company marketing pages */}
-              <Route path="/company" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><CompanyLanding /></Suspense>} />
               <Route path="/company/onboarding" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><CompanyOnboarding /></Suspense>} />
-              <Route path="/unternehmensregistrierung" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><Unternehmensregistrierung /></Suspense>} />
-              <Route path="/unternehmen/features" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><UnternehmenFeatures /></Suspense>} />
 
               {/* Company routes */}
-              <Route path="/company/dashboard-new" element={<Suspense fallback={<LogoSpinner size="lg" text="Dashboard wird geladen..." />}><NewCompanyDashboard /></Suspense>} />
               <Route
                 path="/company/*"
                 element={
@@ -398,7 +376,6 @@ const App = () => {
                 <Route path="help/feedback" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><CompanyComingSoon /></Suspense>} />
                 
                 {/* Company Matching Routes */}
-                <Route path="matches" element={<Suspense fallback={<LogoSpinner size="lg" text="Matches werden geladen..." />}><CompanyMatches /></Suspense>} />
               </Route>
               
               {/* Authenticated routes */}
@@ -416,15 +393,6 @@ const App = () => {
                 <Route path="/entdecken/azubis" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><DiscoverAzubis /></Suspense>} />
                 <Route path="/entdecken/unternehmen" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><DiscoverCompaniesPage /></Suspense>} />
                 <Route path="/u/:id" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><UserProfilePage /></Suspense>} />
-                
-                {/* Job-related pages */}
-                <Route path="/jobs" element={<Suspense fallback={<LogoSpinner size="lg" text="Jobs werden geladen..." />}><Jobs /></Suspense>} />
-                <Route path="/feed" element={<Suspense fallback={<LogoSpinner size="lg" text="Feed wird geladen..." />}><Feed /></Suspense>} />
-                <Route path="/foryou" element={<Suspense fallback={<LogoSpinner size="lg" text="Empfehlungen werden geladen..." />}><ForYou /></Suspense>} />
-                <Route path="/profile" element={<Suspense fallback={<LogoSpinner size="lg" text="Profil wird geladen..." />}><CandidateProfile /></Suspense>} />
-                <Route path="/discover/people" element={<Suspense fallback={<LogoSpinner size="lg" text="Personen werden geladen..." />}><DiscoverPeople /></Suspense>} />
-                <Route path="/discover/companies" element={<Suspense fallback={<LogoSpinner size="lg" text="Unternehmen werden geladen..." />}><DiscoverCompaniesPage /></Suspense>} />
-                <Route path="/discover" element={<Suspense fallback={<LogoSpinner size="lg" text="Entdecken wird geladen..." />}><Discover /></Suspense>} />
               </Route>
 
               {/* Admin routes */}
