@@ -1,0 +1,60 @@
+// ERGÄNZUNG FÜR LinkedInProfileSidebar.tsx
+
+// 1. NACH Zeile 22 (nach LiveCareerLayout import) HINZUFÜGEN:
+import ClassicV2Layout from '@/components/cv-layouts/ClassicV2Layout';
+
+// 2. In renderCVLayout() Funktion - case 6 ERSETZEN und case 7 HINZUFÜGEN:
+// Zeile 513-528 ersetzen mit:
+
+  const renderCVLayout = () => {
+    const layout = profile?.layout || 1;
+    const commonProps = {
+      data: cvData,
+      className: "scale-[0.25] origin-top-left w-[400%] h-[400%] pointer-events-none"
+    };
+    switch (layout) {
+      case 1:
+        return <ModernLayout {...commonProps} />;
+      case 2:
+        return <ClassicLayout {...commonProps} />;
+      case 3:
+        return <CreativeLayout {...commonProps} />;
+      case 4:
+        return <MinimalLayout {...commonProps} />;
+      case 5:
+        return <ProfessionalLayout {...commonProps} />;
+      case 6:
+        return <LiveCareerLayout {...commonProps} />;
+      case 7:
+        return <ClassicV2Layout {...commonProps} />;
+      default:
+        return <ModernLayout {...commonProps} />;
+    }
+  };
+
+// 3. In getLayoutName() Funktion - case 6 und 7 HINZUFÜGEN:
+// Zeile 530-546 ersetzen mit:
+
+  const getLayoutName = () => {
+    const layout = profile?.layout || 1;
+    switch (layout) {
+      case 1:
+        return 'Modern';
+      case 2:
+        return 'Klassisch';
+      case 3:
+        return 'Kreativ';
+      case 4:
+        return 'Minimalistisch';
+      case 5:
+        return 'Professionell';
+      case 6:
+        return 'LiveCareer';
+      case 7:
+        return 'Klassisch V2';
+      default:
+        return 'Modern';
+    }
+  };
+
+// FERTIG! Nach diesen Änderungen sollte alles funktionieren.

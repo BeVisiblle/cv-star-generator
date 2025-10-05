@@ -16,20 +16,58 @@ export const generatePDF = async (
     filename = 'CV.pdf',
     quality = 2,
     format = 'a4',
-    margin = 10
+    margin = 0  // No margin for full A4 coverage
   } = options;
 
   try {
-    // Configure html2canvas options for better quality
-    const canvas = await html2canvas(element, {
+    // Create a completely isolated CV container
+    const cvContainer = document.createElement('div');
+    cvContainer.style.position = 'fixed';
+    cvContainer.style.left = '-10000px';
+    cvContainer.style.top = '0';
+    cvContainer.style.width = '794px';
+    cvContainer.style.height = '1123px';
+    cvContainer.style.backgroundColor = 'white';
+    cvContainer.style.padding = '0';
+    cvContainer.style.margin = '0';
+    cvContainer.style.border = 'none';
+    cvContainer.style.boxShadow = 'none';
+    cvContainer.style.overflow = 'hidden';
+    
+    // Clone ONLY the CV content and remove any page-related elements
+    const cvContent = element.cloneNode(true) as HTMLElement;
+    
+    // Remove any elements that might be page-related
+    const elementsToRemove = cvContent.querySelectorAll('button, .btn, nav, header, footer, .navbar, .header, .footer, .progress-bar, .step-indicator, .cv-step, .cv-generator, .layout-selection, .back-button, .download-button');
+    elementsToRemove.forEach(el => el.remove());
+    
+    // Set clean styles for the CV content
+    cvContent.style.width = '100%';
+    cvContent.style.height = '100%';
+    cvContent.style.margin = '0';
+    cvContent.style.padding = '0';
+    cvContent.style.border = 'none';
+    cvContent.style.boxShadow = 'none';
+    cvContent.style.borderRadius = '0';
+    cvContent.style.overflow = 'hidden';
+    
+    cvContainer.appendChild(cvContent);
+    document.body.appendChild(cvContainer);
+    
+    // Clean up after PDF generation
+    const cleanup = () => cvContainer.remove();
+    
+    const canvas = await html2canvas(cvContainer, {
       scale: quality,
       useCORS: true,
       allowTaint: true,
       backgroundColor: '#ffffff',
       logging: false,
-      width: element.scrollWidth,
-      height: element.scrollHeight,
+      width: cvContainer.offsetWidth,
+      height: cvContainer.offsetHeight,
     });
+    
+    cleanup();
 
     // Determine page size in millimeters
     const pageDims = format === 'a4'
@@ -51,32 +89,34 @@ export const generatePDF = async (
 
     const imgData = canvas.toDataURL('image/png', 1.0);
     
-    // If content fits on one page
-    if (imgHeight <= usableHeight) {
+    // For A4 format, always fit on one page
+    if (format === 'a4') {
       pdf.addImage(imgData, 'PNG', margin, margin, usableWidth, imgHeight);
     } else {
-      // Handle multi-page PDFs
-      let remainingHeight = imgHeight;
-      let position = 0;
-      
-      while (remainingHeight > 0) {
-        if (position > 0) {
-          pdf.addPage(format === 'mobile' ? [pageDims.width, pageDims.height] : undefined);
+      // Handle multi-page PDFs for other formats
+      if (imgHeight <= usableHeight) {
+        pdf.addImage(imgData, 'PNG', margin, margin, usableWidth, imgHeight);
+      } else {
+        let remainingHeight = imgHeight;
+        let position = 0;
+        
+        while (remainingHeight > 0) {
+          if (position > 0) {
+            pdf.addPage(format === 'mobile' ? [pageDims.width, pageDims.height] : undefined);
+          }
+          
+          pdf.addImage(
+            imgData,
+            'PNG',
+            margin,
+            margin - position,
+            usableWidth,
+            imgHeight
+          );
+          
+          remainingHeight -= usableHeight;
+          position += usableHeight;
         }
-        
-        const currentPageHeight = Math.min(usableHeight, remainingHeight);
-        
-        pdf.addImage(
-          imgData,
-          'PNG',
-          margin,
-          margin - position,
-          usableWidth,
-          imgHeight
-        );
-        
-        remainingHeight -= usableHeight;
-        position += usableHeight;
       }
     }
 

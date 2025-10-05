@@ -2,6 +2,75 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ---- Screen-Preview der Druckseite ---- */
+.cv-a4{
+  display:grid; place-content:center;
+  min-height:100dvh; background:#f5f6f8;
+}
+.cv-page{
+  width:210mm; height:297mm; background:#fff;
+  border-radius:6mm; box-shadow:0 2px 28px rgba(0,0,0,.08);
+  overflow:hidden; position:relative;
+  padding:12mm;               /* Außenrand IM CV */
+  box-sizing:border-box;
+}
+
+/* CV-Grid: 2-Spalten für Klassisch V2 Layout */
+.cv-grid{
+  display:grid;
+  grid-template-columns: 80mm 1fr; /* Sidebar fix, rechts flexibel */
+  column-gap: 12mm;                /* Abstand zwischen Spalten */
+  height:100%;
+  align-items: stretch;            /* beide Spalten exakt gleich hoch */
+}
+
+/* WICHTIG: Beige bis ganz nach unten, innen gleiches Padding für Konsistenz */
+.cv-sidebar{
+  background:#F2EFEA;
+  border-radius:2mm;
+  padding:4mm;
+  height:100%;
+  box-sizing:border-box;
+  display:flex; flex-direction:column;
+}
+
+/* Main rechts: Reset von Default-Margins, konsistente Typo-Abstände */
+.cv-main{
+  height:100%;
+  padding-right:2mm;               /* etwas Luft zum Seitenrand rechts */
+  box-sizing:border-box;
+}
+.cv-main h1,h2,h3,h4,h5,h6,p,ul,ol{ margin:0; }
+.cv-main > * + *{ margin-top:4mm; } /* vertikale Rhythmik */
+.cv-main ul{ padding-left:5mm; }
+
+/* Bild in der Sidebar: volle Breite, definierte Höhe, Cover */
+.cv-sidebar img{
+  width:100%; height:78mm; object-fit:cover; border-radius:1.5mm;
+  display:block; margin:0 0 4mm 0;
+}
+
+/* --- PRINT --- */
+@page { size: A4 portrait; margin: 0; }
+@media print{
+  html,body{ height:auto; }
+  body{
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    background:#ffffff !important;
+  }
+  /* Nur den CV drucken */
+  body *{ visibility:hidden !important; }
+  #cv-root, #cv-root *{ visibility:visible !important; }
+
+  .cv-a4{ background:transparent !important; min-height:auto !important; }
+  .cv-page{
+    width:210mm !important; height:297mm !important;
+    padding:12mm !important; margin:0 !important;
+    border-radius:0 !important; box-shadow:none !important;
+  }
+}
+
 /* CV Generator Design System - All colors, gradients, fonts, etc defined here. 
 All colors MUST be HSL.
 */

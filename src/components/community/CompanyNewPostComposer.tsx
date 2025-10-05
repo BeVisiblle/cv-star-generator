@@ -1,12 +1,12 @@
-import React from 'react';
-import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
-import { useIsMobile } from '@/hooks/use-mobile';
-import { CreatePost } from '@/components/community/CreatePost';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Button } from '@/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useCompany } from '@/hooks/useCompany';
+import React from "react";
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useIsMobile } from "@/hooks/useIsMobile";
+import { useCompany } from "@/hooks/useCompany";
+import CreatePost from "@/components/community/CreatePost";
 
 interface Props {
   open: boolean;
@@ -20,10 +20,49 @@ const CompanyNewPostComposer: React.FC<Props> = ({ open, onOpenChange }) => {
   const [canPost, setCanPost] = React.useState(false);
   const [isSubmitting, setIsSubmitting] = React.useState(false);
 
-  const handleStateChange = React.useCallback((s: { canPost: boolean; isSubmitting: boolean }) => {
-    setCanPost(s.canPost);
-    setIsSubmitting(s.isSubmitting);
+  const handleStateChange = React.useCallback((isSubmitting: boolean, canPost: boolean) => {
+    setIsSubmitting(isSubmitting);
+    setCanPost(canPost);
   }, []);
+
+  // Listen for successful post creation to close modal
+  React.useEffect(() => {
+    const handlePostSuccess = () => {
+      // Close modal after successful post creation
+      setTimeout(() => {
+        onOpenChange(false);
+      }, 500); // Small delay to show success toast
+    };
+    
+    window.addEventListener('post-created', handlePostSuccess);
+    return () => window.removeEventListener('post-created', handlePostSuccess);
+  }, [onOpenChange]);
+
+  // FIXED: Proper post submit handler
+  const handlePostSubmit = React.useCallback(() => {
+    console.log('Company Posten button clicked, canPost:', canPost, 'isSubmitting:', isSubmitting);
+    
+    if (!canPost || isSubmitting) {
+      console.log('Cannot post - canPost:', canPost, 'isSubmitting:', isSubmitting);
+      return;
+    }
+
+    // Try multiple methods to trigger form submit
+    const submitButton = document.getElementById('createpost-submit');
+    if (submitButton) {
+      console.log('Found submit button, clicking...');
+      submitButton.click();
+    } else {
+      console.log('Submit button not found, trying form submit...');
+      const form = document.querySelector('form');
+      if (form) {
+        console.log('Found form, submitting...');
+        form.requestSubmit();
+      } else {
+        console.log('No form found!');
+      }
+    }
+  }, [canPost, isSubmitting]);
 
   const Header = (
     <div className="px-6 pt-5 pb-3 border-b bg-background">
@@ -49,7 +88,7 @@ const CompanyNewPostComposer: React.FC<Props> = ({ open, onOpenChange }) => {
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <Button disabled={!canPost || isSubmitting} onClick={() => document.getElementById('createpost-submit')?.click()}>
+          <Button disabled={!canPost || isSubmitting} onClick={handlePostSubmit}>
             {isSubmitting ? 'Wird veröffentlicht…' : 'Posten'}
           </Button>
         </div>
@@ -66,7 +105,7 @@ const CompanyNewPostComposer: React.FC<Props> = ({ open, onOpenChange }) => {
           </SheetHeader>
           {Header}
           <div className="flex-1 overflow-y-auto px-6 pb-6">
-            <CreatePost container="none" hideHeader variant="composer" hideBottomBar onStateChange={handleStateChange} visibility={audience} context="company" companyId={company?.id} />
+            <CreatePost container="none" hideHeader hideBottomBar onStateChange={handleStateChange} visibility={audience} context="company" companyId={company?.id} />
           </div>
         </SheetContent>
       </Sheet>
@@ -80,7 +119,7 @@ const CompanyNewPostComposer: React.FC<Props> = ({ open, onOpenChange }) => {
         <DialogDescription className="sr-only">Verfassen und veröffentlichen Sie einen neuen Beitrag als Unternehmen.</DialogDescription>
         {Header}
         <div className="px-6 py-5">
-          <CreatePost container="none" hideHeader variant="composer" hideBottomBar onStateChange={handleStateChange} visibility={audience} context="company" companyId={company?.id} />
+          <CreatePost container="none" hideHeader hideBottomBar onStateChange={handleStateChange} visibility={audience} context="company" companyId={company?.id} />
         </div>
       </DialogContent>
     </Dialog>

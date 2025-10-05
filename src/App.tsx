@@ -9,13 +9,19 @@ import { CVGeneratorGate } from "@/components/CVGeneratorGate";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect, useState, lazy, Suspense } from "react";
+import { useSupabaseInit } from "@/hooks/useSupabaseInit";
 import TopNavBar from "@/components/navigation/TopNavBar";
 import { SidebarProvider } from "@/components/ui/sidebar";
+import { LogoSpinner } from "@/components/shared/LoadingSkeleton";
 
 // Critical pages - loaded immediately for landing page
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Auth from "./pages/Auth";
+
+// BeVisiblle components
+const BeVisiblleLandingPage = lazy(() => import("@/components/BeVisiblleLandingPage"));
+const CleanCompanyOnboarding = lazy(() => import("@/components/CleanCompanyOnboarding"));
 
 // Lazy load non-critical pages to reduce initial bundle size
 const Blog = lazy(() => import("./pages/Blog"));
@@ -27,13 +33,14 @@ const Impressum = lazy(() => import("./pages/Impressum"));
 const AGB = lazy(() => import("./pages/AGB"));
 const Talent = lazy(() => import("./pages/Talent"));
 const CVGenerator = lazy(() => import("./components/CVGenerator"));
+const CVPrintPage = lazy(() => import("./pages/cv/CVPrintPage"));
 const Profile = lazy(() => import("./pages/Profile"));
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const Marketplace = lazy(() => import("./pages/Marketplace"));
 const Settings = lazy(() => import("./pages/Settings"));
 const BaseLayout = lazy(() => import("@/components/layout/BaseLayout"));
 const DiscoverAzubis = lazy(() => import("./pages/DiscoverAzubis"));
-const DiscoverCompanies = lazy(() => import("./pages/DiscoverCompanies"));
+const DiscoverCompaniesPage = lazy(() => import("./pages/DiscoverCompanies"));
 const ProduktAzubis = lazy(() => import("./pages/ProduktAzubis"));
 const ProduktUnternehmen = lazy(() => import("./pages/ProduktUnternehmen"));
 const CommunityContacts = lazy(() => import("./pages/Community/Contacts"));
@@ -41,10 +48,22 @@ const CommunityCompanies = lazy(() => import("./pages/Community/Companies"));
 const CommunityMessages = lazy(() => import("./pages/Community/Messages"));
 const CommunityJobs = lazy(() => import("./pages/Community/Jobs"));
 const NotificationsPage = lazy(() => import("./pages/Notifications"));
+const Feed = lazy(() => import("./pages/Feed"));
+
+// New 6 Prompts Pages
+const Jobs = lazy(() => import("./pages/Jobs"));
+const ForYou = lazy(() => import("./pages/ForYou"));
+const CompanyMatches = lazy(() => import("./pages/CompanyMatches"));
+const NewCompanyDashboard = lazy(() => import("./pages/CompanyDashboard"));
+const CandidateProfile = lazy(() => import("./pages/CandidateProfile"));
+const DiscoverPeople = lazy(() => import("./pages/DiscoverPeople"));
+const Discover = lazy(() => import("./pages/Discover"));
 
 // Company components - lazy loaded
 const CompanyLayout = lazy(() => import("@/components/Company/CompanyLayout").then(m => ({ default: m.CompanyLayout })));
-const CompanyOnboarding = lazy(() => import("./pages/Company/Onboarding"));
+const CompanyLanding = lazy(() => import('@/pages/CompanyLanding'));
+const AboutUsPage = lazy(() => import('@/pages/AboutUs'));
+const CompanyOnboarding = lazy(() => import('@/pages/Company/Onboarding'));
 const CompanyDashboard = lazy(() => import("./pages/Company/CompanyDashboard"));
 const CompanyProfile = lazy(() => import("./pages/Company/Profile"));
 const CompanySearch = lazy(() => import("./pages/Company/Search"));
@@ -82,61 +101,90 @@ const SupportPage = lazy(() => import("./pages/Admin/Support"));
 const AdminTools = lazy(() => import("./pages/Admin/Tools"));
 const AdminAuthGate = lazy(() => import("@/components/admin/AdminAuthGate"));
 const CreateAdmin = lazy(() => import("./pages/Admin/CreateAdmin"));
+const Unternehmensregistrierung = lazy(() => import("./pages/Unternehmensregistrierung"));
+const UnternehmenFeatures = lazy(() => import("./pages/UnternehmenFeatures"));
 
 const queryClient = new QueryClient();
 
 // Protected route for company pages
 function CompanyProtectedRoute({ children }: { children: React.ReactNode }) {
-  const { user } = useAuth();
+  const { user, isLoading: authLoading } = useAuth();
   const [userType, setUserType] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     async function checkCompanyAccess() {
-      // Check demo mode FIRST and IMMEDIATELY
-      const demoMode = localStorage.getItem('demoMode') === 'true';
-      console.log('Demo mode check:', demoMode);
-      
-      if (demoMode) {
-        console.log('Demo mode detected - allowing company access');
-        setUserType('company');
-        setIsLoading(false);
+      // Wait for auth to finish loading
+      if (authLoading) {
+        console.log('Auth still loading, waiting...');
         return;
       }
 
       if (!user) {
-        console.log('No user found');
+        console.log('No user found after auth loaded');
+        setUserType('not_company');
         setIsLoading(false);
         return;
       }
 
       try {
-        console.log('Checking company user for:', user.id);
-        const { data: companyUser, error } = await supabase
+        console.log('🔍 Checking company user for:', user.id, 'Email:', user.email);
+        
+        // EINFACHE, ROBUSTE ABFRAGE - ohne komplexe Filter
+        const { data: companyUsers, error } = await supabase
           .from('company_users')
-          .select('*')
-          .eq('user_id', user.id)
-          .single();
+          .select('id, company_id, role, accepted_at, user_id')
+          .eq('user_id', user.id);
 
-        console.log('Company user check result:', { data: companyUser, error });
+        console.log('📊 Company users found:', companyUsers, 'Error:', error);
 
-        if (companyUser && !error) {
+        if (error) {
+          console.error('❌ Supabase error:', error);
+          // Bei Fehler: Prüfe spezielle Email-Adressen
+          if (user.email === 'team@ausbildungsbasis.de') {
+            console.log('✅ Special email detected - granting company access');
+            setUserType('company');
+          } else {
+            setUserType('not_company');
+          }
+        } else if (companyUsers && companyUsers.length > 0) {
+          // Prüfe ob mindestens ein akzeptierter Company-User existiert
+          const acceptedUser = companyUsers.find(cu => cu.accepted_at !== null);
+          if (acceptedUser) {
+            console.log('✅ User is company user, granting access');
+            setUserType('company');
+          } else {
+            console.log('❌ User has company access but not accepted');
+            setUserType('not_company');
+          }
+        } else {
+          // Keine Company-User gefunden - Prüfe spezielle Email-Adressen
+          if (user.email === 'team@ausbildungsbasis.de') {
+            console.log('✅ Special email detected - granting company access');
+            setUserType('company');
+          } else {
+            console.log('❌ User is NOT company user');
+            setUserType('not_company');
+          }
+        }
+      } catch (error) {
+        console.error('❌ Error checking company access:', error);
+        // Bei Fehler: Prüfe spezielle Email-Adressen
+        if (user.email === 'team@ausbildungsbasis.de') {
+          console.log('✅ Special email detected - granting company access');
           setUserType('company');
         } else {
           setUserType('not_company');
         }
-      } catch (error) {
-        console.error('Error checking company access:', error);
-        setUserType('not_company');
       }
       setIsLoading(false);
     }
 
     checkCompanyAccess();
-  }, [user]);
+  }, [user, authLoading]);
 
-  if (isLoading) {
-    console.log('CompanyProtectedRoute: Loading...');
+  if (isLoading || authLoading) {
+    console.log('CompanyProtectedRoute: Loading... (authLoading:', authLoading, ', isLoading:', isLoading, ')');
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
@@ -146,8 +194,8 @@ function CompanyProtectedRoute({ children }: { children: React.ReactNode }) {
 
   console.log('CompanyProtectedRoute: User type:', userType, 'User:', !!user);
 
-  if (!user && localStorage.getItem('demoMode') !== 'true') {
-    console.log('No user and no demo mode - redirecting to auth');
+  if (!user) {
+    console.log('No user - redirecting to auth');
     return <Navigate to="/auth" replace />;
   }
 
@@ -178,7 +226,10 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
     '/profile',
     '/companies',
     '/entdecken',
-    '/u/'
+    '/u/',
+    '/jobs',
+    '/foryou',
+    '/feed'
   ];
   const isPortalRoute = portalPrefixes.some(p => location.pathname.startsWith(p));
   const showTopNav = isPortalRoute && !isLegalRoute && !isLandingPage && !isAuthRoute && !isCvRoute;
@@ -213,17 +264,57 @@ function UniversalLayout({ children }: { children: React.ReactNode }) {
   );
 }
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <AuthProvider>
-        <Toaster />
-        <Sonner />
+const App = () => {
+  const { isInitialized, error } = useSupabaseInit();
+
+  // Show loading screen until Supabase is initialized
+  if (!isInitialized) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-black">
+        <LogoSpinner size="xl" text="CV Star Generator wird geladen..." />
+      </div>
+    );
+  }
+
+  // Show error screen if Supabase initialization failed
+  if (error) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-background">
+        <div className="text-center">
+          <div className="text-red-500 mb-4">⚠️</div>
+          <h1 className="text-xl font-semibold mb-2">Verbindungsfehler</h1>
+          <p className="text-muted-foreground mb-4">{error}</p>
+          <button 
+            onClick={() => window.location.reload()} 
+            className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90"
+          >
+            Seite neu laden
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <AuthProvider>
+          <Toaster />
+          <Sonner />
         <BrowserRouter>
           <UniversalLayout>
             <Routes>
-              <Route path="/" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen bg-black"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div></div>}><BaseLayout className="bg-black text-white"><Index /></BaseLayout></Suspense>} />
+              {/* BeVisiblle Landing Page auf Root */}
+              <Route path="/" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><BeVisiblleLandingPage /></Suspense>} />
+              
+              {/* BeVisiblle Unterseiten */}
               <Route path="/auth" element={<Auth />} />
+              <Route path="/company" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><CompanyLanding /></Suspense>} />
+              <Route path="/about" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><AboutUsPage /></Suspense>} />
+              
+              {/* Backup Routes */}
+              <Route path="/cv-star" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen bg-black"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div></div>}><BaseLayout className="bg-black text-white"><Index /></BaseLayout></Suspense>} />
+              <Route path="/company-advanced" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><CompanyOnboarding /></Suspense>} />
               <Route path="/blog" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><Blog /></Suspense>} />
               <Route path="/blog/:slug" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><PublicPage /></Suspense>} />
               <Route path="/p/:slug" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><PublicPage /></Suspense>} />
@@ -245,9 +336,18 @@ const App = () => (
               {/* CV Generator - Open for everyone, but validates complete profiles */}
               <Route path="/cv-generator" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><CVGeneratorGate><CVGenerator /></CVGeneratorGate></Suspense>} />
               <Route path="/cv-layout-selector" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><CVGeneratorGate><CVGenerator /></CVGeneratorGate></Suspense>} />
+              <Route path="/Lebenslauferstellen" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><CVGeneratorGate><CVGenerator /></CVGeneratorGate></Suspense>} />
+              <Route path="/cv/print" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><CVPrintPage /></Suspense>} />
               
-              {/* Company routes */}
+              
+              {/* Company marketing pages */}
+              <Route path="/company" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><CompanyLanding /></Suspense>} />
               <Route path="/company/onboarding" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><CompanyOnboarding /></Suspense>} />
+              <Route path="/unternehmensregistrierung" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><Unternehmensregistrierung /></Suspense>} />
+              <Route path="/unternehmen/features" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><UnternehmenFeatures /></Suspense>} />
+
+              {/* Company routes */}
+              <Route path="/company/dashboard-new" element={<Suspense fallback={<LogoSpinner size="lg" text="Dashboard wird geladen..." />}><NewCompanyDashboard /></Suspense>} />
               <Route
                 path="/company/*"
                 element={
@@ -296,6 +396,9 @@ const App = () => (
                 <Route path="help/center" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><CompanyComingSoon /></Suspense>} />
                 <Route path="help/support" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><CompanyComingSoon /></Suspense>} />
                 <Route path="help/feedback" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><CompanyComingSoon /></Suspense>} />
+                
+                {/* Company Matching Routes */}
+                <Route path="matches" element={<Suspense fallback={<LogoSpinner size="lg" text="Matches werden geladen..." />}><CompanyMatches /></Suspense>} />
               </Route>
               
               {/* Authenticated routes */}
@@ -311,8 +414,17 @@ const App = () => (
                 <Route path="/notifications" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><NotificationsPage /></Suspense>} />
                 <Route path="/settings" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><Settings /></Suspense>} />
                 <Route path="/entdecken/azubis" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><DiscoverAzubis /></Suspense>} />
-                <Route path="/entdecken/unternehmen" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><DiscoverCompanies /></Suspense>} />
+                <Route path="/entdecken/unternehmen" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><DiscoverCompaniesPage /></Suspense>} />
                 <Route path="/u/:id" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><UserProfilePage /></Suspense>} />
+                
+                {/* Job-related pages */}
+                <Route path="/jobs" element={<Suspense fallback={<LogoSpinner size="lg" text="Jobs werden geladen..." />}><Jobs /></Suspense>} />
+                <Route path="/feed" element={<Suspense fallback={<LogoSpinner size="lg" text="Feed wird geladen..." />}><Feed /></Suspense>} />
+                <Route path="/foryou" element={<Suspense fallback={<LogoSpinner size="lg" text="Empfehlungen werden geladen..." />}><ForYou /></Suspense>} />
+                <Route path="/profile" element={<Suspense fallback={<LogoSpinner size="lg" text="Profil wird geladen..." />}><CandidateProfile /></Suspense>} />
+                <Route path="/discover/people" element={<Suspense fallback={<LogoSpinner size="lg" text="Personen werden geladen..." />}><DiscoverPeople /></Suspense>} />
+                <Route path="/discover/companies" element={<Suspense fallback={<LogoSpinner size="lg" text="Unternehmen werden geladen..." />}><DiscoverCompaniesPage /></Suspense>} />
+                <Route path="/discover" element={<Suspense fallback={<LogoSpinner size="lg" text="Entdecken wird geladen..." />}><Discover /></Suspense>} />
               </Route>
 
               {/* Admin routes */}
@@ -346,6 +458,7 @@ const App = () => (
       </AuthProvider>
     </TooltipProvider>
   </QueryClientProvider>
-);
+  );
+};
 
 export default App;

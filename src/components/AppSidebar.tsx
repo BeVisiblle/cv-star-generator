@@ -1,16 +1,25 @@
 import { useState, useEffect } from "react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
-import { LayoutDashboard, User, Users, Settings, FileText, LogOut, ChevronRight, Plus, MessageSquare, Briefcase, Building2 } from "lucide-react";
+import { LayoutDashboard, User, Users, Settings, FileText, LogOut, ChevronRight, Plus, MessageSquare, Briefcase, Building2, Search, Sparkles } from "lucide-react";
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarMenuSub, SidebarMenuSubItem, SidebarMenuSubButton, SidebarHeader, SidebarFooter, useSidebar } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { openPostComposer } from "@/lib/event-bus";
+import { formatNameWithJob } from "@/utils/profileUtils";
 const navigationItems = [{
   title: "Dashboard",
   url: "/dashboard",
   icon: LayoutDashboard
+}, {
+  title: "Für Dich",
+  url: "/foryou",
+  icon: Sparkles
+}, {
+  title: "Jobsuche",
+  url: "/jobs",
+  icon: Search
 }, {
   title: "Mein Profil",
   url: "/profile",
@@ -37,6 +46,8 @@ export function AppSidebar() {
       return data;
     }
   });
+
+  const nameInfo = formatNameWithJob(profile);
 
   const isActive = (path: string) => currentPath === path;
 
@@ -81,8 +92,8 @@ export function AppSidebar() {
       
       <Sidebar 
         className={`fixed left-0 top-14 h-[calc(100vh-3.5rem)] z-50 transition-transform duration-200 ${
-          collapsed ? '-translate-x-full' : 'translate-x-0'
-        } ${collapsed ? "w-14" : "w-60"}`} 
+          collapsed ? '-translate-x-full lg:translate-x-0' : 'translate-x-0'
+        } ${collapsed ? "w-14 lg:w-14" : "w-60"}`} 
         collapsible="icon"
         data-sidebar="sidebar"
       >
@@ -121,14 +132,14 @@ export function AppSidebar() {
                   <SidebarMenuButton asChild>
                     <button
                       onClick={() => handleNavigation(item.url)}
-                      className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-all w-full text-left ${
+                      className={`flex ${collapsed ? 'flex-col items-center gap-0.5 py-3' : 'items-center gap-3 py-2'} rounded-lg px-3 transition-all w-full ${collapsed ? 'text-center' : 'text-left'} ${
                         isActive(item.url) 
                           ? "bg-sidebar-accent text-sidebar-accent-foreground" 
                           : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
                       }`}
                     >
-                      <item.icon className="h-4 w-4" />
-                      {!collapsed && <span>{item.title}</span>}
+                      <item.icon className="h-4 w-4 flex-shrink-0" />
+                      <span className={collapsed ? "text-[9px] font-medium leading-tight" : ""}>{item.title}</span>
                       {!collapsed && isActive(item.url) && <ChevronRight className="ml-auto h-4 w-4" />}
                     </button>
                   </SidebarMenuButton>
@@ -139,123 +150,81 @@ export function AppSidebar() {
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
                   <button
-                    onClick={() => handleNavigation("/marketplace")}
-                    className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-all w-full text-left ${
-                      currentPath === "/marketplace" || currentPath.startsWith('/community')
+                    onClick={() => handleNavigation('/marketplace')}
+                    className={`flex ${collapsed ? 'flex-col items-center gap-0.5 py-3' : 'items-center gap-3 py-2'} rounded-lg px-3 transition-all w-full ${collapsed ? 'text-center' : 'text-left'} ${
+                      isActive('/marketplace') || isActive('/community')
                         ? "bg-sidebar-accent text-sidebar-accent-foreground" 
                         : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
                     }`}
                   >
-                    <Users className="h-4 w-4" />
-                    {!collapsed && <span>Community</span>}
-                    {!collapsed && (currentPath === "/marketplace" || currentPath.startsWith("/community")) && <ChevronRight className="ml-auto h-4 w-4" />}
+                    <Building2 className="h-4 w-4 flex-shrink-0" />
+                    <span className={collapsed ? "text-[9px] font-medium leading-tight" : ""}>Community</span>
+                    {!collapsed && (isActive('/marketplace') || isActive('/community')) && <ChevronRight className="ml-auto h-4 w-4" />}
                   </button>
                 </SidebarMenuButton>
-                <SidebarMenuSub>
-                  <SidebarMenuSubItem>
-                    <SidebarMenuSubButton asChild>
-                      <button
-                        onClick={() => handleNavigation("/community/contacts")}
-                        className={`flex items-center gap-3 w-full text-left ${
-                          currentPath === "/community/contacts" ? "text-primary" : ""
-                        }`}
-                      >
-                        <Users className="h-4 w-4" />
-                        {!collapsed && <span>Meine Freunde / Kontakte</span>}
-                      </button>
-                    </SidebarMenuSubButton>
-                  </SidebarMenuSubItem>
-                  <SidebarMenuSubItem>
-                    <SidebarMenuSubButton asChild>
-                      <button
-                        onClick={() => handleNavigation("/community/companies")}
-                        className={`flex items-center gap-3 w-full text-left ${
-                          currentPath === "/community/companies" ? "text-primary" : ""
-                        }`}
-                      >
-                        <Building2 className="h-4 w-4" />
-                        {!collapsed && <span>Unternehmen</span>}
-                      </button>
-                    </SidebarMenuSubButton>
-                  </SidebarMenuSubItem>
-                  <SidebarMenuSubItem>
-                    <SidebarMenuSubButton asChild>
-                      <button
-                        onClick={() => handleNavigation("/community/messages")}
-                        className={`flex items-center gap-3 w-full text-left ${
-                          currentPath === "/community/messages" ? "text-primary" : ""
-                        }`}
-                      >
-                        <MessageSquare className="h-4 w-4" />
-                        {!collapsed && <span>Nachrichten</span>}
-                      </button>
-                    </SidebarMenuSubButton>
-                  </SidebarMenuSubItem>
-                  <SidebarMenuSubItem>
-                    <SidebarMenuSubButton asChild>
-                      <button
-                        onClick={() => handleNavigation("/community/jobs")}
-                        className={`flex items-center gap-3 w-full text-left ${
-                          currentPath === "/community/jobs" ? "text-primary" : ""
-                        }`}
-                      >
-                        <Briefcase className="h-4 w-4" />
-                        {!collapsed && <span>Jobs</span>}
-                      </button>
-                    </SidebarMenuSubButton>
-                  </SidebarMenuSubItem>
-                </SidebarMenuSub>
+              </SidebarMenuItem>
+
+              {/* Post Button */}
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild>
+                  <Button
+                    onClick={() => openPostComposer()}
+                    className={`w-full ${collapsed ? 'px-0 h-auto py-3 flex flex-col gap-0.5' : 'justify-start gap-3'}`}
+                    variant="default"
+                  >
+                    <Plus className="h-4 w-4 flex-shrink-0" />
+                    <span className={collapsed ? "text-[9px] font-medium leading-tight" : ""}>Posten</span>
+                  </Button>
+                </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter className={`p-4 ${collapsed ? 'px-2' : ''}`}>
-        {!collapsed ? <div className="space-y-3">
-            {/* User Profile Info */}
-            <div className="flex items-center space-x-3 p-2 rounded-lg bg-sidebar-accent">
-              <Avatar className="h-8 w-8">
-                <AvatarImage src={profile?.avatar_url} />
+      <SidebarFooter className="mt-auto p-4">
+        {!collapsed ? (
+          <div className="space-y-3">
+            <div className="flex items-center gap-3">
+              <Avatar className="h-10 w-10">
+                <AvatarImage src={profile?.avatar_url || undefined} />
                 <AvatarFallback>
-                  {profile?.vorname && profile?.nachname ? `${profile.vorname[0]}${profile.nachname[0]}` : 'U'}
+                  {profile?.vorname?.[0]}{profile?.nachname?.[0]}
                 </AvatarFallback>
               </Avatar>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-sidebar-accent-foreground truncate">
-                  {profile?.vorname && profile?.nachname ? `${profile.vorname} ${profile.nachname}` : 'Unbekannter Nutzer'}
-                </p>
-                <p className="text-xs text-sidebar-foreground/60 truncate">
-                  {profile?.email || ''}
-                </p>
+                <p className="text-sm font-medium truncate">{nameInfo.name}</p>
+                <p className="text-xs text-muted-foreground truncate">{nameInfo.job}</p>
               </div>
             </div>
-
-            {/* Create Post Button */}
-            <Button className="w-full justify-start" onClick={() => { openPostComposer(); setOpen(false); }}>
-              <Plus className="h-4 w-4 mr-2" />
-              Neuer Beitrag
-            </Button>
-
-            {/* Sign Out Button */}
-            <Button variant="ghost" size="sm" onClick={handleSignOut} className="w-full justify-start text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground">
-              <LogOut className="h-4 w-4 mr-2" />
+            <Button
+              variant="ghost"
+              className="w-full justify-start gap-3"
+              onClick={handleSignOut}
+            >
+              <LogOut className="h-4 w-4" />
               Abmelden
             </Button>
-          </div> : <div className="space-y-2">
-            <Avatar className="h-8 w-8 mx-auto">
-              <AvatarImage src={profile?.avatar_url} />
-              <AvatarFallback>
-                {profile?.vorname && profile?.nachname ? `${profile.vorname[0]}${profile.nachname[0]}` : 'U'}
+          </div>
+        ) : (
+          <div className="flex flex-col items-center gap-3">
+            <Avatar className="h-8 w-8">
+              <AvatarImage src={profile?.avatar_url || undefined} />
+              <AvatarFallback className="text-xs">
+                {profile?.vorname?.[0]}{profile?.nachname?.[0]}
               </AvatarFallback>
             </Avatar>
-            <Button size="sm" onClick={() => { openPostComposer(); setOpen(false); }} className="w-full p-2 justify-center">
-              <Plus className="h-4 w-4" />
-            </Button>
-            <Button variant="ghost" size="sm" onClick={handleSignOut} className="w-full p-2 justify-center">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-9 w-9"
+              onClick={handleSignOut}
+              title="Abmelden"
+            >
               <LogOut className="h-4 w-4" />
             </Button>
-        </div>}
+          </div>
+        )}
       </SidebarFooter>
     </Sidebar>
     </>
