@@ -115,6 +115,9 @@ export default function LandingPage() {
           <div className="mx-auto max-w-7xl px-4 py-16 md:py-24">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
               <div>
+                <div className="mb-4 text-[color:var(--brand)] text-lg font-medium">
+                  Hey, wir sind bevisible 👋
+                </div>
                 <h1 className="hero-title text-5xl md:text-7xl font-extrabold tracking-tight leading-[0.95]">
                   Werde sichtbar
                 </h1>
