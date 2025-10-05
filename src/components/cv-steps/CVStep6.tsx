@@ -7,10 +7,8 @@ import { ArrowLeft, Download } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
-import { generateCVFilename } from '@/lib/pdf-generator';
 import { toast } from 'sonner';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { generateCVVariantFile, uploadCVWithFilename } from '@/lib/supabase-storage';
 
 
 // A4 layout variants
@@ -20,6 +18,7 @@ import CreativeLayout from '@/components/cv-layouts/CreativeLayout';
 import MinimalLayout from '@/components/cv-layouts/MinimalLayout';
 import ProfessionalLayout from '@/components/cv-layouts/ProfessionalLayout';
 import LiveCareerLayout from '@/components/cv-layouts/LiveCareerLayout';
+import ClassicV2Layout from '@/components/cv-layouts/ClassicV2Layout';
 import { mapFormDataToCVData } from '@/components/cv-layouts/mapFormDataToCVData';
 import { cn } from '@/lib/utils';
 
@@ -58,6 +57,7 @@ const CVStep6 = () => {
       case 4: return 'Minimalistisch';
       case 5: return 'Professionell';
       case 6: return 'LiveCareer';
+      case 7: return 'Klassisch V2';
       default: return 'Modern';
     }
   };
@@ -93,57 +93,10 @@ const CVStep6 = () => {
     }
   };
 
-  const handleDownloadCV = async () => {
-    try {
-      const cvElement = document.querySelector('[data-cv-preview]') as HTMLElement;
-      if (!cvElement) {
-        toast.error('CV-Vorschau nicht gefunden');
-        return;
-      }
-
-      const base = generateCVFilename(formData.vorname || 'Unknown', formData.nachname || 'User');
-      const baseNoExt = base.replace(/\.pdf$/i, '');
-      const variant: 'mobile' | 'a4' = isMobile ? 'mobile' : 'a4';
-
-      // Primary: generate and download current variant
-      const file = await generateCVVariantFile(cvElement, `${baseNoExt}_${variant}.pdf`, variant);
-      const url = URL.createObjectURL(file);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = file.name;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      URL.revokeObjectURL(url);
-      toast.success('CV erfolgreich heruntergeladen!');
-
-      // Upload if authenticated
-      if (profile) {
-        try {
-          await uploadCVWithFilename(file, file.name);
-          toast.success('CV in deinem Konto gespeichert.');
-        } catch (e) {
-          console.error('Fehler beim Hochladen des CVs:', e);
-        }
-      }
-
-      // Background: generate alternate variant
-      const other: 'mobile' | 'a4' = variant === 'mobile' ? 'a4' : 'mobile';
-      setTimeout(async () => {
-        try {
-          const alt = await generateCVVariantFile(cvElement, `${baseNoExt}_${other}.pdf`, other);
-          if (profile) {
-            await uploadCVWithFilename(alt, alt.name);
-          }
-          toast.success(`Alternatives ${other.toUpperCase()}-Format bereit.`);
-        } catch (err) {
-          console.error('Fehler beim Erzeugen des alternativen Formats:', err);
-        }
-      }, 0);
-    } catch (error) {
-      console.error('Error downloading CV:', error);
-      toast.error('Fehler beim Herunterladen des CVs');
-    }
+  const handleDownloadCV = () => {
+    // Öffnet die isolierte CV-Print-Seite in neuem Tab
+    window.open("/cv/print", "_blank", "noopener,noreferrer");
+    toast.success('CV wird in neuem Tab geöffnet!');
   };
 
   const renderLayoutComponent = () => {
@@ -151,13 +104,20 @@ const CVStep6 = () => {
     const data = mapFormDataToCVData(formData);
     const selected = formData.layout ?? 1;
 
+    console.log('🔵 CVStep6 (components/cv-steps) - formData.layout:', formData.layout);
+    console.log('🔵 CVStep6 (components/cv-steps) - selected:', selected);
+    console.log('🔵 CVStep6 (components/cv-steps) - Layout name:', getLayoutName());
+
     const LayoutComponent =
       selected === 2 ? ClassicLayout :
       selected === 3 ? CreativeLayout :
       selected === 4 ? MinimalLayout :
       selected === 5 ? ProfessionalLayout :
       selected === 6 ? LiveCareerLayout :
+      selected === 7 ? ClassicV2Layout :
       ModernLayout;
+
+    console.log('🔵 CVStep6 (components/cv-steps) - LayoutComponent:', LayoutComponent.name);
 
     return (
       <article

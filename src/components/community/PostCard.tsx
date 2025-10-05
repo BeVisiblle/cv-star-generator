@@ -8,12 +8,13 @@ import { Heart, MessageCircle, Share2, Send } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { de } from 'date-fns/locale';
 import { useToast } from '@/hooks/use-toast';
-import { usePostLikes, usePostComments, usePostReposts } from '@/hooks/usePostInteractions';
+import { usePostLikes, usePostComments, usePostReposts, useCommentLikes } from '@/hooks/usePostInteractions';
 import { useNavigate } from 'react-router-dom';
 import { AspectRatio } from '@/components/ui/aspect-ratio';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import QuickMessageDialog from '@/components/community/QuickMessageDialog';
 import { useAuth } from '@/hooks/useAuth';
+import CommentItem from './CommentItem';
 
 interface PostCardProps {
   post: {
@@ -92,33 +93,43 @@ const authorSubtitle = useMemo(() => {
   const a = post.author as any;
   if (!a) return '';
   
-  // Für Schüler: "Schüler [Branche] [Ort]"
-  if (a.status === 'schueler') {
-    const parts = [];
-    if (a.status === 'schueler') parts.push('Schüler');
-    if (a.branche) parts.push(a.branche);
-    if (a.ort) parts.push(a.ort);
-    return parts.length > 1 ? parts.join(' ') : '';
+  // Priorität 1: Headline aus Einstellungen (Berufsbezeichnung / Headline)
+  // Priorität 2: Arbeitgeber aus Einstellungen (employer_free)
+  // Format: "Headline @ Arbeitgeber" wie bei LinkedIn
+  
+  // Arbeitgeber ermitteln (Priorität: employer_free > ausbildungsbetrieb > company_name)
+  const employer = a.employer_free || a.ausbildungsbetrieb || a.company_name || null;
+  
+  // 1. Headline vorhanden
+  if (a.headline) {
+    if (employer) {
+      return `${a.headline} @ ${employer}`;
+    }
+    return a.headline;
   }
   
-  // Für Azubis: "Azubi [Beruf] @ [Betrieb]"
-  if (a.status === 'azubi') {
-    const parts = [];
-    if (a.ausbildungsberuf) parts.push(a.ausbildungsberuf);
-    if (a.ausbildungsbetrieb) parts.push(`@ ${a.ausbildungsbetrieb}`);
-    return parts.length > 0 ? parts.join(' ') : '';
+  // 2. Fallback: Aktueller Beruf
+  if (a.aktueller_beruf) {
+    if (employer) {
+      return `${a.aktueller_beruf} @ ${employer}`;
+    }
+    return a.aktueller_beruf;
   }
   
-  // Für Ausgelernte: "[Beruf] @ [Betrieb]"
-  if (a.status === 'ausgelernt') {
-    const parts = [];
-    if (a.aktueller_beruf) parts.push(a.aktueller_beruf);
-    if (a.ausbildungsbetrieb) parts.push(`@ ${a.ausbildungsbetrieb}`);
-    return parts.length > 0 ? parts.join(' ') : '';
+  // 3. Fallback: Ausbildungsberuf
+  if (a.ausbildungsberuf) {
+    if (employer) {
+      return `${a.ausbildungsberuf} @ ${employer}`;
+    }
+    return a.ausbildungsberuf;
   }
   
-  // Fallback: Über mich Text
-  return a.ueber_mich || '';
+  // 4. Nur Arbeitgeber
+  if (employer) {
+    return `@ ${employer}`;
+  }
+  
+  return '';
 }, [post.author, post.author_type]);
 
   const truncated = useMemo(() => {
@@ -136,6 +147,10 @@ const authorSubtitle = useMemo(() => {
   const handleComment = () => {
     const text = newComment.trim();
     if (!text) return;
+    
+    console.log('Adding comment with replyTo:', replyTo);
+    
+    // Pass parent_comment_id if replying
     addComment(text, replyTo?.id || null);
     setNewComment('');
     setReplyTo(null);
@@ -303,36 +318,19 @@ const authorSubtitle = useMemo(() => {
                   const name = c.author?.vorname && c.author?.nachname
                     ? `${c.author.vorname} ${c.author.nachname}`
                     : 'Unbekannt';
-                  const initials = c.author?.vorname && c.author?.nachname
-                    ? `${c.author.vorname[0]}${c.author.nachname[0]}`
-                    : 'U';
                   const mention = `@${name.split(' ')[0]}`;
+                  
                   return (
-                    <div key={c.id} className="flex items-start gap-2">
-                       <Avatar className="h-8 w-8 cursor-pointer" onClick={() => navigate(`/u/${c.author?.id || c.user_id}`)}>
-                         <AvatarImage src={c.author?.avatar_url ?? undefined} />
-                         <AvatarFallback className="text-xs">{initials}</AvatarFallback>
-                       </Avatar>
-                       <div className="flex-1 bg-muted/40 border rounded-lg p-2">
-                         <button className="text-xs font-medium hover:underline" onClick={() => navigate(`/u/${c.author?.id || c.user_id}`)}>{name}</button>
-                        <div className="text-sm whitespace-pre-wrap">{c.content}</div>
-                        <div className="mt-1">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-6 text-[11px] px-2"
-                            onClick={() => {
-                              setReplyTo({ id: c.id, name });
-                              setShowComments(true);
-                              setNewComment((prev) => (prev.startsWith(mention) ? prev : `${mention} `));
-                              setTimeout(() => commentInputRef.current?.focus(), 0);
-                            }}
-                          >
-                            Antworten
-                          </Button>
-                        </div>
-                      </div>
-                    </div>
+                    <CommentItem
+                      key={c.id}
+                      comment={c}
+                      onReply={(commentId, replyName) => {
+                        setReplyTo({ id: commentId, name: replyName });
+                        setShowComments(true);
+                        setNewComment((prev) => (prev.startsWith(`@${replyName.split(' ')[0]}`) ? prev : `@${replyName.split(' ')[0]} `));
+                        setTimeout(() => commentInputRef.current?.focus(), 0);
+                      }}
+                    />
                   );
                 })}
               </div>

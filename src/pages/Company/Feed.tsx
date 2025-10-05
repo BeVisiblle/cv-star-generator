@@ -18,13 +18,18 @@ const CompanyFeed: React.FC = () => {
             </div>
           </aside>
 
-          {/* Mitte */}
+          {/* Mitte - Community Feed mit konsolidierter Struktur */}
           <section className="flex-1 min-w-0">
             <div className="w-full max-w-[560px] mx-auto px-4 md:max-w-none md:px-0 space-y-4">
+              {/* Company Composer */}
               <CompanyComposerTeaser />
+              
+              {/* Feed Sort Bar */}
               <div className="my-2">
                 <FeedSortBar />
               </div>
+              
+              {/* Community Feed - zeigt alle Posts (User + Company) */}
               <CommunityFeed />
             </div>
           </section>

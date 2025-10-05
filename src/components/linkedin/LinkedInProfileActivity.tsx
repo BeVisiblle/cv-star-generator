@@ -4,7 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { ThumbsUp, MessageCircle, Repeat2, Send, ArrowRight, Pencil, ChevronLeft, ChevronRight, Trash } from 'lucide-react';
+import { ThumbsUp, MessageCircle, Repeat2, Send, ArrowRight, Pencil, ChevronLeft, ChevronRight, Trash, Heart, Share } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { de } from 'date-fns/locale';
 import { useNavigate } from 'react-router-dom';
@@ -38,8 +38,12 @@ export const LinkedInProfileActivity: React.FC<LinkedInProfileActivityProps> = (
 const navigate = useNavigate();
 const queryClient = useQueryClient();
 const { toast } = useToast();
-const { user } = useAuth();
+const { user, profile: authProfile } = useAuth();
 const isOwner = user?.id === profile?.id;
+
+// Für eigenes Profil: verwende authProfile (hat alle Felder)
+// Für fremdes Profil: verwende übergebenes profile
+const displayProfile = isOwner && authProfile ? authProfile : profile;
 
   const { data: recentPosts, isLoading } = useQuery({
     queryKey: ['recent-community-posts', profile?.id, user?.id],
@@ -88,7 +92,6 @@ const isOwner = user?.id === profile?.id;
         .from('posts')
         .select('*')
         .eq('user_id', profile.id)
-        .eq('status', 'published')
         .order('created_at', { ascending: false })
         .limit(6);
 
@@ -122,16 +125,31 @@ const isOwner = user?.id === profile?.id;
         } as any));
       }
 
+      console.log('[Activity] Profile data:', {
+        id: displayProfile.id,
+        vorname: displayProfile.vorname,
+        nachname: displayProfile.nachname,
+        headline: displayProfile.headline,
+        employer_free: displayProfile.employer_free
+      });
+
       const postsWithProfiles = result.map((post: any) => ({
         ...post,
         author: {
-          id: profile.id,
-          vorname: profile.vorname,
-          nachname: profile.nachname,
-          avatar_url: profile.avatar_url,
-          ausbildungsberuf: profile.ausbildungsberuf || profile.aktueller_beruf || ''
+          id: displayProfile.id,
+          vorname: displayProfile.vorname,
+          nachname: displayProfile.nachname,
+          avatar_url: displayProfile.avatar_url,
+          headline: displayProfile.headline,
+          employer_free: displayProfile.employer_free,
+          company_name: displayProfile.company_name,
+          aktueller_beruf: displayProfile.aktueller_beruf,
+          ausbildungsberuf: displayProfile.ausbildungsberuf,
+          ausbildungsbetrieb: displayProfile.ausbildungsbetrieb
         }
       }));
+
+      console.log('[Activity] Posts with profiles:', postsWithProfiles);
 
       return postsWithProfiles;
     },
@@ -235,7 +253,7 @@ const isOwner = user?.id === profile?.id;
                         return (
                           <div
                             key={post.id}
-                            className="activity-card flex-shrink-0 w-[calc(100vw-2rem)] sm:w-[360px] md:w-[420px] max-w-full bg-muted/50 rounded-lg p-4 border hover:bg-muted/70 transition-colors cursor-pointer snap-start"
+                            className="activity-card flex-shrink-0 w-[calc(100vw-2rem)] sm:w-[360px] md:w-[420px] max-w-full bg-white rounded-lg p-4 border border-border shadow-sm hover:shadow-md transition-shadow cursor-pointer snap-start"
                             onClick={() => navigate('/marketplace')}
                           >
                             <div className="flex items-center space-x-3 mb-3">
@@ -250,7 +268,20 @@ const isOwner = user?.id === profile?.id;
                                   {getDisplayName(post as ActivityPost)}
                                 </p>
                                 <p className="text-xs text-muted-foreground truncate">
-                                  {post.author?.ausbildungsberuf || 'Handwerker'}
+                                  {(() => {
+                                    const author = post.author;
+                                    const employer = author?.employer_free || author?.ausbildungsbetrieb || author?.company_name;
+                                    if (author?.headline) {
+                                      return employer ? `${author.headline} @ ${employer}` : author.headline;
+                                    }
+                                    if (author?.aktueller_beruf) {
+                                      return employer ? `${author.aktueller_beruf} @ ${employer}` : author.aktueller_beruf;
+                                    }
+                                    if (author?.ausbildungsberuf) {
+                                      return employer ? `${author.ausbildungsberuf} @ ${employer}` : author.ausbildungsberuf;
+                                    }
+                                    return employer ? `@ ${employer}` : '';
+                                  })()}
                                 </p>
                               </div>
                               <span className="text-xs text-muted-foreground">
@@ -300,24 +331,50 @@ const isOwner = user?.id === profile?.id;
                                 </div>
                               )}
 
-                              <div className="flex items-center gap-4 pt-1 text-xs text-muted-foreground">
-                                <span className="inline-flex items-center gap-1"><ThumbsUp className="h-3.5 w-3.5" />{counts.likes}</span>
-                                <span className="inline-flex items-center gap-1"><MessageCircle className="h-3.5 w-3.5" />{counts.comments}</span>
-                              </div>
+                              {/* Stats */}
+                              {(counts.likes > 0 || counts.comments > 0) && (
+                                <div className="flex items-center gap-3 pt-2 text-xs text-muted-foreground">
+                                  {counts.likes > 0 && (
+                                    <span className="inline-flex items-center gap-1">
+                                      <Heart className="h-3.5 w-3.5 fill-red-500 text-red-500" />
+                                      {counts.likes}
+                                    </span>
+                                  )}
+                                  {counts.comments > 0 && (
+                                    <span>{counts.comments} {counts.comments === 1 ? 'Kommentar' : 'Kommentare'}</span>
+                                  )}
+                                </div>
+                              )}
 
-                              <div className="flex items-center justify-between border-t pt-2">
-                                <button onClick={(e)=>e.stopPropagation()} className="h-8 w-8 rounded-md bg-muted flex items-center justify-center" title="Gefällt mir">
-                                  <ThumbsUp className="h-4 w-4" />
-                                </button>
-                                <button onClick={(e)=>e.stopPropagation()} className="h-8 w-8 rounded-md hover:bg-muted flex items-center justify-center" title="Kommentieren">
-                                  <MessageCircle className="h-4 w-4" />
-                                </button>
-                                <button onClick={(e)=>e.stopPropagation()} className="h-8 w-8 rounded-md hover:bg-muted flex items-center justify-center" title="Reposten">
-                                  <Repeat2 className="h-4 w-4" />
-                                </button>
-                                <button onClick={(e)=>e.stopPropagation()} className="h-8 w-8 rounded-md hover:bg-muted flex items-center justify-center" title="Teilen">
-                                  <Send className="h-4 w-4" />
-                                </button>
+                              {/* Action Buttons - LinkedIn Style */}
+                              <div className="flex items-center border-t pt-1 mt-2 -mx-2">
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={(e) => { e.stopPropagation(); }}
+                                  className="flex-1 rounded-none text-muted-foreground hover:text-foreground hover:bg-muted/30 h-9"
+                                >
+                                  <Heart className="h-4 w-4 mr-2" />
+                                  <span className="text-xs font-medium">Gefällt mir</span>
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={(e) => { e.stopPropagation(); }}
+                                  className="flex-1 rounded-none text-muted-foreground hover:text-foreground hover:bg-muted/30 h-9"
+                                >
+                                  <MessageCircle className="h-4 w-4 mr-2" />
+                                  <span className="text-xs font-medium">Kommentieren</span>
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={(e) => { e.stopPropagation(); }}
+                                  className="flex-1 rounded-none text-muted-foreground hover:text-foreground hover:bg-muted/30 h-9"
+                                >
+                                  <Share className="h-4 w-4 mr-2" />
+                                  <span className="text-xs font-medium">Teilen</span>
+                                </Button>
                               </div>
                             </div>
                           </div>

@@ -40,25 +40,10 @@ export default function CommunityFeed({ feedHeadHeight = 0 }: CommunityFeedProps
     queryFn: async ({ pageParam }) => {
       console.log('[feed] Fetching clean posts page', pageParam, sort);
 
-      // Simple query to posts table with author data
+      // Use simple posts table - load posts first
       let query = supabase
         .from('posts')
-        .select(`
-          *,
-          author:profiles!posts_user_id_fkey(
-            id,
-            vorname,
-            nachname,
-            avatar_url,
-            status,
-            branche,
-            ort,
-            ausbildungsberuf,
-            ausbildungsbetrieb,
-            aktueller_beruf
-          )
-        `)
-        .eq('status', 'published')
+        .select('*')
         .limit(PAGE_SIZE);
 
       // Apply sorting
@@ -82,9 +67,22 @@ export default function CommunityFeed({ feedHeadHeight = 0 }: CommunityFeedProps
 
       console.log('[feed] Raw posts from DB:', posts?.length, posts);
 
+      // Load author profiles separately
+      const userIds = [...new Set(posts?.map(p => p.user_id).filter(Boolean))] as string[];
+      let authors: any[] = [];
+      
+      if (userIds.length > 0) {
+        const { data: profilesData } = await supabase
+          .from('profiles')
+          .select('id, vorname, nachname, avatar_url, headline, employer_free, aktueller_beruf, ausbildungsberuf, ausbildungsbetrieb, company_name, status, branche, ort')
+          .in('id', userIds);
+        authors = profilesData || [];
+        console.log('[feed] Loaded authors:', authors.length);
+      }
+
       // Transform posts to match PostCard interface
       const transformedPosts = posts?.map(post => {
-        const author = post.author;
+        const author = authors.find(a => a.id === post.user_id);
         
         return {
           id: post.id,
@@ -114,13 +112,15 @@ export default function CommunityFeed({ feedHeadHeight = 0 }: CommunityFeedProps
             vorname: author.vorname || null,
             nachname: author.nachname || null,
             avatar_url: author.avatar_url || null,
+            headline: author.headline || null,
+            employer_free: author.employer_free || null,
+            company_name: author.company_name || null,
             status: author.status || null,
             branche: author.branche || null,
             ort: author.ort || null,
             ausbildungsberuf: author.ausbildungsberuf || null,
             ausbildungsbetrieb: author.ausbildungsbetrieb || null,
             aktueller_beruf: author.aktueller_beruf || null,
-            headline: '',
             type: 'user',
           } : {
             id: post.user_id,
@@ -133,7 +133,7 @@ export default function CommunityFeed({ feedHeadHeight = 0 }: CommunityFeedProps
             ausbildungsberuf: null,
             ausbildungsbetrieb: null,
             aktueller_beruf: null,
-            headline: '',
+            headline: null,
             type: 'user',
           }
         };

@@ -17,6 +17,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { useCompany } from '@/hooks/useCompany';
 import { useAuth } from '@/hooks/useAuth';
 import FollowButton from '@/components/company/FollowButton';
+import { UnlockService } from '@/services/unlockService';
+import { toast as sonnerToast } from 'sonner';
 
 const CompanyProfileView = () => {
   const { id } = useParams();
@@ -29,6 +31,8 @@ const CompanyProfileView = () => {
   const [notes, setNotes] = useState<any[]>([]);
   const [newNote, setNewNote] = useState("");
   const [history, setHistory] = useState<any[]>([]);
+  const [unlockState, setUnlockState] = useState<{basic: boolean, contact: boolean}>({basic: false, contact: false});
+  const [isUnlocking, setIsUnlocking] = useState(false);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -52,6 +56,25 @@ const CompanyProfileView = () => {
 
         const unlocked = !!pipelineRow && (!!pipelineRow.unlocked_at || pipelineRow.stage !== 'new');
         setIsUnlocked(unlocked);
+
+        // Check unlock state using UnlockService
+        try {
+          const unlockService = new UnlockService();
+          const state = await unlockService.getUnlockState(id);
+          setUnlockState(state);
+          
+          // Log profile view
+          await unlockService.logProfileView(id);
+          
+          // Add to recently viewed
+          await supabase.from('recently_viewed_profiles').upsert({
+            company_id: company.id,
+            profile_id: id,
+            viewed_at: new Date().toISOString()
+          });
+        } catch (error) {
+          console.error('Error checking unlock state:', error);
+        }
 
         // Fetch profile data
         const { data: profileData, error } = await supabase
@@ -116,7 +139,7 @@ const CompanyProfileView = () => {
   }
 
   // Create display profile based on unlock status
-  const displayProfile = isUnlocked ? profile : {
+  const displayProfile = (isUnlocked || unlockState.basic) ? profile : {
     ...profile,
     nachname: profile.nachname?.charAt(0) + '.',
     email: null,
@@ -152,7 +175,7 @@ const CompanyProfileView = () => {
             <span className="sm:hidden">Zurück</span>
           </Button>
           
-          {!isUnlocked && (
+          {!(isUnlocked || unlockState.basic) && (
             <div className="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-xs sm:text-sm text-center">
               <span className="hidden sm:inline">Limitierte Ansicht - Profil nicht freigeschaltet</span>
               <span className="sm:hidden">Nicht freigeschaltet</span>
@@ -164,7 +187,7 @@ const CompanyProfileView = () => {
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
             <div>
               <h1 className="text-lg sm:text-xl md:text-2xl font-bold truncate">
-                {isUnlocked ? `${profile.vorname} ${profile.nachname}` : profile.vorname}
+                {(isUnlocked || unlockState.basic) ? `${profile.vorname} ${profile.nachname}` : profile.vorname}
               </h1>
               <div className="flex flex-col gap-1">
                 <p className="text-muted-foreground text-xs md:text-sm">
@@ -287,15 +310,62 @@ const CompanyProfileView = () => {
                   }
                 />
               </div>
-              {!isUnlocked && (
-                <p className="mt-3 text-xs text-muted-foreground">
-                  Profil freischalten, um vollständige Kontaktdaten zu sehen.
-                </p>
+              {!(isUnlocked || unlockState.basic) && (
+                <div className="mt-3 space-y-2">
+                  <p className="text-xs text-muted-foreground">
+                    Profil freischalten, um vollständige Kontaktdaten zu sehen.
+                  </p>
+                  <Button 
+                    onClick={async () => {
+                      if (!id) return;
+                      
+                      setIsUnlocking(true);
+                      try {
+                        const unlockService = new UnlockService();
+                        const result = await unlockService.unlockBasic({
+                          profileId: id,
+                          generalInterest: true
+                        });
+
+                        switch (result) {
+                          case 'unlocked_basic':
+                            sonnerToast.success('Profil erfolgreich freigeschaltet! Sie können jetzt alle Daten sehen.');
+                            // Refresh unlock state
+                            const newState = await unlockService.getUnlockState(id);
+                            setUnlockState(newState);
+                            setIsUnlocked(true);
+                            break;
+                          case 'already_basic':
+                            sonnerToast.info('Profil ist bereits freigeschaltet.');
+                            break;
+                          case 'insufficient_funds':
+                            sonnerToast.error('Nicht genügend Tokens verfügbar. Bitte laden Sie Ihr Wallet auf.');
+                            break;
+                          case 'error':
+                            sonnerToast.error('Fehler beim Freischalten des Profils. Bitte versuchen Sie es erneut.');
+                            break;
+                          default:
+                            sonnerToast.error('Unbekannter Fehler beim Freischalten.');
+                        }
+                      } catch (error) {
+                        console.error('Error unlocking profile:', error);
+                        sonnerToast.error('Fehler beim Freischalten des Profils.');
+                      } finally {
+                        setIsUnlocking(false);
+                      }
+                    }}
+                    disabled={isUnlocking || unlockState.basic}
+                    className="w-full bg-blue-600 hover:bg-blue-700 text-sm" 
+                    size="sm"
+                  >
+                    {isUnlocking ? 'Freischalten...' : unlockState.basic ? 'Profil freigeschaltet' : 'Profil freischalten (1 Token)'}
+                  </Button>
+                </div>
               )}
             </Card>
 
             {/* Contact Action Card for Unlocked Profiles */}
-            {isUnlocked && (profile.email || profile.telefon) && (
+            {(isUnlocked || unlockState.basic) && (profile.email || profile.telefon) && (
               <Card className="p-4">
                 <h3 className="font-semibold mb-3">Kontakt aufnehmen</h3>
                 <div className="space-y-2">

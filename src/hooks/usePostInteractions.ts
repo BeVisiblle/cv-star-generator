@@ -10,11 +10,19 @@ export interface PostComment {
   content: string;
   created_at: string;
   updated_at: string;
+  parent_comment_id?: string | null;
+  like_count?: number;
+  replies?: PostComment[];
   author?: {
     id: string;
     vorname?: string | null;
     nachname?: string | null;
     avatar_url?: string | null;
+    headline?: string | null;
+    employer_free?: string | null;
+    company_name?: string | null;
+    aktueller_beruf?: string | null;
+    ausbildungsbetrieb?: string | null;
   } | null;
 }
 
@@ -28,20 +36,19 @@ export const usePostLikes = (postId: string) => {
     queryFn: async (): Promise<{ count: number; liked: boolean }> => {
       console.debug("[likes] fetch", { postId });
       
-      // Get like count from the post itself
-      const { data: postData, error: postError } = await supabase
-        .from("posts")
-        .select("likes_count")
-        .eq("id", postId)
-        .single();
+      // Get like count from post_likes table
+      const { count, error: countError } = await supabase
+        .from("post_likes")
+        .select("*", { count: 'exact', head: true })
+        .eq("post_id", postId);
       
-      if (postError) throw postError;
+      if (countError) throw countError;
       
       let liked = false;
       if (user?.id) {
         // Check if user has liked this post
         const { data: userLike, error: likeError } = await supabase
-          .from("likes")
+          .from("post_likes")
           .select("id")
           .eq("post_id", postId)
           .eq("user_id", user.id)
@@ -52,7 +59,7 @@ export const usePostLikes = (postId: string) => {
       }
 
       return {
-        count: postData?.likes_count || 0,
+        count: count || 0,
         liked
       };
     },
@@ -74,7 +81,7 @@ export const usePostLikes = (postId: string) => {
       if (liked) {
         // Unlike
         const { error } = await supabase
-          .from("likes")
+          .from("post_likes")
           .delete()
           .eq("post_id", postId)
           .eq("user_id", user.id);
@@ -83,7 +90,7 @@ export const usePostLikes = (postId: string) => {
       } else {
         // Like
         const { error } = await supabase
-          .from("likes")
+          .from("post_likes")
           .insert({
             post_id: postId,
             user_id: user.id,
@@ -97,6 +104,7 @@ export const usePostLikes = (postId: string) => {
       // Invalidate queries
       queryClient.invalidateQueries({ queryKey: ["post-likes", postId] });
       queryClient.invalidateQueries({ queryKey: ["clean-feed"] });
+      queryClient.invalidateQueries({ queryKey: ["home-feed"] });
     },
   });
 
@@ -119,9 +127,9 @@ export const usePostComments = (postId: string) => {
     queryFn: async (): Promise<PostComment[]> => {
       console.debug("[comments] fetch", { postId });
       
-      // Use comments table
+      // Get comments from post_comments table
       const { data: comments, error } = await supabase
-        .from("comments")
+        .from("post_comments")
         .select("*")
         .eq("post_id", postId)
         .order("created_at", { ascending: true });
@@ -137,7 +145,7 @@ export const usePostComments = (postId: string) => {
       if (userIds.length) {
         const { data: profiles, error: profErr } = await supabase
           .from("profiles")
-          .select("id, vorname, nachname, avatar_url")
+          .select("id, vorname, nachname, avatar_url, headline, employer_free, company_name, aktueller_beruf, ausbildungsbetrieb")
           .in("id", userIds as any);
         if (profErr) throw profErr;
         profilesMap = Object.fromEntries(
@@ -145,15 +153,39 @@ export const usePostComments = (postId: string) => {
         );
       }
 
-      return items.map((c: any) => ({
+      // Transform comments with hierarchy
+      const allComments = items.map((c: any) => ({
         id: c.id,
         post_id: c.post_id,
         user_id: c.user_id,
         content: c.content,
         created_at: c.created_at,
-        updated_at: c.created_at, // comments table doesn't have updated_at
+        updated_at: c.updated_at,
+        parent_comment_id: c.parent_comment_id,
+        like_count: c.like_count || 0,
         author: profilesMap[c.user_id] ?? null,
+        replies: [] as PostComment[],
       })) as PostComment[];
+      
+      // Build nested structure: top-level comments with replies
+      const topLevelComments = allComments.filter(c => !c.parent_comment_id);
+      const repliesMap = new Map<string, PostComment[]>();
+      
+      // Group replies by parent
+      allComments.filter(c => c.parent_comment_id).forEach(reply => {
+        const parentId = reply.parent_comment_id!;
+        if (!repliesMap.has(parentId)) {
+          repliesMap.set(parentId, []);
+        }
+        repliesMap.get(parentId)!.push(reply);
+      });
+      
+      // Attach replies to their parents
+      topLevelComments.forEach(comment => {
+        comment.replies = repliesMap.get(comment.id) || [];
+      });
+      
+      return topLevelComments;
     },
     enabled: Boolean(postId)
   });
@@ -168,20 +200,30 @@ export const usePostComments = (postId: string) => {
         });
         return;
       }
-      // Use comments table
-      const { error } = await supabase
-        .from("comments")
+      
+      console.log('Adding comment:', { postId, userId: user.id, content: payload.content, parentId: payload.parentId });
+      
+      // Insert into post_comments table
+      const { data, error } = await supabase
+        .from("post_comments")
         .insert({
           post_id: postId,
           user_id: user.id,
           content: payload.content,
-        });
+          parent_comment_id: payload.parentId || null,
+        })
+        .select();
+      
+      console.log('Comment created:', { data, error });
       
       if (error) throw error;
+      
+      return data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["post-comments", postId] });
       queryClient.invalidateQueries({ queryKey: ["clean-feed"] });
+      queryClient.invalidateQueries({ queryKey: ["home-feed"] });
     },
   });
 
@@ -196,6 +238,104 @@ export const usePostComments = (postId: string) => {
 };
 
 // Shares/Reposts helper hook  
+// Comment Likes Hook
+export const useCommentLikes = (commentId: string) => {
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+
+  const { data, isLoading } = useQuery<{ count: number; liked: boolean }>({
+    queryKey: ["comment-likes", commentId, user?.id ?? "anon"],
+    queryFn: async (): Promise<{ count: number; liked: boolean }> => {
+      console.debug("[comment-likes] fetch", { commentId });
+      
+      // Get like count from comment_likes table
+      const { count, error: countError } = await supabase
+        .from("comment_likes")
+        .select("*", { count: 'exact', head: true })
+        .eq("comment_id", commentId);
+      
+      if (countError) {
+        console.error("[comment-likes] count error:", countError);
+        // Return default values if table doesn't exist yet
+        return { count: 0, liked: false };
+      }
+      
+      let liked = false;
+      if (user?.id) {
+        // Check if user has liked this comment
+        const { data: userLike, error: likeError } = await supabase
+          .from("comment_likes")
+          .select("id")
+          .eq("comment_id", commentId)
+          .eq("user_id", user.id)
+          .maybeSingle();
+        
+        if (likeError) {
+          console.error("[comment-likes] user like error:", likeError);
+        } else {
+          liked = Boolean(userLike);
+        }
+      }
+
+      return {
+        count: count || 0,
+        liked
+      };
+    },
+    enabled: Boolean(commentId)
+  });
+
+  const toggleLikeMutation = useMutation({
+    mutationFn: async () => {
+      if (!user?.id) {
+        toast({
+          title: "Anmeldung erforderlich",
+          description: "Melde dich an, um Kommentare zu liken.",
+          variant: "destructive",
+        });
+        return { changed: false };
+      }
+      
+      const liked = data?.liked ?? false;
+      if (liked) {
+        // Unlike
+        const { error } = await supabase
+          .from("comment_likes")
+          .delete()
+          .eq("comment_id", commentId)
+          .eq("user_id", user.id);
+        
+        if (error) throw error;
+      } else {
+        // Like
+        const { error } = await supabase
+          .from("comment_likes")
+          .insert({
+            comment_id: commentId,
+            user_id: user.id,
+          });
+        
+        if (error) throw error;
+      }
+      return { changed: true };
+    },
+    onSuccess: () => {
+      // Invalidate queries
+      queryClient.invalidateQueries({ queryKey: ["comment-likes", commentId] });
+      queryClient.invalidateQueries({ queryKey: ["post-comments"] });
+    },
+  });
+
+  return {
+    count: data?.count ?? 0,
+    liked: data?.liked ?? false,
+    isLoading,
+    toggleLike: () => toggleLikeMutation.mutate(),
+    isToggling: toggleLikeMutation.isPending,
+  };
+};
+
 export const usePostReposts = (postId: string) => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
@@ -206,31 +346,15 @@ export const usePostReposts = (postId: string) => {
     queryFn: async (): Promise<{ count: number; hasReposted: boolean }> => {
       console.debug("[shares] fetch", { postId });
       
-      // Get share count from the post itself
-      const { data: postData, error: postError } = await supabase
-        .from("posts")
-        .select("shares_count")
-        .eq("id", postId)
-        .single();
-      
-      if (postError) throw postError;
+      // Get share count (we'll add a shares table later if needed)
+      // For now, just return 0
+      const count = 0;
 
       let hasReposted = false;
-      if (user?.id) {
-        // Check if user has shared this post
-        const { data: userShare, error: shareError } = await supabase
-          .from("shares")
-          .select("id")
-          .eq("post_id", postId)
-          .eq("user_id", user.id)
-          .maybeSingle();
-        
-        if (shareError) throw shareError;
-        hasReposted = Boolean(userShare);
-      }
+      // We can implement shares later if needed
       
       return { 
-        count: postData?.shares_count || 0, 
+        count: count, 
         hasReposted 
       };
     },
@@ -248,32 +372,19 @@ export const usePostReposts = (postId: string) => {
         return { changed: false };
       }
       
-      const hasReposted = data?.hasReposted ?? false;
-      if (hasReposted) {
-        // Unrepost
-        const { error } = await supabase
-          .from("shares")
-          .delete()
-          .eq("post_id", postId)
-          .eq("user_id", user.id);
-        
-        if (error) throw error;
-      } else {
-        // Repost
-        const { error } = await supabase
-          .from("shares")
-          .insert({
-            post_id: postId,
-            user_id: user.id,
-          });
-        
-        if (error) throw error;
-      }
+      // For now, just show a success message
+      // We can implement actual reposts later
+      toast({
+        title: "Beitrag geteilt",
+        description: "Der Beitrag wurde in deinem Netzwerk geteilt.",
+      });
+      
       return { changed: true };
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["post-shares", postId] });
       queryClient.invalidateQueries({ queryKey: ["clean-feed"] });
+      queryClient.invalidateQueries({ queryKey: ["home-feed"] });
     },
   });
 

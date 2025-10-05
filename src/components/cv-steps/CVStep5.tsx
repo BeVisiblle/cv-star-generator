@@ -47,6 +47,13 @@ const CVStep5 = () => {
       description: 'A4-optimiertes, kompaktes Layout – ideal für PDF',
       preview: '🧩',
       color: 'bg-blue-50 border-blue-200'
+    },
+    {
+      id: 7,
+      name: 'Klassisch V2',
+      description: 'Elegantes 2-Spalten Layout mit Sidebar – Premium-Design für alle Branchen',
+      preview: '📋',
+      color: 'bg-amber-50 border-amber-200'
     }
   ];
 
@@ -55,7 +62,7 @@ const CVStep5 = () => {
       case 'handwerk': return 2; // Klassisch
       case 'it': return 1; // Modern
       case 'gesundheit': return 5; // Professionell
-      case 'buero': return 4; // Minimalistisch
+      case 'buero': return 7; // Klassisch V2 - NEU!
       case 'verkauf': return 3; // Kreativ
       case 'gastronomie': return 3; // Kreativ
       case 'bau': return 2; // Klassisch
@@ -65,12 +72,33 @@ const CVStep5 = () => {
 
   const recommendedLayoutId = getRecommendedLayout();
 
+  const handleLayoutClick = (layoutId: number, layoutName: string) => {
+    console.log('🟢 CVStep5 - Layout clicked:', layoutId, layoutName);
+    console.log('🟢 CVStep5 - Before update, formData.layout:', formData.layout);
+    
+    updateFormData({ layout: layoutId });
+    
+    console.log('🟢 CVStep5 - After update called');
+    
+    // Check localStorage after a short delay
+    setTimeout(() => {
+      const savedData = localStorage.getItem('cvFormData');
+      if (savedData) {
+        const parsed = JSON.parse(savedData);
+        console.log('🟢 CVStep5 - localStorage after update:', parsed.layout);
+      }
+    }, 100);
+  };
+
   return (
     <div className="space-y-6">
       <div>
         <h2 className="text-xl font-semibold mb-2">Wählen Sie Ihr CV-Layout</h2>
         <p className="text-muted-foreground">
           Wählen Sie das Layout, das am besten zu Ihrer Branche und Ihrem Stil passt.
+        </p>
+        <p className="text-xs text-blue-600 mt-2">
+          Aktuell gewählt: {formData.layout ? `Layout ${formData.layout}` : 'Keins'}
         </p>
       </div>
 
@@ -83,7 +111,7 @@ const CVStep5 = () => {
                 ? 'ring-2 ring-primary border-primary'
                 : 'hover:border-primary/50'
             } ${layout.color}`}
-            onClick={() => updateFormData({ layout: layout.id })}
+            onClick={() => handleLayoutClick(layout.id, layout.name)}
           >
             <CardContent className="p-6">
               <div className="flex items-start gap-4">
@@ -114,7 +142,7 @@ const CVStep5 = () => {
         <Card className="bg-green-50 border-green-200">
           <CardContent className="p-4">
             <p className="text-sm text-green-800">
-              ✓ Layout "{layouts.find(l => l.id === formData.layout)?.name}" ausgewählt
+              ✓ Layout "{layouts.find(l => l.id === formData.layout)?.name}" ausgewählt (ID: {formData.layout})
             </p>
           </CardContent>
         </Card>

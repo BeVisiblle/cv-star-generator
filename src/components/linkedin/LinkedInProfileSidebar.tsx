@@ -12,6 +12,11 @@ import { supabase } from '@/integrations/supabase/client';
 import { uploadFile, deleteFile } from '@/lib/supabase-storage';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { CompanyRecommendations } from '@/components/linkedin/right-rail/CompanyRecommendations';
+import WeitereDokumenteWidget from '@/components/profile/WeitereDokumenteWidget';
+import { WeitereDokumenteSection } from '@/components/linkedin/right-rail/WeitereDokumenteSection';
+import { UnlockService } from '@/services/unlockService';
+import { toast as sonnerToast } from 'sonner';
+import { useCompany } from '@/hooks/useCompany';
 
 // Import CV layout components
 import ModernLayout from '@/components/cv-layouts/ModernLayout';
@@ -20,6 +25,8 @@ import CreativeLayout from '@/components/cv-layouts/CreativeLayout';
 import MinimalLayout from '@/components/cv-layouts/MinimalLayout';
 import ProfessionalLayout from '@/components/cv-layouts/ProfessionalLayout';
 import LiveCareerLayout from '@/components/cv-layouts/LiveCareerLayout';
+import ClassicV2Layout from '@/components/cv-layouts/ClassicV2Layout';
+
 interface LinkedInProfileSidebarProps {
   profile: any;
   isEditing: boolean;
@@ -29,6 +36,7 @@ interface LinkedInProfileSidebarProps {
   showLicenseAndStats?: boolean;
   showCVSection?: boolean;
 }
+
 interface UserDocument {
   id: string;
   filename: string;
@@ -38,6 +46,7 @@ interface UserDocument {
   file_size: number;
   uploaded_at: string;
 }
+
 export const LinkedInProfileSidebar: React.FC<LinkedInProfileSidebarProps> = ({
   profile,
   isEditing,
@@ -51,9 +60,110 @@ export const LinkedInProfileSidebar: React.FC<LinkedInProfileSidebarProps> = ({
   const [userDocuments, setUserDocuments] = useState<UserDocument[]>([]);
   const [showCVPreview, setShowCVPreview] = useState(false);
   const [isLoadingDocuments, setIsLoadingDocuments] = useState(false);
-  const [isUploadingDocument, setIsUploadingDocument] = useState(false);
+  const [isDokumenteWidgetOpen, setIsDokumenteWidgetOpen] = useState(false);
+  const [isUnlockingCV, setIsUnlockingCV] = useState(false);
+  const [unlockState, setUnlockState] = useState<{basic: boolean, contact: boolean}>({basic: false, contact: false});
+  const [isCheckingUnlock, setIsCheckingUnlock] = useState(false);
   const navigate = useNavigate();
   const isMobile = useIsMobile();
+  const { company } = useCompany();
+
+  // Helper functions for pipeline and recently viewed
+  const addToRecentlyViewed = async (profileId: string) => {
+    if (!company?.id) return;
+    
+    try {
+      await supabase.from('recently_viewed_profiles').upsert({
+        company_id: company.id,
+        profile_id: profileId,
+        viewed_at: new Date().toISOString()
+      });
+    } catch (error) {
+      console.error('Error adding to recently viewed:', error);
+    }
+  };
+
+  const addToPipeline = async (profileId: string) => {
+    if (!company?.id) return;
+    
+    try {
+      // Get or create default pipeline
+      const { data: pipelines } = await supabase
+        .from('company_pipelines')
+        .select('id')
+        .eq('company_id', company.id)
+        .eq('is_default', true)
+        .single();
+
+      let pipelineId = pipelines?.id;
+      
+      if (!pipelineId) {
+        // Create default pipeline
+        const { data: newPipeline } = await supabase
+          .from('company_pipelines')
+          .insert({
+            company_id: company.id,
+            name: 'Standard Pipeline',
+            is_default: true
+          })
+          .select('id')
+          .single();
+        
+        pipelineId = newPipeline?.id;
+      }
+
+      if (pipelineId) {
+        // Get first stage
+        const { data: firstStage } = await supabase
+          .from('pipeline_stages')
+          .select('id')
+          .eq('pipeline_id', pipelineId)
+          .order('order_index')
+          .limit(1)
+          .single();
+
+        if (firstStage) {
+          await supabase.from('pipeline_items').upsert({
+            company_id: company.id,
+            pipeline_id: pipelineId,
+            stage_id: firstStage.id,
+            profile_id: profileId,
+            added_at: new Date().toISOString()
+          });
+        }
+      }
+    } catch (error) {
+      console.error('Error adding to pipeline:', error);
+    }
+  };
+
+  // Check unlock state and log profile view
+  useEffect(() => {
+    const checkUnlockState = async () => {
+      if (!profile?.id || !company?.id || !readOnly) return;
+      
+      setIsCheckingUnlock(true);
+      try {
+        const unlockService = new UnlockService();
+        const state = await unlockService.getUnlockState(profile.id);
+        setUnlockState(state);
+        
+        // Log profile view
+        await unlockService.logProfileView(profile.id);
+        
+        // Add to recently viewed
+        await addToRecentlyViewed(profile.id);
+        
+      } catch (error) {
+        console.error('Error checking unlock state:', error);
+      } finally {
+        setIsCheckingUnlock(false);
+      }
+    };
+
+    checkUnlockState();
+  }, [profile?.id, company?.id, readOnly]);
+
   const handleDownloadCV = async () => {
     try {
       setIsGeneratingPDF(true);
@@ -78,12 +188,17 @@ export const LinkedInProfileSidebar: React.FC<LinkedInProfileSidebarProps> = ({
       tempContainer.style.minHeight = '297mm';
       document.body.appendChild(tempContainer);
 
-      // Import and render the correct CV layout
+      // Import CV layouts dynamically
+      const ClassicV2Layout = (await import('@/components/cv-layouts/ClassicV2Layout')).default;
+
+      // Select correct layout based on profile.layout
       let LayoutComponent;
       const layoutId = profile.layout || 1;
+      console.log('Generating PDF with layout:', layoutId);
+      
       switch (layoutId) {
         case 1:
-          LayoutComponent = LiveCareerLayout;
+          LayoutComponent = ModernLayout;
           break;
         case 2:
           LayoutComponent = ClassicLayout;
@@ -98,79 +213,97 @@ export const LinkedInProfileSidebar: React.FC<LinkedInProfileSidebarProps> = ({
           LayoutComponent = ProfessionalLayout;
           break;
         case 6:
-          LayoutComponent = ModernLayout;
+          LayoutComponent = LiveCareerLayout;
+          break;
+        case 7:
+          LayoutComponent = ClassicV2Layout;
           break;
         default:
-          LayoutComponent = LiveCareerLayout;
+          LayoutComponent = ModernLayout;
       }
 
-      // Create and render CV element with proper data formatting
+      // Prepare CV data
+      const cvData = {
+        vorname: profile.vorname,
+        nachname: profile.nachname,
+        email: profile.email,
+        telefon: profile.telefon,
+        geburtsdatum: profile.geburtsdatum,
+        strasse: profile.strasse,
+        hausnummer: profile.hausnummer,
+        plz: profile.plz,
+        ort: profile.ort,
+        branche: profile.branche,
+        status: profile.status,
+        ueberMich: profile.uebermich || profile.bio || '',
+        sprachen: profile.sprachen || [],
+        faehigkeiten: profile.faehigkeiten || [],
+        schulbildung: profile.schulbildung || [],
+        berufserfahrung: profile.berufserfahrung || [],
+        avatar_url: profile.avatar_url,
+        profilbild: profile.avatar_url,
+        has_drivers_license: profile.has_drivers_license,
+        driver_license_class: profile.driver_license_class,
+      };
+
+      // Create and render CV element
       const React = await import('react');
       const ReactDOM = await import('react-dom/client');
-      const cvElement = React.createElement(LayoutComponent, {
-        data: {
-          ...cvData,
-          ueberMich: profile.uebermich || profile.bio || ''
-        }
-      });
+      const cvElement = React.createElement(LayoutComponent, { data: cvData });
       const root = ReactDOM.createRoot(tempContainer);
       root.render(cvElement);
 
       // Wait for rendering
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise(resolve => setTimeout(resolve, 1500));
 
-      // Find the CV preview element
+      // Find ONLY the CV preview element (not the whole page!)
       const cvPreviewElement = tempContainer.querySelector('[data-cv-preview]') as HTMLElement;
       if (!cvPreviewElement) {
+        console.error('CV preview not found in container:', tempContainer.innerHTML);
         throw new Error('CV preview element not found');
       }
 
-      // Generate filename and PDF using same logic as CVStep7
-      const {
-        generatePDF,
-        generateCVFilename
-      } = await import('@/lib/pdf-generator');
-      const filename = generateCVFilename(profile.vorname, profile.nachname);
+      console.log('Generating PDF from element:', cvPreviewElement);
 
-      // Generate PDF using the unified function
-      await generatePDF(cvPreviewElement, {
-        filename,
-        quality: 2,
-        format: 'a4',
-        margin: 10
+      // Generate PDF from ONLY the CV element
+      const { jsPDF } = await import('jspdf');
+      const html2canvas = (await import('html2canvas')).default;
+
+      const canvas = await html2canvas(cvPreviewElement, {
+        scale: 2,
+        useCORS: true,
+        logging: false,
+        backgroundColor: '#ffffff'
       });
 
-      // Generate PDF file for Supabase upload
-      const {
-        generateCVFromHTML,
-        uploadCV
-      } = await import('@/lib/supabase-storage');
-      const pdfFile = await generateCVFromHTML(cvPreviewElement, filename);
-      const {
-        url
-      } = await uploadCV(pdfFile);
-
-      // Save CV URL to profile
-      const {
-        error
-      } = await supabase.from('profiles').update({
-        cv_url: url
-      }).eq('id', profile.id);
-      if (error) {
-        throw error;
-      }
-
-      // Update local profile state
-      onProfileUpdate({
-        cv_url: url
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4'
       });
+
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = pdf.internal.pageSize.getHeight();
+      const imgWidth = canvas.width;
+      const imgHeight = canvas.height;
+      const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight);
+      const imgX = (pdfWidth - imgWidth * ratio) / 2;
+      const imgY = 0;
+
+      pdf.addImage(imgData, 'PNG', imgX, imgY, imgWidth * ratio, imgHeight * ratio);
+
+      // Download PDF
+      const filename = `CV_${profile.vorname}_${profile.nachname}.pdf`;
+      pdf.save(filename);
 
       // Clean up
       root.unmount();
       document.body.removeChild(tempContainer);
+
       toast({
         title: "CV erfolgreich erstellt",
-        description: `Dein Lebenslauf wurde als ${filename} heruntergeladen und gespeichert.`
+        description: `Dein Lebenslauf wurde als ${filename} heruntergeladen.`
       });
     } catch (error) {
       console.error('Error generating CV:', error);
@@ -183,6 +316,7 @@ export const LinkedInProfileSidebar: React.FC<LinkedInProfileSidebarProps> = ({
       setIsGeneratingPDF(false);
     }
   };
+
   const handleEditCV = () => {
     // Save current profile data to localStorage for CV generator
     const cvData = {
@@ -220,85 +354,38 @@ export const LinkedInProfileSidebar: React.FC<LinkedInProfileSidebarProps> = ({
       loadUserDocuments();
     }
   }, [profile?.id]);
+
   const loadUserDocuments = async () => {
     setIsLoadingDocuments(true);
     try {
-      const {
-        data,
-        error
-      } = await supabase.from('user_documents').select('*').eq('user_id', profile.id).order('uploaded_at', {
-        ascending: false
-      });
-      if (error) throw error;
+      const { data, error } = await supabase
+        .from('user_documents')
+        .select('*')
+        .eq('user_id', profile.id)
+        .order('uploaded_at', { ascending: false });
+
+      if (error) {
+        console.warn('Documents table might not exist:', error);
+        setUserDocuments([]);
+        return;
+      }
       setUserDocuments(data || []);
     } catch (error) {
       console.error('Error loading documents:', error);
-      toast({
-        title: "Fehler beim Laden der Dokumente",
-        description: "Dokumente konnten nicht geladen werden.",
-        variant: "destructive"
-      });
+      setUserDocuments([]);
     } finally {
       setIsLoadingDocuments(false);
     }
   };
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || []);
-    if (files.length === 0) return;
-    setIsUploadingDocument(true);
-    try {
-      for (const file of files) {
-        // Upload file to storage
-        const uploadResult = await uploadFile(file, 'documents', 'certificates');
 
-        // Save document metadata to database with correct document_type value
-        const {
-          error
-        } = await supabase.from('user_documents').insert({
-          user_id: profile.id,
-          filename: uploadResult.path,
-          original_name: file.name,
-          document_type: 'zertifikat',
-          // Use allowed value instead of 'certificate'
-          file_type: file.type,
-          file_size: file.size
-        });
-        if (error) throw error;
-      }
-
-      // Reload documents
-      await loadUserDocuments();
-      toast({
-        title: "Dateien erfolgreich hochgeladen",
-        description: `${files.length} Datei(en) wurden gespeichert.`
-      });
-    } catch (error) {
-      console.error('Error uploading files:', error);
-      toast({
-        title: "Fehler beim Hochladen",
-        description: "Dateien konnten nicht gespeichert werden.",
-        variant: "destructive"
-      });
-    } finally {
-      setIsUploadingDocument(false);
-      // Reset file input
-      e.target.value = '';
-    }
-  };
   const handleDownloadDocument = async (userDoc: UserDocument) => {
     try {
       console.log('Starting download for:', userDoc);
-      const {
-        data
-      } = supabase.storage.from('documents').getPublicUrl(userDoc.filename);
-      console.log('Public URL:', data.publicUrl);
-      console.log('File type:', userDoc.file_type);
+      const { data } = supabase.storage
+        .from('documents')
+        .getPublicUrl(userDoc.filename);
 
-      // If it's already a PDF, download directly
       if (userDoc.file_type === 'application/pdf') {
-        console.log('Downloading PDF directly');
-
-        // Try to fetch the file first to ensure it exists
         const response = await fetch(data.publicUrl);
         if (!response.ok) {
           throw new Error(`File not found: ${response.status}`);
@@ -312,19 +399,13 @@ export const LinkedInProfileSidebar: React.FC<LinkedInProfileSidebarProps> = ({
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
-
-        // Clean up the object URL
         window.URL.revokeObjectURL(url);
-        console.log('PDF download completed');
       } else {
-        console.log('Converting image to PDF');
-        // For images and other files, convert to PDF
         const img = new Image();
         img.crossOrigin = 'anonymous';
         await new Promise((resolve, reject) => {
           img.onload = async () => {
             try {
-              console.log('Image loaded, creating PDF');
               const jsPDF = (await import('jspdf')).default;
               const pdf = new jsPDF({
                 orientation: 'portrait',
@@ -332,14 +413,13 @@ export const LinkedInProfileSidebar: React.FC<LinkedInProfileSidebarProps> = ({
                 format: 'a4'
               });
 
-              // Calculate dimensions to fit A4
               const imgWidth = 190;
               const imgHeight = img.height * imgWidth / img.width;
               const pageHeight = 287;
+              
               if (imgHeight <= pageHeight) {
                 pdf.addImage(img, 'JPEG', 10, 10, imgWidth, imgHeight);
               } else {
-                // Handle multi-page documents
                 let remainingHeight = imgHeight;
                 let position = 0;
                 while (remainingHeight > 0) {
@@ -352,23 +432,17 @@ export const LinkedInProfileSidebar: React.FC<LinkedInProfileSidebarProps> = ({
                 }
               }
 
-              // Download the PDF
               const fileName = userDoc.original_name.replace(/\.[^/.]+$/, '.pdf');
               pdf.save(fileName);
-              console.log('PDF conversion and download completed');
               resolve(true);
             } catch (error) {
               console.error('Error converting to PDF:', error);
               reject(error);
             }
           };
-          img.onerror = error => {
-            console.error('Error loading image for PDF conversion:', error);
-            reject(error);
-          };
+          img.onerror = reject;
           img.src = data.publicUrl;
         }).catch(() => {
-          // Fallback to direct download
           const link = document.createElement('a');
           link.href = data.publicUrl;
           link.download = userDoc.original_name;
@@ -378,6 +452,7 @@ export const LinkedInProfileSidebar: React.FC<LinkedInProfileSidebarProps> = ({
           document.body.removeChild(link);
         });
       }
+      
       toast({
         title: "Download gestartet",
         description: `${userDoc.original_name} wird als PDF heruntergeladen.`
@@ -391,18 +466,23 @@ export const LinkedInProfileSidebar: React.FC<LinkedInProfileSidebarProps> = ({
       });
     }
   };
-  const handleDeleteDocument = async (userDoc: UserDocument) => {
-    try {
-      // Delete from storage
-      await deleteFile('documents', userDoc.filename);
 
-      // Delete from database
-      const {
-        error
-      } = await supabase.from('user_documents').delete().eq('id', userDoc.id);
+  const handleDeleteDocument = async (userDoc: UserDocument) => {
+    // Bestätigung für das Löschen
+    const confirmed = window.confirm(
+      `Möchten Sie das Dokument "${userDoc.original_name}" wirklich löschen?\n\nDiese Aktion kann nicht rückgängig gemacht werden.`
+    );
+    
+    if (!confirmed) return;
+
+    try {
+      await deleteFile('documents', userDoc.filename);
+      const { error } = await supabase
+        .from('user_documents')
+        .delete()
+        .eq('id', userDoc.id);
       if (error) throw error;
 
-      // Reload documents
       await loadUserDocuments();
       toast({
         title: "Datei gelöscht",
@@ -417,38 +497,35 @@ export const LinkedInProfileSidebar: React.FC<LinkedInProfileSidebarProps> = ({
       });
     }
   };
+
   const handleLanguagesChange = async (languages: any[]) => {
     try {
-      await onProfileUpdate({
-        sprachen: languages
-      });
+      await onProfileUpdate({ sprachen: languages });
       await regenerateCV();
     } catch (error) {
       console.error('Error updating languages:', error);
     }
   };
+
   const handleSkillsChange = async (skills: string[]) => {
     try {
-      await onProfileUpdate({
-        faehigkeiten: skills
-      });
+      await onProfileUpdate({ faehigkeiten: skills });
       await regenerateCV();
     } catch (error) {
       console.error('Error updating skills:', error);
     }
   };
+
   const regenerateCV = async () => {
     if (!profile.id || !profile.vorname || !profile.nachname) return;
     try {
-      // Regenerate CV silently when profile data changes
-      const {
-        regenerateCVFromProfile
-      } = await import('@/utils/profileSync');
+      const { regenerateCVFromProfile } = await import('@/utils/profileSync');
       await regenerateCVFromProfile(profile.id, profile);
     } catch (error) {
       console.error('Error regenerating CV:', error);
     }
   };
+
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('de-DE');
   };
@@ -475,12 +552,14 @@ export const LinkedInProfileSidebar: React.FC<LinkedInProfileSidebarProps> = ({
     sprachen: profile?.sprachen || [],
     faehigkeiten: profile?.faehigkeiten || []
   };
+
   const renderCVLayout = () => {
     const layout = profile?.layout || 1;
     const commonProps = {
       data: cvData,
       className: "scale-[0.25] origin-top-left w-[400%] h-[400%] pointer-events-none"
     };
+
     switch (layout) {
       case 1:
         return <ModernLayout {...commonProps} />;
@@ -494,10 +573,13 @@ export const LinkedInProfileSidebar: React.FC<LinkedInProfileSidebarProps> = ({
         return <ProfessionalLayout {...commonProps} />;
       case 6:
         return <LiveCareerLayout {...commonProps} />;
+      case 7:
+        return <ClassicV2Layout {...commonProps} />;
       default:
         return <ModernLayout {...commonProps} />;
     }
   };
+
   const getLayoutName = () => {
     const layout = profile?.layout || 1;
     switch (layout) {
@@ -513,11 +595,15 @@ export const LinkedInProfileSidebar: React.FC<LinkedInProfileSidebarProps> = ({
         return 'Professional';
       case 6:
         return 'LiveCareer';
+      case 7:
+        return 'Klassisch V2';
       default:
         return 'Modern';
     }
   };
-  return <div className="space-y-6">
+
+  return (
+    <div className="space-y-6">
       {/* CV Section - Show only if allowed */}
       {showCVSection && (
         <Card>
@@ -555,11 +641,66 @@ export const LinkedInProfileSidebar: React.FC<LinkedInProfileSidebarProps> = ({
               ) : null
             )}
             
-            <Button onClick={handleDownloadCV} disabled={isGeneratingPDF} className="w-full bg-primary hover:bg-primary/90 text-sm" size="sm">
-              <Download className="h-4 w-4 mr-2" />
-              <span className="hidden sm:inline">{isGeneratingPDF ? 'Generiere...' : 'CV herunterladen'}</span>
-              <span className="sm:hidden">{isGeneratingPDF ? 'Gen...' : 'Download'}</span>
-            </Button>
+            {readOnly ? (
+              <Button 
+                onClick={async () => {
+                  if (!profile?.id) return;
+                  
+                  setIsUnlockingCV(true);
+                  try {
+                    const unlockService = new UnlockService();
+                    const result = await unlockService.unlockBasic({
+                      profileId: profile.id,
+                      generalInterest: true
+                    });
+
+                    switch (result) {
+                      case 'unlocked_basic':
+                        sonnerToast.success('Profil erfolgreich freigeschaltet! Sie können jetzt alle Daten sehen.');
+                        // Add to pipeline
+                        await addToPipeline(profile.id);
+                        // Refresh unlock state
+                        const newState = await unlockService.getUnlockState(profile.id);
+                        setUnlockState(newState);
+                        break;
+                      case 'already_basic':
+                        sonnerToast.info('Profil ist bereits freigeschaltet.');
+                        break;
+                      case 'insufficient_funds':
+                        sonnerToast.error('Nicht genügend Tokens verfügbar. Bitte laden Sie Ihr Wallet auf.');
+                        break;
+                      case 'error':
+                        sonnerToast.error('Fehler beim Freischalten des Profils. Bitte versuchen Sie es erneut.');
+                        break;
+                      default:
+                        sonnerToast.error('Unbekannter Fehler beim Freischalten.');
+                    }
+                  } catch (error) {
+                    console.error('Error unlocking profile:', error);
+                    sonnerToast.error('Fehler beim Freischalten des Profils.');
+                  } finally {
+                    setIsUnlockingCV(false);
+                  }
+                }}
+                disabled={isUnlockingCV || unlockState.basic}
+                className="w-full bg-blue-600 hover:bg-blue-700 text-sm" 
+                size="sm"
+              >
+                <Download className="h-4 w-4 mr-2" />
+                <span className="hidden sm:inline">
+                  {isUnlockingCV ? 'Freischalten...' : unlockState.basic ? 'Profil freigeschaltet' : 'Profil freischalten (1 Token)'}
+                </span>
+                <span className="sm:hidden">
+                  {isUnlockingCV ? 'Freischalten...' : unlockState.basic ? 'Freigeschaltet' : 'Freischalten'}
+                </span>
+              </Button>
+            ) : (
+              <Button onClick={handleDownloadCV} disabled={isGeneratingPDF} className="w-full bg-primary hover:bg-primary/90 text-sm" size="sm">
+                <Download className="h-4 w-4 mr-2" />
+                <span className="hidden sm:inline">{isGeneratingPDF ? 'Generiere...' : 'CV herunterladen'}</span>
+                <span className="sm:hidden">{isGeneratingPDF ? 'Gen...' : 'Download'}</span>
+              </Button>
+            )}
             
             {!readOnly && (
               <Button onClick={handleEditCV} variant="outline" className="w-full text-sm" size="sm">
@@ -579,159 +720,132 @@ export const LinkedInProfileSidebar: React.FC<LinkedInProfileSidebarProps> = ({
         </Card>
       )}
 
-      {/* Document Section - Show if documents exist or not readonly */}
-      {(!readOnly || userDocuments.length > 0) && <Card>
-          <CardHeader>
-            <CardTitle className="text-lg font-semibold">
-              {readOnly ? "Zeugnisse & Zertifikate" : "Dokumente hochladen"}
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {!readOnly && <div className="relative">
-                <Input type="file" multiple accept=".pdf,image/*" onChange={handleFileUpload} className="hidden" id="document-upload" />
-                <Button variant="outline" className="w-full" onClick={() => document.getElementById('document-upload')?.click()} disabled={isUploadingDocument}>
-                  <Upload className="h-4 w-4 mr-2" />
-                  {isUploadingDocument ? 'Uploading...' : 'Zeugnisse & Zertifikate'}
-                </Button>
-              </div>}
-            
-            {isLoadingDocuments ? <div className="flex items-center justify-center py-4">
-                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
-              </div> : userDocuments.length > 0 ? <div className="space-y-2">
-                <p className="text-sm font-medium">
-                  {readOnly ? "Verfügbare Dokumente:" : "Gespeicherte Dokumente:"}
-                </p>
-                {userDocuments.map(doc => <div key={doc.id} className="flex flex-wrap items-center justify-between text-xs bg-muted p-2 rounded">
-                    <div className="flex items-center gap-2 flex-1 min-w-0">
-                      <FileText className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                      <span className="truncate">{doc.original_name}</span>
-                    </div>
-                    <div className="flex items-center gap-1 flex-shrink-0">
-                      <Button variant="ghost" size="sm" onClick={() => handleDownloadDocument(doc)} className="h-6 w-6 p-0" title="Herunterladen">
-                        <Download className="h-3 w-3" />
-                      </Button>
-                      {!readOnly && <Button variant="ghost" size="sm" onClick={() => handleDeleteDocument(doc)} className="h-6 w-6 p-0 text-destructive hover:text-destructive" title="Löschen">
-                          <Trash2 className="h-3 w-3" />
-                        </Button>}
-                    </div>
-                  </div>)}
-              </div> : readOnly ? null : <p className="text-sm text-muted-foreground">Noch keine Dokumente hochgeladen.</p>}
-          </CardContent>
-        </Card>}
-
-      {/* Contact Information */}
-      
+      {/* Neue gruppierte Dokumenten-Sektion */}
+      <WeitereDokumenteSection
+        userId={profile?.id}
+        readOnly={readOnly}
+        openWidget={() => setIsDokumenteWidgetOpen(true)}
+      />
 
       {/* Languages */}
-{showLanguagesAndSkills && (
-  <Card>
-    <CardHeader>
-      <CardTitle className="text-lg font-semibold">Sprachen</CardTitle>
-    </CardHeader>
-    <CardContent>
-      {!readOnly && isEditing ? (
-        <LanguageSelector languages={profile?.sprachen || []} onLanguagesChange={handleLanguagesChange} />
-      ) : (
-        <div className="space-y-2">
-          {profile?.sprachen && profile.sprachen.length > 0 ? (
-            profile.sprachen.map((lang: any, index: number) => (
-              <div key={index} className="flex flex-wrap justify-between items-center gap-2">
-                <span className="font-medium">{lang.sprache}</span>
-                <Badge variant="secondary">{lang.niveau}</Badge>
+      {showLanguagesAndSkills && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg font-semibold">Sprachen</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {!readOnly && isEditing ? (
+              <LanguageSelector languages={profile?.sprachen || []} onLanguagesChange={handleLanguagesChange} />
+            ) : (
+              <div className="space-y-2">
+                {profile?.sprachen && profile.sprachen.length > 0 ? (
+                  profile.sprachen.map((lang: any, index: number) => (
+                    <div key={index} className="flex flex-wrap justify-between items-center gap-2">
+                      <span className="font-medium">{lang.sprache}</span>
+                      <Badge variant="secondary">{lang.niveau}</Badge>
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-muted-foreground text-sm">Keine Sprachen hinzugefügt</p>
+                )}
               </div>
-            ))
-          ) : (
-            <p className="text-muted-foreground text-sm">Keine Sprachen hinzugefügt</p>
-          )}
-        </div>
+            )}
+          </CardContent>
+        </Card>
       )}
-    </CardContent>
-  </Card>
-)}
 
       {/* Skills */}
-{showLanguagesAndSkills && (
-  <Card>
-    <CardHeader>
-      <CardTitle className="text-lg font-semibold">Fähigkeiten</CardTitle>
-    </CardHeader>
-    <CardContent>
-      {!readOnly && isEditing ? (
-        <SkillSelector selectedSkills={profile?.faehigkeiten || []} onSkillsChange={handleSkillsChange} branch={profile?.branche} statusLevel={profile?.status} />
-      ) : (
-        <div className="flex flex-wrap gap-2">
-          {profile?.faehigkeiten && profile.faehigkeiten.length > 0 ? (
-            profile.faehigkeiten.map((skill: string, index: number) => (
-              <Badge key={index} variant="secondary">
-                {skill}
-              </Badge>
-            ))
-          ) : (
-            <p className="text-muted-foreground text-sm">Keine Fähigkeiten hinzugefügt</p>
-          )}
-        </div>
+      {showLanguagesAndSkills && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg font-semibold">Fähigkeiten</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {!readOnly && isEditing ? (
+              <SkillSelector selectedSkills={profile?.faehigkeiten || []} onSkillsChange={handleSkillsChange} branch={profile?.branche} statusLevel={profile?.status} />
+            ) : (
+              <div className="flex flex-wrap gap-2">
+                {profile?.faehigkeiten && profile.faehigkeiten.length > 0 ? (
+                  profile.faehigkeiten.map((skill: string, index: number) => (
+                    <Badge key={index} variant="secondary">
+                      {skill}
+                    </Badge>
+                  ))
+                ) : (
+                  <p className="text-muted-foreground text-sm">Keine Fähigkeiten hinzugefügt</p>
+                )}
+              </div>
+            )}
+          </CardContent>
+        </Card>
       )}
-    </CardContent>
-  </Card>
-)}
 
       {/* Driver's License */}
-{showLicenseAndStats && (
-  <Card>
-    <CardHeader>
-      <CardTitle className="text-lg font-semibold">Führerschein</CardTitle>
-    </CardHeader>
-    <CardContent>
-      <div className="space-y-2">
-        {profile?.has_drivers_license ? (
-          <div className="flex items-center gap-2">
-            <Car className="h-4 w-4 text-muted-foreground" />
-            <span className="text-sm">
-              Führerschein {profile?.driver_license_class || 'vorhanden'}
-            </span>
-          </div>
-        ) : profile?.has_drivers_license === false ? (
-          <p className="text-muted-foreground text-sm">Kein Führerschein vorhanden</p>
-        ) : (
-          <p className="text-muted-foreground text-sm">Führerschein-Status nicht angegeben</p>
-        )}
-      </div>
-    </CardContent>
-  </Card>
-)}
+      {showLicenseAndStats && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg font-semibold">Führerschein</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2">
+              {profile?.has_drivers_license ? (
+                <div className="flex items-center gap-2">
+                  <Car className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-sm">
+                    Führerschein {profile?.driver_license_class || 'vorhanden'}
+                  </span>
+                </div>
+              ) : profile?.has_drivers_license === false ? (
+                <p className="text-muted-foreground text-sm">Kein Führerschein vorhanden</p>
+              ) : (
+                <p className="text-muted-foreground text-sm">Führerschein-Status nicht angegeben</p>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Profile Stats */}
-{showLicenseAndStats && (
-  <Card>
-    <CardHeader>
-      <CardTitle className="text-lg font-semibold">Profil-Statistiken</CardTitle>
-    </CardHeader>
-    <CardContent className="space-y-3">
-      <div className="flex justify-between text-sm">
-        <span>Profil vollständig:</span>
-        <span className={profile?.profile_complete ? "text-green-600" : "text-orange-500"}>
-          {profile?.profile_complete ? "Ja" : "Nein"}
-        </span>
-      </div>
-      <div className="flex justify-between text-sm">
-        <span>Öffentlich sichtbar:</span>
-        <span className={profile?.profile_published ? "text-green-600" : "text-orange-500"}>
-          {profile?.profile_published ? "Ja" : "Nein"}
-        </span>
-      </div>
-      {profile?.created_at && (
-        <div className="flex justify-between text-sm">
-          <span>Erstellt am:</span>
-          <span className="text-muted-foreground">
-            {formatDate(profile.created_at)}
-          </span>
-        </div>
+      {showLicenseAndStats && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg font-semibold">Profil-Statistiken</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <div className="flex justify-between text-sm">
+              <span>Profil vollständig:</span>
+              <span className={profile?.profile_complete ? "text-green-600" : "text-orange-500"}>
+                {profile?.profile_complete ? "Ja" : "Nein"}
+              </span>
+            </div>
+            <div className="flex justify-between text-sm">
+              <span>Öffentlich sichtbar:</span>
+              <span className={profile?.profile_published ? "text-green-600" : "text-orange-500"}>
+                {profile?.profile_published ? "Ja" : "Nein"}
+              </span>
+            </div>
+            {profile?.created_at && (
+              <div className="flex justify-between text-sm">
+                <span>Erstellt am:</span>
+                <span className="text-muted-foreground">
+                  {formatDate(profile.created_at)}
+                </span>
+              </div>
+            )}
+          </CardContent>
+        </Card>
       )}
-    </CardContent>
-  </Card>
-)}
 
       {/* Company Recommendations */}
       <CompanyRecommendations limit={3} showMore={true} showMoreLink="/entdecken/unternehmen" />
-    </div>;
+
+      {/* WeitereDokumenteWidget PopUp */}
+      <WeitereDokumenteWidget 
+        isOpen={isDokumenteWidgetOpen} 
+        onClose={() => setIsDokumenteWidgetOpen(false)}
+        userId={profile?.id}
+        onDocumentUploaded={loadUserDocuments}
+      />
+    </div>
+  );
 };

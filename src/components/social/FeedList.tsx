@@ -1,3 +1,5 @@
+// FeedList.tsx - KOMPLETT AKTUALISIERT für posts-Tabelle
+
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
@@ -10,14 +12,12 @@ import { de } from "date-fns/locale";
 
 interface FeedPost {
   id: string;
-  body_md: string;
+  content: string; // Changed from body_md
   created_at: string;
+  user_id: string; // Changed from actor_user_id
   like_count: number;
   comment_count: number;
   share_count: number;
-  actor_user_id?: string;
-  actor_company_id?: string;
-  media?: any;
   author?: PostAuthor;
 }
 
@@ -37,50 +37,70 @@ export default function FeedList() {
 
   const loadFeed = async () => {
     try {
-      // First get posts
+      console.log('[FeedList] Loading posts from posts table...');
+      
+      // Get posts from simple posts table
       const { data: postsData, error: postsError } = await supabase
-        .from("community_posts")
+        .from("posts")
         .select("*")
-        .eq("status", "published")
         .order("created_at", { ascending: false })
         .limit(50);
 
       if (postsError) {
-        console.error("Error loading feed:", postsError);
+        console.error("[FeedList] Error loading feed:", postsError);
         return;
       }
 
-      // Then get author info for each post
+      console.log('[FeedList] Loaded posts:', postsData?.length, postsData);
+
+      // Get author info for each post
       const postsWithAuthors = await Promise.all(
         (postsData || []).map(async (post) => {
-          if (post.actor_user_id) {
+          if (post.user_id) {
             try {
               const { data: authorData, error: authorError } = await supabase
                 .from("profiles")
                 .select("id, vorname, nachname, headline, aktueller_beruf, ausbildungsbetrieb, avatar_url")
-                .eq("id", post.actor_user_id)
+                .eq("id", post.user_id)
                 .maybeSingle();
               
               if (authorError) {
-                console.error("Error loading author:", authorError);
+                console.error("[FeedList] Error loading author:", authorError);
               }
               
               return {
                 ...post,
+                content: post.content, // Ensure content field is mapped
+                like_count: 0, // No counts in simple table yet
+                comment_count: 0,
+                share_count: 0,
                 author: authorData || undefined
               };
             } catch (error) {
-              console.error("Error loading author for post:", post.id, error);
-              return post;
+              console.error("[FeedList] Error loading author for post:", post.id, error);
+              return {
+                ...post,
+                content: post.content,
+                like_count: 0,
+                comment_count: 0,
+                share_count: 0
+              };
             }
           }
-          return post;
+          return {
+            ...post,
+            content: post.content,
+            like_count: 0,
+            comment_count: 0,
+            share_count: 0
+          };
         })
       );
 
+      console.log('[FeedList] Posts with authors:', postsWithAuthors);
       setPosts(postsWithAuthors);
     } catch (error) {
-      console.error("Error loading feed:", error);
+      console.error("[FeedList] Error loading feed:", error);
     } finally {
       setLoading(false);
     }
@@ -89,16 +109,22 @@ export default function FeedList() {
   useEffect(() => {
     loadFeed();
 
-    // Listen for new posts
+    // Listen for new posts on posts table
     const channel = supabase
       .channel('feed-updates')
       .on('postgres_changes', 
-        { event: 'INSERT', schema: 'public', table: 'community_posts' },
-        () => loadFeed()
+        { event: 'INSERT', schema: 'public', table: 'posts' },
+        () => {
+          console.log('[FeedList] New post detected, reloading...');
+          loadFeed();
+        }
       )
       .on('postgres_changes', 
-        { event: 'UPDATE', schema: 'public', table: 'community_posts' },
-        () => loadFeed()
+        { event: 'UPDATE', schema: 'public', table: 'posts' },
+        () => {
+          console.log('[FeedList] Post updated, reloading...');
+          loadFeed();
+        }
       )
       .subscribe();
 
@@ -125,7 +151,6 @@ export default function FeedList() {
   const getSubline = (author?: PostAuthor) => {
     if (!author) return null;
     
-    // Priority: headline + employer, then current job + company, then just headline or job
     if (author.headline && author.ausbildungsbetrieb) {
       return `${author.headline} @ ${author.ausbildungsbetrieb}`;
     }
@@ -190,7 +215,7 @@ export default function FeedList() {
                   <NameBlock
                     displayName={getDisplayName(post.author)}
                     subline={getSubline(post.author)}
-                    userId={post.actor_user_id || undefined}
+                    userId={post.user_id || undefined}
                   />
                   <span className="text-xs text-muted-foreground">
                     {formatDistanceToNow(new Date(post.created_at), { 
@@ -202,15 +227,9 @@ export default function FeedList() {
                 
                 <div className="mt-3">
                   <p className="text-foreground whitespace-pre-wrap leading-relaxed">
-                    {post.body_md}
+                    {post.content}
                   </p>
                 </div>
-
-                {post.media && Array.isArray(post.media) && post.media.length > 0 && (
-                  <div className="mt-4">
-                    {/* Media rendering would go here */}
-                  </div>
-                )}
 
                 <div className="flex items-center justify-between mt-4 pt-3 border-t border-border/50">
                   <div className="flex items-center gap-6">

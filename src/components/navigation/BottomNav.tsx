@@ -15,21 +15,23 @@ const BottomNav: React.FC = () => {
   return (
     <nav className="md:hidden fixed bottom-0 left-0 right-0 border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 z-50">
       <div className="mx-auto max-w-screen-sm">
-        <div className="grid grid-cols-5 items-center py-2">
+        <div className="grid grid-cols-5 items-center py-1.5">
           <button
-            className="flex flex-col items-center justify-center text-muted-foreground hover:text-foreground"
+            className="flex flex-col items-center justify-center gap-0.5 text-muted-foreground hover:text-foreground py-1"
             onClick={() => navigate('/')}
             aria-label="Home"
           >
-            <Home className="h-6 w-6" />
+            <Home className="h-5 w-5" />
+            <span className="text-[10px] font-medium">Start</span>
           </button>
 
           <button
-            className="flex flex-col items-center justify-center text-muted-foreground hover:text-foreground"
+            className="flex flex-col items-center justify-center gap-0.5 text-muted-foreground hover:text-foreground py-1"
             onClick={() => placeholder('My Network')}
             aria-label="My Network"
           >
-            <Users className="h-6 w-6" />
+            <Users className="h-5 w-5" />
+            <span className="text-[10px] font-medium">Netzwerk</span>
           </button>
 
           <div className="flex items-center justify-center">
@@ -39,19 +41,21 @@ const BottomNav: React.FC = () => {
           </div>
 
           <button
-            className="flex flex-col items-center justify-center text-muted-foreground hover:text-foreground"
+            className="flex flex-col items-center justify-center gap-0.5 text-muted-foreground hover:text-foreground py-1"
             onClick={() => placeholder('Notifications')}
             aria-label="Notifications"
           >
-            <Bell className="h-6 w-6" />
+            <Bell className="h-5 w-5" />
+            <span className="text-[10px] font-medium">Mitteilungen</span>
           </button>
 
           <button
-            className="flex flex-col items-center justify-center text-muted-foreground hover:text-foreground"
+            className="flex flex-col items-center justify-center gap-0.5 text-muted-foreground hover:text-foreground py-1"
             onClick={() => placeholder('Jobs')}
             aria-label="Jobs"
           >
-            <Briefcase className="h-6 w-6" />
+            <Briefcase className="h-5 w-5" />
+            <span className="text-[10px] font-medium">Jobs</span>
           </button>
         </div>
       </div>

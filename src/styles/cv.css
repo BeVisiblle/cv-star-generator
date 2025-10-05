@@ -1,0 +1,68 @@
+/* --- A4 canvas --- */
+.cv-a4-page {
+  width: 210mm;
+  height: 297mm;
+  background: #fff;
+  color: #111;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+  overflow: hidden;
+  position: relative;
+}
+
+.cv-a4-content {
+  padding: 14mm 16mm;
+}
+
+.cv-preview-surface {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.cv-preview-wrapper {
+  transform: scale(0.82);
+  transform-origin: top center;
+}
+
+.break-inside-avoid {
+  break-inside: avoid;
+}
+
+.cv-list {
+  margin: 0;
+  padding-left: 18px;
+}
+
+.cv-list li {
+  margin: 4px 0;
+}
+
+/* PRINT */
+@page {
+  size: A4;
+  margin: 0;
+}
+
+@media print {
+  html,
+  body {
+    background: #fff;
+  }
+
+  .cv-preview-wrapper {
+    transform: none !important;
+  }
+
+  .cv-a4-page {
+    box-shadow: none !important;
+  }
+
+  .page-break {
+    page-break-after: always;
+  }
+
+  .avoid-break {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+}

@@ -1,73 +1,92 @@
-# Welcome to your Lovable project
+# CV Star Generator - BeVisiblle
 
-## Project info
+Ein modernes Karriereportal für Auszubildende und Unternehmen mit CV-Generator, Matching-System und Community-Features.
 
-**URL**: https://lovable.dev/projects/1030f469-875d-417b-a01b-8fc69ec10950
+## 🚀 Features
 
-## How can I edit this code?
+- **CV Generator**: Professionelle Lebensläufe erstellen
+- **Company Dashboard**: Unternehmensmanagement
+- **Job Matching**: Intelligente Kandidaten-Unternehmen-Zuordnung
+- **Community**: Social Features, Messaging, Job-Postings
+- **Mobile Support**: Capacitor für iOS/Android
 
-There are several ways of editing your application.
+## 🛠️ Tech Stack
 
-**Use Lovable**
+- **Frontend**: React 18 + TypeScript + Vite
+- **UI**: Tailwind CSS + Radix UI
+- **Backend**: Supabase (PostgreSQL)
+- **Auth**: Supabase Auth
+- **State**: React Query + Context API
+- **Mobile**: Capacitor
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/1030f469-875d-417b-a01b-8fc69ec10950) and start prompting.
+## 📦 Installation
 
-Changes made via Lovable will be committed automatically to this repo.
+```bash
+# Repository klonen
+git clone https://github.com/Tmorawe9111/cv-star-generator.git
+cd cv-star-generator
 
-**Use your preferred IDE**
+# Dependencies installieren
+npm install
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
+# Entwicklungsserver starten
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+## 🌐 URLs
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+- **Entwicklung**: http://localhost:3001/
+- **Supabase Dashboard**: https://supabase.com/dashboard/project/koymmvuhcxlvcuoyjnvv
 
-**Use GitHub Codespaces**
+## 📁 Projektstruktur
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+```
+src/
+├── components/          # React-Komponenten
+├── pages/              # Seiten-Routing
+├── hooks/              # Custom Hooks
+├── services/           # API-Services
+├── types/              # TypeScript-Definitionen
+└── integrations/       # Supabase-Integration
+```
 
-## What technologies are used for this project?
+## 🔧 Konfiguration
 
-This project is built with:
+Die Supabase-Konfiguration ist bereits eingerichtet:
+- **Projekt-ID**: `koymmvuhcxlvcuoyjnvv`
+- **URL**: `https://koymmvuhcxlvcuoyjnvv.supabase.co`
+- **Environment**: `.env.local` für lokale Entwicklung
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+## 📱 Mobile Development
 
-## How can I deploy this project?
+```bash
+# iOS
+npx cap add ios
+npx cap run ios
 
-Simply open [Lovable](https://lovable.dev/projects/1030f469-875d-417b-a01b-8fc69ec10950) and click on Share -> Publish.
+# Android
+npx cap add android
+npx cap run android
+```
 
-## Can I connect a custom domain to my Lovable project?
+## 🚀 Deployment
 
-Yes, you can!
+```bash
+# Production Build
+npm run build
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+# Preview
+npm run preview
+```
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+## 📞 Support
+
+Bei Fragen oder Problemen:
+1. Supabase-Verbindung prüfen
+2. Environment-Variablen überprüfen
+3. Database-Migrationen anwenden
+4. Console-Logs überprüfen
+
+---
+
+**Ready to use!** 🎉 Die Anwendung ist vollständig konfiguriert und einsatzbereit.
