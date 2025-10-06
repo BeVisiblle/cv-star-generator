@@ -23,9 +23,9 @@ export function CompanyLayout() {
     return <Navigate to="/auth" replace />;
   }
 
-  // Redirect to onboarding if no company
+  // Redirect to signup if no company
   if (!company) {
-    return <Navigate to="/company/onboarding" replace />;
+    return <Navigate to="/signup/company" replace />;
   }
 
   return (
