@@ -121,47 +121,55 @@ function CompanyProtectedRoute({ children }: { children: React.ReactNode }) {
         const hasIsCompanyMeta = user.user_metadata?.is_company === true || 
                                 user.user_metadata?.is_company === 'true';
         
-        // EINFACHE, ROBUSTE ABFRAGE - ohne komplexe Filter
+        console.log('📊 User metadata is_company:', hasIsCompanyMeta);
+        
+        // If not a company user in metadata, skip company checks
+        if (!hasIsCompanyMeta) {
+          console.log('❌ User is NOT company user (no metadata)');
+          setUserType('not_company');
+          setIsLoading(false);
+          return;
+        }
+
+        // User has is_company metadata - check if they have company_users entry
         const { data: companyUsers, error } = await supabase
           .from('company_users')
           .select('id, company_id, role, accepted_at, user_id')
           .eq('user_id', user.id);
 
-        console.log('📊 Company users found:', companyUsers, 'Error:', error);
-        console.log('📊 User metadata is_company:', hasIsCompanyMeta);
+        console.log('📊 Company users query result:', { data: companyUsers, error });
 
         if (error) {
           console.error('❌ Supabase error:', error);
-          // Bei Fehler: Fallback auf metadata check
-          if (hasIsCompanyMeta) {
-            console.log('✅ is_company metadata detected - granting company access');
-            setUserType('company');
-          } else {
-            setUserType('not_company');
-          }
+          // If there's an error but user has metadata, grant access (graceful degradation)
+          console.log('⚠️ Error checking company_users, but user has is_company metadata - granting access');
+          setUserType('company');
         } else if (companyUsers && companyUsers.length > 0) {
-          // Prüfe ob mindestens ein akzeptierter Company-User existiert
+          // Check if at least one accepted company user exists
           const acceptedUser = companyUsers.find(cu => cu.accepted_at !== null);
           if (acceptedUser) {
-            console.log('✅ User is company user, granting access');
+            console.log('✅ User is accepted company member, granting access');
             setUserType('company');
           } else {
-            console.log('❌ User has company access but not accepted');
-            setUserType('not_company');
+            console.log('⚠️ User has company_users entry but not accepted yet');
+            setUserType('incomplete_company');
           }
         } else {
-          // Keine Company-User gefunden - Prüfe metadata
-          if (hasIsCompanyMeta) {
-            console.log('⚠️ User has is_company metadata but no company_users entry - needs to complete registration');
-            setUserType('incomplete_company');
-          } else {
-            console.log('❌ User is NOT company user');
-            setUserType('not_company');
-          }
+          // User has is_company metadata but no company_users entry
+          console.log('⚠️ User has is_company metadata but no company_users entry - needs to complete registration');
+          setUserType('incomplete_company');
         }
       } catch (error) {
         console.error('❌ Error checking company access:', error);
-        setUserType('not_company');
+        // Graceful degradation - if user has metadata, grant access
+        const hasIsCompanyMeta = user.user_metadata?.is_company === true || 
+                                user.user_metadata?.is_company === 'true';
+        if (hasIsCompanyMeta) {
+          console.log('⚠️ Exception occurred but user has is_company metadata - granting access');
+          setUserType('company');
+        } else {
+          setUserType('not_company');
+        }
       }
       setIsLoading(false);
     }
