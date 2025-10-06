@@ -283,10 +283,12 @@ export default function CompanySignup() {
                           <SelectValue placeholder="Auswählen" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="1-9">1–9</SelectItem>
-                          <SelectItem value="10-49">10–49</SelectItem>
-                          <SelectItem value="50-249">50–249</SelectItem>
-                          <SelectItem value=">=250">≥ 250</SelectItem>
+                          <SelectItem value="1-10">1–10 Mitarbeiter</SelectItem>
+                          <SelectItem value="11-25">11–25 Mitarbeiter</SelectItem>
+                          <SelectItem value="26-50">26–50 Mitarbeiter</SelectItem>
+                          <SelectItem value="51-100">51–100 Mitarbeiter</SelectItem>
+                          <SelectItem value="101-250">101–250 Mitarbeiter</SelectItem>
+                          <SelectItem value="250+">250+ Mitarbeiter</SelectItem>
                         </SelectContent>
                       </Select>
                     </Field>
