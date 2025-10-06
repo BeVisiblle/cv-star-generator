@@ -9,18 +9,22 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Plus, Trash2, CalendarIcon } from 'lucide-react';
+import { Plus, Trash2, CalendarIcon, Sparkles, Loader2 } from 'lucide-react';
 import { SchulbildungEntry, BerufserfahrungEntry } from '@/contexts/CVFormContext';
 import { PLZOrtSelector } from '@/components/shared/PLZOrtSelector';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { useDebounce } from '@/hooks/useDebounce';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 
 const CVStep4 = () => {
   const { formData, updateFormData } = useCVForm();
+  const { toast } = useToast();
   
   // Local states for dynamic entry inputs to prevent focus loss
   const [localEntryInputs, setLocalEntryInputs] = useState<Record<string, string>>({});
+  const [generatingBulletsFor, setGeneratingBulletsFor] = useState<number | null>(null);
 
   // Debounced update function with stable reference
   const debouncedUpdate = useDebounce((updates: any) => {
@@ -262,6 +266,50 @@ const CVStep4 = () => {
   const removeBerufserfahrungEntry = (index: number) => {
     const berufserfahrung = formData.berufserfahrung || [];
     updateFormData({ berufserfahrung: berufserfahrung.filter((_, i) => i !== index) });
+  };
+
+  const handleGenerateJobBullets = async (index: number) => {
+    const arbeit = formData.berufserfahrung?.[index];
+    if (!arbeit?.titel || !arbeit?.unternehmen) {
+      toast({
+        title: "Fehler",
+        description: "Bitte fülle zuerst Titel und Unternehmen aus.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setGeneratingBulletsFor(index);
+    try {
+      const { data, error } = await supabase.functions.invoke('ai-generate-job-bullets', {
+        body: { 
+          jobTitle: arbeit.titel,
+          company: arbeit.unternehmen,
+          industry: formData.branche
+        }
+      });
+
+      if (error) throw error;
+
+      if (data.success && data.bullets) {
+        const bullets = data.bullets.join('\n• ');
+        updateBerufserfahrungEntry(index, 'beschreibung', `• ${bullets}`);
+        
+        toast({
+          title: "Erfolgreich",
+          description: "Aufgaben wurden generiert!"
+        });
+      }
+    } catch (error) {
+      console.error('Error generating job bullets:', error);
+      toast({
+        title: "Fehler",
+        description: "Fehler beim Generieren der Aufgaben.",
+        variant: "destructive"
+      });
+    } finally {
+      setGeneratingBulletsFor(null);
+    }
   };
 
   // Generate "About Me" text using template
@@ -633,13 +681,29 @@ const CVStep4 = () => {
                 </div>
               </div>
               <div>
-                <Label htmlFor={`arbeitbeschreibung-${index}`}>Beschreibung (optional)</Label>
+                <div className="flex items-center justify-between mb-2">
+                  <Label htmlFor={`arbeitbeschreibung-${index}`}>Beschreibung (optional)</Label>
+                  <Button
+                    onClick={() => handleGenerateJobBullets(index)}
+                    disabled={generatingBulletsFor === index || !arbeit.titel || !arbeit.unternehmen}
+                    variant="outline"
+                    size="sm"
+                  >
+                    {generatingBulletsFor === index ? (
+                      <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                    ) : (
+                      <Sparkles className="h-4 w-4 mr-2" />
+                    )}
+                    KI-Aufgaben
+                  </Button>
+                </div>
                 <Textarea
                   id={`arbeitbeschreibung-${index}`}
                   placeholder="z.B. Tätigkeiten, erworbene Fähigkeiten..."
                   value={getLocalInputValue('berufs', index, 'beschreibung', arbeit.beschreibung || '')}
                   onChange={(e) => handleDynamicInputChange('berufs', index, 'beschreibung', e.target.value)}
                   onBlur={(e) => handleDynamicInputBlur('berufs', index, 'beschreibung', e.target.value)}
+                  rows={5}
                 />
               </div>
             </div>

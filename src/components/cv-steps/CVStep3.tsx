@@ -8,8 +8,9 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Card } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
 import { supabase } from '@/integrations/supabase/client';
-import { Loader2, Sparkles, Edit3 } from 'lucide-react';
+import { Loader2, Sparkles, Edit3, Plus, Trash2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { FormFieldError } from '@/components/ui/form-field-error';
 
@@ -405,6 +406,53 @@ const CVStep3 = () => {
 
   const showFaehigkeiten = formData.status === 'azubi' || formData.status === 'ausgelernt';
 
+  const [isLoadingSkills, setIsLoadingSkills] = useState(false);
+
+  const handleSuggestSkills = async () => {
+    if (!formData.branche || !formData.status) {
+      toast({
+        title: "Fehler",
+        description: "Branche und Status müssen ausgefüllt sein.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsLoadingSkills(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('ai-suggest-skills', {
+        body: { 
+          branche: formData.branche,
+          status: formData.status,
+          existingSkills: formData.faehigkeiten || []
+        }
+      });
+
+      if (error) throw error;
+
+      if (data.success && data.skills) {
+        // Add suggested skills to existing ones, avoid duplicates
+        const currentSkills = formData.faehigkeiten || [];
+        const newSkills = data.skills.filter((skill: string) => !currentSkills.includes(skill));
+        updateFormData({ faehigkeiten: [...currentSkills, ...newSkills.slice(0, 5 - currentSkills.length)] });
+        
+        toast({
+          title: "Skills vorgeschlagen",
+          description: `${newSkills.length} neue Skills wurden hinzugefügt!`
+        });
+      }
+    } catch (error) {
+      console.error('Error suggesting skills:', error);
+      toast({
+        title: "Fehler",
+        description: "Fehler beim Vorschlagen von Skills.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoadingSkills(false);
+    }
+  };
+
   const handleGenerateAboutMe = async () => {
     if (!formData.motivation && !formData.kenntnisse) {
       toast({
@@ -471,17 +519,204 @@ const CVStep3 = () => {
       {showFaehigkeiten && (
         <FormFieldError error={validationErrors.faehigkeiten}>
           <Card className="p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-semibold text-lg">Fähigkeiten *</h3>
+              <Button
+                onClick={handleSuggestSkills}
+                disabled={isLoadingSkills}
+                variant="outline"
+                size="sm"
+              >
+                {isLoadingSkills ? (
+                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                ) : (
+                  <Sparkles className="h-4 w-4 mr-2" />
+                )}
+                KI-Vorschläge
+              </Button>
+            </div>
             <SkillSelector
               selectedSkills={formData.faehigkeiten || []}
               onSkillsChange={(skills) => updateFormData({ faehigkeiten: skills })}
               branch={formData.branche}
               statusLevel={formData.status}
               maxSkills={5}
-              label="Fähigkeiten * (max. 5)"
+              label=""
             />
           </Card>
         </FormFieldError>
       )}
+
+      {/* Optional: Qualifikationen */}
+      <Card className="p-6">
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h3 className="font-semibold text-lg">Qualifikationen (optional)</h3>
+            <Button
+              onClick={() => {
+                const qualifikationen = formData.qualifikationen || [];
+                updateFormData({ qualifikationen: [...qualifikationen, { name: '', beschreibung: '' }] });
+              }}
+              variant="outline"
+              size="sm"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Hinzufügen
+            </Button>
+          </div>
+          <p className="text-sm text-muted-foreground">
+            z.B. Führerschein Klasse B, Erste-Hilfe-Schein, Gabelstaplerschein
+          </p>
+          {formData.qualifikationen?.map((qual, idx) => (
+            <div key={idx} className="flex gap-2 items-start">
+              <div className="flex-1 space-y-2">
+                <Input
+                  placeholder="Name der Qualifikation"
+                  value={qual.name}
+                  onChange={(e) => {
+                    const updated = [...(formData.qualifikationen || [])];
+                    updated[idx] = { ...updated[idx], name: e.target.value };
+                    updateFormData({ qualifikationen: updated });
+                  }}
+                />
+                <Input
+                  placeholder="Beschreibung (optional)"
+                  value={qual.beschreibung || ''}
+                  onChange={(e) => {
+                    const updated = [...(formData.qualifikationen || [])];
+                    updated[idx] = { ...updated[idx], beschreibung: e.target.value };
+                    updateFormData({ qualifikationen: updated });
+                  }}
+                />
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  const updated = formData.qualifikationen?.filter((_, i) => i !== idx);
+                  updateFormData({ qualifikationen: updated });
+                }}
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            </div>
+          ))}
+        </div>
+      </Card>
+
+      {/* Optional: Zertifikate */}
+      <Card className="p-6">
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h3 className="font-semibold text-lg">Zertifikate (optional)</h3>
+            <Button
+              onClick={() => {
+                const zertifikate = formData.zertifikate || [];
+                updateFormData({ zertifikate: [...zertifikate, { name: '', anbieter: '', datum: '' }] });
+              }}
+              variant="outline"
+              size="sm"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Hinzufügen
+            </Button>
+          </div>
+          <p className="text-sm text-muted-foreground">
+            z.B. Excel-Zertifikat, Sprachzertifikat B2 Englisch
+          </p>
+          {formData.zertifikate?.map((zert, idx) => (
+            <div key={idx} className="flex gap-2 items-start">
+              <div className="flex-1 space-y-2">
+                <Input
+                  placeholder="Name des Zertifikats"
+                  value={zert.name}
+                  onChange={(e) => {
+                    const updated = [...(formData.zertifikate || [])];
+                    updated[idx] = { ...updated[idx], name: e.target.value };
+                    updateFormData({ zertifikate: updated });
+                  }}
+                />
+                <div className="grid grid-cols-2 gap-2">
+                  <Input
+                    placeholder="Anbieter"
+                    value={zert.anbieter || ''}
+                    onChange={(e) => {
+                      const updated = [...(formData.zertifikate || [])];
+                      updated[idx] = { ...updated[idx], anbieter: e.target.value };
+                      updateFormData({ zertifikate: updated });
+                    }}
+                  />
+                  <Input
+                    placeholder="Datum (z.B. 2024)"
+                    value={zert.datum || ''}
+                    onChange={(e) => {
+                      const updated = [...(formData.zertifikate || [])];
+                      updated[idx] = { ...updated[idx], datum: e.target.value };
+                      updateFormData({ zertifikate: updated });
+                    }}
+                  />
+                </div>
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  const updated = formData.zertifikate?.filter((_, i) => i !== idx);
+                  updateFormData({ zertifikate: updated });
+                }}
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            </div>
+          ))}
+        </div>
+      </Card>
+
+      {/* Optional: Interessen */}
+      <Card className="p-6">
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h3 className="font-semibold text-lg">Interessen & Hobbys (optional)</h3>
+            <Button
+              onClick={() => {
+                const interessen = formData.interessen || [];
+                updateFormData({ interessen: [...interessen, ''] });
+              }}
+              variant="outline"
+              size="sm"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Hinzufügen
+            </Button>
+          </div>
+          <p className="text-sm text-muted-foreground">
+            z.B. Rennrad fahren, Wandern, Fotografie
+          </p>
+          {formData.interessen?.map((interesse, idx) => (
+            <div key={idx} className="flex gap-2 items-center">
+              <Input
+                placeholder="Interesse/Hobby"
+                value={interesse}
+                onChange={(e) => {
+                  const updated = [...(formData.interessen || [])];
+                  updated[idx] = e.target.value;
+                  updateFormData({ interessen: updated });
+                }}
+              />
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  const updated = formData.interessen?.filter((_, i) => i !== idx);
+                  updateFormData({ interessen: updated });
+                }}
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            </div>
+          ))}
+        </div>
+      </Card>
 
       {/* Branch-specific questions */}
       <Card className="p-6">
