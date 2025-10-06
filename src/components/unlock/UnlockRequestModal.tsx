@@ -64,8 +64,7 @@ export default function UnlockRequestModal({
 
       const options: UnlockOptions = {
         profileId,
-        jobPostingId: activeTab === 'job' ? selectedJobId : undefined,
-        generalInterest: activeTab === 'general' || generalInterest
+        jobPostId: activeTab === 'job' ? selectedJobId : undefined
       };
 
       let result: UnlockResult;
@@ -75,48 +74,35 @@ export default function UnlockRequestModal({
         result = await unlockService.unlockContact(options);
       }
 
-      switch (result) {
-        case 'unlocked_basic':
-          toast.success('Basic-Level erfolgreich freigeschaltet!');
-          break;
-        case 'unlocked_contact':
-          toast.success('Kontakt-Level erfolgreich freigeschaltet!');
-          break;
-        case 'already_basic':
-          toast.info('Basic-Level bereits freigeschaltet');
-          break;
-        case 'already_contact':
-          toast.info('Kontakt-Level bereits freigeschaltet');
-          break;
-        case 'insufficient_funds':
-          toast.error('Nicht genügend Tokens im Wallet');
-          break;
-        case 'idempotent_duplicate':
-          toast.info('Freischaltung bereits verarbeitet');
-          break;
-        case 'error':
-          toast.error('Fehler bei der Freischaltung');
-          break;
+      if (!result.success) {
+        const errorMessage = 'error' in result ? result.error : 'Fehler bei der Freischaltung';
+        toast.error(errorMessage);
+        return;
       }
 
-      if (result === 'unlocked_basic' || result === 'unlocked_contact') {
-        // Add to pipeline if requested
-        if (addToPipeline) {
-          try {
-            await pipelineService.addToPipeline({
-              profileId,
-              jobPostingId: activeTab === 'job' ? selectedJobId : undefined
-            });
-            toast.success('Kandidat zur Pipeline hinzugefügt');
-          } catch (error) {
-            console.error('Error adding to pipeline:', error);
-            toast.error('Fehler beim Hinzufügen zur Pipeline');
-          }
+      // Success!
+      toast.success(
+        level === 'basic' 
+          ? 'Basic-Level erfolgreich freigeschaltet!' 
+          : 'Kontakt-Level erfolgreich freigeschaltet!'
+      );
+
+      // Add to pipeline if requested
+      if (addToPipeline) {
+        try {
+          await pipelineService.addToPipeline({
+            profileId,
+            jobPostingId: activeTab === 'job' ? selectedJobId : undefined
+          });
+          toast.success('Kandidat zur Pipeline hinzugefügt');
+        } catch (error) {
+          console.error('Error adding to pipeline:', error);
+          toast.error('Fehler beim Hinzufügen zur Pipeline');
         }
-
-        onUnlockSuccess?.();
-        onClose();
       }
+
+      onUnlockSuccess?.();
+      onClose();
     } catch (error) {
       console.error('Error during unlock:', error);
       toast.error('Fehler bei der Freischaltung');

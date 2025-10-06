@@ -158,11 +158,6 @@ function CompanyProtectedRoute({ children }: { children: React.ReactNode }) {
     return <Navigate to="/auth" replace />;
   }
 
-  if (userType === 'incomplete_company') {
-    console.log('Company user with incomplete signup - redirecting to complete');
-    return <Navigate to="/signup/company?mode=complete" replace />;
-  }
-
   if (userType !== 'company') {
     console.log('Not a company user - redirecting to signup');
     return <Navigate to="/signup/company" replace />;
