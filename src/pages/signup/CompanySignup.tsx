@@ -139,7 +139,7 @@ export default function CompanySignup() {
         });
         
         setTimeout(() => {
-          window.location.href = '/company/dashboard';
+          navigate('/company/dashboard');
         }, 1500);
 
       } else {

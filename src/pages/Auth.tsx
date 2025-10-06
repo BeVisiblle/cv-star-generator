@@ -170,13 +170,13 @@ const Auth = () => {
             title: "Registrierung unvollständig",
             description: "Bitte vervollständigen Sie Ihre Unternehmensregistrierung.",
           });
-          window.location.href = '/signup/company';
+          navigate('/signup/company?mode=complete');
           return;
         }
         
         // For company users, check if they need to complete company setup
         if (isCompany) {
-          window.location.href = '/company/dashboard';
+          navigate('/company/dashboard');
         } else {
           // Check if user has a profile
           const { data: profile } = await supabase
@@ -186,7 +186,7 @@ const Auth = () => {
             .maybeSingle();
           
           // Only redirect to dashboard if profile exists
-          window.location.href = profile ? '/dashboard' : '/cv-generator';
+          navigate(profile ? '/dashboard' : '/cv-generator');
         }
       }
     } catch (error) {
