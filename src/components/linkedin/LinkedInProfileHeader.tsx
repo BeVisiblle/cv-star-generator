@@ -32,8 +32,9 @@ export const LinkedInProfileHeader: React.FC<LinkedInProfileHeaderProps> = ({
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
   const [headline, setHeadline] = useState(profile?.headline || '');
 
-  // Use live profile data for employment information
-  const { data: liveProfile } = usePublicProfile(profile?.id);
+  // Use authenticated user's ID for live profile data
+  const { user } = useAuth();
+  const { data: liveProfile } = usePublicProfile(user?.id);
 
   // Sync local headline state with profile changes
   React.useEffect(() => {
@@ -43,7 +44,6 @@ export const LinkedInProfileHeader: React.FC<LinkedInProfileHeaderProps> = ({
   const coverInputRef = useRef<HTMLInputElement>(null);
   const avatarInputRef = useRef<HTMLInputElement>(null);
   const hasHeadline = false;
-  const { user } = useAuth();
   const isOwner = user?.id === profile?.id;
 
   // Show company badge from live data
