@@ -98,7 +98,7 @@ const ClassicLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) => {
                   <div className={`text-[hsl(${colors.text})] font-medium font-serif`}>{schule.name}</div>
                   <div className="text-sm text-muted-foreground">{schule.ort}</div>
                   {schule.beschreibung && (
-                    <p className="text-sm text-gray-600 mt-2 font-serif">{schule.beschreibung}</p>
+                    <p className="text-sm text-gray-600 mt-2 font-serif whitespace-pre-line">{schule.beschreibung}</p>
                   )}
                 </div>
               ))}
@@ -138,7 +138,7 @@ const ClassicLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) => {
                   <div className={`text-[hsl(${colors.text})] font-medium font-serif`}>{arbeit.unternehmen}</div>
                   <div className="text-sm text-muted-foreground">{arbeit.ort}</div>
                   {arbeit.beschreibung && (
-                    <p className="text-sm text-gray-600 mt-2 font-serif">{arbeit.beschreibung}</p>
+                    <p className="text-sm text-gray-600 mt-2 font-serif whitespace-pre-line">{arbeit.beschreibung}</p>
                   )}
                 </div>
               ))}

@@ -11,6 +11,10 @@ import CreativeLayout from '@/components/cv-layouts/CreativeLayout';
 import MinimalLayout from '@/components/cv-layouts/MinimalLayout';
 import ProfessionalLayout from '@/components/cv-layouts/ProfessionalLayout';
 import LiveCareerLayout from '@/components/cv-layouts/LiveCareerLayout';
+import ClassicV2Layout from '@/components/cv-layouts/ClassicV2Layout';
+import OliviaLayout from '@/components/cv-layouts/OliviaLayout';
+import JohannaLayout from '@/components/cv-layouts/JohannaLayout';
+import KatharinaLayout from '@/components/cv-layouts/KatharinaLayout';
 
 interface CVPreviewCardProps {
   profile: any;
@@ -74,6 +78,14 @@ export const CVPreviewCard: React.FC<CVPreviewCardProps> = ({
         return <ProfessionalLayout {...commonProps} />;
       case 6:
         return <LiveCareerLayout {...commonProps} />;
+      case 7:
+        return <ClassicV2Layout {...commonProps} />;
+      case 8:
+        return <OliviaLayout {...commonProps} />;
+      case 9:
+        return <JohannaLayout {...commonProps} />;
+      case 10:
+        return <KatharinaLayout {...commonProps} />;
       default:
         return <ModernLayout {...commonProps} />;
     }
@@ -88,6 +100,10 @@ export const CVPreviewCard: React.FC<CVPreviewCardProps> = ({
       case 4: return 'Minimal';
       case 5: return 'Professional';
       case 6: return 'LiveCareer';
+      case 7: return 'Klassisch V2';
+      case 8: return 'Olivia';
+      case 9: return 'Johanna';
+      case 10: return 'Katharina';
       default: return 'Modern';
     }
   };

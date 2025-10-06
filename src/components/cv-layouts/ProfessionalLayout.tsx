@@ -97,7 +97,7 @@ const ProfessionalLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) =
                     <div className={`text-[hsl(${colors.text})] font-medium mb-1`}>{schule.name}</div>
                     <div className="text-sm text-muted-foreground mb-2">{schule.ort}</div>
                     {schule.beschreibung && (
-                      <p className="text-sm text-gray-600">{schule.beschreibung}</p>
+                      <p className="text-sm text-gray-600 whitespace-pre-line">{schule.beschreibung}</p>
                     )}
                   </div>
                 ))}
@@ -140,7 +140,7 @@ const ProfessionalLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) =
                     <div className={`text-[hsl(${colors.text})] font-medium mb-1`}>{arbeit.unternehmen}</div>
                     <div className="text-sm text-muted-foreground mb-2">{arbeit.ort}</div>
                     {arbeit.beschreibung && (
-                      <p className="text-sm text-gray-600">{arbeit.beschreibung}</p>
+                      <p className="text-sm text-gray-600 whitespace-pre-line">{arbeit.beschreibung}</p>
                     )}
                   </div>
                 ))}

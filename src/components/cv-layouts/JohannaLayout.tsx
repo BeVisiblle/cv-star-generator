@@ -188,7 +188,7 @@ const JohannaLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) => {
                       {arbeit.ort && ` • ${arbeit.ort}`}
                     </p>
                     {arbeit.beschreibung && (
-                      <p className="text-xs leading-relaxed text-gray-700">
+                      <p className="text-xs leading-relaxed text-gray-700 whitespace-pre-line">
                         {arbeit.beschreibung}
                       </p>
                     )}
@@ -222,7 +222,7 @@ const JohannaLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) => {
                       {wb.ort && ` • ${wb.ort}`}
                     </p>
                     {wb.beschreibung && (
-                      <p className="text-xs mt-1 text-gray-700">
+                      <p className="text-xs mt-1 text-gray-700 whitespace-pre-line">
                         {wb.beschreibung}
                       </p>
                     )}
@@ -254,7 +254,7 @@ const JohannaLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) => {
                       {schule.ort && ` • ${schule.ort}`}
                     </p>
                     {schule.beschreibung && (
-                      <p className="text-xs mt-1 text-gray-700">
+                      <p className="text-xs mt-1 text-gray-700 whitespace-pre-line">
                         {schule.beschreibung}
                       </p>
                     )}

@@ -121,6 +121,9 @@ const CVStep6 = () => {
       selected === 5 ? ProfessionalLayout :
       selected === 6 ? LiveCareerLayout :
       selected === 7 ? ClassicV2Layout :
+      selected === 8 ? OliviaLayout :
+      selected === 9 ? JohannaLayout :
+      selected === 10 ? KatharinaLayout :
       ModernLayout;
 
     console.log('🔵 CVStep6 (components/cv-steps) - LayoutComponent:', LayoutComponent.name);

@@ -248,7 +248,7 @@ const KatharinaLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) => {
                         {arbeit.ort && ` • ${arbeit.ort}`}
                       </p>
                       {arbeit.beschreibung && (
-                        <p className="text-xs leading-relaxed" style={{ color: 'hsl(0, 0%, 35%)' }}>
+                        <p className="text-xs leading-relaxed whitespace-pre-line" style={{ color: 'hsl(0, 0%, 35%)' }}>
                           {arbeit.beschreibung}
                         </p>
                       )}
@@ -287,7 +287,7 @@ const KatharinaLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) => {
                         {schule.ort && ` • ${schule.ort}`}
                       </p>
                       {schule.beschreibung && (
-                        <p className="text-xs leading-relaxed" style={{ color: 'hsl(0, 0%, 35%)' }}>
+                        <p className="text-xs leading-relaxed whitespace-pre-line" style={{ color: 'hsl(0, 0%, 35%)' }}>
                           {schule.beschreibung}
                         </p>
                       )}

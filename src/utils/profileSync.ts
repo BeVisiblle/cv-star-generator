@@ -176,6 +176,18 @@ export const regenerateCVFromProfile = async (userId: string, profile: any) => {
         case 6:
           LayoutComponent = (await import('@/components/cv-layouts/ModernLayout')).default;
           break;
+        case 7:
+          LayoutComponent = (await import('@/components/cv-layouts/ClassicV2Layout')).default;
+          break;
+        case 8:
+          LayoutComponent = (await import('@/components/cv-layouts/OliviaLayout')).default;
+          break;
+        case 9:
+          LayoutComponent = (await import('@/components/cv-layouts/JohannaLayout')).default;
+          break;
+        case 10:
+          LayoutComponent = (await import('@/components/cv-layouts/KatharinaLayout')).default;
+          break;
       }
 
       // Render CV layout

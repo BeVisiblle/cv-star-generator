@@ -190,7 +190,7 @@ const OliviaLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) => {
                       {arbeit.ort && ` • ${arbeit.ort}`}
                     </p>
                     {arbeit.beschreibung && (
-                      <p className="text-xs leading-relaxed" style={{ color: 'hsl(30, 20%, 35%)' }}>
+                      <p className="text-xs leading-relaxed whitespace-pre-line" style={{ color: 'hsl(30, 20%, 35%)' }}>
                         {arbeit.beschreibung}
                       </p>
                     )}
@@ -227,7 +227,7 @@ const OliviaLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) => {
                       {wb.ort && ` • ${wb.ort}`}
                     </p>
                     {wb.beschreibung && (
-                      <p className="text-xs mt-1" style={{ color: 'hsl(30, 20%, 35%)' }}>
+                      <p className="text-xs mt-1 whitespace-pre-line" style={{ color: 'hsl(30, 20%, 35%)' }}>
                         {wb.beschreibung}
                       </p>
                     )}
@@ -262,7 +262,7 @@ const OliviaLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) => {
                       {schule.ort && ` • ${schule.ort}`}
                     </p>
                     {schule.beschreibung && (
-                      <p className="text-xs mt-1" style={{ color: 'hsl(30, 20%, 35%)' }}>
+                      <p className="text-xs mt-1 whitespace-pre-line" style={{ color: 'hsl(30, 20%, 35%)' }}>
                         {schule.beschreibung}
                       </p>
                     )}

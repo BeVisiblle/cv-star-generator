@@ -105,7 +105,7 @@ const MinimalLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) => {
                   <div className={`text-[hsl(${colors.text})] font-light mb-1`}>{schule.name}</div>
                   <div className="text-sm text-muted-foreground font-light">{schule.ort}</div>
                   {schule.beschreibung && (
-                    <p className="text-sm text-gray-600 mt-2 font-light">{schule.beschreibung}</p>
+                    <p className="text-sm text-gray-600 mt-2 font-light whitespace-pre-line">{schule.beschreibung}</p>
                   )}
                 </div>
               ))}
@@ -146,7 +146,7 @@ const MinimalLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) => {
                   <div className={`text-[hsl(${colors.text})] font-light mb-1`}>{arbeit.unternehmen}</div>
                   <div className="text-sm text-muted-foreground font-light">{arbeit.ort}</div>
                   {arbeit.beschreibung && (
-                    <p className="text-sm text-gray-600 mt-2 font-light">{arbeit.beschreibung}</p>
+                    <p className="text-sm text-gray-600 mt-2 font-light whitespace-pre-line">{arbeit.beschreibung}</p>
                   )}
                 </div>
               ))}
