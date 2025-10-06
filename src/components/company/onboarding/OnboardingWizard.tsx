@@ -72,6 +72,11 @@ export function OnboardingWizard() {
   };
 
   const nextStep = () => {
+    // After step 2 (plan selection), redirect to dashboard with onboarding flag
+    if (currentStep === 2) {
+      navigate('/company/dashboard?onboarding=true');
+      return;
+    }
     setCurrentStep(prev => Math.min(prev + 1, 4));
   };
 

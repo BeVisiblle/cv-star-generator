@@ -86,30 +86,20 @@ export function OnboardingStep2({ data, updateData, onNext, onPrev }: Onboarding
   };
 
   return (
-    <div className="space-y-6">
-      <div className="text-center mb-8">
-        <h2 className="text-2xl font-semibold mb-2">Wählen Sie Ihren Plan</h2>
-        <p className="text-muted-foreground mb-4">
-          Credits sind unsere Währung für Profile und Kontaktdaten.
-        </p>
-        <p className="text-sm text-muted-foreground">
-          💡 <strong>3 Credits</strong> benötigt pro Profil: 1 für Freischaltung + 2 für Kontaktdaten
-        </p>
-      </div>
-
+    <div className="space-y-8">
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
         {plans.map((plan) => (
           <Card 
             key={plan.id}
             className={`relative cursor-pointer transition-all hover:shadow-lg ${
               plan.highlighted 
-                ? 'border-[hsl(var(--accent))] ring-2 ring-[hsl(var(--accent))]' 
-                : 'hover:border-[hsl(var(--accent-hover))]'
-            } ${data.selectedPlan === plan.id ? 'ring-2 ring-[hsl(var(--accent))]' : ''}`}
+                ? 'border-primary ring-2 ring-primary' 
+                : 'hover:border-primary/50'
+            } ${data.selectedPlan === plan.id ? 'ring-2 ring-primary' : ''}`}
             onClick={() => handlePlanSelect(plan.id)}
           >
             {plan.highlighted && (
-              <Badge className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-[hsl(var(--accent))] text-white">
+              <Badge className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-primary text-primary-foreground">
                 Beliebt
               </Badge>
             )}
@@ -127,7 +117,7 @@ export function OnboardingStep2({ data, updateData, onNext, onPrev }: Onboarding
               <ul className="space-y-2 mb-6">
                 {plan.features.map((feature, index) => (
                   <li key={index} className="flex items-start gap-2 text-sm">
-                    <Check className="h-4 w-4 text-[hsl(var(--accent))] mt-0.5 flex-shrink-0" />
+                    <Check className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
                     <span>{feature}</span>
                   </li>
                 ))}
@@ -138,7 +128,7 @@ export function OnboardingStep2({ data, updateData, onNext, onPrev }: Onboarding
                   plan.isEnterprise 
                     ? 'bg-secondary hover:bg-secondary/80 text-secondary-foreground' 
                     : plan.highlighted 
-                      ? 'bg-[hsl(var(--accent))] hover:bg-[hsl(var(--accent-hover))] text-white'
+                      ? 'bg-primary hover:bg-primary/90 text-primary-foreground'
                       : 'bg-primary hover:bg-primary/90'
                 }`}
               >
@@ -149,7 +139,7 @@ export function OnboardingStep2({ data, updateData, onNext, onPrev }: Onboarding
         ))}
       </div>
 
-      <div className="flex justify-between pt-6">
+      <div className="flex justify-start pt-6">
         <Button variant="outline" onClick={onPrev}>
           <ArrowLeft className="h-4 w-4 mr-2" />
           Zurück
