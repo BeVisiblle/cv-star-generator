@@ -322,12 +322,27 @@ const Profile = () => {
                   </Card>
                   <Card className="p-4">
                     <h4 className="text-sm font-semibold mb-2">Profilaktivitäten</h4>
-                    <div className="space-y-1 text-sm text-muted-foreground">
-                      <div>• Profil vollständig: {profile?.profile_complete ? 'Ja' : 'Nein'}</div>
-                      <div>• Öffentlich sichtbar: {profile?.profile_published ? 'Ja' : 'Nein'}</div>
-                      <div>• Erstellt am: {profile?.created_at ? new Date(profile.created_at).toLocaleDateString('de-DE') : '—'}</div>
-                      <div>• Dokumente hochgeladen: {documentsCount > 0 ? 'Ja' : 'Nein'}</div>
-                      <div>• Profilbesuche: {profileVisits}</div>
+                    <div className="space-y-2 text-sm text-muted-foreground">
+                      <div className="flex items-start gap-2">
+                        <span className="mt-0.5">•</span>
+                        <span>Profil vollständig: {profile?.profile_complete ? 'Ja' : 'Nein'}</span>
+                      </div>
+                      <div className="flex items-start gap-2">
+                        <span className="mt-0.5">•</span>
+                        <span>Öffentlich sichtbar: {profile?.profile_published ? 'Ja' : 'Nein'}</span>
+                      </div>
+                      <div className="flex items-start gap-2">
+                        <span className="mt-0.5">•</span>
+                        <span>Erstellt am: {profile?.created_at ? new Date(profile.created_at).toLocaleDateString('de-DE') : '—'}</span>
+                      </div>
+                      <div className="flex items-start gap-2">
+                        <span className="mt-0.5">•</span>
+                        <span>Dokumente hochgeladen: {documentsCount > 0 ? 'Ja' : 'Nein'}</span>
+                      </div>
+                      <div className="flex items-start gap-2">
+                        <span className="mt-0.5">•</span>
+                        <span>Profilbesuche: {profileVisits}</span>
+                      </div>
                     </div>
                   </Card>
                 </div>

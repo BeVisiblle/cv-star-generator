@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { FileText, Edit, Download } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { FileText, Edit, Download, Eye } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 // Import CV layout components
@@ -28,6 +29,7 @@ export const CVPreviewCard: React.FC<CVPreviewCardProps> = ({
   isGeneratingPDF = false 
 }) => {
   const navigate = useNavigate();
+  const [showPreviewModal, setShowPreviewModal] = useState(false);
 
   // Convert profile data to CV layout format
   const cvData = {
@@ -135,34 +137,56 @@ export const CVPreviewCard: React.FC<CVPreviewCardProps> = ({
   }
 
   return (
-    <Card className="overflow-hidden">
-      <div className="bg-muted/50 px-4 py-3 border-b">
-        <div className="flex items-center justify-between">
-          <div>
-            <h3 className="font-semibold">CV Vorschau</h3>
-            <p className="text-sm text-muted-foreground">Layout: {getLayoutName()}</p>
-          </div>
-          <div className="flex gap-2">
-            <Button variant="outline" size="sm" onClick={handleEditCV}>
-              <Edit className="h-4 w-4 mr-2" />
-              Bearbeiten
-            </Button>
+    <>
+      <Card>
+        <CardContent className="p-4">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <FileText className="h-5 w-5 text-muted-foreground" />
+              <div>
+                <h3 className="font-semibold">Lebenslauf</h3>
+                <p className="text-xs text-muted-foreground">Layout: {getLayoutName()}</p>
+              </div>
+            </div>
             <Button 
-              size="sm" 
+              variant="ghost" 
+              size="sm"
+              onClick={() => setShowPreviewModal(true)}
+            >
+              <Eye className="h-4 w-4" />
+            </Button>
+          </div>
+          
+          <div className="flex flex-col gap-2">
+            <Button 
+              className="w-full"
               onClick={handleDownload}
             >
               <Download className="h-4 w-4 mr-2" />
-              Download
+              CV Herunterladen
+            </Button>
+            <Button 
+              variant="outline" 
+              className="w-full"
+              onClick={handleEditCV}
+            >
+              <Edit className="h-4 w-4 mr-2" />
+              CV Bearbeiten
             </Button>
           </div>
-        </div>
-      </div>
-      
-      <CardContent className="p-0">
-        <div className="h-96 overflow-hidden bg-white">
-          {renderCVLayout()}
-        </div>
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
+
+      <Dialog open={showPreviewModal} onOpenChange={setShowPreviewModal}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>CV Vorschau - {getLayoutName()}</DialogTitle>
+          </DialogHeader>
+          <div className="bg-white p-4 rounded">
+            {renderCVLayout()}
+          </div>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 };
