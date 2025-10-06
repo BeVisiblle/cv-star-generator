@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
-import { usePostalCodes } from '@/hooks/usePostalCodes';
+import { useLazyPostalCodes } from '@/hooks/useLazyPostalCodes';
 import { Loader2, Check, ChevronsUpDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
@@ -29,17 +29,11 @@ export const PLZOrtSelector = ({
   ortLabel = 'Ort',
   className = ''
 }: PLZOrtSelectorProps) => {
-  const { postalCodes, loading, error, findLocationByPLZ } = usePostalCodes();
   const [open, setOpen] = useState(false);
   const [searchValue, setSearchValue] = useState('');
+  const { postalCodes, loading, error, findLocationByPLZ } = useLazyPostalCodes(searchValue);
 
-  const filteredPostalCodes = useMemo(() => {
-    if (!searchValue) return postalCodes.slice(0, 100); // Limit to first 100 for performance
-    return postalCodes.filter(postal => 
-      postal.plz.startsWith(searchValue) || 
-      postal.ort.toLowerCase().includes(searchValue.toLowerCase())
-    ).slice(0, 50); // Limit filtered results
-  }, [postalCodes, searchValue]);
+  const showMinimumCharsMessage = searchValue.length > 0 && searchValue.length < 3;
 
   // Auto-lookup PLZ when typed
   useEffect(() => {
@@ -121,29 +115,39 @@ export const PLZOrtSelector = ({
           <PopoverContent className="w-[200px] p-0" align="start">
             <Command>
               <CommandInput 
-                placeholder="PLZ suchen..." 
+                placeholder="Mindestens 3 Ziffern eingeben..." 
                 value={searchValue}
                 onValueChange={setSearchValue}
               />
               <CommandList>
-                <CommandEmpty>Keine PLZ gefunden.</CommandEmpty>
-                <CommandGroup>
-                  {filteredPostalCodes.map((postal) => (
-                    <CommandItem
-                      key={postal.id}
-                      value={postal.plz}
-                      onSelect={() => handlePLZSelect(postal.plz)}
-                    >
-                      <Check
-                        className={cn(
-                          "mr-2 h-4 w-4",
-                          plz === postal.plz ? "opacity-100" : "opacity-0"
-                        )}
-                      />
-                      {postal.plz} - {postal.ort}
-                    </CommandItem>
-                  ))}
-                </CommandGroup>
+                {showMinimumCharsMessage ? (
+                  <CommandEmpty>Bitte mindestens 3 Ziffern eingeben</CommandEmpty>
+                ) : loading ? (
+                  <div className="flex items-center justify-center py-6">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  </div>
+                ) : (
+                  <>
+                    <CommandEmpty>Keine PLZ gefunden.</CommandEmpty>
+                    <CommandGroup>
+                      {postalCodes.map((postal) => (
+                        <CommandItem
+                          key={postal.id}
+                          value={postal.plz}
+                          onSelect={() => handlePLZSelect(postal.plz)}
+                        >
+                          <Check
+                            className={cn(
+                              "mr-2 h-4 w-4",
+                              plz === postal.plz ? "opacity-100" : "opacity-0"
+                            )}
+                          />
+                          {postal.plz} - {postal.ort}
+                        </CommandItem>
+                      ))}
+                    </CommandGroup>
+                  </>
+                )}
               </CommandList>
             </Command>
           </PopoverContent>
