@@ -4,7 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { ThumbsUp, MessageCircle, Repeat2, Send, ArrowRight, Pencil, ChevronLeft, ChevronRight, Trash, Heart, Share } from 'lucide-react';
+import { ThumbsUp, MessageCircle, Repeat2, Send, ArrowRight, Pencil, ChevronLeft, ChevronRight, Trash, Heart, Share, PenSquare } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { de } from 'date-fns/locale';
 import { useNavigate } from 'react-router-dom';
@@ -200,7 +200,10 @@ const displayProfile = isOwner && authProfile ? authProfile : profile;
         <CardTitle className="text-lg font-semibold">Aktivitäten</CardTitle>
         {isOwner && (
           <div className="flex flex-wrap items-center gap-2">
-            <Button variant="outline" size="sm" onClick={() => openPostComposer()}>Beitrag erstellen</Button>
+            <Button variant="outline" size="sm" onClick={openPostComposer}>
+              <PenSquare className="h-4 w-4 mr-2" />
+              Beitrag erstellen
+            </Button>
             <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setPrefOpen(true)} title="Einstellungen">
               <Pencil className="h-4 w-4" />
             </Button>

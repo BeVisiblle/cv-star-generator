@@ -4,7 +4,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Heart, MessageCircle, Share2, Send } from 'lucide-react';
+import { Heart, MessageCircle, Share2, Send, FileText, Download } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { de } from 'date-fns/locale';
 import { useToast } from '@/hooks/use-toast';
@@ -21,6 +21,8 @@ interface PostCardProps {
     id: string;
     content: string;
     image_url?: string;
+    media?: Array<{ url: string; type: string }>;
+    documents?: Array<{ url: string; name: string; type: string }>;
     created_at: string;
     user_id: string;
     author_type?: 'user' | 'company';
@@ -217,7 +219,8 @@ const authorSubtitle = useMemo(() => {
             )}
           </p>
 
-          {post.image_url && (
+          {/* Legacy single image */}
+          {post.image_url && !post.media?.length && (
             <div>
               <AspectRatio ratio={16 / 9} className="overflow-hidden rounded-lg border">
                 <img
@@ -233,6 +236,54 @@ const authorSubtitle = useMemo(() => {
                   <img src={post.image_url} alt="Bild groß" className="w-full h-auto rounded" />
                 </DialogContent>
               </Dialog>
+            </div>
+          )}
+
+          {/* Multiple media images */}
+          {post.media && post.media.length > 0 && (
+            <div className={`grid gap-2 ${
+              post.media.length === 1 ? 'grid-cols-1' :
+              post.media.length === 2 ? 'grid-cols-2' :
+              post.media.length === 3 ? 'grid-cols-3' :
+              'grid-cols-2'
+            }`}>
+              {post.media.slice(0, 4).map((item, index) => (
+                <div key={index} className="relative">
+                  <img
+                    src={item.url}
+                    alt={`Media ${index + 1}`}
+                    className="w-full h-48 object-cover rounded-lg cursor-pointer hover:opacity-95 transition-opacity"
+                    onClick={() => setImageOpen(true)}
+                  />
+                  {index === 3 && post.media!.length > 4 && (
+                    <div className="absolute inset-0 bg-black/60 flex items-center justify-center rounded-lg cursor-pointer" onClick={() => setImageOpen(true)}>
+                      <span className="text-white text-2xl font-semibold">+{post.media!.length - 4}</span>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Documents */}
+          {post.documents && post.documents.length > 0 && (
+            <div className="space-y-2">
+              {post.documents.map((doc, index) => (
+                <a
+                  key={index}
+                  href={doc.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-3 p-3 bg-muted hover:bg-muted/80 rounded-lg transition-colors"
+                >
+                  <FileText className="h-5 w-5 text-muted-foreground flex-shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium truncate">{doc.name}</p>
+                    <p className="text-xs text-muted-foreground">Dokument herunterladen</p>
+                  </div>
+                  <Download className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                </a>
+              ))}
             </div>
           )}
         </div>

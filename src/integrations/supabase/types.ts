@@ -4998,24 +4998,30 @@ export type Database = {
         Row: {
           content: string
           created_at: string | null
+          documents: Json | null
           id: string
           image_url: string | null
+          media: Json | null
           updated_at: string | null
           user_id: string | null
         }
         Insert: {
           content: string
           created_at?: string | null
+          documents?: Json | null
           id?: string
           image_url?: string | null
+          media?: Json | null
           updated_at?: string | null
           user_id?: string | null
         }
         Update: {
           content?: string
           created_at?: string | null
+          documents?: Json | null
           id?: string
           image_url?: string | null
+          media?: Json | null
           updated_at?: string | null
           user_id?: string | null
         }
