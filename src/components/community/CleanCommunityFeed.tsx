@@ -200,7 +200,7 @@ export default function CommunityFeed({ feedHeadHeight = 0 }: CommunityFeedProps
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-2 md:space-y-3">
       {/* Posts */}
       {posts.map((post) => (
         <PostCard key={post.id} post={post} />

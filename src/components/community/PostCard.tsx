@@ -212,16 +212,16 @@ const authorSubtitle = useMemo(() => {
   return (
     <Card id={`post-${post.id}`} className="p-0">
       {post.recent_interaction && (
-        <div className="px-4 py-2 text-xs text-muted-foreground border-b">
+        <div className="px-3 sm:px-4 py-2 text-xs text-muted-foreground border-b">
           {post.recent_interaction}
         </div>
       )}
 
-      <div className="p-4 md:p-6 space-y-4">
+      <div className="p-3 sm:p-4 md:p-6 space-y-3 sm:space-y-4">
         {/* Post Header */}
-        <div className="flex items-start gap-3">
+        <div className="flex items-start gap-2 sm:gap-3">
           <div className="cursor-pointer" onClick={() => navigate(profileRoute)}>
-<Avatar className="h-10 w-10">
+<Avatar className="h-9 w-9 sm:h-10 sm:w-10">
   <AvatarImage src={post.author_type === 'company' ? (post.company?.logo_url || undefined) : (post.author?.avatar_url || undefined)} />
   <AvatarFallback>{getInitials()}</AvatarFallback>
 </Avatar>
@@ -367,41 +367,41 @@ const authorSubtitle = useMemo(() => {
 
         {/* Post Actions */}
         <div className="flex flex-wrap items-center justify-between gap-1 pt-2 border-t">
-          <div className="flex flex-wrap items-center gap-1 sm:gap-2">
+          <div className="flex flex-wrap items-center gap-0.5 sm:gap-1 md:gap-2">
             <Button
               variant="ghost"
               size="sm"
               onClick={handleLike}
-              className={`text-muted-foreground hover:text-red-500 ${liked ? 'text-red-500' : ''}`}
+              className={`h-8 sm:h-9 px-2 sm:px-3 text-xs sm:text-sm text-muted-foreground hover:text-red-500 ${liked ? 'text-red-500' : ''}`}
               disabled={isToggling}
             >
-              <Heart className={`h-4 w-4 mr-1 ${liked ? 'fill-current' : ''}`} />
-              Gefällt mir
+              <Heart className={`h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1 ${liked ? 'fill-current' : ''}`} />
+              <span className="hidden sm:inline">Gefällt mir</span>
             </Button>
             <Button
               variant="ghost"
               size="sm"
               onClick={() => setShowComments(!showComments)}
-              className="text-muted-foreground"
+              className="h-8 sm:h-9 px-2 sm:px-3 text-xs sm:text-sm text-muted-foreground"
             >
-              <MessageCircle className="h-4 w-4 mr-1" />
-              Kommentieren
+              <MessageCircle className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1" />
+              <span className="hidden sm:inline">Kommentieren</span>
             </Button>
             <Button
               variant="ghost"
               size="sm"
               onClick={handleShareCommunity}
-              className="text-muted-foreground"
+              className="h-8 sm:h-9 px-2 sm:px-3 text-xs sm:text-sm text-muted-foreground"
               disabled={isReposting}
             >
-              <Share2 className="h-4 w-4 mr-1" />
-              {hasReposted ? 'Geteilt' : 'Teilen'}
+              <Share2 className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1" />
+              <span className="hidden sm:inline">{hasReposted ? 'Geteilt' : 'Teilen'}</span>
             </Button>
             <Button
               variant="ghost"
               size="sm"
               onClick={() => setSendOpen(true)}
-              className="text-muted-foreground"
+              className="h-8 sm:h-9 px-2 sm:px-3 text-xs sm:text-sm text-muted-foreground hidden sm:flex"
             >
               <Send className="h-4 w-4 mr-1" />
               Direkt senden
@@ -411,16 +411,16 @@ const authorSubtitle = useMemo(() => {
 
         {/* Comments Section */}
         {showComments && (
-          <div className="space-y-3 pt-3 border-t">
-            <div className="flex flex-wrap gap-2">
+          <div className="space-y-2 sm:space-y-3 pt-3 border-t">
+            <div className="flex gap-2">
               <Input
                 ref={commentInputRef as any}
                 placeholder={replyTo ? `Antwort an ${replyTo.name}…` : 'Schreibe einen Kommentar...'}
                 value={newComment}
                 onChange={(e) => setNewComment(e.target.value)}
-                className="flex-1 min-w-0"
+                className="flex-1 min-w-0 h-9"
               />
-              <Button size="sm" onClick={handleComment} disabled={!newComment.trim() || isAdding}>
+              <Button size="sm" className="h-9 px-3" onClick={handleComment} disabled={!newComment.trim() || isAdding}>
                 Senden
               </Button>
             </div>

@@ -46,7 +46,7 @@ export default function TopNavBar() {
   // Sticky navbar at top with high z-index
   return (
     <div className="sticky top-0 z-[300] border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="flex h-14 items-center px-4 gap-4">
+      <div className="flex h-12 md:h-14 items-center px-3 md:px-4 gap-2 md:gap-4">
         <div className="flex items-center gap-3">
           <SidebarTrigger />
           {/* Logo */}
@@ -57,9 +57,9 @@ export default function TopNavBar() {
             <img 
               src="/lovable-uploads/c7ed832b-1af0-445a-8fab-45aee7358be3.png" 
               alt="bevisiblle Logo" 
-              className="h-8 w-8"
+              className="h-7 w-7 md:h-8 md:w-8"
             />
-            <span className="font-bold text-primary hidden sm:block">
+            <span className="font-bold text-primary hidden md:block">
               bevisiblle
             </span>
           </div>
@@ -100,31 +100,31 @@ export default function TopNavBar() {
         </div>
         
         {/* Icons aligned to the right */}
-        <div className="flex items-center gap-3 ml-auto">
+        <div className="flex items-center gap-2 md:gap-3 ml-auto">
           {/* Mobile Search */}
           <SearchIcon 
-            className="h-5 w-5 cursor-pointer hover:text-primary md:hidden" 
+            className="h-4 w-4 md:h-5 md:w-5 cursor-pointer hover:text-primary md:hidden" 
             onClick={() => navigate('/marketplace')} 
           />
           
           <Users 
-            className="h-5 w-5 cursor-pointer hover:text-primary" 
+            className="h-4 w-4 md:h-5 md:w-5 cursor-pointer hover:text-primary" 
             onClick={() => setDrawerOpen(true)} 
           />
           
           <Popover open={msgOpen} onOpenChange={setMsgOpen}>
             <PopoverTrigger asChild>
-              <MessageSquareMore className="h-5 w-5 cursor-pointer hover:text-primary" />
+              <MessageSquareMore className="h-4 w-4 md:h-5 md:w-5 cursor-pointer hover:text-primary" />
             </PopoverTrigger>
             <PopoverContent className="w-80 p-0" align="end">
               <MessagePopoverPanel onCompose={() => setMsgOpen(false)} />
             </PopoverContent>
           </Popover>
           
-          <Bell className="h-5 w-5 cursor-pointer hover:text-primary" onClick={() => navigate('/notifications')} />
+          <Bell className="h-4 w-4 md:h-5 md:w-5 cursor-pointer hover:text-primary" onClick={() => navigate('/notifications')} />
           
           <User 
-            className="h-5 w-5 cursor-pointer hover:text-primary" 
+            className="h-4 w-4 md:h-5 md:w-5 cursor-pointer hover:text-primary" 
             onClick={() => navigate('/profile')} 
           />
         </div>

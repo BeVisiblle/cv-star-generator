@@ -42,15 +42,15 @@ export const CommentItem: React.FC<CommentItemProps> = ({ comment, onReply, dept
   const replyCount = comment.replies?.length || 0;
 
   return (
-    <div className={`${depth > 0 ? 'ml-10' : ''}`}>
+    <div className={`${depth > 0 ? 'ml-6 sm:ml-10' : ''}`}>
       <div className="flex items-start gap-2">
-        <Avatar className="h-8 w-8 cursor-pointer flex-shrink-0" onClick={() => navigate(`/u/${comment.author?.id || comment.user_id}`)}>
+        <Avatar className="h-7 w-7 sm:h-8 sm:w-8 cursor-pointer flex-shrink-0" onClick={() => navigate(`/u/${comment.author?.id || comment.user_id}`)}>
           <AvatarImage src={comment.author?.avatar_url ?? undefined} />
           <AvatarFallback className="text-xs">{initials}</AvatarFallback>
         </Avatar>
         
         <div className="flex-1 min-w-0">
-          <div className="bg-muted/40 border rounded-lg p-3">
+          <div className="bg-muted/40 border rounded-lg p-2 sm:p-3">
             <div className="flex items-start justify-between gap-2 mb-1">
               <div className="flex-1 min-w-0">
                 <button 

@@ -31,11 +31,11 @@ export function CandidateCard(p: CandidateCardProps) {
   };
 
   return (
-    <article className="ab-card flex h-full flex-col rounded-xl border bg-card p-3 shadow-sm transition-shadow hover:shadow-md">
+    <article className="ab-card flex h-full w-full sm:max-w-full flex-col rounded-xl border bg-card p-3 shadow-sm transition-shadow hover:shadow-md">
       {/* 1) Header (compact) */}
       <div className="flex min-h-[48px] items-start justify-between gap-2">
         <div className="flex items-center gap-2">
-          <Avatar className="h-10 w-10">
+          <Avatar className="h-9 w-9 sm:h-10 sm:w-10">
             <AvatarImage src={p.avatarUrl} />
             <AvatarFallback className="text-sm">{p.name.charAt(0)}</AvatarFallback>
           </Avatar>

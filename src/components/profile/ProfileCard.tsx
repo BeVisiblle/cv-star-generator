@@ -37,11 +37,11 @@ export function ProfileCard({
   const match = Math.round(p.match ?? 0);
 
   return (
-    <article className="ab-card flex h-full w-full max-w-[280px] flex-col rounded-xl border bg-white p-3 shadow-sm">
+    <article className="ab-card flex h-full w-full sm:max-w-[280px] flex-col rounded-xl border bg-white p-3 shadow-sm">
       {/* 1) Header - Anonymous for locked, full for unlocked */}
       <div className="flex min-h-[48px] items-start justify-between gap-2">
         <div className="flex items-center gap-2">
-          <Avatar className="h-12 w-12">
+          <Avatar className="h-10 w-10 sm:h-12 sm:w-12">
             <AvatarImage src={p.avatar_url || ""} />
             <AvatarFallback className="bg-gradient-to-br from-blue-100 to-blue-200">
               {variant === "unlocked" && p.name ? (

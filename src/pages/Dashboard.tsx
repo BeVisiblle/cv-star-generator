@@ -30,7 +30,7 @@ const Dashboard = () => {
       <h1 className="sr-only">Dashboard</h1>
       
       {/* Inhalt direkt unter der Navbar - nur nötiger Offset */}
-      <div className="pt-16"> {/* 64px Offset für fixed Navbar */}
+      <div className="pt-12 md:pt-16"> {/* 48px Mobile, 64px Desktop Offset für fixed Navbar */}
         <div className="mx-auto max-w-screen-2xl grid grid-cols-12 gap-4 px-3 sm:px-6 lg:px-8">
           
           {/* (1) Left Panel - normaler Flow, keine eigene Scrollbar */}
@@ -50,16 +50,16 @@ const Dashboard = () => {
               className="sticky z-40 bg-white"
               style={{ top: NAVBAR_H }}
             >
-              <div className="px-3 py-2">
+              <div className="px-2 md:px-3 py-1.5 md:py-2">
                 <ComposerTeaser />
-                <div className="px-3 py-1">
+                <div className="px-2 md:px-3 py-1">
                   <FeedSortBar />
                 </div>
               </div>
             </div>
 
             {/* (3) Post-Liste - kompakterer Abstand */}
-            <div className="mt-2 space-y-3 relative z-10" role="feed">
+            <div className="mt-2 space-y-2 md:space-y-3 relative z-10" role="feed">
               <CleanCommunityFeed feedHeadHeight={feedHeadH} />
             </div>
           </section>
