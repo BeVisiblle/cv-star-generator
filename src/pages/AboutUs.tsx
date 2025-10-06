@@ -99,10 +99,7 @@ export default function AboutUs() {
           <div className="bg-white/90 backdrop-blur rounded-full shadow-sm border px-3 py-2">
             <div className="flex items-center justify-between gap-2">
               <Link to="/" className="flex items-center gap-2 pl-1">
-                <div className="flex items-center gap-2">
-                  <img src="/assets/Logo_visiblle.svg" alt="BeVisiblle" className="h-8 w-8 rounded-lg" />
-                  <span className="text-lg font-semibold tracking-tight">BeVisiblle</span>
-                </div>
+                <img src="/assets/Logo_visiblle_1.png" alt="BeVisiblle" className="h-10 w-auto" />
               </Link>
 
               <nav className="hidden md:flex items-center gap-1">
