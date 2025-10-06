@@ -80,6 +80,21 @@ export default function CommunityFeed({ feedHeadHeight = 0 }: CommunityFeedProps
         console.log('[feed] Loaded authors:', authors.length);
       }
 
+      // Get counts for all posts
+      const postIds = posts?.map(p => p.id) || [];
+      const { data: likeCounts } = await supabase.from('post_likes').select('post_id').in('post_id', postIds);
+      const { data: commentCounts } = await supabase.from('post_comments').select('post_id').in('post_id', postIds);
+
+      const likeMap = (likeCounts || []).reduce((acc: Record<string, number>, { post_id }: any) => {
+        acc[post_id] = (acc[post_id] || 0) + 1;
+        return acc;
+      }, {} as Record<string, number>);
+
+      const commentMap = (commentCounts || []).reduce((acc: Record<string, number>, { post_id }: any) => {
+        acc[post_id] = (acc[post_id] || 0) + 1;
+        return acc;
+      }, {} as Record<string, number>);
+
       // Transform posts to match PostCard interface
       const transformedPosts = posts?.map(post => {
         const author = authors.find(a => a.id === post.user_id);
@@ -98,10 +113,10 @@ export default function CommunityFeed({ feedHeadHeight = 0 }: CommunityFeedProps
           author_id: post.user_id,
           company_id: null,
           actor_company_id: null,
-          like_count: 0,
-          likes_count: 0,
-          comment_count: 0,
-          comments_count: 0,
+          like_count: likeMap[post.id] || 0,
+          likes_count: likeMap[post.id] || 0,
+          comment_count: commentMap[post.id] || 0,
+          comments_count: commentMap[post.id] || 0,
           share_count: 0,
           shares_count: 0,
           created_at: post.created_at,

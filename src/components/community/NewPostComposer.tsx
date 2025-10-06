@@ -8,6 +8,7 @@ import { useToast } from "@/hooks/use-toast";
 import { subscribeOpenPostComposer } from "@/lib/event-bus";
 import { Loader2, Image as ImageIcon, FileText, X } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
+import { capitalizeFirst } from "@/lib/utils";
 
 interface MediaFile {
   file: File;
@@ -120,11 +121,15 @@ export default function NewPostComposer() {
         documents.map(d => uploadFile(d.file, 'post-documents', 'docs'))
       );
 
-      // Create post
+      // Create post with auto-capitalization
       const { error } = await supabase.from("posts").insert({
-        content: content,
+        content: capitalizeFirst(content.trim()),
         user_id: user!.id,
-        media: mediaUrls.map(url => ({ url, type: 'image' })),
+        media: mediaUrls.map((url, i) => ({ 
+          url, 
+          type: 'image',
+          name: media[i].file.name 
+        })),
         documents: documentUrls.map((url, i) => ({ 
           url, 
           name: documents[i].name,

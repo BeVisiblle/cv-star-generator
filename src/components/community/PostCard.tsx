@@ -4,7 +4,8 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Heart, MessageCircle, Share2, Send, FileText, Download } from 'lucide-react';
+import { Textarea } from '@/components/ui/textarea';
+import { Heart, MessageCircle, Share2, Send, FileText, Download, Pencil } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { de } from 'date-fns/locale';
 import { useToast } from '@/hooks/use-toast';
@@ -15,6 +16,8 @@ import { Dialog, DialogContent } from '@/components/ui/dialog';
 import QuickMessageDialog from '@/components/community/QuickMessageDialog';
 import { useAuth } from '@/hooks/useAuth';
 import CommentItem from './CommentItem';
+import { supabase } from '@/integrations/supabase/client';
+import { capitalizeFirst } from '@/lib/utils';
 
 interface PostCardProps {
   post: {
@@ -57,6 +60,8 @@ interface PostCardProps {
 export default function PostCard({ post }: PostCardProps) {
   const [showComments, setShowComments] = useState(false);
   const [newComment, setNewComment] = useState('');
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedContent, setEditedContent] = useState(post.content || '');
   const [expanded, setExpanded] = useState(false);
   const [replyTo, setReplyTo] = useState<{ id: string; name: string } | null>(null);
   const [imageOpen, setImageOpen] = useState(false);
@@ -166,6 +171,35 @@ const authorSubtitle = useMemo(() => {
     repost();
   };
 
+  const handleSaveEdit = async () => {
+    const { error } = await supabase
+      .from('posts')
+      .update({ content: capitalizeFirst(editedContent.trim()) })
+      .eq('id', post.id)
+      .eq('user_id', user?.id);
+
+    if (error) {
+      toast({
+        title: "Fehler",
+        description: "Der Beitrag konnte nicht gespeichert werden",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    toast({
+      title: "Gespeichert",
+      description: "Dein Beitrag wurde aktualisiert"
+    });
+    setIsEditing(false);
+    window.location.reload();
+  };
+
+  const handleCancelEdit = () => {
+    setEditedContent(post.content || '');
+    setIsEditing(false);
+  };
+
   const handleOpenComments = () => {
     setShowComments(true);
     setTimeout(() => commentInputRef.current?.focus(), 0);
@@ -206,38 +240,69 @@ const authorSubtitle = useMemo(() => {
               <p className="text-xs text-muted-foreground truncate">{authorSubtitle}</p>
             )}
           </div>
+          {post.author_type === 'user' && post.user_id === user?.id && !isEditing && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setIsEditing(true)}
+            >
+              <Pencil className="h-4 w-4" />
+            </Button>
+          )}
         </div>
 
         {/* Post Content */}
-        <div className="space-y-3">
-          <p className="text-sm leading-relaxed break-words">
-            {truncated}
-            {!expanded && isLong && (
-              <button className="ml-1 text-primary hover:underline text-xs" onClick={() => setExpanded(true)}>
-                Mehr anzeigen
-              </button>
-            )}
-          </p>
-
-          {/* Legacy single image */}
-          {post.image_url && !post.media?.length && (
-            <div>
-              <AspectRatio ratio={16 / 9} className="overflow-hidden rounded-lg border">
-                <img
-                  src={post.image_url}
-                  alt="Post Bild"
-                  className="h-full w-full object-cover cursor-zoom-in"
-                  onClick={() => setImageOpen(true)}
-                  loading="lazy"
-                />
-              </AspectRatio>
-              <Dialog open={imageOpen} onOpenChange={setImageOpen}>
-                <DialogContent className="max-w-3xl">
-                  <img src={post.image_url} alt="Bild groß" className="w-full h-auto rounded" />
-                </DialogContent>
-              </Dialog>
+        {isEditing ? (
+          <div className="space-y-2">
+            <Textarea
+              value={editedContent}
+              onChange={(e) => setEditedContent(e.target.value)}
+              className="min-h-[100px]"
+              placeholder="Beitrag bearbeiten..."
+            />
+            <div className="flex gap-2">
+              <Button onClick={handleSaveEdit} size="sm">
+                Speichern
+              </Button>
+              <Button onClick={handleCancelEdit} size="sm" variant="outline">
+                Abbrechen
+              </Button>
             </div>
-          )}
+          </div>
+        ) : (
+          <div className="space-y-3">
+            <p className="text-sm leading-relaxed break-words">
+              {truncated}
+              {!expanded && isLong && (
+                <button className="ml-1 text-primary hover:underline text-xs" onClick={() => setExpanded(true)}>
+                  Mehr anzeigen
+                </button>
+              )}
+            </p>
+          </div>
+        )}
+
+        {!isEditing && (
+          <>
+            {/* Legacy single image */}
+            {post.image_url && !post.media?.length && (
+              <div>
+                <AspectRatio ratio={16 / 9} className="overflow-hidden rounded-lg border">
+                  <img
+                    src={post.image_url}
+                    alt="Post Bild"
+                    className="h-full w-full object-cover cursor-zoom-in"
+                    onClick={() => setImageOpen(true)}
+                    loading="lazy"
+                  />
+                </AspectRatio>
+                <Dialog open={imageOpen} onOpenChange={setImageOpen}>
+                  <DialogContent className="max-w-3xl">
+                    <img src={post.image_url} alt="Bild groß" className="w-full h-auto rounded" />
+                  </DialogContent>
+                </Dialog>
+              </div>
+            )}
 
           {/* Multiple media images */}
           {post.media && post.media.length > 0 && (
@@ -286,7 +351,8 @@ const authorSubtitle = useMemo(() => {
               ))}
             </div>
           )}
-        </div>
+          </>
+        )}
 
         {/* Counts row */}
         <div className="flex items-center justify-between text-xs text-muted-foreground">

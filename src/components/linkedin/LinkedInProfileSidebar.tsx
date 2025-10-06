@@ -49,13 +49,15 @@ export function LinkedInProfileSidebar({
         />
       )}
 
-      {/* Weitere Dokumente Section - Second */}
-      <WeitereDokumenteSection
-        userId={profile?.id}
-        readOnly={readOnly}
-        openWidget={() => setIsDocumentWidgetOpen(true)}
-        refreshTrigger={documentUpdateTrigger}
-      />
+      {/* Weitere Dokumente Section - Second (only for own profile) */}
+      {!readOnly && (
+        <WeitereDokumenteSection
+          userId={profile?.id}
+          readOnly={readOnly}
+          openWidget={() => setIsDocumentWidgetOpen(true)}
+          refreshTrigger={documentUpdateTrigger}
+        />
+      )}
 
       {/* Skills Section - After Ads */}
       {showLanguagesAndSkills && profile?.faehigkeiten && profile.faehigkeiten.length > 0 && (
