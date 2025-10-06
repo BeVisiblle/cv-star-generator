@@ -104,9 +104,9 @@ export interface CVFormData {
   schulbildung?: SchulbildungEntry[];
   berufserfahrung?: BerufserfahrungEntry[];
   
-  // New optional fields
-  qualifikationen?: QualifikationEntry[];
-  zertifikate?: ZertifikatEntry[];
+  // New optional fields (simplified to strings)
+  qualifikationen?: string[];
+  zertifikate?: string[];
   weiterbildung?: WeiterbildungEntry[];
   interessen?: string[];
   

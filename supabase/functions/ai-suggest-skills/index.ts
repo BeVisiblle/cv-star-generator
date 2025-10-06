@@ -12,7 +12,7 @@ serve(async (req) => {
   }
 
   try {
-    const { branche, status, existingSkills = [] } = await req.json();
+    const { branche, status, existingSkills = [], schulbildung, berufserfahrung } = await req.json();
     
     if (!branche) {
       return new Response(
@@ -39,10 +39,13 @@ serve(async (req) => {
       bau: 'Bau & Architektur'
     };
 
+    const educationContext = schulbildung?.[0] ? `\nAusbildung: ${schulbildung[0].schulform}` : '';
+    const workContext = berufserfahrung?.[0] ? `\nBerufserfahrung: ${berufserfahrung[0].titel}` : '';
+
     const prompt = `Du bist ein Karriereberater. Schlage 6-8 relevante Fähigkeiten/Skills für folgendes Profil vor:
 
 Branche: ${brancheNames[branche] || branche}
-Status: ${status === 'schueler' ? 'Schüler' : status === 'azubi' ? 'Azubi' : 'Ausgelernt'}
+Status: ${status === 'schueler' ? 'Schüler' : status === 'azubi' ? 'Azubi' : 'Ausgelernt'}${educationContext}${workContext}
 ${existingSkills.length > 0 ? `Bereits vorhandene Skills: ${existingSkills.join(', ')}` : ''}
 
 Anforderungen:

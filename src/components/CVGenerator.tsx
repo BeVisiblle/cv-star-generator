@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 import CVStep1 from './cv-steps/CVStep1';
 import CVStep2 from './cv-steps/CVStep2';
-import CVStep3 from './cv-steps/CVStep3';
+import CVStep3New from './cv-steps/CVStep3New';
 import CVStep4 from './cv-steps/CVStep4';
 import CVStep5 from './cv-steps/CVStep5';
 import CVStep6 from './cv-steps/CVStep6';
@@ -49,9 +49,9 @@ const CVGeneratorContent = () => {
       case 2:
         return <CVStep2 />;
       case 3:
-        return <CVStep3 />;
+        return <CVStep4 />; // Beruflicher Werdegang
       case 4:
-        return <CVStep4 />;
+        return <CVStep3New />; // Kenntnisse & Motivation
       case 5:
         return <CVStep5 />;
       case 6:

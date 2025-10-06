@@ -1,7 +1,7 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
-const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
+const lovableApiKey = Deno.env.get('LOVABLE_API_KEY');
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -88,57 +88,82 @@ serve(async (req) => {
     const sprachenSummary = getSprachenSummary(cvData.sprachen);
     const berufswunsch = getBerufswunsch(cvData.branche, cvData.status);
 
-    const prompt = `Du bist eine Karriere-KI. Erstelle einen motivierenden, ehrlichen und sympathischen Text für den Lebenslaufabschnitt „Über mich".
+    // Enhanced context from education and work experience
+    const getAusbildungInfo = (data: CVData) => {
+      if (!data.schulbildung || data.schulbildung.length === 0) return 'keine Angaben';
+      const latestSchool = data.schulbildung[0];
+      return `${latestSchool.schulform} an ${latestSchool.name}${latestSchool.zeitraum_bis ? ` (bis ${latestSchool.zeitraum_bis})` : ''}`;
+    };
 
-Nutze dafür die folgenden Informationen:
+    const getBerufserfahrungInfo = (data: CVData) => {
+      if (!data.berufserfahrung || data.berufserfahrung.length === 0) return 'keine praktischen Erfahrungen bisher';
+      const latestJob = data.berufserfahrung[0];
+      return `${latestJob.titel} bei ${latestJob.unternehmen}`;
+    };
 
-Vorname: ${cvData.vorname || 'Unbekannt'}
-Ort: ${cvData.ort || 'Unbekannt'}
-Berufswunsch: ${berufswunsch}
-Top 3 Fähigkeiten: ${topSkills}
-Sprachen: ${sprachenSummary}
+    const prompt = `Du bist ein Karriereberater für junge Menschen in Deutschland. Erstelle einen authentischen "Über mich"-Text für einen Lebenslauf.
 
-Antworten auf persönliche Fragen:
-1. Warum möchtest du eine Ausbildung in diesem Bereich machen?
-→ ${questions.frage1}
+PERSON:
+- Name: ${cvData.vorname || 'Unbekannt'}
+- Ort: ${cvData.ort || 'Unbekannt'}
+- Status: ${cvData.status === 'schueler' ? 'Schüler/in' : cvData.status === 'azubi' ? 'Auszubildende/r' : 'Berufstätig'}
+- Branche: ${cvData.branche || 'keine Angabe'}
+- Berufswunsch: ${berufswunsch}
 
-2. Was motiviert dich jeden Tag?
-→ ${questions.frage2}
+AUSBILDUNG & BERUF:
+- Schulbildung: ${getAusbildungInfo(cvData)}
+- Berufserfahrung: ${getBerufserfahrungInfo(cvData)}
 
-3. Was zeichnet dich als Person aus?
-→ ${questions.frage3}
+FÄHIGKEITEN:
+${topSkills || 'keine Angaben'}
 
-Erstelle daraus einen maximal 4-zeiligen Text, der sich als „Über mich"-Abschnitt für einen Lebenslauf eignet. Kein Marketing-Sprech, sondern menschlich, bodenständig, ehrlich und sympathisch.
+SPRACHEN:
+${sprachenSummary || 'keine Angaben'}
 
-Der Text darf weder übertrieben noch generisch klingen, sondern soll authentisch zur Person passen. Du darfst kreativ sein – aber nicht unrealistisch.`;
+MOTIVATION & PERSÖNLICHKEIT:
+1. Motivation: ${questions.frage1 || 'keine Angabe'}
+2. Erfahrungen: ${questions.frage2 || 'keine Angabe'}
+3. Persönliche Stärken: ${questions.frage3 || 'keine Angabe'}
 
-    // Sending prompt to OpenAI (content redacted in logs)
+ANFORDERUNGEN:
+1. Maximal 4 Zeilen (ca. 250 Zeichen)
+2. Erste Person Singular ("Ich bin...", "Mich motiviert...")
+3. Ehrlich & bodenständig (kein Marketing-Sprech!)
+4. Konkret & authentisch
+5. Fokus auf Stärken, die zum Beruf passen
+6. Keine Übertreibungen oder generische Floskeln
+7. Nutze die konkreten Infos aus Ausbildung und Berufserfahrung
 
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+Erstelle jetzt den "Über mich"-Text:`;
+
+    // Sending prompt to Lovable AI Gateway (Google Gemini 2.5 Flash - FREE)
+
+    const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${openAIApiKey}`,
+        'Authorization': `Bearer ${lovableApiKey}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4',
+        model: 'google/gemini-2.5-flash',
         messages: [
           {
             role: 'system',
-            content: 'Du bist ein erfahrener Karriereberater, der authentische und bodenständige Lebenslauftexte verfasst. Schreibe immer in der ersten Person und halte dich an das 4-Zeilen-Limit.'
+            content: 'Du bist ein erfahrener Karriereberater für junge Menschen in Deutschland. Du verfasst authentische, bodenständige und ehrliche Lebenslauftexte. Schreibe immer in der ersten Person und halte dich strikt an das 4-Zeilen-Limit (ca. 250 Zeichen). Nutze konkrete Informationen aus dem Profil und vermeide generische Floskeln.'
           },
           {
             role: 'user',
             content: prompt
           }
         ],
-        temperature: 0.7,
-        max_tokens: 150,
+        max_tokens: 200,
       }),
     });
 
     if (!response.ok) {
-      throw new Error(`OpenAI API error: ${response.status}`);
+      const errorText = await response.text();
+      console.error('Lovable AI error:', response.status, errorText);
+      throw new Error(`Lovable AI API error: ${response.status}`);
     }
 
     const data = await response.json();

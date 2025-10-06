@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { useSkills } from '@/hooks/useSkills';
-import { Plus, Trash2, Loader2 } from 'lucide-react';
+import { Plus, Trash2 } from 'lucide-react';
 import { Combobox } from '@/components/ui/combobox';
+import { getSkillsForBranch } from '@/data/branchenSkills';
 
 interface SkillSelectorProps {
   selectedSkills: string[];
@@ -27,8 +27,10 @@ export const SkillSelector = ({
   placeholder = 'Fähigkeit auswählen...',
   className = ''
 }: SkillSelectorProps) => {
-  const { skills, loading, error } = useSkills(branch, statusLevel);
   const [customSkill, setCustomSkill] = useState('');
+  
+  // Get branch-specific skills
+  const branchSkills = getSkillsForBranch(branch);
 
   const addSkill = (skillName: string) => {
     if (!skillName.trim()) return;
@@ -47,17 +49,6 @@ export const SkillSelector = ({
     setCustomSkill('');
   };
 
-  if (loading) {
-    return (
-      <div className={className}>
-        <Label>{label}</Label>
-        <div className="flex items-center justify-center h-10 border rounded-md">
-          <Loader2 className="h-4 w-4 animate-spin" />
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className={className}>
       <div className="flex justify-between items-center mb-2">
@@ -69,9 +60,9 @@ export const SkillSelector = ({
       
       <div className="space-y-4">
           <Combobox
-            items={skills
-              .filter(skill => !selectedSkills.includes(skill.name))
-              .map((skill) => ({ value: skill.name, label: skill.name }))}
+            items={branchSkills
+              .filter(skill => !selectedSkills.includes(skill))
+              .map((skill) => ({ value: skill, label: skill }))}
             value={undefined}
             onChange={(value) => addSkill(value)}
             placeholder={selectedSkills.length >= maxSkills ? "Maximum erreicht" : placeholder}
