@@ -7085,12 +7085,12 @@ export type Database = {
           p_contact_person: string
           p_country: string
           p_created_by: string
-          p_industry: string
+          p_industry?: string
           p_name: string
           p_phone: string
           p_primary_email: string
           p_size_range: string
-          p_website: string
+          p_website?: string
         }
         Returns: string
       }

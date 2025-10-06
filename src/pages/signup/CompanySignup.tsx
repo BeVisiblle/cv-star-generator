@@ -102,34 +102,32 @@ export default function CompanySignup() {
             .rpc('create_company_account', {
               p_name: form.companyName,
               p_primary_email: form.email,
-              p_industry: form.industry || '',
               p_city: form.city,
               p_country: form.country,
               p_size_range: form.size,
               p_contact_person: `${form.adminFirst} ${form.adminLast}`,
               p_phone: form.phone,
-              p_website: form.website || '',
-              p_created_by: authData.user.id
+              p_created_by: authData.user.id,
+              p_website: form.website || null,
+              p_industry: form.industry || null
             });
 
           if (companyError) {
             console.error('Company creation error:', companyError);
             toast({
               title: "Fehler",
-              description: "Unternehmenskonto konnte nicht erstellt werden.",
+              description: companyError.message || "Unternehmenskonto konnte nicht erstellt werden.",
               variant: "destructive"
             });
             return;
           }
 
-          // Update company with onboarding and plan info
+          // Update company with plan info
           if (companyId) {
             await supabase
               .from('companies')
               .update({
-                selected_plan_id: selectedPlan,
-                onboarding_step: 0,
-                onboarding_completed: false
+                selected_plan_id: selectedPlan
               })
               .eq('id', companyId);
           }

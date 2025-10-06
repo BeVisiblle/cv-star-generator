@@ -27,20 +27,26 @@ export function CompanyLayout() {
 
       try {
         const data = JSON.parse(pendingData);
-        const { error } = await supabase.rpc('create_company_account', {
+        const { data: companyId, error } = await supabase.rpc('create_company_account', {
           p_name: data.companyName,
           p_primary_email: user.email || '',
-          p_industry: data.industry || '',
           p_city: data.city,
           p_country: data.country,
           p_size_range: data.size,
           p_contact_person: data.contactPerson,
           p_phone: data.phone,
-          p_website: data.website || '',
-          p_created_by: user.id
+          p_created_by: user.id,
+          p_website: data.website || null,
+          p_industry: data.industry || null
         });
 
-        if (!error) {
+        if (!error && companyId) {
+          // Update with plan info
+          await supabase
+            .from('companies')
+            .update({ selected_plan_id: data.selectedPlan })
+            .eq('id', companyId);
+          
           localStorage.removeItem('pending_company_signup');
           await refetch();
         }
