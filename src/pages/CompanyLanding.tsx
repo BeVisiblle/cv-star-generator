@@ -142,7 +142,7 @@ export default function CompanyLanding() {
                 <Link to="/company" className="rounded-md px-3 py-2 text-sm font-medium text-[#5170ff] hover:bg-blue-50">
                   Unternehmen
                 </Link>
-                <Link to="/company/onboarding" className="rounded-md px-3 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50">
+                <Link to="/signup/company" className="rounded-md px-3 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50">
                   Registrieren
                 </Link>
                 <Link to="/about" className="rounded-md px-3 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50">
@@ -205,7 +205,7 @@ export default function CompanyLanding() {
 
             <div className="mt-8 flex items-center justify-center gap-4 flex-wrap">
               <Link
-                to="/company/onboarding"
+                to="/signup/company"
                 className="inline-flex items-center gap-2 rounded-full px-8 py-4 text-base font-semibold text-white shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105"
                 style={{
                   background: '#5170ff',
@@ -242,7 +242,7 @@ export default function CompanyLanding() {
           Demo buchen
         </button>
         <Link
-          to="/company/onboarding"
+          to="/signup/company"
           className="inline-flex items-center rounded-full px-8 py-4 text-base font-semibold text-white shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105"
           style={{
             background: '#5170ff',

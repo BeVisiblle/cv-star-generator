@@ -52,6 +52,7 @@ const NotificationsPage = lazy(() => import("./pages/Notifications"));
 // Company components - lazy loaded
 const CompanyLayout = lazy(() => import("@/components/Company/CompanyLayout").then(m => ({ default: m.CompanyLayout })));
 const CompanyOnboarding = lazy(() => import('@/pages/Company/Onboarding'));
+const CompanySignup = lazy(() => import('@/pages/signup/CompanySignup'));
 const CompanyDashboard = lazy(() => import("./pages/Company/CompanyDashboard"));
 const CompanyProfile = lazy(() => import("./pages/Company/Profile"));
 const CompanySearch = lazy(() => import("./pages/Company/Search"));
@@ -311,6 +312,7 @@ const App = () => {
               <Route path="/about" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><AboutUs /></Suspense>} />
               <Route path="/onboarding" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><BaseLayout><ProfileCreationFlow /></BaseLayout></Suspense>} />
               <Route path="/unternehmen/onboarding" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><CompanyOnboarding /></Suspense>} />
+              <Route path="/signup/company" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><CompanySignup /></Suspense>} />
               <Route path="/talent" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><BaseLayout><Talent /></BaseLayout></Suspense>} />
               <Route path="/datenschutz" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><Datenschutz /></Suspense>} />
               <Route path="/impressum" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><Impressum /></Suspense>} />
