@@ -1,4 +1,5 @@
 import React from 'react';
+import { Users, MessageCircle, Target } from 'lucide-react';
 
 export default function SmartInteractions() {
   return (
@@ -15,17 +16,17 @@ export default function SmartInteractions() {
       <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
         {[
           {
-            icon: "🤝",
+            icon: Users,
             title: "Netzwerk aufbauen",
             description: "Verbinde dich mit Gleichgesinnten und erweitere dein professionelles Netzwerk"
           },
           {
-            icon: "💬",
+            icon: MessageCircle,
             title: "Wissen teilen",
             description: "Tausche Erfahrungen aus und lerne von anderen Fachleuten"
           },
           {
-            icon: "🎯",
+            icon: Target,
             title: "Matching-System",
             description: "Finde passende Jobs und Unternehmen basierend auf deinem Profil"
           }
@@ -34,7 +35,7 @@ export default function SmartInteractions() {
             key={idx}
             className="bg-card rounded-2xl p-6 shadow-md hover:shadow-xl transition-shadow duration-300 border"
           >
-            <div className="text-4xl mb-4">{feature.icon}</div>
+            <feature.icon className="w-12 h-12 mb-4 text-primary" />
             <h3 className="text-xl font-semibold text-card-foreground mb-2">{feature.title}</h3>
             <p className="text-muted-foreground text-sm">{feature.description}</p>
           </div>
