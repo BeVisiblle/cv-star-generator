@@ -296,9 +296,12 @@ export const CVFormProvider = ({ children }: { children: ReactNode }) => {
             (!formData.faehigkeiten || formData.faehigkeiten.length === 0)) {
           errors.faehigkeiten = 'Mindestens eine Fähigkeit ist erforderlich';
         }
-        // About me text is required
-        if (!formData.ueberMich || formData.ueberMich.trim() === '') {
-          errors.ueberMich = 'Ein "Über mich"-Text ist erforderlich';
+        // At least one motivation field is required
+        const hasMotivation = (formData.motivation && formData.motivation.trim() !== '') ||
+                              (formData.kenntnisse && formData.kenntnisse.trim() !== '') ||
+                              (formData.praktische_erfahrung && formData.praktische_erfahrung.trim() !== '');
+        if (!hasMotivation) {
+          errors.motivation = 'Mindestens eine der Motivations-Fragen muss beantwortet werden';
         }
         break;
       case 5:
