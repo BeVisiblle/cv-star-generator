@@ -25,6 +25,7 @@ const CVStep4 = () => {
   // Local states for dynamic entry inputs to prevent focus loss
   const [localEntryInputs, setLocalEntryInputs] = useState<Record<string, string>>({});
   const [generatingBulletsFor, setGeneratingBulletsFor] = useState<number | null>(null);
+  const [generatingAboutMe, setGeneratingAboutMe] = useState(false);
 
   // Debounced update function with stable reference
   const debouncedUpdate = useDebounce((updates: any) => {
@@ -324,7 +325,51 @@ const CVStep4 = () => {
     }
   };
 
-  // Generate "About Me" text using template
+  // Generate "About Me" text using AI
+  const generateAboutMeWithAI = async () => {
+    setGeneratingAboutMe(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('ai-generate-about-me', {
+        body: { 
+          branche: formData.branche,
+          status: formData.status,
+          faehigkeiten: formData.faehigkeiten || [],
+          schulbildung: formData.schulbildung || [],
+          berufserfahrung: formData.berufserfahrung || [],
+          motivation: formData.motivation,
+          kenntnisse: formData.kenntnisse,
+          geburtsdatum: formData.geburtsdatum
+        }
+      });
+
+      if (error) {
+        console.error('Edge function error:', error);
+        throw error;
+      }
+
+      if (data.success && data.aboutMe) {
+        updateFormData({ ueberMich: data.aboutMe });
+        
+        toast({
+          title: "Erfolgreich generiert!",
+          description: "Dein persönlicher Text wurde erstellt. Du kannst ihn jederzeit bearbeiten."
+        });
+      } else {
+        throw new Error(data.error || 'Keine Antwort von der KI erhalten');
+      }
+    } catch (error: any) {
+      console.error('Error generating about me:', error);
+      toast({
+        title: "Fehler",
+        description: error.message || "Der Text konnte nicht generiert werden. Bitte versuche es erneut.",
+        variant: "destructive"
+      });
+    } finally {
+      setGeneratingAboutMe(false);
+    }
+  };
+
+  // Generate "About Me" text using template (fallback)
   const generateAboutMeText = () => {
     const heute = new Date();
     const geburtsdatum = formData.geburtsdatum ? new Date(formData.geburtsdatum) : null;
@@ -349,10 +394,11 @@ const CVStep4 = () => {
     updateFormData({ ueberMich: aboutMeText });
   };
 
-  // Auto-generate when we have enough data
+  // Auto-generate when we have enough data (optional fallback)
   React.useEffect(() => {
     if (formData.motivation && formData.kenntnisse && formData.schulbildung?.length && !formData.ueberMich) {
-      generateAboutMeText();
+      // Optional: auto-generate with template
+      // generateAboutMeText();
     }
   }, [formData.motivation, formData.kenntnisse, formData.schulbildung]);
 
@@ -723,18 +769,46 @@ const CVStep4 = () => {
         </div>
       </Card>
 
-      {/* Auto-generated About Me */}
-      {formData.ueberMich && (
-        <Card className="p-6">
-          <h3 className="font-semibold text-lg mb-4">✨ Automatisch generierter "Über mich"-Text</h3>
-          <div className="p-4 bg-muted/20 rounded-lg">
-            <p className="text-sm leading-relaxed">{formData.ueberMich}</p>
+      {/* Motivation & Persönlichkeit */}
+      <Card className="p-6">
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h3 className="font-semibold text-lg">💬 Motivation & Persönlichkeit</h3>
+            <Button
+              onClick={generateAboutMeWithAI}
+              disabled={generatingAboutMe}
+              variant="outline"
+              size="sm"
+              className="gap-2"
+            >
+              {generatingAboutMe ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Generiere...
+                </>
+              ) : (
+                <>
+                  <Sparkles className="h-4 w-4" />
+                  Mit KI generieren
+                </>
+              )}
+            </Button>
           </div>
-          <p className="text-xs text-muted-foreground mt-2">
-            Dieser Text wurde basierend auf deinen Angaben erstellt und wird in deinem Lebenslauf verwendet.
+          <p className="text-sm text-muted-foreground">
+            Beschreibe dich selbst, deine Motivation und deine Persönlichkeit. Du kannst den Text selbst schreiben oder mit KI generieren lassen.
           </p>
-        </Card>
-      )}
+          <Textarea
+            value={formData.ueberMich || ''}
+            onChange={(e) => updateFormData({ ueberMich: e.target.value })}
+            placeholder="Ich bin... Besonders interessiere ich mich für... Meine Stärken sind..."
+            rows={6}
+            className="resize-none"
+          />
+          <p className="text-xs text-muted-foreground">
+            💡 Tipp: Dieser Text erscheint in deinem Lebenslauf und gibt Arbeitgebern einen persönlichen Einblick.
+          </p>
+        </div>
+      </Card>
 
       {/* Validation Message */}
       {!hasMinimumSchulbildung && (
