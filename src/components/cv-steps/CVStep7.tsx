@@ -1,14 +1,23 @@
 import React, { useState } from 'react';
 import { useCVForm } from '@/contexts/CVFormContext';
 import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
-import { Download, UserPlus, Loader2 } from 'lucide-react';
-import { toast } from '@/hooks/use-toast';
+import { Download, UserPlus, Loader2, Mail, CreditCard, CheckCircle2, Sparkles } from 'lucide-react';
+import { toast } from 'sonner';
 import { generatePDF, generateCVFilename } from '@/lib/pdf-generator';
 import { ProfileCreationModal } from '@/components/shared/ProfileCreationModal';
+import BerlinLayout from '@/components/cv-layouts/BerlinLayout';
+import MuenchenLayout from '@/components/cv-layouts/MuenchenLayout';
+import HamburgLayout from '@/components/cv-layouts/HamburgLayout';
+import KoelnLayout from '@/components/cv-layouts/KoelnLayout';
+import FrankfurtLayout from '@/components/cv-layouts/FrankfurtLayout';
+import DuesseldorfLayout from '@/components/cv-layouts/DuesseldorfLayout';
+import { mapFormDataToCVData } from '@/components/cv-layouts/mapFormDataToCVData';
+import { cn } from '@/lib/utils';
 
 const CVStep7 = () => {
   const { formData, updateFormData, setCurrentStep } = useCVForm();
@@ -38,62 +47,83 @@ const CVStep7 = () => {
   };
 
   const getLayoutName = () => {
-    const layouts = ['Modern', 'Klassisch', 'Kreativ', 'Minimalistisch', 'Professionell', 'LiveCareer'];
-    return formData.layout ? layouts[(formData.layout - 1) % layouts.length] : 'Nicht gewählt';
+    switch (formData.layout) {
+      case 1: return 'Berlin';
+      case 2: return 'München';
+      case 3: return 'Hamburg';
+      case 4: return 'Köln';
+      case 5: return 'Frankfurt';
+      case 6: return 'Düsseldorf';
+      default: return 'Berlin';
+    }
   };
 
   const handleDownloadPDF = async () => {
     if (!formData.vorname || !formData.nachname) {
-      toast({
-        title: "Fehler",
-        description: "Vor- und Nachname sind erforderlich für den PDF-Download.",
-        variant: "destructive"
-      });
+      toast.error("Vor- und Nachname sind erforderlich für den PDF-Download.");
       return;
     }
 
     setIsGeneratingPDF(true);
     
     try {
-      // Switch to CV preview step to capture the CV layout
-      const originalStep = 7;
-      setCurrentStep(6);
+      // Create temporary container for rendering CV (like ProfileCard does)
+      const tempContainer = document.createElement('div');
+      tempContainer.style.position = 'fixed';
+      tempContainer.style.left = '-10000px';
+      tempContainer.style.top = '0';
+      tempContainer.style.width = '794px';
+      tempContainer.style.height = '1123px';
+      tempContainer.style.backgroundColor = 'white';
+      document.body.appendChild(tempContainer);
+
+      // Map form data to CV data
+      const cvData = mapFormDataToCVData(formData);
       
-      // Wait for the step change to render
-      await new Promise(resolve => setTimeout(resolve, 100));
+      // Get the correct layout component
+      const selected = formData.layout ?? 1;
+      const LayoutComponent =
+        selected === 2 ? MuenchenLayout :
+        selected === 3 ? HamburgLayout :
+        selected === 4 ? KoelnLayout :
+        selected === 5 ? FrankfurtLayout :
+        selected === 6 ? DuesseldorfLayout :
+        BerlinLayout;
+
+      // Dynamically render the layout using React
+      const React = await import('react');
+      const ReactDOM = await import('react-dom/client');
       
-      // Find the CV preview element
-      const cvPreviewElement = document.querySelector('[data-cv-preview]') as HTMLElement;
+      const cvElement = React.createElement(LayoutComponent, { 
+        data: cvData
+      });
+      const root = ReactDOM.createRoot(tempContainer);
       
-      if (!cvPreviewElement) {
-        throw new Error('CV Preview nicht gefunden');
-      }
+      await new Promise<void>((resolve) => {
+        root.render(cvElement);
+        // Wait for render to complete
+        setTimeout(() => resolve(), 300);
+      });
 
       // Generate filename
       const filename = generateCVFilename(formData.vorname, formData.nachname);
       
-      // Generate PDF
-      await generatePDF(cvPreviewElement, {
+      // Generate PDF from the rendered container
+      await generatePDF(tempContainer, {
         filename,
         quality: 2,
         format: 'a4',
-        margin: 10
+        margin: 0
       });
 
-      // Switch back to summary step
-      setCurrentStep(originalStep);
+      // Cleanup
+      root.unmount();
+      document.body.removeChild(tempContainer);
       
-      toast({
-        title: "PDF erfolgreich erstellt",
-        description: `Dein Lebenslauf wurde als ${filename} heruntergeladen.`,
-      });
+      toast.success(`Dein Lebenslauf wurde als ${filename} heruntergeladen.`);
     } catch (error) {
       console.error('PDF generation error:', error);
-      toast({
-        title: "Fehler beim Erstellen der PDF",
-        description: "Es gab ein Problem beim Erstellen deines Lebenslaufs. Bitte versuche es erneut.",
-        variant: "destructive"
-      });
+      toast.error("Es gab ein Problem beim Erstellen deines Lebenslaufs. Bitte versuche es erneut.");
     } finally {
       setIsGeneratingPDF(false);
     }
@@ -101,50 +131,41 @@ const CVStep7 = () => {
 
   const handleCreateProfile = () => {
     if (!formData.einwilligung) {
-      toast({
-        title: "Einverständnis erforderlich",
-        description: "Bitte stimme der Speicherung deiner Daten zu, um ein Profil zu erstellen.",
-        variant: "destructive"
-      });
+      toast.error("Bitte stimme der Speicherung deiner Daten zu, um ein Profil zu erstellen.");
       return;
     }
 
     if (!formData.email) {
-      toast({
-        title: "E-Mail-Adresse fehlt",
-        description: "Bitte geben Sie in Schritt 2 eine E-Mail-Adresse ein.",
-        variant: "destructive"
-      });
+      toast.error("Bitte gib in Schritt 2 eine E-Mail-Adresse ein.");
       return;
     }
 
-    // Ensure data persists during profile creation
     localStorage.setItem('creating-profile', 'true');
-    
-    // Get current CV data from localStorage and context as backup
-    const savedCVData = localStorage.getItem('cvFormData');
-    const cvDataFromStorage = savedCVData ? JSON.parse(savedCVData) : null;
-    
-    console.log('CVStep7: CV data from context:', formData);
-    console.log('CVStep7: CV data from localStorage:', cvDataFromStorage);
-    console.log('CVStep7: Opening profile modal with CV data');
-
     setShowProfileModal(true);
   };
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-xl font-semibold mb-2">Zusammenfassung</h2>
-        <p className="text-muted-foreground mb-6">
-          Perfekt! Hier ist eine Übersicht deiner Angaben.
-        </p>
-      </div>
+      {/* Glückwunsch Header */}
+      <Card className="border-2 border-primary/20 bg-gradient-to-r from-primary/5 to-primary/10">
+        <CardHeader className="text-center pb-4">
+          <div className="mx-auto w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-4">
+            <Sparkles className="h-8 w-8 text-primary" />
+          </div>
+          <CardTitle className="text-2xl">🎉 Glückwunsch!</CardTitle>
+          <CardDescription className="text-base">
+            Dein Lebenslauf ist fertig und sieht professionell aus!
+          </CardDescription>
+        </CardHeader>
+      </Card>
 
-      <Card className="p-6">
-        <h3 className="font-semibold mb-4">Deine CV-Daten</h3>
-        
-        <div className="space-y-3">
+      {/* Zusammenfassung */}
+      <Card>
+        <CardHeader>
+          <CardTitle>📋 Zusammenfassung</CardTitle>
+          <CardDescription>Eine Übersicht deiner Angaben</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-3">
           <div className="flex justify-between">
             <span className="text-muted-foreground">Branche:</span>
             <span className="font-medium">{getBrancheTitle()}</span>
@@ -214,62 +235,99 @@ const CVStep7 = () => {
             <span className="text-muted-foreground">Layout:</span>
             <span className="font-medium">{getLayoutName()}</span>
           </div>
-        </div>
+        </CardContent>
       </Card>
 
-      <Card className="p-6">
-        <h3 className="font-semibold mb-4">Deine Optionen</h3>
-        
-        <div className="space-y-4">
-          <div className="flex items-center space-x-2">
-            <Checkbox
-              id="einwilligung"
-              checked={formData.einwilligung || false}
-              onCheckedChange={(checked) => updateFormData({ einwilligung: !!checked })}
-            />
-            <Label htmlFor="einwilligung" className="text-sm">
-              Ich möchte ein Profil anlegen und stimme der Speicherung meiner Daten zu
-            </Label>
-          </div>
+      {/* Optionen */}
+      <Card>
+        <CardHeader>
+          <CardTitle>🎯 Was möchtest du tun?</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-6">
           
-          <p className="text-xs text-muted-foreground">
-            Mit einem Profil kannst du von Arbeitgebern gefunden werden und deine Daten 
-            später bearbeiten. Ohne Profil kannst du trotzdem dein PDF herunterladen.
+          {/* Option 1: Profil erstellen (Empfohlen) */}
+          <div className="border-2 border-primary rounded-lg p-5 bg-primary/5 space-y-4">
+            <div className="flex items-start gap-3">
+              <CheckCircle2 className="h-6 w-6 text-primary mt-0.5 flex-shrink-0" />
+              <div className="flex-1">
+                <h4 className="font-semibold text-lg mb-1">Profil erstellen (Empfohlen)</h4>
+                <ul className="text-sm text-muted-foreground space-y-1 mb-4">
+                  <li>✓ Von Arbeitgebern gefunden werden</li>
+                  <li>✓ CV jederzeit kostenlos herunterladen</li>
+                  <li>✓ Daten später bearbeiten</li>
+                </ul>
+                
+                <div className="space-y-3">
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="einwilligung"
+                      checked={formData.einwilligung || false}
+                      onCheckedChange={(checked) => updateFormData({ einwilligung: !!checked })}
+                    />
+                    <Label htmlFor="einwilligung" className="text-sm font-normal">
+                      Einwilligung zur Speicherung meiner Daten
+                    </Label>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="email-input" className="text-sm">E-Mail-Adresse</Label>
+                    <Input
+                      id="email-input"
+                      type="email"
+                      placeholder="deine@email.de"
+                      value={formData.email || ''}
+                      onChange={(e) => updateFormData({ email: e.target.value })}
+                      className="bg-background"
+                    />
+                  </div>
+                  
+                  <Button
+                    onClick={handleCreateProfile}
+                    className="w-full h-11"
+                    disabled={!formData.einwilligung || !formData.email}
+                  >
+                    <UserPlus className="h-4 w-4 mr-2" />
+                    Jetzt Profil erstellen
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <Separator />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-background px-2 text-muted-foreground">Oder</span>
+            </div>
+          </div>
+
+          {/* Option 2: Kostenpflichtig herunterladen */}
+          <Button
+            onClick={handleDownloadPDF}
+            variant="outline"
+            className="w-full h-11"
+            disabled={isGeneratingPDF}
+          >
+            {isGeneratingPDF ? (
+              <>
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                PDF wird erstellt...
+              </>
+            ) : (
+              <>
+                <Download className="h-4 w-4 mr-2" />
+                CV sofort herunterladen
+              </>
+            )}
+          </Button>
+
+          <p className="text-xs text-center text-muted-foreground">
+            Ohne Profil kannst du deinen CV direkt herunterladen, aber nicht später bearbeiten.
           </p>
-        </div>
+        </CardContent>
       </Card>
-
-      <div className="grid md:grid-cols-2 gap-4">
-        <Button
-          onClick={handleDownloadPDF}
-          className="w-full h-12"
-          variant="outline"
-          disabled={isGeneratingPDF}
-        >
-          {isGeneratingPDF ? (
-            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-          ) : (
-            <Download className="h-4 w-4 mr-2" />
-          )}
-          {isGeneratingPDF ? 'PDF wird erstellt...' : 'CV als PDF herunterladen'}
-        </Button>
-        
-        <Button
-          onClick={handleCreateProfile}
-          className="w-full h-12"
-          disabled={!formData.einwilligung}
-        >
-          <UserPlus className="h-4 w-4 mr-2" />
-          Jetzt Profil anlegen
-        </Button>
-      </div>
-
-      <div className="p-4 bg-primary/5 rounded-lg border text-center">
-        <p className="text-sm text-foreground">
-          🎉 <strong>Glückwunsch!</strong> Du hast deinen Lebenslauf erfolgreich erstellt. 
-          Jetzt kannst du ihn herunterladen oder ein Profil anlegen, um von Arbeitgebern gefunden zu werden.
-        </p>
-      </div>
 
       <ProfileCreationModal
         isOpen={showProfileModal}

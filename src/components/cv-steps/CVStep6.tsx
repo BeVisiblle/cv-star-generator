@@ -3,7 +3,7 @@ import React from 'react';
 import { useCVForm } from '@/contexts/CVFormContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Download } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
@@ -91,11 +91,6 @@ const CVStep6 = () => {
     }
   };
 
-  const handleDownloadCV = () => {
-    // Öffnet die isolierte CV-Print-Seite in neuem Tab
-    window.open("/cv/print", "_blank", "noopener,noreferrer");
-    toast.success('CV wird in neuem Tab geöffnet!');
-  };
 
   const renderLayoutComponent = () => {
     // Always render A4 layout for consistent preview (also on mobile)
@@ -140,24 +135,14 @@ const CVStep6 = () => {
             Hier siehst du eine Vorschau deines Lebenslaufs im {getLayoutName()}-Layout.
           </CardDescription>
           <div className="flex flex-col sm:flex-row gap-2 sm:items-center">
-            <div className="flex flex-col gap-2 sm:flex-row">
-              <Button
-                variant="outline"
-                onClick={handleBackToLayout}
-                className="w-full sm:w-fit"
-              >
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Zurück zur Layout-Auswahl
-              </Button>
-              <Button
-                variant="outline"
-                onClick={handleDownloadCV}
-                className="w-full sm:w-fit"
-              >
-                <Download className="h-4 w-4 mr-2" />
-                CV herunterladen
-              </Button>
-            </div>
+          <Button
+            variant="outline"
+            onClick={handleBackToLayout}
+            className="w-full sm:w-fit"
+          >
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Zurück zur Layout-Auswahl
+          </Button>
             {isLayoutEditMode && (
               <Button
                 onClick={handleFinish}
