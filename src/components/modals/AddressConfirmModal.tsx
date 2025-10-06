@@ -38,9 +38,17 @@ export function AddressConfirmModal({ open, onOpenChange, initialData, onConfirm
 
   const handleConfirm = async () => {
     if (!isValid()) {
+      let errorMessage = "Bitte gib eine gültige PLZ und Stadt an.";
+      
+      if (data.zip.length !== 5) {
+        errorMessage = `PLZ muss 5-stellig sein (aktuell: ${data.zip.length} Ziffern). Beispiel: 01067 für Dresden`;
+      } else if (data.city.trim() === '') {
+        errorMessage = "Bitte gib eine Stadt an.";
+      }
+      
       toast({
         title: "Ungültige Daten",
-        description: "Bitte gib eine gültige PLZ und Stadt an.",
+        description: errorMessage,
         variant: "destructive"
       });
       return;
@@ -74,15 +82,20 @@ export function AddressConfirmModal({ open, onOpenChange, initialData, onConfirm
         </DialogHeader>
 
         <div className="space-y-4 mt-4">
-          <PLZOrtSelector
-            plz={data.zip}
-            ort={data.city}
-            required
-            plzLabel="Postleitzahl"
-            ortLabel="Stadt"
-            onPLZChange={(plz, ort) => setData(prev => ({ ...prev, zip: plz, city: ort }))}
-            onOrtChange={(ort) => setData(prev => ({ ...prev, city: ort }))}
-          />
+          <div className="space-y-1">
+            <PLZOrtSelector
+              plz={data.zip}
+              ort={data.city}
+              required
+              plzLabel="Postleitzahl"
+              ortLabel="Stadt"
+              onPLZChange={(plz, ort) => setData(prev => ({ ...prev, zip: plz, city: ort }))}
+              onOrtChange={(ort) => setData(prev => ({ ...prev, city: ort }))}
+            />
+            <p className="text-xs text-muted-foreground">
+              PLZ muss 5-stellig sein, z.B. 01067 für Dresden
+            </p>
+          </div>
 
           <div>
             <Label htmlFor="street">Straße</Label>
