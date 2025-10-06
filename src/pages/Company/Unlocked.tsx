@@ -512,7 +512,7 @@ export default function CompanyUnlocked() {
                               const React = await import('react');
                               const ReactDOM = await import('react-dom/client');
                               
-                              const cvElement = React.createElement(ProfessionalLayout, { 
+                              const cvElement = React.createElement(BerlinLayout, { 
                                 data: cvData
                               });
                               const root = ReactDOM.createRoot(tempContainer);
