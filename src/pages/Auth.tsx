@@ -261,9 +261,9 @@ const Auth = () => {
           // User is immediately confirmed - redirect to selected flow
           toast({
             title: "Registrierung erfolgreich",
-            description: role === 'company' ? "Willkommen! Weiter zur Unternehmens-Onboarding." : "Jetzt können Sie Ihren Lebenslauf erstellen!",
+            description: role === 'company' ? "Willkommen! Weiter zum Unternehmens-Dashboard." : "Jetzt können Sie Ihren Lebenslauf erstellen!",
           });
-          window.location.href = role === 'company' ? '/company/onboarding' : '/cv-generator';
+          window.location.href = role === 'company' ? '/company/dashboard' : '/cv-generator';
         } else {
           // User needs to confirm email
           toast({
@@ -393,7 +393,7 @@ const Auth = () => {
                     {role === 'company' ? (
                       <>
                         Noch kein Unternehmenskonto?{' '}
-                        <button type="button" className="underline" onClick={() => navigate('/company/onboarding')}>Jetzt erstellen</button>
+                        <button type="button" className="underline" onClick={() => navigate('/signup/company')}>Jetzt erstellen</button>
                       </>
                     ) : (
                       <>

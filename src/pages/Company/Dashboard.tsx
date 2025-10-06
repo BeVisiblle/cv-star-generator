@@ -256,7 +256,7 @@ export default function CompanyDashboard() {
         <p className="text-muted-foreground">
           Sie sind noch keinem Unternehmen zugeordnet.
         </p>
-        <Button className="mt-4" onClick={() => navigate('/company/onboarding')}>
+        <Button className="mt-4" onClick={() => navigate('/signup/company')}>
           Unternehmen registrieren
         </Button>
       </div>
@@ -296,7 +296,7 @@ export default function CompanyDashboard() {
                 onClick={() => {
                   localStorage.removeItem('demoMode');
                   localStorage.removeItem('demoCompanyData');
-                  navigate('/company/onboarding');
+                  navigate('/signup/company');
                 }}
               >
                 Beenden

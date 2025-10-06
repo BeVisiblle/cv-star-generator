@@ -490,7 +490,7 @@ export default function CompanyLanding() {
                 <ul className="mt-3 space-y-2 text-sm text-gray-600">
                   <li><Link className="hover:underline" to="/about">Über uns</Link></li>
                   <li><a className="hover:underline" href="#community">Community</a></li>
-                  <li><Link className="hover:underline" to="/company/onboarding">Unternehmen</Link></li>
+                  <li><Link className="hover:underline" to="/signup/company">Unternehmen</Link></li>
                 </ul>
               </div>
               <div>

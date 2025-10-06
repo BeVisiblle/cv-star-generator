@@ -187,8 +187,8 @@ function CompanyProtectedRoute({ children }: { children: React.ReactNode }) {
   }
 
   if (userType !== 'company') {
-    console.log('Not a company user - redirecting to onboarding');
-    return <Navigate to="/company/onboarding" replace />;
+    console.log('Not a company user - redirecting to signup');
+    return <Navigate to="/signup/company" replace />;
   }
 
   console.log('Access granted to company routes');
@@ -198,7 +198,7 @@ function CompanyProtectedRoute({ children }: { children: React.ReactNode }) {
 // Layout wrapper that conditionally shows TopNavBar
 function LayoutContent({ children }: { children: React.ReactNode }) {
   const location = useLocation();
-  const isCompanyRoute = location.pathname.startsWith('/company/') && location.pathname !== '/company/onboarding';
+  const isCompanyRoute = location.pathname.startsWith('/company/') && location.pathname !== '/signup/company';
   const isLandingPage = location.pathname === '/';
   const isAuthRoute = location.pathname === '/auth';
   const isCvRoute = location.pathname.startsWith('/cv-generator') || location.pathname.startsWith('/cv-layout-selector');
@@ -328,8 +328,11 @@ const App = () => {
               <Route path="/cv/print" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><CVPrintPage /></Suspense>} />
               
               
-              {/* Company marketing pages */}
-              <Route path="/company/onboarding" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><CompanyOnboarding /></Suspense>} />
+              {/* Company signup route */}
+              <Route path="/signup/company" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><CompanySignup /></Suspense>} />
+              
+              {/* Redirect old onboarding to signup */}
+              <Route path="/company/onboarding" element={<Navigate to="/signup/company" replace />} />
 
               {/* Company routes */}
               <Route
