@@ -139,19 +139,29 @@ const Auth = () => {
           title: "Erfolgreich angemeldet",
           description: "Willkommen zurück!",
         });
-        // Ermittele Rolle anhand der Datenbank - prüfe company_users Tabelle direkt
-        const { data: companyUsers, error: roleErr } = await supabase
+        
+        // Check if user is company user
+        const { data: companyUsers } = await supabase
           .from('company_users')
           .select('company_id, role')
           .eq('user_id', data.user.id)
           .limit(1);
         
-        if (roleErr) {
-          console.warn('Rollenprüfung fehlgeschlagen, fallback auf Profil:', roleErr);
-          window.location.href = '/dashboard';
+        const isCompany = companyUsers && companyUsers.length > 0;
+        
+        // For company users, check if they need to complete company setup
+        if (isCompany) {
+          window.location.href = '/company/dashboard';
         } else {
-          const isCompany = companyUsers && companyUsers.length > 0;
-          window.location.href = isCompany ? '/company/dashboard' : '/dashboard';
+          // Check if user has a profile
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('id')
+            .eq('id', data.user.id)
+            .single();
+          
+          // Only redirect to dashboard if profile exists
+          window.location.href = profile ? '/dashboard' : '/cv-generator';
         }
       }
     } catch (error) {
@@ -256,19 +266,27 @@ const Auth = () => {
       }
 
       if (data.user) {
-        // Success message for registration
+        // For company registrations, redirect to company signup
+        if (role === 'company') {
+          toast({
+            title: "Bitte nutzen Sie die Firmen-Registrierung",
+            description: "Sie werden weitergeleitet...",
+          });
+          setTimeout(() => navigate('/signup/company'), 1000);
+          return;
+        }
+
+        // For applicant registrations
         if (data.user.email_confirmed_at) {
-          // User is immediately confirmed - redirect to selected flow
           toast({
             title: "Registrierung erfolgreich",
-            description: role === 'company' ? "Willkommen! Weiter zum Unternehmens-Dashboard." : "Jetzt können Sie Ihren Lebenslauf erstellen!",
+            description: "Jetzt können Sie Ihren Lebenslauf erstellen!",
           });
-          window.location.href = role === 'company' ? '/company/dashboard' : '/cv-generator';
+          window.location.href = '/cv-generator';
         } else {
-          // User needs to confirm email
           toast({
             title: "Registrierung erfolgreich", 
-            description: "Bitte überprüfen Sie Ihre E-Mails und bestätigen Sie Ihre E-Mail-Adresse. Dann können Sie fortfahren.",
+            description: "Bitte überprüfen Sie Ihre E-Mails und bestätigen Sie Ihre E-Mail-Adresse.",
           });
         }
       }

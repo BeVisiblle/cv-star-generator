@@ -81,7 +81,8 @@ export default function CompanySignup() {
             data: {
               first_name: form.adminFirst,
               last_name: form.adminLast,
-              role: 'company-admin'
+              role: 'company-admin',
+              is_company: true
             }
           }
         });
@@ -95,37 +96,68 @@ export default function CompanySignup() {
           return;
         }
 
-        // Create company record
+        // Use the database function to create company and link user
         if (authData.user) {
-          const { error: companyError } = await supabase.from('companies').insert({
-            name: form.companyName,
-            primary_email: form.email,
-            size_range: form.size,
-            main_location: form.city,
-            country: form.country,
-            website_url: form.website,
-            contact_person: `${form.adminFirst} ${form.adminLast}`,
-            phone: form.phone,
-            account_status: 'pending',
-            selected_plan_id: selectedPlan,
-            onboarding_step: 0,
-            onboarding_completed: false
-          });
+          const { data: companyId, error: companyError } = await supabase
+            .rpc('create_company_account', {
+              p_name: form.companyName,
+              p_primary_email: form.email,
+              p_industry: form.industry || '',
+              p_city: form.city,
+              p_country: form.country,
+              p_size_range: form.size,
+              p_contact_person: `${form.adminFirst} ${form.adminLast}`,
+              p_phone: form.phone,
+              p_website: form.website || '',
+              p_created_by: authData.user.id
+            });
 
           if (companyError) {
             console.error('Company creation error:', companyError);
+            toast({
+              title: "Fehler",
+              description: "Unternehmenskonto konnte nicht erstellt werden.",
+              variant: "destructive"
+            });
+            return;
+          }
+
+          // Update company with onboarding and plan info
+          if (companyId) {
+            await supabase
+              .from('companies')
+              .update({
+                selected_plan_id: selectedPlan,
+                onboarding_step: 0,
+                onboarding_completed: false
+              })
+              .eq('id', companyId);
           }
         }
 
         toast({
           title: "Erfolgreich registriert!",
-          description: "Bitte bestätigen Sie Ihre E-Mail-Adresse.",
+          description: "Sie werden zum Dashboard weitergeleitet...",
         });
         
-        setTimeout(() => navigate('/company/dashboard'), 2000);
+        setTimeout(() => {
+          window.location.href = '/company/dashboard';
+        }, 1500);
 
       } else {
-        // Magic link signup
+        // Magic link signup - save company data to localStorage to be processed after email confirmation
+        localStorage.setItem('pending_company_signup', JSON.stringify({
+          companyName: form.companyName,
+          industry: form.industry,
+          size: form.size,
+          city: form.city,
+          country: form.country,
+          website: form.website,
+          phone: form.phone,
+          contactPerson: `${form.adminFirst} ${form.adminLast}`,
+          selectedPlan: selectedPlan
+        }));
+
         const { error } = await supabase.auth.signInWithOtp({
           email: form.email,
           options: {
@@ -134,15 +166,7 @@ export default function CompanySignup() {
               first_name: form.adminFirst,
               last_name: form.adminLast,
               role: 'company-admin',
-              company_data: {
-                name: form.companyName,
-                industry: form.industry,
-                size: form.size,
-                city: form.city,
-                country: form.country,
-                website: form.website,
-                phone: form.phone
-              }
+              is_company: true
             }
           }
         });

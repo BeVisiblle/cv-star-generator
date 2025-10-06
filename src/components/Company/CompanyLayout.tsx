@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { CompanySidebar } from "@/components/Company/CompanySidebar";
 import { CompanyHeader } from "@/components/Company/CompanyHeader";
 import { Outlet, Navigate } from "react-router-dom";
@@ -9,11 +10,47 @@ import { BrancheSelector } from "@/components/company/onboarding/BrancheSelector
 import { TargetGroupSelector } from "@/components/company/onboarding/TargetGroupSelector";
 import { PlanSelector } from "@/components/company/onboarding/PlanSelector";
 import { WelcomePopup } from "@/components/company/onboarding/WelcomePopup";
+import { supabase } from "@/integrations/supabase/client";
 
 export function CompanyLayout() {
   const { user, isLoading: authLoading } = useAuth();
-  const { company, loading: companyLoading } = useCompany();
+  const { company, loading: companyLoading, refetch } = useCompany();
   const { loading: onboardingLoading, state, updateStep, completeOnboarding } = useCompanyOnboarding();
+
+  // Check for pending company signup from magic link
+  useEffect(() => {
+    const processPendingSignup = async () => {
+      if (!user || company) return;
+      
+      const pendingData = localStorage.getItem('pending_company_signup');
+      if (!pendingData) return;
+
+      try {
+        const data = JSON.parse(pendingData);
+        const { error } = await supabase.rpc('create_company_account', {
+          p_name: data.companyName,
+          p_primary_email: user.email || '',
+          p_industry: data.industry || '',
+          p_city: data.city,
+          p_country: data.country,
+          p_size_range: data.size,
+          p_contact_person: data.contactPerson,
+          p_phone: data.phone,
+          p_website: data.website || '',
+          p_created_by: user.id
+        });
+
+        if (!error) {
+          localStorage.removeItem('pending_company_signup');
+          await refetch();
+        }
+      } catch (err) {
+        console.error('Error processing pending signup:', err);
+      }
+    };
+
+    processPendingSignup();
+  }, [user, company, refetch]);
 
   // Show loading state
   if (authLoading || companyLoading || onboardingLoading) {
