@@ -19,7 +19,7 @@ import NotFound from "./pages/NotFound";
 import Auth from "./pages/Auth";
 
 // Landing Page
-const LandingPage = lazy(() => import("@/components/LandingPage"));
+const BeVisiblleLandingPage = lazy(() => import("@/components/landing/BeVisiblleLandingPage"));
 
 // Lazy load non-critical pages to reduce initial bundle size
 const Blog = lazy(() => import("./pages/Blog"));
@@ -289,7 +289,7 @@ const App = () => {
           <UniversalLayout>
             <Routes>
               {/* Landing Page */}
-              <Route path="/" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><LandingPage /></Suspense>} />
+              <Route path="/" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><BeVisiblleLandingPage /></Suspense>} />
               
               {/* Auth */}
               <Route path="/auth" element={<Auth />} />

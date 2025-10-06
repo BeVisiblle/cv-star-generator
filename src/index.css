@@ -2,6 +2,20 @@
 @tailwind components;
 @tailwind utilities;
 
+/* BeVisiblle Landing Page Animations */
+@keyframes marquee {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-marquee {
+  animation: marquee 30s linear infinite;
+}
+
 /* ---- Screen-Preview der Druckseite ---- */
 .cv-a4{
   display:grid; place-content:center;
