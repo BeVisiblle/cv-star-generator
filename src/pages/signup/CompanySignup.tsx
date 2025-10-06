@@ -140,7 +140,7 @@ export default function CompanySignup() {
                 <div className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <Field label="Firmenname" icon={<Building2 size={16} />}>
-                      <Input placeholder="z. B. Müller GmbH" value={form.companyName} onChange={update("companyName")} />
+                      <Input className="pl-10" placeholder="z. B. Müller GmbH" value={form.companyName} onChange={update("companyName")} />
                     </Field>
                     <Field label="Rechtsform (optional)">
                       <Input placeholder="GmbH, AG, e. K." value={form.legalForm} onChange={update("legalForm")} />
@@ -162,7 +162,7 @@ export default function CompanySignup() {
                       </Select>
                     </Field>
                     <Field label="Website (optional)" icon={<Globe size={16} />}>
-                      <Input placeholder="https://" value={form.website} onChange={update("website")} />
+                      <Input className="pl-10" placeholder="https://" value={form.website} onChange={update("website")} />
                     </Field>
                   </div>
 
@@ -177,13 +177,13 @@ export default function CompanySignup() {
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <Field label="Admin – Vorname" icon={<User size={16} />}>
-                      <Input placeholder="Vorname" value={form.adminFirst} onChange={update("adminFirst")} />
+                      <Input className="pl-10" placeholder="Vorname" value={form.adminFirst} onChange={update("adminFirst")} />
                     </Field>
                     <Field label="Admin – Nachname">
                       <Input placeholder="Nachname" value={form.adminLast} onChange={update("adminLast")} />
                     </Field>
                     <Field label="Telefon" icon={<Phone size={16} />}>
-                      <Input placeholder="z. B. +49 160 123456" value={form.phone} onChange={update("phone")} />
+                      <Input className="pl-10" placeholder="z. B. +49 160 123456" value={form.phone} onChange={update("phone")} />
                     </Field>
                   </div>
 
@@ -223,11 +223,11 @@ export default function CompanySignup() {
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <Field label="Geschäftliche E‑Mail" icon={<Mail size={16} />}>
-                      <Input placeholder="name@firma.de" value={form.email} onChange={update("email")} />
+                      <Input className="pl-10" placeholder="name@firma.de" value={form.email} onChange={update("email")} />
                     </Field>
                     {usePassword && (
                       <Field label="Passwort" icon={<Lock size={16} />}>
-                        <Input type="password" placeholder="mind. 8 Zeichen" value={form.password} onChange={update("password")} />
+                        <Input className="pl-10" type="password" placeholder="mind. 8 Zeichen" value={form.password} onChange={update("password")} />
                       </Field>
                     )}
                     {usePassword && (
@@ -265,8 +265,8 @@ function Field({ label, children, icon }: { label: string; children: React.React
   return (
     <div className="space-y-1.5">
       <Label className="text-sm text-neutral-700">{label}</Label>
-      <div className={`relative ${icon ? 'pl-8' : ''}`}>
-        {icon && <div className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400">{icon}</div>}
+      <div className="relative">
+        {icon && <div className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400 z-10 pointer-events-none">{icon}</div>}
         {children}
       </div>
     </div>
