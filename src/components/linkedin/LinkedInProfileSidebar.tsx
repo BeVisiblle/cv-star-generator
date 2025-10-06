@@ -54,7 +54,7 @@ export function LinkedInProfileSidebar({
         userId={profile?.id}
         readOnly={readOnly}
         openWidget={() => setIsDocumentWidgetOpen(true)}
-        key={documentUpdateTrigger}
+        refreshTrigger={documentUpdateTrigger}
       />
 
       {/* Skills Section - After Ads */}

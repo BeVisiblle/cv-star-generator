@@ -28,9 +28,10 @@ interface WeitereDokumenteSectionProps {
   userId?: string;
   readOnly?: boolean;
   openWidget: () => void;
+  refreshTrigger?: number; // Add refresh trigger
 }
 
-export function WeitereDokumenteSection({ userId, readOnly = false, openWidget }: WeitereDokumenteSectionProps) {
+export function WeitereDokumenteSection({ userId, readOnly = false, openWidget, refreshTrigger }: WeitereDokumenteSectionProps) {
   const [documents, setDocuments] = useState<UserDocument[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -40,11 +41,13 @@ export function WeitereDokumenteSection({ userId, readOnly = false, openWidget }
     
     setIsLoading(true);
     try {
+      console.log('🔵 Loading documents for user:', userId);
       // Einfache Abfrage ohne komplexe Filter
       const { data, error } = await supabase
         .from('user_documents')
         .select('*')
-        .eq('user_id', userId);
+        .eq('user_id', userId)
+        .order('uploaded_at', { ascending: false });
 
       if (error) {
         console.error('Error loading documents:', error);
@@ -52,6 +55,7 @@ export function WeitereDokumenteSection({ userId, readOnly = false, openWidget }
         return;
       }
 
+      console.log('🔵 Loaded documents:', data);
       setDocuments(data || []);
     } catch (error) {
       console.error('Error loading documents:', error);
@@ -61,10 +65,10 @@ export function WeitereDokumenteSection({ userId, readOnly = false, openWidget }
     }
   };
 
-  // Initial load
+  // Initial load and reload on refresh trigger
   useEffect(() => {
     loadDocuments();
-  }, [userId]);
+  }, [userId, refreshTrigger]);
 
   // Download/Vorschau
   const handleDownload = async (doc: UserDocument) => {
