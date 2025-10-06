@@ -29,13 +29,26 @@ const Auth = () => {
       // Check if user is a company user and redirect accordingly
       const checkUserTypeAndRedirect = async () => {
         try {
-          const { data: companyUser } = await supabase
+          const { data: companyUsers } = await supabase
             .from('company_users')
             .select('company_id')
-            .eq('user_id', user.id)
-            .single();
+            .eq('user_id', user.id);
 
-          if (companyUser) {
+          const isCompany = companyUsers && companyUsers.length > 0;
+          const hasIsCompanyMeta = user.user_metadata?.is_company === true || 
+                                  user.user_metadata?.is_company === 'true';
+
+          // If user has is_company metadata but no company_users entry
+          if (hasIsCompanyMeta && !isCompany) {
+            toast({
+              title: "Registrierung unvollständig",
+              description: "Bitte vervollständigen Sie Ihre Unternehmensregistrierung.",
+            });
+            navigate('/signup/company');
+            return;
+          }
+
+          if (isCompany) {
             navigate('/company/dashboard');
           } else {
             navigate('/dashboard');
@@ -148,6 +161,18 @@ const Auth = () => {
           .limit(1);
         
         const isCompany = companyUsers && companyUsers.length > 0;
+        const hasIsCompanyMeta = data.user.user_metadata?.is_company === true || 
+                                data.user.user_metadata?.is_company === 'true';
+        
+        // If user has is_company metadata but no company_users entry
+        if (hasIsCompanyMeta && !isCompany) {
+          toast({
+            title: "Registrierung unvollständig",
+            description: "Bitte vervollständigen Sie Ihre Unternehmensregistrierung.",
+          });
+          window.location.href = '/signup/company';
+          return;
+        }
         
         // For company users, check if they need to complete company setup
         if (isCompany) {
@@ -158,7 +183,7 @@ const Auth = () => {
             .from('profiles')
             .select('id')
             .eq('id', data.user.id)
-            .single();
+            .maybeSingle();
           
           // Only redirect to dashboard if profile exists
           window.location.href = profile ? '/dashboard' : '/cv-generator';

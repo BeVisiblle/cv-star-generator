@@ -117,6 +117,10 @@ function CompanyProtectedRoute({ children }: { children: React.ReactNode }) {
       try {
         console.log('🔍 Checking company user for:', user.id, 'Email:', user.email);
         
+        // Check user metadata first (fallback)
+        const hasIsCompanyMeta = user.user_metadata?.is_company === true || 
+                                user.user_metadata?.is_company === 'true';
+        
         // EINFACHE, ROBUSTE ABFRAGE - ohne komplexe Filter
         const { data: companyUsers, error } = await supabase
           .from('company_users')
@@ -124,12 +128,13 @@ function CompanyProtectedRoute({ children }: { children: React.ReactNode }) {
           .eq('user_id', user.id);
 
         console.log('📊 Company users found:', companyUsers, 'Error:', error);
+        console.log('📊 User metadata is_company:', hasIsCompanyMeta);
 
         if (error) {
           console.error('❌ Supabase error:', error);
-          // Bei Fehler: Prüfe spezielle Email-Adressen
-          if (user.email === 'team@ausbildungsbasis.de') {
-            console.log('✅ Special email detected - granting company access');
+          // Bei Fehler: Fallback auf metadata check
+          if (hasIsCompanyMeta) {
+            console.log('✅ is_company metadata detected - granting company access');
             setUserType('company');
           } else {
             setUserType('not_company');
@@ -145,10 +150,10 @@ function CompanyProtectedRoute({ children }: { children: React.ReactNode }) {
             setUserType('not_company');
           }
         } else {
-          // Keine Company-User gefunden - Prüfe spezielle Email-Adressen
-          if (user.email === 'team@ausbildungsbasis.de') {
-            console.log('✅ Special email detected - granting company access');
-            setUserType('company');
+          // Keine Company-User gefunden - Prüfe metadata
+          if (hasIsCompanyMeta) {
+            console.log('⚠️ User has is_company metadata but no company_users entry - needs to complete registration');
+            setUserType('not_company');
           } else {
             console.log('❌ User is NOT company user');
             setUserType('not_company');
@@ -156,13 +161,7 @@ function CompanyProtectedRoute({ children }: { children: React.ReactNode }) {
         }
       } catch (error) {
         console.error('❌ Error checking company access:', error);
-        // Bei Fehler: Prüfe spezielle Email-Adressen
-        if (user.email === 'team@ausbildungsbasis.de') {
-          console.log('✅ Special email detected - granting company access');
-          setUserType('company');
-        } else {
-          setUserType('not_company');
-        }
+        setUserType('not_company');
       }
       setIsLoading(false);
     }
