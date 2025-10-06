@@ -27,7 +27,7 @@ const CARDS: InteractionCard[] = [
     description:
       'Bleib mit Kolleg:innen, Teams oder deiner Klasse verbunden. Teile Wissen, plane Schichten und starte Lernrunden – ohne Plattform-Stress.',
     image: '/assets/feature-2.png',
-    link: '/community',
+    link: '/auth',
     cta: 'Community ansehen'
   },
   {
@@ -38,15 +38,6 @@ const CARDS: InteractionCard[] = [
     image: '/assets/feature-3.png',
     link: '/jobs',
     cta: 'Jobs entdecken'
-  },
-  {
-    title: 'Digitale Vernetzung',
-    subtitle: 'Immer verbunden',
-    description:
-      'Vernetze dich mit Gleichgesinnten, baue dein berufliches Netzwerk aus und bleibe mit allen wichtigen Kontakten in Verbindung.',
-    image: '/assets/feature-2.png',
-    link: '/community',
-    cta: 'Mehr erfahren'
   }
 ];
 
@@ -64,64 +55,70 @@ export default function SmartInteractions() {
 
   return (
     <div className="mx-auto max-w-6xl px-4">
-      <div className="text-center max-w-3xl mx-auto mb-12">
-        <h2 className="text-3xl md:text-5xl font-bold text-foreground leading-tight">
-          Getting Started with BeVisiblle
+      <div className="text-center max-w-3xl mx-auto">
+        <h2 className="text-3xl md:text-4xl font-semibold text-foreground leading-tight">
+          Smart, wenn du es brauchst.
         </h2>
-        <p className="mt-4 text-base md:text-lg text-muted-foreground">
-          Starte deine Reise mit BeVisiblle – einfache Anmeldung, benutzerfreundliche Oberfläche und nahtlose Navigation erwarten dich!
+        <p className="mt-3 text-sm md:text-base text-muted-foreground">
+          BeVisiblle verbindet Lebenslauf, Community und Jobs in einem Flow – du entscheidest, womit du startest.
         </p>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-[1fr,auto] items-center">
-        {/* Cards Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {CARDS.map((card, idx) => {
-            const isActive = idx === activeIndex;
-            return (
-              <button
-                key={card.title}
-                onClick={() => setActiveIndex(idx)}
-                className={cn(
-                  'relative rounded-3xl px-6 py-6 text-left transition-all duration-300',
-                  isActive
-                    ? 'bg-primary text-primary-foreground shadow-[0_18px_40px_rgba(81,112,255,0.30)]'
-                    : 'bg-card text-card-foreground hover:bg-card/80 shadow-sm'
-                )}
-              >
-                <div className="flex items-start gap-4">
-                  <span
-                    className={cn(
-                      'flex h-12 w-12 items-center justify-center rounded-full text-lg font-bold transition-all',
-                      isActive
-                        ? 'bg-primary-foreground text-primary'
-                        : 'bg-primary/10 text-primary'
-                    )}
-                  >
-                    {idx + 1}
-                  </span>
-                  <div className="flex-1 min-w-0">
-                    <h3 className={cn('text-lg font-semibold', isActive ? 'text-primary-foreground' : 'text-foreground')}>
-                      {card.title}
-                    </h3>
-                    <p className={cn('mt-2 text-sm leading-relaxed', isActive ? 'text-primary-foreground/90' : 'text-muted-foreground')}>
-                      {card.description}
-                    </p>
+      <div className="mt-10 grid gap-10 lg:grid-cols-[minmax(0,1.2fr),minmax(0,0.8fr)] items-center">
+        {/* Copy + cards */}
+        <div className="space-y-6">
+
+          <div className="space-y-3">
+            {CARDS.map((card, idx) => {
+              const isActive = idx === activeIndex;
+              return (
+                <button
+                  key={card.title}
+                  onClick={() => setActiveIndex(idx)}
+                  className={cn(
+                    'w-full rounded-3xl px-6 py-5 text-left transition duration-300 backdrop-blur',
+                    isActive
+                      ? 'bg-card shadow-[0_18px_40px_rgba(81,112,255,0.20)] border border-[#e7e7ff]'
+                      : 'bg-card/50 text-muted-foreground hover:bg-card/80 border border-transparent'
+                  )}
+                >
+                  <div className="flex items-center justify-between gap-4">
+                    <div>
+                      <span className="text-xs uppercase tracking-[0.35em] text-muted-foreground">{card.subtitle}</span>
+                      <h3 className={cn('mt-2 text-lg font-semibold', isActive ? 'text-card-foreground' : 'text-muted-foreground')}>
+                        {card.title}
+                      </h3>
+                    </div>
+                    <span
+                      className={cn(
+                        'inline-flex h-10 w-10 items-center justify-center rounded-full border text-sm font-semibold transition',
+                        isActive ? 'border-card-foreground text-card-foreground' : 'border-border text-muted-foreground'
+                      )}
+                    >
+                      {String(idx + 1).padStart(2, '0')}
+                    </span>
                   </div>
-                </div>
-              </button>
-            );
-          })}
+                  <p className={cn('mt-3 text-sm leading-relaxed', isActive ? 'text-muted-foreground' : 'text-muted-foreground/80')}>
+                    {card.description}
+                  </p>
+                </button>
+              );
+            })}
+          </div>
         </div>
 
-        {/* Phone Mockup */}
-        <div className="relative flex justify-center lg:justify-end">
-          <div className="relative w-full max-w-[300px]">
-            <img 
-              src={activeCard.image} 
-              alt={activeCard.title} 
-              className="w-full h-auto object-contain rounded-[32px] shadow-[0_24px_50px_rgba(81,112,255,0.20)]" 
-            />
+        {/* Visual */}
+        <div className="relative overflow-hidden rounded-[32px] bg-card shadow-[0_24px_50px_rgba(81,112,255,0.15)] max-h-[430px]">
+          <img src={activeCard.image} alt={activeCard.title} className="h-full w-full object-cover object-top" />
+          <div className="absolute inset-0 bg-gradient-to-br from-black/25 via-transparent to-transparent" />
+          <div className="absolute bottom-4 right-4">
+            <Link
+              to={activeCard.link || '/auth'}
+              className="inline-flex items-center gap-2 rounded-full bg-card px-5 py-2 text-sm font-semibold text-card-foreground shadow-md transition hover:bg-background"
+            >
+              {activeCard.cta || 'Mehr erfahren'}
+              <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-card-foreground text-card text-xs">→</span>
+            </Link>
           </div>
         </div>
       </div>
