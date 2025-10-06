@@ -7758,7 +7758,7 @@ export type Database = {
         Returns: number
       }
       is_company_admin: {
-        Args: { check_company_id: string }
+        Args: { _company_id: string }
         Returns: boolean
       }
       is_company_member: {
