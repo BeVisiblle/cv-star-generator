@@ -90,7 +90,6 @@ export default function CommunityFeed({ feedHeadHeight = 0 }: CommunityFeedProps
           body_md: post.content || '',
           image_url: post.image_url || null,
           media: post.image_url ? [{ url: post.image_url }] : [],
-          status: post.status || 'published',
           visibility: 'public',
           user_id: post.user_id,
           actor_user_id: post.user_id,

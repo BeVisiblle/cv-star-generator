@@ -10,12 +10,17 @@ export function useCompanyInterest(targetUserId?: string) {
   const [interested, setInterested] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  // Determine acting company (first one via rpc)
+  // Determine acting company (fetch from company_users)
   useEffect(() => {
     const load = async () => {
       if (!user) return;
-      const { data, error } = await supabase.rpc('get_user_company_id');
-      if (!error && data) setCompanyId(data as string);
+      const { data, error } = await supabase
+        .from('company_users')
+        .select('company_id')
+        .eq('user_id', user.id)
+        .limit(1)
+        .maybeSingle();
+      if (!error && data) setCompanyId(data.company_id);
     };
     load();
   }, [user]);

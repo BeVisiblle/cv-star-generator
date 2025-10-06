@@ -9,7 +9,22 @@ import { useAuth } from '@/hooks/useAuth';
 import { useState, useEffect } from 'react';
 import { LogoSpinner } from '@/components/shared/LoadingSkeleton';
 
-type PostWithAuthor = any;
+type PostWithAuthor = {
+  id: string;
+  content: string;
+  image_url?: string;
+  created_at: string;
+  user_id: string;
+  author_type?: "company" | "user";
+  author_id?: string;
+  recent_interaction?: string;
+  like_count?: number;
+  comment_count?: number;
+  share_count?: number;
+  author?: any;
+  company?: any;
+  [key: string]: any;
+};
 
 const PAGE_SIZE = 20;
 
@@ -170,7 +185,7 @@ export default function CommunityFeed({ feedHeadHeight = 0 }: CommunityFeedProps
             });
 
             if (author) {
-              post.author = {
+              (post as any).author = {
                 id: author.id,
                 vorname: author.vorname,
                 nachname: author.nachname,
@@ -231,7 +246,7 @@ export default function CommunityFeed({ feedHeadHeight = 0 }: CommunityFeedProps
         feedHeadHeight={feedHeadHeight}
       />
       
-      {posts.map((post) => (
+      {posts.map((post: any) => (
         <PostCard key={post.id} post={post} />
       ))}
       

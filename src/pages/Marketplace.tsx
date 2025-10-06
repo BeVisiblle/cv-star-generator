@@ -155,9 +155,9 @@ export default function Marketplace() {
   const postsQuery = useQuery<Post[]>({
     queryKey: ['mp-posts', appliedQ, morePosts],
     queryFn: async () => {
-      let qy = supabase.from('posts').select('id, content, image_url, user_id').eq('status', 'published');
+      let qy = supabase.from('posts').select('id, content, image_url, user_id, created_at');
       if (appliedQ) qy = qy.ilike('content', `%${appliedQ}%`);
-      else qy = qy.order('published_at', { ascending: false });
+      else qy = qy.order('created_at', { ascending: false });
       const { data, error } = await qy.limit(morePosts ? 18 : 6);
       if (error) throw error;
       return (data || []) as Post[];

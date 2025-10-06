@@ -76,15 +76,15 @@ const SearchAutosuggestCompany: React.FC<Props> = ({ query, open, onSelect }) =>
           setPosts((postRows || []).map((r: any) => ({ id: r.id, label: r.content?.slice(0, 60) || "Beitrag" })));
         }
 
-        // Jobs (aus allgemeinem Posts-Stream von Unternehmen)
+        // Jobs (aus job_posts)
         const { data: jobRows } = await supabase
-          .from("posts")
-          .select("id, content, link_url, author_type")
-          .eq("author_type", "company")
-          .ilike("content", `%${q}%`)
+          .from("job_posts")
+          .select("id, title")
+          .eq("is_active", true)
+          .ilike("title", `%${q}%`)
           .limit(5);
         if (!cancelled) {
-          setJobs((jobRows || []).map((r: any) => ({ id: r.id, label: r.content?.slice(0, 60) || "Jobangebot" })));
+          setJobs((jobRows || []).map((r: any) => ({ id: r.id, label: r.title || "Jobangebot" })));
         }
 
         // Freigeschaltete Kandidaten (falls verfügbar)
