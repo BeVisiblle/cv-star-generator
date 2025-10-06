@@ -2,12 +2,11 @@ import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { Building2, Mail, Phone, Globe, User, Lock, ArrowRight, ArrowLeft, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
@@ -65,77 +64,84 @@ export default function CompanySignup() {
 
   const onSubmit = async () => {
     if (!isStep2Valid()) return;
-
     setIsSubmitting(true);
 
     try {
       if (usePassword) {
         // Password-based signup
-        const { data, error } = await supabase.auth.signUp({
+        const { data: authData, error: authError } = await supabase.auth.signUp({
           email: form.email,
           password: form.password,
           options: {
-            emailRedirectTo: `${window.location.origin}/company/onboarding`,
+            emailRedirectTo: `${window.location.origin}/company/dashboard`,
             data: {
-              company_name: form.companyName,
               first_name: form.adminFirst,
               last_name: form.adminLast,
-              phone: form.phone,
-              industry: form.industry,
-              size: form.size,
-              city: form.city,
-              country: form.country,
-              website: form.website,
-              legal_form: form.legalForm,
               role: 'company-admin'
             }
           }
         });
 
-        if (error) {
-          console.error('Signup error:', error);
+        if (authError) {
           toast({
             title: "Fehler bei der Registrierung",
-            description: error.message,
+            description: authError.message,
             variant: "destructive"
           });
           return;
         }
 
+        // Create company record
+        if (authData.user) {
+          const { error: companyError } = await supabase.from('companies').insert({
+            name: form.companyName,
+            primary_email: form.email,
+            industry: form.industry,
+            size_range: form.size,
+            main_location: form.city,
+            country: form.country,
+            website_url: form.website,
+            contact_person: `${form.adminFirst} ${form.adminLast}`,
+            phone: form.phone,
+            account_status: 'pending'
+          });
+
+          if (companyError) {
+            console.error('Company creation error:', companyError);
+          }
+        }
+
         toast({
           title: "Erfolgreich registriert!",
-          description: "Bitte bestätigen Sie Ihre E-Mail-Adresse. Wir haben Ihnen einen Bestätigungslink gesendet.",
+          description: "Bitte bestätigen Sie Ihre E-Mail-Adresse.",
         });
         
-        // Wait a bit before redirecting
-        setTimeout(() => {
-          navigate('/company/onboarding');
-        }, 2000);
+        setTimeout(() => navigate('/company/dashboard'), 2000);
 
       } else {
         // Magic link signup
-        const { data, error } = await supabase.auth.signInWithOtp({
+        const { error } = await supabase.auth.signInWithOtp({
           email: form.email,
           options: {
-            emailRedirectTo: `${window.location.origin}/company/onboarding`,
+            emailRedirectTo: `${window.location.origin}/company/dashboard`,
             data: {
-              company_name: form.companyName,
               first_name: form.adminFirst,
               last_name: form.adminLast,
-              phone: form.phone,
-              industry: form.industry,
-              size: form.size,
-              city: form.city,
-              country: form.country,
-              website: form.website,
-              legal_form: form.legalForm,
-              role: 'company-admin'
+              role: 'company-admin',
+              company_data: {
+                name: form.companyName,
+                industry: form.industry,
+                size: form.size,
+                city: form.city,
+                country: form.country,
+                website: form.website,
+                phone: form.phone
+              }
             }
           }
         });
 
         if (error) {
-          console.error('Magic link error:', error);
           toast({
             title: "Fehler beim Versenden",
             description: error.message,
@@ -146,14 +152,12 @@ export default function CompanySignup() {
 
         toast({
           title: "Magic Link versendet!",
-          description: "Bitte überprüfen Sie Ihren Posteingang und klicken Sie auf den Link, um sich anzumelden.",
+          description: "Bitte überprüfen Sie Ihren Posteingang.",
         });
         
-        // Show success message
-        setStep(3); // You could add a step 3 for success message
+        setStep(3);
       }
     } catch (error: any) {
-      console.error('Unexpected error:', error);
       toast({
         title: "Unerwarteter Fehler",
         description: "Bitte versuchen Sie es erneut.",
@@ -165,53 +169,71 @@ export default function CompanySignup() {
   };
 
   return (
-    <div className="min-h-screen bg-neutral-100">
-      {/* Header */}
-      <header className="border-b bg-white/80 backdrop-blur sticky top-0 z-20">
-        <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="h-9 w-9 rounded-xl bg-black/90" />
-            <span className="font-semibold">Ausbildungsbasis – Unternehmen</span>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+      {/* Header from Company Landing */}
+      <header className="fixed top-4 left-0 right-0 z-50">
+        <nav className="mx-auto max-w-5xl px-4">
+          <div className="bg-white/90 backdrop-blur rounded-full shadow-sm border px-3 py-2">
+            <div className="flex items-center justify-between gap-2">
+              <Link to="/" className="flex items-center gap-2 pl-1">
+                <img src="/assets/Logo_visiblle_1.png" alt="BeVisiblle" className="h-12 w-auto" />
+              </Link>
+
+              <nav className="hidden md:flex items-center gap-1">
+                <Link to="/cv-generator" className="rounded-md px-3 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50">
+                  Lebenslauf
+                </Link>
+                <Link to="/company" className="rounded-md px-3 py-2 text-sm font-medium text-[#5170ff] hover:bg-blue-50">
+                  Unternehmen
+                </Link>
+                <Link to="/about" className="rounded-md px-3 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50">
+                  Über uns
+                </Link>
+              </nav>
+
+              <div className="flex items-center gap-2">
+                <Link to="/auth" className="hidden sm:inline-flex rounded-md px-3 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50">
+                  Login
+                </Link>
+              </div>
+            </div>
           </div>
-          <div className="text-sm text-neutral-500">Bereits registriert? <a className="underline" href="/auth">Einloggen</a></div>
-        </div>
+        </nav>
       </header>
 
-      <main className="max-w-6xl mx-auto p-4 md:p-8">
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4 }}
-          className="grid md:grid-cols-2 gap-6"
-        >
-          {/* Left visual panel */}
-          <Card className="rounded-2xl shadow-md overflow-hidden">
-            <CardContent className="p-0">
-              <div className="relative h-full min-h-[560px] bg-gradient-to-br from-indigo-400 to-violet-500">
-                <div className="absolute inset-0 p-10 text-white">
-                  <div className="text-sm opacity-80">Ausbildungsbasis</div>
-                  <h2 className="mt-4 text-3xl md:text-4xl font-semibold leading-tight">Recruiting, das zu Ihnen passt.</h2>
-                  <p className="mt-3 max-w-md text-white/85">
-                    Erstellen Sie Ihr Unternehmensprofil, laden Sie Ihr Team ein und kontaktieren Sie passende Kandidat:innen direkt. 
-                    Keine umständlichen Portale – ein klarer Prozess von Sichtbarkeit bis Einstellung.
-                  </p>
-                  <div className="absolute bottom-8 left-10 right-10 text-white/80 text-sm">
-                    Folgen Sie uns auf Instagram · LinkedIn
-                  </div>
-                </div>
-                {/* Illustration blob */}
-                <div className="absolute -right-24 bottom-0 h-64 w-64 md:h-80 md:w-80 bg-white/15 rounded-full blur-2xl" />
+      <main className="pt-32 pb-16 px-4">
+        <div className="max-w-7xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4 }}
+            className="grid md:grid-cols-2 gap-12 items-center"
+          >
+            {/* Left: Image & Content */}
+            <div className="relative">
+              <div className="mb-6">
+                <h1 className="text-4xl md:text-5xl font-bold text-gray-900 leading-tight mb-4">
+                  Recruiting, das zu <span className="text-[#5170ff]">Ihnen</span> passt.
+                </h1>
+                <p className="text-lg text-gray-600">
+                  Erstellen Sie Ihr Unternehmensprofil, laden Sie Ihr Team ein und kontaktieren Sie passende Kandidat:innen direkt.
+                </p>
               </div>
-            </CardContent>
-          </Card>
+              <img 
+                src="/assets/company-mainhero-2.png" 
+                alt="Digitale Vernetzung" 
+                className="w-full h-auto rounded-2xl"
+              />
+            </div>
 
-          {/* Right form panel */}
-          <Card className="rounded-2xl shadow-md">
-            <CardHeader>
-              <CardTitle className="text-2xl">Jetzt registrieren (Unternehmen)</CardTitle>
-              <p className="text-sm text-neutral-500">2 Schritte · Ihre Angaben können später bearbeitet werden.</p>
-            </CardHeader>
-            <CardContent className="space-y-6">
+            {/* Right: Form */}
+            <div className="bg-white rounded-2xl shadow-xl border p-8">
+              <div className="mb-6">
+                <h2 className="text-2xl font-semibold text-gray-900">Jetzt registrieren</h2>
+                <p className="text-sm text-gray-500 mt-1">2 Schritte · Ihre Angaben können später bearbeitet werden</p>
+              </div>
+              
+              <div className="space-y-6">
               <div className="flex items-center gap-2 text-sm">
                 <ProgressDot active={step >= 1} label="Unternehmen" />
                 <div className="h-px flex-1 bg-neutral-200" />
@@ -370,9 +392,10 @@ export default function CompanySignup() {
                   </div>
                 </div>
               )}
-            </CardContent>
-          </Card>
-        </motion.div>
+              </div>
+            </div>
+          </motion.div>
+        </div>
       </main>
     </div>
   );
