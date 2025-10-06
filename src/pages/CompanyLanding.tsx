@@ -32,7 +32,7 @@ const pricingTiers = [
     ],
     ctaLabelMonthly: 'Jetzt starten',
     ctaLabelYearly: 'Jährlich buchen',
-    ctaHref: '/company/onboarding'
+    ctaHref: '/signup/company?plan=base'
   },
   {
     id: 'pro',
@@ -49,7 +49,7 @@ const pricingTiers = [
     ],
     ctaLabelMonthly: 'Pro buchen',
     ctaLabelYearly: 'Pro jährlich sichern',
-    ctaHref: '/company/onboarding'
+    ctaHref: '/signup/company?plan=pro'
   },
   {
     id: 'enterprise',
@@ -205,7 +205,7 @@ export default function CompanyLanding() {
 
             <div className="mt-8 flex items-center justify-center gap-4 flex-wrap">
               <Link
-                to="/signup/company"
+                to="/signup/company?plan=free"
                 className="inline-flex items-center gap-2 rounded-full px-8 py-4 text-base font-semibold text-white shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105"
                 style={{
                   background: '#5170ff',
@@ -242,7 +242,7 @@ export default function CompanyLanding() {
           Demo buchen
         </button>
         <Link
-          to="/signup/company"
+          to="/signup/company?plan=free"
           className="inline-flex items-center rounded-full px-8 py-4 text-base font-semibold text-white shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105"
           style={{
             background: '#5170ff',

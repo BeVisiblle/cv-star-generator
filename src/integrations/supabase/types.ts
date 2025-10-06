@@ -1055,7 +1055,9 @@ export type Database = {
           mission_statement: string | null
           name: string
           need_credits: number | null
+          onboarding_checklist: Json | null
           onboarding_completed: boolean | null
+          onboarding_step: number | null
           package_id: string | null
           phone: string | null
           plan: Database["public"]["Enums"]["plan_code"] | null
@@ -1063,9 +1065,11 @@ export type Database = {
           plan_type: string | null
           primary_email: string | null
           seats: number | null
+          selected_plan_id: string | null
           size_range: string | null
           stripe_customer_id: string | null
           subscription_status: string | null
+          target_groups: Json | null
           token_balance: number | null
           updated_at: string | null
           website_url: string | null
@@ -1099,7 +1103,9 @@ export type Database = {
           mission_statement?: string | null
           name: string
           need_credits?: number | null
+          onboarding_checklist?: Json | null
           onboarding_completed?: boolean | null
+          onboarding_step?: number | null
           package_id?: string | null
           phone?: string | null
           plan?: Database["public"]["Enums"]["plan_code"] | null
@@ -1107,9 +1113,11 @@ export type Database = {
           plan_type?: string | null
           primary_email?: string | null
           seats?: number | null
+          selected_plan_id?: string | null
           size_range?: string | null
           stripe_customer_id?: string | null
           subscription_status?: string | null
+          target_groups?: Json | null
           token_balance?: number | null
           updated_at?: string | null
           website_url?: string | null
@@ -1143,7 +1151,9 @@ export type Database = {
           mission_statement?: string | null
           name?: string
           need_credits?: number | null
+          onboarding_checklist?: Json | null
           onboarding_completed?: boolean | null
+          onboarding_step?: number | null
           package_id?: string | null
           phone?: string | null
           plan?: Database["public"]["Enums"]["plan_code"] | null
@@ -1151,9 +1161,11 @@ export type Database = {
           plan_type?: string | null
           primary_email?: string | null
           seats?: number | null
+          selected_plan_id?: string | null
           size_range?: string | null
           stripe_customer_id?: string | null
           subscription_status?: string | null
+          target_groups?: Json | null
           token_balance?: number | null
           updated_at?: string | null
           website_url?: string | null

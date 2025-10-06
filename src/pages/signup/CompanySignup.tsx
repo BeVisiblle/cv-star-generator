@@ -18,6 +18,10 @@ export default function CompanySignup() {
   const [agreeTerms, setAgreeTerms] = useState(false);
   const [allowUpdates, setAllowUpdates] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  // Get plan from URL parameter
+  const urlParams = new URLSearchParams(window.location.search);
+  const selectedPlan = urlParams.get('plan') || 'free';
 
   // Form state
   const [form, setForm] = useState({
@@ -39,7 +43,7 @@ export default function CompanySignup() {
   const update = (k: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, [k]: e.target.value });
 
   const isStep1Valid = () => {
-    const required = ["companyName", "industry", "size", "country", "city", "adminFirst", "adminLast", "phone"] as const;
+    const required = ["companyName", "size", "country", "city", "adminFirst", "adminLast", "phone"] as const;
     const allFilled = required.every((k) => String(form[k]).trim().length > 0);
     return allFilled && agreeTerms;
   };
@@ -96,14 +100,16 @@ export default function CompanySignup() {
           const { error: companyError } = await supabase.from('companies').insert({
             name: form.companyName,
             primary_email: form.email,
-            industry: form.industry,
             size_range: form.size,
             main_location: form.city,
             country: form.country,
             website_url: form.website,
             contact_person: `${form.adminFirst} ${form.adminLast}`,
             phone: form.phone,
-            account_status: 'pending'
+            account_status: 'pending',
+            selected_plan_id: selectedPlan,
+            onboarding_step: 0,
+            onboarding_completed: false
           });
 
           if (companyError) {
@@ -248,9 +254,6 @@ export default function CompanySignup() {
                     </Field>
                     <Field label="Rechtsform (optional)">
                       <Input placeholder="GmbH, AG, e. K." value={form.legalForm} onChange={update("legalForm")} />
-                    </Field>
-                    <Field label="Branche">
-                      <Input placeholder="z. B. Handwerk, Pflege, IT" value={form.industry} onChange={update("industry")} />
                     </Field>
                     <Field label="Unternehmensgröße">
                       <Select onValueChange={(v) => setForm({ ...form, size: v })}>
