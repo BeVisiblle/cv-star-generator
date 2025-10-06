@@ -51,7 +51,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
             if (!abortController.signal.aborted) {
               loadProfile(session.user.id);
             }
-          }, 0);
+          }, 500);
         } else {
           setProfile(null);
           setIsLoading(false);

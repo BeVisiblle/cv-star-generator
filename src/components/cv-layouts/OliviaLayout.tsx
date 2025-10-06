@@ -13,11 +13,12 @@ const OliviaLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) => {
           {(data.profilbild || data.avatar_url) && (
             <div className="mb-6 flex justify-center">
               <div className="w-32 h-32 rounded-full overflow-hidden border-4" style={{ borderColor: 'hsl(30, 20%, 70%)' }}>
-                <ProfileImage 
-                  profilbild={data.profilbild} 
-                  avatar_url={data.avatar_url} 
-                  size="full"
-                />
+            <ProfileImage
+              profilbild={data.profilbild}
+              avatar_url={data.avatar_url}
+              size="full"
+              className="rounded-full"
+            />
               </div>
             </div>
           )}

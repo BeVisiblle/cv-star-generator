@@ -240,7 +240,7 @@ export const ProfileImage: React.FC<{
   if (!imageSrc) return null;
   
   return (
-    <div className={`${sizeClasses[size]} rounded-full overflow-hidden bg-muted flex-shrink-0 ${className}`}>
+    <div className={`${sizeClasses[size]} overflow-hidden bg-muted flex-shrink-0 ${className}`}>
       <img
         src={imageSrc}
         alt="Profilbild"

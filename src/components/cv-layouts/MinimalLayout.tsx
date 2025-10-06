@@ -9,7 +9,7 @@ const MinimalLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) => {
       {/* Header Section */}
       <div className={`p-8 border-b-2 border-[hsl(${colors.primary})]`}>
         <div className="flex items-center gap-6">
-          <ProfileImage profilbild={data.profilbild} avatar_url={data.avatar_url} size="md" className="border border-gray-200" />
+          <ProfileImage profilbild={data.profilbild} avatar_url={data.avatar_url} size="md" className="rounded-full border border-gray-200" />
           <div className="flex-1">
             <h1 className="text-3xl font-light text-gray-900 mb-2 tracking-wide">
               {data.vorname} <span className="font-medium">{data.nachname}</span>

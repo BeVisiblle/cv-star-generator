@@ -9,7 +9,7 @@ const ProfessionalLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) =
       {/* Header Section */}
       <div className={`p-8 border-b-2 border-[hsl(${colors.primary})]`}>
         <div className="flex items-center gap-6">
-          <ProfileImage profilbild={data.profilbild} avatar_url={data.avatar_url} size="lg" className="border-2 border-gray-300" />
+          <ProfileImage profilbild={data.profilbild} avatar_url={data.avatar_url} size="lg" className="rounded-lg border-2 border-gray-300" />
           <div className="flex-1">
             <h1 className="text-3xl font-semibold text-gray-900 mb-2">
               {data.vorname} {data.nachname}

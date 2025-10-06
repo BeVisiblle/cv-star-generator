@@ -13,11 +13,12 @@ const JohannaLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) => {
           {(data.profilbild || data.avatar_url) && (
             <div className="mb-6 flex justify-center">
               <div className="w-36 h-36 rounded-full overflow-hidden border-4 border-white shadow-lg">
-                <ProfileImage 
-                  profilbild={data.profilbild} 
-                  avatar_url={data.avatar_url} 
-                  size="full"
-                />
+            <ProfileImage
+              profilbild={data.profilbild}
+              avatar_url={data.avatar_url}
+              size="full"
+              className="rounded-full"
+            />
               </div>
             </div>
           )}

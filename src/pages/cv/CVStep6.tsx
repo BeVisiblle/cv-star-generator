@@ -25,7 +25,6 @@ const CVStep6 = () => {
   const { formData, setCurrentStep, isLayoutEditMode, setLayoutEditMode } = useCVForm();
   const navigate = useNavigate();
   const { profile } = useAuth();
-  const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
 
   // DEBUG: Log formData on mount and when it changes
   useEffect(() => {
@@ -103,92 +102,13 @@ const CVStep6 = () => {
     }
   };
 
-  const handleGeneratePDF = async () => {
-    try {
-      setIsGeneratingPDF(true);
-      
-      // Check if we have enough data to generate a CV
-      if (!formData.vorname || !formData.nachname) {
-        toast.error('Vor- und Nachname sind für die CV-Generierung erforderlich.');
-        return;
-      }
-
-      console.log('🔵 Starting PDF generation with layout:', selected, getLayoutName());
-
-      // Create temporary container for CV rendering
-      const tempContainer = document.createElement('div');
-      tempContainer.style.position = 'absolute';
-      tempContainer.style.left = '-9999px';
-      tempContainer.style.top = '0';
-      tempContainer.style.backgroundColor = 'white';
-      tempContainer.style.width = '210mm';
-      tempContainer.style.minHeight = '297mm';
-      document.body.appendChild(tempContainer);
-
-      // Create and render CV element with selected layout
-      const React = await import('react');
-      const ReactDOM = await import('react-dom/client');
-      const cvElement = React.createElement(LayoutComponent, { data });
-      const root = ReactDOM.createRoot(tempContainer);
-      root.render(cvElement);
-
-      // Wait for rendering
-      await new Promise(resolve => setTimeout(resolve, 1500));
-
-      // Find ONLY the CV preview element (not the whole page!)
-      const cvPreviewElement = tempContainer.querySelector('[data-cv-preview]') as HTMLElement;
-      if (!cvPreviewElement) {
-        console.error('❌ CV preview not found in container');
-        throw new Error('CV preview element not found');
-      }
-
-      console.log('✅ CV element found, generating PDF...');
-
-      // Generate PDF from ONLY the CV element
-      const { jsPDF } = await import('jspdf');
-      const html2canvas = (await import('html2canvas')).default;
-
-      const canvas = await html2canvas(cvPreviewElement, {
-        scale: 2,
-        useCORS: true,
-        logging: false,
-        backgroundColor: '#ffffff'
-      });
-
-      const imgData = canvas.toDataURL('image/png');
-      const pdf = new jsPDF({
-        orientation: 'portrait',
-        unit: 'mm',
-        format: 'a4'
-      });
-
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = pdf.internal.pageSize.getHeight();
-      const imgWidth = canvas.width;
-      const imgHeight = canvas.height;
-      const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight);
-      const imgX = (pdfWidth - imgWidth * ratio) / 2;
-      const imgY = 0;
-
-      pdf.addImage(imgData, 'PNG', imgX, imgY, imgWidth * ratio, imgHeight * ratio);
-
-      // Download PDF
-      const filename = `CV_${formData.vorname}_${formData.nachname}_${getLayoutName()}.pdf`;
-      pdf.save(filename);
-
-      // Clean up
-      root.unmount();
-      document.body.removeChild(tempContainer);
-
-      console.log('✅ PDF generated successfully:', filename);
-
-      toast.success(`CV erfolgreich erstellt: ${filename}`);
-    } catch (error: any) {
-      console.error('❌ Error generating CV:', error);
-      toast.error(error.message || 'Es gab ein Problem beim Erstellen der PDF-Datei.');
-    } finally {
-      setIsGeneratingPDF(false);
-    }
+  const handleGeneratePDF = () => {
+    // Open print page in new window with layout and user data
+    const params = new URLSearchParams({
+      layout: String(selected),
+      userId: profile?.id || ''
+    });
+    window.open(`/cv/print?${params.toString()}`, '_blank');
   };
 
   return (
@@ -207,12 +127,11 @@ const CVStep6 = () => {
           </Button>
           <Button 
             onClick={handleGeneratePDF} 
-            disabled={isGeneratingPDF}
             className="w-full sm:w-auto"
             variant="secondary"
           >
             <Download className="h-4 w-4 mr-2" />
-            {isGeneratingPDF ? 'Wird erstellt...' : 'Als PDF speichern'}
+            Als PDF speichern
           </Button>
           <Button onClick={handleFinish} className="w-full sm:w-auto">
             {isLayoutEditMode ? 'Layout speichern' : 'Weiter zum Download'}

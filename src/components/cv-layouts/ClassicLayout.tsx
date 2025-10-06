@@ -15,7 +15,7 @@ const ClassicLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) => {
         }}
       >
         <div className="flex flex-col md:flex-row items-center gap-4 md:gap-6">
-          <ProfileImage profilbild={data.profilbild} avatar_url={data.avatar_url} size="md" className="border-2 border-white" />
+          <ProfileImage profilbild={data.profilbild} avatar_url={data.avatar_url} size="md" className="rounded-lg border-2 border-white" />
           <div className="flex-1 text-center md:text-left">
             <h1 className="text-2xl md:text-3xl font-serif font-bold mb-2 text-white cv-text-mobile">
               {data.vorname} {data.nachname}

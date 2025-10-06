@@ -61,6 +61,14 @@ export const CVPreviewCard: React.FC<CVPreviewCardProps> = ({
     navigate('/cv-generator');
   };
 
+  const handleDownload = () => {
+    const params = new URLSearchParams({
+      layout: String(profile.layout || 1),
+      userId: profile.id
+    });
+    window.open(`/cv/print?${params.toString()}`, '_blank');
+  };
+
   const renderCVLayout = () => {
     const layout = profile?.layout || 1;
     const commonProps = { data: cvData, className: "scale-50 origin-top-left w-[200%]" };
@@ -141,11 +149,10 @@ export const CVPreviewCard: React.FC<CVPreviewCardProps> = ({
             </Button>
             <Button 
               size="sm" 
-              onClick={onDownload}
-              disabled={isGeneratingPDF}
+              onClick={handleDownload}
             >
               <Download className="h-4 w-4 mr-2" />
-              {isGeneratingPDF ? 'Generiere...' : 'Download'}
+              Download
             </Button>
           </div>
         </div>

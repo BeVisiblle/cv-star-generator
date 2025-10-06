@@ -38,11 +38,12 @@ const KatharinaLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) => {
           {(data.profilbild || data.avatar_url) && (
             <div className="ml-6">
               <div className="w-28 h-28 rounded overflow-hidden border-2" style={{ borderColor: 'hsl(0, 0%, 80%)' }}>
-                <ProfileImage 
-                  profilbild={data.profilbild} 
-                  avatar_url={data.avatar_url} 
-                  size="full"
-                />
+            <ProfileImage
+              profilbild={data.profilbild}
+              avatar_url={data.avatar_url}
+              size="full"
+              className="rounded-full"
+            />
               </div>
             </div>
           )}
