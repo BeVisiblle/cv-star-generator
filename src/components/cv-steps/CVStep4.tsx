@@ -292,12 +292,24 @@ const CVStep4 = () => {
       if (error) throw error;
 
       if (data.success && data.bullets) {
-        const bullets = data.bullets.join('\n• ');
-        updateBerufserfahrungEntry(index, 'beschreibung', `• ${bullets}`);
+        // Clean bullets: Remove any remaining JSON artifacts
+        const cleanBullets = data.bullets.map((bullet: string) => 
+          bullet
+            .replace(/^["'\[\]]+|["'\[\]]+$/g, '') // Remove quotes & brackets
+            .replace(/^[•\-\*\d\.]\s*/, '') // Remove existing bullet symbols
+            .trim()
+        ).filter((b: string) => b.length > 0);
+
+        // Join with bullet points
+        const bulletText = cleanBullets
+          .map((bullet: string) => `• ${bullet}`)
+          .join('\n');
+        
+        updateBerufserfahrungEntry(index, 'beschreibung', bulletText);
         
         toast({
           title: "Erfolgreich",
-          description: "Aufgaben wurden generiert!"
+          description: `${cleanBullets.length} Aufgaben wurden generiert!`
         });
       }
     } catch (error) {

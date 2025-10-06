@@ -30,20 +30,23 @@ serve(async (req) => {
       );
     }
 
-    const prompt = `Du bist ein professioneller CV-Schreiber. Generiere 3 prägnante Bullet Points für folgende Position:
+    const prompt = `Du bist ein professioneller CV-Schreiber für junge Menschen in Deutschland. 
+Generiere 3 prägnante Bullet Points für folgende Position:
 
 Jobtitel: ${jobTitle}
 ${company ? `Unternehmen: ${company}` : ''}
 ${industry ? `Branche: ${industry}` : ''}
 
-Anforderungen:
+ANFORDERUNGEN:
 - Jeder Bullet Point sollte 1-2 Sätze lang sein
 - Fokus auf konkrete Tätigkeiten und Verantwortungen
-- Professionell aber verständlich formuliert
-- Relevant für die Branche
-- Returniere NUR die 3 Bullet Points als Array, keine zusätzlichen Erklärungen
+- Professionell aber verständlich formuliert (kein Marketing-Sprech!)
+- Relevant für die Branche und das Niveau (Ausbildung/Berufseinstieg)
+- Authentisch & bodenständig
 
-Format: ["Bullet 1", "Bullet 2", "Bullet 3"]`;
+WICHTIG: 
+Returniere die 3 Bullet Points als einfache Liste ohne JSON-Formatierung.
+Keine Anführungszeichen, Klammern oder Nummerierungen.`;
 
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
@@ -54,10 +57,30 @@ Format: ["Bullet 1", "Bullet 2", "Bullet 3"]`;
       body: JSON.stringify({
         model: 'google/gemini-2.5-flash',
         messages: [
-          { role: 'system', content: 'Du bist ein professioneller CV-Schreiber.' },
+          { role: 'system', content: 'Du bist ein professioneller CV-Schreiber für junge Menschen in Deutschland.' },
           { role: 'user', content: prompt }
         ],
-        temperature: 0.7,
+        tools: [{
+          type: "function",
+          function: {
+            name: "return_job_bullets",
+            description: "Returniere 3 Bullet Points für Jobbeschreibung",
+            parameters: {
+              type: "object",
+              properties: {
+                bullets: {
+                  type: "array",
+                  items: { type: "string" },
+                  minItems: 3,
+                  maxItems: 3,
+                  description: "Genau 3 Bullet Points als String-Array"
+                }
+              },
+              required: ["bullets"]
+            }
+          }
+        }],
+        tool_choice: { type: "function", function: { name: "return_job_bullets" } }
       }),
     });
 
@@ -79,34 +102,56 @@ Format: ["Bullet 1", "Bullet 2", "Bullet 3"]`;
     }
 
     const data = await response.json();
-    const content = data.choices?.[0]?.message?.content;
-    
-    if (!content) {
-      return new Response(
-        JSON.stringify({ error: 'No response from AI' }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+    let bullets: string[];
+
+    // Try tool calling response first
+    if (data.choices?.[0]?.message?.tool_calls) {
+      try {
+        const toolCall = data.choices[0].message.tool_calls[0];
+        const args = JSON.parse(toolCall.function.arguments);
+        bullets = args.bullets;
+      } catch (e) {
+        console.error('Tool call parsing error:', e);
+        bullets = [];
+      }
+    } else {
+      // Fallback to content parsing
+      const content = data.choices?.[0]?.message?.content;
+      
+      if (!content) {
+        return new Response(
+          JSON.stringify({ error: 'No response from AI' }),
+          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
+      try {
+        // Try parsing as JSON first
+        const parsed = JSON.parse(content);
+        bullets = Array.isArray(parsed) ? parsed : [parsed];
+      } catch {
+        // Split by newlines and clean
+        bullets = content
+          .split('\n')
+          .map((line: string) => line.trim())
+          .filter((line: string) => line.length > 0 && !line.match(/^[\[\]"',]+$/))
+          .map((line: string) => line.replace(/^[•\-\*\d\.]\s*/, '').replace(/^["']|["']$/g, '').trim())
+          .slice(0, 3);
+      }
     }
 
-    // Parse the bullet points
-    try {
-      const bullets = JSON.parse(content);
-      return new Response(
-        JSON.stringify({ bullets, success: true }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    } catch (parseError) {
-      // If parsing fails, split by newlines and clean
-      const bullets = content
-        .split('\n')
-        .filter((line: string) => line.trim())
-        .slice(0, 3);
-      
-      return new Response(
-        JSON.stringify({ bullets, success: true }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+    // Ensure exactly 3 bullets
+    if (bullets.length < 3) {
+      bullets = [
+        ...bullets,
+        ...Array(3 - bullets.length).fill('Weitere Tätigkeiten im Rahmen der Position')
+      ];
     }
+
+    return new Response(
+      JSON.stringify({ bullets: bullets.slice(0, 3), success: true }),
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    );
   } catch (error) {
     console.error('Error in ai-generate-job-bullets:', error);
     return new Response(
