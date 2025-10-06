@@ -153,7 +153,7 @@ function CompanyProtectedRoute({ children }: { children: React.ReactNode }) {
           // Keine Company-User gefunden - Prüfe metadata
           if (hasIsCompanyMeta) {
             console.log('⚠️ User has is_company metadata but no company_users entry - needs to complete registration');
-            setUserType('not_company');
+            setUserType('incomplete_company');
           } else {
             console.log('❌ User is NOT company user');
             setUserType('not_company');
@@ -183,6 +183,11 @@ function CompanyProtectedRoute({ children }: { children: React.ReactNode }) {
   if (!user) {
     console.log('No user - redirecting to auth');
     return <Navigate to="/auth" replace />;
+  }
+
+  if (userType === 'incomplete_company') {
+    console.log('Company user with incomplete signup - redirecting to complete');
+    return <Navigate to="/signup/company?mode=complete" replace />;
   }
 
   if (userType !== 'company') {
