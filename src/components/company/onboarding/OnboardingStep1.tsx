@@ -2,8 +2,6 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-
-import { PLZOrtSelector } from '@/components/shared/PLZOrtSelector';
 import { OnboardingData } from './OnboardingWizard';
 import { useToast } from '@/hooks/use-toast';
 
@@ -57,14 +55,7 @@ export function OnboardingStep1({ data, updateData, onNext }: OnboardingStep1Pro
 
   return (
     <div className="space-y-6">
-      <div className="text-center mb-6">
-        <h2 className="text-2xl font-semibold mb-2">Unternehmensdaten</h2>
-        <p className="text-muted-foreground">
-          Grundlegende Informationen zu Ihrem Unternehmen
-        </p>
-      </div>
-
-      <div className="grid gap-6 md:grid-cols-2">
+      <div className="grid gap-4 md:grid-cols-2">
         <div className="space-y-2">
           <Label htmlFor="companyName">Firmenname *</Label>
           <Input
@@ -76,6 +67,20 @@ export function OnboardingStep1({ data, updateData, onNext }: OnboardingStep1Pro
           />
           {errors.companyName && (
             <p className="text-sm text-destructive">{errors.companyName}</p>
+          )}
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="phone">Telefonnummer *</Label>
+          <Input
+            id="phone"
+            value={data.phone}
+            onChange={(e) => updateData({ phone: e.target.value })}
+            placeholder="+49 123 456789"
+            className={errors.phone ? 'border-destructive' : ''}
+          />
+          {errors.phone && (
+            <p className="text-sm text-destructive">{errors.phone}</p>
           )}
         </div>
 
@@ -95,6 +100,20 @@ export function OnboardingStep1({ data, updateData, onNext }: OnboardingStep1Pro
         </div>
 
         <div className="space-y-2">
+          <Label htmlFor="location">Standort (PLZ + Stadt) *</Label>
+          <Input
+            id="location"
+            value={data.location}
+            onChange={(e) => updateData({ location: e.target.value })}
+            placeholder="z.B. 10115 Berlin"
+            className={errors.location ? 'border-destructive' : ''}
+          />
+          {errors.location && (
+            <p className="text-sm text-destructive">{errors.location}</p>
+          )}
+        </div>
+
+        <div className="space-y-2">
           <Label htmlFor="password">Passwort *</Label>
           <Input
             id="password"
@@ -110,37 +129,19 @@ export function OnboardingStep1({ data, updateData, onNext }: OnboardingStep1Pro
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="phone">Telefonnummer *</Label>
+          <Label htmlFor="confirmPassword">Passwort bestätigen *</Label>
           <Input
-            id="phone"
-            value={data.phone}
-            onChange={(e) => updateData({ phone: e.target.value })}
-            placeholder="+49 123 456789"
-            className={errors.phone ? 'border-destructive' : ''}
+            id="confirmPassword"
+            type="password"
+            placeholder="Passwort wiederholen"
           />
-          {errors.phone && (
-            <p className="text-sm text-destructive">{errors.phone}</p>
-          )}
-        </div>
-
-        <div className="space-y-2">
-          <Label>Standort (PLZ + Stadt) *</Label>
-          <Input
-            value={data.location}
-            onChange={(e) => updateData({ location: e.target.value })}
-            placeholder="z.B. 10115 Berlin"
-            className={errors.location ? 'border-destructive' : ''}
-          />
-          {errors.location && (
-            <p className="text-sm text-destructive">{errors.location}</p>
-          )}
         </div>
       </div>
 
       <div className="flex justify-end pt-6">
         <Button 
           onClick={handleNext}
-          className="bg-[hsl(var(--accent))] hover:bg-[hsl(var(--accent-hover))] text-white px-8"
+          className="w-full bg-primary hover:bg-primary/90 text-primary-foreground px-8"
         >
           Weiter
         </Button>

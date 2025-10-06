@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Progress } from '@/components/ui/progress';
 import { OnboardingStep1 } from './OnboardingStep1';
 import { OnboardingStep2 } from './OnboardingStep2';
 import { OnboardingStep3 } from './OnboardingStep3';
@@ -94,33 +93,62 @@ export function OnboardingWizard() {
   ];
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-4 py-8 max-w-4xl">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold mb-2">
-            Ihr Unternehmensprofil in wenigen Minuten erstellen
-          </h1>
-          <p className="text-muted-foreground">
-            Schritt {currentStep} von 4: {stepTitles[currentStep - 1]}
+    <div className="min-h-screen bg-background flex">
+      {/* Left Side - Branding */}
+      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-primary/90 via-primary to-accent/80 p-12 flex-col justify-between relative overflow-hidden">
+        <div className="relative z-10">
+          <h1 className="text-4xl font-bold text-white mb-2">Norothy</h1>
+          <p className="text-white/90 text-lg">Recruiting Platform</p>
+        </div>
+        
+        <div className="relative z-10">
+          <h2 className="text-5xl font-bold text-white mb-6 leading-tight">
+            Finden Sie die besten<br />Talente für Ihr<br />Unternehmen
+          </h2>
+          <p className="text-white/80 text-lg max-w-md leading-relaxed">
+            Erstellen Sie Ihr Unternehmensprofil in wenigen Minuten und 
+            erhalten Sie Zugang zu qualifizierten Kandidaten, die perfekt 
+            zu Ihren Anforderungen passen.
           </p>
         </div>
 
-        {/* Progress Bar */}
-        <div className="mb-8">
-          <Progress value={progress} className="h-2" />
-          <div className="flex justify-between mt-2 text-sm text-muted-foreground">
-            {stepTitles.map((title, index) => (
-              <span key={index} className={index + 1 <= currentStep ? 'text-primary' : ''}>
-                {index + 1}
-              </span>
-            ))}
-          </div>
-        </div>
+        {/* Decorative elements */}
+        <div className="absolute top-1/4 right-0 w-96 h-96 bg-white/10 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-1/4 left-0 w-64 h-64 bg-accent/20 rounded-full blur-3xl"></div>
+      </div>
 
-        {/* Step Content */}
-        <Card className="mb-8">
-          <CardContent className="p-8">
+      {/* Right Side - Form */}
+      <div className="flex-1 flex items-center justify-center p-8 lg:p-12">
+        <div className="w-full max-w-2xl">
+          {/* Header */}
+          <div className="mb-8">
+            <h1 className="text-3xl font-bold mb-2">
+              Willkommen bei Norothy.
+            </h1>
+            <p className="text-muted-foreground text-lg">
+              Lassen Sie uns beginnen.
+            </p>
+            
+            {/* Progress indicator */}
+            <div className="mt-6 flex items-center gap-2">
+              {stepTitles.map((_, index) => (
+                <div
+                  key={index}
+                  className={`h-2 flex-1 rounded-full transition-colors ${
+                    index + 1 <= currentStep 
+                      ? 'bg-primary' 
+                      : 'bg-muted'
+                  }`}
+                />
+              ))}
+            </div>
+            <p className="text-sm text-muted-foreground mt-2">
+              Schritt {currentStep} von {stepTitles.length}: {stepTitles[currentStep - 1]}
+            </p>
+          </div>
+
+          {/* Step Content */}
+          <div>
             {currentStep === 1 && (
               <OnboardingStep1 
                 data={data} 
@@ -152,14 +180,7 @@ export function OnboardingWizard() {
                 onSkip={() => navigate('/company/dashboard')}
               />
             )}
-          </CardContent>
-        </Card>
-
-        {/* Save & Continue Later */}
-        <div className="text-center">
-          <Button variant="ghost" onClick={() => navigate('/company/dashboard')}>
-            Speichern & später fortfahren
-          </Button>
+          </div>
         </div>
       </div>
     </div>
