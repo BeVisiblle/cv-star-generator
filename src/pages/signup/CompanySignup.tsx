@@ -8,13 +8,17 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 export default function CompanySignup() {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [step, setStep] = useState(1);
   const [usePassword, setUsePassword] = useState(false);
   const [agreeTerms, setAgreeTerms] = useState(false);
   const [allowUpdates, setAllowUpdates] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Form state
   const [form, setForm] = useState({
@@ -62,24 +66,102 @@ export default function CompanySignup() {
   const onSubmit = async () => {
     if (!isStep2Valid()) return;
 
-    // 🔐 TODO: Hook up your auth here
-    // if (!usePassword) {
-    //   await supabase.auth.signInWithOtp({ email: form.email, options: { emailRedirectTo: window.location.origin + "/company/onboarding" } });
-    // } else {
-    //   await supabase.auth.signUp({
-    //     email: form.email,
-    //     password: form.password,
-    //     options: { data: { role: "company-admin", companyName: form.companyName } }
-    //   });
-    // }
+    setIsSubmitting(true);
 
-    // 📦 TODO: Persist step‑1 company profile draft to your DB before/after auth
-    // await saveCompanyDraft({ ...form, allowUpdates, agreeTerms })
+    try {
+      if (usePassword) {
+        // Password-based signup
+        const { data, error } = await supabase.auth.signUp({
+          email: form.email,
+          password: form.password,
+          options: {
+            emailRedirectTo: `${window.location.origin}/company/onboarding`,
+            data: {
+              company_name: form.companyName,
+              first_name: form.adminFirst,
+              last_name: form.adminLast,
+              phone: form.phone,
+              industry: form.industry,
+              size: form.size,
+              city: form.city,
+              country: form.country,
+              website: form.website,
+              legal_form: form.legalForm,
+              role: 'company-admin'
+            }
+          }
+        });
 
-    alert(`Check your inbox${usePassword ? " to verify your account" : " – we sent you a secure sign‑in link"}.`);
-    
-    // For now, redirect to onboarding
-    navigate("/company/onboarding");
+        if (error) {
+          console.error('Signup error:', error);
+          toast({
+            title: "Fehler bei der Registrierung",
+            description: error.message,
+            variant: "destructive"
+          });
+          return;
+        }
+
+        toast({
+          title: "Erfolgreich registriert!",
+          description: "Bitte bestätigen Sie Ihre E-Mail-Adresse. Wir haben Ihnen einen Bestätigungslink gesendet.",
+        });
+        
+        // Wait a bit before redirecting
+        setTimeout(() => {
+          navigate('/company/onboarding');
+        }, 2000);
+
+      } else {
+        // Magic link signup
+        const { data, error } = await supabase.auth.signInWithOtp({
+          email: form.email,
+          options: {
+            emailRedirectTo: `${window.location.origin}/company/onboarding`,
+            data: {
+              company_name: form.companyName,
+              first_name: form.adminFirst,
+              last_name: form.adminLast,
+              phone: form.phone,
+              industry: form.industry,
+              size: form.size,
+              city: form.city,
+              country: form.country,
+              website: form.website,
+              legal_form: form.legalForm,
+              role: 'company-admin'
+            }
+          }
+        });
+
+        if (error) {
+          console.error('Magic link error:', error);
+          toast({
+            title: "Fehler beim Versenden",
+            description: error.message,
+            variant: "destructive"
+          });
+          return;
+        }
+
+        toast({
+          title: "Magic Link versendet!",
+          description: "Bitte überprüfen Sie Ihren Posteingang und klicken Sie auf den Link, um sich anzumelden.",
+        });
+        
+        // Show success message
+        setStep(3); // You could add a step 3 for success message
+      }
+    } catch (error: any) {
+      console.error('Unexpected error:', error);
+      toast({
+        title: "Unerwarteter Fehler",
+        description: "Bitte versuchen Sie es erneut.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -223,33 +305,68 @@ export default function CompanySignup() {
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <Field label="Geschäftliche E‑Mail" icon={<Mail size={16} />}>
-                      <Input className="pl-10" placeholder="name@firma.de" value={form.email} onChange={update("email")} />
+                      <Input className="pl-10" placeholder="name@firma.de" value={form.email} onChange={update("email")} disabled={isSubmitting} />
                     </Field>
                     {usePassword && (
                       <Field label="Passwort" icon={<Lock size={16} />}>
-                        <Input className="pl-10" type="password" placeholder="mind. 8 Zeichen" value={form.password} onChange={update("password")} />
+                        <Input className="pl-10" type="password" placeholder="mind. 8 Zeichen" value={form.password} onChange={update("password")} disabled={isSubmitting} />
                       </Field>
                     )}
                     {usePassword && (
                       <Field label="Passwort bestätigen">
-                        <Input type="password" placeholder="Wiederholen" value={form.passwordConfirm} onChange={update("passwordConfirm")} />
+                        <Input type="password" placeholder="Wiederholen" value={form.passwordConfirm} onChange={update("passwordConfirm")} disabled={isSubmitting} />
                       </Field>
                     )}
                   </div>
 
                   <div className="text-sm text-neutral-600">
                     {usePassword ? (
-                      <button className="underline" onClick={() => setUsePassword(false)}>Lieber ohne Passwort anmelden (Magic‑Link)</button>
+                      <button className="underline" onClick={() => setUsePassword(false)} disabled={isSubmitting}>Lieber ohne Passwort anmelden (Magic‑Link)</button>
                     ) : (
-                      <button className="underline" onClick={() => setUsePassword(true)}>Ich möchte ein Passwort verwenden</button>
+                      <button className="underline" onClick={() => setUsePassword(true)} disabled={isSubmitting}>Ich möchte ein Passwort verwenden</button>
                     )}
                   </div>
 
                   <div className="flex justify-between pt-2">
-                    <Button variant="ghost" onClick={onBack}><ArrowLeft className="mr-2 h-4 w-4" /> Zurück</Button>
-                    <Button disabled={!isStep2Valid()} onClick={onSubmit}>
-                      {usePassword ? "Konto erstellen" : "Magic‑Link senden"}
+                    <Button variant="ghost" onClick={onBack} disabled={isSubmitting}>
+                      <ArrowLeft className="mr-2 h-4 w-4" /> Zurück
                     </Button>
+                    <Button disabled={!isStep2Valid() || isSubmitting} onClick={onSubmit}>
+                      {isSubmitting ? (
+                        <>
+                          <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                          Wird verarbeitet...
+                        </>
+                      ) : (
+                        usePassword ? "Konto erstellen" : "Magic‑Link senden"
+                      )}
+                    </Button>
+                  </div>
+                </div>
+              )}
+
+              {step === 3 && (
+                <div className="space-y-6 text-center py-8">
+                  <div className="mx-auto w-16 h-16 rounded-full bg-green-100 flex items-center justify-center">
+                    <CheckCircle2 className="h-8 w-8 text-green-600" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-semibold mb-2">E-Mail versendet!</h3>
+                    <p className="text-neutral-600">
+                      Wir haben Ihnen einen Magic-Link an <strong>{form.email}</strong> gesendet.
+                    </p>
+                    <p className="text-neutral-600 mt-2">
+                      Bitte überprüfen Sie Ihren Posteingang und klicken Sie auf den Link, um Ihr Konto zu aktivieren.
+                    </p>
+                  </div>
+                  <div className="text-sm text-neutral-500">
+                    <p>Keine E-Mail erhalten?</p>
+                    <button 
+                      className="underline text-primary mt-1"
+                      onClick={() => setStep(2)}
+                    >
+                      Erneut versuchen
+                    </button>
                   </div>
                 </div>
               )}
