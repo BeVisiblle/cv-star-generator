@@ -35,55 +35,7 @@ export function LinkedInProfileSidebar({
 
   return (
     <div className="space-y-4">
-      {/* Skills & Languages Section */}
-      {showLanguagesAndSkills && (
-        <>
-          {profile?.faehigkeiten && profile.faehigkeiten.length > 0 && (
-            <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-lg font-semibold flex items-center gap-2">
-                  <Award className="h-5 w-5" />
-                  Fähigkeiten
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="flex flex-wrap gap-2">
-                  {profile.faehigkeiten.map((skill: string, idx: number) => (
-                    <Badge key={idx} variant="secondary">
-                      {skill}
-                    </Badge>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          )}
-
-          {profile?.sprachen && profile.sprachen.length > 0 && (
-            <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-lg font-semibold flex items-center gap-2">
-                  <Languages className="h-5 w-5" />
-                  Sprachen
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2">
-                  {profile.sprachen.map((lang: any, idx: number) => (
-                    <div key={idx} className="flex justify-between items-center">
-                      <span className="font-medium">{lang.sprache || lang}</span>
-                      {lang.niveau && (
-                        <Badge variant="outline">{lang.niveau}</Badge>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          )}
-        </>
-      )}
-
-      {/* CV Download Section */}
+      {/* CV Download Section - First */}
       {showCVSection && profile && (
         <CVPreviewCard
           profile={profile}
@@ -97,13 +49,58 @@ export function LinkedInProfileSidebar({
         />
       )}
 
-      {/* Weitere Dokumente Section */}
+      {/* Weitere Dokumente Section - Second */}
       <WeitereDokumenteSection
         userId={profile?.id}
         readOnly={readOnly}
         openWidget={() => setIsDocumentWidgetOpen(true)}
         key={documentUpdateTrigger}
       />
+
+      {/* Skills Section - After Ads */}
+      {showLanguagesAndSkills && profile?.faehigkeiten && profile.faehigkeiten.length > 0 && (
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-lg font-semibold flex items-center gap-2">
+              <Award className="h-5 w-5" />
+              Fähigkeiten
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-wrap gap-2">
+              {profile.faehigkeiten.map((skill: string, idx: number) => (
+                <Badge key={idx} variant="secondary">
+                  {skill}
+                </Badge>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Languages Section - After Skills */}
+      {showLanguagesAndSkills && profile?.sprachen && profile.sprachen.length > 0 && (
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-lg font-semibold flex items-center gap-2">
+              <Languages className="h-5 w-5" />
+              Sprachen
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2">
+              {profile.sprachen.map((lang: any, idx: number) => (
+                <div key={idx} className="flex justify-between items-center">
+                  <span className="font-medium">{lang.sprache || lang}</span>
+                  {lang.niveau && (
+                    <Badge variant="outline">{lang.niveau}</Badge>
+                  )}
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Weitere Dokumente Widget Modal */}
       <WeitereDokumenteWidget

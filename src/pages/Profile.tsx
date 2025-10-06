@@ -355,9 +355,6 @@ const Profile = () => {
                 <LinkedInProfileSidebar profile={profile} isEditing={isEditing} onProfileUpdate={handleProfileUpdate} showLanguagesAndSkills={true} showLicenseAndStats={true} showCVSection={true} />
                 <RightRailAd variant="card" size="sm" />
                 <InView rootMargin="300px" placeholder={<div className="h-32 rounded-md bg-muted/50 animate-pulse" />}> 
-                  <PeopleRecommendations limit={3} showMoreLink="/entdecken/azubis" showMore />
-                </InView>
-                <InView rootMargin="300px" placeholder={<div className="h-32 rounded-md bg-muted/50 animate-pulse" />}> 
                   <CompanyRecommendations limit={3} showMoreLink="/entdecken/unternehmen" showMore />
                 </InView>
                 <RightRailAd variant="banner" size="sm" />
