@@ -12,11 +12,21 @@ export const CVGeneratorGate = ({ children }: { children: React.ReactNode }) => 
 
   // If user exists but profile is null, try to refetch once
   React.useEffect(() => {
+    const abortController = new AbortController();
+
     if (user && profile === null && !isRefetching) {
       setIsRefetching(true);
-      refetchProfile().finally(() => setIsRefetching(false));
+      refetchProfile().finally(() => {
+        if (!abortController.signal.aborted) {
+          setIsRefetching(false);
+        }
+      });
     }
-  }, [user, profile, refetchProfile, isRefetching]);
+
+    return () => {
+      abortController.abort();
+    };
+  }, [user, profile]);
 
   if (isLoading) {
     return (

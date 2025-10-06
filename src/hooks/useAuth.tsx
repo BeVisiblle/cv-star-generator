@@ -37,6 +37,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [profile, setProfile] = useState<any | null>(null);
 
   useEffect(() => {
+    let abortController = new AbortController();
+
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
@@ -44,9 +46,11 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         setUser(session?.user ?? null);
         
         // Load profile when user is authenticated
-        if (session?.user) {
+        if (session?.user && !abortController.signal.aborted) {
           setTimeout(() => {
-            loadProfile(session.user.id);
+            if (!abortController.signal.aborted) {
+              loadProfile(session.user.id);
+            }
           }, 0);
         } else {
           setProfile(null);
@@ -60,40 +64,40 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       setSession(session);
       setUser(session?.user ?? null);
       
-      if (session?.user) {
+      if (session?.user && !abortController.signal.aborted) {
         loadProfile(session.user.id);
       } else {
         setIsLoading(false);
       }
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      abortController.abort();
+      subscription.unsubscribe();
+    };
   }, []);
 
   const loadProfile = async (userId: string) => {
     setIsLoading(true);
     try {
-      console.debug('Loading profile');
-      
       const { data: profile, error } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', userId)
         .maybeSingle();
 
-      console.debug('Profile query completed');
-
-      if (error) {
+      if (error && error.message !== 'AbortError: Fetch is aborted') {
         console.error('Error loading profile:', error);
-        console.error('Error details:', error.details, error.hint, error.code);
         setProfile(null);
-      } else {
+      } else if (!error) {
         setProfile(profile);
-        console.debug('Profile loaded');
       }
-    } catch (error) {
-      console.error('Unexpected error loading profile:', error);
-      setProfile(null);
+    } catch (error: any) {
+      // Ignore AbortError - it's expected when component unmounts
+      if (error?.name !== 'AbortError' && error?.message !== 'Fetch is aborted') {
+        console.error('Unexpected error loading profile:', error);
+        setProfile(null);
+      }
     } finally {
       setIsLoading(false);
     }
