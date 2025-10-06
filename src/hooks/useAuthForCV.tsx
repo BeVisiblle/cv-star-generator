@@ -8,10 +8,12 @@ export const useAuthForCV = () => {
   const [profile, setProfile] = useState<any | null>(null);
 
   useEffect(() => {
+    let abortController = new AbortController();
+
     // Get current session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
-      if (session?.user) {
+      if (session?.user && !abortController.signal.aborted) {
         loadProfile(session.user.id);
       }
     });
@@ -20,9 +22,11 @@ export const useAuthForCV = () => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         setUser(session?.user ?? null);
-        if (session?.user) {
+        if (session?.user && !abortController.signal.aborted) {
           setTimeout(() => {
-            loadProfile(session.user.id);
+            if (!abortController.signal.aborted) {
+              loadProfile(session.user.id);
+            }
           }, 100);
         } else {
           setProfile(null);
@@ -30,7 +34,10 @@ export const useAuthForCV = () => {
       }
     );
 
-    return () => subscription.unsubscribe();
+    return () => {
+      abortController.abort();
+      subscription.unsubscribe();
+    };
   }, []);
 
   const loadProfile = async (userId: string) => {
@@ -43,9 +50,14 @@ export const useAuthForCV = () => {
 
       if (!error) {
         setProfile(profile);
+      } else if (error.message !== 'AbortError: Fetch is aborted') {
+        console.error('Error loading profile in CV context:', error);
       }
-    } catch (error) {
-      console.error('Error loading profile in CV context:', error);
+    } catch (error: any) {
+      // Ignore AbortError - it's expected when component unmounts
+      if (error?.name !== 'AbortError' && error?.message !== 'Fetch is aborted') {
+        console.error('Error loading profile in CV context:', error);
+      }
     }
   };
 
