@@ -3,15 +3,20 @@ import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { 
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { 
   Upload, 
   FileText, 
   Eye, 
-  Trash2, 
-  ChevronDown, 
-  ChevronRight
+  Trash2
 } from "lucide-react";
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { DOCUMENT_TYPE_LABELS, type DocType } from '@/lib/document-types';
 
 interface UserDocument {
   id: string;
@@ -34,6 +39,7 @@ interface WeitereDokumenteSectionProps {
 export function WeitereDokumenteSection({ userId, readOnly = false, openWidget, refreshTrigger }: WeitereDokumenteSectionProps) {
   const [documents, setDocuments] = useState<UserDocument[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [showAllModal, setShowAllModal] = useState(false);
 
   // Einfache Funktion zum Laden der Dokumente
   const loadDocuments = async () => {
@@ -132,7 +138,67 @@ export function WeitereDokumenteSection({ userId, readOnly = false, openWidget, 
     return `${parseFloat((bytes / Math.pow(k, i)).toFixed(1))} ${sizes[i]}`;
   };
 
+  // Nur erste 2 Dokumente anzeigen
+  const visibleDocuments = documents.slice(0, 2);
+  const remainingCount = documents.length - 2;
+
+  // Document Card Component (wiederverwendbar)
+  const DocumentCard = ({ doc, showActions = true }: { doc: UserDocument; showActions?: boolean }) => (
+    <div key={doc.id} className="border rounded-lg p-3">
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-3 flex-1 min-w-0">
+          <FileText className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+          <div className="flex-1 min-w-0">
+            <div className="font-medium text-sm truncate" title={doc.original_name}>
+              {doc.original_name}
+            </div>
+            <div className="text-xs text-muted-foreground">
+              {DOCUMENT_TYPE_LABELS[doc.document_type as DocType] || doc.document_type} • {formatFileSize(doc.file_size)}
+            </div>
+          </div>
+        </div>
+        {showActions && (
+          <div className="flex items-center gap-1 flex-shrink-0">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => handleDownload(doc)}
+              className="h-8 w-8 p-0 hover:bg-primary/10"
+              title="Vorschau/Herunterladen"
+            >
+              <Eye className="h-4 w-4" />
+            </Button>
+            {!readOnly && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => handleDelete(doc)}
+                className="h-8 w-8 p-0 text-destructive hover:text-destructive hover:bg-destructive/10"
+                title="Löschen"
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+
   return (
+    <>
+      <Dialog open={showAllModal} onOpenChange={setShowAllModal}>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Alle Dokumente ({documents.length})</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3 mt-4">
+            {documents.map((doc) => (
+              <DocumentCard key={doc.id} doc={doc} />
+            ))}
+          </div>
+        </DialogContent>
+      </Dialog>
     <Card className="w-full">
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
@@ -176,48 +242,24 @@ export function WeitereDokumenteSection({ userId, readOnly = false, openWidget, 
           </div>
         ) : (
           <div className="space-y-3">
-            {documents.map((doc) => (
-              <div key={doc.id} className="border rounded-lg p-3">
-                <div className="flex items-center justify-between gap-3">
-                  <div className="flex items-center gap-3 flex-1 min-w-0">
-                    <FileText className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                    <div className="flex-1 min-w-0">
-                      <div className="font-medium text-sm truncate" title={doc.original_name}>
-                        {doc.original_name}
-                      </div>
-                      <div className="text-xs text-muted-foreground">
-                        {doc.document_type} • {formatFileSize(doc.file_size)}
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-1 flex-shrink-0">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleDownload(doc)}
-                      className="h-8 w-8 p-0 hover:bg-primary/10"
-                      title="Vorschau/Herunterladen"
-                    >
-                      <Eye className="h-4 w-4" />
-                    </Button>
-                    {!readOnly && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleDelete(doc)}
-                        className="h-8 w-8 p-0 text-destructive hover:text-destructive hover:bg-destructive/10"
-                        title="Löschen"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    )}
-                  </div>
-                </div>
-              </div>
+            {visibleDocuments.map((doc) => (
+              <DocumentCard key={doc.id} doc={doc} />
             ))}
+            
+            {remainingCount > 0 && (
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => setShowAllModal(true)}
+                className="w-full mt-2"
+              >
+                {remainingCount} weitere {remainingCount === 1 ? 'Dokument' : 'Dokumente'}
+              </Button>
+            )}
           </div>
         )}
       </CardContent>
     </Card>
+    </>
   );
 }

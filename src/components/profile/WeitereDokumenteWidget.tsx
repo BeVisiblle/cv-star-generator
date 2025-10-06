@@ -101,16 +101,14 @@ export default function WeitereDokumenteWidget({ isOpen, onClose, userId, onDocu
 
       console.log('🔵 File uploaded successfully, saving to database...');
 
-      // Dokument-Info in der Datenbank speichern
-      const documentType = normalizeDocType(selectedDocType);
-      
-      console.log('🔵 Inserting document with normalized type:', documentType);
+      // Dokument-Info in der Datenbank speichern (selectedDocType ist bereits korrekt)
+      console.log('🔵 Inserting document with type:', selectedDocType);
       
       const { error: dbError } = await supabase
         .from('user_documents')
         .insert({
           user_id: userId,
-          document_type: documentType,
+          document_type: selectedDocType,
           filename: fileName,
           original_name: selectedFile.name,
           file_type: fileType,
