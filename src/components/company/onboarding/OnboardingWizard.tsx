@@ -6,7 +6,6 @@ import { Progress } from '@/components/ui/progress';
 import { OnboardingStep1 } from './OnboardingStep1';
 import { OnboardingStep2 } from './OnboardingStep2';
 import { OnboardingStep3 } from './OnboardingStep3';
-import { OnboardingStep4 } from './OnboardingStep4';
 import { OnboardingStep5 } from './OnboardingStep5';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -74,7 +73,7 @@ export function OnboardingWizard() {
   };
 
   const nextStep = () => {
-    setCurrentStep(prev => Math.min(prev + 1, 5));
+    setCurrentStep(prev => Math.min(prev + 1, 4));
   };
 
   const prevStep = () => {
@@ -85,14 +84,13 @@ export function OnboardingWizard() {
     setCurrentStep(step);
   };
 
-  const progress = (currentStep / 5) * 100;
+  const progress = (currentStep / 4) * 100;
 
   const stepTitles = [
     "Unternehmensdaten",
     "Plan wählen", 
-    "Zahlungsdetails",
-    "Unternehmensprofil",
-    "Erstes Anforderungsprofil"
+    "Was suchen Sie?",
+    "Zahlungsdetails"
   ];
 
   return (
@@ -104,7 +102,7 @@ export function OnboardingWizard() {
             Ihr Unternehmensprofil in wenigen Minuten erstellen
           </h1>
           <p className="text-muted-foreground">
-            Schritt {currentStep} von 5: {stepTitles[currentStep - 1]}
+            Schritt {currentStep} von 4: {stepTitles[currentStep - 1]}
           </p>
         </div>
 
@@ -139,27 +137,19 @@ export function OnboardingWizard() {
               />
             )}
             {currentStep === 3 && (
-              <OnboardingStep3 
-                data={data} 
-                onNext={nextStep}
-                onPrev={prevStep}
-                onSkip={() => skipToStep(4)}
-              />
-            )}
-            {currentStep === 4 && (
-              <OnboardingStep4 
-                data={data} 
-                updateData={updateData} 
-                onNext={nextStep}
-                onPrev={prevStep}
-              />
-            )}
-            {currentStep === 5 && (
               <OnboardingStep5 
                 data={data} 
                 updateData={updateData} 
-                onComplete={() => navigate('/company/dashboard')}
+                onNext={nextStep}
                 onPrev={prevStep}
+              />
+            )}
+            {currentStep === 4 && (
+              <OnboardingStep3 
+                data={data} 
+                onNext={() => navigate('/company/dashboard')}
+                onPrev={prevStep}
+                onSkip={() => navigate('/company/dashboard')}
               />
             )}
           </CardContent>

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+
 import { PLZOrtSelector } from '@/components/shared/PLZOrtSelector';
 import { OnboardingData } from './OnboardingWizard';
 import { useToast } from '@/hooks/use-toast';
@@ -16,19 +16,6 @@ interface OnboardingStep1Props {
 export function OnboardingStep1({ data, updateData, onNext }: OnboardingStep1Props) {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const { toast } = useToast();
-
-  const industries = [
-    { value: 'handwerk', label: 'Handwerk' },
-    { value: 'it', label: 'IT & Technik' },
-    { value: 'gesundheit', label: 'Gesundheitswesen' },
-    { value: 'buero', label: 'Büro & Verwaltung' },
-    { value: 'verkauf', label: 'Verkauf & Handel' },
-    { value: 'gastronomie', label: 'Gastronomie & Tourismus' },
-    { value: 'bau', label: 'Bau & Architektur' },
-    { value: 'logistik', label: 'Logistik & Transport' },
-    { value: 'industrie', label: 'Industrie & Produktion' },
-    { value: 'sonstige', label: 'Sonstige' },
-  ];
 
   const validateStep = () => {
     const newErrors: Record<string, string> = {};
@@ -48,9 +35,6 @@ export function OnboardingStep1({ data, updateData, onNext }: OnboardingStep1Pro
     }
     if (!data.phone.trim()) {
       newErrors.phone = 'Telefonnummer ist erforderlich';
-    }
-    if (!data.industry) {
-      newErrors.industry = 'Branche auswählen';
     }
     if (!data.location.trim()) {
       newErrors.location = 'Standort ist erforderlich';
@@ -136,25 +120,6 @@ export function OnboardingStep1({ data, updateData, onNext }: OnboardingStep1Pro
           />
           {errors.phone && (
             <p className="text-sm text-destructive">{errors.phone}</p>
-          )}
-        </div>
-
-        <div className="space-y-2">
-          <Label>Branche *</Label>
-          <Select value={data.industry} onValueChange={(value) => updateData({ industry: value })}>
-            <SelectTrigger className={errors.industry ? 'border-destructive' : ''}>
-              <SelectValue placeholder="Branche auswählen" />
-            </SelectTrigger>
-            <SelectContent className="bg-background border z-50">
-              {industries.map((industry) => (
-                <SelectItem key={industry.value} value={industry.value}>
-                  {industry.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          {errors.industry && (
-            <p className="text-sm text-destructive">{errors.industry}</p>
           )}
         </div>
 

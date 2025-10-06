@@ -16,11 +16,11 @@ import { useToast } from '@/hooks/use-toast';
 interface OnboardingStep5Props {
   data: OnboardingData;
   updateData: (data: Partial<OnboardingData>) => void;
-  onComplete: () => void;
+  onNext: () => void;
   onPrev: () => void;
 }
 
-export function OnboardingStep5({ data, updateData, onComplete, onPrev }: OnboardingStep5Props) {
+export function OnboardingStep5({ data, updateData, onNext, onPrev }: OnboardingStep5Props) {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const { toast } = useToast();
 
@@ -61,13 +61,9 @@ export function OnboardingStep5({ data, updateData, onComplete, onPrev }: Onboar
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleComplete = () => {
+  const handleNext = () => {
     if (validateStep()) {
-      toast({
-        title: "Onboarding abgeschlossen!",
-        description: "Ihr Unternehmensprofil wurde erfolgreich erstellt.",
-      });
-      onComplete();
+      onNext();
     } else {
       toast({
         title: "Bitte alle Pflichtfelder ausfüllen",
@@ -228,10 +224,10 @@ export function OnboardingStep5({ data, updateData, onComplete, onPrev }: Onboar
         </Button>
         
         <Button 
-          onClick={handleComplete}
+          onClick={handleNext}
           className="bg-[hsl(var(--accent))] hover:bg-[hsl(var(--accent-hover))] text-white px-8"
         >
-          Matches anzeigen
+          Weiter
         </Button>
       </div>
     </div>
