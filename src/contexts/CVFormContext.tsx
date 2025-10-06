@@ -266,20 +266,7 @@ export const CVFormProvider = ({ children }: { children: ReactNode }) => {
         }
         break;
       case 3:
-        if (!formData.sprachen || formData.sprachen.length === 0) {
-          errors.sprachen = 'Mindestens eine Sprache ist erforderlich';
-        }
-        // Skills are required for azubi and ausgelernt
-        if ((formData.status === 'azubi' || formData.status === 'ausgelernt') && 
-            (!formData.faehigkeiten || formData.faehigkeiten.length === 0)) {
-          errors.faehigkeiten = 'Mindestens eine Fähigkeit ist erforderlich';
-        }
-        // About me text is required
-        if (!formData.ueberMich || formData.ueberMich.trim() === '') {
-          errors.ueberMich = 'Ein "Über mich"-Text ist erforderlich';
-        }
-        break;
-      case 4:
+        // Step 3: Beruflicher Werdegang & Ausbildung
         if (!formData.schulbildung || formData.schulbildung.length === 0) {
           errors.schulbildung = 'Mindestens ein Schulbildungs-Eintrag ist erforderlich';
         }
@@ -298,6 +285,21 @@ export const CVFormProvider = ({ children }: { children: ReactNode }) => {
           if (!arbeit.ort) errors[`berufserfahrung_${index}_ort`] = 'Ort ist erforderlich';
           if (!arbeit.zeitraum_von) errors[`berufserfahrung_${index}_zeitraum_von`] = 'Start-Datum ist erforderlich';
         });
+        break;
+      case 4:
+        // Step 4: Kenntnisse, Skills & Motivation
+        if (!formData.sprachen || formData.sprachen.length === 0) {
+          errors.sprachen = 'Mindestens eine Sprache ist erforderlich';
+        }
+        // Skills are required for azubi and ausgelernt
+        if ((formData.status === 'azubi' || formData.status === 'ausgelernt') && 
+            (!formData.faehigkeiten || formData.faehigkeiten.length === 0)) {
+          errors.faehigkeiten = 'Mindestens eine Fähigkeit ist erforderlich';
+        }
+        // About me text is required
+        if (!formData.ueberMich || formData.ueberMich.trim() === '') {
+          errors.ueberMich = 'Ein "Über mich"-Text ist erforderlich';
+        }
         break;
       case 5:
         if (!formData.layout) errors.layout = 'Layout-Auswahl ist erforderlich';
