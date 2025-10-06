@@ -2,16 +2,12 @@ import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 
-import ModernLayout from '@/components/cv-layouts/ModernLayout';
-import ClassicLayout from '@/components/cv-layouts/ClassicLayout';
-import CreativeLayout from '@/components/cv-layouts/CreativeLayout';
-import MinimalLayout from '@/components/cv-layouts/MinimalLayout';
-import ProfessionalLayout from '@/components/cv-layouts/ProfessionalLayout';
-import LiveCareerLayout from '@/components/cv-layouts/LiveCareerLayout';
-import ClassicV2Layout from '@/components/cv-layouts/ClassicV2Layout';
-import OliviaLayout from '@/components/cv-layouts/OliviaLayout';
-import JohannaLayout from '@/components/cv-layouts/JohannaLayout';
-import KatharinaLayout from '@/components/cv-layouts/KatharinaLayout';
+import BerlinLayout from '@/components/cv-layouts/BerlinLayout';
+import MuenchenLayout from '@/components/cv-layouts/MuenchenLayout';
+import HamburgLayout from '@/components/cv-layouts/HamburgLayout';
+import KoelnLayout from '@/components/cv-layouts/KoelnLayout';
+import FrankfurtLayout from '@/components/cv-layouts/FrankfurtLayout';
+import DuesseldorfLayout from '@/components/cv-layouts/DuesseldorfLayout';
 import '@/styles/cv.css';
 
 export default function CVPrintPage() {
@@ -95,16 +91,12 @@ export default function CVPrintPage() {
   }
 
   const LayoutComponent =
-    layoutId === 2 ? ClassicLayout :
-    layoutId === 3 ? CreativeLayout :
-    layoutId === 4 ? MinimalLayout :
-    layoutId === 5 ? ProfessionalLayout :
-    layoutId === 6 ? LiveCareerLayout :
-    layoutId === 7 ? ClassicV2Layout :
-    layoutId === 8 ? OliviaLayout :
-    layoutId === 9 ? JohannaLayout :
-    layoutId === 10 ? KatharinaLayout :
-    ModernLayout;
+    layoutId === 2 ? MuenchenLayout :
+    layoutId === 3 ? HamburgLayout :
+    layoutId === 4 ? KoelnLayout :
+    layoutId === 5 ? FrankfurtLayout :
+    layoutId === 6 ? DuesseldorfLayout :
+    BerlinLayout;
 
   return (
     <div className="cv-print-container">

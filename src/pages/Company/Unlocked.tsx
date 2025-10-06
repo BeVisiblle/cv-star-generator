@@ -317,7 +317,7 @@ export default function CompanyUnlocked() {
                               document.body.appendChild(tempContainer);
 
                               // Import CV layout component dynamically
-                              const ProfessionalLayout = (await import('@/components/cv-layouts/ProfessionalLayout')).default;
+                              const BerlinLayout = (await import('@/components/cv-layouts/BerlinLayout')).default;
                               const { mapFormDataToCVData } = await import('@/components/cv-layouts/mapFormDataToCVData');
                               
                               // Create CV data using the correct CVFormData structure
@@ -351,7 +351,7 @@ export default function CompanyUnlocked() {
                               const React = await import('react');
                               const ReactDOM = await import('react-dom/client');
                               
-                              const cvElement = React.createElement(ProfessionalLayout, { 
+                              const cvElement = React.createElement(BerlinLayout, {
                                 data: cvData
                               });
                               const root = ReactDOM.createRoot(tempContainer);
@@ -478,7 +478,7 @@ export default function CompanyUnlocked() {
                               document.body.appendChild(tempContainer);
 
                               // Import CV layout component dynamically
-                              const ProfessionalLayout = (await import('@/components/cv-layouts/ProfessionalLayout')).default;
+                              const BerlinLayout = (await import('@/components/cv-layouts/BerlinLayout')).default;
                               const { mapFormDataToCVData } = await import('@/components/cv-layouts/mapFormDataToCVData');
                               
                                // Create CV data using the correct CVFormData structure

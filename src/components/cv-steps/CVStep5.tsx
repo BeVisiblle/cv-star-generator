@@ -8,86 +8,58 @@ const CVStep5 = () => {
   const layouts = [
     {
       id: 1,
-      name: 'Modern',
-      description: 'Klares Design mit Farbakzenten für IT und moderne Branchen',
-      preview: '📱',
-      color: 'bg-blue-50 border-blue-200'
-    },
-    {
-      id: 2,
-      name: 'Klassisch',
-      description: 'Traditionelles Layout, perfekt für Handwerk und etablierte Unternehmen',
-      preview: '📄',
-      color: 'bg-gray-50 border-gray-200'
-    },
-    {
-      id: 3,
-      name: 'Kreativ',
-      description: 'Auffälliges Design für kreative Bereiche und junge Unternehmen',
-      preview: '🎨',
-      color: 'bg-purple-50 border-purple-200'
-    },
-    {
-      id: 4,
-      name: 'Minimalistisch',
-      description: 'Reduziertes Design mit Fokus auf Inhalt',
-      preview: '⚪',
-      color: 'bg-green-50 border-green-200'
-    },
-    {
-      id: 5,
-      name: 'Professionell',
-      description: 'Seriöses Layout für Gesundheitswesen und Behörden',
-      preview: '🏢',
-      color: 'bg-slate-50 border-slate-200'
-    },
-    {
-      id: 6,
-      name: 'LiveCareer',
-      description: 'A4-optimiertes, kompaktes Layout – ideal für PDF',
-      preview: '🧩',
-      color: 'bg-blue-50 border-blue-200'
-    },
-    {
-      id: 7,
-      name: 'Klassisch V2',
-      description: 'Elegantes 2-Spalten Layout mit Sidebar – Premium-Design für alle Branchen',
-      preview: '📋',
-      color: 'bg-amber-50 border-amber-200'
-    },
-    {
-      id: 8,
-      name: 'Olivia',
-      description: 'Elegantes Sidebar-Layout mit Beige-Tönen – Perfekt für kreative Berufe',
+      name: 'Berlin',
+      description: 'Elegantes Sidebar-Layout mit beige Tönen – Perfekt für kreative Berufe',
       preview: '🎨',
       color: 'bg-amber-50 border-amber-300'
     },
     {
-      id: 9,
-      name: 'Johanna',
+      id: 2,
+      name: 'München',
       description: 'Modernes Layout mit blauer Sidebar – Ideal für IT & Technik',
       preview: '💼',
       color: 'bg-blue-50 border-blue-300'
     },
     {
-      id: 10,
-      name: 'Katharina',
+      id: 3,
+      name: 'Hamburg',
       description: 'Klassisches Timeline-Layout – Übersichtlich für alle Branchen',
       preview: '📅',
       color: 'bg-gray-50 border-gray-300'
+    },
+    {
+      id: 4,
+      name: 'Köln',
+      description: 'Modernes Urban-Layout mit dunkler Sidebar – Professionell für alle Branchen',
+      preview: '🏙️',
+      color: 'bg-slate-50 border-slate-300'
+    },
+    {
+      id: 5,
+      name: 'Frankfurt',
+      description: 'Business-Layout mit hellem Design – Ideal für Verwaltung & Management',
+      preview: '📊',
+      color: 'bg-stone-50 border-stone-300'
+    },
+    {
+      id: 6,
+      name: 'Düsseldorf',
+      description: 'Harvard Style ohne Foto – Akademisch für Finance & Consulting',
+      preview: '🎓',
+      color: 'bg-neutral-50 border-neutral-300'
     }
   ];
 
   const getRecommendedLayout = () => {
     switch (formData.branche) {
-      case 'handwerk': return 2; // Klassisch
-      case 'it': return 1; // Modern
-      case 'gesundheit': return 5; // Professionell
-      case 'buero': return 7; // Klassisch V2 - NEU!
-      case 'verkauf': return 3; // Kreativ
-      case 'gastronomie': return 3; // Kreativ
-      case 'bau': return 2; // Klassisch
-      default: return 1;
+      case 'handwerk': return 3; // Hamburg - Klassisch Timeline
+      case 'it': return 2; // München - Modern mit blauer Sidebar
+      case 'gesundheit': return 6; // Düsseldorf - Harvard professionell
+      case 'buero': return 5; // Frankfurt - Business clean
+      case 'verkauf': return 1; // Berlin - Kreativ beige
+      case 'gastronomie': return 4; // Köln - Urban freundlich
+      case 'bau': return 3; // Hamburg - Klassisch strukturiert
+      default: return 2;
     }
   };
 

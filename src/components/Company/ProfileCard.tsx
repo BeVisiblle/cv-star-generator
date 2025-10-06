@@ -219,19 +219,19 @@ export function ProfileCard({
 
       // Import CV layouts dynamically
       const [
-        { default: LiveCareerLayout },
-        { default: ClassicLayout },
-        { default: CreativeLayout },
-        { default: MinimalLayout },
-        { default: ProfessionalLayout },
-        { default: ModernLayout }
+        { default: BerlinLayout },
+        { default: MuenchenLayout },
+        { default: HamburgLayout },
+        { default: KoelnLayout },
+        { default: FrankfurtLayout },
+        { default: DuesseldorfLayout }
       ] = await Promise.all([
-        import('@/components/cv-layouts/LiveCareerLayout'),
-        import('@/components/cv-layouts/ClassicLayout'),
-        import('@/components/cv-layouts/CreativeLayout'),
-        import('@/components/cv-layouts/MinimalLayout'),
-        import('@/components/cv-layouts/ProfessionalLayout'),
-        import('@/components/cv-layouts/ModernLayout')
+        import('@/components/cv-layouts/BerlinLayout'),
+        import('@/components/cv-layouts/MuenchenLayout'),
+        import('@/components/cv-layouts/HamburgLayout'),
+        import('@/components/cv-layouts/KoelnLayout'),
+        import('@/components/cv-layouts/FrankfurtLayout'),
+        import('@/components/cv-layouts/DuesseldorfLayout')
       ]);
 
       // Determine layout component
@@ -240,25 +240,25 @@ export function ProfileCard({
       
       switch (layoutId) {
         case 1:
-          LayoutComponent = LiveCareerLayout;
+          LayoutComponent = BerlinLayout;
           break;
         case 2:
-          LayoutComponent = ClassicLayout;
+          LayoutComponent = MuenchenLayout;
           break;
         case 3:
-          LayoutComponent = CreativeLayout;
+          LayoutComponent = HamburgLayout;
           break;
         case 4:
-          LayoutComponent = MinimalLayout;
+          LayoutComponent = KoelnLayout;
           break;
         case 5:
-          LayoutComponent = ProfessionalLayout;
+          LayoutComponent = FrankfurtLayout;
           break;
         case 6:
-          LayoutComponent = ModernLayout;
+          LayoutComponent = DuesseldorfLayout;
           break;
         default:
-          LayoutComponent = LiveCareerLayout;
+          LayoutComponent = BerlinLayout;
       }
 
       // Prepare CV data matching the profile structure

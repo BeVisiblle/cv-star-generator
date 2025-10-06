@@ -7,16 +7,12 @@ import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
-import ModernLayout from '@/components/cv-layouts/ModernLayout';
-import ClassicLayout from '@/components/cv-layouts/ClassicLayout';
-import CreativeLayout from '@/components/cv-layouts/CreativeLayout';
-import MinimalLayout from '@/components/cv-layouts/MinimalLayout';
-import ProfessionalLayout from '@/components/cv-layouts/ProfessionalLayout';
-import LiveCareerLayout from '@/components/cv-layouts/LiveCareerLayout';
-import ClassicV2Layout from '@/components/cv-layouts/ClassicV2Layout';
-import OliviaLayout from '@/components/cv-layouts/OliviaLayout';
-import JohannaLayout from '@/components/cv-layouts/JohannaLayout';
-import KatharinaLayout from '@/components/cv-layouts/KatharinaLayout';
+import BerlinLayout from '@/components/cv-layouts/BerlinLayout';
+import MuenchenLayout from '@/components/cv-layouts/MuenchenLayout';
+import HamburgLayout from '@/components/cv-layouts/HamburgLayout';
+import KoelnLayout from '@/components/cv-layouts/KoelnLayout';
+import FrankfurtLayout from '@/components/cv-layouts/FrankfurtLayout';
+import DuesseldorfLayout from '@/components/cv-layouts/DuesseldorfLayout';
 import { mapFormDataToCVData } from '@/components/cv-layouts/mapFormDataToCVData';
 import { cn } from '@/lib/utils';
 import '@/styles/cv.css';
@@ -51,32 +47,24 @@ const CVStep6 = () => {
   console.log('🔵 CVStep6 - Selected layout (after Number()):', selected);
 
   const LayoutComponent =
-    selected === 2 ? ClassicLayout :
-    selected === 3 ? CreativeLayout :
-    selected === 4 ? MinimalLayout :
-    selected === 5 ? ProfessionalLayout :
-    selected === 6 ? LiveCareerLayout :
-    selected === 7 ? ClassicV2Layout :
-    selected === 8 ? OliviaLayout :
-    selected === 9 ? JohannaLayout :
-    selected === 10 ? KatharinaLayout :
-    ModernLayout;
+    selected === 2 ? MuenchenLayout :
+    selected === 3 ? HamburgLayout :
+    selected === 4 ? KoelnLayout :
+    selected === 5 ? FrankfurtLayout :
+    selected === 6 ? DuesseldorfLayout :
+    BerlinLayout;
 
   console.log('🔵 CVStep6 - LayoutComponent:', LayoutComponent.name);
 
   const getLayoutName = () => {
     switch (selected) {
-      case 1: return 'Modern';
-      case 2: return 'Klassisch';
-      case 3: return 'Kreativ';
-      case 4: return 'Minimalistisch';
-      case 5: return 'Professionell';
-      case 6: return 'LiveCareer';
-      case 7: return 'Klassisch V2';
-      case 8: return 'Olivia';
-      case 9: return 'Johanna';
-      case 10: return 'Katharina';
-      default: return 'Modern';
+      case 1: return 'Berlin';
+      case 2: return 'München';
+      case 3: return 'Hamburg';
+      case 4: return 'Köln';
+      case 5: return 'Frankfurt';
+      case 6: return 'Düsseldorf';
+      default: return 'Berlin';
     }
   };
 

@@ -8,16 +8,12 @@ import { generatePDFFromCV } from '@/lib/pdf-generator';
 import { toast } from 'sonner';
 
 // Import CV layout components
-import ModernLayout from '@/components/cv-layouts/ModernLayout';
-import ClassicLayout from '@/components/cv-layouts/ClassicLayout';
-import CreativeLayout from '@/components/cv-layouts/CreativeLayout';
-import MinimalLayout from '@/components/cv-layouts/MinimalLayout';
-import ProfessionalLayout from '@/components/cv-layouts/ProfessionalLayout';
-import LiveCareerLayout from '@/components/cv-layouts/LiveCareerLayout';
-import ClassicV2Layout from '@/components/cv-layouts/ClassicV2Layout';
-import OliviaLayout from '@/components/cv-layouts/OliviaLayout';
-import JohannaLayout from '@/components/cv-layouts/JohannaLayout';
-import KatharinaLayout from '@/components/cv-layouts/KatharinaLayout';
+import BerlinLayout from '@/components/cv-layouts/BerlinLayout';
+import MuenchenLayout from '@/components/cv-layouts/MuenchenLayout';
+import HamburgLayout from '@/components/cv-layouts/HamburgLayout';
+import KoelnLayout from '@/components/cv-layouts/KoelnLayout';
+import FrankfurtLayout from '@/components/cv-layouts/FrankfurtLayout';
+import DuesseldorfLayout from '@/components/cv-layouts/DuesseldorfLayout';
 
 interface CVPreviewCardProps {
   profile: any;
@@ -89,44 +85,32 @@ export const CVPreviewCard: React.FC<CVPreviewCardProps> = ({
 
     switch (layout) {
       case 1:
-        return <ModernLayout {...commonProps} />;
+        return <BerlinLayout {...commonProps} />;
       case 2:
-        return <ClassicLayout {...commonProps} />;
+        return <MuenchenLayout {...commonProps} />;
       case 3:
-        return <CreativeLayout {...commonProps} />;
+        return <HamburgLayout {...commonProps} />;
       case 4:
-        return <MinimalLayout {...commonProps} />;
+        return <KoelnLayout {...commonProps} />;
       case 5:
-        return <ProfessionalLayout {...commonProps} />;
+        return <FrankfurtLayout {...commonProps} />;
       case 6:
-        return <LiveCareerLayout {...commonProps} />;
-      case 7:
-        return <ClassicV2Layout {...commonProps} />;
-      case 8:
-        return <OliviaLayout {...commonProps} />;
-      case 9:
-        return <JohannaLayout {...commonProps} />;
-      case 10:
-        return <KatharinaLayout {...commonProps} />;
+        return <DuesseldorfLayout {...commonProps} />;
       default:
-        return <ModernLayout {...commonProps} />;
+        return <BerlinLayout {...commonProps} />;
     }
   };
 
   const getLayoutName = () => {
     const layout = profile?.layout || 1;
     switch (layout) {
-      case 1: return 'Modern';
-      case 2: return 'Classic';
-      case 3: return 'Creative';
-      case 4: return 'Minimal';
-      case 5: return 'Professional';
-      case 6: return 'LiveCareer';
-      case 7: return 'Klassisch V2';
-      case 8: return 'Olivia';
-      case 9: return 'Johanna';
-      case 10: return 'Katharina';
-      default: return 'Modern';
+      case 1: return 'Berlin';
+      case 2: return 'München';
+      case 3: return 'Hamburg';
+      case 4: return 'Köln';
+      case 5: return 'Frankfurt';
+      case 6: return 'Düsseldorf';
+      default: return 'Berlin';
     }
   };
 

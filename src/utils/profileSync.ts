@@ -156,37 +156,25 @@ export const regenerateCVFromProfile = async (userId: string, profile: any) => {
 
     try {
       // Import and render the correct CV layout
-      const LiveCareerLayout = await import('@/components/cv-layouts/LiveCareerLayout');
-      let LayoutComponent = LiveCareerLayout.default;
+      const BerlinLayout = await import('@/components/cv-layouts/BerlinLayout');
+      let LayoutComponent = BerlinLayout.default;
 
       const layoutId = profile.layout || 1;
       switch (layoutId) {
         case 2:
-          LayoutComponent = (await import('@/components/cv-layouts/ClassicLayout')).default;
+          LayoutComponent = (await import('@/components/cv-layouts/MuenchenLayout')).default;
           break;
         case 3:
-          LayoutComponent = (await import('@/components/cv-layouts/CreativeLayout')).default;
+          LayoutComponent = (await import('@/components/cv-layouts/HamburgLayout')).default;
           break;
         case 4:
-          LayoutComponent = (await import('@/components/cv-layouts/MinimalLayout')).default;
+          LayoutComponent = (await import('@/components/cv-layouts/KoelnLayout')).default;
           break;
         case 5:
-          LayoutComponent = (await import('@/components/cv-layouts/ProfessionalLayout')).default;
+          LayoutComponent = (await import('@/components/cv-layouts/FrankfurtLayout')).default;
           break;
         case 6:
-          LayoutComponent = (await import('@/components/cv-layouts/ModernLayout')).default;
-          break;
-        case 7:
-          LayoutComponent = (await import('@/components/cv-layouts/ClassicV2Layout')).default;
-          break;
-        case 8:
-          LayoutComponent = (await import('@/components/cv-layouts/OliviaLayout')).default;
-          break;
-        case 9:
-          LayoutComponent = (await import('@/components/cv-layouts/JohannaLayout')).default;
-          break;
-        case 10:
-          LayoutComponent = (await import('@/components/cv-layouts/KatharinaLayout')).default;
+          LayoutComponent = (await import('@/components/cv-layouts/DuesseldorfLayout')).default;
           break;
       }
 

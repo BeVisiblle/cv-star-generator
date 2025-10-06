@@ -1,7 +1,7 @@
 import React from 'react';
 import { CVData, CVLayoutProps, formatDate, ProfileImage } from './CVLayoutBase';
 
-const KatharinaLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) => {
+const HamburgLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) => {
   const fullName = `${data.vorname || ''} ${data.nachname || ''}`.trim();
   
   return (
@@ -42,7 +42,7 @@ const KatharinaLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) => {
               profilbild={data.profilbild}
               avatar_url={data.avatar_url}
               size="full"
-              className="rounded-full"
+              className="rounded"
             />
               </div>
             </div>
@@ -304,4 +304,4 @@ const KatharinaLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) => {
   );
 };
 
-export default KatharinaLayout;
+export default HamburgLayout;
