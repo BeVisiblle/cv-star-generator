@@ -278,21 +278,22 @@ export const LinkedInProfileEducation: React.FC<LinkedInProfileEducationProps> =
 
   return (
     <Card>
-      <CardHeader className="p-4 md:p-6 flex flex-row flex-wrap items-center justify-between gap-2 space-y-0 pb-4">
-        <CardTitle className="text-xl font-semibold flex items-center gap-2">
-          <GraduationCap className="h-5 w-5" />
+      <CardHeader className="p-3 sm:p-4 md:p-6 flex flex-row flex-wrap items-center justify-between gap-2 space-y-0 pb-2 sm:pb-3 md:pb-4">
+        <CardTitle className="text-base sm:text-lg md:text-xl font-semibold flex items-center gap-2">
+          <GraduationCap className="h-4 w-4 sm:h-5 sm:w-5" />
           Ausbildung
         </CardTitle>
         {isEditing && (
           <Button variant="outline" size="sm" onClick={() => { setIsAddingNew(true); resetForm(); }}>
-            <Plus className="h-4 w-4 mr-2" />
-            Hinzufügen
+            <Plus className="h-4 w-4 mr-1 sm:mr-2" />
+            <span className="hidden sm:inline">Hinzufügen</span>
+            <span className="sm:hidden">+</span>
           </Button>
         )}
       </CardHeader>
-      <CardContent className="p-4 md:p-6 pt-0">
+      <CardContent className="p-3 sm:p-4 md:p-6 pt-0">
         {isAddingNew && (
-          <div className="mb-6">
+          <div className="mb-3 sm:mb-4 md:mb-6">
             <EducationForm formData={formData} setFormData={setFormData} years={years} currentYear={currentYear} />
           </div>
         )}

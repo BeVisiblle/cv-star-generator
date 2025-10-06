@@ -34,7 +34,7 @@ export function LinkedInProfileSidebar({
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3 sm:space-y-4">
       {/* CV Download Section - First */}
       {showCVSection && profile && (
         <CVPreviewCard
@@ -62,16 +62,16 @@ export function LinkedInProfileSidebar({
       {/* Skills Section - After Ads */}
       {showLanguagesAndSkills && profile?.faehigkeiten && profile.faehigkeiten.length > 0 && (
         <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-lg font-semibold flex items-center gap-2">
-              <Award className="h-5 w-5" />
+          <CardHeader className="pb-2 sm:pb-3 px-3 sm:px-4 pt-3 sm:pt-4">
+            <CardTitle className="text-base sm:text-lg font-semibold flex items-center gap-2">
+              <Award className="h-4 w-4 sm:h-5 sm:w-5" />
               Fähigkeiten
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="flex flex-wrap gap-2">
+          <CardContent className="px-3 sm:px-4 pb-3 sm:pb-4">
+            <div className="flex flex-wrap gap-1.5 sm:gap-2">
               {profile.faehigkeiten.map((skill: string, idx: number) => (
-                <Badge key={idx} variant="secondary">
+                <Badge key={idx} variant="secondary" className="text-xs">
                   {skill}
                 </Badge>
               ))}
@@ -83,19 +83,19 @@ export function LinkedInProfileSidebar({
       {/* Languages Section - After Skills */}
       {showLanguagesAndSkills && profile?.sprachen && profile.sprachen.length > 0 && (
         <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-lg font-semibold flex items-center gap-2">
-              <Languages className="h-5 w-5" />
+          <CardHeader className="pb-2 sm:pb-3 px-3 sm:px-4 pt-3 sm:pt-4">
+            <CardTitle className="text-base sm:text-lg font-semibold flex items-center gap-2">
+              <Languages className="h-4 w-4 sm:h-5 sm:w-5" />
               Sprachen
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="space-y-2">
+          <CardContent className="px-3 sm:px-4 pb-3 sm:pb-4">
+            <div className="space-y-1.5 sm:space-y-2">
               {profile.sprachen.map((lang: any, idx: number) => (
-                <div key={idx} className="flex justify-between items-center">
+                <div key={idx} className="flex justify-between items-center text-sm">
                   <span className="font-medium">{lang.sprache || lang}</span>
                   {lang.niveau && (
-                    <Badge variant="outline">{lang.niveau}</Badge>
+                    <Badge variant="outline" className="text-xs">{lang.niveau}</Badge>
                   )}
                 </div>
               ))}

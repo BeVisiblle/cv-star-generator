@@ -200,14 +200,14 @@ const Profile = () => {
   // Early returns after all hooks are declared
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen pb-16 md:pb-6">
       {/* Main Content */}
-      <div className="px-3 sm:px-6 lg:px-8 py-6">
+      <div className="px-2 sm:px-4 md:px-6 lg:px-8 py-3 sm:py-4 md:py-6">
         <div className="max-w-screen-2xl mx-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 sm:gap-4 md:gap-6">
             {/* Main Content */}
             <main className="lg:col-span-8">
-              <div className="max-w-[560px] mx-auto lg:max-w-none space-y-6">
+              <div className="max-w-[560px] mx-auto lg:max-w-none space-y-3 sm:space-y-4 md:space-y-6">
                 {/* Profile Header with Cover Photo - Always first */}
                 <LinkedInProfileHeader 
                   profile={profile} 
@@ -232,8 +232,8 @@ const Profile = () => {
                 <LinkedInProfileEducation education={profile?.schulbildung || []} isEditing={isEditing} onEducationUpdate={handleEducationUpdate} />
 
                 {/* Small tiles under Education: Contact & Profile Highlights */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <Card className="p-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                  <Card className="p-3 sm:p-4">
                     <h4 className="text-sm font-semibold mb-2">Kontaktdaten</h4>
                     {isEditing ? (
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -320,7 +320,7 @@ const Profile = () => {
                       </div>
                     )}
                   </Card>
-                  <Card className="p-4">
+                  <Card className="p-3 sm:p-4">
                     <h4 className="text-sm font-semibold mb-2">Profilaktivitäten</h4>
                     <div className="space-y-2 text-sm text-muted-foreground">
                       <div className="flex items-start gap-2">
@@ -351,7 +351,7 @@ const Profile = () => {
 
             {/* Right Sidebar - Desktop: sidebar, Mobile: after main content */}
             <aside className="lg:col-span-4">
-              <div className="lg:sticky lg:top-6 space-y-4 md:space-y-6">
+              <div className="lg:sticky lg:top-6 space-y-3 sm:space-y-4 md:space-y-6">
                 <LinkedInProfileSidebar profile={profile} isEditing={isEditing} onProfileUpdate={handleProfileUpdate} showLanguagesAndSkills={true} showLicenseAndStats={true} showCVSection={true} />
                 <RightRailAd variant="card" size="sm" />
                 <InView rootMargin="300px" placeholder={<div className="h-32 rounded-md bg-muted/50 animate-pulse" />}> 
