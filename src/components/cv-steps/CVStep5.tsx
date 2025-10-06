@@ -54,6 +54,27 @@ const CVStep5 = () => {
       description: 'Elegantes 2-Spalten Layout mit Sidebar – Premium-Design für alle Branchen',
       preview: '📋',
       color: 'bg-amber-50 border-amber-200'
+    },
+    {
+      id: 8,
+      name: 'Olivia',
+      description: 'Elegantes Sidebar-Layout mit Beige-Tönen – Perfekt für kreative Berufe',
+      preview: '🎨',
+      color: 'bg-amber-50 border-amber-300'
+    },
+    {
+      id: 9,
+      name: 'Johanna',
+      description: 'Modernes Layout mit blauer Sidebar – Ideal für IT & Technik',
+      preview: '💼',
+      color: 'bg-blue-50 border-blue-300'
+    },
+    {
+      id: 10,
+      name: 'Katharina',
+      description: 'Klassisches Timeline-Layout – Übersichtlich für alle Branchen',
+      preview: '📅',
+      color: 'bg-gray-50 border-gray-300'
     }
   ];
 

@@ -39,6 +39,24 @@ export interface CVData {
     niveau: string;
   }>;
   faehigkeiten?: string[];
+  qualifikationen?: Array<{
+    name: string;
+    beschreibung?: string;
+  }>;
+  zertifikate?: Array<{
+    name: string;
+    anbieter?: string;
+    datum?: string;
+  }>;
+  weiterbildung?: Array<{
+    titel: string;
+    anbieter: string;
+    ort?: string;
+    zeitraum_von?: string;
+    zeitraum_bis?: string;
+    beschreibung?: string;
+  }>;
+  interessen?: string[];
 }
 
 export interface CVLayoutProps {
@@ -185,13 +203,14 @@ export const ContactInfo: React.FC<{ data: CVData; isLight?: boolean }> = ({ dat
 export const ProfileImage: React.FC<{ 
   profilbild?: File | string; 
   avatar_url?: string;
-  size?: 'sm' | 'md' | 'lg';
+  size?: 'sm' | 'md' | 'lg' | 'full';
   className?: string;
 }> = ({ profilbild, avatar_url, size = 'md', className = '' }) => {
   const sizeClasses = {
     sm: 'w-16 h-16',
     md: 'w-24 h-24', 
-    lg: 'w-32 h-32'
+    lg: 'w-32 h-32',
+    full: 'w-full h-full'
   };
   
   const imageUrl = profilbild || avatar_url;

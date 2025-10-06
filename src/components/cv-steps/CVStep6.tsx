@@ -19,6 +19,9 @@ import MinimalLayout from '@/components/cv-layouts/MinimalLayout';
 import ProfessionalLayout from '@/components/cv-layouts/ProfessionalLayout';
 import LiveCareerLayout from '@/components/cv-layouts/LiveCareerLayout';
 import ClassicV2Layout from '@/components/cv-layouts/ClassicV2Layout';
+import OliviaLayout from '@/components/cv-layouts/OliviaLayout';
+import JohannaLayout from '@/components/cv-layouts/JohannaLayout';
+import KatharinaLayout from '@/components/cv-layouts/KatharinaLayout';
 import { mapFormDataToCVData } from '@/components/cv-layouts/mapFormDataToCVData';
 import { cn } from '@/lib/utils';
 
@@ -58,6 +61,9 @@ const CVStep6 = () => {
       case 5: return 'Professionell';
       case 6: return 'LiveCareer';
       case 7: return 'Klassisch V2';
+      case 8: return 'Olivia';
+      case 9: return 'Johanna';
+      case 10: return 'Katharina';
       default: return 'Modern';
     }
   };

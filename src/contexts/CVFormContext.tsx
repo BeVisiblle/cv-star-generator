@@ -27,6 +27,26 @@ export interface SprachEntry {
   niveau: 'A1' | 'A2' | 'B1' | 'B2' | 'C1' | 'C2' | 'Muttersprache';
 }
 
+export interface QualifikationEntry {
+  name: string;
+  beschreibung?: string;
+}
+
+export interface ZertifikatEntry {
+  name: string;
+  anbieter?: string;
+  datum?: string;
+}
+
+export interface WeiterbildungEntry {
+  titel: string;
+  anbieter: string;
+  ort?: string;
+  zeitraum_von?: string;
+  zeitraum_bis?: string;
+  beschreibung?: string;
+}
+
 export interface CVFormData {
   // Step 1: Branch & Status
   branche?: 'handwerk' | 'it' | 'gesundheit' | 'buero' | 'verkauf' | 'gastronomie' | 'bau';
@@ -83,6 +103,12 @@ export interface CVFormData {
   // Step 4: School & Work Experience
   schulbildung?: SchulbildungEntry[];
   berufserfahrung?: BerufserfahrungEntry[];
+  
+  // New optional fields
+  qualifikationen?: QualifikationEntry[];
+  zertifikate?: ZertifikatEntry[];
+  weiterbildung?: WeiterbildungEntry[];
+  interessen?: string[];
   
   // Step 5: Layout
   layout?: number;

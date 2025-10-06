@@ -37,5 +37,16 @@ export function mapFormDataToCVData(formData: CVFormData): CVData {
     })),
     sprachen: (formData.sprachen || []).map(l => ({ sprache: l.sprache, niveau: l.niveau })),
     faehigkeiten: formData.faehigkeiten || [],
+    qualifikationen: formData.qualifikationen || [],
+    zertifikate: formData.zertifikate || [],
+    weiterbildung: (formData.weiterbildung || []).map(w => ({
+      titel: w.titel,
+      anbieter: w.anbieter,
+      ort: w.ort,
+      zeitraum_von: w.zeitraum_von,
+      zeitraum_bis: w.zeitraum_bis,
+      beschreibung: w.beschreibung,
+    })),
+    interessen: formData.interessen || [],
   };
 }
