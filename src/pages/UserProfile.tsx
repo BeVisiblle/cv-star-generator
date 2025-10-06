@@ -156,40 +156,40 @@ export default function UserProfilePage() {
     if (isOwner) return null;
     if (status === "accepted") {
       return (
-        <div className="flex gap-2">
-          <Button onClick={() => navigate("/community/messages")} className="min-h-[44px]">
-            <MessageSquareMore className="h-4 w-4 mr-1" /> Nachricht
+        <div className="flex gap-1.5 sm:gap-2">
+          <Button onClick={() => navigate("/community/messages")} className="min-h-[44px] text-xs sm:text-sm">
+            <MessageSquareMore className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1" /> Nachricht
           </Button>
         </div>
       );
     }
     if (status === "none" || !user) {
       return (
-        <div className="flex gap-2">
-          <Button onClick={onConnect} className="min-h-[44px]"><UserPlus className="h-4 w-4 mr-1" /> Vernetzen</Button>
+        <div className="flex gap-1.5 sm:gap-2">
+          <Button onClick={onConnect} className="min-h-[44px] text-xs sm:text-sm"><UserPlus className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1" /> Vernetzen</Button>
         </div>
       );
     }
     if (status === "pending") {
       return (
-        <div className="flex items-center gap-2">
-          <Button variant="secondary" disabled className="min-h-[44px]"><Check className="h-4 w-4 mr-1" /> Ausstehend</Button>
-          <Button variant="ghost" onClick={onCancel} className="min-h-[44px]"><X className="h-4 w-4" /> Zurückziehen</Button>
+        <div className="flex items-center gap-1.5 sm:gap-2">
+          <Button variant="secondary" disabled className="min-h-[44px] text-xs sm:text-sm"><Check className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1" /> Ausstehend</Button>
+          <Button variant="ghost" onClick={onCancel} className="min-h-[44px] text-xs sm:text-sm"><X className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> Zurückziehen</Button>
         </div>
       );
     }
     if (status === "incoming") {
       return (
-        <div className="flex items-center gap-2">
-          <Button onClick={onAccept} className="min-h-[44px]">Annehmen</Button>
-          <Button variant="outline" onClick={onDecline} className="min-h-[44px]">Ablehnen</Button>
+        <div className="flex items-center gap-1.5 sm:gap-2">
+          <Button onClick={onAccept} className="min-h-[44px] text-xs sm:text-sm">Annehmen</Button>
+          <Button variant="outline" onClick={onDecline} className="min-h-[44px] text-xs sm:text-sm">Ablehnen</Button>
         </div>
       );
     }
     if (status === "declined") {
       return (
-        <div className="flex items-center gap-2">
-          <Button onClick={onConnect} className="min-h-[44px]">Erneut senden</Button>
+        <div className="flex items-center gap-1.5 sm:gap-2">
+          <Button onClick={onConnect} className="min-h-[44px] text-xs sm:text-sm">Erneut senden</Button>
         </div>
       );
     }
@@ -197,17 +197,17 @@ export default function UserProfilePage() {
   };
 
   return (
-    <div className="px-0 md:px-2 lg:px-4 py-3 md:py-6 min-h-screen bg-background max-w-full overflow-x-hidden">
+    <div className="px-0 md:px-2 lg:px-4 py-2 sm:py-3 md:py-6 min-h-screen bg-background max-w-full overflow-x-hidden">
       <div className="w-full max-w-[560px] mx-auto px-4 md:max-w-none md:px-0">
-        <div className="mb-4 md:mb-6 max-w-full">
-          <div className="flex items-center justify-between gap-3">
-            <Button variant="outline" className="flex items-center gap-2 w-fit min-h-[44px]" onClick={() => navigate(-1)}>
-              <ArrowLeft className="h-4 w-4" /> Zurück
+        <div className="mb-2 sm:mb-3 md:mb-4 max-w-full">
+          <div className="flex items-center justify-between gap-2 sm:gap-3">
+            <Button variant="outline" className="flex items-center gap-2 w-fit min-h-[44px] text-xs sm:text-sm" onClick={() => navigate(-1)}>
+              <ArrowLeft className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> Zurück
             </Button>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5 sm:gap-2">
               {isCompanyMember && !isOwner && (
-                <Button onClick={toggleInterest} disabled={interestLoading} variant={interested ? 'secondary' : 'default'} className="min-h-[44px]">
-                  <HandHeart className="h-4 w-4 mr-1" /> {interested ? 'Interesse gezeigt' : 'Interesse zeigen'}
+                <Button onClick={toggleInterest} disabled={interestLoading} variant={interested ? 'secondary' : 'default'} className="min-h-[44px] text-xs sm:text-sm">
+                  <HandHeart className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1" /> {interested ? 'Interesse gezeigt' : 'Interesse zeigen'}
                 </Button>
               )}
               {renderActions()}
@@ -215,9 +215,9 @@ export default function UserProfilePage() {
           </div>
         </div>
 
-        <div className="mx-auto max-w-screen-2xl px-3 sm:px-6 lg:px-8 flex flex-col lg:grid lg:grid-cols-12 gap-4 md:gap-6">
+        <div className="mx-auto max-w-screen-2xl px-3 sm:px-4 md:px-6 flex flex-col lg:grid lg:grid-cols-12 gap-3 sm:gap-4 md:gap-6">
           <main className="lg:col-span-8">
-            <div className="w-full max-w-[560px] mx-auto px-4 md:max-w-none md:px-0 space-y-4 md:space-y-6">
+            <div className="w-full max-w-[560px] mx-auto md:max-w-none space-y-3 sm:space-y-4 md:space-y-6">
               <LinkedInProfileHeader profile={displayProfile} isEditing={false} onProfileUpdate={() => {}} />
               <LinkedInProfileMain profile={displayProfile} isEditing={false} onProfileUpdate={() => {}} readOnly={!isOwner} />
               <LinkedInProfileExperience experiences={displayProfile?.berufserfahrung || []} isEditing={false} onExperiencesUpdate={() => {}} />
@@ -226,7 +226,7 @@ export default function UserProfilePage() {
             </div>
           </main>
           <aside className="lg:col-span-4">
-            <div className="lg:sticky lg:top-24 space-y-4 md:space-y-6">
+            <div className="lg:sticky lg:top-20 space-y-3 sm:space-y-4 md:space-y-6">
               <LinkedInProfileSidebar profile={displayProfile} isEditing={false} onProfileUpdate={() => {}} readOnly={!isOwner} showLanguagesAndSkills={isOwner} showLicenseAndStats={isOwner} showCVSection={isOwner} />
               <RightRailAd variant="card" size="sm" />
               <InView rootMargin="300px" placeholder={<div className="h-32 rounded-md bg-muted/50 animate-pulse" />}> 

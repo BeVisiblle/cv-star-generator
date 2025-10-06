@@ -207,17 +207,17 @@ const c = companyQuery.data;
   return (
     <div className="min-h-screen w-full overflow-x-hidden">
       <header className="w-full border-b">
-        <div className="mx-auto max-w-6xl w-full px-3 sm:px-6 py-3 flex items-center gap-3">
-          <Link to="/marketplace" className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground">
-            <ArrowLeft className="h-4 w-4 mr-1" /> Zurück zum Marktplatz
+        <div className="mx-auto max-w-6xl w-full px-3 sm:px-6 py-2 sm:py-3 flex items-center gap-3">
+          <Link to="/marketplace" className="inline-flex items-center text-xs sm:text-sm text-muted-foreground hover:text-foreground">
+            <ArrowLeft className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1" /> Zurück zum Marktplatz
           </Link>
         </div>
       </header>
 
-      <main className="mx-auto max-w-6xl w-full px-3 sm:px-6 py-4 sm:py-6">
+      <main className="mx-auto max-w-6xl w-full px-3 sm:px-4 md:px-6 py-3 sm:py-4 md:py-6">
         {/* Cover */}
         <section>
-          <div className="w-full h-40 sm:h-56 md:h-72 rounded-xl overflow-hidden bg-muted">
+          <div className="w-full h-24 sm:h-32 md:h-40 lg:h-48 rounded-xl overflow-hidden bg-muted">
             {c?.header_image && (
               <img src={c.header_image} alt={`${c.name} Titelbild`} className="w-full h-full object-cover" />
             )}
@@ -225,9 +225,9 @@ const c = companyQuery.data;
         </section>
 
         {/* Header row */}
-        <section className="relative -mt-10 sm:-mt-12">
-          <div className="bg-card rounded-xl shadow-sm p-4 sm:p-5 md:p-6 flex items-start gap-4">
-            <div className="h-20 w-20 sm:h-24 sm:w-24 rounded-xl overflow-hidden border bg-muted flex-shrink-0">
+        <section className="relative -mt-8 sm:-mt-10">
+          <div className="bg-card rounded-xl shadow-sm p-3 sm:p-4 md:p-5 flex items-start gap-3 sm:gap-4">
+            <div className="h-16 w-16 sm:h-20 sm:w-20 rounded-xl overflow-hidden border bg-muted flex-shrink-0">
               {c?.logo_url && <img src={c.logo_url} alt={`${c?.name} Logo`} className="w-full h-full object-cover" />}
             </div>
             <div className="min-w-0 flex-1">
@@ -279,10 +279,10 @@ const c = companyQuery.data;
         </section>
 
         {/* Main grid */}
-        <section className="mt-4 md:mt-6 grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_360px] gap-4 md:gap-6">
+        <section className="mt-3 sm:mt-4 md:mt-6 grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_360px] gap-3 sm:gap-4 md:gap-6">
           {/* Left */}
-          <div className="space-y-4 md:space-y-6">
-            <Card className="p-4 sm:p-5 md:p-6">
+          <div className="space-y-3 sm:space-y-4 md:space-y-6">
+            <Card className="p-3 sm:p-4 md:p-5">
               <Collapsible defaultOpen={aboutExpanded} onOpenChange={(open) => {
                 if (open && !aboutExpanded) {
                   markAboutSeen();
@@ -315,7 +315,7 @@ const c = companyQuery.data;
             </Card>
 
             {c?.mission_statement && (
-              <Card className="p-4 sm:p-5 md:p-6">
+              <Card className="p-3 sm:p-4 md:p-5">
                 <Collapsible defaultOpen>
                   <div className="flex items-center justify-between">
                     <h2 className="text-lg font-semibold">Mission</h2>
@@ -333,7 +333,7 @@ const c = companyQuery.data;
             )}
 
             {tagsQuery.data && Object.keys(tagsQuery.data).length > 0 && (
-              <Card className="p-4 sm:p-5 md:p-6">
+              <Card className="p-3 sm:p-4 md:p-5">
                 <Collapsible defaultOpen>
                   <div className="flex items-center justify-between">
                     <h2 className="text-lg font-semibold">Profil-Tags</h2>
@@ -385,7 +385,7 @@ const c = companyQuery.data;
               </Card>
             )}
 
-            <Card className="p-4 sm:p-5 md:p-6">
+            <Card className="p-3 sm:p-4 md:p-5">
               <Collapsible defaultOpen>
                 <div className="flex items-center justify-between">
                   <h2 className="text-lg font-semibold">Kontakt</h2>
@@ -403,7 +403,7 @@ const c = companyQuery.data;
               </Collapsible>
             </Card>
 
-            <Card className="p-4 sm:p-5 md:p-6">
+            <Card className="p-3 sm:p-4 md:p-5">
               <Collapsible defaultOpen>
                 <div className="flex items-center justify-between">
                   <h2 className="text-lg font-semibold">Standort</h2>
@@ -422,7 +422,7 @@ const c = companyQuery.data;
               </Collapsible>
             </Card>
 
-            <Card className="p-4 sm:p-5 md:p-6 border-dashed">
+            <Card className="p-3 sm:p-4 md:p-5 border-dashed">
               <Collapsible defaultOpen>
                 <div className="flex items-center justify-between">
                   <h2 className="text-lg font-semibold">Jobs (Bald verfügbar)</h2>
@@ -438,8 +438,8 @@ const c = companyQuery.data;
           </div>
 
           {/* Right */}
-          <aside className="space-y-4 md:space-y-6">
-            <Card className="p-4 sm:p-5 md:p-6">
+          <aside className="space-y-3 sm:space-y-4 md:space-y-6">
+            <Card className="p-3 sm:p-4 md:p-5">
               <h2 className="text-lg font-semibold">Links</h2>
               <div className="mt-2 flex flex-col gap-2 text-sm">
                 {c?.website_url && (
