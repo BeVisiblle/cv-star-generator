@@ -138,3 +138,80 @@ export const generateCVFilename = (
   
   return `CV_${sanitizedFirstName}_${sanitizedLastName}_${date}.pdf`;
 };
+
+export const generatePDFFromCV = async (layoutId: number, userId: string, filename?: string): Promise<void> => {
+  try {
+    // Create temporary iframe to load CV print page
+    const iframe = document.createElement('iframe');
+    iframe.style.position = 'fixed';
+    iframe.style.left = '-9999px';
+    iframe.style.width = '210mm';
+    iframe.style.height = '297mm';
+    document.body.appendChild(iframe);
+
+    // Load CV print page in iframe
+    const params = new URLSearchParams({
+      layout: String(layoutId),
+      userId: userId
+    });
+    
+    return new Promise<void>((resolve, reject) => {
+      iframe.onload = async () => {
+        try {
+          // Wait a bit for the CV to fully render
+          await new Promise(r => setTimeout(r, 1500));
+
+          const cvElement = iframe.contentDocument?.querySelector('[data-cv-preview]') as HTMLElement;
+          if (!cvElement) {
+            throw new Error('CV element not found');
+          }
+
+          // Generate canvas from CV element
+          const canvas = await html2canvas(cvElement, {
+            scale: 2,
+            useCORS: true,
+            logging: false,
+            backgroundColor: '#ffffff',
+            width: 794, // A4 width in pixels (210mm at 96dpi)
+            height: 1123 // A4 height in pixels (297mm at 96dpi)
+          });
+
+          // Calculate PDF dimensions (A4)
+          const imgWidth = 210; // A4 width in mm
+          const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+          // Create PDF
+          const pdf = new jsPDF({
+            orientation: 'portrait',
+            unit: 'mm',
+            format: 'a4'
+          });
+
+          const imgData = canvas.toDataURL('image/png');
+          pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+
+          // Download PDF
+          const pdfFilename = filename || `CV_${new Date().toISOString().split('T')[0]}.pdf`;
+          pdf.save(pdfFilename);
+
+          // Cleanup
+          document.body.removeChild(iframe);
+          resolve();
+        } catch (error) {
+          document.body.removeChild(iframe);
+          reject(error);
+        }
+      };
+
+      iframe.onerror = () => {
+        document.body.removeChild(iframe);
+        reject(new Error('Failed to load CV'));
+      };
+
+      iframe.src = `/cv/print?${params.toString()}`;
+    });
+  } catch (error) {
+    console.error('PDF generation error:', error);
+    throw error;
+  }
+};

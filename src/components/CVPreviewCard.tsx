@@ -2,8 +2,10 @@ import React, { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { FileText, Edit, Download, Eye } from 'lucide-react';
+import { FileText, Edit, Download, Eye, Loader2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { generatePDFFromCV } from '@/lib/pdf-generator';
+import { toast } from 'sonner';
 
 // Import CV layout components
 import ModernLayout from '@/components/cv-layouts/ModernLayout';
@@ -30,6 +32,7 @@ export const CVPreviewCard: React.FC<CVPreviewCardProps> = ({
 }) => {
   const navigate = useNavigate();
   const [showPreviewModal, setShowPreviewModal] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
 
   // Convert profile data to CV layout format
   const cvData = {
@@ -63,12 +66,21 @@ export const CVPreviewCard: React.FC<CVPreviewCardProps> = ({
     navigate('/cv-generator');
   };
 
-  const handleDownload = () => {
-    const params = new URLSearchParams({
-      layout: String(profile.layout || 1),
-      userId: profile.id
-    });
-    window.open(`/cv/print?${params.toString()}`, '_blank');
+  const handleDownload = async () => {
+    setIsDownloading(true);
+    try {
+      const layoutId = profile.layout || 1;
+      const userId = profile.id;
+      const filename = `CV_${profile.vorname}_${profile.nachname}_${new Date().toISOString().split('T')[0]}.pdf`;
+      
+      await generatePDFFromCV(layoutId, userId, filename);
+      toast.success('CV erfolgreich heruntergeladen');
+    } catch (error) {
+      console.error('Download error:', error);
+      toast.error('Fehler beim Erstellen des PDFs');
+    } finally {
+      setIsDownloading(false);
+    }
   };
 
   const renderCVLayout = () => {
@@ -161,9 +173,19 @@ export const CVPreviewCard: React.FC<CVPreviewCardProps> = ({
             <Button 
               className="w-full"
               onClick={handleDownload}
+              disabled={isDownloading}
             >
-              <Download className="h-4 w-4 mr-2" />
-              CV Herunterladen
+              {isDownloading ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  PDF wird erstellt...
+                </>
+              ) : (
+                <>
+                  <Download className="h-4 w-4 mr-2" />
+                  CV als PDF herunterladen
+                </>
+              )}
             </Button>
             <Button 
               variant="outline" 
