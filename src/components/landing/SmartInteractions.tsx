@@ -4,10 +4,10 @@ export default function SmartInteractions() {
   return (
     <div className="mx-auto max-w-6xl px-4">
       <div className="text-center mb-12">
-        <h2 className="text-3xl md:text-4xl font-bold text-gray-900">
+        <h2 className="text-3xl md:text-4xl font-bold text-foreground">
           Intelligente Interaktionen
         </h2>
-        <p className="mt-4 text-gray-600 max-w-2xl mx-auto">
+        <p className="mt-4 text-muted-foreground max-w-2xl mx-auto">
           Entdecke neue Möglichkeiten, dich zu vernetzen und mit anderen zu interagieren
         </p>
       </div>
@@ -32,11 +32,11 @@ export default function SmartInteractions() {
         ].map((feature, idx) => (
           <div
             key={idx}
-            className="bg-white rounded-2xl p-6 shadow-md hover:shadow-xl transition-shadow duration-300 border border-gray-100"
+            className="bg-card rounded-2xl p-6 shadow-md hover:shadow-xl transition-shadow duration-300 border"
           >
             <div className="text-4xl mb-4">{feature.icon}</div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">{feature.title}</h3>
-            <p className="text-gray-600 text-sm">{feature.description}</p>
+            <h3 className="text-xl font-semibold text-card-foreground mb-2">{feature.title}</h3>
+            <p className="text-muted-foreground text-sm">{feature.description}</p>
           </div>
         ))}
       </div>
