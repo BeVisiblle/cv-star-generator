@@ -23,9 +23,11 @@ export function OnboardingStep4({ data, updateData, onNext, onPrev }: Onboarding
 
   const companySizes = [
     { value: '1-10', label: '1-10 Mitarbeiter' },
-    { value: '11-50', label: '11-50 Mitarbeiter' },
-    { value: '51-200', label: '51-200 Mitarbeiter' },
-    { value: '200+', label: '200+ Mitarbeiter' },
+    { value: '11-25', label: '11-25 Mitarbeiter' },
+    { value: '26-50', label: '26-50 Mitarbeiter' },
+    { value: '51-100', label: '51-100 Mitarbeiter' },
+    { value: '101-250', label: '101-250 Mitarbeiter' },
+    { value: '250+', label: '250+ Mitarbeiter' },
   ];
 
   const benefitOptions = [
