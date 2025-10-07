@@ -60,7 +60,9 @@ export default function SmartInteractions() {
           Smart, wenn du es brauchst.
         </h2>
         <p className="mt-3 text-sm md:text-base text-muted-foreground">
-          BeVisiblle verbindet Lebenslauf, Community und Jobs in einem Flow – du entscheidest, womit du startest.
+          <span>BeVisib</span>
+          <span className="text-primary">ll</span>
+          <span>e verbindet Lebenslauf, Community und Jobs in einem Flow – du entscheidest, womit du startest.</span>
         </p>
       </div>
 
