@@ -42,12 +42,12 @@ export default function TopNavBar() {
 
   // Sticky navbar at top with high z-index
   return <div className="sticky top-0 z-[300] border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="flex h-12 md:h-14 items-center px-3 md:px-4 gap-2 md:gap-4">
+      <div className="flex h-14 items-center px-3 md:px-4 gap-2 md:gap-4">
         <div className="flex items-center gap-3">
           <SidebarTrigger />
           {/* Logo */}
           <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate('/dashboard')}>
-            <img src="/src/assets/logo.svg" alt="BeVisiblle Logo" className="h-7 w-7 md:h-8 md:w-8" />
+            <img src="/assets/Logo_visiblle-2.svg" alt="BeVisiblle Logo" className="h-8 w-8" />
             <span className="font-semibold hidden md:block">
               <span className="text-foreground">Be</span>
               <span className="text-foreground">Visib</span>

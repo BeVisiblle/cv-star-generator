@@ -53,8 +53,10 @@ export default function BeVisiblleLandingPage() {
               {/* Left: Logo */}
               <Link to="/" className="flex items-center gap-2 pl-1">
                 <div className="flex items-center gap-2">
-                  <img src="/assets/Logo_visiblle.svg" alt="BeVisiblle" className="h-8 w-8 rounded-lg" />
-                  <span className="text-lg font-semibold tracking-tight">BeVisiblle</span>
+                  <img src="/assets/Logo_visiblle-2.svg" alt="BeVisiblle" className="h-8 w-8" />
+                  <span className="text-lg font-semibold tracking-tight">
+                    BeVisib<span className="text-primary">ll</span>e
+                  </span>
                 </div>
               </Link>
 

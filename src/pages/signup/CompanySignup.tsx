@@ -201,10 +201,13 @@ export default function CompanySignup() {
       {/* Header from Company Landing */}
       <header className="fixed top-4 left-0 right-0 z-50">
         <nav className="mx-auto max-w-5xl px-4">
-          <div className="bg-white/90 backdrop-blur rounded-full shadow-sm border px-3 py-2">
-            <div className="flex items-center justify-between gap-2">
+          <div className="bg-white/90 backdrop-blur rounded-full shadow-sm border px-3 py-2 h-14">
+            <div className="flex items-center justify-between gap-2 h-full">
               <Link to="/" className="flex items-center gap-2 pl-1">
-                <img src="/assets/Logo_visiblle_1.png" alt="BeVisiblle" className="h-12 w-auto" />
+                <img src="/assets/Logo_visiblle-2.svg" alt="BeVisiblle" className="h-8 w-8" />
+                <span className="font-semibold text-base">
+                  BeVisib<span className="text-primary">ll</span>e
+                </span>
               </Link>
 
               <nav className="hidden md:flex items-center gap-1">

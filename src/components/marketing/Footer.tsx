@@ -8,14 +8,16 @@ export default function Footer() {
         <div>
           <div className="flex items-center gap-3 justify-center md:justify-start">
             <img 
-              src="/lovable-uploads/c7ed832b-1af0-445a-8fab-45aee7358be3.png" 
+              src="/assets/Logo_visiblle-2.svg" 
               alt="bevisiblle Logo" 
               className="h-8 w-8 object-contain" 
               width="32" 
               height="32"
               loading="lazy"
             />
-            <span className="text-lg font-semibold">bevisiblle</span>
+            <span className="text-lg font-semibold">
+              BeVisib<span className="text-primary">ll</span>e
+            </span>
           </div>
           <p className="mt-3 text-sm text-zinc-300 max-w-xs">
             Die smarte Brücke zwischen Schülern, Azubis und Fachkräften und Unternehmen – 
@@ -64,7 +66,7 @@ export default function Footer() {
       </div>
       
       <div className="px-4 pb-8 mx-auto max-w-7xl text-xs text-zinc-400 text-center">
-        © {new Date().getFullYear()} bevisiblle. Alle Rechte vorbehalten.
+        © 2025 bevisiblle. Alle Rechte vorbehalten.
       </div>
     </footer>
   );

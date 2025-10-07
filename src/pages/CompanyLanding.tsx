@@ -129,10 +129,13 @@ export default function CompanyLanding() {
     <div className="bg-gradient-to-br from-blue-50 via-white to-purple-50 min-h-screen">
       <header className="fixed top-4 left-0 right-0 z-50">
         <nav className="mx-auto max-w-5xl px-4">
-          <div className="bg-white/90 backdrop-blur rounded-full shadow-sm border px-3 py-2">
-            <div className="flex items-center justify-between gap-2">
+          <div className="bg-white/90 backdrop-blur rounded-full shadow-sm border px-3 py-2 h-14">
+            <div className="flex items-center justify-between gap-2 h-full">
               <Link to="/" className="flex items-center gap-2 pl-1">
-                <img src="/assets/Logo_visiblle_1.png" alt="BeVisiblle" className="h-12 w-auto" />
+                <img src="/assets/Logo_visiblle-2.svg" alt="BeVisiblle" className="h-8 w-8" />
+                <span className="font-semibold text-base">
+                  BeVisib<span className="text-primary">ll</span>e
+                </span>
               </Link>
 
               <nav className="hidden md:flex items-center gap-1">
@@ -478,7 +481,10 @@ export default function CompanyLanding() {
             <div className="grid gap-10 md:grid-cols-4">
               <div>
                 <div className="flex items-center gap-2">
-                  <img src="/assets/Logo_visiblle_1.png" alt="BeVisiblle" className="h-10 w-auto" />
+                  <img src="/assets/Logo_visiblle-2.svg" alt="BeVisiblle" className="h-8 w-8" />
+                  <span className="font-semibold">
+                    BeVisib<span className="text-primary">ll</span>e
+                  </span>
                 </div>
                 <p className="mt-3 text-sm text-gray-600">
                   Netzwerk für Austausch & echte Arbeit – Jobs als Zusatz.
@@ -512,7 +518,7 @@ export default function CompanyLanding() {
             </div>
 
             <div className="mt-10 flex flex-col gap-3 border-t pt-6 text-xs text-gray-500 md:flex-row md:items-center md:justify-between">
-              <p>© {new Date().getFullYear()} BeVisiblle. Alle Rechte vorbehalten.</p>
+              <p>© 2025 BeVisiblle. Alle Rechte vorbehalten.</p>
               <div className="flex items-center gap-4">
                 <Link className="hover:underline" to="/datenschutz">Datenschutz</Link>
                 <Link className="hover:underline" to="/impressum">Impressum</Link>

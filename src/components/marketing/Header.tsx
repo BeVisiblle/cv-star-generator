@@ -46,8 +46,10 @@ export default function Header({ variant }: HeaderProps) {
       <div className="mx-auto max-w-[1200px] px-4 sm:px-6 lg:px-8 h-14 flex items-center justify-between">
         <div className="flex items-center gap-6">
           <Link to="/" className="flex items-center gap-2">
-            <img src="/lovable-uploads/c7ed832b-1af0-445a-8fab-45aee7358be3.png" alt="bevisiblle Logo" className="h-8 w-8" />
-            <span className="font-semibold hidden sm:inline">bevisiblle</span>
+            <img src="/assets/Logo_visiblle-2.svg" alt="bevisiblle Logo" className="h-8 w-8" />
+            <span className="font-semibold hidden sm:inline">
+              BeVisib<span className="text-primary">ll</span>e
+            </span>
           </Link>
           {/* Navigation removed per request: keep only logo + CTAs + login */}
         </div>
