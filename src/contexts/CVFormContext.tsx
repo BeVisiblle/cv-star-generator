@@ -250,19 +250,104 @@ export const CVFormProvider = ({ children }: { children: ReactNode }) => {
       case 2:
         if (!formData.vorname) errors.vorname = 'Vorname ist erforderlich';
         if (!formData.nachname) errors.nachname = 'Nachname ist erforderlich';
-        if (!formData.geburtsdatum) errors.geburtsdatum = 'Geburtsdatum ist erforderlich';
+        
+        // Geburtsdatum validation - mindestens 16 Jahre alt
+        if (!formData.geburtsdatum) {
+          errors.geburtsdatum = 'Geburtsdatum ist erforderlich';
+        } else {
+          const birthDate = new Date(formData.geburtsdatum);
+          const today = new Date();
+          const age = today.getFullYear() - birthDate.getFullYear();
+          const monthDiff = today.getMonth() - birthDate.getMonth();
+          const dayDiff = today.getDate() - birthDate.getDate();
+          
+          const actualAge = monthDiff < 0 || (monthDiff === 0 && dayDiff < 0) ? age - 1 : age;
+          
+          if (actualAge < 16) {
+            errors.geburtsdatum = 'Du musst mindestens 16 Jahre alt sein';
+          }
+        }
+        
         if (!formData.strasse) errors.strasse = 'Straße ist erforderlich';
-        if (!formData.hausnummer) errors.hausnummer = 'Hausnummer ist erforderlich';
-        if (!formData.plz) errors.plz = 'PLZ ist erforderlich';
+        
+        // Hausnummer validation - mindestens 1 Zahl
+        if (!formData.hausnummer) {
+          errors.hausnummer = 'Hausnummer ist erforderlich';
+        } else if (!/\d/.test(formData.hausnummer)) {
+          errors.hausnummer = 'Hausnummer muss mindestens eine Zahl enthalten';
+        }
+        
+        // PLZ validation - nur Zahlen
+        if (!formData.plz) {
+          errors.plz = 'PLZ ist erforderlich';
+        } else if (!/^\d+$/.test(formData.plz)) {
+          errors.plz = 'PLZ darf nur aus Zahlen bestehen';
+        }
+        
         if (!formData.ort) errors.ort = 'Ort ist erforderlich';
-        if (!formData.telefon) errors.telefon = 'Telefonnummer ist erforderlich';
-        if (!formData.email) errors.email = 'E-Mail ist erforderlich';
+        
+        // Telefonnummer validation - DACH Format
+        if (!formData.telefon) {
+          errors.telefon = 'Telefonnummer ist erforderlich';
+        } else {
+          const phoneRegex = /^(\+?(49|41|43)[- ]?\d{1,4}[- ]?\d{3,}[- ]?\d{4,}|0\d{2,5}[- ]?\d{3,}[- ]?\d{4,})$/;
+          if (!phoneRegex.test(formData.telefon.replace(/\s/g, ''))) {
+            errors.telefon = 'Bitte gib eine gültige Telefonnummer ein (z.B. +49 123 456789)';
+          }
+        }
+        
+        // E-Mail validation - muss @ und . enthalten
+        if (!formData.email) {
+          errors.email = 'E-Mail ist erforderlich';
+        } else if (!formData.email.includes('@') || !formData.email.includes('.')) {
+          errors.email = 'Bitte gib eine gültige E-Mail-Adresse ein';
+        }
+        
         if (!formData.profilbild && !formData.avatar_url) errors.profilbild = 'Profilbild ist erforderlich';
         if (formData.has_drivers_license === undefined || formData.has_drivers_license === null) {
           errors.has_drivers_license = 'Führerschein-Angabe ist erforderlich';
         }
         if (formData.has_drivers_license && !formData.driver_license_class) {
           errors.driver_license_class = 'Führerscheinklasse ist erforderlich';
+        }
+        
+        const currentYear = new Date().getFullYear();
+        
+        // Status-specific validations with year ranges
+        if (formData.status === 'schueler') {
+          if (!formData.schule) errors.schule = 'Schule ist erforderlich';
+          if (!formData.geplanter_abschluss) errors.geplanter_abschluss = 'Geplanter Abschluss ist erforderlich';
+          
+          // Abschlussjahr validation
+          if (!formData.abschlussjahr) {
+            errors.abschlussjahr = 'Abschlussjahr ist erforderlich';
+          } else {
+            const year = parseInt(formData.abschlussjahr);
+            if (year < currentYear - 1 || year > currentYear + 5) {
+              errors.abschlussjahr = 'Abschlussjahr muss zwischen diesem Jahr -1 und +5 Jahren liegen';
+            }
+          }
+        }
+        
+        if (formData.status === 'azubi') {
+          if (!formData.ausbildungsberuf) errors.ausbildungsberuf = 'Ausbildungsberuf ist erforderlich';
+          if (!formData.ausbildungsbetrieb) errors.ausbildungsbetrieb = 'Ausbildungsbetrieb ist erforderlich';
+          if (!formData.startjahr) errors.startjahr = 'Startjahr ist erforderlich';
+          
+          // Voraussichtliches Ende validation
+          if (!formData.voraussichtliches_ende) {
+            errors.voraussichtliches_ende = 'Voraussichtliches Ende ist erforderlich';
+          } else {
+            const year = parseInt(formData.voraussichtliches_ende);
+            if (year < currentYear - 1 || year > currentYear + 5) {
+              errors.voraussichtliches_ende = 'Das Jahr muss zwischen diesem Jahr -1 und +5 Jahren liegen';
+            }
+          }
+        }
+        
+        if (formData.status === 'ausgelernt') {
+          if (!formData.ausbildungsberuf) errors.ausbildungsberuf = 'Ausbildungsberuf ist erforderlich';
+          if (!formData.abschlussjahr_ausgelernt) errors.abschlussjahr_ausgelernt = 'Abschlussjahr ist erforderlich';
         }
         break;
       case 3:

@@ -11,23 +11,58 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { SprachEntry } from '@/contexts/CVFormContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { COMMON_LANGUAGES } from '@/data/commonLanguages';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from '@/components/ui/command';
+import { Check } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 const CVStep3New = () => {
   const { formData, updateFormData } = useCVForm();
   const { toast } = useToast();
   const [generatingSkills, setGeneratingSkills] = useState(false);
+  const [generatingSummary, setGeneratingSummary] = useState(false);
+  const [languagePopoverOpen, setLanguagePopoverOpen] = useState<number | null>(null);
 
   const sprachNiveaus = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2', 'Muttersprache'];
+
+  // Get available languages (filter out already selected ones)
+  const getAvailableLanguages = () => {
+    const selectedLanguages = (formData.sprachen || []).map(s => s.sprache);
+    return COMMON_LANGUAGES.filter(lang => !selectedLanguages.includes(lang));
+  };
 
   // Sprachen
   const addSprache = () => {
     const sprachen = formData.sprachen || [];
-    updateFormData({ sprachen: [...sprachen, { sprache: '', niveau: 'B1' }] });
+    const availableLanguages = getAvailableLanguages();
+    
+    // Add with first available language or empty
+    updateFormData({ 
+      sprachen: [...sprachen, { 
+        sprache: availableLanguages[0] || '', 
+        niveau: 'B1' 
+      }] 
+    });
   };
 
   const updateSprache = (index: number, field: keyof SprachEntry, value: string) => {
     const sprachen = formData.sprachen || [];
     const updated = [...sprachen];
+    
+    // Check for duplicates when updating language name
+    if (field === 'sprache') {
+      const isDuplicate = sprachen.some((s, i) => i !== index && s.sprache === value);
+      if (isDuplicate) {
+        toast({
+          title: "Duplikat",
+          description: "Diese Sprache wurde bereits hinzugefügt",
+          variant: "destructive"
+        });
+        return;
+      }
+    }
+    
     updated[index] = { ...updated[index], [field]: value };
     updateFormData({ sprachen: updated });
   };
@@ -158,6 +193,58 @@ const CVStep3New = () => {
     }
   };
 
+  // AI Summary Generator
+  const canGenerateSummary = () => {
+    return (formData.faehigkeiten?.length || 0) > 0 && (formData.sprachen?.length || 0) > 0;
+  };
+
+  const handleGenerateSummary = async () => {
+    if (!canGenerateSummary()) {
+      toast({
+        title: "Fehler",
+        description: "Bitte wähle mindestens eine Fähigkeit und eine Sprache aus.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setGeneratingSummary(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('generate-cv-summary', {
+        body: { 
+          cvData: {
+            status: formData.status,
+            branche: formData.branche,
+            faehigkeiten: formData.faehigkeiten || [],
+            sprachen: formData.sprachen || [],
+            schulbildung: formData.schulbildung || [],
+            berufserfahrung: formData.berufserfahrung || []
+          }
+        }
+      });
+
+      if (error) throw error;
+
+      if (data.summary) {
+        updateFormData({ ueberMich: data.summary });
+        
+        toast({
+          title: "Erfolgreich",
+          description: "KI Summary wurde generiert!"
+        });
+      }
+    } catch (error) {
+      console.error('Error generating summary:', error);
+      toast({
+        title: "Fehler",
+        description: "Fehler beim Generieren der Summary.",
+        variant: "destructive"
+      });
+    } finally {
+      setGeneratingSummary(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div>
@@ -216,12 +303,43 @@ const CVStep3New = () => {
         <div className="space-y-3">
           {formData.sprachen?.map((sprache, index) => (
             <div key={index} className="flex gap-2 items-start">
-              <Input
-                placeholder="Sprache (z.B. Englisch)"
-                value={sprache.sprache}
-                onChange={(e) => updateSprache(index, 'sprache', e.target.value)}
-                className="flex-1"
-              />
+              <Popover open={languagePopoverOpen === index} onOpenChange={(open) => setLanguagePopoverOpen(open ? index : null)}>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    role="combobox"
+                    className="flex-1 justify-between"
+                  >
+                    {sprache.sprache || 'Sprache auswählen...'}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-[300px] p-0" align="start">
+                  <Command>
+                    <CommandInput placeholder="Sprache suchen..." />
+                    <CommandEmpty>Keine Sprache gefunden.</CommandEmpty>
+                    <CommandGroup className="max-h-64 overflow-auto">
+                      {getAvailableLanguages().map((language) => (
+                        <CommandItem
+                          key={language}
+                          value={language}
+                          onSelect={() => {
+                            updateSprache(index, 'sprache', language);
+                            setLanguagePopoverOpen(null);
+                          }}
+                        >
+                          <Check
+                            className={cn(
+                              'mr-2 h-4 w-4',
+                              sprache.sprache === language ? 'opacity-100' : 'opacity-0'
+                            )}
+                          />
+                          {language}
+                        </CommandItem>
+                      ))}
+                    </CommandGroup>
+                  </Command>
+                </PopoverContent>
+              </Popover>
               <Select
                 value={sprache.niveau}
                 onValueChange={(value) => updateSprache(index, 'niveau', value)}
@@ -248,40 +366,40 @@ const CVStep3New = () => {
         </div>
       </Card>
 
-      {/* Motivation Questions */}
+      {/* KI Summary - Über mich */}
       <Card className="p-6 space-y-4">
-        <h3 className="font-semibold text-lg">Motivation & Persönlichkeit</h3>
+        <div className="flex justify-between items-center">
+          <h3 className="font-semibold text-lg">Über mich - KI Summary</h3>
+          <Button
+            type="button"
+            onClick={handleGenerateSummary}
+            disabled={generatingSummary || !canGenerateSummary()}
+            variant="outline"
+            size="sm"
+          >
+            {generatingSummary ? (
+              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+            ) : (
+              <Sparkles className="h-4 w-4 mr-2" />
+            )}
+            Generieren
+          </Button>
+        </div>
+        
+        {!canGenerateSummary() && (
+          <p className="text-sm text-destructive">
+            Bitte wähle mindestens eine Fähigkeit und eine Sprache aus, um die Summary zu generieren.
+          </p>
+        )}
         
         <div>
-          <Label htmlFor="motivation">Was motiviert dich in diesem Bereich zu arbeiten?</Label>
+          <Label htmlFor="ueberMich">Persönliche Zusammenfassung</Label>
           <Textarea
-            id="motivation"
-            placeholder="Erzähle kurz, warum du dich für diesen Bereich interessierst..."
-            value={formData.motivation || ''}
-            onChange={(e) => updateFormData({ motivation: e.target.value })}
-            rows={3}
-          />
-        </div>
-
-        <div>
-          <Label htmlFor="kenntnisse">Welche Erfahrungen oder Kenntnisse hast du bereits?</Label>
-          <Textarea
-            id="kenntnisse"
-            placeholder="Beschreibe kurz, was du schon weißt oder gemacht hast..."
-            value={formData.kenntnisse || ''}
-            onChange={(e) => updateFormData({ kenntnisse: e.target.value })}
-            rows={3}
-          />
-        </div>
-
-        <div>
-          <Label htmlFor="praktische_erfahrung">Was zeichnet dich als Person aus?</Label>
-          <Textarea
-            id="praktische_erfahrung"
-            placeholder="Beschreibe deine Stärken und was dich besonders macht..."
-            value={formData.praktische_erfahrung || ''}
-            onChange={(e) => updateFormData({ praktische_erfahrung: e.target.value })}
-            rows={3}
+            id="ueberMich"
+            value={formData.ueberMich || ''}
+            onChange={(e) => updateFormData({ ueberMich: e.target.value })}
+            rows={4}
+            placeholder="Klicke auf 'Generieren' um einen KI-Text zu erstellen oder schreibe selbst..."
           />
         </div>
       </Card>

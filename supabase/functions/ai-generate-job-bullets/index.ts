@@ -31,22 +31,28 @@ serve(async (req) => {
     }
 
     const prompt = `Du bist ein professioneller CV-Schreiber für junge Menschen in Deutschland. 
-Generiere 3 prägnante Bullet Points für folgende Position:
+Generiere 3 kurze, prägnante Bullet Points für folgende Position:
 
 Jobtitel: ${jobTitle}
 ${company ? `Unternehmen: ${company}` : ''}
 ${industry ? `Branche: ${industry}` : ''}
 
 ANFORDERUNGEN:
-- Jeder Bullet Point sollte 1-2 Sätze lang sein
-- Fokus auf konkrete Tätigkeiten und Verantwortungen
-- Professionell aber verständlich formuliert (kein Marketing-Sprech!)
-- Relevant für die Branche und das Niveau (Ausbildung/Berufseinstieg)
-- Authentisch & bodenständig
+- Genau 3 Bullet Points
+- Maximal 8 Wörter pro Bullet Point
+- Aktionsverben verwenden (z.B. "Verwaltete", "Optimierte", "Unterstützte")
+- Konkret und präzise - keine generischen Floskeln
+- Für einen deutschen Lebenslauf geeignet
+- Kurz und knackig
+
+Beispiele für gute Bullet Points:
+- "Web-Anwendungen mit React entwickelt"
+- "Kundengespräche professionell geführt"
+- "Datenbankperformance durch Indexierung optimiert"
 
 WICHTIG: 
-Returniere die 3 Bullet Points als einfache Liste ohne JSON-Formatierung.
-Keine Anführungszeichen, Klammern oder Nummerierungen.`;
+Halte dich strikt an die 8-Wörter-Regel pro Bullet Point!
+Returniere die 3 Bullet Points als einfache Liste.`;
 
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',

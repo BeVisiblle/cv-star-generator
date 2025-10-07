@@ -101,11 +101,10 @@ serve(async (req) => {
       return `${latestJob.titel} bei ${latestJob.unternehmen}`;
     };
 
-    const prompt = `Du bist ein Karriereberater für junge Menschen in Deutschland. Erstelle einen authentischen "Über mich"-Text für einen Lebenslauf.
+    const prompt = `Du bist ein Karriereberater für junge Menschen in Deutschland. Erstelle eine präzise, kurze "Über mich" Zusammenfassung für einen Lebenslauf.
 
 PERSON:
 - Name: ${cvData.vorname || 'Unbekannt'}
-- Ort: ${cvData.ort || 'Unbekannt'}
 - Status: ${cvData.status === 'schueler' ? 'Schüler/in' : cvData.status === 'azubi' ? 'Auszubildende/r' : 'Berufstätig'}
 - Branche: ${cvData.branche || 'keine Angabe'}
 - Berufswunsch: ${berufswunsch}
@@ -114,27 +113,25 @@ AUSBILDUNG & BERUF:
 - Schulbildung: ${getAusbildungInfo(cvData)}
 - Berufserfahrung: ${getBerufserfahrungInfo(cvData)}
 
-FÄHIGKEITEN:
-${topSkills || 'keine Angaben'}
+TOP 3 FÄHIGKEITEN:
+${(cvData.faehigkeiten || []).slice(0, 3).join(', ') || 'keine Angaben'}
 
 SPRACHEN:
 ${sprachenSummary || 'keine Angaben'}
 
-MOTIVATION & PERSÖNLICHKEIT:
-1. Motivation: ${questions.frage1 || 'keine Angabe'}
-2. Erfahrungen: ${questions.frage2 || 'keine Angabe'}
-3. Persönliche Stärken: ${questions.frage3 || 'keine Angabe'}
-
 ANFORDERUNGEN:
-1. Maximal 4 Zeilen (ca. 250 Zeichen)
-2. Erste Person Singular ("Ich bin...", "Mich motiviert...")
-3. Ehrlich & bodenständig (kein Marketing-Sprech!)
-4. Konkret & authentisch
-5. Fokus auf Stärken, die zum Beruf passen
-6. Keine Übertreibungen oder generische Floskeln
-7. Nutze die konkreten Infos aus Ausbildung und Berufserfahrung
+1. Maximal 3 Zeilen (ca. 180-200 Zeichen)
+2. Erste Person Singular ("Ich bin...")
+3. Konkrete Bezugnahme auf die TOP 3 Fähigkeiten
+4. Erwähne Sprachkenntnisse wenn relevant
+5. Fokus auf einzigartige Stärken
+6. Keine generischen Phrasen
+7. Professionell aber authentisch
+8. Sehr präzise und auf den Punkt
 
-Erstelle jetzt den "Über mich"-Text:`;
+WICHTIG: Halte dich strikt an das 180-200 Zeichen Limit (3 Zeilen)!
+
+Erstelle jetzt die Zusammenfassung:`;
 
     // Sending prompt to Lovable AI Gateway (Google Gemini 2.5 Flash - FREE)
 
