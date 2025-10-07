@@ -102,7 +102,7 @@ const FrankfurtLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) => {
           {data.qualifikationen && data.qualifikationen.length > 0 && (
             <div className="mb-6">
               <h3 className="text-xs font-bold mb-3 uppercase tracking-wider" style={{ color: 'hsl(0, 0%, 25%)' }}>
-                Expertise
+                Qualifikationen
               </h3>
               <div className="space-y-1.5 text-xs">
                 {data.qualifikationen.map((qual, idx) => (
@@ -119,7 +119,7 @@ const FrankfurtLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) => {
           {data.faehigkeiten && data.faehigkeiten.length > 0 && (
             <div className="mb-6">
               <h3 className="text-xs font-bold mb-3 uppercase tracking-wider" style={{ color: 'hsl(0, 0%, 25%)' }}>
-                Technical Skills
+                Fähigkeiten
               </h3>
               <div className="space-y-1.5 text-xs">
                 {data.faehigkeiten.map((skill, idx) => (
@@ -170,7 +170,7 @@ const FrankfurtLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) => {
           {data.ueberMich && (
             <div className="mb-6">
               <h2 className="text-base font-bold mb-3 uppercase tracking-wide" style={{ color: 'hsl(0, 0%, 20%)' }}>
-                Career Summary
+                Profil
               </h2>
               <p className="text-xs leading-relaxed" style={{ color: 'hsl(0, 0%, 35%)' }}>
                 {data.ueberMich}
@@ -182,7 +182,7 @@ const FrankfurtLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) => {
           {data.berufserfahrung && data.berufserfahrung.length > 0 && (
             <div className="mb-6">
               <h2 className="text-base font-bold mb-4 uppercase tracking-wide" style={{ color: 'hsl(0, 0%, 20%)' }}>
-                Professional Experience
+                Berufserfahrung
               </h2>
               <div className="space-y-5">
                 {data.berufserfahrung.map((arbeit, idx) => (
@@ -223,7 +223,7 @@ const FrankfurtLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) => {
           {((data.zertifikate && data.zertifikate.length > 0) || (data.weiterbildung && data.weiterbildung.length > 0)) && (
             <div>
               <h2 className="text-base font-bold mb-3 uppercase tracking-wide" style={{ color: 'hsl(0, 0%, 20%)' }}>
-                Certifications
+                Zertifikate & Weiterbildung
               </h2>
               <div className="space-y-2.5">
                 {data.weiterbildung && data.weiterbildung.map((wb, idx) => (
