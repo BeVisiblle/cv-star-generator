@@ -101,12 +101,6 @@ export function AppSidebar() {
       <SidebarHeader className={`p-4 ${collapsed ? 'px-2' : ''}`}>
         {!collapsed ? (
           <div className="flex items-center space-x-2">
-            <img
-              src="/src/assets/logo.svg"
-              alt="BeVisiblle Logo"
-              className="h-8 w-8 object-contain"
-              loading="eager"
-            />
             <h2 className="text-lg font-semibold">
               <span className="text-foreground">Be</span>
               <span className="text-foreground">Visibi</span>
@@ -116,12 +110,7 @@ export function AppSidebar() {
           </div>
         ) : (
           <div className="flex justify-center">
-            <img
-              src="/src/assets/logo.svg"
-              alt="BeVisiblle Logo"
-              className="h-8 w-8 object-contain"
-              loading="eager"
-            />
+            <span className="text-sm font-bold text-primary">BV</span>
           </div>
         )}
       </SidebarHeader>
