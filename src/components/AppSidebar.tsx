@@ -100,21 +100,26 @@ export function AppSidebar() {
       >
       <SidebarHeader className={`p-4 ${collapsed ? 'px-2' : ''}`}>
         {!collapsed ? (
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center space-x-2">
             <img
-              src="/lovable-uploads/c7ed832b-1af0-445a-8fab-45aee7358be3.png"
-              alt="bevisiblle Logo"
-              className="h-8 w-8 rounded-md object-contain"
+              src="/src/assets/logo.svg"
+              alt="BeVisiblle Logo"
+              className="h-8 w-8 object-contain"
               loading="eager"
             />
-            <h2 className="text-lg font-semibold">bevisiblle</h2>
+            <h2 className="text-lg font-semibold">
+              <span className="text-foreground">Be</span>
+              <span className="text-foreground">Visibi</span>
+              <span className="text-primary">ll</span>
+              <span className="text-foreground">e</span>
+            </h2>
           </div>
         ) : (
           <div className="flex justify-center">
             <img
-              src="/lovable-uploads/c7ed832b-1af0-445a-8fab-45aee7358be3.png"
-              alt="bevisiblle Logo"
-              className="h-8 w-8 rounded-md object-contain"
+              src="/src/assets/logo.svg"
+              alt="BeVisiblle Logo"
+              className="h-8 w-8 object-contain"
               loading="eager"
             />
           </div>
@@ -147,20 +152,25 @@ export function AppSidebar() {
                 </SidebarMenuItem>
               ))}
 
-              {/* Community with subpages - Collapsible */}
+              {/* Community with main page + subpages - Collapsible */}
               {!collapsed ? (
                 <SidebarMenuItem>
-                  <SidebarMenuButton
-                    onClick={() => setCommunityOpen(!communityOpen)}
-                    className={`flex items-center gap-3 py-2 rounded-lg px-3 transition-all w-full text-left ${
-                      currentPath.startsWith('/community') || currentPath === '/marketplace'
-                        ? "bg-sidebar-accent text-sidebar-accent-foreground" 
-                        : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-                    }`}
-                  >
-                    <Users className="h-4 w-4 flex-shrink-0" />
-                    <span>Community</span>
-                    <ChevronRight className={`ml-auto h-4 w-4 transition-transform ${communityOpen ? 'rotate-90' : ''}`} />
+                  <SidebarMenuButton asChild>
+                    <button
+                      onClick={() => {
+                        handleNavigation('/community');
+                        setCommunityOpen(!communityOpen);
+                      }}
+                      className={`flex items-center gap-3 py-2 rounded-lg px-3 transition-all w-full text-left ${
+                        currentPath.startsWith('/community') || currentPath === '/marketplace'
+                          ? "bg-sidebar-accent text-sidebar-accent-foreground" 
+                          : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                      }`}
+                    >
+                      <Users className="h-4 w-4 flex-shrink-0" />
+                      <span>Community</span>
+                      <ChevronRight className={`ml-auto h-4 w-4 transition-transform ${communityOpen ? 'rotate-90' : ''}`} />
+                    </button>
                   </SidebarMenuButton>
                   {communityOpen && (
                     <SidebarMenuSub>
@@ -223,7 +233,7 @@ export function AppSidebar() {
                 <SidebarMenuItem>
                   <SidebarMenuButton asChild>
                     <button
-                      onClick={() => handleNavigation('/community/contacts')}
+                      onClick={() => handleNavigation('/community')}
                       className={`flex flex-col items-center gap-0.5 py-3 rounded-lg px-3 transition-all w-full text-center ${
                         currentPath.startsWith('/community') || isActive('/marketplace')
                           ? "bg-sidebar-accent text-sidebar-accent-foreground" 

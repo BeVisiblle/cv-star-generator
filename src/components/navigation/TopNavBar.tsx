@@ -55,12 +55,15 @@ export default function TopNavBar() {
             onClick={() => navigate('/dashboard')}
           >
             <img 
-              src="/lovable-uploads/c7ed832b-1af0-445a-8fab-45aee7358be3.png" 
-              alt="bevisiblle Logo" 
+              src="/src/assets/logo.svg" 
+              alt="BeVisiblle Logo" 
               className="h-7 w-7 md:h-8 md:w-8"
             />
-            <span className="font-bold text-primary hidden md:block">
-              bevisiblle
+            <span className="font-semibold hidden md:block">
+              <span className="text-foreground">Be</span>
+              <span className="text-foreground">Visibi</span>
+              <span className="text-primary">ll</span>
+              <span className="text-foreground">e</span>
             </span>
           </div>
         </div>
