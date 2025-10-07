@@ -99,20 +99,9 @@ export function AppSidebar() {
         data-sidebar="sidebar"
       >
       <SidebarHeader className={`p-4 ${collapsed ? 'px-2' : ''}`}>
-        {!collapsed ? (
-          <div className="flex items-center space-x-2">
-            <h2 className="text-lg font-semibold">
-              <span className="text-foreground">Be</span>
-              <span className="text-foreground">Visibi</span>
-              <span className="text-primary">ll</span>
-              <span className="text-foreground">e</span>
-            </h2>
-          </div>
-        ) : (
-          <div className="flex justify-center">
-            <span className="text-sm font-bold text-primary">BV</span>
-          </div>
-        )}
+        <div className="flex justify-center">
+          <span className="text-sm font-bold text-primary">BV</span>
+        </div>
       </SidebarHeader>
 
       <SidebarContent>
