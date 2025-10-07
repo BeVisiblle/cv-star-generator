@@ -111,7 +111,7 @@ export const CVLayoutSelectorDialog: React.FC<CVLayoutSelectorDialogProps> = ({
   };
 
   const renderPreview = () => {
-    const commonProps = { data: cvData, className: "scale-[0.3] origin-top-left w-[333%]" };
+    const commonProps = { data: cvData, className: "scale-[0.55] origin-top-left w-[182%]" };
 
     switch (selectedLayout) {
       case 1:
@@ -154,14 +154,14 @@ export const CVLayoutSelectorDialog: React.FC<CVLayoutSelectorDialogProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-7xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>CV-Layout auswählen</DialogTitle>
         </DialogHeader>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-[400px_1fr] gap-6">
           {/* Left: Layout Options */}
-          <div className="space-y-3 max-h-[70vh] overflow-y-auto pr-2">
+          <div className="space-y-3 max-h-[75vh] overflow-y-auto pr-2">
             {layouts.map((layout) => (
               <Card
                 key={layout.id}
@@ -198,11 +198,13 @@ export const CVLayoutSelectorDialog: React.FC<CVLayoutSelectorDialogProps> = ({
           </div>
 
           {/* Right: Preview */}
-          <div className="bg-muted/30 rounded-lg p-4 overflow-hidden">
-            <h3 className="text-sm font-semibold mb-3">Vorschau</h3>
-            <div className="bg-white rounded shadow-sm overflow-hidden h-[600px] relative">
-              <div className="absolute inset-0 overflow-hidden">
-                {renderPreview()}
+          <div className="bg-muted/30 rounded-lg p-4 flex flex-col">
+            <h3 className="text-sm font-semibold mb-3">Vorschau (A4-Format)</h3>
+            <div className="bg-white rounded shadow-lg overflow-auto flex-1 max-h-[75vh]" style={{ aspectRatio: '1/1.414' }}>
+              <div className="w-full h-full overflow-auto">
+                <div className="min-h-full">
+                  {renderPreview()}
+                </div>
               </div>
             </div>
           </div>
