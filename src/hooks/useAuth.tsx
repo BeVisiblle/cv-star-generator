@@ -38,20 +38,26 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   useEffect(() => {
     let abortController = new AbortController();
+    let loadProfileTimeout: NodeJS.Timeout | null = null;
 
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
+        // Clear any pending profile loads
+        if (loadProfileTimeout) {
+          clearTimeout(loadProfileTimeout);
+        }
+
         setSession(session);
         setUser(session?.user ?? null);
         
         // Load profile when user is authenticated
-        if (session?.user && !abortController.signal.aborted) {
-          setTimeout(() => {
+        if (session?.user) {
+          loadProfileTimeout = setTimeout(() => {
             if (!abortController.signal.aborted) {
               loadProfile(session.user.id);
             }
-          }, 500);
+          }, 100);
         } else {
           setProfile(null);
           setIsLoading(false);
@@ -61,17 +67,27 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
     // Check for existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
+      if (abortController.signal.aborted) return;
+      
       setSession(session);
       setUser(session?.user ?? null);
       
-      if (session?.user && !abortController.signal.aborted) {
+      if (session?.user) {
         loadProfile(session.user.id);
       } else {
         setIsLoading(false);
       }
+    }).catch((error) => {
+      if (error?.name !== 'AbortError') {
+        console.error('Session error:', error);
+      }
+      setIsLoading(false);
     });
 
     return () => {
+      if (loadProfileTimeout) {
+        clearTimeout(loadProfileTimeout);
+      }
       abortController.abort();
       subscription.unsubscribe();
     };
@@ -86,18 +102,23 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         .eq('id', userId)
         .maybeSingle();
 
-      if (error && error.message !== 'AbortError: Fetch is aborted') {
+      if (error) {
+        // Silently ignore abort errors
+        if (error.message.includes('aborted') || error.message.includes('Fetch is aborted')) {
+          return;
+        }
         console.error('Error loading profile:', error);
         setProfile(null);
-      } else if (!error) {
+      } else {
         setProfile(profile);
       }
     } catch (error: any) {
-      // Ignore AbortError - it's expected when component unmounts
-      if (error?.name !== 'AbortError' && error?.message !== 'Fetch is aborted') {
-        console.error('Unexpected error loading profile:', error);
-        setProfile(null);
+      // Silently ignore abort errors
+      if (error?.name === 'AbortError' || error?.message?.includes('aborted')) {
+        return;
       }
+      console.error('Unexpected error loading profile:', error);
+      setProfile(null);
     } finally {
       setIsLoading(false);
     }
