@@ -28,7 +28,9 @@ const CVStep3New = () => {
 
   // Get available languages (filter out already selected ones)
   const getAvailableLanguages = () => {
-    const selectedLanguages = (formData.sprachen || []).map(s => s.sprache);
+    const selectedLanguages = (formData.sprachen || [])
+      .map(s => s.sprache)
+      .filter((lang): lang is string => Boolean(lang)); // Filter out null/undefined/empty
     return COMMON_LANGUAGES.filter(lang => !selectedLanguages.includes(lang));
   };
 
