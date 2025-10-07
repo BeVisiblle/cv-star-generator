@@ -155,25 +155,33 @@ export function AppSidebar() {
               {/* Community with main page + subpages - Collapsible */}
               {!collapsed ? (
                 <SidebarMenuItem>
-                  <SidebarMenuButton asChild>
-                    <button
-                      onClick={() => {
-                        handleNavigation('/community');
-                        setCommunityOpen(!communityOpen);
-                      }}
-                      className={`flex items-center gap-3 py-2 rounded-lg px-3 transition-all w-full text-left ${
-                        currentPath.startsWith('/community') || currentPath === '/marketplace'
-                          ? "bg-sidebar-accent text-sidebar-accent-foreground" 
-                          : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-                      }`}
-                    >
-                      <Users className="h-4 w-4 flex-shrink-0" />
-                      <span>Community</span>
-                      <ChevronRight className={`ml-auto h-4 w-4 transition-transform ${communityOpen ? 'rotate-90' : ''}`} />
-                    </button>
+                  <SidebarMenuButton
+                    onClick={() => setCommunityOpen(!communityOpen)}
+                    className={`flex items-center gap-3 py-2 rounded-lg px-3 transition-all w-full text-left ${
+                      currentPath.startsWith('/community') || currentPath === '/marketplace'
+                        ? "bg-sidebar-accent text-sidebar-accent-foreground" 
+                        : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                    }`}
+                  >
+                    <Users className="h-4 w-4 flex-shrink-0" />
+                    <span>Community</span>
+                    <ChevronRight className={`ml-auto h-4 w-4 transition-transform ${communityOpen ? 'rotate-90' : ''}`} />
                   </SidebarMenuButton>
                   {communityOpen && (
                     <SidebarMenuSub>
+                      <SidebarMenuSubItem>
+                        <SidebarMenuSubButton asChild>
+                          <button
+                            onClick={() => handleNavigation('/community')}
+                            className={`w-full text-left pl-9 ${
+                              isActive('/community') ? 'bg-sidebar-accent text-sidebar-accent-foreground' : ''
+                            }`}
+                          >
+                            <Users className="h-4 w-4 mr-2" />
+                            Community
+                          </button>
+                        </SidebarMenuSubButton>
+                      </SidebarMenuSubItem>
                       <SidebarMenuSubItem>
                         <SidebarMenuSubButton asChild>
                           <button
