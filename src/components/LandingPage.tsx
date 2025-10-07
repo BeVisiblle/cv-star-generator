@@ -3,6 +3,9 @@ import { ArrowRight, Users, Building2, MessageSquare, Sparkles, ShieldCheck, Pho
 import { Link } from 'react-router-dom';
 import Header from './marketing/Header';
 import Footer from './marketing/Footer';
+import lebenslaufFeature from '@/assets/lebenslauf-feature.png';
+import jobsFeature from '@/assets/jobs-feature.png';
+import communityFeature from '@/assets/community-feature.png';
 
 /*
  Landing Page – CV Generator
@@ -240,8 +243,15 @@ export function FeatureCardsSection() {
           
           {/* CV in 5 Schritten - Large left card */}
           <article className="relative overflow-hidden rounded-2xl bg-zinc-900/90 ring-1 ring-zinc-800 lg:row-span-2 animate-fade-in hover-scale">
-            <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=1974&auto=format&fit=crop')] bg-cover bg-center opacity-30" />
-            <div className="relative p-6 md:p-8 h-full flex flex-col justify-between min-h-[300px]">
+            <div className="absolute inset-0">
+              <img 
+                src={lebenslaufFeature} 
+                alt="CV Lebenslauf Feature" 
+                className="w-full h-full object-cover opacity-90"
+                loading="lazy"
+              />
+            </div>
+            <div className="relative p-6 md:p-8 h-full flex flex-col justify-end min-h-[300px] bg-gradient-to-t from-black/80 via-black/40 to-transparent">
               <div>
                 <h3 className="text-3xl md:text-4xl font-bold text-white">CV in 5 Schritten</h3>
                 <p className="mt-4 text-sm text-zinc-200/90 leading-relaxed">
@@ -254,31 +264,30 @@ export function FeatureCardsSection() {
           </article>
 
           {/* Community - White card */}
-          <article className="rounded-2xl bg-white text-zinc-900 ring-1 ring-zinc-200 p-6 animate-fade-in hover-scale" style={{
+          <article className="relative overflow-hidden rounded-2xl bg-white text-zinc-900 ring-1 ring-zinc-200 animate-fade-in hover-scale" style={{
           animationDelay: '0.1s'
         }}>
-            <div className="flex items-center gap-2 text-zinc-700">
-              <Users className="h-5 w-5" />
-              <span className="uppercase tracking-wide text-xs font-semibold">Community</span>
+            <div className="absolute inset-0">
+              <img 
+                src={communityFeature} 
+                alt="Community Feature" 
+                className="w-full h-full object-cover"
+                loading="lazy"
+              />
             </div>
-            <h3 className="mt-2 text-xl font-semibold">Vernetzen & Austausch</h3>
-            <p className="mt-3 text-sm text-zinc-700 leading-relaxed">Tritt in Kontakt mit Fachkräften aus deiner und anderen Branchen und vernetze dich mit der Community von morgen.</p>
           </article>
 
           {/* Unternehmen - Dark card with subtle background */}
-          <article className="relative rounded-2xl bg-zinc-900/70 ring-1 ring-zinc-800 p-6 animate-fade-in hover-scale overflow-hidden" style={{
+          <article className="relative rounded-2xl bg-zinc-900/70 ring-1 ring-zinc-800 animate-fade-in hover-scale overflow-hidden" style={{
           animationDelay: '0.2s'
         }}>
-            <div className="absolute inset-0 bg-gradient-to-br from-blue-900/20 to-purple-900/20" />
-            <div className="relative">
-              <div className="flex items-center gap-2 text-zinc-400">
-                <Building2 className="h-5 w-5" />
-                <span className="uppercase tracking-wide text-xs font-semibold">Unternehmen</span>
-              </div>
-              <h3 className="mt-2 text-xl font-semibold text-white">Von Firmen kontaktiert werden</h3>
-              <p className="mt-3 text-sm text-zinc-300 leading-relaxed">
-                Lasse dich direkt von Unternehmen ansprechen – ohne klassische Bewerbung.
-              </p>
+            <div className="absolute inset-0">
+              <img 
+                src={jobsFeature} 
+                alt="Jobs Feature" 
+                className="w-full h-full object-cover"
+                loading="lazy"
+              />
             </div>
           </article>
 
