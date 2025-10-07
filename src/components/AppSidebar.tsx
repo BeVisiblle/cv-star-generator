@@ -35,6 +35,7 @@ export function AppSidebar() {
   const location = useLocation();
   const navigate = useNavigate();
   const currentPath = location.pathname;
+  const [communityOpen, setCommunityOpen] = useState(false);
 
   const { data: profile } = useQuery({
     queryKey: ['profile'],
@@ -146,23 +147,96 @@ export function AppSidebar() {
                 </SidebarMenuItem>
               ))}
 
-              {/* Community with subpages */}
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild>
-                  <button
-                    onClick={() => handleNavigation('/marketplace')}
-                    className={`flex ${collapsed ? 'flex-col items-center gap-0.5 py-3' : 'items-center gap-3 py-2'} rounded-lg px-3 transition-all w-full ${collapsed ? 'text-center' : 'text-left'} ${
-                      isActive('/marketplace') || isActive('/community')
+              {/* Community with subpages - Collapsible */}
+              {!collapsed ? (
+                <SidebarMenuItem>
+                  <SidebarMenuButton
+                    onClick={() => setCommunityOpen(!communityOpen)}
+                    className={`flex items-center gap-3 py-2 rounded-lg px-3 transition-all w-full text-left ${
+                      currentPath.startsWith('/community') || currentPath === '/marketplace'
                         ? "bg-sidebar-accent text-sidebar-accent-foreground" 
                         : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
                     }`}
                   >
-                    <Building2 className="h-4 w-4 flex-shrink-0" />
-                    <span className={collapsed ? "text-[9px] font-medium leading-tight" : ""}>Community</span>
-                    {!collapsed && (isActive('/marketplace') || isActive('/community')) && <ChevronRight className="ml-auto h-4 w-4" />}
-                  </button>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
+                    <Users className="h-4 w-4 flex-shrink-0" />
+                    <span>Community</span>
+                    <ChevronRight className={`ml-auto h-4 w-4 transition-transform ${communityOpen ? 'rotate-90' : ''}`} />
+                  </SidebarMenuButton>
+                  {communityOpen && (
+                    <SidebarMenuSub>
+                      <SidebarMenuSubItem>
+                        <SidebarMenuSubButton asChild>
+                          <button
+                            onClick={() => handleNavigation('/community/contacts')}
+                            className={`w-full text-left pl-9 ${
+                              isActive('/community/contacts') ? 'bg-sidebar-accent text-sidebar-accent-foreground' : ''
+                            }`}
+                          >
+                            <User className="h-4 w-4 mr-2" />
+                            Freunde
+                          </button>
+                        </SidebarMenuSubButton>
+                      </SidebarMenuSubItem>
+                      <SidebarMenuSubItem>
+                        <SidebarMenuSubButton asChild>
+                          <button
+                            onClick={() => handleNavigation('/community/companies')}
+                            className={`w-full text-left pl-9 ${
+                              isActive('/community/companies') ? 'bg-sidebar-accent text-sidebar-accent-foreground' : ''
+                            }`}
+                          >
+                            <Building2 className="h-4 w-4 mr-2" />
+                            Unternehmen
+                          </button>
+                        </SidebarMenuSubButton>
+                      </SidebarMenuSubItem>
+                      <SidebarMenuSubItem>
+                        <SidebarMenuSubButton asChild>
+                          <button
+                            onClick={() => handleNavigation('/messages')}
+                            className={`w-full text-left pl-9 ${
+                              isActive('/messages') ? 'bg-sidebar-accent text-sidebar-accent-foreground' : ''
+                            }`}
+                          >
+                            <MessageSquare className="h-4 w-4 mr-2" />
+                            Nachrichten
+                          </button>
+                        </SidebarMenuSubButton>
+                      </SidebarMenuSubItem>
+                      <SidebarMenuSubItem>
+                        <SidebarMenuSubButton asChild>
+                          <button
+                            onClick={() => handleNavigation('/marketplace')}
+                            className={`w-full text-left pl-9 ${
+                              isActive('/marketplace') ? 'bg-sidebar-accent text-sidebar-accent-foreground' : ''
+                            }`}
+                          >
+                            <Briefcase className="h-4 w-4 mr-2" />
+                            Jobs
+                          </button>
+                        </SidebarMenuSubButton>
+                      </SidebarMenuSubItem>
+                    </SidebarMenuSub>
+                  )}
+                </SidebarMenuItem>
+              ) : (
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild>
+                    <button
+                      onClick={() => handleNavigation('/community/contacts')}
+                      className={`flex flex-col items-center gap-0.5 py-3 rounded-lg px-3 transition-all w-full text-center ${
+                        currentPath.startsWith('/community') || isActive('/marketplace')
+                          ? "bg-sidebar-accent text-sidebar-accent-foreground" 
+                          : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                      }`}
+                      title="Community"
+                    >
+                      <Users className="h-4 w-4 flex-shrink-0" />
+                      <span className="text-[9px] font-medium leading-tight">Community</span>
+                    </button>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              )}
 
               {/* Post Button */}
               <SidebarMenuItem>
