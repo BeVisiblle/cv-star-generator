@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import SmartInteractions from '@/components/landing/SmartInteractions';
+import lebenslaufFeature from '@/assets/lebenslauf-feature.png';
+import jobsFeature from '@/assets/jobs-feature.png';
+import communityFeature from '@/assets/community-feature.png';
 
 export default function BeVisiblleLandingPage() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -235,15 +238,15 @@ export default function BeVisiblleLandingPage() {
         <div className="mx-auto max-w-6xl px-6 grid gap-8 md:grid-cols-3">
           {[{
             title: "Community",
-            img: "/assets/feature-2.png",
+            img: communityFeature,
             link: "/auth"
           }, {
             title: "CV",
-            img: "/assets/feature-1.png",
+            img: lebenslaufFeature,
             link: "/cv-generator"
           }, {
             title: "Jobs",
-            img: "/assets/feature-3.png",
+            img: jobsFeature,
             link: "/jobs"
           }].map((card, idx) => (
             <Link
@@ -310,8 +313,10 @@ export default function BeVisiblleLandingPage() {
               {/* Brand */}
               <div>
                 <div className="flex items-center gap-2">
-                  <img src="/assets/logo-mark.png" alt="BeVisiblle" className="h-8 w-8 rounded-lg" />
-                  <span className="text-lg font-semibold">BeVisiblle</span>
+                  <img src="/assets/Logo_visiblle-2.svg" alt="BeVisiblle" className="h-8 w-8 object-contain" />
+                  <span className="text-lg font-semibold">
+                    BeVisib<span className="text-primary">ll</span>e
+                  </span>
                 </div>
                 <p className="mt-3 text-sm text-gray-600">
                   Netzwerk für Austausch & echte Arbeit – Jobs als Zusatz.
@@ -347,7 +352,7 @@ export default function BeVisiblleLandingPage() {
 
             {/* Bottom bar */}
             <div className="mt-10 flex flex-col gap-3 border-t pt-6 text-xs text-gray-500 md:flex-row md:items-center md:justify-between">
-              <p>© 2024 BeVisiblle. Alle Rechte vorbehalten.</p>
+              <p>© 2025 BeVisiblle. Alle Rechte vorbehalten.</p>
               <div className="flex items-center gap-4">
                 <Link className="hover:underline" to="/datenschutz">Datenschutz</Link>
                 <Link className="hover:underline" to="/impressum">Impressum</Link>
