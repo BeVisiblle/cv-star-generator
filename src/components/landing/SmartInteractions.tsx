@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { cn } from '@/lib/utils';
 import { Link } from 'react-router-dom';
+import lebenslaufFeature from '@/assets/lebenslauf-feature.png';
+import jobsFeature from '@/assets/jobs-feature.png';
+import communityFeature from '@/assets/community-feature.png';
 
 type InteractionCard = {
   title: string;
@@ -17,7 +20,7 @@ const CARDS: InteractionCard[] = [
     subtitle: 'Dein Startpunkt',
     description:
       'Erstelle in wenigen Minuten einen Lebenslauf. Daraus entsteht automatisch dein digitales Profil – perfekt zum Bewerben und Teilen.',
-    image: '/assets/feature-1.png',
+    image: lebenslaufFeature,
     link: '/cv-generator',
     cta: 'Jetzt starten'
   },
@@ -26,7 +29,7 @@ const CARDS: InteractionCard[] = [
     subtitle: 'Echter Austausch',
     description:
       'Bleib mit Kolleg:innen, Teams oder deiner Klasse verbunden. Teile Wissen, plane Schichten und starte Lernrunden – ohne Plattform-Stress.',
-    image: '/assets/feature-2.png',
+    image: communityFeature,
     link: '/auth',
     cta: 'Community ansehen'
   },
@@ -35,7 +38,7 @@ const CARDS: InteractionCard[] = [
     subtitle: 'Direkt aus dem Profil',
     description:
       'Wenn du offen für Neues bist, findest du passende Unternehmen mit echten Einblicken. Mit deinem Profil bewirbst du dich mit einem Klick.',
-    image: '/assets/feature-3.png',
+    image: jobsFeature,
     link: '/jobs',
     cta: 'Jobs entdecken'
   }
