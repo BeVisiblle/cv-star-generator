@@ -1,75 +1,56 @@
-import React from "react";
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Users, Building2, MessageSquare, Briefcase } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import React, { useLayoutEffect, useRef, useState } from 'react';
+import CommunityFeed from '@/components/community/CommunityFeed';
+import FeedSortBar from '@/components/community/FeedSortBar';
+import ComposerTeaser from '@/components/dashboard/ComposerTeaser';
+import LeftPanel from '@/components/dashboard/LeftPanel';
+import RightPanel from '@/components/dashboard/RightPanel';
 
 export default function Community() {
-  const navigate = useNavigate();
+  const [feedHeadH, setFeedHeadH] = useState(0);
+  const headRef = useRef<HTMLDivElement>(null);
 
-  const sections = [
-    {
-      title: "Freunde",
-      description: "Verwalte deine Kontakte und Verbindungen",
-      icon: Users,
-      path: "/community/contacts",
-      color: "text-blue-600"
-    },
-    {
-      title: "Unternehmen",
-      description: "Entdecke und folge Unternehmen",
-      icon: Building2,
-      path: "/community/companies",
-      color: "text-green-600"
-    },
-    {
-      title: "Nachrichten",
-      description: "Chatte mit deinen Kontakten",
-      icon: MessageSquare,
-      path: "/community/messages",
-      color: "text-purple-600"
-    },
-    {
-      title: "Jobs",
-      description: "Finde passende Stellenangebote",
-      icon: Briefcase,
-      path: "/marketplace",
-      color: "text-orange-600"
-    }
-  ];
+  useLayoutEffect(() => {
+    if (!headRef.current) return;
+    const obs = new ResizeObserver((entries) => {
+      const h = entries[0]?.target.getBoundingClientRect().height ?? 0;
+      setFeedHeadH(h);
+    });
+    obs.observe(headRef.current);
+    return () => obs.disconnect();
+  }, []);
 
   return (
-    <main className="mx-auto max-w-[1200px] p-3 sm:p-4 md:p-6">
-      <div className="mb-6">
-        <h1 className="text-2xl md:text-3xl font-bold mb-2">Community</h1>
-        <p className="text-muted-foreground">
-          Vernetze dich mit Freunden, Unternehmen und entdecke neue Möglichkeiten
-        </p>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-        {sections.map((section) => (
-          <Card
-            key={section.path}
-            className="p-6 hover:shadow-lg transition-shadow cursor-pointer"
-            onClick={() => navigate(section.path)}
-          >
-            <div className="flex items-start gap-4">
-              <div className={`p-3 rounded-lg bg-muted ${section.color}`}>
-                <section.icon className="h-6 w-6" />
-              </div>
-              <div className="flex-1">
-                <h3 className="text-lg font-semibold mb-1">{section.title}</h3>
-                <p className="text-sm text-muted-foreground mb-4">
-                  {section.description}
-                </p>
-                <Button variant="outline" size="sm">
-                  Öffnen
-                </Button>
-              </div>
+    <main className="w-full overflow-x-hidden">
+      <h1 className="sr-only">Community</h1>
+      <div className="mx-auto max-w-screen-2xl px-3 sm:px-6 lg:px-8 py-6">
+        <div className="flex gap-4 lg:gap-6">
+          {/* Linke Spalte */}
+          <aside className="hidden lg:block w-[280px] xl:w-[320px] shrink-0">
+            <div className="sticky top-20 space-y-4">
+              <LeftPanel />
             </div>
-          </Card>
-        ))}
+          </aside>
+
+          {/* Mitte - Community Feed */}
+          <section className="flex-1 min-w-0">
+            <div className="w-full max-w-[560px] mx-auto px-4 md:max-w-none md:px-0 space-y-4">
+              <div ref={headRef} className="sticky z-10 bg-background pb-2" style={{ top: '64px' }}>
+                <ComposerTeaser />
+                <div className="mt-2">
+                  <FeedSortBar />
+                </div>
+              </div>
+              <CommunityFeed feedHeadHeight={feedHeadH + 64} />
+            </div>
+          </section>
+
+          {/* Rechte Spalte */}
+          <aside className="hidden xl:block w-[320px] shrink-0">
+            <div className="sticky top-20 space-y-4">
+              <RightPanel />
+            </div>
+          </aside>
+        </div>
       </div>
     </main>
   );
