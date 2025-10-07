@@ -152,12 +152,14 @@ interface LinkedInProfileEducationProps {
   education: Education[];
   isEditing: boolean;
   onEducationUpdate: (education: Education[]) => void;
+  onEditingChange?: (isEditing: boolean) => void;
 }
 
 export const LinkedInProfileEducation: React.FC<LinkedInProfileEducationProps> = ({
   education = [],
   isEditing,
-  onEducationUpdate
+  onEducationUpdate,
+  onEditingChange
 }) => {
   const [isAddingNew, setIsAddingNew] = useState(false);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
@@ -283,13 +285,25 @@ export const LinkedInProfileEducation: React.FC<LinkedInProfileEducationProps> =
           <GraduationCap className="h-4 w-4 sm:h-5 sm:w-5" />
           Ausbildung
         </CardTitle>
-        {isEditing && (
-          <Button variant="outline" size="sm" onClick={() => { setIsAddingNew(true); resetForm(); }}>
-            <Plus className="h-4 w-4 mr-1 sm:mr-2" />
-            <span className="hidden sm:inline">Hinzufügen</span>
-            <span className="sm:hidden">+</span>
-          </Button>
-        )}
+        <div className="flex items-center gap-2">
+          {!isEditing && onEditingChange && (
+            <Button 
+              variant="ghost" 
+              size="sm"
+              onClick={() => onEditingChange(true)}
+              className="h-8 w-8 p-0"
+            >
+              <Edit3 className="h-4 w-4" />
+            </Button>
+          )}
+          {isEditing && (
+            <Button variant="outline" size="sm" onClick={() => { setIsAddingNew(true); resetForm(); }}>
+              <Plus className="h-4 w-4 mr-1 sm:mr-2" />
+              <span className="hidden sm:inline">Hinzufügen</span>
+              <span className="sm:hidden">+</span>
+            </Button>
+          )}
+        </div>
       </CardHeader>
       <CardContent className="p-3 sm:p-4 md:p-6 pt-0">
         {isAddingNew && (
@@ -337,24 +351,6 @@ export const LinkedInProfileEducation: React.FC<LinkedInProfileEducationProps> =
                           </span>
                         </div>
                       </div>
-                      
-                        <div className="flex gap-1">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleEdit(i)}
-                          >
-                            <Edit3 className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleDelete(i)}
-                            className="text-destructive hover:text-destructive"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
                     </div>
                     
                     {edu.beschreibung && (

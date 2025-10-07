@@ -2,10 +2,10 @@ import React, { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { FileText, Edit, Download, Eye, Loader2 } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { FileText, Download, Eye, Loader2 } from 'lucide-react';
 import { generatePDFFromCV } from '@/lib/pdf-generator';
 import { toast } from 'sonner';
+import { CVLayoutSelectorDialog } from '@/components/CVLayoutSelectorDialog';
 
 // Import CV layout components
 import BerlinLayout from '@/components/cv-layouts/BerlinLayout';
@@ -26,8 +26,8 @@ export const CVPreviewCard: React.FC<CVPreviewCardProps> = ({
   onDownload, 
   isGeneratingPDF = false 
 }) => {
-  const navigate = useNavigate();
   const [showPreviewModal, setShowPreviewModal] = useState(false);
+  const [showLayoutSelector, setShowLayoutSelector] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
 
   // Convert profile data to CV layout format
@@ -51,15 +51,11 @@ export const CVPreviewCard: React.FC<CVPreviewCardProps> = ({
     faehigkeiten: profile?.faehigkeiten || []
   };
 
-  const handleEditCV = () => {
-    // Store current profile data in localStorage for CV generator
-    const cvEditData = {
-      ...profile,
-      // Ensure dates are properly formatted
-      geburtsdatum: profile?.geburtsdatum ? new Date(profile.geburtsdatum).toISOString() : undefined
-    };
-    localStorage.setItem('cvEditData', JSON.stringify(cvEditData));
-    navigate('/cv-generator');
+  const handleLayoutUpdated = () => {
+    // Trigger parent refresh if needed
+    if (onDownload) {
+      onDownload();
+    }
   };
 
   const handleDownload = async () => {
@@ -123,9 +119,8 @@ export const CVPreviewCard: React.FC<CVPreviewCardProps> = ({
           <p className="text-muted-foreground mb-4">
             Vervollständigen Sie Ihr Profil, um eine CV-Vorschau zu sehen.
           </p>
-          <Button onClick={handleEditCV}>
-            <Edit className="h-4 w-4 mr-2" />
-            CV erstellen
+          <Button onClick={() => setShowLayoutSelector(true)}>
+            Layout wählen
           </Button>
         </div>
       </Card>
@@ -171,14 +166,13 @@ export const CVPreviewCard: React.FC<CVPreviewCardProps> = ({
                 </>
               )}
             </Button>
-            <Button 
-              variant="outline" 
-              className="w-full"
-              onClick={handleEditCV}
-            >
-              <Edit className="h-4 w-4 mr-2" />
-              CV Bearbeiten
-            </Button>
+          <Button 
+            variant="outline" 
+            className="w-full"
+            onClick={() => setShowLayoutSelector(true)}
+          >
+            Layout ändern
+          </Button>
           </div>
         </CardContent>
       </Card>
@@ -193,6 +187,14 @@ export const CVPreviewCard: React.FC<CVPreviewCardProps> = ({
           </div>
         </DialogContent>
       </Dialog>
+
+      <CVLayoutSelectorDialog
+        open={showLayoutSelector}
+        onOpenChange={setShowLayoutSelector}
+        currentLayout={profile?.layout || 1}
+        profile={profile}
+        onLayoutUpdated={handleLayoutUpdated}
+      />
     </>
   );
 };

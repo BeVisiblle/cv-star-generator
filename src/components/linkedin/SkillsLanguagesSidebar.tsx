@@ -1,6 +1,8 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Edit3 } from 'lucide-react';
 import { LanguageSelector } from '@/components/shared/LanguageSelector';
 import { SkillSelector } from '@/components/shared/SkillSelector';
 
@@ -9,6 +11,7 @@ interface SkillsLanguagesSidebarProps {
   isEditing: boolean;
   onProfileUpdate: (updates: any) => void;
   readOnly?: boolean;
+  onEditingChange?: (isEditing: boolean) => void;
 }
 
 export const SkillsLanguagesSidebar: React.FC<SkillsLanguagesSidebarProps> = ({
@@ -16,6 +19,7 @@ export const SkillsLanguagesSidebar: React.FC<SkillsLanguagesSidebarProps> = ({
   isEditing,
   onProfileUpdate,
   readOnly = false,
+  onEditingChange
 }) => {
   const handleLanguagesChange = async (languages: any[]) => {
     try {
@@ -37,8 +41,18 @@ export const SkillsLanguagesSidebar: React.FC<SkillsLanguagesSidebarProps> = ({
     <div className="space-y-6">
       {/* Skills first, then Languages as requested order */}
       <Card>
-        <CardHeader>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
           <CardTitle className="text-lg font-semibold">Fähigkeiten</CardTitle>
+          {!readOnly && !isEditing && onEditingChange && (
+            <Button 
+              variant="ghost" 
+              size="sm"
+              onClick={() => onEditingChange(true)}
+              className="h-8 w-8 p-0"
+            >
+              <Edit3 className="h-4 w-4" />
+            </Button>
+          )}
         </CardHeader>
         <CardContent>
           {!readOnly && isEditing ? (
@@ -65,8 +79,18 @@ export const SkillsLanguagesSidebar: React.FC<SkillsLanguagesSidebarProps> = ({
       </Card>
 
       <Card>
-        <CardHeader>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
           <CardTitle className="text-lg font-semibold">Sprachen</CardTitle>
+          {!readOnly && !isEditing && onEditingChange && (
+            <Button 
+              variant="ghost" 
+              size="sm"
+              onClick={() => onEditingChange(true)}
+              className="h-8 w-8 p-0"
+            >
+              <Edit3 className="h-4 w-4" />
+            </Button>
+          )}
         </CardHeader>
         <CardContent className="overflow-hidden">
           {!readOnly && isEditing ? (

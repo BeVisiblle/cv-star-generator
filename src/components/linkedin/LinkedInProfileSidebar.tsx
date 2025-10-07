@@ -4,7 +4,8 @@ import { CVPreviewCard } from '@/components/CVPreviewCard';
 import { WeitereDokumenteSection } from '@/components/linkedin/right-rail/WeitereDokumenteSection';
 import WeitereDokumenteWidget from '@/components/profile/WeitereDokumenteWidget';
 import { Badge } from '@/components/ui/badge';
-import { Award, Languages } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Award, Languages, Edit3 } from 'lucide-react';
 
 interface LinkedInProfileSidebarProps {
   profile: any;
@@ -14,6 +15,7 @@ interface LinkedInProfileSidebarProps {
   showLanguagesAndSkills?: boolean;
   showLicenseAndStats?: boolean;
   showCVSection?: boolean;
+  onEditingChange?: (isEditing: boolean) => void;
 }
 
 export function LinkedInProfileSidebar({
@@ -24,6 +26,7 @@ export function LinkedInProfileSidebar({
   showLanguagesAndSkills = true,
   showLicenseAndStats = true,
   showCVSection = true,
+  onEditingChange
 }: LinkedInProfileSidebarProps) {
   const [isDocumentWidgetOpen, setIsDocumentWidgetOpen] = useState(false);
   const [documentUpdateTrigger, setDocumentUpdateTrigger] = useState(0);
@@ -62,11 +65,21 @@ export function LinkedInProfileSidebar({
       {/* Skills Section - After Ads */}
       {showLanguagesAndSkills && profile?.faehigkeiten && profile.faehigkeiten.length > 0 && (
         <Card>
-          <CardHeader className="pb-2 sm:pb-3 px-3 sm:px-4 pt-3 sm:pt-4">
+          <CardHeader className="pb-2 sm:pb-3 px-3 sm:px-4 pt-3 sm:pt-4 flex flex-row items-center justify-between space-y-0">
             <CardTitle className="text-base sm:text-lg font-semibold flex items-center gap-2">
               <Award className="h-4 w-4 sm:h-5 sm:w-5" />
               Fähigkeiten
             </CardTitle>
+            {!readOnly && !isEditing && onEditingChange && (
+              <Button 
+                variant="ghost" 
+                size="sm"
+                onClick={() => onEditingChange(true)}
+                className="h-8 w-8 p-0"
+              >
+                <Edit3 className="h-4 w-4" />
+              </Button>
+            )}
           </CardHeader>
           <CardContent className="px-3 sm:px-4 pb-3 sm:pb-4">
             <div className="flex flex-wrap gap-1.5 sm:gap-2">
@@ -83,11 +96,21 @@ export function LinkedInProfileSidebar({
       {/* Languages Section - After Skills */}
       {showLanguagesAndSkills && profile?.sprachen && profile.sprachen.length > 0 && (
         <Card>
-          <CardHeader className="pb-2 sm:pb-3 px-3 sm:px-4 pt-3 sm:pt-4">
+          <CardHeader className="pb-2 sm:pb-3 px-3 sm:px-4 pt-3 sm:pt-4 flex flex-row items-center justify-between space-y-0">
             <CardTitle className="text-base sm:text-lg font-semibold flex items-center gap-2">
               <Languages className="h-4 w-4 sm:h-5 sm:w-5" />
               Sprachen
             </CardTitle>
+            {!readOnly && !isEditing && onEditingChange && (
+              <Button 
+                variant="ghost" 
+                size="sm"
+                onClick={() => onEditingChange(true)}
+                className="h-8 w-8 p-0"
+              >
+                <Edit3 className="h-4 w-4" />
+              </Button>
+            )}
           </CardHeader>
           <CardContent className="px-3 sm:px-4 pb-3 sm:pb-4">
             <div className="space-y-1.5 sm:space-y-2">

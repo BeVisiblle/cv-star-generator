@@ -111,12 +111,14 @@ interface LinkedInProfileExperienceProps {
   experiences: Experience[];
   isEditing: boolean;
   onExperiencesUpdate: (experiences: Experience[]) => void;
+  onEditingChange?: (isEditing: boolean) => void;
 }
 
 export const LinkedInProfileExperience: React.FC<LinkedInProfileExperienceProps> = ({
   experiences = [],
   isEditing,
-  onExperiencesUpdate
+  onExperiencesUpdate,
+  onEditingChange
 }) => {
   const [isAddingNew, setIsAddingNew] = useState(false);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
@@ -246,13 +248,25 @@ export const LinkedInProfileExperience: React.FC<LinkedInProfileExperienceProps>
           <span className="hidden sm:inline">Berufserfahrung</span>
           <span className="sm:hidden">Erfahrung</span>
         </CardTitle>
-        {isEditing && (
-          <Button variant="outline" size="sm" onClick={() => { setIsAddingNew(true); resetForm(); }}>
-            <Plus className="h-4 w-4 mr-1 sm:mr-2" />
-            <span className="hidden sm:inline">Hinzufügen</span>
-            <span className="sm:hidden">+</span>
-          </Button>
-        )}
+        <div className="flex items-center gap-2">
+          {!isEditing && onEditingChange && (
+            <Button 
+              variant="ghost" 
+              size="sm"
+              onClick={() => onEditingChange(true)}
+              className="h-8 w-8 p-0"
+            >
+              <Edit3 className="h-4 w-4" />
+            </Button>
+          )}
+          {isEditing && (
+            <Button variant="outline" size="sm" onClick={() => { setIsAddingNew(true); resetForm(); }}>
+              <Plus className="h-4 w-4 mr-1 sm:mr-2" />
+              <span className="hidden sm:inline">Hinzufügen</span>
+              <span className="sm:hidden">+</span>
+            </Button>
+          )}
+        </div>
       </CardHeader>
       <CardContent className="p-3 sm:p-4 md:p-6 pt-0">
         {isAddingNew && (

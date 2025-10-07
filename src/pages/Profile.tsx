@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Edit3, Check, Clock, X, Loader2, Mail, Phone, MapPin, Car } from 'lucide-react';
+import { Edit3, Check, Clock, X, Loader2, Mail, Phone, MapPin, Car, Pencil } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { LinkedInProfileHeader } from '@/components/linkedin/LinkedInProfileHeader';
@@ -37,6 +37,7 @@ const Profile = () => {
   const [profile, setProfile] = useState<any>(null);
   const [documentsCount, setDocumentsCount] = useState<number>(0);
   const [profileVisits, setProfileVisits] = useState<number>(0);
+  const [isEditingContact, setIsEditingContact] = useState(false);
 
   // All hooks must be called before any conditional returns
   const handleProfileUpdateImmediate = useCallback(async (updates: any) => {
@@ -226,16 +227,38 @@ const Profile = () => {
                 <LinkedInProfileActivity profile={profile} />
 
                 {/* Experience Section */}
-                <LinkedInProfileExperience experiences={profile?.berufserfahrung || []} isEditing={isEditing} onExperiencesUpdate={handleExperiencesUpdate} />
+                <LinkedInProfileExperience 
+                  experiences={profile?.berufserfahrung || []} 
+                  isEditing={isEditing} 
+                  onExperiencesUpdate={handleExperiencesUpdate}
+                  onEditingChange={setIsEditing}
+                />
 
                 {/* Education Section */}
-                <LinkedInProfileEducation education={profile?.schulbildung || []} isEditing={isEditing} onEducationUpdate={handleEducationUpdate} />
+                <LinkedInProfileEducation 
+                  education={profile?.schulbildung || []} 
+                  isEditing={isEditing} 
+                  onEducationUpdate={handleEducationUpdate}
+                  onEditingChange={setIsEditing}
+                />
 
                 {/* Small tiles under Education: Contact & Profile Highlights */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                   <Card className="p-3 sm:p-4">
-                    <h4 className="text-sm font-semibold mb-2">Kontaktdaten</h4>
-                    {isEditing ? (
+                    <div className="flex items-center justify-between mb-2">
+                      <h4 className="text-sm font-semibold">Kontaktdaten</h4>
+                      {!isEditingContact && !isEditing && (
+                        <Button 
+                          variant="ghost" 
+                          size="sm"
+                          onClick={() => setIsEditingContact(true)}
+                          className="h-7 w-7 p-0"
+                        >
+                          <Pencil className="h-3.5 w-3.5" />
+                        </Button>
+                      )}
+                    </div>
+                    {isEditing || isEditingContact ? (
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div className="space-y-1">
                           <Label htmlFor="email">E-Mail</Label>
@@ -352,7 +375,15 @@ const Profile = () => {
             {/* Right Sidebar - Desktop: sidebar, Mobile: after main content */}
             <aside className="lg:col-span-4">
               <div className="lg:sticky lg:top-6 space-y-3 sm:space-y-4 md:space-y-6">
-                <LinkedInProfileSidebar profile={profile} isEditing={isEditing} onProfileUpdate={handleProfileUpdate} showLanguagesAndSkills={true} showLicenseAndStats={true} showCVSection={true} />
+                <LinkedInProfileSidebar 
+                  profile={profile} 
+                  isEditing={isEditing} 
+                  onProfileUpdate={handleProfileUpdate} 
+                  showLanguagesAndSkills={true} 
+                  showLicenseAndStats={true} 
+                  showCVSection={true}
+                  onEditingChange={setIsEditing}
+                />
                 <RightRailAd variant="card" size="sm" />
                 <InView rootMargin="300px" placeholder={<div className="h-32 rounded-md bg-muted/50 animate-pulse" />}> 
                   <CompanyRecommendations limit={3} showMoreLink="/entdecken/unternehmen" showMore />
