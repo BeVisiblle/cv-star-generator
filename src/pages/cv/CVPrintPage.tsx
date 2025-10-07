@@ -20,19 +20,28 @@ export default function CVPrintPage() {
 
   useEffect(() => {
     const loadProfile = async () => {
+      console.log('🔵 CVPrintPage: Loading profile for userId:', userId);
+      
       if (!userId) {
+        console.error('❌ CVPrintPage: No userId provided');
         setIsLoading(false);
         return;
       }
 
       try {
+        console.log('🔵 CVPrintPage: Fetching profile from Supabase...');
         const { data: profile, error } = await supabase
           .from('profiles')
           .select('*')
           .eq('id', userId)
           .single();
 
-        if (error) throw error;
+        if (error) {
+          console.error('❌ CVPrintPage: Error fetching profile:', error);
+          throw error;
+        }
+
+        console.log('✅ CVPrintPage: Profile loaded:', profile);
 
         if (profile) {
           // Convert profile to CVData format
@@ -62,12 +71,16 @@ export default function CVPrintPage() {
             weiterbildung: [],
             interessen: []
           };
+          console.log('✅ CVPrintPage: CV data prepared:', cvData);
           setCvData(cvData);
+        } else {
+          console.error('❌ CVPrintPage: No profile data returned');
         }
       } catch (error) {
-        console.error('Error loading profile:', error);
+        console.error('❌ CVPrintPage: Error loading profile:', error);
       } finally {
         setIsLoading(false);
+        console.log('🔵 CVPrintPage: Loading complete');
       }
     };
 

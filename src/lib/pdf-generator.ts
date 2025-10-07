@@ -141,6 +141,8 @@ export const generateCVFilename = (
 
 export const generatePDFFromCV = async (layoutId: number, userId: string, filename?: string): Promise<void> => {
   try {
+    console.log('🔵 PDF Generation started:', { layoutId, userId, filename });
+    
     // Create temporary iframe to load CV print page
     const iframe = document.createElement('iframe');
     iframe.style.position = 'fixed';
@@ -155,26 +157,42 @@ export const generatePDFFromCV = async (layoutId: number, userId: string, filena
       userId: userId
     });
     
+    console.log('🔵 Loading iframe with params:', params.toString());
+    
     return new Promise<void>((resolve, reject) => {
+      const timeout = setTimeout(() => {
+        console.error('❌ PDF Generation timeout - iframe did not load in time');
+        document.body.removeChild(iframe);
+        reject(new Error('PDF generation timeout'));
+      }, 30000); // 30 second timeout
+
       iframe.onload = async () => {
         try {
+          console.log('✅ Iframe loaded successfully');
+          clearTimeout(timeout);
+          
           // Wait a bit for the CV to fully render
-          await new Promise(r => setTimeout(r, 1500));
+          await new Promise(r => setTimeout(r, 2000));
 
           const cvElement = iframe.contentDocument?.querySelector('[data-cv-preview]') as HTMLElement;
           if (!cvElement) {
+            console.error('❌ CV element not found in iframe');
             throw new Error('CV element not found');
           }
+
+          console.log('✅ CV element found, generating canvas...');
 
           // Generate canvas from CV element
           const canvas = await html2canvas(cvElement, {
             scale: 2,
             useCORS: true,
-            logging: false,
+            logging: true,
             backgroundColor: '#ffffff',
             width: 794, // A4 width in pixels (210mm at 96dpi)
             height: 1123 // A4 height in pixels (297mm at 96dpi)
           });
+
+          console.log('✅ Canvas generated, creating PDF...');
 
           // Calculate PDF dimensions (A4)
           const imgWidth = 210; // A4 width in mm
@@ -192,26 +210,33 @@ export const generatePDFFromCV = async (layoutId: number, userId: string, filena
 
           // Download PDF
           const pdfFilename = filename || `CV_${new Date().toISOString().split('T')[0]}.pdf`;
+          console.log('✅ Saving PDF as:', pdfFilename);
           pdf.save(pdfFilename);
 
           // Cleanup
           document.body.removeChild(iframe);
+          console.log('✅ PDF generation completed successfully');
           resolve();
         } catch (error) {
+          clearTimeout(timeout);
+          console.error('❌ Error during PDF generation:', error);
           document.body.removeChild(iframe);
           reject(error);
         }
       };
 
-      iframe.onerror = () => {
+      iframe.onerror = (error) => {
+        clearTimeout(timeout);
+        console.error('❌ Iframe failed to load:', error);
         document.body.removeChild(iframe);
         reject(new Error('Failed to load CV'));
       };
 
       iframe.src = `/cv/print?${params.toString()}`;
+      console.log('🔵 Iframe src set to:', iframe.src);
     });
   } catch (error) {
-    console.error('PDF generation error:', error);
+    console.error('❌ PDF generation error (outer catch):', error);
     throw error;
   }
 };
