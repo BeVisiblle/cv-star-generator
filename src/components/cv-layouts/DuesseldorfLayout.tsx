@@ -16,7 +16,7 @@ const DuesseldorfLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) =>
             <p className="text-sm text-center uppercase tracking-wide" style={{ color: 'hsl(0, 0%, 50%)' }}>
               {data.status === 'schueler' && 'Schüler'}
               {data.status === 'azubi' && 'Auszubildender'}
-              {data.status === 'ausgelernt' && 'Professional'}
+              {data.status === 'ausgelernt' && 'Ausgelernt'}
             </p>
           )}
           
@@ -43,7 +43,7 @@ const DuesseldorfLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) =>
               borderColor: 'hsl(0, 0%, 70%)',
               letterSpacing: '0.08em'
             }}>
-              Professional Overview
+              Berufliches Profil
             </h2>
             <p className="text-xs leading-relaxed text-justify" style={{ color: 'hsl(0, 0%, 30%)' }}>
               {data.ueberMich}
@@ -59,7 +59,7 @@ const DuesseldorfLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) =>
               borderColor: 'hsl(0, 0%, 70%)',
               letterSpacing: '0.08em'
             }}>
-              Work Experience
+              Berufserfahrung
             </h2>
             <div className="space-y-4">
               {data.berufserfahrung.map((arbeit, idx) => (
@@ -76,7 +76,7 @@ const DuesseldorfLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) =>
                       )}
                     </div>
                     <span className="text-xs whitespace-nowrap ml-4" style={{ color: 'hsl(0, 0%, 45%)' }}>
-                      {arbeit.zeitraum_von} - {arbeit.zeitraum_bis || 'Present'}
+                      {arbeit.zeitraum_von} - {arbeit.zeitraum_bis || 'heute'}
                     </span>
                   </div>
                   <p className="text-xs italic mb-2" style={{ color: 'hsl(0, 0%, 35%)' }}>
@@ -108,7 +108,7 @@ const DuesseldorfLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) =>
               borderColor: 'hsl(0, 0%, 70%)',
               letterSpacing: '0.08em'
             }}>
-              Education
+              Ausbildung
             </h2>
             <div className="space-y-3">
               {data.schulbildung.map((schule, idx) => (
@@ -150,7 +150,7 @@ const DuesseldorfLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) =>
               borderColor: 'hsl(0, 0%, 70%)',
               letterSpacing: '0.08em'
             }}>
-              Certifications & Professional Development
+              Zertifikate & Weiterbildung
             </h2>
             <div className="space-y-2">
               {data.weiterbildung && data.weiterbildung.map((wb, idx) => (
@@ -191,7 +191,7 @@ const DuesseldorfLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) =>
           {data.qualifikationen && data.qualifikationen.length > 0 && (
             <div>
               <h3 className="text-xs font-bold mb-2 uppercase tracking-wider" style={{ color: 'hsl(0, 0%, 25%)' }}>
-                Qualifications
+                Qualifikationen
               </h3>
               <div className="space-y-1 text-xs" style={{ color: 'hsl(0, 0%, 35%)' }}>
                 {data.qualifikationen.slice(0, 5).map((qual, idx) => (
@@ -205,7 +205,7 @@ const DuesseldorfLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) =>
           {data.faehigkeiten && data.faehigkeiten.length > 0 && (
             <div>
               <h3 className="text-xs font-bold mb-2 uppercase tracking-wider" style={{ color: 'hsl(0, 0%, 25%)' }}>
-                Technical Skills
+                Fachkenntnisse
               </h3>
               <div className="space-y-1 text-xs" style={{ color: 'hsl(0, 0%, 35%)' }}>
                 {data.faehigkeiten.slice(0, 5).map((skill, idx) => (
@@ -219,7 +219,7 @@ const DuesseldorfLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) =>
           {data.sprachen && data.sprachen.length > 0 && (
             <div>
               <h3 className="text-xs font-bold mb-2 uppercase tracking-wider" style={{ color: 'hsl(0, 0%, 25%)' }}>
-                Languages
+                Sprachen
               </h3>
               <div className="space-y-1 text-xs" style={{ color: 'hsl(0, 0%, 35%)' }}>
                 {data.sprachen.map((sprache, idx) => (
@@ -235,7 +235,7 @@ const DuesseldorfLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) =>
           {data.interessen && data.interessen.length > 0 && (
             <div>
               <h3 className="text-xs font-bold mb-2 uppercase tracking-wider" style={{ color: 'hsl(0, 0%, 25%)' }}>
-                Interests
+                Interessen
               </h3>
               <div className="space-y-1 text-xs" style={{ color: 'hsl(0, 0%, 35%)' }}>
                 {data.interessen.slice(0, 5).map((interesse, idx) => (
