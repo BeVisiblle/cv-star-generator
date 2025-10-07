@@ -6,7 +6,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card } from '@/components/ui/card';
 import { FileUpload } from '@/components/ui/file-upload';
 import { FormFieldError } from '@/components/ui/form-field-error';
-import { PLZOrtSelector } from '@/components/shared/PLZOrtSelector';
 
 const CVStep2 = () => {
   const { formData, updateFormData, validationErrors } = useCVForm();
@@ -134,17 +133,31 @@ const CVStep2 = () => {
                 </FormFieldError>
               </div>
               
-              <FormFieldError error={validationErrors.plz || validationErrors.ort}>
-                <PLZOrtSelector
-                  plz={formData.plz || ''}
-                  ort={formData.ort || ''}
-                  onPLZChange={(plz) => updateFormData({ plz })}
-                  onOrtChange={(ort) => updateFormData({ ort })}
-                  plzLabel="PLZ *"
-                  ortLabel="Ort *"
-                  required={true}
-                />
-              </FormFieldError>
+              <div className="grid grid-cols-3 gap-4">
+                <FormFieldError error={validationErrors.plz}>
+                  <div className="space-y-2">
+                    <Label htmlFor="plz">PLZ *</Label>
+                    <Input
+                      id="plz"
+                      value={formData.plz || ''}
+                      onChange={(e) => updateFormData({ plz: e.target.value })}
+                      placeholder="12345"
+                      maxLength={5}
+                    />
+                  </div>
+                </FormFieldError>
+                <FormFieldError error={validationErrors.ort} className="col-span-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="ort">Ort *</Label>
+                    <Input
+                      id="ort"
+                      value={formData.ort || ''}
+                      onChange={(e) => updateFormData({ ort: e.target.value })}
+                      placeholder="Berlin"
+                    />
+                  </div>
+                </FormFieldError>
+              </div>
               
               <FormFieldError error={validationErrors.telefon}>
                 <div>
