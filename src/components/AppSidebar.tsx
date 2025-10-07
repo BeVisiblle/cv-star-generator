@@ -203,9 +203,9 @@ export function AppSidebar() {
                       <SidebarMenuSubItem>
                         <SidebarMenuSubButton asChild>
                           <button
-                            onClick={() => handleNavigation('/messages')}
+                            onClick={() => handleNavigation('/community/messages')}
                             className={`w-full text-left pl-9 ${
-                              isActive('/messages') ? 'bg-sidebar-accent text-sidebar-accent-foreground' : ''
+                              isActive('/community/messages') ? 'bg-sidebar-accent text-sidebar-accent-foreground' : ''
                             }`}
                           >
                             <MessageSquare className="h-4 w-4 mr-2" />
