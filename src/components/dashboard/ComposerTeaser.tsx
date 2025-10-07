@@ -14,7 +14,7 @@ export const ComposerTeaser: React.FC = () => {
       role="button"
       aria-label="Neuen Beitrag erstellen"
       onClick={openPostComposer}
-      className="p-3 sm:p-4 md:p-5 hover-scale cursor-pointer"
+      className="p-2.5 sm:p-3 md:p-4 hover-scale cursor-pointer"
     >
       <div className="flex items-start gap-2 sm:gap-3">
         <Avatar className="h-8 w-8 sm:h-10 sm:w-10 shrink-0">
