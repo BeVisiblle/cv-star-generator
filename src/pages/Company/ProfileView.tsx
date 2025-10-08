@@ -13,6 +13,9 @@ import { LinkedInProfileExperience } from "@/components/linkedin/LinkedInProfile
 import { LinkedInProfileEducation } from "@/components/linkedin/LinkedInProfileEducation";
 import { LinkedInProfileActivity } from "@/components/linkedin/LinkedInProfileActivity";
 import { LinkedInProfileSidebar } from "@/components/linkedin/LinkedInProfileSidebar";
+import { WeitereDokumenteSection } from "@/components/linkedin/right-rail/WeitereDokumenteSection";
+import { ContactInfoCard } from "@/components/linkedin/right-rail/ContactInfoCard";
+import { AdCard } from "@/components/linkedin/right-rail/AdCard";
 
 export default function ProfileView() {
   const { id } = useParams<{ id: string }>();
@@ -206,17 +209,18 @@ export default function ProfileView() {
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto py-6 px-4 max-w-7xl">
-        {/* Header with Back & Follow */}
+        {/* Header with Back Button */}
         <div className="flex items-center justify-between mb-6">
           <Button
             variant="ghost"
-            onClick={() => navigate(-1)}
+            onClick={() => navigate('/company/candidates')}
             className="gap-2"
           >
             <ArrowLeft className="h-4 w-4" />
-            Zurück
+            Zurück zur Kandidatensuche
           </Button>
           
+          {/* Follow Button - only show if unlocked */}
           {isUnlocked && (
             <Button
               variant={followStatus === 'accepted' ? 'secondary' : 'outline'}
@@ -329,23 +333,16 @@ export default function ProfileView() {
           {/* Right Column - Sidebar */}
           <div className="lg:col-span-4">
             <div className="lg:sticky lg:top-20 space-y-4">
-              {isUnlocked && profile?.cv_url && (
-                <div className="bg-card border rounded-lg p-4">
-                  <h3 className="font-semibold mb-3 flex items-center gap-2">
-                    <Download className="h-4 w-4" />
-                    Lebenslauf
-                  </h3>
-                  <Button
-                    variant="outline"
-                    className="w-full"
-                    onClick={handleDownloadCV}
-                  >
-                    <Download className="h-4 w-4 mr-2" />
-                    CV herunterladen
-                  </Button>
-                </div>
+              {/* Contact Info Card - only when unlocked */}
+              {isUnlocked && (
+                <ContactInfoCard
+                  email={profile?.email || profile?.telefon}
+                  phone={profile?.telefon}
+                  location={profile?.ort}
+                  website={profile?.website}
+                />
               )}
-              
+
               <LinkedInProfileSidebar
                 profile={displayProfile}
                 isEditing={false}
@@ -356,6 +353,19 @@ export default function ProfileView() {
                 showLanguagesAndSkills={true}
                 showLicenseAndStats={true}
               />
+
+              {/* Weitere Dokumente - only when unlocked */}
+              {isUnlocked && (
+                <WeitereDokumenteSection
+                  userId={id || ''}
+                  readOnly={true}
+                  openWidget={() => {}}
+                  refreshTrigger={0}
+                />
+              )}
+
+              {/* Werbung */}
+              <AdCard />
             </div>
           </div>
         </div>
