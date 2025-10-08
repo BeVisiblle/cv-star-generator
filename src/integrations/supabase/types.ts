@@ -1897,6 +1897,7 @@ export type Database = {
           custom_tokens: number | null
           id: string
           is_active: boolean
+          next_refill_date: string | null
           notes: string | null
           plan_id: string
           updated_at: string
@@ -1915,6 +1916,7 @@ export type Database = {
           custom_tokens?: number | null
           id?: string
           is_active?: boolean
+          next_refill_date?: string | null
           notes?: string | null
           plan_id: string
           updated_at?: string
@@ -1933,6 +1935,7 @@ export type Database = {
           custom_tokens?: number | null
           id?: string
           is_active?: boolean
+          next_refill_date?: string | null
           notes?: string | null
           plan_id?: string
           updated_at?: string
@@ -7514,7 +7517,7 @@ export type Database = {
           p_valid_from?: string
           p_valid_until?: string
         }
-        Returns: string
+        Returns: undefined
       }
       apply_entitlements: {
         Args: {
@@ -8685,6 +8688,10 @@ export type Database = {
           new_balance: number
           paid_cents: number
         }[]
+      }
+      refill_monthly_tokens: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
       }
       resolve_location_id: {
         Args: { p_city: string; p_country_code?: string; p_postal_code: string }
