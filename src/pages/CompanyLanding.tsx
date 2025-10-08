@@ -115,11 +115,7 @@ export default function CompanyLanding() {
 
   const openCalendly = (buttonLabel: string = 'Demo buchen') => {
     trackCalendlyClick(buttonLabel, 'Company Landing');
-    if (typeof window !== 'undefined' && window.Calendly) {
-      window.Calendly.initPopupWidget({
-        url: 'https://calendly.com/todd-bevisiblle/gettoknowbeviviblle'
-      });
-    }
+    window.open('https://calendly.com/todd-bevisiblle/gettoknowbeviviblle', '_blank', 'noopener,noreferrer');
   };
 
   const handleNewsletterSubmit = (e: React.FormEvent) => {

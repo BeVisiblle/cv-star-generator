@@ -57,11 +57,7 @@ export default function AboutUs() {
 
   const openCalendly = (buttonLabel: string = 'Demo buchen') => {
     trackCalendlyClick(buttonLabel, 'About Us');
-    if (typeof window !== "undefined" && window.Calendly) {
-      window.Calendly.initPopupWidget({
-        url: "https://calendly.com/todd-bevisiblle/gettoknowbeviviblle"
-      });
-    }
+    window.open('https://calendly.com/todd-bevisiblle/gettoknowbeviviblle', '_blank', 'noopener,noreferrer');
   };
 
   const handleNewsletterSubmit = (e: React.FormEvent<HTMLFormElement>) => {

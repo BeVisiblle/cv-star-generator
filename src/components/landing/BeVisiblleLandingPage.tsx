@@ -15,16 +15,10 @@ export default function BeVisiblleLandingPage() {
     setIsMobileMenuOpen(!isMobileMenuOpen);
   };
 
-  // Calendly integration
+  // Calendly integration - open in new tab
   const openCalendly = (buttonLabel: string = 'Demo buchen') => {
     trackCalendlyClick(buttonLabel, 'Landing Page');
-    // @ts-ignore
-    if (window.Calendly) {
-      // @ts-ignore
-      window.Calendly.initPopupWidget({
-        url: 'https://calendly.com/bevisiblle/demo'
-      });
-    }
+    window.open('https://calendly.com/bevisiblle/demo', '_blank', 'noopener,noreferrer');
   };
 
   // Newsletter form handler
@@ -34,21 +28,7 @@ export default function BeVisiblleLandingPage() {
   };
 
   useEffect(() => {
-    // Track page view
     trackPageView('Landing Page');
-    
-    // Load Calendly script
-    const script = document.createElement('script');
-    script.src = 'https://assets.calendly.com/assets/external/widget.js';
-    script.async = true;
-    document.body.appendChild(script);
-
-    return () => {
-      // Cleanup
-      if (document.body.contains(script)) {
-        document.body.removeChild(script);
-      }
-    };
   }, []);
 
   return (
