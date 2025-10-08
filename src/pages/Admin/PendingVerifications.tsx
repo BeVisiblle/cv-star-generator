@@ -5,7 +5,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { CheckCircle, XCircle, Clock, Building2 } from "lucide-react";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
+import { CheckCircle, XCircle, Clock, Building2, Filter } from "lucide-react";
 import { toast } from "sonner";
 import { formatDistanceToNow } from "date-fns";
 import { de } from "date-fns/locale";
@@ -22,61 +27,130 @@ type PendingCompany = {
   employee_count: number | null;
 };
 
+const REJECTION_REASONS = [
+  { value: "incomplete_info", label: "Unvollständige Informationen" },
+  { value: "suspicious_activity", label: "Verdächtige Aktivität" },
+  { value: "duplicate_account", label: "Doppeltes Konto" },
+  { value: "invalid_business", label: "Ungültiges Unternehmen" },
+  { value: "terms_violation", label: "Verstoß gegen AGB" },
+  { value: "other", label: "Sonstiges" },
+];
+
 export default function PendingVerifications() {
   const queryClient = useQueryClient();
+  const [rejectDialogOpen, setRejectDialogOpen] = useState(false);
+  const [selectedCompany, setSelectedCompany] = useState<PendingCompany | null>(null);
+  const [rejectionReason, setRejectionReason] = useState("");
+  const [customReason, setCustomReason] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
 
   const { data: pendingCompanies = [], isLoading } = useQuery({
     queryKey: ["pending-verifications"],
     queryFn: async (): Promise<PendingCompany[]> => {
+      console.log("Fetching pending companies...");
       const { data, error } = await supabase
         .from("companies")
         .select("id, name, primary_email, created_at, industry, location, website_url, contact_person, employee_count")
         .eq("account_status", "pending")
         .order("created_at", { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error fetching pending companies:", error);
+        throw error;
+      }
+      console.log("Fetched pending companies:", data);
       return data || [];
     },
   });
 
   const verifyMutation = useMutation({
     mutationFn: async (companyId: string) => {
-      const { error } = await supabase
+      console.log("Verifying company:", companyId);
+      const { data, error } = await supabase
         .from("companies")
         .update({ account_status: "active" })
-        .eq("id", companyId);
+        .eq("id", companyId)
+        .select();
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error verifying company:", error);
+        throw error;
+      }
+      console.log("Company verified:", data);
+      return data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["pending-verifications"] });
+      queryClient.invalidateQueries({ queryKey: ["admin-companies"] });
       toast.success("Unternehmen erfolgreich verifiziert");
     },
     onError: (error) => {
+      console.error("Verification error:", error);
       toast.error("Fehler beim Verifizieren: " + error.message);
     },
   });
 
   const rejectMutation = useMutation({
-    mutationFn: async (companyId: string) => {
-      const { error } = await supabase
+    mutationFn: async ({ companyId, reason }: { companyId: string; reason: string }) => {
+      console.log("Rejecting company:", companyId, "Reason:", reason);
+      const { data, error } = await supabase
         .from("companies")
         .update({ 
           account_status: "frozen",
           frozen_at: new Date().toISOString(),
-          frozen_reason: "Manuell abgelehnt durch Admin"
+          frozen_reason: reason
         })
-        .eq("id", companyId);
+        .eq("id", companyId)
+        .select();
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error rejecting company:", error);
+        throw error;
+      }
+      console.log("Company rejected:", data);
+      return data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["pending-verifications"] });
-      toast.success("Unternehmen wurde abgelehnt");
+      queryClient.invalidateQueries({ queryKey: ["admin-companies"] });
+      setRejectDialogOpen(false);
+      setSelectedCompany(null);
+      setRejectionReason("");
+      setCustomReason("");
+      toast.success("Unternehmen wurde abgelehnt und eingefroren");
     },
     onError: (error) => {
+      console.error("Rejection error:", error);
       toast.error("Fehler beim Ablehnen: " + error.message);
     },
+  });
+
+  const handleReject = () => {
+    if (!selectedCompany) return;
+    
+    let finalReason = "";
+    if (rejectionReason === "other") {
+      finalReason = customReason || "Sonstiger Grund (nicht angegeben)";
+    } else {
+      const reasonObj = REJECTION_REASONS.find(r => r.value === rejectionReason);
+      finalReason = reasonObj?.label || "Nicht angegeben";
+    }
+
+    rejectMutation.mutate({ 
+      companyId: selectedCompany.id, 
+      reason: finalReason 
+    });
+  };
+
+  const filteredCompanies = pendingCompanies.filter(company => {
+    if (!searchTerm) return true;
+    const search = searchTerm.toLowerCase();
+    return (
+      company.name.toLowerCase().includes(search) ||
+      company.primary_email?.toLowerCase().includes(search) ||
+      company.industry?.toLowerCase().includes(search) ||
+      company.location?.toLowerCase().includes(search)
+    );
   });
 
   if (isLoading) {
@@ -98,19 +172,34 @@ export default function PendingVerifications() {
 
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Clock className="h-5 w-5" />
-            Wartende Unternehmen
-          </CardTitle>
-          <CardDescription>
-            {pendingCompanies.length} {pendingCompanies.length === 1 ? "Unternehmen wartet" : "Unternehmen warten"} auf Verifizierung
-          </CardDescription>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="flex items-center gap-2">
+                <Clock className="h-5 w-5" />
+                Wartende Unternehmen
+              </CardTitle>
+              <CardDescription>
+                {filteredCompanies.length} {filteredCompanies.length === 1 ? "Unternehmen wartet" : "Unternehmen warten"} auf Verifizierung
+              </CardDescription>
+            </div>
+            <div className="flex items-center gap-2">
+              <Filter className="h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Suchen..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-64"
+              />
+            </div>
+          </div>
         </CardHeader>
         <CardContent>
-          {pendingCompanies.length === 0 ? (
+          {filteredCompanies.length === 0 ? (
             <div className="text-center py-12">
               <Building2 className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-              <p className="text-muted-foreground">Keine ausstehenden Verifizierungen</p>
+              <p className="text-muted-foreground">
+                {searchTerm ? "Keine Unternehmen gefunden" : "Keine ausstehenden Verifizierungen"}
+              </p>
             </div>
           ) : (
             <Table>
@@ -125,7 +214,7 @@ export default function PendingVerifications() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {pendingCompanies.map((company) => (
+                {filteredCompanies.map((company) => (
                   <TableRow key={company.id}>
                     <TableCell>
                       <div>
@@ -182,7 +271,10 @@ export default function PendingVerifications() {
                         <Button
                           size="sm"
                           variant="destructive"
-                          onClick={() => rejectMutation.mutate(company.id)}
+                          onClick={() => {
+                            setSelectedCompany(company);
+                            setRejectDialogOpen(true);
+                          }}
                           disabled={rejectMutation.isPending}
                         >
                           <XCircle className="h-4 w-4 mr-1" />
@@ -197,6 +289,68 @@ export default function PendingVerifications() {
           )}
         </CardContent>
       </Card>
+
+      <Dialog open={rejectDialogOpen} onOpenChange={setRejectDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Unternehmen ablehnen</DialogTitle>
+            <DialogDescription>
+              Bitte wählen Sie einen Grund für die Ablehnung von "{selectedCompany?.name}".
+              Das Konto wird eingefroren und kann später reaktiviert werden.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="reason">Ablehnungsgrund</Label>
+              <Select value={rejectionReason} onValueChange={setRejectionReason}>
+                <SelectTrigger id="reason">
+                  <SelectValue placeholder="Grund auswählen..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {REJECTION_REASONS.map((reason) => (
+                    <SelectItem key={reason.value} value={reason.value}>
+                      {reason.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            
+            {rejectionReason === "other" && (
+              <div className="space-y-2">
+                <Label htmlFor="custom-reason">Bitte Grund angeben</Label>
+                <Textarea
+                  id="custom-reason"
+                  placeholder="Geben Sie den Grund für die Ablehnung ein..."
+                  value={customReason}
+                  onChange={(e) => setCustomReason(e.target.value)}
+                  rows={3}
+                />
+              </div>
+            )}
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setRejectDialogOpen(false);
+                setSelectedCompany(null);
+                setRejectionReason("");
+                setCustomReason("");
+              }}
+            >
+              Abbrechen
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleReject}
+              disabled={!rejectionReason || (rejectionReason === "other" && !customReason.trim())}
+            >
+              Ablehnen & Einfrieren
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
