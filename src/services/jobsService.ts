@@ -1,14 +1,13 @@
 import { supabase } from "@/integrations/supabase/client";
-import { Database } from "@/integrations/supabase/types";
 
-type JobPost = Database['public']['Tables']['job_posts']['Row'];
-type JobInsert = Database['public']['Tables']['job_posts']['Insert'];
-type JobUpdate = Database['public']['Tables']['job_posts']['Update'];
-type JobStatus = Database['public']['Enums']['job_status'];
+type JobPost = any; // Simplified to avoid deep type instantiation
+type JobInsert = any;
+type JobUpdate = any;
+type JobStatus = "draft" | "published" | "paused" | "inactive";
 
 export class JobsService {
   // Fetch jobs for a company
-  static async getCompanyJobs(companyId: string) {
+  static async getCompanyJobs(companyId: string): Promise<any[]> {
     const { data, error } = await supabase
       .from('job_posts')
       .select('*')
@@ -16,11 +15,11 @@ export class JobsService {
       .order('created_at', { ascending: false });
 
     if (error) throw error;
-    return data;
+    return data || [];
   }
 
   // Fetch a single job by ID
-  static async getJobById(jobId: string) {
+  static async getJobById(jobId: string): Promise<any> {
     const { data, error } = await supabase
       .from('job_posts')
       .select('*, company:companies(*)')
@@ -36,39 +35,48 @@ export class JobsService {
     employment_type?: string;
     profession_id?: string;
     location?: string;
-  }) {
-    let query = supabase
+  }): Promise<any[]> {
+    // Build base query
+    const baseQuery = supabase
       .from('job_posts')
       .select('*, company:companies(id, name, logo_url)')
       .eq('status', 'published')
       .eq('is_active', true)
       .eq('is_public', true);
 
+    // Apply filters if provided
+    let query = baseQuery;
+    
     if (filters?.employment_type) {
       query = query.eq('employment_type', filters.employment_type);
     }
+    
     if (filters?.location) {
-      query = query.or(`city.ilike.%${filters.location}%,state.ilike.%${filters.location}%,country.ilike.%${filters.location}%`);
+      // Search across city, state, country
+      const searchPattern = `%${filters.location}%`;
+      query = query.or(`city.ilike.${searchPattern},state.ilike.${searchPattern},country.ilike.${searchPattern}`);
     }
 
     const { data, error } = await query.order('created_at', { ascending: false });
     if (error) throw error;
-    return data;
+    return data || [];
   }
 
   // Create a new job (draft)
-  static async createJob(companyId: string, jobData: any) {
+  static async createJob(companyId: string, jobData: any): Promise<any> {
+    const insertData = {
+      company_id: companyId,
+      status: 'draft',
+      title: jobData.title || 'Neue Stelle',
+      city: jobData.location || jobData.city || '',
+      employment_type: jobData.employment_type || 'apprenticeship',
+      description_md: jobData.description,
+      ...jobData,
+    };
+
     const { data, error } = await supabase
       .from('job_posts')
-      .insert({
-        company_id: companyId,
-        status: 'draft',
-        title: jobData.title || 'Neue Stelle',
-        city: jobData.location || jobData.city || '',
-        employment_type: jobData.employment_type || 'apprenticeship',
-        description_md: jobData.description,
-        ...jobData,
-      })
+      .insert(insertData)
       .select()
       .single();
 
@@ -77,7 +85,7 @@ export class JobsService {
   }
 
   // Update a job
-  static async updateJob(jobId: string, updates: JobUpdate) {
+  static async updateJob(jobId: string, updates: any): Promise<any> {
     const { data, error } = await supabase
       .from('job_posts')
       .update(updates)
@@ -90,7 +98,7 @@ export class JobsService {
   }
 
   // Delete a job
-  static async deleteJob(jobId: string) {
+  static async deleteJob(jobId: string): Promise<void> {
     const { error } = await supabase
       .from('job_posts')
       .delete()
@@ -100,7 +108,7 @@ export class JobsService {
   }
 
   // Publish a job (uses RPC to deduct token)
-  static async publishJob(jobId: string, userId: string) {
+  static async publishJob(jobId: string, userId: string): Promise<any> {
     const { data, error } = await supabase.rpc('publish_job', {
       job_uuid: jobId,
       actor: userId,
@@ -111,7 +119,7 @@ export class JobsService {
   }
 
   // Pause a job
-  static async pauseJob(jobId: string, userId: string) {
+  static async pauseJob(jobId: string, userId: string): Promise<any> {
     const { data, error } = await supabase.rpc('pause_job', {
       job_uuid: jobId,
       actor: userId,
@@ -122,7 +130,7 @@ export class JobsService {
   }
 
   // Resume a job
-  static async resumeJob(jobId: string, userId: string) {
+  static async resumeJob(jobId: string, userId: string): Promise<any> {
     const { data, error } = await supabase.rpc('resume_job', {
       job_uuid: jobId,
       actor: userId,
@@ -133,7 +141,7 @@ export class JobsService {
   }
 
   // Inactivate a job
-  static async inactivateJob(jobId: string, userId: string) {
+  static async inactivateJob(jobId: string, userId: string): Promise<any> {
     const { data, error } = await supabase.rpc('inactivate_job', {
       job_uuid: jobId,
       actor: userId,
@@ -144,7 +152,7 @@ export class JobsService {
   }
 
   // Get job status history
-  static async getJobHistory(jobId: string) {
+  static async getJobHistory(jobId: string): Promise<any[]> {
     const { data, error } = await supabase
       .from('job_status_history')
       .select('*')
@@ -152,11 +160,11 @@ export class JobsService {
       .order('created_at', { ascending: false });
 
     if (error) throw error;
-    return data;
+    return data || [];
   }
 
   // Check missing documents for a user/job
-  static async getMissingDocuments(userId: string, jobId: string) {
+  static async getMissingDocuments(userId: string, jobId: string): Promise<any> {
     const { data, error } = await supabase.rpc('missing_required_documents', {
       p_user: userId,
       p_job: jobId,
@@ -167,7 +175,7 @@ export class JobsService {
   }
 
   // Compute match score
-  static async computeMatch(userId: string, jobId: string) {
+  static async computeMatch(userId: string, jobId: string): Promise<any> {
     const { data, error } = await supabase.rpc('compute_match', {
       p_user: userId,
       p_job: jobId,
@@ -189,3 +197,4 @@ export const getCompanyJobs = JobsService.getCompanyJobs;
 export const createJob = JobsService.createJob;
 export const updateJob = JobsService.updateJob;
 export const deleteJob = JobsService.deleteJob;
+
