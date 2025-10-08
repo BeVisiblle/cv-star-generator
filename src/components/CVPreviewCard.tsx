@@ -19,12 +19,14 @@ interface CVPreviewCardProps {
   profile: any;
   onDownload: () => void;
   isGeneratingPDF?: boolean;
+  readOnly?: boolean;
 }
 
 export const CVPreviewCard: React.FC<CVPreviewCardProps> = ({ 
   profile, 
   onDownload, 
-  isGeneratingPDF = false 
+  isGeneratingPDF = false,
+  readOnly = false
 }) => {
   const [showPreviewModal, setShowPreviewModal] = useState(false);
   const [showLayoutSelector, setShowLayoutSelector] = useState(false);
@@ -148,32 +150,34 @@ export const CVPreviewCard: React.FC<CVPreviewCardProps> = ({
             </Button>
           </div>
           
-          <div className="flex flex-col gap-2">
-            <Button 
-              className="w-full"
-              onClick={handleDownload}
-              disabled={isDownloading}
-            >
-              {isDownloading ? (
-                <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  PDF wird erstellt...
-                </>
-              ) : (
-                <>
-                  <Download className="h-4 w-4 mr-2" />
-                  CV als PDF herunterladen
-                </>
-              )}
-            </Button>
-          <Button 
-            variant="outline" 
-            className="w-full"
-            onClick={() => setShowLayoutSelector(true)}
-          >
-            Layout ändern
-          </Button>
-          </div>
+          {!readOnly && (
+            <div className="flex flex-col gap-2">
+              <Button 
+                className="w-full"
+                onClick={handleDownload}
+                disabled={isDownloading}
+              >
+                {isDownloading ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    PDF wird erstellt...
+                  </>
+                ) : (
+                  <>
+                    <Download className="h-4 w-4 mr-2" />
+                    CV als PDF herunterladen
+                  </>
+                )}
+              </Button>
+              <Button 
+                variant="outline" 
+                className="w-full"
+                onClick={() => setShowLayoutSelector(true)}
+              >
+                Layout ändern
+              </Button>
+            </div>
+          )}
         </CardContent>
       </Card>
 

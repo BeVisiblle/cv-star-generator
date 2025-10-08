@@ -42,6 +42,7 @@ export function LinkedInProfileSidebar({
       {showCVSection && profile && (
         <CVPreviewCard
           profile={profile}
+          readOnly={readOnly}
           onDownload={() => {
             const params = new URLSearchParams({
               layout: String(profile.layout || 1),
