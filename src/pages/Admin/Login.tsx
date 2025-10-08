@@ -38,20 +38,31 @@ export default function AdminLogin() {
     setIsCreatingAdmin(true);
 
     try {
-      // Call admin-user-actions edge function to create admin
-      const { data, error } = await supabase.functions.invoke('admin-user-actions', {
-        body: {
-          action: 'create_admin',
-          email: email,
-          password: password,
+      // Call edge function WITHOUT authorization header for bootstrap mode
+      const response = await fetch(
+        `https://koymmvuhcxlvcuoyjnvv.supabase.co/functions/v1/admin-user-actions`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtveW1tdnVoY3hsdmN1b3lqbnZ2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQzODA3NTcsImV4cCI6MjA2OTk1Njc1N30.Pb5uz3xFH2Fupk9JSjcbxNrS-s_mE3ySnFy5B7HcZFw',
+            // NO Authorization header - this allows bootstrap mode!
+          },
+          body: JSON.stringify({
+            action: 'create_admin',
+            email: email,
+            password: password,
+          })
         }
-      });
+      );
 
-      if (error) {
-        console.error('Error creating admin:', error);
+      const data = await response.json();
+
+      if (!response.ok) {
+        console.error('Error creating admin:', data);
         toast({
           title: "Fehler beim Erstellen",
-          description: error.message || "Admin-Account konnte nicht erstellt werden.",
+          description: data.error || "Admin-Account konnte nicht erstellt werden.",
           variant: "destructive"
         });
         return;
