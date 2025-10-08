@@ -41,16 +41,18 @@ import {
   X,
   Users,
   Target,
+  Briefcase,
 } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 import { useCompany } from "@/hooks/useCompany";
 import { supabase } from "@/integrations/supabase/client";
 
-// Hauptnavigation: 9 Punkte
+// Hauptnavigation: 10 Punkte
 const navItems = [
   { to: "/company/dashboard", label: "Dashboard", icon: Home },
   { to: "/company/profile", label: "Unternehmensprofil", icon: Building2 },
   { to: "/company/needs", label: "Anforderungsprofile", icon: Target },
+  { to: "/company/jobs", label: "Stellenanzeigen", icon: Briefcase },
   { to: "/company/search", label: "Kandidatensuche", icon: Search },
   { to: "/company/unlocked", label: "Freigeschaltete Azubis", icon: Users },
   { to: "/company/candidates/pipeline", label: "Pipeline", icon: Columns3 },
