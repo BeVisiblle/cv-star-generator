@@ -1884,6 +1884,106 @@ export type Database = {
           },
         ]
       }
+      company_plan_assignments: {
+        Row: {
+          assigned_by: string | null
+          billing_cycle: string | null
+          company_id: string
+          created_at: string
+          custom_jobs: number | null
+          custom_price_monthly_cents: number | null
+          custom_price_yearly_cents: number | null
+          custom_seats: number | null
+          custom_tokens: number | null
+          id: string
+          is_active: boolean
+          notes: string | null
+          plan_id: string
+          updated_at: string
+          valid_from: string
+          valid_until: string | null
+        }
+        Insert: {
+          assigned_by?: string | null
+          billing_cycle?: string | null
+          company_id: string
+          created_at?: string
+          custom_jobs?: number | null
+          custom_price_monthly_cents?: number | null
+          custom_price_yearly_cents?: number | null
+          custom_seats?: number | null
+          custom_tokens?: number | null
+          id?: string
+          is_active?: boolean
+          notes?: string | null
+          plan_id: string
+          updated_at?: string
+          valid_from?: string
+          valid_until?: string | null
+        }
+        Update: {
+          assigned_by?: string | null
+          billing_cycle?: string | null
+          company_id?: string
+          created_at?: string
+          custom_jobs?: number | null
+          custom_price_monthly_cents?: number | null
+          custom_price_yearly_cents?: number | null
+          custom_seats?: number | null
+          custom_tokens?: number | null
+          id?: string
+          is_active?: boolean
+          notes?: string | null
+          plan_id?: string
+          updated_at?: string
+          valid_from?: string
+          valid_until?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "company_plan_assignments_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "company_plan_assignments_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies_public_secure"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "company_plan_assignments_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "company_need_quota"
+            referencedColumns: ["company_id"]
+          },
+          {
+            foreignKeyName: "company_plan_assignments_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "company_unlock_stats"
+            referencedColumns: ["company_id"]
+          },
+          {
+            foreignKeyName: "company_plan_assignments_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "v_company_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "company_plan_assignments_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "subscription_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       company_posts: {
         Row: {
           company_id: string | null
@@ -6334,28 +6434,40 @@ export type Database = {
       }
       subscription_plans: {
         Row: {
-          active: boolean | null
-          created_at: string | null
-          features: Json
+          active: boolean
+          created_at: string
+          features: Json | null
           id: string
+          included_jobs: number
+          included_seats: number
+          included_tokens: number
           name: string
-          price_cents: number
+          price_monthly_cents: number
+          price_yearly_cents: number
         }
         Insert: {
-          active?: boolean | null
-          created_at?: string | null
-          features?: Json
+          active?: boolean
+          created_at?: string
+          features?: Json | null
           id: string
+          included_jobs?: number
+          included_seats?: number
+          included_tokens?: number
           name: string
-          price_cents: number
+          price_monthly_cents?: number
+          price_yearly_cents?: number
         }
         Update: {
-          active?: boolean | null
-          created_at?: string | null
-          features?: Json
+          active?: boolean
+          created_at?: string
+          features?: Json | null
           id?: string
+          included_jobs?: number
+          included_seats?: number
+          included_tokens?: number
           name?: string
-          price_cents?: number
+          price_monthly_cents?: number
+          price_yearly_cents?: number
         }
         Relationships: []
       }
@@ -7324,6 +7436,26 @@ export type Database = {
             }
         Returns: string
       }
+      admin_add_tokens: {
+        Args: { p_amount: number; p_company_id: string; p_reason?: string }
+        Returns: undefined
+      }
+      admin_assign_plan: {
+        Args: {
+          p_billing_cycle?: string
+          p_company_id: string
+          p_custom_jobs?: number
+          p_custom_price_monthly_cents?: number
+          p_custom_price_yearly_cents?: number
+          p_custom_seats?: number
+          p_custom_tokens?: number
+          p_notes?: string
+          p_plan_id: string
+          p_valid_from?: string
+          p_valid_until?: string
+        }
+        Returns: string
+      }
       apply_entitlements: {
         Args: {
           p_org_id: string
@@ -7821,6 +7953,20 @@ export type Database = {
       geomfromewkt: {
         Args: { "": string }
         Returns: unknown
+      }
+      get_active_company_plan: {
+        Args: { p_company_id: string }
+        Returns: {
+          billing_cycle: string
+          jobs: number
+          plan_id: string
+          plan_name: string
+          price_monthly_cents: number
+          price_yearly_cents: number
+          seats: number
+          tokens: number
+          valid_until: string
+        }[]
       }
       get_activity_for_org: {
         Args: { p_limit?: number; p_offset?: number; p_org: string }
