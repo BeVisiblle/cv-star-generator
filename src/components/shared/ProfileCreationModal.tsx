@@ -4,8 +4,9 @@ import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Loader2, UserPlus, Eye, EyeOff, Clock } from 'lucide-react';
-import { toast } from '@/hooks/use-toast';
+import { toast as showToast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
 import { useCVForm } from '@/contexts/CVFormContext';
@@ -29,6 +30,8 @@ export const ProfileCreationModal = ({
   const [showPassword, setShowPassword] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
   const [rateLimitSeconds, setRateLimitSeconds] = useState(0);
+  const [datenschutzAccepted, setDatenschutzAccepted] = useState(false);
+  const [agbAccepted, setAgbAccepted] = useState(false);
   const navigate = useNavigate();
   const { setAutoSyncEnabled } = useCVForm();
   const { refetchProfile } = useAuth();
@@ -85,6 +88,12 @@ export const ProfileCreationModal = ({
     console.log(`[${new Date().toISOString()}] ProfileCreationModal: Email:`, email);
     console.log(`[${new Date().toISOString()}] ProfileCreationModal: Password length:`, password?.length || 0);
     
+    // Validate Datenschutz & AGB acceptance
+    if (!datenschutzAccepted || !agbAccepted) {
+      showToast.error('Bitte akzeptiere die Datenschutzerklärung und AGBs.');
+      return;
+    }
+    
     // Try to get CV data from localStorage as fallback if formData is empty or incomplete
     let effectiveFormData = formData;
     if (!formData?.vorname || !formData?.nachname) {
@@ -120,32 +129,20 @@ export const ProfileCreationModal = ({
     });
 
     if (!email || !password) {
-      toast({
-        title: "Fehler",
-        description: "Bitte füllen Sie alle Felder aus.",
-        variant: "destructive"
-      });
+      showToast.error("Bitte füllen Sie alle Felder aus.");
       return;
     }
 
     // Client-side email validation
     const emailError = validateEmail(email);
     if (emailError) {
-      toast({
-        title: "E-Mail ungültig",
-        description: emailError,
-        variant: "destructive"
-      });
+      showToast.error(emailError);
       return;
     }
 
     const passwordError = validatePassword(password);
     if (passwordError) {
-      toast({
-        title: "Passwort zu schwach",
-        description: passwordError,
-        variant: "destructive"
-      });
+      showToast.error(passwordError);
       return;
     }
 
@@ -173,11 +170,7 @@ export const ProfileCreationModal = ({
           const seconds = match ? parseInt(match[1]) : 60;
           setRateLimitSeconds(seconds);
           
-          toast({
-            title: "Zu viele Versuche",
-            description: `Bitte warten Sie ${seconds} Sekunden und versuchen Sie es erneut.`,
-            variant: "destructive"
-          });
+          showToast.error(`Bitte warten Sie ${seconds} Sekunden und versuchen Sie es erneut.`);
           return;
         }
 
@@ -191,11 +184,7 @@ export const ProfileCreationModal = ({
 
           if (signInError) {
             console.error('Sign in error:', signInError);
-            toast({
-              title: "Anmeldung fehlgeschlagen",
-              description: "E-Mail oder Passwort ist falsch, oder der Account ist noch nicht bestätigt.",
-              variant: "destructive"
-            });
+            showToast.error("E-Mail oder Passwort ist falsch, oder der Account ist noch nicht bestätigt.");
             return;
           }
 
@@ -204,20 +193,12 @@ export const ProfileCreationModal = ({
             // Continue with existing user
             var user = signInData.user;
           } else {
-            toast({
-              title: "Anmeldung fehlgeschlagen",
-              description: "Bitte versuchen Sie es erneut.",
-              variant: "destructive"
-            });
+            showToast.error("Anmeldung fehlgeschlagen. Bitte versuchen Sie es erneut.");
             return;
           }
         } else {
           // Handle other auth errors
-          toast({
-            title: "Fehler beim Account erstellen",
-            description: authError.message,
-            variant: "destructive"
-          });
+          showToast.error(`Fehler beim Account erstellen: ${authError.message}`);
           return;
         }
       } else {
@@ -231,11 +212,7 @@ export const ProfileCreationModal = ({
             console.log('User created but not confirmed, continuing...');
           }
         } else {
-          toast({
-            title: "Fehler",
-            description: "Account konnte nicht erstellt werden.",
-            variant: "destructive"
-          });
+          showToast.error("Account konnte nicht erstellt werden.");
           return;
         }
       }
@@ -264,11 +241,7 @@ export const ProfileCreationModal = ({
             
           if (insertError) {
             console.error('Profile creation failed:', insertError);
-            toast({
-              title: "Fehler beim Profil erstellen",
-              description: insertError.message || "Das Profil konnte nicht erstellt werden. Bitte versuchen Sie es erneut.",
-              variant: "destructive"
-            });
+            showToast.error(insertError.message || "Das Profil konnte nicht erstellt werden. Bitte versuchen Sie es erneut.");
             return;
           }
           console.log('Profile created successfully');
@@ -431,22 +404,12 @@ export const ProfileCreationModal = ({
             setAutoSyncEnabled(true);
             console.log(`[${new Date().toISOString()}] ProfileCreationModal: Auto-sync re-enabled after successful profile creation`);
 
-            toast({
-              title: "Account erstellt!",
-              description: "Ihr Profil wurde erfolgreich erstellt!",
-              variant: "default"
-            });
-            
             // Clear CV form data from localStorage since it's now in the profile
             localStorage.removeItem('cvFormData');
             localStorage.removeItem('cvLayoutEditMode');
             localStorage.removeItem('creating-profile');
             
-            toast({
-              title: "Profil erstellt!",
-              description: "Ihr Profil wurde erfolgreich erstellt.",
-              variant: "default"
-            });
+            showToast.success("Profil erfolgreich erstellt!");
             
             // Refresh the profile in auth context and navigate
             await refetchProfile();
@@ -462,11 +425,7 @@ export const ProfileCreationModal = ({
               await new Promise(resolve => setTimeout(resolve, 1000));
             } else {
               setAutoSyncEnabled(true); // Re-enable auto-sync on final failure
-              toast({
-                title: "Fehler beim Profil aktualisieren",
-                description: (error as any).message,
-                variant: "destructive"
-              });
+              showToast.error(`Fehler beim Profil aktualisieren: ${(error as any).message}`);
               return;
             }
           }
@@ -474,11 +433,7 @@ export const ProfileCreationModal = ({
     } catch (error) {
       console.error(`[${new Date().toISOString()}] ProfileCreationModal: Unexpected error:`, error);
       setAutoSyncEnabled(true); // Re-enable auto-sync on error
-      toast({
-        title: "Unerwarteter Fehler",
-        description: (error as any)?.message || "Ein unerwarteter Fehler ist aufgetreten.",
-        variant: "destructive"
-      });
+      showToast.error((error as any)?.message || "Ein unerwarteter Fehler ist aufgetreten.");
     } finally {
       setIsCreating(false);
     }
@@ -545,13 +500,44 @@ export const ProfileCreationModal = ({
             </div>
           )}
           
+          {/* Datenschutz & AGB Checkboxes */}
+          <div className="space-y-3 pt-4 border-t">
+            <div className="flex items-start space-x-2">
+              <Checkbox
+                id="modal-datenschutz"
+                checked={datenschutzAccepted}
+                onCheckedChange={(checked) => setDatenschutzAccepted(!!checked)}
+              />
+              <Label 
+                htmlFor="modal-datenschutz" 
+                className="text-sm font-normal leading-relaxed cursor-pointer"
+              >
+                Ich habe die <a href="/datenschutz" target="_blank" className="text-primary underline hover:text-primary/80">Datenschutzerklärung</a> gelesen und akzeptiere diese.
+              </Label>
+            </div>
+            
+            <div className="flex items-start space-x-2">
+              <Checkbox
+                id="modal-agb"
+                checked={agbAccepted}
+                onCheckedChange={(checked) => setAgbAccepted(!!checked)}
+              />
+              <Label 
+                htmlFor="modal-agb" 
+                className="text-sm font-normal leading-relaxed cursor-pointer"
+              >
+                Ich akzeptiere die <a href="/agb" target="_blank" className="text-primary underline hover:text-primary/80">Allgemeinen Geschäftsbedingungen (AGB)</a>.
+              </Label>
+            </div>
+          </div>
+          
           <div className="flex gap-3 pt-4">
             <Button variant="outline" onClick={onClose} className="flex-1">
               Abbrechen
             </Button>
             <Button 
               onClick={handleCreateProfile} 
-              disabled={isCreating || rateLimitSeconds > 0}
+              disabled={isCreating || !datenschutzAccepted || !agbAccepted || rateLimitSeconds > 0}
               className="flex-1"
             >
               {isCreating ? (

@@ -130,8 +130,8 @@ const CVStep7 = () => {
   };
 
   const handleCreateProfile = () => {
-    if (!formData.einwilligung) {
-      toast.error("Bitte stimme der Speicherung deiner Daten zu, um ein Profil zu erstellen.");
+    if (!formData.datenschutz_akzeptiert || !formData.agb_akzeptiert) {
+      toast.error("Bitte akzeptiere die Datenschutzerklärung und AGBs.");
       return;
     }
 
@@ -258,14 +258,31 @@ const CVStep7 = () => {
                 </ul>
                 
                 <div className="space-y-3">
-                  <div className="flex items-center space-x-2">
+                  <div className="flex items-start space-x-2">
                     <Checkbox
-                      id="einwilligung"
-                      checked={formData.einwilligung || false}
-                      onCheckedChange={(checked) => updateFormData({ einwilligung: !!checked })}
+                      id="datenschutz"
+                      checked={formData.datenschutz_akzeptiert || false}
+                      onCheckedChange={(checked) => updateFormData({ datenschutz_akzeptiert: !!checked })}
                     />
-                    <Label htmlFor="einwilligung" className="text-sm font-normal">
-                      Einwilligung zur Speicherung meiner Daten
+                    <Label 
+                      htmlFor="datenschutz" 
+                      className="text-sm font-normal leading-relaxed cursor-pointer"
+                    >
+                      Ich habe die <a href="/datenschutz" target="_blank" className="text-primary underline hover:text-primary/80">Datenschutzerklärung</a> gelesen und akzeptiere diese.
+                    </Label>
+                  </div>
+                  
+                  <div className="flex items-start space-x-2">
+                    <Checkbox
+                      id="agb"
+                      checked={formData.agb_akzeptiert || false}
+                      onCheckedChange={(checked) => updateFormData({ agb_akzeptiert: !!checked })}
+                    />
+                    <Label 
+                      htmlFor="agb" 
+                      className="text-sm font-normal leading-relaxed cursor-pointer"
+                    >
+                      Ich akzeptiere die <a href="/agb" target="_blank" className="text-primary underline hover:text-primary/80">Allgemeinen Geschäftsbedingungen (AGB)</a>.
                     </Label>
                   </div>
                   
@@ -281,11 +298,11 @@ const CVStep7 = () => {
                     />
                   </div>
                   
-                  <Button
-                    onClick={handleCreateProfile}
-                    className="w-full h-11"
-                    disabled={!formData.einwilligung || !formData.email}
-                  >
+            <Button
+              onClick={handleCreateProfile}
+              className="w-full h-11"
+              disabled={!formData.datenschutz_akzeptiert || !formData.agb_akzeptiert || !formData.email}
+            >
                     <UserPlus className="h-4 w-4 mr-2" />
                     Jetzt Profil erstellen
                   </Button>

@@ -118,6 +118,8 @@ export interface CVFormData {
   
   // Step 7: Consent
   einwilligung?: boolean;
+  datenschutz_akzeptiert?: boolean;
+  agb_akzeptiert?: boolean;
 }
 
 interface CVFormContextType {
@@ -387,7 +389,8 @@ export const CVFormProvider = ({ children }: { children: ReactNode }) => {
         if (!formData.layout) errors.layout = 'Layout-Auswahl ist erforderlich';
         break;
       case 7:
-        if (!formData.einwilligung) errors.einwilligung = 'Einwilligung ist erforderlich';
+        if (!formData.datenschutz_akzeptiert) errors.datenschutz_akzeptiert = 'Datenschutzerklärung muss akzeptiert werden';
+        if (!formData.agb_akzeptiert) errors.agb_akzeptiert = 'AGBs müssen akzeptiert werden';
         break;
     }
     
