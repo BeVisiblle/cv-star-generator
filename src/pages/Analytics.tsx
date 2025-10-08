@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import { getAnalytics, getAnalyticsSummary } from '@/lib/telemetry';
+import { getAnalytics, getAnalyticsSummary, trackPageView } from '@/lib/telemetry';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 
 export default function Analytics() {
   const [summary, setSummary] = useState<any>(null);
   const [events, setEvents] = useState<any[]>([]);
 
   useEffect(() => {
+    trackPageView('Analytics Dashboard');
+    
     const loadAnalytics = () => {
       setSummary(getAnalyticsSummary());
       setEvents(getAnalytics());
@@ -26,15 +27,13 @@ export default function Analytics() {
 
   const pageViewsData = Object.entries(summary.pageViewsByPage).map(([page, count]) => ({
     page,
-    views: count,
+    views: count as number,
   }));
 
   const buttonClicksData = Object.entries(summary.buttonClicksByLabel).map(([label, count]) => ({
     label,
-    clicks: count,
+    clicks: count as number,
   }));
-
-  const COLORS = ['#5170ff', '#82ca9d', '#ffc658', '#ff8042', '#8884d8'];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 p-8">
@@ -75,7 +74,7 @@ export default function Analytics() {
           </Card>
         </div>
 
-        {/* Page Views Chart */}
+        {/* Page Views Table */}
         {pageViewsData.length > 0 && (
           <Card>
             <CardHeader>
@@ -83,21 +82,19 @@ export default function Analytics() {
               <CardDescription>Anzahl der Aufrufe jeder Seite</CardDescription>
             </CardHeader>
             <CardContent>
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={pageViewsData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="page" />
-                  <YAxis />
-                  <Tooltip />
-                  <Legend />
-                  <Bar dataKey="views" fill="#5170ff" />
-                </BarChart>
-              </ResponsiveContainer>
+              <div className="space-y-2">
+                {pageViewsData.map((item) => (
+                  <div key={item.page} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                    <span className="font-medium">{item.page}</span>
+                    <span className="text-2xl font-bold text-[#5170ff]">{item.views}</span>
+                  </div>
+                ))}
+              </div>
             </CardContent>
           </Card>
         )}
 
-        {/* Button Clicks Chart */}
+        {/* Button Clicks Table */}
         {buttonClicksData.length > 0 && (
           <Card>
             <CardHeader>
@@ -105,16 +102,14 @@ export default function Analytics() {
               <CardDescription>Häufigkeit der Button-Klicks nach Label</CardDescription>
             </CardHeader>
             <CardContent>
-              <ResponsiveContainer width="100%" height={400}>
-                <BarChart data={buttonClicksData} layout="vertical">
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis type="number" />
-                  <YAxis dataKey="label" type="category" width={200} />
-                  <Tooltip />
-                  <Legend />
-                  <Bar dataKey="clicks" fill="#5170ff" />
-                </BarChart>
-              </ResponsiveContainer>
+              <div className="space-y-2">
+                {buttonClicksData.sort((a, b) => b.clicks - a.clicks).map((item) => (
+                  <div key={item.label} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                    <span className="font-medium text-sm">{item.label}</span>
+                    <span className="text-2xl font-bold text-[#5170ff]">{item.clicks}</span>
+                  </div>
+                ))}
+              </div>
             </CardContent>
           </Card>
         )}

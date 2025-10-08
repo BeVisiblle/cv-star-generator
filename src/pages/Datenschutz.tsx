@@ -1,9 +1,14 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
+import { trackPageView } from '@/lib/telemetry';
 
 export default function Datenschutz() {
   const navigate = useNavigate();
+
+  useEffect(() => {
+    trackPageView('Datenschutz');
+  }, []);
 
   return (
     <div className="min-h-screen bg-background">
