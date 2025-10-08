@@ -1118,6 +1118,7 @@ export type Database = {
           active_tokens: number | null
           additional_locations: Json | null
           contact_person: string | null
+          contact_position: string | null
           country: string | null
           created_at: string | null
           current_plan_id: string | null
@@ -1168,6 +1169,7 @@ export type Database = {
           active_tokens?: number | null
           additional_locations?: Json | null
           contact_person?: string | null
+          contact_position?: string | null
           country?: string | null
           created_at?: string | null
           current_plan_id?: string | null
@@ -1218,6 +1220,7 @@ export type Database = {
           active_tokens?: number | null
           additional_locations?: Json | null
           contact_person?: string | null
+          contact_position?: string | null
           country?: string | null
           created_at?: string | null
           current_plan_id?: string | null
@@ -7797,6 +7800,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }
+      freeze_company_account: {
+        Args: { p_company_id: string; p_reason: string }
+        Returns: undefined
+      }
       geography: {
         Args: { "": string } | { "": unknown }
         Returns: unknown
@@ -9941,12 +9948,20 @@ export type Database = {
         }
         Returns: number
       }
+      use_company_token: {
+        Args: { p_company_id: string; p_profile_id: string }
+        Returns: Json
+      }
       use_token: {
         Args: { p_profile_id: string }
         Returns: {
           remaining_tokens: number
           token_id: string
         }[]
+      }
+      verify_company_account: {
+        Args: { p_company_id: string }
+        Returns: undefined
       }
       viewer_first_degree: {
         Args: { user_id: string }

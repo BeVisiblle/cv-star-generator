@@ -108,7 +108,8 @@ export function useCompanyOnboarding() {
     if (!companyId) return;
 
     try {
-      const { error } = await supabase
+      // 1. Mark onboarding as completed
+      const { error: updateError } = await supabase
         .from('companies')
         .update({ 
           onboarding_completed: true,
@@ -116,13 +117,33 @@ export function useCompanyOnboarding() {
         })
         .eq('id', companyId);
 
-      if (error) throw error;
+      if (updateError) throw updateError;
+
+      // 2. Automatically assign selected plan
+      if (state.selectedPlanId) {
+        const { error: planError } = await supabase.rpc('admin_assign_plan', {
+          p_company_id: companyId,
+          p_plan_id: state.selectedPlanId,
+          p_billing_cycle: 'monthly',
+          p_notes: 'Auto-assigned after onboarding'
+        });
+
+        if (planError) {
+          console.error('Error assigning plan:', planError);
+          // Don't throw - onboarding is still complete
+        }
+      }
 
       setState(prev => ({
         ...prev,
         isComplete: true,
         currentStep: 4,
       }));
+
+      toast({
+        title: 'Onboarding abgeschlossen!',
+        description: 'Ihr Unternehmensprofil wurde erfolgreich erstellt.',
+      });
     } catch (error) {
       console.error('Error completing onboarding:', error);
       toast({

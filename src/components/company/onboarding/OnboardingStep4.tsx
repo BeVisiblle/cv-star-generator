@@ -1,84 +1,159 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Checkbox } from '@/components/ui/checkbox';
-import { ArrowLeft, Upload, Building } from 'lucide-react';
-import { OnboardingData } from './OnboardingWizard';
 import { useToast } from '@/hooks/use-toast';
+import { Upload, X } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
 
 interface OnboardingStep4Props {
-  data: OnboardingData;
-  updateData: (data: Partial<OnboardingData>) => void;
+  data: {
+    logo_url?: string;
+    header_image?: string;
+    main_location?: string;
+    contact_person?: string;
+    contact_position?: string;
+    primary_email?: string;
+    phone?: string;
+    matching_about?: string;
+    description?: string;
+    employee_count?: number;
+    website_url?: string;
+    linkedin_url?: string;
+    instagram_url?: string;
+  };
+  updateData: (data: any) => void;
   onNext: () => void;
   onPrev: () => void;
+  companyId: string;
 }
 
-export function OnboardingStep4({ data, updateData, onNext, onPrev }: OnboardingStep4Props) {
-  const [errors, setErrors] = useState<Record<string, string>>({});
-  const [logoPreview, setLogoPreview] = useState<string | null>(null);
+export function OnboardingStep4({ data, updateData, onNext, onPrev, companyId }: OnboardingStep4Props) {
   const { toast } = useToast();
+  const [logoPreview, setLogoPreview] = useState<string | null>(data.logo_url || null);
+  const [headerPreview, setHeaderPreview] = useState<string | null>(data.header_image || null);
+  const [uploadingLogo, setUploadingLogo] = useState(false);
+  const [uploadingHeader, setUploadingHeader] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const companySizes = [
-    { value: '1-10', label: '1-10 Mitarbeiter' },
-    { value: '11-25', label: '11-25 Mitarbeiter' },
-    { value: '26-50', label: '26-50 Mitarbeiter' },
-    { value: '51-100', label: '51-100 Mitarbeiter' },
-    { value: '101-250', label: '101-250 Mitarbeiter' },
-    { value: '250+', label: '250+ Mitarbeiter' },
-  ];
-
-  const benefitOptions = [
-    'Übernahmechance',
-    'Weiterbildung',
-    'Fahrtkostenzuschuss',
-    'Wohnheim',
-    'Azubi-Events',
-    'Flexible Arbeitszeiten',
-    'Mentoring',
-    'Moderne Ausstattung'
-  ];
-
-  const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      updateData({ logo: file });
+    if (!file) return;
+
+    if (file.size > 2 * 1024 * 1024) {
+      toast({
+        title: 'Datei zu groß',
+        description: 'Das Logo darf maximal 2MB groß sein',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
+      toast({
+        title: 'Ungültiges Format',
+        description: 'Nur JPG, PNG und WEBP werden unterstützt',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setUploadingLogo(true);
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${companyId}/logo.${fileExt}`;
       
-      // Create preview
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        setLogoPreview(e.target?.result as string);
-      };
-      reader.readAsDataURL(file);
+      const { error: uploadError } = await supabase.storage
+        .from('company-logos')
+        .upload(fileName, file, { upsert: true });
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('company-logos')
+        .getPublicUrl(fileName);
+
+      setLogoPreview(publicUrl);
+      updateData({ logo_url: publicUrl });
+
+      toast({ title: 'Logo hochgeladen' });
+    } catch (error) {
+      console.error('Error uploading logo:', error);
+      toast({
+        title: 'Upload fehlgeschlagen',
+        variant: 'destructive',
+      });
+    } finally {
+      setUploadingLogo(false);
     }
   };
 
-  const handleBenefitChange = (benefit: string, checked: boolean) => {
-    const newBenefits = checked 
-      ? [...data.benefits, benefit]
-      : data.benefits.filter(b => b !== benefit);
-    updateData({ benefits: newBenefits });
+  const handleHeaderUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 5 * 1024 * 1024) {
+      toast({
+        title: 'Datei zu groß',
+        description: 'Das Titelbild darf maximal 5MB groß sein',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
+      toast({
+        title: 'Ungültiges Format',
+        description: 'Nur JPG, PNG und WEBP werden unterstützt',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setUploadingHeader(true);
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${companyId}/header.${fileExt}`;
+      
+      const { error: uploadError } = await supabase.storage
+        .from('company-headers')
+        .upload(fileName, file, { upsert: true });
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('company-headers')
+        .getPublicUrl(fileName);
+
+      setHeaderPreview(publicUrl);
+      updateData({ header_image: publicUrl });
+
+      toast({ title: 'Titelbild hochgeladen' });
+    } catch (error) {
+      console.error('Error uploading header:', error);
+      toast({
+        title: 'Upload fehlgeschlagen',
+        variant: 'destructive',
+      });
+    } finally {
+      setUploadingHeader(false);
+    }
   };
 
   const validateStep = () => {
     const newErrors: Record<string, string> = {};
-    
-    if (!data.shortDescription.trim()) {
-      newErrors.shortDescription = 'Kurzbeschreibung ist erforderlich';
+
+    if (!data.main_location) newErrors.main_location = 'Standort ist erforderlich';
+    if (!data.contact_person) newErrors.contact_person = 'Ansprechpartner ist erforderlich';
+    if (!data.primary_email) newErrors.primary_email = 'E-Mail ist erforderlich';
+    if (!data.matching_about) newErrors.matching_about = 'Kurzbeschreibung ist erforderlich';
+    if (data.matching_about && data.matching_about.length > 280) {
+      newErrors.matching_about = 'Kurzbeschreibung darf maximal 280 Zeichen haben';
     }
-    if (!data.companySize) {
-      newErrors.companySize = 'Unternehmensgröße auswählen';
-    }
-    if (!data.contactName.trim()) {
-      newErrors.contactName = 'Ansprechpartner Name ist erforderlich';
-    }
-    if (!data.contactRole.trim()) {
-      newErrors.contactRole = 'Rolle ist erforderlich';
-    }
-    if (!data.contactEmail.trim()) {
-      newErrors.contactEmail = 'Ansprechpartner E-Mail ist erforderlich';
+    if (data.description && data.description.length > 2000) {
+      newErrors.description = 'Beschreibung darf maximal 2000 Zeichen haben';
     }
 
     setErrors(newErrors);
@@ -90,187 +165,263 @@ export function OnboardingStep4({ data, updateData, onNext, onPrev }: Onboarding
       onNext();
     } else {
       toast({
-        title: "Bitte alle Pflichtfelder ausfüllen",
-        variant: "destructive",
+        title: 'Bitte füllen Sie alle Pflichtfelder aus',
+        variant: 'destructive',
       });
     }
   };
 
   return (
     <div className="space-y-6">
-      <div className="text-center mb-8">
-        <h2 className="text-2xl font-semibold mb-2">Ihr Unternehmensprofil</h2>
+      <div>
+        <h2 className="text-2xl font-bold mb-2">Unternehmensprofil vervollständigen</h2>
         <p className="text-muted-foreground">
-          Erstellen Sie ein ansprechendes Profil für potentielle Kandidaten
+          Erstellen Sie ein ansprechendes Profil für Ihr Unternehmen
         </p>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2">
-        {/* Logo Upload */}
-        <div className="md:col-span-2">
-          <Label>Firmenlogo</Label>
-          <div className="mt-2 border-2 border-dashed border-muted-foreground/25 rounded-lg p-6 text-center hover:border-[hsl(var(--accent))] transition-colors">
-            {logoPreview ? (
-              <div className="space-y-4">
-                <img 
-                  src={logoPreview} 
-                  alt="Logo Preview" 
-                  className="h-20 w-20 object-contain mx-auto rounded"
-                />
-                <p className="text-sm text-muted-foreground">Logo hochgeladen</p>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                <Building className="h-12 w-12 mx-auto text-muted-foreground" />
-                <div>
-                  <p className="text-sm font-medium">Logo hochladen</p>
-                  <p className="text-xs text-muted-foreground">Quadratisches Format empfohlen</p>
-                </div>
-              </div>
-            )}
-            <input
+      {/* Logo Upload */}
+      <div className="space-y-2">
+        <Label>Unternehmenslogo</Label>
+        <div className="flex items-center gap-4">
+          {logoPreview && (
+            <div className="relative">
+              <img src={logoPreview} alt="Logo" className="w-24 h-24 object-contain rounded border" />
+              <Button
+                variant="ghost"
+                size="icon"
+                className="absolute -top-2 -right-2"
+                onClick={() => {
+                  setLogoPreview(null);
+                  updateData({ logo_url: null });
+                }}
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+          )}
+          <div>
+            <Input
               type="file"
-              accept="image/*"
+              accept="image/jpeg,image/png,image/webp"
               onChange={handleLogoUpload}
-              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+              disabled={uploadingLogo}
+              className="hidden"
+              id="logo-upload"
             />
-          </div>
-        </div>
-
-        {/* Short Description */}
-        <div className="space-y-2">
-          <Label htmlFor="shortDescription">Kurzbeschreibung * (200 Zeichen)</Label>
-          <Textarea
-            id="shortDescription"
-            value={data.shortDescription}
-            onChange={(e) => updateData({ shortDescription: e.target.value })}
-            placeholder="Was macht Ihr Unternehmen besonders?"
-            maxLength={200}
-            className={`h-20 ${errors.shortDescription ? 'border-destructive' : ''}`}
-          />
-          <p className="text-xs text-muted-foreground text-right">
-            {data.shortDescription.length}/200
-          </p>
-          {errors.shortDescription && (
-            <p className="text-sm text-destructive">{errors.shortDescription}</p>
-          )}
-        </div>
-
-        {/* Long Description */}
-        <div className="space-y-2">
-          <Label htmlFor="longDescription">Detailbeschreibung (600 Zeichen)</Label>
-          <Textarea
-            id="longDescription"
-            value={data.longDescription}
-            onChange={(e) => updateData({ longDescription: e.target.value })}
-            placeholder="Detaillierte Beschreibung Ihres Unternehmens..."
-            maxLength={600}
-            className="h-20"
-          />
-          <p className="text-xs text-muted-foreground text-right">
-            {data.longDescription.length}/600
-          </p>
-        </div>
-
-        {/* Company Size */}
-        <div className="space-y-2">
-          <Label>Unternehmensgröße *</Label>
-          <Select value={data.companySize} onValueChange={(value) => updateData({ companySize: value })}>
-            <SelectTrigger className={errors.companySize ? 'border-destructive' : ''}>
-              <SelectValue placeholder="Größe auswählen" />
-            </SelectTrigger>
-            <SelectContent className="bg-background border z-50">
-              {companySizes.map((size) => (
-                <SelectItem key={size.value} value={size.value}>
-                  {size.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          {errors.companySize && (
-            <p className="text-sm text-destructive">{errors.companySize}</p>
-          )}
-        </div>
-
-        {/* Benefits */}
-        <div className="md:col-span-2 space-y-4">
-          <Label>Benefits für Azubis</Label>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            {benefitOptions.map((benefit) => (
-              <div key={benefit} className="flex items-center space-x-2">
-                <Checkbox
-                  id={benefit}
-                  checked={data.benefits.includes(benefit)}
-                  onCheckedChange={(checked) => handleBenefitChange(benefit, checked as boolean)}
-                />
-                <Label htmlFor={benefit} className="text-sm">
-                  {benefit}
-                </Label>
+            <Label htmlFor="logo-upload" className="cursor-pointer">
+              <div className="flex items-center gap-2 px-4 py-2 border rounded hover:bg-accent">
+                <Upload className="h-4 w-4" />
+                {uploadingLogo ? 'Hochladen...' : 'Logo hochladen'}
               </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Contact Person */}
-        <div className="md:col-span-2">
-          <h3 className="font-semibold mb-4">Ansprechpartner</h3>
-          <div className="grid gap-4 md:grid-cols-3">
-            <div className="space-y-2">
-              <Label htmlFor="contactName">Name *</Label>
-              <Input
-                id="contactName"
-                value={data.contactName}
-                onChange={(e) => updateData({ contactName: e.target.value })}
-                placeholder="Max Mustermann"
-                className={errors.contactName ? 'border-destructive' : ''}
-              />
-              {errors.contactName && (
-                <p className="text-sm text-destructive">{errors.contactName}</p>
-              )}
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="contactRole">Rolle *</Label>
-              <Input
-                id="contactRole"
-                value={data.contactRole}
-                onChange={(e) => updateData({ contactRole: e.target.value })}
-                placeholder="Ausbildungsleiter"
-                className={errors.contactRole ? 'border-destructive' : ''}
-              />
-              {errors.contactRole && (
-                <p className="text-sm text-destructive">{errors.contactRole}</p>
-              )}
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="contactEmail">E-Mail *</Label>
-              <Input
-                id="contactEmail"
-                type="email"
-                value={data.contactEmail}
-                onChange={(e) => updateData({ contactEmail: e.target.value })}
-                placeholder="max@firma.de"
-                className={errors.contactEmail ? 'border-destructive' : ''}
-              />
-              {errors.contactEmail && (
-                <p className="text-sm text-destructive">{errors.contactEmail}</p>
-              )}
-            </div>
+            </Label>
+            <p className="text-sm text-muted-foreground mt-1">Max 2MB, JPG/PNG/WEBP</p>
           </div>
         </div>
       </div>
 
-      <div className="flex justify-between pt-6">
+      {/* Header Image Upload */}
+      <div className="space-y-2">
+        <Label>Titelbild</Label>
+        <div className="flex items-center gap-4">
+          {headerPreview && (
+            <div className="relative">
+              <img src={headerPreview} alt="Header" className="w-48 h-24 object-cover rounded border" />
+              <Button
+                variant="ghost"
+                size="icon"
+                className="absolute -top-2 -right-2"
+                onClick={() => {
+                  setHeaderPreview(null);
+                  updateData({ header_image: null });
+                }}
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+          )}
+          <div>
+            <Input
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              onChange={handleHeaderUpload}
+              disabled={uploadingHeader}
+              className="hidden"
+              id="header-upload"
+            />
+            <Label htmlFor="header-upload" className="cursor-pointer">
+              <div className="flex items-center gap-2 px-4 py-2 border rounded hover:bg-accent">
+                <Upload className="h-4 w-4" />
+                {uploadingHeader ? 'Hochladen...' : 'Titelbild hochladen'}
+              </div>
+            </Label>
+            <p className="text-sm text-muted-foreground mt-1">Max 5MB, JPG/PNG/WEBP</p>
+          </div>
+        </div>
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="location">Hauptstandort *</Label>
+        <Input
+          id="location"
+          value={data.main_location || ''}
+          onChange={(e) => updateData({ main_location: e.target.value })}
+          placeholder="z.B. Berlin, Deutschland"
+          className={errors.main_location ? 'border-destructive' : ''}
+        />
+        {errors.main_location && (
+          <p className="text-sm text-destructive">{errors.main_location}</p>
+        )}
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label htmlFor="contact_person">Ansprechpartner *</Label>
+          <Input
+            id="contact_person"
+            value={data.contact_person || ''}
+            onChange={(e) => updateData({ contact_person: e.target.value })}
+            placeholder="Max Mustermann"
+            className={errors.contact_person ? 'border-destructive' : ''}
+          />
+          {errors.contact_person && (
+            <p className="text-sm text-destructive">{errors.contact_person}</p>
+          )}
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="contact_position">Position</Label>
+          <Input
+            id="contact_position"
+            value={data.contact_position || ''}
+            onChange={(e) => updateData({ contact_position: e.target.value })}
+            placeholder="z.B. Geschäftsführer"
+          />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label htmlFor="primary_email">E-Mail *</Label>
+          <Input
+            id="primary_email"
+            type="email"
+            value={data.primary_email || ''}
+            onChange={(e) => updateData({ primary_email: e.target.value })}
+            placeholder="kontakt@unternehmen.de"
+            className={errors.primary_email ? 'border-destructive' : ''}
+          />
+          {errors.primary_email && (
+            <p className="text-sm text-destructive">{errors.primary_email}</p>
+          )}
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="phone">Telefon</Label>
+          <Input
+            id="phone"
+            type="tel"
+            value={data.phone || ''}
+            onChange={(e) => updateData({ phone: e.target.value })}
+            placeholder="+49 123 456789"
+          />
+        </div>
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="matching_about">Kurzbeschreibung * (max 280 Zeichen)</Label>
+        <Textarea
+          id="matching_about"
+          value={data.matching_about || ''}
+          onChange={(e) => updateData({ matching_about: e.target.value })}
+          placeholder="Eine kurze Beschreibung Ihres Unternehmens..."
+          maxLength={280}
+          rows={3}
+          className={errors.matching_about ? 'border-destructive' : ''}
+        />
+        <p className="text-sm text-muted-foreground">
+          {(data.matching_about || '').length}/280 Zeichen
+        </p>
+        {errors.matching_about && (
+          <p className="text-sm text-destructive">{errors.matching_about}</p>
+        )}
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="description">Ausführliche Beschreibung (max 2000 Zeichen)</Label>
+        <Textarea
+          id="description"
+          value={data.description || ''}
+          onChange={(e) => updateData({ description: e.target.value })}
+          placeholder="Detaillierte Beschreibung Ihres Unternehmens..."
+          maxLength={2000}
+          rows={5}
+          className={errors.description ? 'border-destructive' : ''}
+        />
+        <p className="text-sm text-muted-foreground">
+          {(data.description || '').length}/2000 Zeichen
+        </p>
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="employee_count">Anzahl Mitarbeiter</Label>
+        <Select
+          value={data.employee_count?.toString() || ''}
+          onValueChange={(value) => updateData({ employee_count: parseInt(value) })}
+        >
+          <SelectTrigger>
+            <SelectValue placeholder="Wählen Sie eine Größe" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="1">1-10</SelectItem>
+            <SelectItem value="11">11-50</SelectItem>
+            <SelectItem value="51">51-200</SelectItem>
+            <SelectItem value="201">201-500</SelectItem>
+            <SelectItem value="501">501+</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="space-y-2">
+          <Label htmlFor="website_url">Website</Label>
+          <Input
+            id="website_url"
+            type="url"
+            value={data.website_url || ''}
+            onChange={(e) => updateData({ website_url: e.target.value })}
+            placeholder="https://..."
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="linkedin_url">LinkedIn</Label>
+          <Input
+            id="linkedin_url"
+            type="url"
+            value={data.linkedin_url || ''}
+            onChange={(e) => updateData({ linkedin_url: e.target.value })}
+            placeholder="https://linkedin.com/company/..."
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="instagram_url">Instagram</Label>
+          <Input
+            id="instagram_url"
+            type="url"
+            value={data.instagram_url || ''}
+            onChange={(e) => updateData({ instagram_url: e.target.value })}
+            placeholder="https://instagram.com/..."
+          />
+        </div>
+      </div>
+
+      <div className="flex justify-between pt-4">
         <Button variant="outline" onClick={onPrev}>
-          <ArrowLeft className="h-4 w-4 mr-2" />
           Zurück
         </Button>
-        
-        <Button 
-          onClick={handleNext}
-          className="bg-[hsl(var(--accent))] hover:bg-[hsl(var(--accent-hover))] text-white px-8"
-        >
+        <Button onClick={handleNext}>
           Weiter
         </Button>
       </div>
