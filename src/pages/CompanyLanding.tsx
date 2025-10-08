@@ -20,76 +20,87 @@ const pricingTiers = [
   {
     id: 'base',
     title: 'Base',
-    description: 'Ideal für Betriebe, die erstmals sichtbar werden wollen.',
-    price: { monthly: 79, yearly: 790 },
+    description: 'Ideal für Unternehmen die jährlich rund 20 neue Mitarbeiter suchen',
+    price: { monthly: 369, yearly: 3950 },
     badgeMonthly: undefined,
-    badgeYearly: '2 Monate gratis',
+    badgeYearly: undefined,
     features: [
-      'Teamprofil & Kulturseite',
-      'Bis zu 5 Mitarbeitende vernetzen sich',
+      '10 Tokens pro Monat um vollständige Profile freizuschalten',
+      '5 Stellenanzeigen im Quartal',
+      '2 Standorte',
+      '1 Zugang',
       'Grundlegende Analytics',
-      'Support per E-Mail'
+      'Support per Mail'
     ],
     ctaLabelMonthly: 'Jetzt starten',
-    ctaLabelYearly: 'Jährlich buchen',
+    ctaLabelYearly: 'Jetzt starten',
     ctaHref: '/signup/company?plan=base'
   },
   {
     id: 'pro',
     title: 'Pro',
-    description: 'Für Teams, die regelmäßig Talent-Content teilen möchten.',
-    price: { monthly: 129, yearly: 1290 },
+    description: 'Ideal für Unternehmen die jährlich rund 50 neue Mitarbeiter suchen',
+    price: { monthly: 985, yearly: 9555 },
     badgeMonthly: 'Beliebt',
-    badgeYearly: '3 Monate gratis',
+    badgeYearly: 'Beliebt',
     features: [
-      'Unbegrenzte Mitarbeitende',
-      'Erweiterte Analytics & Insights',
-      'Talent-Pools & Direktnachrichten',
-      'BeVisiblle Success Call'
+      '25 Tokens pro Monat um vollständige Profile freizuschalten',
+      '12 Stellenanzeigen im Quartal',
+      'Mehrere Standorte',
+      '5 Zugänge',
+      'AI Matching',
+      'Matches via Email (wöchentlich/monatlich)',
+      '1 zu 1 Support mit Onboarding'
     ],
-    ctaLabelMonthly: 'Pro buchen',
-    ctaLabelYearly: 'Pro jährlich sichern',
+    ctaLabelMonthly: 'Jetzt starten',
+    ctaLabelYearly: 'Jetzt starten',
     ctaHref: '/signup/company?plan=pro'
   },
   {
     id: 'enterprise',
     title: 'Enterprise',
-    description: 'Für größere Organisationen mit individuellen Anforderungen.',
-    price: { monthly: 249, yearly: 2490 },
+    description: 'Ideal für Unternehmen mit über 250 Mitarbeiter die gegen den Fachkräftemangel agieren wollen',
+    price: { monthly: null, yearly: null },
     badgeMonthly: undefined,
-    badgeYearly: 'Beste Konditionen',
+    badgeYearly: undefined,
     features: [
-      'Dedicated Success Manager',
-      'Integration in HR-/ATS-Systeme',
-      'Employer-Brand-Kampagnen',
-      'Vor-Ort Workshops & Roll-out'
+      'Unlimited Tokens',
+      'Unlimited Stellenanzeigen',
+      'Unlimited Zugänge',
+      'Personalisiertes AI Matching',
+      'Matches via Email und WhatsApp (wöchentlich/monatlich)',
+      '1 zu 1 Support'
     ],
-    ctaLabelMonthly: 'Beratung anfragen',
-    ctaLabelYearly: 'Enterprise anfragen',
+    ctaLabelMonthly: 'Kontaktiere uns',
+    ctaLabelYearly: 'Kontaktiere uns',
     ctaHref: 'https://calendly.com/todd-bevisiblle/gettoknowbeviviblle'
   }
 ];
 
 const faqs = [
   {
-    question: 'Wie viele Mitarbeitende können wir onboarden?',
-    answer: 'Im Base-Paket bis zu fünf, in Pro und Enterprise unbegrenzt. Mitarbeitende erhalten eigene Spaces, um Inhalte zu teilen und Kontakte zu pflegen.'
+    question: 'Was sind Tokens und wie funktionieren sie?',
+    answer: 'Tokens ermöglichen es Ihnen, vollständige Profile freizuschalten und direkt mit qualifizierten Fachkräften in Kontakt zu treten. Jedes freigeschaltete Profil kostet 1 Token.'
   },
   {
-    question: 'Können wir zwischen monatlich und jährlich wechseln?',
-    answer: 'Ja, du kannst jederzeit wechseln. Beim Wechsel von jährlich auf monatlich wird der neue Plan nach Ablauf deiner Laufzeit aktiv.'
+    question: 'Wie unterscheiden sich die Pläne?',
+    answer: 'Der Base-Plan eignet sich für kleinere Unternehmen mit bis zu 20 Neueinstellungen pro Jahr. Der Pro-Plan bietet AI-Matching und mehr Tokens für wachsende Teams. Enterprise ist für große Unternehmen mit unbegrenzten Ressourcen.'
   },
   {
-    question: 'Welche Zahlungsarten werden unterstützt?',
-    answer: 'Wir unterstützen SEPA-Lastschrift, Kreditkarte sowie auf Anfrage Rechnung per Überweisung (ab Pro).' 
+    question: 'Was bedeutet "vollständige und verifizierte Profile"?',
+    answer: 'Alle Profile auf BeVisiblle werden durch unseren Lebenslauf-Generator erstellt, wodurch sie standardisiert, vollständig und verifiziert sind. Sie erhalten nur qualitativ hochwertige Kandidatenprofile.'
   },
   {
-    question: 'Welche Inhalte sehen Talente von uns?',
-    answer: 'Du entscheidest: Vom ausführlichen Teamprofil über Erfahrungsberichte bis zu Live-Events. Je aktiver ihr seid, desto sichtbarer werdet ihr.'
+    question: 'Wie funktioniert Employee Branding?',
+    answer: 'Ihre Mitarbeiter können in der Community aktiv sein, Beiträge teilen und so organisch Aufmerksamkeit auf Ihr Unternehmen lenken. Dies stärkt Ihre Arbeitgebermarke und zieht passende Talente an.'
   },
   {
-    question: 'Gibt es eine Onboarding-Unterstützung?',
-    answer: 'Im Pro-Paket ist ein Success Call enthalten, bei Enterprise begleiten wir euch mit Workshops, Content-Ideen und Performance-Auswertungen.'
+    question: 'Gibt es eine Vertragsbindung?',
+    answer: 'Bei monatlicher Zahlung können Sie jederzeit kündigen. Bei jährlicher Zahlung profitieren Sie von erheblichen Rabatten und zahlen etwa 11 Monatspreise für 12 Monate.'
+  },
+  {
+    question: 'Wie schnell kann ich starten?',
+    answer: 'Nach der Registrierung und Auswahl Ihres Plans haben Sie sofort Zugang zur Plattform und können mit der Suche nach qualifizierten Fachkräften beginnen.'
   }
 ];
 
@@ -279,17 +290,17 @@ export default function CompanyLanding() {
       <section id="community" className="mt-16">
         <div className="mx-auto max-w-6xl px-6 grid gap-8 md:grid-cols-3">
           {[{
-            title: 'Community',
-            img: '/assets/feature-2.png',
-            link: '/auth'
-          }, {
-            title: 'CV',
+            title: 'Datenbank',
             img: '/assets/feature-1.png',
-            link: '/cv-generator'
+            link: '/database'
           }, {
-            title: 'Jobs',
+            title: 'Vollständige Profile',
             img: '/assets/feature-3.png',
-            link: '/jobs'
+            link: '/profiles'
+          }, {
+            title: 'Employee Branding',
+            img: '/assets/feature-2.png',
+            link: '/employee-branding'
           }].map((card) => (
             <Link
               key={card.title}
@@ -305,7 +316,10 @@ export default function CompanyLanding() {
       </section>
 
       <section className="mt-20">
-        <SmartInteractions />
+          <SmartInteractions 
+            title="So agieren Sie gegen den Fachkräftemangel"
+            description="BeVisiblle verbindet Sie mit echten Profilen und lässt Ihre Mitarbeiter für Sie neue Mitarbeiter gewinnen"
+          />
       </section>
 
       <section className="mt-20">
@@ -338,6 +352,7 @@ export default function CompanyLanding() {
               const price = billingCycle === 'monthly' ? tier.price.monthly : tier.price.yearly;
               const period = billingCycle === 'monthly' ? 'Monat' : 'Jahr';
               const badge = billingCycle === 'monthly' ? tier.badgeMonthly : tier.badgeYearly;
+              const isEnterprise = tier.id === 'enterprise';
               return (
                 <div
                   key={tier.id}
@@ -353,8 +368,14 @@ export default function CompanyLanding() {
                     </div>
                   )}
                   <div className="text-3xl font-semibold text-slate-900">
-                    €{price}
-                    <span className="text-sm font-normal text-slate-500"> /{period}</span>
+                    {isEnterprise ? (
+                      billingCycle === 'monthly' ? tier.ctaLabelMonthly : tier.ctaLabelYearly
+                    ) : (
+                      <>
+                        €{price}
+                        <span className="text-sm font-normal text-slate-500"> /{period}</span>
+                      </>
+                    )}
                   </div>
                   <h3 className="mt-2 text-xl font-semibold text-slate-900">{tier.title}</h3>
                   <p className="mt-2 text-sm text-slate-500">{tier.description}</p>
@@ -369,10 +390,8 @@ export default function CompanyLanding() {
                   </ul>
 
                   {tier.ctaHref.startsWith('http') ? (
-                    <a
-                      href={tier.ctaHref}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                    <button
+                      onClick={openCalendly}
                       className={`mt-8 inline-flex w-full items-center justify-center rounded-full px-5 py-3 text-sm font-semibold transition ${
                         isPopular
                           ? 'bg-[#5170ff] text-white shadow hover:opacity-90'
@@ -380,10 +399,10 @@ export default function CompanyLanding() {
                       }`}
                     >
                       {billingCycle === 'monthly' ? tier.ctaLabelMonthly : tier.ctaLabelYearly}
-                    </a>
+                    </button>
                   ) : (
                     <Link
-                      to={tier.ctaHref}
+                      to={`${tier.ctaHref}&billing=${billingCycle}`}
                       className={`mt-8 inline-flex w-full items-center justify-center rounded-full px-5 py-3 text-sm font-semibold transition ${
                         isPopular
                           ? 'bg-[#5170ff] text-white shadow hover:opacity-90'

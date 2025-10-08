@@ -16,35 +16,43 @@ type InteractionCard = {
 
 const CARDS: InteractionCard[] = [
   {
-    title: 'Lebenslauf → Profil',
-    subtitle: 'Dein Startpunkt',
+    title: 'Datenbank',
+    subtitle: 'Profile freischalten',
     description:
-      'Erstelle in wenigen Minuten einen Lebenslauf. Daraus entsteht automatisch dein digitales Profil – perfekt zum Bewerben und Teilen.',
+      'Nutzen Sie Ihre Tokens, um vollständige Profile aus unserer Datenbank freizuschalten und qualifizierte Kandidaten direkt zu kontaktieren. Gewinnen Sie die besten Talente für Ihr Team.',
     image: lebenslaufFeature,
-    link: '/cv-generator',
-    cta: 'Jetzt starten'
+    link: '/database',
+    cta: 'Datenbank durchsuchen'
   },
   {
-    title: 'Community Spaces',
-    subtitle: 'Echter Austausch',
+    title: 'Vollständige Profile',
+    subtitle: 'Immer verifiziert',
     description:
-      'Bleib mit Kolleg:innen, Teams oder deiner Klasse verbunden. Teile Wissen, plane Schichten und starte Lernrunden – ohne Plattform-Stress.',
-    image: communityFeature,
-    link: '/auth',
-    cta: 'Community ansehen'
-  },
-  {
-    title: 'Jobs, wenn es passt',
-    subtitle: 'Direkt aus dem Profil',
-    description:
-      'Wenn du offen für Neues bist, findest du passende Unternehmen mit echten Einblicken. Mit deinem Profil bewirbst du dich mit einem Klick.',
+      'Alle Profile auf BeVisiblle sind vollständig und verifiziert. Durch unseren strukturierten Lebenslauf-Generator im Anmeldeprozess garantieren wir Ihnen nur hochwertige Kandidatenprofile.',
     image: jobsFeature,
-    link: '/jobs',
-    cta: 'Jobs entdecken'
+    link: '/profiles',
+    cta: 'Profile ansehen'
+  },
+  {
+    title: 'Employee Branding',
+    subtitle: 'Mitarbeiter als Markenbotschafter',
+    description:
+      'Ihre Mitarbeiter machen Marketing in der Community, indem sie Beiträge teilen und aktiv teilnehmen. Jeder Post lenkt organisch Aufmerksamkeit auf Ihr Unternehmen und stärkt Ihre Arbeitgebermarke.',
+    image: communityFeature,
+    link: '/employee-branding',
+    cta: 'Mehr erfahren'
   }
 ];
 
-export default function SmartInteractions() {
+interface SmartInteractionsProps {
+  title?: string;
+  description?: string;
+}
+
+export default function SmartInteractions({ 
+  title = "Smart, wenn du es brauchst",
+  description = "Entdecke intelligente Features, die genau dann für dich da sind, wenn du sie benötigst"
+}: SmartInteractionsProps) {
   const [activeIndex, setActiveIndex] = useState(0);
 
   useEffect(() => {
@@ -60,12 +68,10 @@ export default function SmartInteractions() {
     <div className="mx-auto max-w-6xl px-4">
       <div className="text-center max-w-3xl mx-auto">
         <h2 className="text-3xl md:text-4xl font-semibold text-foreground leading-tight">
-          Smart, wenn du es brauchst.
+          {title}
         </h2>
         <p className="mt-3 text-sm md:text-base text-muted-foreground">
-          <span>BeVisib</span>
-          <span className="text-primary">ll</span>
-          <span>e verbindet Lebenslauf, Community und Jobs in einem Flow – du entscheidest, womit du startest.</span>
+          {description}
         </p>
       </div>
 
