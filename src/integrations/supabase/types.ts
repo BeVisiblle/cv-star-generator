@@ -7809,6 +7809,10 @@ export type Database = {
           vorname: string
         }[]
       }
+      compute_match: {
+        Args: { p_job: string; p_user: string }
+        Returns: number
+      }
       compute_match_percent: {
         Args: {
           candidate_city: string
@@ -8565,6 +8569,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      inactivate_job: {
+        Args: { actor: string; job_uuid: string }
+        Returns: undefined
+      }
       increment_login_count: {
         Args: { user_id: string }
         Returns: number
@@ -8634,6 +8642,10 @@ export type Database = {
           score: number
         }[]
       }
+      missing_required_documents: {
+        Args: { p_job: string; p_user: string }
+        Returns: string[]
+      }
       must_set_password: {
         Args: Record<PropertyKey, never>
         Returns: boolean
@@ -8641,6 +8653,10 @@ export type Database = {
       path: {
         Args: { "": unknown }
         Returns: unknown
+      }
+      pause_job: {
+        Args: { actor: string; job_uuid: string }
+        Returns: undefined
       }
       pgis_asflatgeobuf_finalfn: {
         Args: { "": unknown }
@@ -8847,6 +8863,10 @@ export type Database = {
           skills: string[]
         }[]
       }
+      publish_job: {
+        Args: { actor: string; job_uuid: string }
+        Returns: undefined
+      }
       publish_requirement_profile: {
         Args: { p_profile: string; p_public?: boolean }
         Returns: string
@@ -8865,6 +8885,10 @@ export type Database = {
       resolve_location_id: {
         Args: { p_city: string; p_country_code?: string; p_postal_code: string }
         Returns: number
+      }
+      resume_job: {
+        Args: { actor: string; job_uuid: string }
+        Returns: undefined
       }
       search_candidates_within_radius: {
         Args: { lat_input: number; lon_input: number; radius_km: number }
