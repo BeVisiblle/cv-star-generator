@@ -162,10 +162,10 @@ export const CVFormProvider = ({ children }: { children: ReactNode }) => {
     if (savedData) {
       try {
         const parsedData = JSON.parse(savedData);
-        console.log('CV Generator: Loading saved CV data from localStorage:', parsedData);
+        console.log('Lebenslauf Generator: Loading saved CV data from localStorage:', parsedData);
         setFormData(parsedData);
       } catch (error) {
-        console.error('CV Generator: Error parsing saved CV data:', error);
+        console.error('Lebenslauf Generator: Error parsing saved CV data:', error);
         localStorage.removeItem('cvFormData');
       }
     }
@@ -381,13 +381,7 @@ export const CVFormProvider = ({ children }: { children: ReactNode }) => {
             (!formData.faehigkeiten || formData.faehigkeiten.length === 0)) {
           errors.faehigkeiten = 'Mindestens eine Fähigkeit ist erforderlich';
         }
-        // At least one motivation field is required
-        const hasMotivation = (formData.motivation && formData.motivation.trim() !== '') ||
-                              (formData.kenntnisse && formData.kenntnisse.trim() !== '') ||
-                              (formData.praktische_erfahrung && formData.praktische_erfahrung.trim() !== '');
-        if (!hasMotivation) {
-          errors.motivation = 'Mindestens eine der Motivations-Fragen muss beantwortet werden';
-        }
+        // Motivation fields are optional - no validation needed
         break;
       case 5:
         if (!formData.layout) errors.layout = 'Layout-Auswahl ist erforderlich';

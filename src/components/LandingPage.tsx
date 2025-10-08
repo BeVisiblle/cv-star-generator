@@ -8,7 +8,7 @@ import jobsFeature from '@/assets/jobs-feature.png';
 import communityFeature from '@/assets/community-feature.png';
 
 /*
- Landing Page – CV Generator
+ Landing Page – Lebenslauf Generator
  Tech: React + TailwindCSS
  Structure:
  1) Hero Header
@@ -59,7 +59,7 @@ export default function LandingPage() {
     link("canonical", site + "/");
 
     // Open Graph
-    head.insertAdjacentHTML("beforeend", '<meta property="og:locale" content="de_DE">' + '<meta property="og:type" content="website">' + '<meta property="og:site_name" content="Ausbildungsbasis">' + '<meta property="og:title" content="' + title.replace(/"/g, '&quot;') + '">' + '<meta property="og:description" content="' + desc.replace(/"/g, '&quot;') + '">' + '<meta property="og:url" content="' + site + '/">' + '<meta property="og:image" content="' + ogImage + '">' + '<meta property="og:image:alt" content="CV Generator für Ausbildung">');
+    head.insertAdjacentHTML("beforeend", '<meta property="og:locale" content="de_DE">' + '<meta property="og:type" content="website">' + '<meta property="og:site_name" content="Ausbildungsbasis">' + '<meta property="og:title" content="' + title.replace(/"/g, '&quot;') + '">' + '<meta property="og:description" content="' + desc.replace(/"/g, '&quot;') + '">' + '<meta property="og:url" content="' + site + '/">' + '<meta property="og:image" content="' + ogImage + '">' + '<meta property="og:image:alt" content="Lebenslauf Generator für Ausbildung">');
 
     // Twitter Cards
     head.insertAdjacentHTML("beforeend", '<meta name="twitter:card" content="summary_large_image">' + '<meta name="twitter:title" content="' + title.replace(/"/g, '&quot;') + '">' + '<meta name="twitter:description" content="' + desc.replace(/"/g, '&quot;') + '">' + '<meta name="twitter:image" content="' + ogImage + '">');
@@ -85,7 +85,7 @@ export default function LandingPage() {
     }, {
       "@context": "https://schema.org",
       "@type": "Product",
-      "name": "CV Generator (Lebenslauf Ausbildung)",
+      "name": "Lebenslauf Generator (Lebenslauf Ausbildung)",
       "brand": {
         "@type": "Brand",
         "name": "Ausbildungsbasis"

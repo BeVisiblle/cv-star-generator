@@ -1,4 +1,4 @@
-// Temporary fix for CV Generator loading issues
+// Temporary fix for Lebenslauf Generator loading issues
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -10,11 +10,11 @@ export const CVGeneratorErrorFallback = ({ error, onRetry }: { error?: Error; on
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <AlertCircle className="h-12 w-12 text-orange-500 mx-auto mb-4" />
-          <CardTitle>CV Generator lädt...</CardTitle>
+          <CardTitle>Lebenslauf Generator lädt...</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <p className="text-sm text-muted-foreground text-center">
-            Der CV Generator wird geladen. Falls er nicht lädt, liegt möglicherweise ein Verbindungsproblem vor.
+            Der Lebenslauf Generator wird geladen. Falls er nicht lädt, liegt möglicherweise ein Verbindungsproblem vor.
           </p>
           
           <div className="space-y-2">
