@@ -272,18 +272,20 @@ export default function AboutUs() {
 
                         <div className="flex items-center justify-between pt-4 text-xs text-slate-400">
                           <span>BeVisiblle</span>
-                          <div className="flex items-center gap-2 text-[#5170ff]">
-                            <a
-                              href={member.linkedin}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-[#5170ff]/30 bg-white text-[#5170ff] transition hover:bg-[#5170ff] hover:text-white"
-                            >
-                              <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                                <path d="M4.983 3.5C4.983 4.88 3.87 6 2.5 6S0 4.88 0 3.5 1.12 1 2.5 1 4.983 2.12 4.983 3.5zM.249 8.25h4.502V24H.249V8.25zM8.497 8.25h4.318v2.136h.062c.602-1.14 2.074-2.344 4.266-2.344 4.56 0 5.405 3.002 5.405 6.906V24h-4.5v-6.874c0-1.64-.03-3.746-2.285-3.746-2.29 0-2.64 1.79-2.64 3.637V24h-4.5V8.25z" />
-                              </svg>
-                            </a>
-                          </div>
+                          {member.linkedin && (
+                            <div className="flex items-center gap-2 text-[#5170ff]">
+                              <a
+                                href={member.linkedin}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-[#5170ff]/30 bg-white text-[#5170ff] transition hover:bg-[#5170ff] hover:text-white"
+                              >
+                                <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                                  <path d="M4.983 3.5C4.983 4.88 3.87 6 2.5 6S0 4.88 0 3.5 1.12 1 2.5 1 4.983 2.12 4.983 3.5zM.249 8.25h4.502V24H.249V8.25zM8.497 8.25h4.318v2.136h.062c.602-1.14 2.074-2.344 4.266-2.344 4.56 0 5.405 3.002 5.405 6.906V24h-4.5v-6.874c0-1.64-.03-3.746-2.285-3.746-2.29 0-2.64 1.79-2.64 3.637V24h-4.5V8.25z" />
+                                </svg>
+                              </a>
+                            </div>
+                          )}
                         </div>
                       </div>
                     </div>
