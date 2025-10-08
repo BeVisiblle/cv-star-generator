@@ -14,6 +14,51 @@ export type Database = {
   }
   public: {
     Tables: {
+      analytics_events: {
+        Row: {
+          button_label: string | null
+          button_type: string | null
+          created_at: string
+          event_name: string
+          event_type: string
+          id: string
+          metadata: Json | null
+          page_path: string | null
+          page_url: string | null
+          referrer: string | null
+          session_id: string | null
+          user_agent: string | null
+        }
+        Insert: {
+          button_label?: string | null
+          button_type?: string | null
+          created_at?: string
+          event_name: string
+          event_type: string
+          id?: string
+          metadata?: Json | null
+          page_path?: string | null
+          page_url?: string | null
+          referrer?: string | null
+          session_id?: string | null
+          user_agent?: string | null
+        }
+        Update: {
+          button_label?: string | null
+          button_type?: string | null
+          created_at?: string
+          event_name?: string
+          event_type?: string
+          id?: string
+          metadata?: Json | null
+          page_path?: string | null
+          page_url?: string | null
+          referrer?: string | null
+          session_id?: string | null
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
       annotations: {
         Row: {
           anchor: Json
@@ -6482,6 +6527,15 @@ export type Database = {
       }
     }
     Views: {
+      analytics_summary: {
+        Row: {
+          count: number | null
+          date: string | null
+          event_name: string | null
+          event_type: string | null
+        }
+        Relationships: []
+      }
       companies_public_secure: {
         Row: {
           created_at: string | null

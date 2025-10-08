@@ -1,82 +1,63 @@
 // Telemetry functions for tracking user interactions and performance
+import { supabase } from '@/integrations/supabase/client';
 
-// Store analytics data in localStorage for now (can be sent to backend later)
-const ANALYTICS_KEY = 'bevisiblle_analytics';
+// Generate a session ID for this browsing session
+const SESSION_ID = crypto.randomUUID();
 
 interface AnalyticsEvent {
-  type: 'button_click' | 'page_view';
-  timestamp: string;
-  page?: string;
-  buttonLabel?: string;
-  buttonType?: string;
-  url?: string;
+  event_type: 'button_click' | 'page_view';
+  event_name: string;
+  page_url?: string;
+  page_path?: string;
+  button_label?: string;
+  button_type?: string;
+  session_id?: string;
+  user_agent?: string;
+  referrer?: string;
+  metadata?: Record<string, any>;
 }
 
-function saveEvent(event: AnalyticsEvent) {
+async function saveEvent(event: AnalyticsEvent) {
   try {
-    const stored = localStorage.getItem(ANALYTICS_KEY);
-    const events: AnalyticsEvent[] = stored ? JSON.parse(stored) : [];
-    events.push(event);
-    localStorage.setItem(ANALYTICS_KEY, JSON.stringify(events));
-    console.log(`[Analytics] Event tracked:`, event);
+    const eventData = {
+      ...event,
+      session_id: SESSION_ID,
+      user_agent: navigator.userAgent,
+      referrer: document.referrer || undefined,
+      page_url: window.location.href,
+      page_path: window.location.pathname,
+    };
+
+    // Save to Supabase
+    const { error } = await supabase
+      .from('analytics_events')
+      .insert([eventData]);
+
+    if (error) {
+      console.error('[Analytics] Failed to save event:', error);
+    } else {
+      console.log(`[Analytics] Event tracked:`, event);
+    }
   } catch (error) {
     console.error('[Analytics] Failed to save event:', error);
   }
 }
 
-// Get all analytics events
-export function getAnalytics() {
-  try {
-    const stored = localStorage.getItem(ANALYTICS_KEY);
-    return stored ? JSON.parse(stored) : [];
-  } catch (error) {
-    console.error('[Analytics] Failed to get analytics:', error);
-    return [];
-  }
-}
-
-// Get analytics summary
-export function getAnalyticsSummary() {
-  const events = getAnalytics();
-  const summary = {
-    totalEvents: events.length,
-    buttonClicks: events.filter((e: AnalyticsEvent) => e.type === 'button_click').length,
-    pageViews: events.filter((e: AnalyticsEvent) => e.type === 'page_view').length,
-    calendlyClicks: events.filter((e: AnalyticsEvent) => e.buttonType === 'calendly').length,
-    pageViewsByPage: {} as Record<string, number>,
-    buttonClicksByLabel: {} as Record<string, number>,
-  };
-
-  events.forEach((event: AnalyticsEvent) => {
-    if (event.type === 'page_view' && event.page) {
-      summary.pageViewsByPage[event.page] = (summary.pageViewsByPage[event.page] || 0) + 1;
-    }
-    if (event.type === 'button_click' && event.buttonLabel) {
-      summary.buttonClicksByLabel[event.buttonLabel] = (summary.buttonClicksByLabel[event.buttonLabel] || 0) + 1;
-    }
-  });
-
-  return summary;
-}
-
 // Track page views
 export function trackPageView(page: string) {
   saveEvent({
-    type: 'page_view',
-    timestamp: new Date().toISOString(),
-    page,
-    url: window.location.href,
+    event_type: 'page_view',
+    event_name: page,
   });
 }
 
 // Track button clicks
 export function trackButtonClick(buttonLabel: string, buttonType?: string) {
   saveEvent({
-    type: 'button_click',
-    timestamp: new Date().toISOString(),
-    buttonLabel,
-    buttonType,
-    page: window.location.pathname,
+    event_type: 'button_click',
+    event_name: buttonLabel,
+    button_label: buttonLabel,
+    button_type,
   });
 }
 
@@ -88,20 +69,16 @@ export function trackCalendlyClick(buttonLabel: string, page: string) {
 
 export function trackJobSearchEvent(event: string, data: Record<string, any> = {}) {
   console.log(`[Telemetry] Job Search - ${event}:`, data);
-  // Telemetry service implementation pending
 }
 
 export function trackForYouEvent(event: string, data: Record<string, any> = {}) {
   console.log(`[Telemetry] ForYou - ${event}:`, data);
-  // Telemetry service implementation pending
 }
 
 export function trackCompanyMatchingEvent(event: string, data: Record<string, any> = {}) {
   console.log(`[Telemetry] Company Matching - ${event}:`, data);
-  // Telemetry service implementation pending
 }
 
 export function trackJobCardEvent(event: string, data: Record<string, any> = {}) {
   console.log(`[Telemetry] Job Card - ${event}:`, data);
-  // Telemetry service implementation pending
 }

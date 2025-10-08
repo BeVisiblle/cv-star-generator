@@ -1,28 +1,97 @@
 import React, { useEffect, useState } from 'react';
-import { getAnalytics, getAnalyticsSummary, trackPageView } from '@/lib/telemetry';
+import { trackPageView } from '@/lib/telemetry';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/useAuth';
+
+interface AnalyticsSummary {
+  totalEvents: number;
+  buttonClicks: number;
+  pageViews: number;
+  calendlyClicks: number;
+  pageViewsByPage: Record<string, number>;
+  buttonClicksByLabel: Record<string, number>;
+}
 
 export default function Analytics() {
-  const [summary, setSummary] = useState<any>(null);
+  const { user } = useAuth();
+  const [summary, setSummary] = useState<AnalyticsSummary | null>(null);
   const [events, setEvents] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     trackPageView('Analytics Dashboard');
     
-    const loadAnalytics = () => {
-      setSummary(getAnalyticsSummary());
-      setEvents(getAnalytics());
+    const loadAnalytics = async () => {
+      try {
+        // Fetch last 1000 events
+        const { data: eventsData, error } = await supabase
+          .from('analytics_events')
+          .select('*')
+          .order('created_at', { ascending: false })
+          .limit(1000);
+
+        if (error) throw error;
+
+        setEvents(eventsData || []);
+
+        // Calculate summary
+        const summary: AnalyticsSummary = {
+          totalEvents: eventsData?.length || 0,
+          buttonClicks: eventsData?.filter(e => e.event_type === 'button_click').length || 0,
+          pageViews: eventsData?.filter(e => e.event_type === 'page_view').length || 0,
+          calendlyClicks: eventsData?.filter(e => e.button_type === 'calendly').length || 0,
+          pageViewsByPage: {},
+          buttonClicksByLabel: {},
+        };
+
+        eventsData?.forEach(event => {
+          if (event.event_type === 'page_view' && event.event_name) {
+            summary.pageViewsByPage[event.event_name] = (summary.pageViewsByPage[event.event_name] || 0) + 1;
+          }
+          if (event.event_type === 'button_click' && event.button_label) {
+            summary.buttonClicksByLabel[event.button_label] = (summary.buttonClicksByLabel[event.button_label] || 0) + 1;
+          }
+        });
+
+        setSummary(summary);
+      } catch (error) {
+        console.error('Error loading analytics:', error);
+      } finally {
+        setLoading(false);
+      }
     };
     
     loadAnalytics();
     
-    // Refresh every 5 seconds
-    const interval = setInterval(loadAnalytics, 5000);
+    // Refresh every 30 seconds
+    const interval = setInterval(loadAnalytics, 30000);
     return () => clearInterval(interval);
   }, []);
 
-  if (!summary) {
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 p-8">
+        <div className="max-w-7xl mx-auto">
+          <Card className="bg-yellow-50 border-yellow-200">
+            <CardHeader>
+              <CardTitle>🔒 Authentication Required</CardTitle>
+              <CardDescription>
+                Please log in to view analytics data.
+              </CardDescription>
+            </CardHeader>
+          </Card>
+        </div>
+      </div>
+    );
+  }
+
+  if (loading) {
     return <div className="p-8">Lade Analytics...</div>;
+  }
+
+  if (!summary) {
+    return <div className="p-8">Keine Daten verfügbar</div>;
   }
 
   const pageViewsData = Object.entries(summary.pageViewsByPage).map(([page, count]) => ({
@@ -40,7 +109,7 @@ export default function Analytics() {
       <div className="max-w-7xl mx-auto space-y-8">
         <div>
           <h1 className="text-4xl font-bold text-slate-900">Analytics Dashboard</h1>
-          <p className="text-slate-600 mt-2">Übersicht über Button-Klicks und Seitenaufrufe</p>
+          <p className="text-slate-600 mt-2">Live-Daten von bevisiblle.de - Button-Klicks und Seitenaufrufe</p>
         </div>
 
         {/* Summary Cards */}
@@ -83,7 +152,7 @@ export default function Analytics() {
             </CardHeader>
             <CardContent>
               <div className="space-y-2">
-                {pageViewsData.map((item) => (
+                {pageViewsData.sort((a, b) => b.views - a.views).map((item) => (
                   <div key={item.page} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
                     <span className="font-medium">{item.page}</span>
                     <span className="text-2xl font-bold text-[#5170ff]">{item.views}</span>
@@ -117,12 +186,12 @@ export default function Analytics() {
         {/* Recent Events */}
         <Card>
           <CardHeader>
-            <CardTitle>Letzte Events</CardTitle>
-            <CardDescription>Die 20 neuesten aufgezeichneten Events</CardDescription>
+            <CardTitle>Letzte Events (Live)</CardTitle>
+            <CardDescription>Die neuesten 50 Events von bevisiblle.de</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-2 max-h-96 overflow-auto">
-              {events.slice(-20).reverse().map((event, idx) => (
+              {events.slice(0, 50).map((event, idx) => (
                 <div
                   key={idx}
                   className="flex items-center justify-between p-3 bg-slate-50 rounded-lg hover:bg-slate-100 transition"
@@ -130,30 +199,30 @@ export default function Analytics() {
                   <div className="flex-1">
                     <div className="flex items-center gap-2">
                       <span className={`px-2 py-1 rounded text-xs font-semibold ${
-                        event.type === 'page_view' 
+                        event.event_type === 'page_view' 
                           ? 'bg-blue-100 text-blue-700' 
-                          : event.buttonType === 'calendly'
+                          : event.button_type === 'calendly'
                           ? 'bg-purple-100 text-purple-700'
                           : 'bg-green-100 text-green-700'
                       }`}>
-                        {event.type === 'page_view' ? '👁️ Page View' : '🖱️ Click'}
+                        {event.event_type === 'page_view' ? '👁️ Page View' : '🖱️ Click'}
                       </span>
-                      {event.buttonType === 'calendly' && (
+                      {event.button_type === 'calendly' && (
                         <span className="px-2 py-1 rounded text-xs font-semibold bg-[#5170ff] text-white">
                           📅 Calendly
                         </span>
                       )}
                     </div>
                     <p className="text-sm font-medium text-slate-900 mt-1">
-                      {event.type === 'page_view' ? event.page : event.buttonLabel}
+                      {event.event_name}
                     </p>
-                    {event.page && event.type === 'button_click' && (
-                      <p className="text-xs text-slate-500">auf {event.page}</p>
+                    {event.page_path && event.event_type === 'button_click' && (
+                      <p className="text-xs text-slate-500">auf {event.page_path}</p>
                     )}
                   </div>
                   <div className="text-right">
                     <p className="text-xs text-slate-500">
-                      {new Date(event.timestamp).toLocaleString('de-DE')}
+                      {new Date(event.created_at).toLocaleString('de-DE')}
                     </p>
                   </div>
                 </div>
@@ -166,14 +235,9 @@ export default function Analytics() {
           <CardHeader>
             <CardTitle>💡 Hinweis</CardTitle>
             <CardDescription>
-              Die Analytics-Daten werden im Browser (localStorage) gespeichert. Um die Daten zu exportieren, öffnen Sie die Browser-Konsole und führen Sie aus:
+              Diese Analytics zeigen echte Daten von bevisiblle.de in Echtzeit. Alle Events werden in der Supabase-Datenbank gespeichert und sind persistent.
             </CardDescription>
           </CardHeader>
-          <CardContent>
-            <code className="block bg-white p-3 rounded text-sm">
-              JSON.stringify(JSON.parse(localStorage.getItem('bevisiblle_analytics')), null, 2)
-            </code>
-          </CardContent>
         </Card>
       </div>
     </div>
