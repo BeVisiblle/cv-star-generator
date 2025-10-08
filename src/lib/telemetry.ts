@@ -57,7 +57,7 @@ export function trackButtonClick(buttonLabel: string, buttonType?: string) {
     event_type: 'button_click',
     event_name: buttonLabel,
     button_label: buttonLabel,
-    button_type,
+    button_type: buttonType,
   });
 }
 
