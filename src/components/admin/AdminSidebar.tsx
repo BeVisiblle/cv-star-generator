@@ -1,5 +1,5 @@
 import { NavLink, useLocation } from "react-router-dom";
-import { LayoutDashboard, Users, Building2, BadgePercent, Briefcase, HeartHandshake, BarChart3, FileText, LifeBuoy, Settings, Wrench } from "lucide-react";
+import { LayoutDashboard, Users, Building2, BadgePercent, Briefcase, HeartHandshake, BarChart3, FileText, LifeBuoy, Settings, Wrench, Target } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,

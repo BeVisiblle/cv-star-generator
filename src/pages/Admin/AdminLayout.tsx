@@ -6,6 +6,8 @@ import { cn } from "@/lib/utils";
 import BaseLayout from "@/components/layout/BaseLayout";
 import { Button } from "@/components/ui/button";
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
+import { AdminHeader } from "@/components/admin/AdminHeader";
+import { SidebarProvider } from "@/components/ui/sidebar";
 
 const NavLink = ({ to, label }: { to: string; label: string }) => {
   const location = useLocation();
@@ -86,15 +88,16 @@ export default function AdminLayout() {
   }
 
   return (
-    <div className="min-h-screen bg-background text-foreground w-full flex flex-col">
-      <div className="flex w-full flex-1">
+    <SidebarProvider>
+      <div className="min-h-screen bg-background text-foreground w-full flex">
         <AdminSidebar />
-        <main className="flex-1">
-          <BaseLayout>
+        <div className="flex-1 flex flex-col">
+          <AdminHeader />
+          <main className="flex-1 overflow-auto">
             <Outlet />
-          </BaseLayout>
-        </main>
+          </main>
+        </div>
       </div>
-    </div>
+    </SidebarProvider>
   );
 }
