@@ -93,6 +93,7 @@ const AdminTools = lazy(() => import("./pages/Admin/Tools"));
 const AdminAuthGate = lazy(() => import("@/components/admin/AdminAuthGate"));
 const CreateAdmin = lazy(() => import("./pages/Admin/CreateAdmin"));
 const AdminLogin = lazy(() => import("./pages/Admin/Login"));
+const PendingVerifications = lazy(() => import("./pages/Admin/PendingVerifications"));
 
 const queryClient = new QueryClient();
 
@@ -402,6 +403,7 @@ const App = () => {
                 <Route path="scheduled" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><ScheduledPosts /></Suspense>} />
                 <Route path="tools" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><AdminTools /></Suspense>} />
                 <Route path="settings" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><AdminSettings /></Suspense>} />
+                <Route path="pending-verifications" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><PendingVerifications /></Suspense>} />
               </Route>
                 
               {/* Legacy redirects */}
