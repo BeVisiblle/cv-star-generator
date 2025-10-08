@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -21,20 +21,62 @@ export function AdminTokenManager({ companyId }: AdminTokenManagerProps) {
   const [amount, setAmount] = useState<string>("");
   const [reason, setReason] = useState<string>("");
 
-  // Fetch token wallet
+  // Fetch token wallet with auto-initialization
   const { data: wallet } = useQuery({
     queryKey: ["company-wallet", companyId],
     queryFn: async () => {
-      const { data, error } = await supabase
+      // First try to get existing wallet
+      let { data, error } = await supabase
         .from("company_token_wallets")
         .select("*")
         .eq("company_id", companyId)
         .single();
       
-      if (error && error.code !== "PGRST116") throw error;
+      // If not found, create it
+      if (error && error.code === "PGRST116") {
+        const { data: newWallet, error: createError } = await supabase
+          .rpc("ensure_company_wallet", { p_company_id: companyId });
+        
+        if (createError) throw createError;
+        
+        // Fetch the newly created wallet
+        const { data: freshWallet, error: fetchError } = await supabase
+          .from("company_token_wallets")
+          .select("*")
+          .eq("company_id", companyId)
+          .single();
+        
+        if (fetchError) throw fetchError;
+        return freshWallet;
+      }
+      
+      if (error) throw error;
       return data;
     },
   });
+
+  // Realtime subscription for token balance
+  useEffect(() => {
+    const channel = supabase
+      .channel('token-wallet-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'company_token_wallets',
+          filter: `company_id=eq.${companyId}`
+        },
+        () => {
+          queryClient.invalidateQueries({ queryKey: ["company-wallet", companyId] });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [companyId, queryClient]);
 
   // Fetch token history
   const { data: history } = useQuery({

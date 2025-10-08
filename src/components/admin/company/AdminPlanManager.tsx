@@ -28,7 +28,7 @@ export function AdminPlanManager({ companyId }: AdminPlanManagerProps) {
   const [validUntil, setValidUntil] = useState<string>("");
   const [notes, setNotes] = useState<string>("");
 
-  // Fetch available plans
+  // Fetch available plans (Free, Base, Pro, Custom)
   const { data: plans } = useQuery({
     queryKey: ["subscription-plans"],
     queryFn: async () => {
@@ -122,7 +122,10 @@ export function AdminPlanManager({ companyId }: AdminPlanManagerProps) {
               
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <p className="text-sm text-muted-foreground">Tokens</p>
+                  <p className="text-sm text-muted-foreground flex items-center gap-1">
+                    <Coins className="h-3 w-3" />
+                    Tokens
+                  </p>
                   <p className="font-semibold">{activePlan.tokens}</p>
                 </div>
                 <div>

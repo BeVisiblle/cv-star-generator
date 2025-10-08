@@ -7700,6 +7700,10 @@ export type Database = {
         Args: { p_user_id: string }
         Returns: undefined
       }
+      ensure_company_wallet: {
+        Args: { p_company_id: string }
+        Returns: string
+      }
       ensure_job_slug: {
         Args: { p_job: string }
         Returns: string
