@@ -4,6 +4,7 @@ import SmartInteractions from '@/components/landing/SmartInteractions';
 import lebenslaufFeature from '@/assets/lebenslauf-feature.png';
 import jobsFeature from '@/assets/jobs-feature.png';
 import communityFeature from '@/assets/community-feature.png';
+import { trackCalendlyClick, trackPageView } from '@/lib/telemetry';
 
 export default function BeVisiblleLandingPage() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -15,7 +16,8 @@ export default function BeVisiblleLandingPage() {
   };
 
   // Calendly integration
-  const openCalendly = () => {
+  const openCalendly = (buttonLabel: string = 'Demo buchen') => {
+    trackCalendlyClick(buttonLabel, 'Landing Page');
     // @ts-ignore
     if (window.Calendly) {
       // @ts-ignore
@@ -32,6 +34,9 @@ export default function BeVisiblleLandingPage() {
   };
 
   useEffect(() => {
+    // Track page view
+    trackPageView('Landing Page');
+    
     // Load Calendly script
     const script = document.createElement('script');
     script.src = 'https://assets.calendly.com/assets/external/widget.js';
@@ -163,14 +168,12 @@ export default function BeVisiblleLandingPage() {
 
       {/* CTA Section unter den Frauen */}
       <section className="relative -mt-8 z-10 flex justify-center gap-6">
-        <a
-          href="https://calendly.com/todd-bevisiblle/gettoknowbeviviblle"
-          target="_blank"
-          rel="noopener noreferrer"
+        <button
+          onClick={() => openCalendly('Demo buchen (Hero)')}
           className="inline-flex items-center rounded-full border border-gray-300 px-8 py-4 text-base font-semibold text-gray-700 bg-white shadow-lg hover:bg-gray-50 transition-all duration-300 hover:scale-105"
         >
           Demo buchen
-        </a>
+        </button>
         <Link 
           to="/cv-generator" 
           className="inline-flex items-center rounded-full px-8 py-4 text-base font-semibold text-white shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105"

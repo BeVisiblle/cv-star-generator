@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
+import { trackCalendlyClick, trackPageView } from "@/lib/telemetry";
 
 type CalendlyWidget = {
   initPopupWidget: (options: { url: string }) => void;
@@ -54,7 +55,8 @@ export default function AboutUs() {
 
   const toggleMobileMenu = () => setIsMobileMenuOpen((prev) => !prev);
 
-  const openCalendly = () => {
+  const openCalendly = (buttonLabel: string = 'Demo buchen') => {
+    trackCalendlyClick(buttonLabel, 'About Us');
     if (typeof window !== "undefined" && window.Calendly) {
       window.Calendly.initPopupWidget({
         url: "https://calendly.com/todd-bevisiblle/gettoknowbeviviblle"
@@ -68,6 +70,9 @@ export default function AboutUs() {
   };
 
   useEffect(() => {
+    // Track page view
+    trackPageView('About Us');
+    
     const script = document.createElement("script");
     script.src = "https://assets.calendly.com/assets/external/widget.js";
     script.async = true;
@@ -123,7 +128,7 @@ export default function AboutUs() {
                   Login
                 </Link>
                 <button
-                  onClick={openCalendly}
+                  onClick={() => openCalendly('Demo buchen (Header)')}
                   className="hidden sm:inline-flex rounded-full bg-[#5170ff] px-4 py-2 text-sm font-semibold text-white shadow-sm shadow-blue-300 transition hover:bg-[#3f5bff]"
                 >
                   Demo buchen
@@ -171,7 +176,7 @@ export default function AboutUs() {
             </p>
             <div className="flex flex-wrap gap-3">
               <button
-                onClick={openCalendly}
+                onClick={() => openCalendly('Gespräch buchen')}
                 className="inline-flex items-center gap-2 rounded-full bg-[#5170ff] px-5 py-3 text-sm font-semibold text-white shadow-sm shadow-blue-300 transition hover:bg-[#3f5bff]"
               >
                 Gespräch buchen
@@ -219,7 +224,7 @@ export default function AboutUs() {
                 Unser Kernteam vereint Recruiting, Community und Produktentwicklung. Drei Gesichter auf einen Blick – und per Klick lernst du alle kennen.
               </p>
               <button
-                onClick={openCalendly}
+                onClick={() => openCalendly('Get in Touch')}
                 className="inline-flex items-center gap-2 rounded-full bg-[#5170ff] px-6 py-3 text-sm font-semibold text-white shadow-[0_12px_30px_rgba(81,112,255,0.25)] transition hover:bg-[#3f5bff]"
               >
                 Get in Touch

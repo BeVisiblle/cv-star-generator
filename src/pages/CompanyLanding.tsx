@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import SmartInteractions from '@/components/landing/SmartInteractions';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Check } from 'lucide-react';
+import { trackCalendlyClick, trackPageView } from '@/lib/telemetry';
 
 type CalendlyWidget = {
   initPopupWidget: (options: { url: string }) => void;
@@ -112,7 +113,8 @@ export default function CompanyLanding() {
     setIsMobileMenuOpen(!isMobileMenuOpen);
   };
 
-  const openCalendly = () => {
+  const openCalendly = (buttonLabel: string = 'Demo buchen') => {
+    trackCalendlyClick(buttonLabel, 'Company Landing');
     if (typeof window !== 'undefined' && window.Calendly) {
       window.Calendly.initPopupWidget({
         url: 'https://calendly.com/todd-bevisiblle/gettoknowbeviviblle'
@@ -126,6 +128,9 @@ export default function CompanyLanding() {
   };
 
   useEffect(() => {
+    // Track page view
+    trackPageView('Company Landing');
+    
     const script = document.createElement('script');
     script.src = 'https://assets.calendly.com/assets/external/widget.js';
     script.async = true;
@@ -169,7 +174,7 @@ export default function CompanyLanding() {
                   Login
                 </Link>
                 <button
-                  onClick={openCalendly}
+                  onClick={() => openCalendly('Demo buchen (Header)')}
                   className="hidden sm:inline-flex rounded-full bg-[#5170ff] px-4 py-2 text-sm font-semibold text-white shadow-sm shadow-blue-300 transition hover:bg-[#3f5bff]"
                 >
                   Demo buchen
@@ -229,7 +234,7 @@ export default function CompanyLanding() {
                 Jetzt registrieren
               </Link>
               <button
-                onClick={openCalendly}
+                onClick={() => openCalendly('Profile Cluster (Hero)')}
                 className="inline-flex items-center gap-3 rounded-full border border-white/40 bg-white/30 px-5 py-2 text-sm font-semibold text-[#5170ff] shadow-sm backdrop-blur transition hover:bg-white"
               >
                 <img src="/assets/Cluster1.png" alt="Profile Cluster" className="h-10 w-auto object-contain" />
@@ -246,7 +251,7 @@ export default function CompanyLanding() {
 
       <section className="relative -mt-8 z-10 flex justify-center gap-6">
         <button
-          onClick={openCalendly}
+          onClick={() => openCalendly('Demo buchen (CTA)')}
           className="inline-flex items-center rounded-full px-8 py-4 text-base font-semibold text-white shadow-xl transition-all duration-300 hover:scale-105"
           style={{
             background: '#5170ff',
@@ -391,7 +396,7 @@ export default function CompanyLanding() {
 
                   {tier.ctaHref.startsWith('http') ? (
                     <button
-                      onClick={openCalendly}
+                      onClick={() => openCalendly(`${tier.title} Plan - ${billingCycle === 'monthly' ? tier.ctaLabelMonthly : tier.ctaLabelYearly}`)}
                       className={`mt-8 inline-flex w-full items-center justify-center rounded-full px-5 py-3 text-sm font-semibold transition ${
                         isPopular
                           ? 'bg-[#5170ff] text-white shadow hover:opacity-90'
