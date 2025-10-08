@@ -1,6 +1,4 @@
 import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -23,24 +21,6 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { Loader2 } from "lucide-react";
 
-const jobFormSchema = z.object({
-  title: z.string().min(3, "Titel muss mindestens 3 Zeichen lang sein"),
-  location: z.string().min(2, "Ort ist erforderlich"),
-  employment_type: z.string(),
-  profession_id: z.string().optional(),
-  description: z.string().min(10, "Beschreibung muss mindestens 10 Zeichen lang sein"),
-  requirements: z.any().optional(),
-  benefits: z.any().optional(),
-  salary_min: z.number().optional(),
-  salary_max: z.number().optional(),
-  start_date: z.string().optional(),
-  is_public: z.boolean().default(true),
-  is_active: z.boolean().default(true),
-  required_documents: z.any().optional(),
-});
-
-type JobFormValues = z.infer<typeof jobFormSchema>;
-
 interface JobFormProps {
   initialData?: any;
   onSubmit: (data: any) => void;
@@ -49,22 +29,18 @@ interface JobFormProps {
 }
 
 export function JobForm({ initialData, onSubmit, onCancel, isLoading }: JobFormProps) {
-  const form = useForm<any>({
-    resolver: zodResolver(jobFormSchema),
+  const form = useForm({
     defaultValues: {
       title: initialData?.title || "",
-      location: initialData?.city || initialData?.location || "",
+      city: initialData?.city || initialData?.location || "",
       employment_type: initialData?.employment_type || "apprenticeship",
-      description: initialData?.description_md || initialData?.description || "",
+      description_md: initialData?.description_md || initialData?.description || "",
       profession_id: initialData?.profession_id || "",
-      requirements: initialData?.requirements || [],
-      benefits: initialData?.benefits || [],
-      salary_min: initialData?.salary_min,
-      salary_max: initialData?.salary_max,
-      start_date: initialData?.start_date,
+      salary_min: initialData?.salary_min || undefined,
+      salary_max: initialData?.salary_max || undefined,
+      start_date: initialData?.start_date || "",
       is_public: initialData?.is_public ?? true,
       is_active: initialData?.is_active ?? true,
-      required_documents: initialData?.required_documents || [],
     },
   });
 
@@ -90,7 +66,7 @@ export function JobForm({ initialData, onSubmit, onCancel, isLoading }: JobFormP
 
         <FormField
           control={form.control}
-          name="location"
+          name="city"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Standort *</FormLabel>
@@ -131,7 +107,7 @@ export function JobForm({ initialData, onSubmit, onCancel, isLoading }: JobFormP
 
         <FormField
           control={form.control}
-          name="description"
+          name="description_md"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Stellenbeschreibung *</FormLabel>
