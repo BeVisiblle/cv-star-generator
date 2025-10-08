@@ -82,7 +82,7 @@ export default function TopNavBar() {
           {/* Mobile Search */}
           <SearchIcon className="h-4 w-4 md:h-5 md:w-5 cursor-pointer hover:text-primary md:hidden" onClick={() => navigate('/marketplace')} />
           
-          <Users className="h-4 w-4 md:h-5 md:w-5 cursor-pointer hover:text-primary" onClick={() => setDrawerOpen(true)} />
+          <Users className="h-4 w-4 md:h-5 md:w-5 cursor-pointer hover:text-primary" onClick={() => navigate('/community/contacts')} />
           
           <Popover open={msgOpen} onOpenChange={setMsgOpen}>
             <PopoverTrigger asChild>
