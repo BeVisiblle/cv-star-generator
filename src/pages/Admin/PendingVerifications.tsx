@@ -66,6 +66,13 @@ export default function PendingVerifications() {
   const verifyMutation = useMutation({
     mutationFn: async (companyId: string) => {
       console.log("Verifying company:", companyId);
+      
+      // First check if user has admin role
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        throw new Error("Nicht authentifiziert");
+      }
+
       const { data, error } = await supabase
         .from("companies")
         .update({ account_status: "active" })
@@ -74,25 +81,38 @@ export default function PendingVerifications() {
 
       if (error) {
         console.error("Error verifying company:", error);
-        throw error;
+        throw new Error(`Fehler: ${error.message}`);
       }
-      console.log("Company verified:", data);
+      
+      if (!data || data.length === 0) {
+        throw new Error("Unternehmen konnte nicht aktualisiert werden");
+      }
+      
+      console.log("Company verified successfully:", data);
       return data;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+      console.log("Verification successful, invalidating queries");
       queryClient.invalidateQueries({ queryKey: ["pending-verifications"] });
       queryClient.invalidateQueries({ queryKey: ["admin-companies"] });
-      toast.success("Unternehmen erfolgreich verifiziert");
+      toast.success(`${data[0]?.name || 'Unternehmen'} wurde erfolgreich verifiziert`);
     },
-    onError: (error) => {
+    onError: (error: Error) => {
       console.error("Verification error:", error);
-      toast.error("Fehler beim Verifizieren: " + error.message);
+      toast.error(error.message || "Fehler beim Verifizieren");
     },
   });
 
   const rejectMutation = useMutation({
     mutationFn: async ({ companyId, reason }: { companyId: string; reason: string }) => {
       console.log("Rejecting company:", companyId, "Reason:", reason);
+      
+      // First check if user has admin role
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        throw new Error("Nicht authentifiziert");
+      }
+
       const { data, error } = await supabase
         .from("companies")
         .update({ 
@@ -105,23 +125,29 @@ export default function PendingVerifications() {
 
       if (error) {
         console.error("Error rejecting company:", error);
-        throw error;
+        throw new Error(`Fehler: ${error.message}`);
       }
-      console.log("Company rejected:", data);
+      
+      if (!data || data.length === 0) {
+        throw new Error("Unternehmen konnte nicht aktualisiert werden");
+      }
+      
+      console.log("Company rejected successfully:", data);
       return data;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+      console.log("Rejection successful, invalidating queries");
       queryClient.invalidateQueries({ queryKey: ["pending-verifications"] });
       queryClient.invalidateQueries({ queryKey: ["admin-companies"] });
       setRejectDialogOpen(false);
       setSelectedCompany(null);
       setRejectionReason("");
       setCustomReason("");
-      toast.success("Unternehmen wurde abgelehnt und eingefroren");
+      toast.success(`${data[0]?.name || 'Unternehmen'} wurde abgelehnt und eingefroren`);
     },
-    onError: (error) => {
+    onError: (error: Error) => {
       console.error("Rejection error:", error);
-      toast.error("Fehler beim Ablehnen: " + error.message);
+      toast.error(error.message || "Fehler beim Ablehnen");
     },
   });
 
