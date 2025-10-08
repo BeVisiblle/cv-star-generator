@@ -482,9 +482,9 @@ export default function ProfileView() {
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
                       {profile.sprachen.map((lang: any, index: number) => (
                         <div key={index} className="flex items-center justify-between p-2 bg-muted rounded">
-                          <span>{lang.name || lang}</span>
-                          {lang.level && (
-                            <Badge variant="outline" className="ml-2">{lang.level}</Badge>
+                          <span>{lang.sprache}</span>
+                          {lang.niveau && (
+                            <Badge variant="outline" className="ml-2">{lang.niveau}</Badge>
                           )}
                         </div>
                       ))}
