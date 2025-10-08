@@ -10077,6 +10077,18 @@ export type Database = {
           reasons: string[]
         }[]
       }
+      suggest_jobs: {
+        Args: { p_limit?: number; p_viewer: string }
+        Returns: {
+          city: string
+          company_name: string
+          employment_type: string
+          id: string
+          salary_max: number
+          salary_min: number
+          title: string
+        }[]
+      }
       suggest_people: {
         Args: { p_limit?: number; p_viewer: string }
         Returns: {
