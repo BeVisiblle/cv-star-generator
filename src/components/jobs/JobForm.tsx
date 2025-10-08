@@ -26,42 +26,45 @@ import { Loader2 } from "lucide-react";
 const jobFormSchema = z.object({
   title: z.string().min(3, "Titel muss mindestens 3 Zeichen lang sein"),
   location: z.string().min(2, "Ort ist erforderlich"),
-  employment_type: z.enum(["apprenticeship", "dual_study", "internship", "full_time"]),
+  employment_type: z.string(),
   profession_id: z.string().optional(),
   description: z.string().min(10, "Beschreibung muss mindestens 10 Zeichen lang sein"),
-  requirements: z.array(z.string()).default([]),
-  benefits: z.array(z.string()).default([]),
+  requirements: z.any().optional(),
+  benefits: z.any().optional(),
   salary_min: z.number().optional(),
   salary_max: z.number().optional(),
   start_date: z.string().optional(),
   is_public: z.boolean().default(true),
   is_active: z.boolean().default(true),
-  required_documents: z.array(z.string()).default([]),
+  required_documents: z.any().optional(),
 });
 
 type JobFormValues = z.infer<typeof jobFormSchema>;
 
 interface JobFormProps {
-  initialData?: Partial<JobFormValues>;
-  onSubmit: (data: JobFormValues) => void;
+  initialData?: any;
+  onSubmit: (data: any) => void;
   onCancel?: () => void;
   isLoading?: boolean;
 }
 
 export function JobForm({ initialData, onSubmit, onCancel, isLoading }: JobFormProps) {
-  const form = useForm<JobFormValues>({
+  const form = useForm<any>({
     resolver: zodResolver(jobFormSchema),
     defaultValues: {
-      title: "",
-      location: "",
-      employment_type: "apprenticeship",
-      description: "",
-      requirements: [],
-      benefits: [],
-      is_public: true,
-      is_active: true,
-      required_documents: [],
-      ...initialData,
+      title: initialData?.title || "",
+      location: initialData?.city || initialData?.location || "",
+      employment_type: initialData?.employment_type || "apprenticeship",
+      description: initialData?.description_md || initialData?.description || "",
+      profession_id: initialData?.profession_id || "",
+      requirements: initialData?.requirements || [],
+      benefits: initialData?.benefits || [],
+      salary_min: initialData?.salary_min,
+      salary_max: initialData?.salary_max,
+      start_date: initialData?.start_date,
+      is_public: initialData?.is_public ?? true,
+      is_active: initialData?.is_active ?? true,
+      required_documents: initialData?.required_documents || [],
     },
   });
 
