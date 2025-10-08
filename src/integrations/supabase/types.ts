@@ -208,11 +208,14 @@ export type Database = {
           id: string
           job_id: string
           job_post_id: string | null
+          linked_job_id: string | null
+          match_score: number | null
           portfolio_url: string | null
           resume_url: string | null
           source: string
           stage: string
           status: string | null
+          unlock_type: string | null
           unread: boolean
           updated_at: string
           user_id: string | null
@@ -227,11 +230,14 @@ export type Database = {
           id?: string
           job_id: string
           job_post_id?: string | null
+          linked_job_id?: string | null
+          match_score?: number | null
           portfolio_url?: string | null
           resume_url?: string | null
           source?: string
           stage?: string
           status?: string | null
+          unlock_type?: string | null
           unread?: boolean
           updated_at?: string
           user_id?: string | null
@@ -246,11 +252,14 @@ export type Database = {
           id?: string
           job_id?: string
           job_post_id?: string | null
+          linked_job_id?: string | null
+          match_score?: number | null
           portfolio_url?: string | null
           resume_url?: string | null
           source?: string
           stage?: string
           status?: string | null
+          unlock_type?: string | null
           unread?: boolean
           updated_at?: string
           user_id?: string | null
@@ -323,6 +332,20 @@ export type Database = {
           {
             foreignKeyName: "applications_job_post_id_fkey"
             columns: ["job_post_id"]
+            isOneToOne: false
+            referencedRelation: "public_job_listings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "applications_linked_job_id_fkey"
+            columns: ["linked_job_id"]
+            isOneToOne: false
+            referencedRelation: "job_posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "applications_linked_job_id_fkey"
+            columns: ["linked_job_id"]
             isOneToOne: false
             referencedRelation: "public_job_listings"
             referencedColumns: ["id"]
@@ -3475,6 +3498,7 @@ export type Database = {
           country: string | null
           created_at: string
           description_md: string | null
+          documents_required: string[] | null
           driving_licenses: Json | null
           duration_months: number | null
           employment: string | null
@@ -3495,6 +3519,7 @@ export type Database = {
           languages: Json | null
           location_lat: number | null
           location_lng: number | null
+          one_click_apply: boolean | null
           parking_available: boolean | null
           postal_code: string | null
           professional_data: Json | null
@@ -3514,6 +3539,7 @@ export type Database = {
           start_date: string | null
           start_immediately: boolean | null
           state: string | null
+          status: Database["public"]["Enums"]["job_status"] | null
           tags: string[] | null
           tasks_description: string | null
           tasks_md: string | null
@@ -3550,6 +3576,7 @@ export type Database = {
           country?: string | null
           created_at?: string
           description_md?: string | null
+          documents_required?: string[] | null
           driving_licenses?: Json | null
           duration_months?: number | null
           employment?: string | null
@@ -3570,6 +3597,7 @@ export type Database = {
           languages?: Json | null
           location_lat?: number | null
           location_lng?: number | null
+          one_click_apply?: boolean | null
           parking_available?: boolean | null
           postal_code?: string | null
           professional_data?: Json | null
@@ -3589,6 +3617,7 @@ export type Database = {
           start_date?: string | null
           start_immediately?: boolean | null
           state?: string | null
+          status?: Database["public"]["Enums"]["job_status"] | null
           tags?: string[] | null
           tasks_description?: string | null
           tasks_md?: string | null
@@ -3625,6 +3654,7 @@ export type Database = {
           country?: string | null
           created_at?: string
           description_md?: string | null
+          documents_required?: string[] | null
           driving_licenses?: Json | null
           duration_months?: number | null
           employment?: string | null
@@ -3645,6 +3675,7 @@ export type Database = {
           languages?: Json | null
           location_lat?: number | null
           location_lng?: number | null
+          one_click_apply?: boolean | null
           parking_available?: boolean | null
           postal_code?: string | null
           professional_data?: Json | null
@@ -3664,6 +3695,7 @@ export type Database = {
           start_date?: string | null
           start_immediately?: boolean | null
           state?: string | null
+          status?: Database["public"]["Enums"]["job_status"] | null
           tags?: string[] | null
           tasks_description?: string | null
           tasks_md?: string | null
@@ -3748,6 +3780,48 @@ export type Database = {
           },
           {
             foreignKeyName: "job_skills_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "public_job_listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      job_status_history: {
+        Row: {
+          changed_at: string | null
+          changed_by: string | null
+          from_status: Database["public"]["Enums"]["job_status"] | null
+          id: string
+          job_id: string
+          to_status: Database["public"]["Enums"]["job_status"]
+        }
+        Insert: {
+          changed_at?: string | null
+          changed_by?: string | null
+          from_status?: Database["public"]["Enums"]["job_status"] | null
+          id?: string
+          job_id: string
+          to_status: Database["public"]["Enums"]["job_status"]
+        }
+        Update: {
+          changed_at?: string | null
+          changed_by?: string | null
+          from_status?: Database["public"]["Enums"]["job_status"] | null
+          id?: string
+          job_id?: string
+          to_status?: Database["public"]["Enums"]["job_status"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "job_status_history_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "job_posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "job_status_history_job_id_fkey"
             columns: ["job_id"]
             isOneToOne: false
             referencedRelation: "public_job_listings"
@@ -10070,6 +10144,7 @@ export type Database = {
       company_size_band: "1-9" | "10-49" | "50-249" | "250-999" | "1000+"
       follow_entity: "profile" | "company"
       follow_status: "pending" | "accepted" | "rejected" | "blocked"
+      job_status: "draft" | "published" | "paused" | "inactive"
       looking_tag: "Praktikanten" | "Auszubildende" | "Fachkräfte"
       notif_channel: "in_app" | "email"
       notif_recipient: "profile" | "company"
@@ -10238,6 +10313,7 @@ export const Constants = {
       company_size_band: ["1-9", "10-49", "50-249", "250-999", "1000+"],
       follow_entity: ["profile", "company"],
       follow_status: ["pending", "accepted", "rejected", "blocked"],
+      job_status: ["draft", "published", "paused", "inactive"],
       looking_tag: ["Praktikanten", "Auszubildende", "Fachkräfte"],
       notif_channel: ["in_app", "email"],
       notif_recipient: ["profile", "company"],
