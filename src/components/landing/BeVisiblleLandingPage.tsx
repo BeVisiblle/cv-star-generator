@@ -183,30 +183,6 @@ export default function BeVisiblleLandingPage() {
         </Link>
       </section>
 
-      {/* Logo Marquee */}
-      <section className="mt-8 text-center">
-        <div className="mx-auto max-w-4xl px-4">
-          <div className="bg-white/20 backdrop-blur-sm rounded-full border border-white/30 py-6 px-8">
-            <div className="overflow-hidden relative">
-              <div className="flex animate-marquee space-x-12">
-                {/* Alle 10 Logos für nahtlose Schleife */}
-                {[...Array(2)].map((_, round) => (
-                  <React.Fragment key={round}>
-                    {[1,2,3,4,5,6,7,8,9,10].map((num) => (
-                      <img 
-                        key={`${round}-${num}`}
-                        src={`/assets/logo${num}.png`} 
-                        alt={`Logo ${num}`} 
-                        className="h-12 w-auto grayscale opacity-80 hover:opacity-100 transition flex-shrink-0" 
-                      />
-                    ))}
-                  </React.Fragment>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
 
       {/* ABOUT Section (links Pill, rechts Text) */}
       <section id="about" className="mt-16">
