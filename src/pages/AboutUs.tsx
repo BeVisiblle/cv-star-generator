@@ -251,7 +251,7 @@ export default function AboutUs() {
                       )}
                     >
                       <div className="absolute -left-6 top-6 h-12 w-12 rounded-full bg-[#5170ff]/15 blur-xl" />
-                      <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-[#5170ff]/8 opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
+                      <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-[#5170ff]/8 opacity-0 transition-opacity duration-500 group-hover:opacity-100 pointer-events-none" />
 
                       <div className="h-[280px] overflow-hidden">
                         <img
