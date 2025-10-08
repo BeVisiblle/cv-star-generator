@@ -146,12 +146,26 @@ export function AdminTokenManager({ companyId }: AdminTokenManagerProps) {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-muted-foreground">Aktueller Stand</p>
-              <p className="text-4xl font-bold">{wallet?.balance || 0}</p>
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">Verfügbar</p>
+                <p className="text-4xl font-bold">{wallet?.balance || 0}</p>
+              </div>
+              <Coins className="h-12 w-12 text-muted-foreground opacity-20" />
             </div>
-            <Coins className="h-12 w-12 text-muted-foreground opacity-20" />
+            <div className="pt-4 border-t">
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                  <p className="text-muted-foreground">Verwendet</p>
+                  <p className="font-semibold">0</p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground">Gesamt erhalten</p>
+                  <p className="font-semibold">{wallet?.balance || 0}</p>
+                </div>
+              </div>
+            </div>
           </div>
         </CardContent>
       </Card>
