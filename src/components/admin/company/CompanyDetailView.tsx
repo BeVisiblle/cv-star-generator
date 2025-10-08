@@ -5,6 +5,7 @@ import { SeatManager } from "./SeatManager";
 import { CompanyActivityLog } from "./CompanyActivityLog";
 import { CompanyJobsList } from "./CompanyJobsList";
 import { CompanyNotesPanel } from "./CompanyNotesPanel";
+import { UnlockStatistics } from "./UnlockStatistics";
 
 interface CompanyDetailViewProps {
   companyId: string;
@@ -13,10 +14,11 @@ interface CompanyDetailViewProps {
 export function CompanyDetailView({ companyId }: CompanyDetailViewProps) {
   return (
     <Tabs defaultValue="overview" className="w-full">
-      <TabsList className="grid w-full grid-cols-6">
+      <TabsList className="grid w-full grid-cols-7">
         <TabsTrigger value="overview">Übersicht</TabsTrigger>
         <TabsTrigger value="plan">Plan & Tokens</TabsTrigger>
         <TabsTrigger value="team">Team</TabsTrigger>
+        <TabsTrigger value="unlocks">Freischaltungen</TabsTrigger>
         <TabsTrigger value="jobs">Stellen</TabsTrigger>
         <TabsTrigger value="activity">Aktivität</TabsTrigger>
         <TabsTrigger value="notes">Notizen</TabsTrigger>
@@ -32,6 +34,10 @@ export function CompanyDetailView({ companyId }: CompanyDetailViewProps) {
 
       <TabsContent value="team" className="space-y-4 mt-6">
         <SeatManager companyId={companyId} />
+      </TabsContent>
+
+      <TabsContent value="unlocks" className="space-y-4 mt-6">
+        <UnlockStatistics companyId={companyId} />
       </TabsContent>
 
       <TabsContent value="jobs" className="space-y-4 mt-6">

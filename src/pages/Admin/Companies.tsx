@@ -2,8 +2,19 @@ import React, { useEffect, useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { supabase } from "@/integrations/supabase/client";
-import { Building2, Users, Calendar, CheckCircle, XCircle, Clock } from "lucide-react";
+import { Building2, Users, Calendar, CheckCircle, XCircle, Clock, Edit, Snowflake } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { CompanyEditor } from "@/components/admin/company/CompanyEditor";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useToast } from "@/hooks/use-toast";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
+import { CompanyDetailView } from "@/components/admin/company/CompanyDetailView";
 
 interface CompanyRow {
   id: string;
@@ -24,43 +35,87 @@ interface CompanyRow {
 export default function CompaniesPage() {
   const [rows, setRows] = useState<CompanyRow[] | null>(null);
   const [loading, setLoading] = useState(true);
-  const [stats, setStats] = useState({ total: 0, active: 0, pending: 0, inactive: 0 });
+  const [selectedCompany, setSelectedCompany] = useState<CompanyRow | null>(null);
+  const [editingCompany, setEditingCompany] = useState<CompanyRow | null>(null);
+  const [stats, setStats] = useState({ total: 0, active: 0, pending: 0, frozen: 0, inactive: 0 });
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  const fetchCompanies = async () => {
+    setLoading(true);
+    const { data, error } = await supabase
+      .from("companies")
+      .select(`
+        id, name, plan_type, seats, industry, main_location, created_at, 
+        subscription_status, employee_count, logo_url, account_status,
+        onboarding_completed, website_url
+      `)
+      .order('created_at', { ascending: false })
+      .limit(100);
+    
+    if (error) {
+      console.warn("Companies fetch error", error);
+      setRows([]);
+    } else {
+      setRows(data as CompanyRow[]);
+      
+      // Calculate stats
+      const total = data.length;
+      const active = data.filter(c => c.account_status === 'active').length;
+      const pending = data.filter(c => c.account_status === 'pending').length;
+      const frozen = data.filter(c => c.account_status === 'frozen').length;
+      const inactive = data.filter(c => c.account_status === 'inactive' || !c.account_status).length;
+      
+      setStats({ total, active, pending, frozen, inactive });
+    }
+    setLoading(false);
+  };
 
   useEffect(() => {
     let mounted = true;
-    async function load() {
-      setLoading(true);
-      const { data, error } = await supabase
-        .from("companies")
-        .select(`
-          id, name, plan_type, seats, industry, main_location, created_at, 
-          subscription_status, employee_count, logo_url, account_status,
-          onboarding_completed, website_url
-        `)
-        .order('created_at', { ascending: false })
-        .limit(100);
-      
-      if (!mounted) return;
-      
-      if (error) {
-        console.warn("Companies fetch error", error);
-        setRows([]);
-      } else {
-        setRows(data as CompanyRow[]);
-        
-        // Calculate stats
-        const total = data.length;
-        const active = data.filter(c => c.account_status === 'active').length;
-        const pending = data.filter(c => c.account_status === 'pending').length;
-        const inactive = data.filter(c => c.account_status === 'inactive' || !c.account_status).length;
-        
-        setStats({ total, active, pending, inactive });
-      }
-      setLoading(false);
-    }
-    load();
+    fetchCompanies();
     return () => { mounted = false; };
   }, []);
+
+  const verifyCompany = useMutation({
+    mutationFn: async (companyId: string) => {
+      const { error } = await supabase
+        .from("companies")
+        .update({ account_status: "active" })
+        .eq("id", companyId);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      fetchCompanies();
+      toast({
+        title: "Unternehmen verifiziert",
+        description: "Das Unternehmen wurde erfolgreich aktiviert.",
+      });
+    },
+  });
+
+  const freezeCompany = useMutation({
+    mutationFn: async (companyId: string) => {
+      const { error } = await supabase
+        .from("companies")
+        .update({ 
+          account_status: "frozen",
+          frozen_at: new Date().toISOString(),
+          frozen_reason: "Manuell eingefroren durch Admin"
+        })
+        .eq("id", companyId);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      fetchCompanies();
+      toast({
+        title: "Unternehmen eingefroren",
+        description: "Das Unternehmen wurde eingefroren.",
+      });
+    },
+  });
 
   const getStatusBadge = (status: string | null, onboarding: boolean | null) => {
     if (status === 'active' && onboarding) {
@@ -71,6 +126,9 @@ export default function CompaniesPage() {
     }
     if (status === 'pending') {
       return <Badge className="bg-orange-500 hover:bg-orange-600">Wartend</Badge>;
+    }
+    if (status === 'frozen') {
+      return <Badge className="bg-red-500 hover:bg-red-600">Eingefroren</Badge>;
     }
     return <Badge variant="secondary">Inaktiv</Badge>;
   };
@@ -83,7 +141,7 @@ export default function CompaniesPage() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid gap-4 md:grid-cols-4">
+      <div className="grid gap-4 md:grid-cols-5">
         <Card>
           <CardHeader className="pb-2">
             <div className="flex items-center justify-between">
@@ -127,6 +185,21 @@ export default function CompaniesPage() {
           </CardContent>
         </Card>
 
+        <Card className="border-l-4 border-l-red-500">
+          <CardHeader className="pb-2">
+            <div className="flex items-center justify-between">
+              <CardDescription>Eingefroren</CardDescription>
+              <Snowflake className="h-4 w-4 text-red-500" />
+            </div>
+            <CardTitle className="text-3xl font-bold text-red-600 dark:text-red-400">
+              {stats.frozen}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-xs text-muted-foreground">Gesperrt</p>
+          </CardContent>
+        </Card>
+
         <Card className="border-l-4 border-l-gray-500">
           <CardHeader className="pb-2">
             <div className="flex items-center justify-between">
@@ -163,7 +236,7 @@ export default function CompaniesPage() {
                   <TableHead>Sitze</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Erstellt</TableHead>
-                  <TableHead>Website</TableHead>
+                  <TableHead>Aktionen</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -187,7 +260,11 @@ export default function CompaniesPage() {
                 )}
                 
                 {!loading && rows && rows.map((c) => (
-                  <TableRow key={c.id} className="hover:bg-muted/50">
+                  <TableRow 
+                    key={c.id} 
+                    className="hover:bg-muted/50 cursor-pointer"
+                    onClick={() => setSelectedCompany(c)}
+                  >
                     <TableCell>
                       {c.logo_url ? (
                         <img 
@@ -227,17 +304,36 @@ export default function CompaniesPage() {
                         </div>
                       ) : "—"}
                     </TableCell>
-                    <TableCell>
-                      {c.website_url ? (
-                        <a 
-                          href={c.website_url} 
-                          target="_blank" 
-                          rel="noopener noreferrer"
-                          className="text-primary hover:underline text-sm"
+                    <TableCell onClick={(e) => e.stopPropagation()}>
+                      <div className="flex gap-2">
+                        {c.account_status === "pending" && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => verifyCompany.mutate(c.id)}
+                          >
+                            <CheckCircle className="h-4 w-4 mr-1" />
+                            Verifizieren
+                          </Button>
+                        )}
+                        {c.account_status === "active" && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => freezeCompany.mutate(c.id)}
+                          >
+                            <Snowflake className="h-4 w-4 mr-1" />
+                            Einfrieren
+                          </Button>
+                        )}
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => setEditingCompany(c)}
                         >
-                          Link
-                        </a>
-                      ) : "—"}
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -246,6 +342,34 @@ export default function CompaniesPage() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Company Detail Sheet */}
+      <Sheet open={!!selectedCompany} onOpenChange={(open) => !open && setSelectedCompany(null)}>
+        <SheetContent className="w-full sm:max-w-4xl overflow-y-auto">
+          <SheetHeader>
+            <SheetTitle>{selectedCompany?.name}</SheetTitle>
+          </SheetHeader>
+          {selectedCompany && (
+            <div className="mt-6">
+              <CompanyDetailView companyId={selectedCompany.id} />
+            </div>
+          )}
+        </SheetContent>
+      </Sheet>
+
+      {/* Company Editor Modal */}
+      {editingCompany && (
+        <CompanyEditor
+          company={editingCompany}
+          open={!!editingCompany}
+          onOpenChange={(open) => {
+            if (!open) {
+              setEditingCompany(null);
+              fetchCompanies();
+            }
+          }}
+        />
+      )}
     </div>
   );
 }
