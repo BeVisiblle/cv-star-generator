@@ -2328,6 +2328,7 @@ export type Database = {
           company_id: string
           created_at: string | null
           id: string
+          tokens_used: number | null
           updated_at: string | null
         }
         Insert: {
@@ -2335,6 +2336,7 @@ export type Database = {
           company_id: string
           created_at?: string | null
           id?: string
+          tokens_used?: number | null
           updated_at?: string | null
         }
         Update: {
@@ -2342,6 +2344,7 @@ export type Database = {
           company_id?: string
           created_at?: string | null
           id?: string
+          tokens_used?: number | null
           updated_at?: string | null
         }
         Relationships: [
@@ -7078,6 +7081,63 @@ export type Database = {
           used_needs: number | null
         }
         Relationships: []
+      }
+      company_token_stats: {
+        Row: {
+          available_tokens: number | null
+          company_id: string | null
+          tokens_used: number | null
+          total_received: number | null
+        }
+        Insert: {
+          available_tokens?: number | null
+          company_id?: string | null
+          tokens_used?: number | null
+          total_received?: never
+        }
+        Update: {
+          available_tokens?: number | null
+          company_id?: string | null
+          tokens_used?: number | null
+          total_received?: never
+        }
+        Relationships: [
+          {
+            foreignKeyName: "company_token_wallets_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: true
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "company_token_wallets_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: true
+            referencedRelation: "companies_public_secure"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "company_token_wallets_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: true
+            referencedRelation: "company_need_quota"
+            referencedColumns: ["company_id"]
+          },
+          {
+            foreignKeyName: "company_token_wallets_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: true
+            referencedRelation: "company_unlock_stats"
+            referencedColumns: ["company_id"]
+          },
+          {
+            foreignKeyName: "company_token_wallets_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: true
+            referencedRelation: "v_company_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       company_unlock_stats: {
         Row: {

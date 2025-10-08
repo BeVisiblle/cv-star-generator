@@ -22,7 +22,7 @@ export function AdminTokenManager({ companyId }: AdminTokenManagerProps) {
   const [reason, setReason] = useState<string>("");
 
   // Fetch token wallet with auto-initialization
-  const { data: wallet } = useQuery({
+  const { data: wallet, refetch } = useQuery({
     queryKey: ["company-wallet", companyId],
     queryFn: async () => {
       // First try to get existing wallet
@@ -34,10 +34,13 @@ export function AdminTokenManager({ companyId }: AdminTokenManagerProps) {
       
       // If not found, create it
       if (error && error.code === "PGRST116") {
-        const { data: newWallet, error: createError } = await supabase
+        const { error: createError } = await supabase
           .rpc("ensure_company_wallet", { p_company_id: companyId });
         
-        if (createError) throw createError;
+        if (createError) {
+          console.error("Error creating wallet:", createError);
+          throw createError;
+        }
         
         // Fetch the newly created wallet
         const { data: freshWallet, error: fetchError } = await supabase
@@ -55,6 +58,21 @@ export function AdminTokenManager({ companyId }: AdminTokenManagerProps) {
     },
   });
 
+  // Fetch token statistics
+  const { data: tokenStats } = useQuery({
+    queryKey: ["company-token-stats", companyId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("company_token_stats")
+        .select("*")
+        .eq("company_id", companyId)
+        .single();
+      
+      if (error && error.code !== "PGRST116") throw error;
+      return data || { available_tokens: 0, tokens_used: 0, total_received: 0 };
+    },
+  });
+
   // Realtime subscription for token balance
   useEffect(() => {
     const channel = supabase
@@ -67,8 +85,10 @@ export function AdminTokenManager({ companyId }: AdminTokenManagerProps) {
           table: 'company_token_wallets',
           filter: `company_id=eq.${companyId}`
         },
-        () => {
+        (payload) => {
+          console.log("Token wallet updated:", payload);
           queryClient.invalidateQueries({ queryKey: ["company-wallet", companyId] });
+          queryClient.invalidateQueries({ queryKey: ["company-token-stats", companyId] });
         }
       )
       .subscribe();
@@ -97,16 +117,26 @@ export function AdminTokenManager({ companyId }: AdminTokenManagerProps) {
 
   const addTokensMutation = useMutation({
     mutationFn: async (tokenAmount: number) => {
+      console.log("Adding tokens:", { companyId, tokenAmount, reason });
+      
       const { error } = await supabase.rpc("admin_add_tokens", {
         p_company_id: companyId,
         p_amount: tokenAmount,
         p_reason: reason || null,
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error adding tokens:", error);
+        throw error;
+      }
+      
+      console.log("Tokens added successfully");
     },
-    onSuccess: () => {
+    onSuccess: async () => {
+      console.log("Token mutation successful, refetching...");
+      await refetch();
       queryClient.invalidateQueries({ queryKey: ["company-wallet", companyId] });
+      queryClient.invalidateQueries({ queryKey: ["company-token-stats", companyId] });
       queryClient.invalidateQueries({ queryKey: ["token-history", companyId] });
       queryClient.invalidateQueries({ queryKey: ["admin-company", companyId] });
       toast({ title: "Erfolg", description: "Tokens erfolgreich aktualisiert" });
@@ -114,6 +144,7 @@ export function AdminTokenManager({ companyId }: AdminTokenManagerProps) {
       setReason("");
     },
     onError: (error: Error) => {
+      console.error("Token mutation error:", error);
       toast({ title: "Fehler", description: error.message, variant: "destructive" });
     },
   });
@@ -150,7 +181,7 @@ export function AdminTokenManager({ companyId }: AdminTokenManagerProps) {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Verfügbar</p>
-                <p className="text-4xl font-bold">{wallet?.balance || 0}</p>
+                <p className="text-4xl font-bold">{tokenStats?.available_tokens || wallet?.balance || 0}</p>
               </div>
               <Coins className="h-12 w-12 text-muted-foreground opacity-20" />
             </div>
@@ -158,11 +189,11 @@ export function AdminTokenManager({ companyId }: AdminTokenManagerProps) {
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
                   <p className="text-muted-foreground">Verwendet</p>
-                  <p className="font-semibold">0</p>
+                  <p className="font-semibold">{tokenStats?.tokens_used || 0}</p>
                 </div>
                 <div>
                   <p className="text-muted-foreground">Gesamt erhalten</p>
-                  <p className="font-semibold">{wallet?.balance || 0}</p>
+                  <p className="font-semibold">{tokenStats?.total_received || 0}</p>
                 </div>
               </div>
             </div>
