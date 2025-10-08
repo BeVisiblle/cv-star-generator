@@ -23,8 +23,8 @@ export function JobFormStep2() {
   });
 
   const handleAISuggest = async () => {
-    if (!formData.profession_id) {
-      toast.error('Bitte wähle zuerst einen Beruf in Schritt 1');
+    if (!formData.title) {
+      toast.error('Bitte gib zuerst einen Stellentitel in Schritt 1 ein');
       return;
     }
 
@@ -32,7 +32,7 @@ export function JobFormStep2() {
     try {
       const { data, error } = await supabase.functions.invoke('ai-suggest-job-skills', {
         body: {
-          profession: formData.profession_id,
+          profession: formData.title,
           employmentType: formData.employment_type,
         },
       });

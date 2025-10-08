@@ -5,7 +5,6 @@ export interface JobFormData {
   title: string;
   city: string;
   employment_type: string;
-  profession_id: string;
   start_date: string;
   
   // Step 2: Skills & Anforderungen
@@ -44,7 +43,6 @@ const initialFormData: JobFormData = {
   title: '',
   city: '',
   employment_type: 'apprenticeship',
-  profession_id: '',
   start_date: '',
   skills: [],
   required_languages: [],

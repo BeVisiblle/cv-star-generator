@@ -28,7 +28,6 @@ export function JobFormStep3() {
         body: {
           jobData: {
             title: formData.title,
-            profession: formData.profession_id,
             city: formData.city,
             employment_type: formData.employment_type,
             skills: formData.skills,

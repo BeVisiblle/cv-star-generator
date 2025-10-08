@@ -15,7 +15,6 @@ export function JobFormStep1() {
       title: formData.title,
       city: formData.city,
       employment_type: formData.employment_type,
-      profession_id: formData.profession_id,
       start_date: formData.start_date,
     },
   });
@@ -68,33 +67,6 @@ export function JobFormStep1() {
             )}
           />
 
-          <FormField
-            control={form.control}
-            name="profession_id"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Beruf / Profession</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Beruf wählen..." />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {professions?.map((profession) => (
-                      <SelectItem key={profession.id} value={profession.id}>
-                        {profession.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormDescription>
-                  Hilft bei AI-gestützten Skill-Vorschlägen
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
 
           <FormField
             control={form.control}
