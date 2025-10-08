@@ -1,0 +1,150 @@
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { JobsService } from "@/services/jobsService";
+import { toast } from "sonner";
+import { useAuth } from "./useAuth";
+
+export function useCompanyJobs(companyId?: string) {
+  return useQuery({
+    queryKey: ["company-jobs", companyId],
+    queryFn: () => JobsService.getCompanyJobs(companyId!),
+    enabled: !!companyId,
+  });
+}
+
+export function useJob(jobId?: string) {
+  return useQuery({
+    queryKey: ["job", jobId],
+    queryFn: () => JobsService.getJobById(jobId!),
+    enabled: !!jobId,
+  });
+}
+
+export function usePublicJobs(filters?: {
+  employment_type?: string;
+  profession_id?: string;
+  location?: string;
+}) {
+  return useQuery({
+    queryKey: ["public-jobs", filters],
+    queryFn: () => JobsService.getPublicJobs(filters),
+  });
+}
+
+export function useCreateJob(companyId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (jobData: any) => JobsService.createJob(companyId, jobData),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["company-jobs", companyId] });
+      toast.success("Stellenanzeige erstellt");
+    },
+    onError: (error: any) => {
+      toast.error(error.message || "Fehler beim Erstellen");
+    },
+  });
+}
+
+export function useUpdateJob() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ jobId, updates }: { jobId: string; updates: any }) =>
+      JobsService.updateJob(jobId, updates),
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["job", data.id] });
+      queryClient.invalidateQueries({ queryKey: ["company-jobs"] });
+      toast.success("Änderungen gespeichert");
+    },
+    onError: (error: any) => {
+      toast.error(error.message || "Fehler beim Speichern");
+    },
+  });
+}
+
+export function useDeleteJob() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (jobId: string) => JobsService.deleteJob(jobId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["company-jobs"] });
+      toast.success("Stellenanzeige gelöscht");
+    },
+    onError: (error: any) => {
+      toast.error(error.message || "Fehler beim Löschen");
+    },
+  });
+}
+
+export function usePublishJob() {
+  const queryClient = useQueryClient();
+  const { user } = useAuth();
+
+  return useMutation({
+    mutationFn: (jobId: string) => JobsService.publishJob(jobId, user!.id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["company-jobs"] });
+      toast.success("Stellenanzeige veröffentlicht");
+    },
+    onError: (error: any) => {
+      toast.error(error.message || "Fehler beim Veröffentlichen");
+    },
+  });
+}
+
+export function usePauseJob() {
+  const queryClient = useQueryClient();
+  const { user } = useAuth();
+
+  return useMutation({
+    mutationFn: (jobId: string) => JobsService.pauseJob(jobId, user!.id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["company-jobs"] });
+      toast.success("Stellenanzeige pausiert");
+    },
+    onError: (error: any) => {
+      toast.error(error.message || "Fehler beim Pausieren");
+    },
+  });
+}
+
+export function useResumeJob() {
+  const queryClient = useQueryClient();
+  const { user } = useAuth();
+
+  return useMutation({
+    mutationFn: (jobId: string) => JobsService.resumeJob(jobId, user!.id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["company-jobs"] });
+      toast.success("Stellenanzeige fortgesetzt");
+    },
+    onError: (error: any) => {
+      toast.error(error.message || "Fehler beim Fortsetzen");
+    },
+  });
+}
+
+export function useInactivateJob() {
+  const queryClient = useQueryClient();
+  const { user } = useAuth();
+
+  return useMutation({
+    mutationFn: (jobId: string) => JobsService.inactivateJob(jobId, user!.id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["company-jobs"] });
+      toast.success("Stellenanzeige archiviert");
+    },
+    onError: (error: any) => {
+      toast.error(error.message || "Fehler beim Archivieren");
+    },
+  });
+}
+
+export function useJobHistory(jobId?: string) {
+  return useQuery({
+    queryKey: ["job-history", jobId],
+    queryFn: () => JobsService.getJobHistory(jobId!),
+    enabled: !!jobId,
+  });
+}

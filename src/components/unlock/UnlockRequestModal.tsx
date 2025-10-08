@@ -48,8 +48,8 @@ export default function UnlockRequestModal({
   const loadJobs = async () => {
     try {
       setJobsLoading(true);
-      const companyJobs = await jobsService.listCompanyJobs();
-      setJobs(companyJobs);
+      const companyJobs = await JobsService.getCompanyJobs('');
+      setJobs(companyJobs || []);
     } catch (error) {
       console.error('Error loading jobs:', error);
       toast.error('Fehler beim Laden der Stellenausschreibungen');

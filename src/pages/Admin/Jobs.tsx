@@ -1,7 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import {
@@ -20,6 +19,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Briefcase, Search } from "lucide-react";
+import { JobStatusBadge } from "@/components/jobs/JobStatusBadge";
 
 export default function JobsPage() {
   const [search, setSearch] = useState("");
@@ -125,9 +125,7 @@ export default function JobsPage() {
                     </TableCell>
                     <TableCell className="font-medium">{job.title}</TableCell>
                     <TableCell>
-                      <Badge variant={job.is_active ? "default" : "secondary"}>
-                        {job.is_active ? "Aktiv" : "Inaktiv"}
-                      </Badge>
+                      <JobStatusBadge status={job.status as any} />
                     </TableCell>
                     <TableCell>
                       {new Date(job.created_at).toLocaleDateString("de-DE")}
