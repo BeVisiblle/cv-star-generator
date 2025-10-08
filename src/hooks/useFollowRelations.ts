@@ -39,29 +39,46 @@ export function useFollowRelations() {
     if (!user) return;
     
     try {
-      const { data, error } = await supabase
+      // First get the follow records
+      const { data: followsData, error: followsError } = await supabase
         .from('follows')
-        .select(`
-          id,
-          follower_id,
-          created_at,
-          companies:follower_id (
-            id,
-            name,
-            logo_url,
-            industry,
-            main_location
-          )
-        `)
+        .select('id, follower_id, created_at')
         .eq('followee_id', user.id)
         .eq('followee_type', 'profile')
         .eq('follower_type', 'company')
         .eq('status', 'pending');
 
-      if (error) throw error;
-      setCompanyFollowRequests((data || []) as any);
+      if (followsError) throw followsError;
+
+      if (!followsData || followsData.length === 0) {
+        setCompanyFollowRequests([]);
+        return;
+      }
+
+      // Then get the company details
+      const companyIds = followsData.map(f => f.follower_id);
+      const { data: companiesData, error: companiesError } = await supabase
+        .from('companies')
+        .select('id, name, logo_url, industry, main_location')
+        .in('id', companyIds);
+
+      if (companiesError) throw companiesError;
+
+      // Combine the data
+      const combined = followsData.map(follow => {
+        const company = companiesData?.find(c => c.id === follow.follower_id);
+        return {
+          id: follow.id,
+          follower_id: follow.follower_id,
+          created_at: follow.created_at,
+          company: company || { id: follow.follower_id, name: 'Unbekannt', logo_url: null, industry: null, main_location: null }
+        };
+      });
+
+      setCompanyFollowRequests(combined as any);
     } catch (error) {
       console.error('Error fetching company follow requests:', error);
+      setCompanyFollowRequests([]);
     }
   }, [user]);
 
@@ -69,29 +86,46 @@ export function useFollowRelations() {
     if (!user) return;
     
     try {
-      const { data, error } = await supabase
+      // First get the follow records
+      const { data: followsData, error: followsError } = await supabase
         .from('follows')
-        .select(`
-          id,
-          followee_id,
-          created_at,
-          companies:followee_id (
-            id,
-            name,
-            logo_url,
-            industry,
-            main_location
-          )
-        `)
+        .select('id, followee_id, created_at')
         .eq('follower_id', user.id)
         .eq('follower_type', 'profile')
         .eq('followee_type', 'company')
         .eq('status', 'accepted');
 
-      if (error) throw error;
-      setFollowedCompanies((data || []) as any);
+      if (followsError) throw followsError;
+
+      if (!followsData || followsData.length === 0) {
+        setFollowedCompanies([]);
+        return;
+      }
+
+      // Then get the company details
+      const companyIds = followsData.map(f => f.followee_id);
+      const { data: companiesData, error: companiesError } = await supabase
+        .from('companies')
+        .select('id, name, logo_url, industry, main_location')
+        .in('id', companyIds);
+
+      if (companiesError) throw companiesError;
+
+      // Combine the data
+      const combined = followsData.map(follow => {
+        const company = companiesData?.find(c => c.id === follow.followee_id);
+        return {
+          id: follow.id,
+          followee_id: follow.followee_id,
+          created_at: follow.created_at,
+          company: company || { id: follow.followee_id, name: 'Unbekannt', logo_url: null, industry: null, main_location: null }
+        };
+      });
+
+      setFollowedCompanies(combined as any);
     } catch (error) {
       console.error('Error fetching followed companies:', error);
+      setFollowedCompanies([]);
     }
   }, [user]);
 

@@ -1,7 +1,9 @@
-import React from "react";
+import React, { useState, useMemo } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Input } from "@/components/ui/input";
+import { Search } from "lucide-react";
 import { ConnectionRequestCard } from "@/components/community/ConnectionRequestCard";
 import { CompanyFollowRequestCard } from "@/components/community/CompanyFollowRequestCard";
 import { FriendCard } from "@/components/community/FriendCard";
@@ -38,6 +40,11 @@ export default function Contacts() {
   const [friends, setFriends] = React.useState<string[]>([]);
   const [profiles, setProfiles] = React.useState<Record<string, BasicProfile>>({});
   const [loading, setLoading] = React.useState(true);
+
+  // Search states
+  const [friendsSearch, setFriendsSearch] = useState("");
+  const [requestsSearch, setRequestsSearch] = useState("");
+  const [companiesSearch, setCompaniesSearch] = useState("");
 
   const fullName = (p?: BasicProfile) =>
     [p?.vorname, p?.nachname].filter(Boolean).join(" ") || "Unbekannt";
@@ -128,10 +135,63 @@ export default function Contacts() {
     await unfollowCompany(followId);
   };
 
+  // Filtered lists
+  const filteredFriends = useMemo(() => {
+    if (!friendsSearch.trim()) return friends;
+    const search = friendsSearch.toLowerCase();
+    return friends.filter(id => {
+      const profile = profiles[id];
+      const name = fullName(profile).toLowerCase();
+      const headline = profile?.headline?.toLowerCase() || "";
+      const location = profile?.ort?.toLowerCase() || "";
+      return name.includes(search) || headline.includes(search) || location.includes(search);
+    });
+  }, [friends, friendsSearch, profiles]);
+
+  const filteredIncoming = useMemo(() => {
+    if (!requestsSearch.trim()) return incoming;
+    const search = requestsSearch.toLowerCase();
+    return incoming.filter(id => {
+      const profile = profiles[id];
+      const name = fullName(profile).toLowerCase();
+      return name.includes(search);
+    });
+  }, [incoming, requestsSearch, profiles]);
+
+  const filteredOutgoing = useMemo(() => {
+    if (!requestsSearch.trim()) return outgoing;
+    const search = requestsSearch.toLowerCase();
+    return outgoing.filter(id => {
+      const profile = profiles[id];
+      const name = fullName(profile).toLowerCase();
+      return name.includes(search);
+    });
+  }, [outgoing, requestsSearch, profiles]);
+
+  const filteredCompanyRequests = useMemo(() => {
+    if (!requestsSearch.trim()) return companyFollowRequests;
+    const search = requestsSearch.toLowerCase();
+    return companyFollowRequests.filter(req => 
+      req.company.name.toLowerCase().includes(search) ||
+      req.company.industry?.toLowerCase().includes(search) ||
+      req.company.main_location?.toLowerCase().includes(search)
+    );
+  }, [companyFollowRequests, requestsSearch]);
+
+  const filteredCompanies = useMemo(() => {
+    if (!companiesSearch.trim()) return followedCompanies;
+    const search = companiesSearch.toLowerCase();
+    return followedCompanies.filter(company => 
+      company.company.name.toLowerCase().includes(search) ||
+      company.company.industry?.toLowerCase().includes(search) ||
+      company.company.main_location?.toLowerCase().includes(search)
+    );
+  }, [followedCompanies, companiesSearch]);
+
   const totalRequests = incoming.length + outgoing.length + companyFollowRequests.length;
 
   return (
-    <main className="w-full py-6">
+    <main className="w-full py-6 px-4 max-w-7xl mx-auto">
       <h1 className="text-xl font-semibold mb-4">Meine Kontakte</h1>
 
       <Tabs defaultValue="friends" className="w-full">
@@ -152,34 +212,57 @@ export default function Contacts() {
         </TabsList>
 
         {/* Tab 1: Freunde */}
-        <TabsContent value="friends" className="space-y-3">
+        <TabsContent value="friends" className="space-y-4">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Freunde durchsuchen..."
+              value={friendsSearch}
+              onChange={(e) => setFriendsSearch(e.target.value)}
+              className="pl-10"
+            />
+          </div>
+
           {loading && <div className="text-sm text-muted-foreground">Lädt…</div>}
-          {!loading && friends.length === 0 && (
+          {!loading && filteredFriends.length === 0 && (
             <div className="text-sm text-muted-foreground text-center py-8">
-              Noch keine Verbindungen.
+              {friendsSearch ? 'Keine passenden Freunde gefunden.' : 'Noch keine Verbindungen.'}
             </div>
           )}
-          {friends.map((id) => (
-            <FriendCard
-              key={id}
-              id={id}
-              name={fullName(profiles[id])}
-              avatarUrl={profiles[id]?.avatar_url ?? undefined}
-              headline={profiles[id]?.headline ?? undefined}
-              location={profiles[id]?.ort ?? undefined}
-              branche={profiles[id]?.branche ?? undefined}
-            />
-          ))}
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {filteredFriends.map((id) => (
+              <FriendCard
+                key={id}
+                id={id}
+                name={fullName(profiles[id])}
+                avatarUrl={profiles[id]?.avatar_url ?? undefined}
+                headline={profiles[id]?.headline ?? undefined}
+                location={profiles[id]?.ort ?? undefined}
+                branche={profiles[id]?.branche ?? undefined}
+              />
+            ))}
+          </div>
         </TabsContent>
 
         {/* Tab 2: Anfragen */}
         <TabsContent value="requests" className="space-y-4">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Anfragen durchsuchen..."
+              value={requestsSearch}
+              onChange={(e) => setRequestsSearch(e.target.value)}
+              className="pl-10"
+            />
+          </div>
+
           {/* Eingehende Connection-Anfragen */}
-          {incoming.length > 0 && (
+          {filteredIncoming.length > 0 && (
             <div>
               <h2 className="text-sm font-semibold mb-3">Eingehende Anfragen</h2>
-              <div className="space-y-3">
-                {incoming.map((id) => (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {filteredIncoming.map((id) => (
                   <ConnectionRequestCard
                     key={id}
                     id={id}
@@ -198,11 +281,11 @@ export default function Contacts() {
           )}
 
           {/* Follow-Anfragen von Unternehmen */}
-          {companyFollowRequests.length > 0 && (
+          {filteredCompanyRequests.length > 0 && (
             <div>
               <h2 className="text-sm font-semibold mb-3">Unternehmen möchten Ihnen folgen</h2>
-              <div className="space-y-3">
-                {companyFollowRequests.map((req) => (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {filteredCompanyRequests.map((req) => (
                   <CompanyFollowRequestCard
                     key={req.id}
                     id={req.id}
@@ -221,11 +304,11 @@ export default function Contacts() {
           )}
 
           {/* Ausgehende Connection-Anfragen */}
-          {outgoing.length > 0 && (
+          {filteredOutgoing.length > 0 && (
             <div>
               <h2 className="text-sm font-semibold mb-3">Gesendete Anfragen</h2>
-              <div className="space-y-3">
-                {outgoing.map((id) => (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {filteredOutgoing.map((id) => (
                   <ConnectionRequestCard
                     key={id}
                     id={id}
@@ -247,28 +330,46 @@ export default function Contacts() {
               Keine ausstehenden Anfragen.
             </div>
           )}
+          {!loading && requestsSearch && filteredIncoming.length === 0 && filteredOutgoing.length === 0 && filteredCompanyRequests.length === 0 && totalRequests > 0 && (
+            <div className="text-sm text-muted-foreground text-center py-8">
+              Keine passenden Anfragen gefunden.
+            </div>
+          )}
         </TabsContent>
 
         {/* Tab 3: Unternehmen */}
-        <TabsContent value="companies" className="space-y-3">
-          {!followLoading && followedCompanies.length === 0 && (
+        <TabsContent value="companies" className="space-y-4">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Unternehmen durchsuchen..."
+              value={companiesSearch}
+              onChange={(e) => setCompaniesSearch(e.target.value)}
+              className="pl-10"
+            />
+          </div>
+
+          {!followLoading && filteredCompanies.length === 0 && (
             <div className="text-sm text-muted-foreground text-center py-8">
-              Sie folgen noch keinen Unternehmen.
+              {companiesSearch ? 'Keine passenden Unternehmen gefunden.' : 'Sie folgen noch keinen Unternehmen.'}
             </div>
           )}
-          {followedCompanies.map((company) => (
-            <FollowedCompanyCard
-              key={company.id}
-              followId={company.id}
-              companyId={company.followee_id}
-              companyName={company.company.name}
-              logoUrl={company.company.logo_url ?? undefined}
-              industry={company.company.industry ?? undefined}
-              location={company.company.main_location ?? undefined}
-              onUnfollow={handleUnfollowCompany}
-              loading={followLoading}
-            />
-          ))}
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {filteredCompanies.map((company) => (
+              <FollowedCompanyCard
+                key={company.id}
+                followId={company.id}
+                companyId={company.followee_id}
+                companyName={company.company.name}
+                logoUrl={company.company.logo_url ?? undefined}
+                industry={company.company.industry ?? undefined}
+                location={company.company.main_location ?? undefined}
+                onUnfollow={handleUnfollowCompany}
+                loading={followLoading}
+              />
+            ))}
+          </div>
         </TabsContent>
       </Tabs>
     </main>
