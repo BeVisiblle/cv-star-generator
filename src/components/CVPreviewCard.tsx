@@ -154,7 +154,7 @@ export const CVPreviewCard: React.FC<CVPreviewCardProps> = ({
             <Button 
               className="w-full"
               onClick={handleDownload}
-              disabled={isDownloading || readOnly}
+              disabled={isDownloading}
             >
               {isDownloading ? (
                 <>
