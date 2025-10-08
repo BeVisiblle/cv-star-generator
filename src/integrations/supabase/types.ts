@@ -8256,6 +8256,10 @@ export type Database = {
         Args: { qty: number }
         Returns: number
       }
+      get_user_company_id: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
       get_user_company_role: {
         Args: { _company_id: string; _user_id: string }
         Returns: string
