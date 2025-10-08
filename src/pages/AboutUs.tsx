@@ -12,41 +12,39 @@ declare global {
   }
 }
 
+import toddMoraweImage from "@/assets/todd-morawe.jpeg";
+import tomMoraweImage from "@/assets/tom-morawe.jpeg";
+import aiMasterImage from "@/assets/ai-master.png";
+import emmaNebImage from "@/assets/emma-neb.png";
+
 const teamMembers = [
   {
-    name: "Tobias Morawe",
-    role: "Co-Founder & CEO",
-    description: "Strategie, Produkt & Community-Aufbau",
-    image: "/assets/aboutus-hero.png",
-    linkedin: "https://www.linkedin.com/in/tobiasmorawe"
-  },
-  {
     name: "Todd Morawe",
-    role: "Co-Founder & COO",
-    description: "Operations, Partner & Talent Experience",
-    image: "/assets/aboutus-hero.png",
-    linkedin: "https://www.linkedin.com/in/toddmorawe"
+    role: "Co-Founder & CEO",
+    description: "Strategy, Operations und Produkt",
+    image: toddMoraweImage,
+    linkedin: "https://www.linkedin.com/in/toddmorawe/"
   },
   {
-    name: "Lena Müller",
-    role: "Head of Community",
-    description: "Aktiviert die Community und begleitet Events",
-    image: "/assets/aboutus-hero.png",
-    linkedin: "https://www.linkedin.com"
+    name: "AI Master",
+    role: "Co-Founder & Tech",
+    description: "Verantwortung Plattform & Matching-Algorithmen",
+    image: aiMasterImage,
+    linkedin: ""
   },
   {
-    name: "Niklas Schuster",
-    role: "Lead Engineer",
-    description: "Verantwortet Plattform & Matching-Algorithmen",
-    image: "/assets/aboutus-hero.png",
-    linkedin: "https://www.linkedin.com"
+    name: "Tom Morawe",
+    role: "Co-Founder & CRO",
+    description: "Chief Revenue Officer",
+    image: tomMoraweImage,
+    linkedin: "https://www.linkedin.com/in/tommorawe/"
   },
   {
-    name: "Aylin Kaya",
-    role: "Design & Content",
-    description: "Sorgt für klare Stories und Markenmomente",
-    image: "/assets/aboutus-hero.png",
-    linkedin: "https://www.linkedin.com"
+    name: "Emma Neb",
+    role: "Marketing",
+    description: "Gute Laune & Marketing",
+    image: emmaNebImage,
+    linkedin: ""
   }
 ];
 
