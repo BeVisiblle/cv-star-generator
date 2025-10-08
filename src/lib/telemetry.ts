@@ -19,6 +19,13 @@ interface AnalyticsEvent {
 
 async function saveEvent(event: AnalyticsEvent) {
   try {
+    // Don't track admin pages
+    const currentPath = window.location.pathname;
+    if (currentPath.startsWith('/admin')) {
+      console.log('[Analytics] Skipping admin page tracking:', currentPath);
+      return;
+    }
+
     const eventData = {
       ...event,
       session_id: SESSION_ID,

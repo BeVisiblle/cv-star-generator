@@ -11,6 +11,9 @@ export interface AdminUser {
   profile_published: boolean | null;
   avatar_url: string | null;
   location_id?: number | null;
+  status?: string | null; // schueler, azubi, ausgelernt
+  branche?: string | null;
+  last_sign_in_at?: string | null;
 }
 
 export interface UseUsersParams {
@@ -47,7 +50,7 @@ export function useUsers({ search = "", status = "all", region = "", dateStart, 
 
       let query = supabase
         .from("profiles")
-        .select("id,email,created_at,profile_complete,profile_published,avatar_url,location_id", { count: "exact" })
+        .select("id,email,created_at,profile_complete,profile_published,avatar_url,location_id,status,branche", { count: "exact" })
         .order("created_at", { ascending: false })
         .range(from, to);
 
@@ -77,7 +80,28 @@ export function useUsers({ search = "", status = "all", region = "", dateStart, 
 
       const { data, error, count } = await query;
       if (error) throw error;
-      return { users: (data || []) as AdminUser[], total: count || 0 };
+
+      // Fetch last_sign_in_at from auth.users for all returned profiles
+      const userIds = (data || []).map((u: any) => u.id);
+      let authData: any[] = [];
+      
+      if (userIds.length > 0) {
+        const { data: authUsers } = await supabase.auth.admin.listUsers();
+        if (authUsers?.users) {
+          authData = authUsers.users.filter((u: any) => userIds.includes(u.id));
+        }
+      }
+
+      // Merge auth data with profile data
+      const users = (data || []).map((profile: any) => {
+        const authUser = authData.find((au: any) => au.id === profile.id);
+        return {
+          ...profile,
+          last_sign_in_at: authUser?.last_sign_in_at || null
+        } as AdminUser;
+      });
+
+      return { users, total: count || 0 };
     },
     staleTime: 30_000,
   });
