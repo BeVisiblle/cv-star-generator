@@ -90,7 +90,7 @@ export class UnlockService {
   }
 
   /**
-   * Schaltet Basis-Profildaten frei (kostet Tokens)
+   * Schaltet Basis-Profildaten frei (kostet Tokens) - nutzt RPC use_company_token
    */
   async unlockBasic(options: UnlockOptions): Promise<UnlockResult> {
     try {
@@ -119,37 +119,17 @@ export class UnlockService {
         };
       }
 
-      // Prüfe Token-Balance
-      const { data: wallet, error: walletError } = await supabase
-        .from('company_token_wallets')
-        .select('balance')
-        .eq('company_id', companyId)
-        .single();
+      // RPC: Token abziehen und Profil freischalten
+      const { data, error } = await supabase.rpc('use_company_token', {
+        p_company_id: companyId,
+        p_profile_id: options.profileId
+      });
 
-      if (walletError || !wallet) {
+      if (error) {
+        console.error('RPC error:', error);
         return {
           success: false,
-          error: 'Token-Wallet nicht gefunden'
-        };
-      }
-
-      if (wallet.balance < BASIC_UNLOCK_COST) {
-        return {
-          success: false,
-          error: 'Nicht genügend Tokens'
-        };
-      }
-
-      // Transaktion: Token abziehen und Profil freischalten
-      const { error: updateError } = await supabase
-        .from('company_token_wallets')
-        .update({ balance: wallet.balance - BASIC_UNLOCK_COST })
-        .eq('company_id', companyId);
-
-      if (updateError) {
-        return {
-          success: false,
-          error: 'Fehler beim Abziehen der Tokens'
+          error: error.message || 'Fehler beim Freischalten'
         };
       }
 
@@ -168,15 +148,10 @@ export class UnlockService {
         });
 
       if (candidateError) {
-        // Rollback: Tokens zurückgeben
-        await supabase
-          .from('company_token_wallets')
-          .update({ balance: wallet.balance })
-          .eq('company_id', companyId);
-
+        console.error('Candidate error:', candidateError);
         return {
           success: false,
-          error: 'Fehler beim Freischalten'
+          error: 'Fehler beim Aktualisieren der Pipeline'
         };
       }
 

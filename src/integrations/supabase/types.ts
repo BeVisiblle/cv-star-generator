@@ -1653,6 +1653,90 @@ export type Database = {
           },
         ]
       }
+      company_follows: {
+        Row: {
+          candidate_id: string
+          company_id: string
+          created_at: string
+          id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          candidate_id: string
+          company_id: string
+          created_at?: string
+          id?: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          candidate_id?: string
+          company_id?: string
+          created_at?: string
+          id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "company_follows_candidate_id_fkey"
+            columns: ["candidate_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "company_follows_candidate_id_fkey"
+            columns: ["candidate_id"]
+            isOneToOne: false
+            referencedRelation: "profiles_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "company_follows_candidate_id_fkey"
+            columns: ["candidate_id"]
+            isOneToOne: false
+            referencedRelation: "profiles_public_secure"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "company_follows_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "company_follows_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies_public_secure"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "company_follows_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "company_need_quota"
+            referencedColumns: ["company_id"]
+          },
+          {
+            foreignKeyName: "company_follows_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "company_unlock_stats"
+            referencedColumns: ["company_id"]
+          },
+          {
+            foreignKeyName: "company_follows_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "v_company_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       company_needs: {
         Row: {
           company_id: string
