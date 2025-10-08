@@ -16,6 +16,7 @@ export default function AdminLogin() {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isAuthenticating, setIsAuthenticating] = useState(false);
+  const [isCreatingAdmin, setIsCreatingAdmin] = useState(false);
 
   // Redirect if already authenticated as admin
   useEffect(() => {
@@ -23,6 +24,64 @@ export default function AdminLogin() {
       navigate('/admin');
     }
   }, [admin, role, isLoading, navigate]);
+
+  const handleCreateAdmin = async () => {
+    if (!email || !password) {
+      toast({
+        title: "Fehler",
+        description: "Bitte füllen Sie Email und Passwort aus.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsCreatingAdmin(true);
+
+    try {
+      // Call admin-user-actions edge function to create admin
+      const { data, error } = await supabase.functions.invoke('admin-user-actions', {
+        body: {
+          action: 'create_admin',
+          email: email,
+          password: password,
+        }
+      });
+
+      if (error) {
+        console.error('Error creating admin:', error);
+        toast({
+          title: "Fehler beim Erstellen",
+          description: error.message || "Admin-Account konnte nicht erstellt werden.",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      if (data?.error) {
+        toast({
+          title: "Fehler",
+          description: data.error,
+          variant: "destructive"
+        });
+        return;
+      }
+
+      toast({
+        title: "Admin-Account erstellt",
+        description: "Sie können sich jetzt anmelden.",
+      });
+
+    } catch (error) {
+      console.error('Create admin error:', error);
+      toast({
+        title: "Unerwarteter Fehler",
+        description: "Fehler beim Erstellen des Admin-Accounts.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsCreatingAdmin(false);
+    }
+  };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -181,7 +240,7 @@ export default function AdminLogin() {
               <Button
                 type="submit"
                 className="w-full"
-                disabled={isAuthenticating}
+                disabled={isAuthenticating || isCreatingAdmin}
               >
                 {isAuthenticating ? (
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
@@ -189,6 +248,30 @@ export default function AdminLogin() {
                   <Shield className="h-4 w-4 mr-2" />
                 )}
                 {isAuthenticating ? 'Anmelden...' : 'Admin Login'}
+              </Button>
+
+              <div className="relative my-4">
+                <div className="absolute inset-0 flex items-center">
+                  <span className="w-full border-t border-slate-600" />
+                </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                  <span className="bg-slate-800 px-2 text-slate-400">Noch kein Account?</span>
+                </div>
+              </div>
+
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full border-slate-600 bg-slate-900/50 text-slate-200 hover:bg-slate-700"
+                onClick={handleCreateAdmin}
+                disabled={isAuthenticating || isCreatingAdmin}
+              >
+                {isCreatingAdmin ? (
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                ) : (
+                  <Shield className="h-4 w-4 mr-2" />
+                )}
+                {isCreatingAdmin ? 'Erstelle Account...' : 'Admin-Account erstellen'}
               </Button>
             </form>
           </CardContent>
