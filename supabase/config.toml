@@ -3,6 +3,15 @@ project_id = "koymmvuhcxlvcuoyjnvv"
 [functions.generate-cv-summary]
 verify_jwt = true
 
+[functions.ai-generate-job-description]
+verify_jwt = true
+
+[functions.ai-suggest-skills]
+verify_jwt = true
+
+[functions.compute-job-match-batch]
+verify_jwt = false
+
 [functions.check-rate-limit]
 verify_jwt = true
 

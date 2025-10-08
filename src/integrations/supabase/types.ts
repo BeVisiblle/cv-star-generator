@@ -3526,6 +3526,7 @@ export type Database = {
           public_transport: boolean | null
           published_at: string | null
           relocation_support: boolean | null
+          required_languages: Json | null
           requirements_description: string | null
           requirements_md: string | null
           role_family: string | null
@@ -3550,6 +3551,7 @@ export type Database = {
           view_count: number | null
           visa_sponsorship: boolean | null
           work_mode: string | null
+          working_hours: string | null
         }
         Insert: {
           address_number?: string | null
@@ -3604,6 +3606,7 @@ export type Database = {
           public_transport?: boolean | null
           published_at?: string | null
           relocation_support?: boolean | null
+          required_languages?: Json | null
           requirements_description?: string | null
           requirements_md?: string | null
           role_family?: string | null
@@ -3628,6 +3631,7 @@ export type Database = {
           view_count?: number | null
           visa_sponsorship?: boolean | null
           work_mode?: string | null
+          working_hours?: string | null
         }
         Update: {
           address_number?: string | null
@@ -3682,6 +3686,7 @@ export type Database = {
           public_transport?: boolean | null
           published_at?: string | null
           relocation_support?: boolean | null
+          required_languages?: Json | null
           requirements_description?: string | null
           requirements_md?: string | null
           role_family?: string | null
@@ -3706,6 +3711,7 @@ export type Database = {
           view_count?: number | null
           visa_sponsorship?: boolean | null
           work_mode?: string | null
+          working_hours?: string | null
         }
         Relationships: [
           {

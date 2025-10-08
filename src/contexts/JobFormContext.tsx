@@ -1,0 +1,100 @@
+import { createContext, useContext, useState, ReactNode } from 'react';
+
+export interface JobFormData {
+  // Step 1: Basis
+  title: string;
+  city: string;
+  employment_type: string;
+  profession_id: string;
+  start_date: string;
+  
+  // Step 2: Skills & Anforderungen
+  skills: Array<{ name: string; level: 'must_have' | 'nice_to_have' | 'trainable' }>;
+  required_languages: Array<{ language: string; level: string }>;
+  certifications: string[];
+  
+  // Step 3: Beschreibung
+  description_md: string;
+  tasks_md: string;
+  requirements_md: string;
+  benefits_description: string;
+  
+  // Step 4: Details
+  salary_min?: number;
+  salary_max?: number;
+  work_mode?: 'remote' | 'hybrid' | 'onsite';
+  working_hours?: string;
+  is_public: boolean;
+  is_active: boolean;
+}
+
+interface JobFormContextType {
+  formData: JobFormData;
+  currentStep: number;
+  setFormData: (data: Partial<JobFormData>) => void;
+  nextStep: () => void;
+  prevStep: () => void;
+  setStep: (step: number) => void;
+  resetForm: () => void;
+}
+
+const JobFormContext = createContext<JobFormContextType | undefined>(undefined);
+
+const initialFormData: JobFormData = {
+  title: '',
+  city: '',
+  employment_type: 'apprenticeship',
+  profession_id: '',
+  start_date: '',
+  skills: [],
+  required_languages: [],
+  certifications: [],
+  description_md: '',
+  tasks_md: '',
+  requirements_md: '',
+  benefits_description: '',
+  is_public: true,
+  is_active: false,
+};
+
+export function JobFormProvider({ children, initialData }: { children: ReactNode; initialData?: Partial<JobFormData> }) {
+  const [formData, setFormDataState] = useState<JobFormData>({
+    ...initialFormData,
+    ...initialData,
+  });
+  const [currentStep, setCurrentStep] = useState(1);
+
+  const setFormData = (data: Partial<JobFormData>) => {
+    setFormDataState(prev => ({ ...prev, ...data }));
+  };
+
+  const nextStep = () => setCurrentStep(prev => Math.min(prev + 1, 5));
+  const prevStep = () => setCurrentStep(prev => Math.max(prev - 1, 1));
+  const setStep = (step: number) => setCurrentStep(Math.max(1, Math.min(step, 5)));
+  const resetForm = () => {
+    setFormDataState(initialFormData);
+    setCurrentStep(1);
+  };
+
+  return (
+    <JobFormContext.Provider value={{
+      formData,
+      currentStep,
+      setFormData,
+      nextStep,
+      prevStep,
+      setStep,
+      resetForm,
+    }}>
+      {children}
+    </JobFormContext.Provider>
+  );
+}
+
+export function useJobForm() {
+  const context = useContext(JobFormContext);
+  if (!context) {
+    throw new Error('useJobForm must be used within JobFormProvider');
+  }
+  return context;
+}

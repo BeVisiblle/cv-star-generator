@@ -2,17 +2,19 @@ import { useNavigate } from "react-router-dom";
 import { useCompany } from "@/hooks/useCompany";
 import { useCreateJob } from "@/hooks/useJobs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { JobForm } from "@/components/jobs/JobForm";
+import { JobFormProvider, useJobForm } from "@/contexts/JobFormContext";
+import { JobFormWizard } from "@/components/jobs/wizard/JobFormWizard";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-export default function JobCreate() {
+function JobCreateContent() {
   const navigate = useNavigate();
   const { company } = useCompany();
   const createJob = useCreateJob(company?.id || '');
+  const { formData } = useJobForm();
 
-  const handleSubmit = async (data: any) => {
-    await createJob.mutateAsync(data);
+  const handleSubmit = async () => {
+    await createJob.mutateAsync(formData);
     navigate('/company/jobs');
   };
 
@@ -32,13 +34,20 @@ export default function JobCreate() {
           <CardTitle>Neue Stellenanzeige erstellen</CardTitle>
         </CardHeader>
         <CardContent>
-          <JobForm
+          <JobFormWizard
             onSubmit={handleSubmit}
-            onCancel={() => navigate('/company/jobs')}
             isLoading={createJob.isPending}
           />
         </CardContent>
       </Card>
     </div>
+  );
+}
+
+export default function JobCreate() {
+  return (
+    <JobFormProvider>
+      <JobCreateContent />
+    </JobFormProvider>
   );
 }
