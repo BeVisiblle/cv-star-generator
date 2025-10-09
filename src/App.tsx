@@ -24,6 +24,11 @@ const AboutUs = lazy(() => import("./pages/AboutUs"));
 const CompanyLanding = lazy(() => import("./pages/CompanyLanding"));
 const Analytics = lazy(() => import("./pages/Analytics"));
 
+// CV Creation Flows
+const CVFlowSelector = lazy(() => import("@/components/cv-creation/CVFlowSelector"));
+const VoiceFlowContainer = lazy(() => import("@/components/cv-creation/flows/VoiceFlow/VoiceFlowContainer"));
+const ChatFlowContainer = lazy(() => import("@/components/cv-creation/flows/ChatFlow/ChatFlowContainer"));
+
 // Lazy load non-critical pages to reduce initial bundle size
 const Blog = lazy(() => import("./pages/Blog"));
 const Unternehmen = lazy(() => import("./pages/Unternehmen"));
@@ -300,6 +305,11 @@ const App = () => {
               <Route path="/produkt/azubis" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><ProduktAzubis /></Suspense>} />
               <Route path="/produkt/unternehmen" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><ProduktUnternehmen /></Suspense>} />
               <Route path="/bootstrap/create-admin" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><BaseLayout><CreateAdmin /></BaseLayout></Suspense>} />
+              
+              {/* New CV Creation Flows */}
+              <Route path="/cv-erstellen" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><CVFlowSelector /></Suspense>} />
+              <Route path="/cv-erstellen/voice" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><VoiceFlowContainer /></Suspense>} />
+              <Route path="/cv-erstellen/chat" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><ChatFlowContainer /></Suspense>} />
               
               {/* Lebenslauf Generator - Open for everyone, but validates complete profiles */}
               <Route path="/cv-generator" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><CVGeneratorGate><CVGenerator /></CVGeneratorGate></Suspense>} />

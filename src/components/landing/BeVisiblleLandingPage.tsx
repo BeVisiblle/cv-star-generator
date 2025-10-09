@@ -155,14 +155,15 @@ export default function BeVisiblleLandingPage() {
           Demo buchen
         </button>
         <Link 
-          to="/cv-generator" 
-          className="inline-flex items-center rounded-full px-8 py-4 text-base font-semibold text-white shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105"
+          to="/cv-erstellen" 
+          className="inline-flex items-center gap-2 rounded-full px-8 py-4 text-base font-semibold text-white shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105"
           style={{ 
             background: '#5170ff', 
             boxShadow: '0 8px 25px rgba(81,112,255,0.35)' 
           }}
         >
           Lebenslauf erstellen
+          <span className="text-xs bg-white/20 px-2 py-0.5 rounded-full">Neu</span>
         </Link>
       </section>
 
