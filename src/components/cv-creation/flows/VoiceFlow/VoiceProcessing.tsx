@@ -31,16 +31,28 @@ export default function VoiceProcessing({ audioBlob, onBack }: VoiceProcessingPr
       formData.append("targetLang", "de");
       formData.append("glossaryDomain", "general");
 
-      const transcribeResponse = await supabase.functions.invoke("transcribe-and-normalize", {
-        body: formData
-      });
+      // Get auth session for the request
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      const transcribeResponse = await fetch(
+        `https://koymmvuhcxlvcuoyjnvv.supabase.co/functions/v1/transcribe-and-normalize`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${session?.access_token}`,
+          },
+          body: formData,
+        }
+      );
 
-      if (transcribeResponse.error) {
-        throw new Error(transcribeResponse.error.message);
+      if (!transcribeResponse.ok) {
+        const errorText = await transcribeResponse.text();
+        throw new Error(`Transcription failed: ${errorText}`);
       }
 
-      console.log("Transcription result:", transcribeResponse.data);
-      const normalizedText = transcribeResponse.data.normalized.text;
+      const transcribeData = await transcribeResponse.json();
+      console.log("Transcription result:", transcribeData);
+      const normalizedText = transcribeData.normalized.text;
 
       // Step 2: Extract CV Data
       setStep("extracting");
