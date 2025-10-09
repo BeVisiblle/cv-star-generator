@@ -2633,6 +2633,75 @@ export type Database = {
         }
         Relationships: []
       }
+      cv_creation_sessions: {
+        Row: {
+          audio_url: string | null
+          auto_enhancements: Json | null
+          chat_messages: Json | null
+          completed_at: string | null
+          confidence_scores: Json | null
+          conversion_action: string | null
+          created_at: string | null
+          extracted_data: Json | null
+          flow_type: string
+          id: string
+          normalized_text: string | null
+          original_language: string | null
+          payment_intent_id: string | null
+          profile_image_url: string | null
+          selected_layout: number | null
+          status: string
+          time_to_completion_seconds: number | null
+          transcript: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          audio_url?: string | null
+          auto_enhancements?: Json | null
+          chat_messages?: Json | null
+          completed_at?: string | null
+          confidence_scores?: Json | null
+          conversion_action?: string | null
+          created_at?: string | null
+          extracted_data?: Json | null
+          flow_type: string
+          id?: string
+          normalized_text?: string | null
+          original_language?: string | null
+          payment_intent_id?: string | null
+          profile_image_url?: string | null
+          selected_layout?: number | null
+          status?: string
+          time_to_completion_seconds?: number | null
+          transcript?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          audio_url?: string | null
+          auto_enhancements?: Json | null
+          chat_messages?: Json | null
+          completed_at?: string | null
+          confidence_scores?: Json | null
+          conversion_action?: string | null
+          created_at?: string | null
+          extracted_data?: Json | null
+          flow_type?: string
+          id?: string
+          normalized_text?: string | null
+          original_language?: string | null
+          payment_intent_id?: string | null
+          profile_image_url?: string | null
+          selected_layout?: number | null
+          status?: string
+          time_to_completion_seconds?: number | null
+          transcript?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       data_access_log: {
         Row: {
           action: string

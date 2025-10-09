@@ -41,3 +41,12 @@ verify_jwt = true
 
 [functions.ai-suggest-skills]
 verify_jwt = true
+
+[functions.transcribe-and-normalize]
+verify_jwt = true
+
+[functions.ai-parse-cv-chat-smart]
+verify_jwt = true
+
+[functions.ai-chat-cv-assistant]
+verify_jwt = true
