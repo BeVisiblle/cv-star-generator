@@ -61,7 +61,7 @@ Deno.serve(async (req) => {
   }
 
   try {
-    console.log('=== AI Chat CV Assistant - Start ===');
+    console.log('=== AI Chat CV Assistant - Start (v2) ===');
     
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
     if (!LOVABLE_API_KEY) {
