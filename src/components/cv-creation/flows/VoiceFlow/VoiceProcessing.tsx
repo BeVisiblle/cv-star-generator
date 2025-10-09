@@ -30,17 +30,11 @@ export default function VoiceProcessing({ audioBlob, onBack }: VoiceProcessingPr
       formData.append("audio", audioBlob, "voice.webm");
       formData.append("targetLang", "de");
       formData.append("glossaryDomain", "general");
-
-      // Get auth session for the request
-      const { data: { session } } = await supabase.auth.getSession();
       
       const transcribeResponse = await fetch(
         `https://koymmvuhcxlvcuoyjnvv.supabase.co/functions/v1/transcribe-and-normalize`,
         {
           method: "POST",
-          headers: {
-            Authorization: `Bearer ${session?.access_token}`,
-          },
           body: formData,
         }
       );
