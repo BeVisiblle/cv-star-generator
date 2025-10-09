@@ -46,7 +46,7 @@ verify_jwt = true
 verify_jwt = false
 
 [functions.ai-parse-cv-chat-smart]
-verify_jwt = true
+verify_jwt = false
 
 [functions.ai-chat-cv-assistant]
-verify_jwt = true
+verify_jwt = false

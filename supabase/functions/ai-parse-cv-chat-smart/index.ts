@@ -1,7 +1,5 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 
-const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY')!;
-
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
@@ -110,16 +108,34 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { userInput, currentData = {}, context }: ParseCVInput = await req.json();
-
-    if (!userInput) {
-      return new Response(JSON.stringify({ error: 'Missing userInput' }), {
-        status: 400,
-        headers: { ...corsHeaders, 'content-type': 'application/json' }
+    console.log('=== AI Parse CV Chat Smart - Start ===');
+    
+    const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
+    if (!LOVABLE_API_KEY) {
+      console.error('ERROR: LOVABLE_API_KEY not configured');
+      return new Response(JSON.stringify({ 
+        error: 'Server configuration error: LOVABLE_API_KEY missing',
+        details: 'Please configure LOVABLE_API_KEY in Supabase secrets'
+      }), {
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       });
     }
 
-    console.log('Parsing CV data from input:', userInput.substring(0, 100) + '...');
+    const { userInput, currentData = {}, context }: ParseCVInput = await req.json();
+
+    if (!userInput) {
+      console.error('ERROR: No userInput provided');
+      return new Response(JSON.stringify({ 
+        error: 'userInput is required',
+        details: 'Please provide text input for CV parsing'
+      }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+
+    console.log('Parsing user input, length:', userInput.length);
 
     const tools = [{
       type: 'function',
@@ -183,6 +199,7 @@ Deno.serve(async (req) => {
       }
     }];
 
+    console.log('Calling Lovable AI...');
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -217,15 +234,30 @@ Bereits vorhandene Daten: ${JSON.stringify(currentData)}`
     });
 
     if (!response.ok) {
-      const error = await response.text();
-      throw new Error(`AI API failed: ${response.status} ${error}`);
+      const errorText = await response.text();
+      console.error('AI API Error:', response.status, errorText);
+      
+      if (response.status === 429) {
+        return new Response(JSON.stringify({ 
+          error: 'Rate limit exceeded',
+          details: 'Too many requests. Please try again in a moment.'
+        }), {
+          status: 429,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        });
+      }
+      
+      throw new Error(`AI API error: ${response.status} ${errorText}`);
     }
 
     const data = await response.json();
-    const toolCall = data.choices[0].message.tool_calls?.[0];
+    console.log('AI Response received');
     
-    if (!toolCall) {
-      throw new Error('No tool call in response');
+    const toolCall = data.choices?.[0]?.message?.tool_calls?.[0];
+    
+    if (!toolCall || toolCall.function.name !== 'extract_cv_data') {
+      console.error('No structured data in response:', JSON.stringify(data, null, 2));
+      throw new Error('AI did not return structured CV data');
     }
 
     const extractedData = JSON.parse(toolCall.function.arguments);
@@ -268,17 +300,24 @@ Bereits vorhandene Daten: ${JSON.stringify(currentData)}`
       followUpChips
     };
 
-    console.log('Parse complete. Confidence:', confidence.overall);
+    console.log('✅ CV parsing complete. Confidence:', confidence.overall);
+    console.log('=== AI Parse CV Chat Smart - Success ===');
 
     return new Response(JSON.stringify(output), {
-      headers: { ...corsHeaders, 'content-type': 'application/json' },
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       status: 200
     });
 
   } catch (err) {
-    console.error('Error in ai-parse-cv-chat-smart:', err);
-    return new Response(JSON.stringify({ error: String(err) }), {
-      headers: { ...corsHeaders, 'content-type': 'application/json' },
+    console.error('❌ Error in ai-parse-cv-chat-smart:', err);
+    console.error('Error stack:', err instanceof Error ? err.stack : 'No stack');
+    
+    return new Response(JSON.stringify({
+      error: err instanceof Error ? err.message : 'Unknown error occurred',
+      type: 'parse_cv_error',
+      timestamp: new Date().toISOString()
+    }), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       status: 500
     });
   }

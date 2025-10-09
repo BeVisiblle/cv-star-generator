@@ -43,6 +43,7 @@ export default function ChatInterface() {
     setIsLoading(true);
 
     try {
+      console.log('Calling ai-chat-cv-assistant...');
       const response = await supabase.functions.invoke("ai-chat-cv-assistant", {
         body: {
           message: userMessage,
@@ -52,8 +53,37 @@ export default function ChatInterface() {
       });
 
       if (response.error) {
+        console.error('Function error:', response.error);
+        toast({
+          title: "Verbindungsfehler",
+          description: response.error.message || "Konnte nicht mit dem Server kommunizieren",
+          variant: "destructive",
+        });
         throw new Error(response.error.message);
       }
+
+      if (!response.data) {
+        console.error('No data returned from function');
+        toast({
+          title: "Keine Antwort",
+          description: "Der Server hat keine Daten zurückgegeben",
+          variant: "destructive",
+        });
+        throw new Error('Keine Antwort vom Server');
+      }
+
+      // Check for error in response
+      if (response.data.error) {
+        console.error('Error in response:', response.data);
+        toast({
+          title: "Fehler",
+          description: response.data.details || response.data.error,
+          variant: "destructive",
+        });
+        throw new Error(response.data.error);
+      }
+
+      console.log('Function response:', response.data);
 
       const { nextQuestion, extractedData, confidence, isComplete } = response.data;
 
@@ -81,12 +111,18 @@ export default function ChatInterface() {
         }]);
       }
     } catch (err) {
-      console.error("Chat error:", err);
-      toast({
-        title: "Fehler",
-        description: "Etwas ist schiefgelaufen. Bitte versuche es erneut.",
-        variant: "destructive"
-      });
+      console.error("❌ Chat error:", err);
+      
+      // Only show toast if we haven't shown one already
+      if (err instanceof Error && !err.message.includes('Rate limit')) {
+        if (!err.message.includes('Verbindungsfehler') && !err.message.includes('Keine Antwort')) {
+          toast({
+            title: "Fehler",
+            description: err.message || "Etwas ist schiefgelaufen. Bitte versuche es erneut.",
+            variant: "destructive"
+          });
+        }
+      }
       
       setMessages(prev => [...prev, {
         role: "assistant",

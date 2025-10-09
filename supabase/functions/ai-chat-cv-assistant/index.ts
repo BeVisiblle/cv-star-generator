@@ -1,7 +1,5 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 
-const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY')!;
-
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
@@ -63,16 +61,32 @@ Deno.serve(async (req) => {
   }
 
   try {
+    console.log('=== AI Chat CV Assistant - Start ===');
+    
+    const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
+    if (!LOVABLE_API_KEY) {
+      console.error('ERROR: LOVABLE_API_KEY not configured');
+      return new Response(JSON.stringify({ 
+        error: 'Server configuration error: LOVABLE_API_KEY missing',
+        details: 'Please configure LOVABLE_API_KEY in Supabase secrets'
+      }), {
+        status: 500,
+        headers: { ...corsHeaders, 'content-type': 'application/json' }
+      });
+    }
+
     const { message, conversationHistory = [], currentData = {} }: ChatCVInput = await req.json();
 
     if (!message) {
+      console.error('ERROR: No message provided');
       return new Response(JSON.stringify({ error: 'Missing message' }), {
         status: 400,
         headers: { ...corsHeaders, 'content-type': 'application/json' }
       });
     }
 
-    console.log('Chat CV Assistant - Processing message:', message.substring(0, 50) + '...');
+    console.log('Processing message:', message.substring(0, 100));
+    console.log('Current data keys:', Object.keys(currentData));
 
     const nextField = determineNextField(currentData);
     
@@ -114,6 +128,7 @@ Aufgaben:
       { role: 'user', content: message }
     ];
 
+    console.log('Calling Lovable AI...');
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -129,15 +144,30 @@ Aufgaben:
     });
 
     if (!response.ok) {
-      const error = await response.text();
-      throw new Error(`AI API failed: ${response.status} ${error}`);
+      const errorText = await response.text();
+      console.error('AI API Error:', response.status, errorText);
+      
+      if (response.status === 429) {
+        return new Response(JSON.stringify({ 
+          error: 'Rate limit exceeded',
+          details: 'Too many requests. Please try again in a moment.'
+        }), {
+          status: 429,
+          headers: { ...corsHeaders, 'content-type': 'application/json' }
+        });
+      }
+      
+      throw new Error(`AI API failed: ${response.status} ${errorText}`);
     }
 
     const data = await response.json();
-    const toolCall = data.choices[0].message.tool_calls?.[0];
+    console.log('AI Response received');
+    
+    const toolCall = data.choices?.[0]?.message?.tool_calls?.[0];
     
     if (!toolCall) {
-      throw new Error('No tool call in response');
+      console.error('No tool call in response:', JSON.stringify(data, null, 2));
+      throw new Error('AI did not return structured data');
     }
 
     const extracted = JSON.parse(toolCall.function.arguments);
@@ -164,7 +194,8 @@ Aufgaben:
       isComplete: completion === 100
     };
 
-    console.log('Chat step complete. Completion:', completion);
+    console.log('✅ Chat step complete. Completion:', completion);
+    console.log('=== AI Chat CV Assistant - Success ===');
 
     return new Response(JSON.stringify(output), {
       headers: { ...corsHeaders, 'content-type': 'application/json' },
@@ -172,8 +203,14 @@ Aufgaben:
     });
 
   } catch (err) {
-    console.error('Error in ai-chat-cv-assistant:', err);
-    return new Response(JSON.stringify({ error: String(err) }), {
+    console.error('❌ ERROR in ai-chat-cv-assistant:', err);
+    console.error('Error stack:', err instanceof Error ? err.stack : 'No stack');
+    
+    return new Response(JSON.stringify({ 
+      error: err instanceof Error ? err.message : String(err),
+      type: 'chat_cv_error',
+      timestamp: new Date().toISOString()
+    }), {
       headers: { ...corsHeaders, 'content-type': 'application/json' },
       status: 500
     });
