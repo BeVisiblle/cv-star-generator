@@ -116,8 +116,22 @@ Deno.serve(async (req) => {
 Aktuelle Frage: ${nextField ? nextField.question : 'Alle Informationen gesammelt'}
 Bereits gesammelte Daten: ${JSON.stringify(currentData)}
 
+WICHTIG - Verwende EXAKT diese Feldnamen:
+- status (für Schüler/Azubi/Ausgelernt)
+- branche (für Branche/Berufsfeld)
+- vorname (für Vorname)
+- nachname (für Nachname)  
+- email (für E-Mail)
+- phone (für Telefon)
+- geburtsdatum (für Geburtsdatum)
+- nationalitaet (für Staatsangehörigkeit)
+- schulbildung (für Schulbildung)
+- berufserfahrung (für Berufserfahrung)
+- skills (für Fähigkeiten)
+- sprachen (für Sprachen)
+
 Aufgaben:
-1. Extrahiere die Antwort strukturiert (verwende extract_answer tool)
+1. Extrahiere die Antwort strukturiert mit dem EXAKTEN Feldnamen von oben
 2. Sei präzise aber freundlich
 3. Bei unklaren Antworten: frage nach
 4. Erkenne auch implizite Informationen (z.B. "Ich bin 17" → geburtsjahr berechnen)`;
