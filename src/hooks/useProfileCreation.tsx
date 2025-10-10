@@ -80,7 +80,7 @@ export const PROFILE_STEPS: ProfileCreationStep[] = [
     title: 'Ausbildung',
     description: 'Status und Qualifikation',
     required: true,
-    fields: ['status', 'branche']
+    fields: ['status', 'branche', 'schulbildung']
   },
   {
     id: 4,

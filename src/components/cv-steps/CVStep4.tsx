@@ -215,9 +215,20 @@ const CVStep4 = () => {
   };
 
   const updateBerufserfahrungDate = (index: number, field: 'zeitraum_von' | 'zeitraum_bis', month: string, year: string) => {
-    if (month && year) {
-      const monthYear = `${year}-${month}`;
+    const currentValue = formData.berufserfahrung?.[index]?.[field] || '';
+    const parts = currentValue.split('-');
+    const currentYear = parts[0] || '';
+    const currentMonth = parts[1] || '';
+    
+    const finalYear = year || currentYear;
+    const finalMonth = month || currentMonth;
+    
+    if (finalYear && finalMonth) {
+      const monthYear = `${finalYear}-${finalMonth}`;
       updateBerufserfahrungEntry(index, field, monthYear);
+    } else if (finalYear) {
+      // Store partial date temporarily
+      updateBerufserfahrungEntry(index, field, `${finalYear}-01`);
     }
   };
 
@@ -638,10 +649,10 @@ const CVStep4 = () => {
                     <div>
                       <Label>Von Monat *</Label>
                       <Select 
-                        value={arbeit.zeitraum_von ? arbeit.zeitraum_von.split('-')[1] : ''} 
+                        value={arbeit.zeitraum_von ? arbeit.zeitraum_von.split('-')[1] || '' : ''} 
                         onValueChange={(month) => {
-                          const year = arbeit.zeitraum_von ? arbeit.zeitraum_von.split('-')[0] : '';
-                          if (year) updateBerufserfahrungDate(index, 'zeitraum_von', month, year);
+                          const year = arbeit.zeitraum_von ? arbeit.zeitraum_von.split('-')[0] || '' : '';
+                          updateBerufserfahrungDate(index, 'zeitraum_von', month, year);
                         }}
                       >
                         <SelectTrigger>
@@ -659,10 +670,10 @@ const CVStep4 = () => {
                     <div>
                       <Label>Von Jahr *</Label>
                       <Select 
-                        value={arbeit.zeitraum_von ? arbeit.zeitraum_von.split('-')[0] : ''} 
+                        value={arbeit.zeitraum_von ? arbeit.zeitraum_von.split('-')[0] || '' : ''} 
                         onValueChange={(year) => {
-                          const month = arbeit.zeitraum_von ? arbeit.zeitraum_von.split('-')[1] : '';
-                          if (month) updateBerufserfahrungDate(index, 'zeitraum_von', month, year);
+                          const month = arbeit.zeitraum_von ? arbeit.zeitraum_von.split('-')[1] || '' : '';
+                          updateBerufserfahrungDate(index, 'zeitraum_von', month, year);
                         }}
                       >
                         <SelectTrigger>
@@ -695,10 +706,10 @@ const CVStep4 = () => {
                       <div>
                         <Label>Bis Monat</Label>
                         <Select 
-                          value={arbeit.zeitraum_bis ? arbeit.zeitraum_bis.split('-')[1] : ''} 
+                          value={arbeit.zeitraum_bis ? arbeit.zeitraum_bis.split('-')[1] || '' : ''} 
                           onValueChange={(month) => {
-                            const year = arbeit.zeitraum_bis ? arbeit.zeitraum_bis.split('-')[0] : '';
-                            if (year) updateBerufserfahrungDate(index, 'zeitraum_bis', month, year);
+                            const year = arbeit.zeitraum_bis ? arbeit.zeitraum_bis.split('-')[0] || '' : '';
+                            updateBerufserfahrungDate(index, 'zeitraum_bis', month, year);
                           }}
                         >
                           <SelectTrigger>
@@ -716,10 +727,10 @@ const CVStep4 = () => {
                       <div>
                         <Label>Bis Jahr</Label>
                         <Select 
-                          value={arbeit.zeitraum_bis ? arbeit.zeitraum_bis.split('-')[0] : ''} 
+                          value={arbeit.zeitraum_bis ? arbeit.zeitraum_bis.split('-')[0] || '' : ''} 
                           onValueChange={(year) => {
-                            const month = arbeit.zeitraum_bis ? arbeit.zeitraum_bis.split('-')[1] : '';
-                            if (month) updateBerufserfahrungDate(index, 'zeitraum_bis', month, year);
+                            const month = arbeit.zeitraum_bis ? arbeit.zeitraum_bis.split('-')[1] || '' : '';
+                            updateBerufserfahrungDate(index, 'zeitraum_bis', month, year);
                           }}
                         >
                           <SelectTrigger>
