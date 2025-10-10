@@ -344,7 +344,7 @@ const CVStep7 = () => {
             ) : (
               <>
                 <Download className="h-4 w-4 mr-2" />
-                CV sofort herunterladen
+                Lebenslauf als PDF downloaden
               </>
             )}
           </Button>
