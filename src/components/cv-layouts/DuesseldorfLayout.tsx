@@ -12,13 +12,6 @@ const DuesseldorfLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) =>
           <h1 className="text-5xl font-bold mb-2 uppercase tracking-wider text-center" style={{ color: 'hsl(0, 0%, 15%)', letterSpacing: '0.1em' }}>
             {fullName}
           </h1>
-          {data.status && (
-            <p className="text-sm text-center uppercase tracking-wide" style={{ color: 'hsl(0, 0%, 50%)' }}>
-              {data.status === 'schueler' && 'Schüler'}
-              {data.status === 'azubi' && 'Auszubildender'}
-              {data.status === 'ausgelernt' && 'Ausgelernt'}
-            </p>
-          )}
           
           {/* Contact Info in One Line */}
           <div className="mt-3 text-center text-xs flex justify-center items-center gap-3 flex-wrap" style={{ color: 'hsl(0, 0%, 40%)' }}>

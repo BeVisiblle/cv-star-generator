@@ -13,13 +13,6 @@ const HamburgLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) => {
             <h1 className="text-4xl font-bold mb-2" style={{ color: 'hsl(0, 0%, 20%)' }}>
               {fullName}
             </h1>
-            {data.status && (
-              <p className="text-sm uppercase tracking-wide font-semibold" style={{ color: 'hsl(0, 0%, 50%)' }}>
-                {data.status === 'schueler' && 'Schüler'}
-                {data.status === 'azubi' && 'Auszubildender'}
-                {data.status === 'ausgelernt' && 'Ausgelernt'}
-              </p>
-            )}
             
             {/* Contact Info in Header */}
             <div className="mt-4 space-y-1 text-xs" style={{ color: 'hsl(0, 0%, 40%)' }}>

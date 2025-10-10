@@ -28,13 +28,6 @@ const FrankfurtLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) => {
             <h1 className="text-2xl font-bold mb-1" style={{ color: 'hsl(0, 0%, 20%)' }}>
               {fullName}
             </h1>
-            {data.status && (
-              <p className="text-xs uppercase tracking-wider" style={{ color: 'hsl(0, 0%, 45%)' }}>
-                {data.status === 'schueler' && 'Schüler'}
-                {data.status === 'azubi' && 'Auszubildender'}
-                {data.status === 'ausgelernt' && 'Ausgelernt'}
-              </p>
-            )}
           </div>
 
           {/* Contact */}

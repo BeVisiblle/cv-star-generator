@@ -142,13 +142,6 @@ const BerlinLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) => {
             <h1 className="text-4xl font-bold mb-2" style={{ color: 'hsl(30, 20%, 20%)' }}>
               {fullName}
             </h1>
-            {data.status && (
-              <p className="text-sm uppercase tracking-wide" style={{ color: 'hsl(30, 20%, 45%)' }}>
-                {data.status === 'schueler' && 'Schüler'}
-                {data.status === 'azubi' && 'Auszubildender'}
-                {data.status === 'ausgelernt' && 'Ausgelernt'}
-              </p>
-            )}
           </div>
 
           {/* About Me */}

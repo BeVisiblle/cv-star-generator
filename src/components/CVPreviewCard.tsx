@@ -14,6 +14,9 @@ import HamburgLayout from '@/components/cv-layouts/HamburgLayout';
 import KoelnLayout from '@/components/cv-layouts/KoelnLayout';
 import FrankfurtLayout from '@/components/cv-layouts/FrankfurtLayout';
 import DuesseldorfLayout from '@/components/cv-layouts/DuesseldorfLayout';
+import StuttgartLayout from '@/components/cv-layouts/StuttgartLayout';
+import DresdenLayout from '@/components/cv-layouts/DresdenLayout';
+import LeipzigLayout from '@/components/cv-layouts/LeipzigLayout';
 
 interface CVPreviewCardProps {
   profile: any;
@@ -94,6 +97,12 @@ export const CVPreviewCard: React.FC<CVPreviewCardProps> = ({
         return <FrankfurtLayout {...commonProps} />;
       case 6:
         return <DuesseldorfLayout {...commonProps} />;
+      case 7:
+        return <StuttgartLayout {...commonProps} />;
+      case 8:
+        return <DresdenLayout {...commonProps} />;
+      case 9:
+        return <LeipzigLayout {...commonProps} />;
       default:
         return <BerlinLayout {...commonProps} />;
     }
@@ -108,6 +117,9 @@ export const CVPreviewCard: React.FC<CVPreviewCardProps> = ({
       case 4: return 'Köln';
       case 5: return 'Frankfurt';
       case 6: return 'Düsseldorf';
+      case 7: return 'Stuttgart';
+      case 8: return 'Dresden';
+      case 9: return 'Leipzig';
       default: return 'Berlin';
     }
   };

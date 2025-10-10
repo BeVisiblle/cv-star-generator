@@ -11,6 +11,9 @@ import HamburgLayout from '@/components/cv-layouts/HamburgLayout';
 import KoelnLayout from '@/components/cv-layouts/KoelnLayout';
 import FrankfurtLayout from '@/components/cv-layouts/FrankfurtLayout';
 import DuesseldorfLayout from '@/components/cv-layouts/DuesseldorfLayout';
+import StuttgartLayout from '@/components/cv-layouts/StuttgartLayout';
+import DresdenLayout from '@/components/cv-layouts/DresdenLayout';
+import LeipzigLayout from '@/components/cv-layouts/LeipzigLayout';
 
 interface CVLayoutSelectorDialogProps {
   open: boolean;
@@ -72,19 +75,40 @@ export const CVLayoutSelectorDialog: React.FC<CVLayoutSelectorDialogProps> = ({
       description: 'Harvard Style ohne Foto – Akademisch für Finance & Consulting',
       preview: '🎓',
       color: 'bg-neutral-50 border-neutral-300'
+    },
+    {
+      id: 7,
+      name: 'Stuttgart',
+      description: 'Warmes Orange-Beige Design mit Unterschrift – Ideal für Handwerk & Kreative',
+      preview: '🔨',
+      color: 'bg-orange-50 border-orange-300'
+    },
+    {
+      id: 8,
+      name: 'Dresden',
+      description: 'Elegantes Dunkelblau mit Icons – Professionell für alle Branchen',
+      preview: '💎',
+      color: 'bg-indigo-50 border-indigo-300'
+    },
+    {
+      id: 9,
+      name: 'Leipzig',
+      description: 'Minimalistisches Schwarz-Weiß Timeline-Design – Modern für IT & Business',
+      preview: '⚡',
+      color: 'bg-slate-50 border-slate-300'
     }
   ];
 
   const getRecommendedLayout = () => {
     switch (profile?.branche) {
-      case 'handwerk': return 3;
-      case 'it': return 2;
-      case 'gesundheit': return 6;
-      case 'buero': return 5;
-      case 'verkauf': return 1;
-      case 'gastronomie': return 4;
-      case 'bau': return 3;
-      default: return 2;
+      case 'handwerk': return 7; // Stuttgart
+      case 'it': return 9; // Leipzig
+      case 'gesundheit': return 8; // Dresden
+      case 'buero': return 5; // Frankfurt
+      case 'verkauf': return 1; // Berlin
+      case 'gastronomie': return 4; // Köln
+      case 'bau': return 7; // Stuttgart
+      default: return 2; // München
     }
   };
 
@@ -126,6 +150,12 @@ export const CVLayoutSelectorDialog: React.FC<CVLayoutSelectorDialogProps> = ({
         return <FrankfurtLayout {...commonProps} />;
       case 6:
         return <DuesseldorfLayout {...commonProps} />;
+      case 7:
+        return <StuttgartLayout {...commonProps} />;
+      case 8:
+        return <DresdenLayout {...commonProps} />;
+      case 9:
+        return <LeipzigLayout {...commonProps} />;
       default:
         return <BerlinLayout {...commonProps} />;
     }

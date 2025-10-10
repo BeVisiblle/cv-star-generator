@@ -8,6 +8,9 @@ import HamburgLayout from '@/components/cv-layouts/HamburgLayout';
 import KoelnLayout from '@/components/cv-layouts/KoelnLayout';
 import FrankfurtLayout from '@/components/cv-layouts/FrankfurtLayout';
 import DuesseldorfLayout from '@/components/cv-layouts/DuesseldorfLayout';
+import StuttgartLayout from '@/components/cv-layouts/StuttgartLayout';
+import DresdenLayout from '@/components/cv-layouts/DresdenLayout';
+import LeipzigLayout from '@/components/cv-layouts/LeipzigLayout';
 import '@/styles/cv.css';
 
 export default function CVPrintPage() {
@@ -109,6 +112,9 @@ export default function CVPrintPage() {
     layoutId === 4 ? KoelnLayout :
     layoutId === 5 ? FrankfurtLayout :
     layoutId === 6 ? DuesseldorfLayout :
+    layoutId === 7 ? StuttgartLayout :
+    layoutId === 8 ? DresdenLayout :
+    layoutId === 9 ? LeipzigLayout :
     BerlinLayout;
 
   return (

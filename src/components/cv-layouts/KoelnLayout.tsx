@@ -142,13 +142,6 @@ const KoelnLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) => {
             <h1 className="text-4xl font-bold mb-2" style={{ color: 'hsl(210, 15%, 25%)' }}>
               {fullName}
             </h1>
-            {data.status && (
-              <p className="text-sm uppercase tracking-wide font-semibold" style={{ color: 'hsl(210, 15%, 45%)' }}>
-                {data.status === 'schueler' && 'Schüler'}
-                {data.status === 'azubi' && 'Auszubildender'}
-                {data.status === 'ausgelernt' && 'Ausgelernt'}
-              </p>
-            )}
           </div>
 
           {/* About Me */}

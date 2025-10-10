@@ -26,13 +26,6 @@ const MuenchenLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) => {
           {/* Name */}
           <div className="mb-6 text-center">
             <h1 className="text-2xl font-bold mb-1">{fullName}</h1>
-            {data.status && (
-              <p className="text-sm font-medium opacity-90">
-                {data.status === 'schueler' && 'Schüler'}
-                {data.status === 'azubi' && 'Auszubildender'}
-                {data.status === 'ausgelernt' && 'Ausgelernt'}
-              </p>
-            )}
           </div>
 
           {/* Contact */}
