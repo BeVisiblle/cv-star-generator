@@ -1,4 +1,4 @@
-// Häufige Sprachen für die Auswahl im CV-Formular
+// Die 15 häufigsten Sprachen für die Auswahl im CV-Formular
 export const COMMON_LANGUAGES = [
   'Deutsch',
   'Englisch',
@@ -14,20 +14,5 @@ export const COMMON_LANGUAGES = [
   'Griechisch',
   'Chinesisch',
   'Japanisch',
-  'Koreanisch',
-  'Kroatisch',
-  'Serbisch',
-  'Rumänisch',
-  'Bulgarisch',
-  'Schwedisch',
-  'Norwegisch',
-  'Dänisch',
-  'Finnisch',
-  'Tschechisch',
-  'Slowakisch',
-  'Ungarisch',
-  'Hindi',
-  'Persisch',
-  'Ukrainisch',
-  'Vietnamesisch'
+  'Koreanisch'
 ];
