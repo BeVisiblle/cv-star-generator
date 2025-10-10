@@ -73,61 +73,30 @@ const CVStep7 = () => {
     setIsGeneratingPDF(true);
     
     try {
-      // Create temporary container for rendering CV (like ProfileCard does)
-      const tempContainer = document.createElement('div');
-      tempContainer.style.position = 'fixed';
-      tempContainer.style.left = '-10000px';
-      tempContainer.style.top = '0';
-      tempContainer.style.width = '794px';
-      tempContainer.style.height = '1123px';
-      tempContainer.style.backgroundColor = 'white';
-      document.body.appendChild(tempContainer);
-
-      // Map form data to CV data
-      const cvData = mapFormDataToCVData(formData);
-      
-      // Get the correct layout component
-      const selected = formData.layout ?? 1;
-      const LayoutComponent =
-        selected === 2 ? MuenchenLayout :
-        selected === 3 ? HamburgLayout :
-        selected === 4 ? KoelnLayout :
-        selected === 5 ? FrankfurtLayout :
-        selected === 6 ? DuesseldorfLayout :
-        selected === 7 ? StuttgartLayout :
-        selected === 8 ? DresdenLayout :
-        selected === 9 ? LeipzigLayout :
-        BerlinLayout;
-
-      // Dynamically render the layout using React
-      const React = await import('react');
-      const ReactDOM = await import('react-dom/client');
-      
-      const cvElement = React.createElement(LayoutComponent, { 
-        data: cvData
-      });
-      const root = ReactDOM.createRoot(tempContainer);
-      
-      await new Promise<void>((resolve) => {
-        root.render(cvElement);
-        // Wait for render to complete
-        setTimeout(() => resolve(), 300);
-      });
+      // Find CV preview element (same as ProfileCreationModal does)
+      const cvElement = document.querySelector('[data-cv-preview]') as HTMLElement;
+      if (!cvElement) {
+        toast.error("CV-Vorschau konnte nicht gefunden werden.");
+        return;
+      }
 
       // Generate filename
+      const { generateCVFilename } = await import('@/lib/pdf-generator');
       const filename = generateCVFilename(formData.vorname, formData.nachname);
       
-      // Generate PDF from the rendered container
-      await generatePDF(tempContainer, {
-        filename,
-        quality: 2,
-        format: 'a4',
-        margin: 0
-      });
-
-      // Cleanup
-      root.unmount();
-      document.body.removeChild(tempContainer);
+      // Use the same function as ProfileCreationModal
+      const { generateCVFromHTML } = await import('@/lib/supabase-storage');
+      const cvFile = await generateCVFromHTML(cvElement, filename);
+      
+      // Download the generated PDF file
+      const url = URL.createObjectURL(cvFile);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
       
       toast.success(`Dein Lebenslauf wurde als ${filename} heruntergeladen.`);
     } catch (error) {
