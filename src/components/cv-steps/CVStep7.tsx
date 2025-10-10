@@ -16,6 +16,9 @@ import HamburgLayout from '@/components/cv-layouts/HamburgLayout';
 import KoelnLayout from '@/components/cv-layouts/KoelnLayout';
 import FrankfurtLayout from '@/components/cv-layouts/FrankfurtLayout';
 import DuesseldorfLayout from '@/components/cv-layouts/DuesseldorfLayout';
+import StuttgartLayout from '@/components/cv-layouts/StuttgartLayout';
+import DresdenLayout from '@/components/cv-layouts/DresdenLayout';
+import LeipzigLayout from '@/components/cv-layouts/LeipzigLayout';
 import { mapFormDataToCVData } from '@/components/cv-layouts/mapFormDataToCVData';
 import { cn } from '@/lib/utils';
 
@@ -54,6 +57,9 @@ const CVStep7 = () => {
       case 4: return 'Köln';
       case 5: return 'Frankfurt';
       case 6: return 'Düsseldorf';
+      case 7: return 'Stuttgart';
+      case 8: return 'Dresden';
+      case 9: return 'Leipzig';
       default: return 'Berlin';
     }
   };
@@ -88,6 +94,9 @@ const CVStep7 = () => {
         selected === 4 ? KoelnLayout :
         selected === 5 ? FrankfurtLayout :
         selected === 6 ? DuesseldorfLayout :
+        selected === 7 ? StuttgartLayout :
+        selected === 8 ? DresdenLayout :
+        selected === 9 ? LeipzigLayout :
         BerlinLayout;
 
       // Dynamically render the layout using React
