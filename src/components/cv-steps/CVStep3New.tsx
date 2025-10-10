@@ -368,43 +368,6 @@ const CVStep3New = () => {
         </div>
       </Card>
 
-      {/* KI Summary - Über mich */}
-      <Card className="p-6 space-y-4">
-        <div className="flex justify-between items-center">
-          <h3 className="font-semibold text-lg">Über mich - KI Summary</h3>
-          <Button
-            type="button"
-            onClick={handleGenerateSummary}
-            disabled={generatingSummary || !canGenerateSummary()}
-            variant="outline"
-            size="sm"
-          >
-            {generatingSummary ? (
-              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-            ) : (
-              <Sparkles className="h-4 w-4 mr-2" />
-            )}
-            Generieren
-          </Button>
-        </div>
-        
-        {!canGenerateSummary() && (
-          <p className="text-sm text-destructive">
-            Bitte wähle mindestens eine Fähigkeit und eine Sprache aus, um die Summary zu generieren.
-          </p>
-        )}
-        
-        <div>
-          <Label htmlFor="ueberMich">Persönliche Zusammenfassung</Label>
-          <Textarea
-            id="ueberMich"
-            value={formData.ueberMich || ''}
-            onChange={(e) => updateFormData({ ueberMich: e.target.value })}
-            rows={4}
-            placeholder="Klicke auf 'Generieren' um einen KI-Text zu erstellen oder schreibe selbst..."
-          />
-        </div>
-      </Card>
 
       {/* Qualifikationen (Optional) */}
       <Card className="p-6">
