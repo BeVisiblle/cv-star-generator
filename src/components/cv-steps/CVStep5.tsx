@@ -47,14 +47,35 @@ const CVStep5 = () => {
       description: 'Harvard Style ohne Foto – Akademisch für Finance & Consulting',
       preview: '🎓',
       color: 'bg-neutral-50 border-neutral-300'
+    },
+    {
+      id: 7,
+      name: 'Stuttgart',
+      description: 'Warmes Orange-Beige Design mit Unterschrift – Ideal für Handwerk & Kreative',
+      preview: '🎨',
+      color: 'bg-orange-50 border-orange-300'
+    },
+    {
+      id: 8,
+      name: 'Dresden',
+      description: 'Elegantes Dunkelblau mit Icons – Professionell für alle Branchen',
+      preview: '💎',
+      color: 'bg-blue-50 border-blue-300'
+    },
+    {
+      id: 9,
+      name: 'Leipzig',
+      description: 'Minimalistisches Schwarz-Weiß Timeline-Design – Modern für IT & Business',
+      preview: '⚡',
+      color: 'bg-slate-50 border-slate-300'
     }
   ];
 
   const getRecommendedLayout = () => {
     switch (formData.branche) {
-      case 'handwerk': return 3; // Hamburg - Klassisch Timeline
-      case 'it': return 2; // München - Modern mit blauer Sidebar
-      case 'gesundheit': return 6; // Düsseldorf - Harvard professionell
+      case 'handwerk': return 7; // Stuttgart - Orange-Beige für Handwerk
+      case 'it': return 9; // Leipzig - Minimalistisch für IT
+      case 'gesundheit': return 8; // Dresden - Elegant für Gesundheit
       case 'buero': return 5; // Frankfurt - Business clean
       case 'verkauf': return 1; // Berlin - Kreativ beige
       case 'gastronomie': return 4; // Köln - Urban freundlich
