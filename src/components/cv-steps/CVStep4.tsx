@@ -233,16 +233,22 @@ const CVStep4 = () => {
   };
 
   const toggleCurrentJob = (index: number, isCurrent: boolean) => {
+    const berufserfahrung = formData.berufserfahrung || [];
+    const updated = [...berufserfahrung];
+    
     if (isCurrent) {
-      updateBerufserfahrungEntry(index, 'zeitraum_bis', '');
+      // Mark as current job - set a special marker value
+      updated[index] = { ...updated[index], zeitraum_bis: 'heute' };
     } else {
-      // When unchecking "current job", clear the end date so user can set it
-      updateBerufserfahrungEntry(index, 'zeitraum_bis', '');
+      // Not a current job - clear the end date so user can set it
+      updated[index] = { ...updated[index], zeitraum_bis: '' };
     }
+    
+    updateFormData({ berufserfahrung: updated });
   };
 
   const isCurrentJob = (arbeit: BerufserfahrungEntry) => {
-    return !arbeit.zeitraum_bis || arbeit.zeitraum_bis === '';
+    return arbeit.zeitraum_bis === 'heute';
   };
 
   const removeSchulbildungEntry = (index: number) => {
