@@ -84,27 +84,18 @@ export const LanguageSelector = ({
       <div className="space-y-3">
         {languages.map((language, index) => (
           <div key={index} className="flex flex-col sm:flex-row gap-2 sm:gap-4 sm:items-center p-3 border rounded-lg">
-            {/* Language Selection */}
-            {!error && availableLanguages.length > 0 ? (
-              <Combobox
-                items={availableLanguages.map((lang) => ({
-                  value: lang.name,
-                  label: `${lang.name}${lang.code ? ` (${String(lang.code).toLowerCase()})` : ''}`,
-                }))}
-                value={language.sprache}
-                onChange={(value) => updateLanguage(index, 'sprache', value)}
-                placeholder="Sprache wählen"
-                searchPlaceholder="Sprache suchen..."
-                className="flex-1"
-              />
-            ) : (
-              <Input
-                placeholder="z.B. Deutsch"
-                value={language.sprache}
-                onChange={(e) => updateLanguage(index, 'sprache', e.target.value)}
-                className="flex-1 text-sm md:text-base"
-              />
-            )}
+            {/* Language Selection - Always use Combobox */}
+            <Combobox
+              items={availableLanguages.map((lang) => ({
+                value: lang.name,
+                label: `${lang.name}${lang.code ? ` (${String(lang.code).toLowerCase()})` : ''}`,
+              }))}
+              value={language.sprache}
+              onChange={(value) => updateLanguage(index, 'sprache', value)}
+              placeholder="Sprache wählen"
+              searchPlaceholder="Sprache suchen..."
+              className="flex-1"
+            />
 
             <div className="flex gap-2 sm:gap-4 sm:items-center">
               {/* Level Selection */}

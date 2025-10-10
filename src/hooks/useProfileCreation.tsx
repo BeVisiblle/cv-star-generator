@@ -80,7 +80,7 @@ export const PROFILE_STEPS: ProfileCreationStep[] = [
     title: 'Ausbildung',
     description: 'Status und Qualifikation',
     required: true,
-    fields: ['status', 'branche', 'schulbildung']
+    fields: ['status', 'branche']
   },
   {
     id: 4,
@@ -252,6 +252,16 @@ export const useProfileCreation = () => {
         }
       }
     });
+
+    // Special validation for schulbildung - only required for schueler and azubi
+    if (stepId === 3) {
+      const status = profileData.status;
+      const schulbildung = profileData.schulbildung;
+      
+      if ((status === 'schueler' || status === 'azubi') && (!schulbildung || schulbildung.length === 0)) {
+        errors.push('Ausbildung ist für Schüler und Azubis erforderlich');
+      }
+    }
 
     setValidationErrors(prev => ({
       ...prev,

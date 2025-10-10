@@ -86,6 +86,24 @@ export const DateWheelPicker: React.FC<DateWheelPickerProps> = ({
     scrollToValue(yearRef, years.indexOf(selectedYear));
   }, []);
 
+  const handleScroll = (ref: React.RefObject<HTMLDivElement>) => {
+    if (!ref.current) return;
+    
+    const itemHeight = 48;
+    const scrollTop = ref.current.scrollTop;
+    const centerOffset = 96; // h-24 padding
+    const index = Math.round((scrollTop - centerOffset) / itemHeight);
+    
+    // Update based on which column
+    if (ref === dayRef && days[index]) {
+      setSelectedDay(days[index]);
+    } else if (ref === monthRef && months[index]) {
+      setSelectedMonth(index + 1);
+    } else if (ref === yearRef && years[index]) {
+      setSelectedYear(years[index]);
+    }
+  };
+
   const WheelColumn = ({ 
     items, 
     selectedValue, 
@@ -109,11 +127,16 @@ export const DateWheelPicker: React.FC<DateWheelPickerProps> = ({
       {/* Scrollable list */}
       <div 
         ref={scrollRef}
-        className="h-full overflow-y-auto scrollbar-hide snap-y snap-mandatory px-2"
-        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+        className="h-full overflow-y-scroll snap-y snap-mandatory px-2"
+        onScroll={() => handleScroll(scrollRef)}
+        style={{ 
+          scrollbarWidth: 'none', 
+          msOverflowStyle: 'none',
+          WebkitOverflowScrolling: 'touch'
+        }}
       >
         {/* Top padding */}
-        <div className="h-24" />
+        <div className="h-24 pointer-events-none" />
         
         {items.map((item, index) => (
           <div
@@ -123,7 +146,7 @@ export const DateWheelPicker: React.FC<DateWheelPickerProps> = ({
               scrollToValue(scrollRef, index);
             }}
             className={cn(
-              "h-12 flex items-center justify-center cursor-pointer transition-all snap-center",
+              "h-12 flex items-center justify-center cursor-pointer transition-all snap-center select-none",
               selectedValue === item 
                 ? "text-foreground font-semibold text-lg scale-110" 
                 : "text-muted-foreground text-sm"
@@ -134,7 +157,7 @@ export const DateWheelPicker: React.FC<DateWheelPickerProps> = ({
         ))}
         
         {/* Bottom padding */}
-        <div className="h-24" />
+        <div className="h-24 pointer-events-none" />
       </div>
       
       {/* Bottom gradient fade */}

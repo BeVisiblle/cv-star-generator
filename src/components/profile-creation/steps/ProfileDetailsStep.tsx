@@ -53,7 +53,7 @@ export const ProfileDetailsStep: React.FC<ProfileDetailsStepProps> = ({
   const statusOptions = [
     { value: 'schueler', label: 'Schüler/in' },
     { value: 'azubi', label: 'Azubi' },
-    { value: 'ausgelernt', label: 'Ausgelernt' },
+    { value: 'fachkraft', label: 'Fachkraft' },
     { value: 'student', label: 'Student/in' },
     { value: 'absolvent', label: 'Absolvent/in' },
     { value: 'berufstaetig', label: 'Berufstätig' },
@@ -84,7 +84,7 @@ export const ProfileDetailsStep: React.FC<ProfileDetailsStepProps> = ({
           Ausbildung & Status
         </CardTitle>
         <p className="text-sm text-muted-foreground">
-          Ihre aktuelle Situation und Qualifikationen
+          Deine aktuelle Situation und Qualifikationen
         </p>
       </CardHeader>
       
@@ -140,8 +140,8 @@ export const ProfileDetailsStep: React.FC<ProfileDetailsStepProps> = ({
         {/* Education History */}
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <Label className="required">
-              Schulbildung / Qualifikationen
+            <Label className={profileData.status === 'schueler' || profileData.status === 'azubi' ? 'required' : ''}>
+              Ausbildung / Qualifikationen
             </Label>
             <Button 
               type="button" 
@@ -158,7 +158,12 @@ export const ProfileDetailsStep: React.FC<ProfileDetailsStepProps> = ({
             <div className="text-center py-8 bg-muted/30 rounded-lg border-2 border-dashed border-muted-foreground/20">
               <GraduationCap className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
               <p className="text-sm text-muted-foreground">
-                Noch keine Schulbildung hinzugefügt
+                Noch keine Ausbildung hinzugefügt
+                {(profileData.status === 'schueler' || profileData.status === 'azubi') && (
+                  <span className="block mt-1 text-destructive text-xs">
+                    Pflichtfeld für Schüler und Azubis
+                  </span>
+                )}
               </p>
               <Button 
                 type="button" 
@@ -189,7 +194,7 @@ export const ProfileDetailsStep: React.FC<ProfileDetailsStepProps> = ({
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label>Schule / Institution</Label>
+                    <Label>Ausbildungsstätte wählen</Label>
                     <Input
                       placeholder="z.B. Max-Mustermann-Gymnasium"
                       value={education.schule}
@@ -223,8 +228,8 @@ export const ProfileDetailsStep: React.FC<ProfileDetailsStepProps> = ({
         {/* Help Text */}
         <div className="bg-muted/50 rounded-lg p-3">
           <p className="text-sm text-muted-foreground">
-            <strong>Hinweis:</strong> Fügen Sie alle relevanten Schulabschlüsse und 
-            Qualifikationen hinzu. Diese helfen Unternehmen, Sie besser einzuschätzen.
+            <strong>Hinweis:</strong> Füge alle relevanten Abschlüsse und 
+            Qualifikationen hinzu. Diese helfen Unternehmen, dich besser einzuschätzen.
           </p>
         </div>
       </CardContent>
