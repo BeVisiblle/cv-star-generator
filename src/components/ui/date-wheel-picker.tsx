@@ -6,8 +6,8 @@ interface DateWheelPickerProps {
   value?: string; // Format: YYYY-MM-DD
   onChange: (date: string) => void;
   onConfirm?: () => void;
-  minAge?: number; // Mindestalter in Jahren
-  maxAge?: number; // Maximalalter in Jahren
+  minAge?: number;
+  maxAge?: number;
 }
 
 export const DateWheelPicker: React.FC<DateWheelPickerProps> = ({
@@ -24,7 +24,7 @@ export const DateWheelPicker: React.FC<DateWheelPickerProps> = ({
   // Parse initial value or set default
   const parseDate = (dateStr?: string) => {
     if (!dateStr) {
-      const defaultDate = new Date(2005, 0, 1); // Default: 01.01.2005
+      const defaultDate = new Date(2005, 0, 1);
       return {
         day: 1,
         month: 1,
@@ -60,6 +60,7 @@ export const DateWheelPicker: React.FC<DateWheelPickerProps> = ({
   const days = Array.from({ length: getDaysInMonth(selectedMonth, selectedYear) }, (_, i) => i + 1);
   const years = Array.from({ length: maxYear - minYear + 1 }, (_, i) => maxYear - i);
 
+  // Adjust day if it exceeds days in selected month
   useEffect(() => {
     const daysInMonth = getDaysInMonth(selectedMonth, selectedYear);
     if (selectedDay > daysInMonth) {
@@ -67,103 +68,114 @@ export const DateWheelPicker: React.FC<DateWheelPickerProps> = ({
     }
   }, [selectedMonth, selectedYear]);
 
+  // Update parent component
   useEffect(() => {
-    // Update parent component
     const dateStr = `${selectedYear}-${String(selectedMonth).padStart(2, '0')}-${String(selectedDay).padStart(2, '0')}`;
     onChange(dateStr);
   }, [selectedDay, selectedMonth, selectedYear, onChange]);
 
   const scrollToValue = (ref: React.RefObject<HTMLDivElement>, index: number) => {
     if (ref.current) {
-      const itemHeight = 48; // h-12 = 48px
-      ref.current.scrollTop = index * itemHeight - itemHeight * 2; // Center the selected item
+      const itemHeight = 48;
+      const targetScroll = index * itemHeight;
+      ref.current.scrollTo({
+        top: targetScroll,
+        behavior: 'smooth'
+      });
     }
   };
 
+  // Initial scroll to selected values
   useEffect(() => {
-    scrollToValue(dayRef, days.indexOf(selectedDay));
-    scrollToValue(monthRef, selectedMonth - 1);
-    scrollToValue(yearRef, years.indexOf(selectedYear));
+    setTimeout(() => {
+      scrollToValue(dayRef, selectedDay - 1);
+      scrollToValue(monthRef, selectedMonth - 1);
+      scrollToValue(yearRef, years.indexOf(selectedYear));
+    }, 100);
   }, []);
-
-  const handleScroll = (ref: React.RefObject<HTMLDivElement>) => {
-    if (!ref.current) return;
-    
-    const itemHeight = 48;
-    const scrollTop = ref.current.scrollTop;
-    const centerOffset = 96; // h-24 padding
-    const index = Math.round((scrollTop - centerOffset) / itemHeight);
-    
-    // Update based on which column
-    if (ref === dayRef && days[index]) {
-      setSelectedDay(days[index]);
-    } else if (ref === monthRef && months[index]) {
-      setSelectedMonth(index + 1);
-    } else if (ref === yearRef && years[index]) {
-      setSelectedYear(years[index]);
-    }
-  };
 
   const WheelColumn = ({ 
     items, 
     selectedValue, 
     onSelect, 
     scrollRef,
-    renderItem 
+    renderItem,
+    getValue
   }: { 
     items: any[], 
     selectedValue: any, 
     onSelect: (value: any) => void,
     scrollRef: React.RefObject<HTMLDivElement>,
-    renderItem: (item: any) => React.ReactNode
-  }) => (
-    <div className="relative flex-1 h-[240px] overflow-hidden">
-      {/* Top gradient fade */}
-      <div className="absolute top-0 left-0 right-0 h-20 bg-gradient-to-b from-background to-transparent pointer-events-none z-10" />
+    renderItem: (item: any) => React.ReactNode,
+    getValue: (item: any) => any
+  }) => {
+    const handleScroll = () => {
+      if (!scrollRef.current) return;
       
-      {/* Selection highlight */}
-      <div className="absolute top-1/2 left-0 right-0 -translate-y-1/2 h-12 bg-primary/5 border-y border-primary/20 pointer-events-none z-10" />
+      const itemHeight = 48;
+      const scrollTop = scrollRef.current.scrollTop;
+      const index = Math.round(scrollTop / itemHeight);
       
-      {/* Scrollable list */}
-      <div 
-        ref={scrollRef}
-        className="h-full overflow-y-scroll snap-y snap-mandatory px-2"
-        onScroll={() => handleScroll(scrollRef)}
-        style={{ 
-          scrollbarWidth: 'none', 
-          msOverflowStyle: 'none',
-          WebkitOverflowScrolling: 'touch'
-        }}
-      >
-        {/* Top padding */}
-        <div className="h-24 pointer-events-none" />
+      if (items[index] !== undefined) {
+        const value = getValue(items[index]);
+        if (value !== selectedValue) {
+          onSelect(value);
+        }
+      }
+    };
+
+    return (
+      <div className="relative flex-1 h-[240px] overflow-hidden">
+        {/* Top gradient fade */}
+        <div className="absolute top-0 left-0 right-0 h-20 bg-gradient-to-b from-background to-transparent pointer-events-none z-10" />
         
-        {items.map((item, index) => (
-          <div
-            key={index}
-            onClick={() => {
-              onSelect(item);
-              scrollToValue(scrollRef, index);
-            }}
-            className={cn(
-              "h-12 flex items-center justify-center cursor-pointer transition-all snap-center select-none",
-              selectedValue === item 
-                ? "text-foreground font-semibold text-lg scale-110" 
-                : "text-muted-foreground text-sm"
-            )}
-          >
-            {renderItem(item)}
-          </div>
-        ))}
+        {/* Selection highlight */}
+        <div className="absolute top-1/2 left-0 right-0 -translate-y-1/2 h-12 bg-primary/5 border-y border-primary/20 pointer-events-none z-10" />
         
-        {/* Bottom padding */}
-        <div className="h-24 pointer-events-none" />
+        {/* Scrollable list */}
+        <div 
+          ref={scrollRef}
+          className="h-full overflow-y-scroll snap-y snap-mandatory px-2"
+          onScroll={handleScroll}
+          style={{ 
+            scrollbarWidth: 'none', 
+            msOverflowStyle: 'none',
+            WebkitOverflowScrolling: 'touch'
+          }}
+        >
+          {/* Top padding */}
+          <div className="h-24 pointer-events-none" />
+          
+          {items.map((item, index) => {
+            const itemValue = getValue(item);
+            return (
+              <div
+                key={index}
+                onClick={() => {
+                  onSelect(itemValue);
+                  scrollToValue(scrollRef, index);
+                }}
+                className={cn(
+                  "h-12 flex items-center justify-center cursor-pointer transition-all snap-center select-none",
+                  itemValue === selectedValue 
+                    ? "text-foreground font-semibold text-lg scale-110" 
+                    : "text-muted-foreground text-sm"
+                )}
+              >
+                {renderItem(item)}
+              </div>
+            );
+          })}
+          
+          {/* Bottom padding */}
+          <div className="h-24 pointer-events-none" />
+        </div>
+        
+        {/* Bottom gradient fade */}
+        <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-background to-transparent pointer-events-none z-10" />
       </div>
-      
-      {/* Bottom gradient fade */}
-      <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-background to-transparent pointer-events-none z-10" />
-    </div>
-  );
+    );
+  };
 
   return (
     <div className="flex flex-col items-center w-full max-w-md mx-auto p-6 space-y-6">
@@ -182,15 +194,17 @@ export const DateWheelPicker: React.FC<DateWheelPickerProps> = ({
           onSelect={setSelectedDay}
           scrollRef={dayRef}
           renderItem={(day) => String(day).padStart(2, '0')}
+          getValue={(day) => day}
         />
 
         {/* Month Column */}
         <WheelColumn
           items={months}
-          selectedValue={months[selectedMonth - 1]}
-          onSelect={(month) => setSelectedMonth(months.indexOf(month) + 1)}
+          selectedValue={selectedMonth}
+          onSelect={(monthIndex) => setSelectedMonth(monthIndex)}
           scrollRef={monthRef}
           renderItem={(month) => month}
+          getValue={(month) => months.indexOf(month) + 1}
         />
 
         {/* Year Column */}
@@ -200,6 +214,7 @@ export const DateWheelPicker: React.FC<DateWheelPickerProps> = ({
           onSelect={setSelectedYear}
           scrollRef={yearRef}
           renderItem={(year) => year}
+          getValue={(year) => year}
         />
       </div>
 
