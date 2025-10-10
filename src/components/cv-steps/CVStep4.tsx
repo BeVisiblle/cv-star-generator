@@ -712,9 +712,9 @@ const CVStep4 = () => {
                       <div>
                         <Label>Bis Monat</Label>
                         <Select 
-                          value={arbeit.zeitraum_bis ? arbeit.zeitraum_bis.split('-')[1] || '' : ''} 
+                          value={arbeit.zeitraum_bis && arbeit.zeitraum_bis !== 'heute' ? arbeit.zeitraum_bis.split('-')[1] || '' : ''} 
                           onValueChange={(month) => {
-                            const year = arbeit.zeitraum_bis ? arbeit.zeitraum_bis.split('-')[0] || '' : '';
+                            const year = arbeit.zeitraum_bis && arbeit.zeitraum_bis !== 'heute' ? arbeit.zeitraum_bis.split('-')[0] || '' : '';
                             updateBerufserfahrungDate(index, 'zeitraum_bis', month, year);
                           }}
                         >
@@ -733,9 +733,9 @@ const CVStep4 = () => {
                       <div>
                         <Label>Bis Jahr</Label>
                         <Select 
-                          value={arbeit.zeitraum_bis ? arbeit.zeitraum_bis.split('-')[0] || '' : ''} 
+                          value={arbeit.zeitraum_bis && arbeit.zeitraum_bis !== 'heute' ? arbeit.zeitraum_bis.split('-')[0] || '' : ''} 
                           onValueChange={(year) => {
-                            const month = arbeit.zeitraum_bis ? arbeit.zeitraum_bis.split('-')[1] || '' : '';
+                            const month = arbeit.zeitraum_bis && arbeit.zeitraum_bis !== 'heute' ? arbeit.zeitraum_bis.split('-')[1] || '' : '';
                             updateBerufserfahrungDate(index, 'zeitraum_bis', month, year);
                           }}
                         >
