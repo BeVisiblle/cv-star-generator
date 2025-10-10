@@ -65,7 +65,16 @@ export default function CommunityFeed({ feedHeadHeight = 0 }: CommunityFeedProps
             id,
             vorname,
             nachname,
-            avatar_url
+            avatar_url,
+            headline,
+            status,
+            branche,
+            ort,
+            employer_free,
+            company_name,
+            aktueller_beruf,
+            ausbildungsberuf,
+            ausbildungsbetrieb
           )
         `)
         .limit(PAGE_SIZE);
