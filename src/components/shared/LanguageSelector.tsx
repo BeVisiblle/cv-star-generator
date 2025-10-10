@@ -86,7 +86,7 @@ export const LanguageSelector = ({
           <div key={index} className="flex flex-col sm:flex-row gap-2 sm:gap-4 sm:items-center p-3 border rounded-lg">
             {/* Language Selection - Always use Combobox */}
             <Combobox
-              items={availableLanguages.map((lang) => ({
+              items={(availableLanguages || []).map((lang) => ({
                 value: lang.name,
                 label: `${lang.name}${lang.code ? ` (${String(lang.code).toLowerCase()})` : ''}`,
               }))}
