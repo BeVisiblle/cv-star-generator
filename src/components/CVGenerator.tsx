@@ -4,6 +4,7 @@ import { useCVForm } from '@/contexts/CVFormContext';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
+import CVStep0 from './cv-steps/CVStep0';
 import CVStep1 from './cv-steps/CVStep1';
 import CVStep2 from './cv-steps/CVStep2';
 import CVStep3New from './cv-steps/CVStep3New';
@@ -44,6 +45,8 @@ const CVGeneratorContent = () => {
 
     // Normal mode - show all steps
     switch (currentStep) {
+      case 0:
+        return <CVStep0 />;
       case 1:
         return <CVStep1 />;
       case 2:
@@ -59,7 +62,7 @@ const CVGeneratorContent = () => {
       case 7:
         return <CVStep7 />;
       default:
-        return <CVStep1 />;
+        return <CVStep0 />;
     }
   };
   const handleNext = () => {
@@ -70,7 +73,10 @@ const CVGeneratorContent = () => {
       }
     } else {
       // Normal mode - validate current step before proceeding
-      if (currentStep < 7 && validateStep(currentStep)) {
+      // Step 0 doesn't need validation
+      if (currentStep === 0) {
+        setCurrentStep(1);
+      } else if (currentStep < 7 && validateStep(currentStep)) {
         setCurrentStep(currentStep + 1);
       }
     }
@@ -83,7 +89,7 @@ const CVGeneratorContent = () => {
       }
     } else {
       // Normal mode
-      if (currentStep > 1) {
+      if (currentStep > 0) {
         setCurrentStep(currentStep - 1);
       }
     }
@@ -117,12 +123,15 @@ const CVGeneratorContent = () => {
                 {isLayoutEditMode ? <>
                     <span>Schritt {currentStep - 4} von 2</span>
                     <span>{Math.round((currentStep - 4) / 2 * 100)}% abgeschlossen</span>
+                  </> : currentStep === 0 ? <>
+                    <span>Willkommen</span>
+                    <span>Wähle deine Option</span>
                   </> : <>
                     <span>Schritt {currentStep} von 7</span>
                     <span>{Math.round(currentStep / 7 * 100)}% abgeschlossen</span>
                   </>}
               </div>
-              <Progress value={isLayoutEditMode ? (currentStep - 4) / 2 * 100 : currentStep / 7 * 100} className="h-2" />
+              {currentStep > 0 && <Progress value={isLayoutEditMode ? (currentStep - 4) / 2 * 100 : currentStep / 7 * 100} className="h-2" />}
             </div>
           </div>
         </div>
@@ -143,23 +152,26 @@ const CVGeneratorContent = () => {
           </div>}
 
         {/* Navigation */}
-        <div className="fixed inset-x-0 bottom-0 z-40 border-t bg-background/95 supports-[backdrop-filter]:bg-background/80 backdrop-blur px-4 py-3 pb-safe md:static md:bg-transparent md:border-0 md:px-0 md:py-0">
-          <div className="container mx-auto max-w-full md:max-w-2xl flex justify-between gap-2">
-            <Button variant="outline" onClick={handlePrevious} disabled={isLayoutEditMode ? currentStep === 5 : currentStep === 1} size="sm" className="flex-shrink-0 min-h-[44px]">
-              <ArrowLeft className="h-4 w-4 mr-1 md:mr-2" />
-              <span className="hidden sm:inline">Zurück</span>
-              <span className="sm:hidden">←</span>
-            </Button>
+        {/* Navigation - Hide on Step 0 */}
+        {currentStep > 0 && (
+          <div className="fixed inset-x-0 bottom-0 z-40 border-t bg-background/95 supports-[backdrop-filter]:bg-background/80 backdrop-blur px-4 py-3 pb-safe md:static md:bg-transparent md:border-0 md:px-0 md:py-0">
+            <div className="container mx-auto max-w-full md:max-w-2xl flex justify-between gap-2">
+              <Button variant="outline" onClick={handlePrevious} disabled={isLayoutEditMode ? currentStep === 5 : currentStep === 1} size="sm" className="flex-shrink-0 min-h-[44px]">
+                <ArrowLeft className="h-4 w-4 mr-1 md:mr-2" />
+                <span className="hidden sm:inline">Zurück</span>
+                <span className="sm:hidden">←</span>
+              </Button>
 
-            {(isLayoutEditMode ? currentStep < 6 : currentStep < 7) && <Button onClick={handleNext} size="sm" className="flex-shrink-0 min-h-[44px]">
-                <span className="hidden sm:inline">
-                  {currentStep === 5 ? 'Weiter zur Vorschau' : 'Weiter'}
-                </span>
-                <span className="sm:hidden">→</span>
-                <ArrowRight className="h-4 w-4 ml-1 md:ml-2" />
-              </Button>}
+              {(isLayoutEditMode ? currentStep < 6 : currentStep < 7) && <Button onClick={handleNext} size="sm" className="flex-shrink-0 min-h-[44px]">
+                  <span className="hidden sm:inline">
+                    {currentStep === 5 ? 'Weiter zur Vorschau' : 'Weiter'}
+                  </span>
+                  <span className="sm:hidden">→</span>
+                  <ArrowRight className="h-4 w-4 ml-1 md:ml-2" />
+                </Button>}
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>;
 };
