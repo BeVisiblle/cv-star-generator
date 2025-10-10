@@ -7,15 +7,10 @@ import { Card } from '@/components/ui/card';
 import { FileUpload } from '@/components/ui/file-upload';
 import { FormFieldError } from '@/components/ui/form-field-error';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
-import { DateWheelPicker } from '@/components/ui/date-wheel-picker';
-import { CalendarIcon } from 'lucide-react';
-import { cn } from '@/lib/utils';
 
 const CVStep2 = () => {
   const { formData, updateFormData, validationErrors } = useCVForm();
   const [previewUrl, setPreviewUrl] = useState<string>('');
-  const [datePickerOpen, setDatePickerOpen] = useState(false);
 
   const abschlussOptions = [
     'Hauptschulabschluss',
@@ -98,42 +93,74 @@ const CVStep2 = () => {
           <div className="grid md:grid-cols-2 gap-4">
             <FormFieldError error={validationErrors.geburtsdatum}>
               <div className="space-y-2">
-                <Label htmlFor="geburtsdatum">Geburtsdatum *</Label>
-                <Dialog open={datePickerOpen} onOpenChange={setDatePickerOpen}>
-                  <DialogTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className={cn(
-                        "w-full justify-start text-left font-normal",
-                        !formData.geburtsdatum && "text-muted-foreground"
-                      )}
-                    >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {formData.geburtsdatum ? (
-                        (() => {
-                          const date = typeof formData.geburtsdatum === 'string' 
-                            ? new Date(formData.geburtsdatum) 
-                            : formData.geburtsdatum;
-                          const day = String(date.getDate()).padStart(2, '0');
-                          const month = String(date.getMonth() + 1).padStart(2, '0');
-                          const year = date.getFullYear();
-                          return `${day}.${month}.${year}`;
-                        })()
-                      ) : (
-                        <span>Geburtsdatum wählen</span>
-                      )}
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className="sm:max-w-md">
-                    <DateWheelPicker
-                      value={typeof formData.geburtsdatum === 'string' ? formData.geburtsdatum : formData.geburtsdatum?.toISOString().split('T')[0]}
-                      onChange={(date) => updateFormData({ geburtsdatum: date })}
-                      onConfirm={() => setDatePickerOpen(false)}
-                      minAge={16}
-                      maxAge={100}
-                    />
-                  </DialogContent>
-                </Dialog>
+                <Label>Geburtsdatum *</Label>
+                <div className="grid grid-cols-3 gap-2">
+                  <Select
+                    value={formData.geburtsdatum ? new Date(formData.geburtsdatum).getDate().toString() : ''}
+                    onValueChange={(day) => {
+                      const currentDate = formData.geburtsdatum ? new Date(formData.geburtsdatum) : new Date(2005, 0, 1);
+                      const month = currentDate.getMonth();
+                      const year = currentDate.getFullYear();
+                      updateFormData({ geburtsdatum: new Date(year, month, parseInt(day)) });
+                    }}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Tag" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Array.from({ length: 31 }, (_, i) => i + 1).map((day) => (
+                        <SelectItem key={day} value={day.toString()}>
+                          {day}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+
+                  <Select
+                    value={formData.geburtsdatum ? (new Date(formData.geburtsdatum).getMonth() + 1).toString() : ''}
+                    onValueChange={(month) => {
+                      const currentDate = formData.geburtsdatum ? new Date(formData.geburtsdatum) : new Date(2005, 0, 1);
+                      const day = currentDate.getDate();
+                      const year = currentDate.getFullYear();
+                      updateFormData({ geburtsdatum: new Date(year, parseInt(month) - 1, day) });
+                    }}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Monat" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {[
+                        'Januar', 'Februar', 'März', 'April', 'Mai', 'Juni',
+                        'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'
+                      ].map((month, index) => (
+                        <SelectItem key={index + 1} value={(index + 1).toString()}>
+                          {month}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+
+                  <Select
+                    value={formData.geburtsdatum ? new Date(formData.geburtsdatum).getFullYear().toString() : ''}
+                    onValueChange={(year) => {
+                      const currentDate = formData.geburtsdatum ? new Date(formData.geburtsdatum) : new Date(2005, 0, 1);
+                      const day = currentDate.getDate();
+                      const month = currentDate.getMonth();
+                      updateFormData({ geburtsdatum: new Date(parseInt(year), month, day) });
+                    }}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Jahr" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Array.from({ length: 85 }, (_, i) => new Date().getFullYear() - 16 - i).map((year) => (
+                        <SelectItem key={year} value={year.toString()}>
+                          {year}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
             </FormFieldError>
             <div className="space-y-4">
