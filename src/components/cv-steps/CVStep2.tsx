@@ -7,16 +7,15 @@ import { Card } from '@/components/ui/card';
 import { FileUpload } from '@/components/ui/file-upload';
 import { FormFieldError } from '@/components/ui/form-field-error';
 import { Button } from '@/components/ui/button';
-import { Calendar } from '@/components/ui/calendar';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
+import { DateWheelPicker } from '@/components/ui/date-wheel-picker';
 import { CalendarIcon } from 'lucide-react';
-import { format } from 'date-fns';
-import { de } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 
 const CVStep2 = () => {
   const { formData, updateFormData, validationErrors } = useCVForm();
   const [previewUrl, setPreviewUrl] = useState<string>('');
+  const [datePickerOpen, setDatePickerOpen] = useState(false);
 
   const abschlussOptions = [
     'Hauptschulabschluss',
@@ -100,8 +99,8 @@ const CVStep2 = () => {
             <FormFieldError error={validationErrors.geburtsdatum}>
               <div className="space-y-2">
                 <Label htmlFor="geburtsdatum">Geburtsdatum *</Label>
-                <Popover>
-                  <PopoverTrigger asChild>
+                <Dialog open={datePickerOpen} onOpenChange={setDatePickerOpen}>
+                  <DialogTrigger asChild>
                     <Button
                       variant="outline"
                       className={cn(
@@ -111,66 +110,30 @@ const CVStep2 = () => {
                     >
                       <CalendarIcon className="mr-2 h-4 w-4" />
                       {formData.geburtsdatum ? (
-                        format(
-                          typeof formData.geburtsdatum === 'string' 
+                        (() => {
+                          const date = typeof formData.geburtsdatum === 'string' 
                             ? new Date(formData.geburtsdatum) 
-                            : formData.geburtsdatum, 
-                          "dd.MM.yyyy",
-                          { locale: de }
-                        )
+                            : formData.geburtsdatum;
+                          const day = String(date.getDate()).padStart(2, '0');
+                          const month = String(date.getMonth() + 1).padStart(2, '0');
+                          const year = date.getFullYear();
+                          return `${day}.${month}.${year}`;
+                        })()
                       ) : (
                         <span>Geburtsdatum wählen</span>
                       )}
                     </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={
-                        formData.geburtsdatum 
-                          ? (typeof formData.geburtsdatum === 'string' 
-                              ? new Date(formData.geburtsdatum) 
-                              : formData.geburtsdatum)
-                          : undefined
-                      }
-                      onSelect={(date) => {
-                        if (date) {
-                          updateFormData({ geburtsdatum: date.toISOString().split('T')[0] });
-                        }
-                      }}
-                      disabled={(date) => {
-                        // Nicht in der Zukunft
-                        if (date > new Date()) return true;
-                        
-                        // Mindestens 16 Jahre alt
-                        const today = new Date();
-                        const sixteenYearsAgo = new Date(
-                          today.getFullYear() - 16,
-                          today.getMonth(),
-                          today.getDate()
-                        );
-                        if (date > sixteenYearsAgo) return true;
-                        
-                        // Nicht vor 1900
-                        if (date < new Date("1900-01-01")) return true;
-                        
-                        return false;
-                      }}
-                      initialFocus
-                      defaultMonth={
-                        formData.geburtsdatum 
-                          ? (typeof formData.geburtsdatum === 'string' 
-                              ? new Date(formData.geburtsdatum) 
-                              : formData.geburtsdatum)
-                          : new Date(2005, 0, 1) // Default zu 2005 für bessere UX
-                      }
-                      captionLayout="dropdown-buttons"
-                      fromYear={1940}
-                      toYear={new Date().getFullYear() - 16}
-                      className={cn("p-3 pointer-events-auto")}
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-md">
+                    <DateWheelPicker
+                      value={typeof formData.geburtsdatum === 'string' ? formData.geburtsdatum : formData.geburtsdatum?.toISOString().split('T')[0]}
+                      onChange={(date) => updateFormData({ geburtsdatum: date })}
+                      onConfirm={() => setDatePickerOpen(false)}
+                      minAge={16}
+                      maxAge={100}
                     />
-                  </PopoverContent>
-                </Popover>
+                  </DialogContent>
+                </Dialog>
               </div>
             </FormFieldError>
             <div className="space-y-4">
