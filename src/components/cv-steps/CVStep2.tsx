@@ -29,7 +29,7 @@ const CVStep2 = () => {
     switch (formData.status) {
       case 'schueler': return 'Schüler:in';
       case 'azubi': return 'Azubi';
-      case 'ausgelernt': return 'Ausgelernte Fachkraft';
+      case 'fachkraft': return 'Fachkraft';
       default: return '';
     }
   };
@@ -377,8 +377,8 @@ const CVStep2 = () => {
             </>
           )}
 
-          {/* Ausgelernt-spezifische Felder */}
-          {formData.status === 'ausgelernt' && (
+          {/* Fachkraft-spezifische Felder */}
+          {formData.status === 'fachkraft' && (
             <>
               <div className="grid md:grid-cols-2 gap-4">
                 <div>
@@ -391,12 +391,12 @@ const CVStep2 = () => {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="abschlussjahr_ausgelernt">Abschlussjahr *</Label>
+                  <Label htmlFor="abschlussjahr_fachkraft">Abschlussjahr *</Label>
                   <Input
-                    id="abschlussjahr_ausgelernt"
+                    id="abschlussjahr_fachkraft"
                     type="number"
-                    value={formData.abschlussjahr_ausgelernt || ''}
-                    onChange={(e) => updateFormData({ abschlussjahr_ausgelernt: e.target.value })}
+                    value={formData.abschlussjahr_fachkraft || ''}
+                    onChange={(e) => updateFormData({ abschlussjahr_fachkraft: e.target.value })}
                     placeholder="2020"
                     min="2000"
                     max="2024"

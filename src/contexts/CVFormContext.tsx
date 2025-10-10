@@ -50,7 +50,7 @@ export interface WeiterbildungEntry {
 export interface CVFormData {
   // Step 1: Branch & Status
   branche?: 'handwerk' | 'it' | 'gesundheit' | 'buero' | 'verkauf' | 'gastronomie' | 'bau';
-  status?: 'schueler' | 'azubi' | 'ausgelernt';
+  status?: 'schueler' | 'azubi' | 'fachkraft';
   
   // Step 2: Enhanced Personal Data
   vorname?: string;
@@ -87,8 +87,8 @@ export interface CVFormData {
   startjahr?: string;
   voraussichtliches_ende?: string;
   
-  // Ausgelernt specific
-  abschlussjahr_ausgelernt?: string;
+  // Fachkraft specific
+  abschlussjahr_fachkraft?: string;
   aktueller_beruf?: string;
   
   // Step 3: Skills & Motivation (internal use for AI generation)
@@ -347,9 +347,9 @@ export const CVFormProvider = ({ children }: { children: ReactNode }) => {
           }
         }
         
-        if (formData.status === 'ausgelernt') {
+        if (formData.status === 'fachkraft') {
           if (!formData.ausbildungsberuf) errors.ausbildungsberuf = 'Ausbildungsberuf ist erforderlich';
-          if (!formData.abschlussjahr_ausgelernt) errors.abschlussjahr_ausgelernt = 'Abschlussjahr ist erforderlich';
+          if (!formData.abschlussjahr_fachkraft) errors.abschlussjahr_fachkraft = 'Abschlussjahr ist erforderlich';
         }
         break;
       case 3:
@@ -378,8 +378,8 @@ export const CVFormProvider = ({ children }: { children: ReactNode }) => {
         if (!formData.sprachen || formData.sprachen.length === 0) {
           errors.sprachen = 'Mindestens eine Sprache ist erforderlich';
         }
-        // Skills are required for azubi and ausgelernt
-        if ((formData.status === 'azubi' || formData.status === 'ausgelernt') && 
+        // Skills are required for azubi and fachkraft
+        if ((formData.status === 'azubi' || formData.status === 'fachkraft') && 
             (!formData.faehigkeiten || formData.faehigkeiten.length === 0)) {
           errors.faehigkeiten = 'Mindestens eine Fähigkeit ist erforderlich';
         }

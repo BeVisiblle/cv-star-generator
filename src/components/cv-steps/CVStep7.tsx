@@ -41,7 +41,7 @@ const CVStep7 = () => {
     switch (formData.status) {
       case 'schueler': return 'Schüler:in';
       case 'azubi': return 'Azubi';
-      case 'ausgelernt': return 'Ausgelernte Fachkraft';
+      case 'fachkraft': return 'Fachkraft';
       default: return '';
     }
   };
@@ -214,11 +214,11 @@ const CVStep7 = () => {
             </>
           )}
           
-          {formData.status === 'ausgelernt' && (
+          {formData.status === 'fachkraft' && (
             <>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Ausbildung:</span>
-                <span className="font-medium">{formData.ausbildungsberuf} ({formData.abschlussjahr_ausgelernt})</span>
+                <span className="font-medium">{formData.ausbildungsberuf} ({formData.abschlussjahr_fachkraft})</span>
               </div>
               {formData.aktueller_beruf && (
                 <div className="flex justify-between">

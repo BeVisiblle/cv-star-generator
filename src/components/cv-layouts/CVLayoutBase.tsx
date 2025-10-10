@@ -15,7 +15,7 @@ export interface CVData {
   avatar_url?: string;
   has_drivers_license?: boolean;
   driver_license_class?: string;
-  status?: 'schueler' | 'azubi' | 'ausgelernt';
+  status?: 'schueler' | 'azubi' | 'fachkraft';
   branche?: 'handwerk' | 'it' | 'gesundheit' | 'buero' | 'verkauf' | 'gastronomie' | 'bau';
   ueberMich?: string;
   schulbildung?: Array<{
@@ -86,7 +86,7 @@ export const getStatusTitle = (status?: string) => {
   switch (status) {
     case 'schueler': return 'Schüler/in';
     case 'azubi': return 'Auszubildende/r';
-    case 'ausgelernt': return 'Ausgelernte/r';
+    case 'fachkraft': return 'Fachkraft';
     default: return '';
   }
 };

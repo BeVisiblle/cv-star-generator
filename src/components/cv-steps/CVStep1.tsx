@@ -19,7 +19,7 @@ const CVStep1 = () => {
   const statuses = [
     { key: 'schueler', emoji: '🧑‍🎓', title: 'Schüler:in', desc: 'Ich gehe noch zur Schule' },
     { key: 'azubi', emoji: '🧑‍🔧', title: 'Azubi', desc: 'Ich mache eine Ausbildung' },
-    { key: 'ausgelernt', emoji: '✅', title: 'Ausgelernt', desc: 'Ich habe eine Ausbildung abgeschlossen' }
+    { key: 'fachkraft', emoji: '✅', title: 'Fachkraft', desc: 'Ich habe eine Ausbildung abgeschlossen' }
   ] as const;
 
   return (

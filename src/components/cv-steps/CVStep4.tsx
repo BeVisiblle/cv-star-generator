@@ -162,7 +162,7 @@ const CVStep4 = () => {
     }
     
     // Auto-add work entry for graduates
-    if (formData.status === 'ausgelernt' && formData.aktueller_beruf) {
+    if (formData.status === 'fachkraft' && formData.aktueller_beruf) {
       const berufserfahrung = formData.berufserfahrung || [];
       
       // Check if automatic entry already exists
@@ -175,7 +175,7 @@ const CVStep4 = () => {
           titel: formData.aktueller_beruf,
           unternehmen: '', // Will be filled by user
           ort: formData.ort || '',
-          zeitraum_von: formData.abschlussjahr_ausgelernt || '',
+          zeitraum_von: formData.abschlussjahr_fachkraft || '',
           zeitraum_bis: 'heute',
           beschreibung: `Berufstätigkeit als ${formData.aktueller_beruf}`
         };

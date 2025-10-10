@@ -46,7 +46,7 @@ const CVStep6 = () => {
     switch (formData.status) {
       case 'schueler': return 'Schüler/in';
       case 'azubi': return 'Auszubildende/r';
-      case 'ausgelernt': return 'Ausgelernte/r';
+      case 'fachkraft': return 'Fachkraft';
       default: return '';
     }
   };
