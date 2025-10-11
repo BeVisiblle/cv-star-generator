@@ -56,27 +56,10 @@ export default function CommunityFeed({ feedHeadHeight = 0 }: CommunityFeedProps
     queryFn: async ({ pageParam }) => {
       console.log('[feed] fetching page', pageParam, sort);
 
-      // Use community_posts table
+      // Use community_posts table - Author-Infos werden separat gefetched (siehe Fallback-Logik unten)
       let query = supabase
         .from('community_posts' as any)
-        .select(`
-          *,
-          author:profiles!community_posts_actor_user_id_fkey(
-            id,
-            vorname,
-            nachname,
-            avatar_url,
-            headline,
-            status,
-            branche,
-            ort,
-            employer_free,
-            company_name,
-            aktueller_beruf,
-            ausbildungsberuf,
-            ausbildungsbetrieb
-          )
-        `)
+        .select('*')
         .limit(PAGE_SIZE);
 
       // Apply sorting based on the selected option

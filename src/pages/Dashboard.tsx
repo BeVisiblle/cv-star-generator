@@ -29,8 +29,8 @@ const Dashboard = () => {
     <main className="w-full min-h-dvh bg-white">
       <h1 className="sr-only">Dashboard</h1>
       
-      {/* Inhalt direkt unter der Navbar - reduzierter Offset */}
-      <div className="pt-2 sm:pt-3 md:pt-4">
+      {/* Inhalt direkt unter der Navbar */}
+      <div className="pt-20 sm:pt-24 md:pt-28">
         <div className="mx-auto max-w-screen-2xl grid grid-cols-12 gap-4 px-3 sm:px-6 lg:px-8">
           
           {/* (1) Left Panel - normaler Flow, keine eigene Scrollbar */}
