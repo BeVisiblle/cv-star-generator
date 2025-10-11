@@ -59,7 +59,7 @@ export default function BeVisiblleLandingPage() {
                 <Link to="/company" className="rounded-md px-3 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50">
                   Unternehmen
                 </Link>
-                <Link to="/about" className="rounded-md px-3 py-2 text-sm font-medium text-[#5170ff] hover:bg-blue-50">
+                <Link to="/about" className="rounded-md px-3 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50">
                   Über uns
                 </Link>
               </nav>
