@@ -158,7 +158,7 @@ export default function AboutUs() {
         </nav>
       </header>
 
-      <main className="pt-32 pb-16">
+      <main className="pt-20 pb-16">
         <section className="mx-auto flex max-w-6xl flex-col gap-12 px-6 md:flex-row md:items-center">
           <div className="flex-1 space-y-6">
             <span className="inline-flex items-center rounded-full bg-white/70 px-4 py-1 text-xs font-medium text-[#5170ff] shadow border border-[#5170ff]/20">

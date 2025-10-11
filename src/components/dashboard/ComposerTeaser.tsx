@@ -14,7 +14,7 @@ export const ComposerTeaser: React.FC = () => {
       role="button"
       aria-label="Neuen Beitrag erstellen"
       onClick={openPostComposer}
-      className="p-2.5 sm:p-3 md:p-4 hover-scale cursor-pointer"
+      className="p-2 sm:p-2.5 md:p-3 hover-scale cursor-pointer"
     >
       <div className="flex items-start gap-2 sm:gap-3">
         <Avatar className="h-8 w-8 sm:h-10 sm:w-10 shrink-0">
@@ -32,7 +32,7 @@ export const ComposerTeaser: React.FC = () => {
           </div>
 
           {/* Quick actions */}
-          <div className="mt-2 sm:mt-3 flex flex-wrap items-center gap-1 sm:gap-2">
+          <div className="mt-1.5 sm:mt-2 flex flex-wrap items-center gap-1 sm:gap-2">
             <Button type="button" variant="ghost" size="sm" className="h-7 sm:h-8 px-2 text-xs" onClick={openPostComposer}>
               <ImageIcon className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1 sm:mr-2" /> <span className="hidden sm:inline">Bild/Video</span><span className="sm:hidden">Bild</span>
             </Button>

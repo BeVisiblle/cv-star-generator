@@ -359,3 +359,40 @@ html.overflow-fix, .overflow-fix body {
     display: none !important;
   }
 }
+
+/* Mobile-First Spacing Optimizations */
+@layer utilities {
+  @media (max-width: 640px) {
+    .card-mobile-compact {
+      @apply p-2 !important;
+    }
+    
+    /* Touch-friendly Hit Areas */
+    .touch-target {
+      min-height: 44px;
+      min-width: 44px;
+    }
+    
+    /* Reduzierte Gaps auf Mobile */
+    .gap-responsive {
+      @apply gap-2 sm:gap-3 md:gap-4;
+    }
+    
+    /* Kompaktere Post-Liste */
+    .feed-item-mobile {
+      @apply mb-2 sm:mb-3;
+    }
+  }
+  
+  /* Bottom Navigation Compensation */
+  .pb-bottom-nav {
+    @apply pb-0 md:pb-0;
+    padding-bottom: 68px;
+  }
+  
+  @media (min-width: 768px) {
+    .pb-bottom-nav {
+      padding-bottom: 0;
+    }
+  }
+}

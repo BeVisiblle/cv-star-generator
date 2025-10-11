@@ -4,9 +4,10 @@ import { ComposerTeaser } from '@/components/dashboard/ComposerTeaser';
 import { LeftPanel } from '@/components/dashboard/LeftPanel';
 import { RightPanel } from '@/components/dashboard/RightPanel';
 import FeedSortBar from '@/components/community/FeedSortBar';
+import { NAVBAR_HEIGHT } from '@/components/navigation/TopNavBar';
 
-/** Globale Annahme: Navbar ist fixed top-0 mit Höhe 64px */
-const NAVBAR_H = 64; // px
+/** Globale Annahme: Navbar ist fixed top-0 mit Höhe 56px */
+const NAVBAR_H = NAVBAR_HEIGHT; // px
 
 const Dashboard = () => {
   // Höhe der sticky Feed-Header-Sektion (2) messen
@@ -26,11 +27,11 @@ const Dashboard = () => {
   }, []);
 
   return (
-    <main className="w-full min-h-dvh bg-white">
+    <main className="w-full min-h-dvh bg-white pb-16 md:pb-0">
       <h1 className="sr-only">Dashboard</h1>
       
       {/* Inhalt direkt unter der Navbar */}
-      <div className="pt-16">
+      <div className="pt-14">
         <div className="mx-auto max-w-screen-2xl grid grid-cols-12 gap-4 px-3 sm:px-6 lg:px-8">
           
           {/* (1) Left Panel - normaler Flow, keine eigene Scrollbar */}
@@ -50,14 +51,14 @@ const Dashboard = () => {
               className="sticky z-40 bg-white shadow-sm"
               style={{ top: `${NAVBAR_H}px` }}
             >
-              <div className="px-2 md:px-3 py-2 pb-4 space-y-2">
+              <div className="px-2 md:px-3 py-1.5 pb-2 space-y-1.5">
                 <ComposerTeaser />
                 <FeedSortBar />
               </div>
             </div>
 
             {/* (3) Post-Liste - kompakterer Abstand */}
-            <div className="mt-6 md:mt-8 space-y-2 md:space-y-3 relative z-10" role="feed">
+            <div className="mt-3 md:mt-4 space-y-2 md:space-y-3 relative z-10" role="feed">
               <CommunityFeed feedHeadHeight={feedHeadH} />
             </div>
           </section>

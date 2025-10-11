@@ -5,6 +5,8 @@ import { openPostComposer } from '@/lib/event-bus';
 import { Button } from '@/components/ui/button';
 import { toast } from '@/hooks/use-toast';
 
+export const BOTTOM_NAV_HEIGHT = 68; // Approximate height: py-1.5 + button heights
+
 const BottomNav: React.FC = () => {
   const navigate = useNavigate();
 

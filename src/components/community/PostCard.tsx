@@ -217,7 +217,7 @@ const authorSubtitle = useMemo(() => {
         </div>
       )}
 
-      <div className="p-3 sm:p-4 md:p-6 space-y-3 sm:space-y-4">
+      <div className="p-3 sm:p-4 md:p-5 space-y-3 sm:space-y-4">
         {/* Post Header */}
         <div className="flex items-start gap-2 sm:gap-3">
           <div className="cursor-pointer" onClick={() => navigate(profileRoute)}>
@@ -367,12 +367,12 @@ const authorSubtitle = useMemo(() => {
 
         {/* Post Actions */}
         <div className="flex flex-wrap items-center justify-between gap-1 pt-2 border-t">
-          <div className="flex flex-wrap items-center gap-0.5 sm:gap-1 md:gap-2">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3">
             <Button
               variant="ghost"
               size="sm"
               onClick={handleLike}
-              className={`h-8 sm:h-9 px-2 sm:px-3 text-xs sm:text-sm text-muted-foreground hover:text-red-500 ${liked ? 'text-red-500' : ''}`}
+              className={`min-h-[44px] min-w-[44px] h-8 sm:h-9 px-2 sm:px-3 text-xs sm:text-sm text-muted-foreground hover:text-red-500 ${liked ? 'text-red-500' : ''}`}
               disabled={isToggling}
             >
               <Heart className={`h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1 ${liked ? 'fill-current' : ''}`} />
@@ -382,7 +382,7 @@ const authorSubtitle = useMemo(() => {
               variant="ghost"
               size="sm"
               onClick={() => setShowComments(!showComments)}
-              className="h-8 sm:h-9 px-2 sm:px-3 text-xs sm:text-sm text-muted-foreground"
+              className="min-h-[44px] min-w-[44px] h-8 sm:h-9 px-2 sm:px-3 text-xs sm:text-sm text-muted-foreground"
             >
               <MessageCircle className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1" />
               <span className="hidden sm:inline">Kommentieren</span>
@@ -391,7 +391,7 @@ const authorSubtitle = useMemo(() => {
               variant="ghost"
               size="sm"
               onClick={handleShareCommunity}
-              className="h-8 sm:h-9 px-2 sm:px-3 text-xs sm:text-sm text-muted-foreground"
+              className="min-h-[44px] min-w-[44px] h-8 sm:h-9 px-2 sm:px-3 text-xs sm:text-sm text-muted-foreground"
               disabled={isReposting}
             >
               <Share2 className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1" />

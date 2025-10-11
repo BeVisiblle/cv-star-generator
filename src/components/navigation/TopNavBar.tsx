@@ -7,6 +7,9 @@ import SearchAutosuggest, { SuggestionType } from "@/components/marketplace/Sear
 import ConnectionsDrawer from "@/components/community/ConnectionsDrawer";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import MessagePopoverPanel from "@/components/community/MessagePopoverPanel";
+
+export const NAVBAR_HEIGHT = 56; // h-14 = 56px
+
 const titleMap: Record<string, string> = {
   "/community/contacts": "Meine Kontakte",
   "/community/companies": "Unternehmen",
