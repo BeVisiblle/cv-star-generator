@@ -108,14 +108,13 @@ export const CreatePost = ({
       }
 
       // 3) Post in Datenbank speichern
-      console.log('Saving post to DB with:', { content, user_id: user.id, image_url });
+      console.log('Saving post to DB with:', { content, user_id: user.id });
       
       const { data, error } = await supabase
-        .from("community_posts" as any)
+        .from("posts")
         .insert({
-          body_md: content,
-          actor_user_id: user.id,
-          image_url: image_url
+          content: content,
+          user_id: user.id,
         })
         .select();
 

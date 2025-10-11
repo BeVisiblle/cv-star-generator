@@ -39,9 +39,9 @@ export default function FeedList() {
     try {
       console.log('[FeedList] Loading posts from posts table...');
       
-      // Get posts from community_posts table (schema: actor_user_id, body_md, like_count, comment_count, share_count)
+      // Get posts from posts table
       const { data: postsData, error: postsError } = await supabase
-        .from("community_posts" as any)
+        .from("posts")
         .select("*")
         .order("created_at", { ascending: false })
         .limit(50);
@@ -59,12 +59,12 @@ export default function FeedList() {
       // Get author info for each post
       const postsWithAuthors = await Promise.all(
         rawPosts.map(async (post: any) => {
-          if (post.actor_user_id) {
+          if (post.user_id) {
             try {
               const { data: authorData, error: authorError } = await supabase
                 .from("profiles")
                 .select("id, vorname, nachname, headline, aktueller_beruf, ausbildungsbetrieb, avatar_url")
-                .eq("id", post.actor_user_id)
+                .eq("id", post.user_id)
                 .maybeSingle();
               
               if (authorError) {
@@ -74,11 +74,11 @@ export default function FeedList() {
               return {
                 id: post.id,
                 created_at: post.created_at,
-                user_id: post.actor_user_id,
-                content: post.body_md || '', // Map body_md to content
-                like_count: post.like_count || 0,
-                comment_count: post.comment_count || 0,
-                share_count: post.share_count || 0,
+                user_id: post.user_id,
+                content: post.content || '',
+                like_count: 0,
+                comment_count: 0,
+                share_count: 0,
                 author: authorData || undefined
               };
             } catch (error) {
@@ -86,22 +86,22 @@ export default function FeedList() {
               return {
                 id: post.id,
                 created_at: post.created_at,
-                user_id: post.actor_user_id,
-                content: post.body_md || '',
-                like_count: post.like_count || 0,
-                comment_count: post.comment_count || 0,
-                share_count: post.share_count || 0
+                user_id: post.user_id,
+                content: post.content || '',
+                like_count: 0,
+                comment_count: 0,
+                share_count: 0
               };
             }
           }
           return {
             id: post.id,
             created_at: post.created_at,
-            user_id: post.actor_user_id,
-            content: post.body_md || '',
-            like_count: post.like_count || 0,
-            comment_count: post.comment_count || 0,
-            share_count: post.share_count || 0
+            user_id: post.user_id,
+            content: post.content || '',
+            like_count: 0,
+            comment_count: 0,
+            share_count: 0
           };
         })
       );

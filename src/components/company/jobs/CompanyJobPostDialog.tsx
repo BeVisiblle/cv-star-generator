@@ -42,14 +42,9 @@ const CompanyJobPostDialog: React.FC<Props> = ({ open, onOpenChange }) => {
       if (link.trim()) parts.push(`Jetzt bewerben: ${link.trim()}`);
       const content = parts.join("\n\n");
 
-      const { error } = await supabase.from("community_posts" as any).insert({
-        body_md: content,
-        actor_user_id: user.id,
-        post_kind: "job_share",
-        author_id: company.id,
-        visibility: "CommunityAndCompanies",
-        status: "published",
-        link_url: link.trim() || null,
+      const { error } = await supabase.from("posts").insert({
+        content: content,
+        user_id: user.id,
       });
       if (error) throw error;
 

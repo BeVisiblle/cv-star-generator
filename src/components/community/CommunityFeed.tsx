@@ -56,9 +56,9 @@ export default function CommunityFeed({ feedHeadHeight = 0 }: CommunityFeedProps
     queryFn: async ({ pageParam }) => {
       console.log('[feed] fetching page', pageParam, sort);
 
-      // Use community_posts table - Author-Infos werden separat gefetched (siehe Fallback-Logik unten)
+      // Use posts table - Author-Infos werden separat gefetched (siehe Fallback-Logik unten)
       let query = supabase
-        .from('community_posts' as any)
+        .from('posts')
         .select('*')
         .limit(PAGE_SIZE);
 
@@ -93,8 +93,8 @@ export default function CommunityFeed({ feedHeadHeight = 0 }: CommunityFeedProps
         
         // Try to get all posts without filters to debug
         const { data: allPosts, error: allError } = await supabase
-          .from('community_posts' as any)
-          .select('id, status, created_at, body_md')
+          .from('posts')
+          .select('id, created_at, content')
           .limit(5);
         
         console.log('[feed] All posts (any status):', allPosts?.length, allPosts);
@@ -103,28 +103,22 @@ export default function CommunityFeed({ feedHeadHeight = 0 }: CommunityFeedProps
         }
       }
 
-      // Transform posts data to match expected structure (map community_posts to expected format)
+      // Transform posts data to match expected structure (map posts to expected format)
       const transformedPosts = rawPosts?.map((post: any) => {
         const author = post.author || null;
         
         return {
           id: post.id,
-          content: post.body_md || '',
-          body_md: post.body_md || '',
-          image_url: post.image_url || null,
-          media: post.media || [],
-          documents: post.documents || [],
-          status: post.status || 'published',
-          visibility: post.visibility || 'public',
-          user_id: post.actor_user_id || post.actor_company_id,
-          author_type: post.actor_user_id ? 'user' : 'company' as 'user' | 'company',
-          author_id: post.actor_user_id || post.actor_company_id,
-          like_count: post.like_count || 0,
-          likes_count: post.like_count || 0,
-          comment_count: post.comment_count || 0,
-          comments_count: post.comment_count || 0,
-          share_count: post.share_count || 0,
-          shares_count: post.share_count || 0,
+          content: post.content || '',
+          user_id: post.user_id,
+          author_type: 'user' as 'user' | 'company',
+          author_id: post.user_id,
+          like_count: 0,
+          likes_count: 0,
+          comment_count: 0,
+          comments_count: 0,
+          share_count: 0,
+          shares_count: 0,
           created_at: post.created_at,
           updated_at: post.updated_at,
           published_at: post.created_at,
