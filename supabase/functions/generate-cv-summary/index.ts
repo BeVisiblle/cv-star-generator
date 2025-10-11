@@ -120,7 +120,7 @@ SPRACHEN:
 ${sprachenSummary || 'keine Angaben'}
 
 ANFORDERUNGEN:
-1. Maximal 3 Zeilen (ca. 180-200 Zeichen)
+1. Maximal 250 Zeichen
 2. Erste Person Singular ("Ich bin...")
 3. Konkrete Bezugnahme auf die TOP 3 Fähigkeiten
 4. Erwähne Sprachkenntnisse wenn relevant
@@ -129,7 +129,7 @@ ANFORDERUNGEN:
 7. Professionell aber authentisch
 8. Sehr präzise und auf den Punkt
 
-WICHTIG: Halte dich strikt an das 180-200 Zeichen Limit (3 Zeilen)!
+WICHTIG: Halte dich strikt an das 250 Zeichen Limit!
 
 Erstelle jetzt die Zusammenfassung:`;
 
@@ -146,14 +146,14 @@ Erstelle jetzt die Zusammenfassung:`;
         messages: [
           {
             role: 'system',
-            content: 'Du bist ein erfahrener Karriereberater für junge Menschen in Deutschland. Du verfasst authentische, bodenständige und ehrliche Lebenslauftexte. Schreibe immer in der ersten Person und halte dich strikt an das 4-Zeilen-Limit (ca. 250 Zeichen). Nutze konkrete Informationen aus dem Profil und vermeide generische Floskeln.'
+            content: 'Du bist ein erfahrener Karriereberater für junge Menschen in Deutschland. Du verfasst authentische, bodenständige und ehrliche Lebenslauftexte. Schreibe immer in der ersten Person und halte dich strikt an maximal 250 Zeichen. Nutze konkrete Informationen aus dem Profil und vermeide generische Floskeln.'
           },
           {
             role: 'user',
             content: prompt
           }
         ],
-        max_tokens: 200,
+        max_tokens: 100,
       }),
     });
 

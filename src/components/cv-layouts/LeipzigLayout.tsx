@@ -28,7 +28,7 @@ const LeipzigLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) => {
 
           {/* About Me */}
           <div className="mb-8">
-            <h3 className="text-xl font-bold uppercase mb-3">About Me</h3>
+            <h3 className="text-xl font-bold uppercase mb-3">Über mich</h3>
             <p className="text-sm leading-relaxed text-white/90">
               {data.ueberMich || 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit.'}
             </p>
@@ -36,11 +36,11 @@ const LeipzigLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) => {
 
           {/* Contact */}
           <div className="mt-auto">
-            <h3 className="text-xl font-bold uppercase mb-3">Contact</h3>
+            <h3 className="text-xl font-bold uppercase mb-3">Kontakt</h3>
             <div className="space-y-3 text-sm">
               {(data.strasse || data.ort) && (
                 <div>
-                  <p className="font-bold mb-1">Address</p>
+                  <p className="font-bold mb-1">Adresse</p>
                   <p className="text-white/90 text-xs leading-relaxed">
                     {data.strasse && data.hausnummer && `${data.strasse} ${data.hausnummer}`}
                     {data.strasse && data.hausnummer && <br />}
@@ -63,7 +63,7 @@ const LeipzigLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) => {
               {data.geburtsdatum && (
                 <div className="flex items-center gap-2">
                   <span className="text-white/90">🌐</span>
-                  <span className="text-white/90 text-xs">Born: {formatDate(data.geburtsdatum)}</span>
+                  <span className="text-white/90 text-xs">Geboren am: {formatDate(data.geburtsdatum)}</span>
                 </div>
               )}
             </div>
@@ -79,7 +79,7 @@ const LeipzigLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) => {
                 {/* Section Header with Line */}
                 <div className="mb-6">
                   <div className="h-px bg-gradient-to-r from-gray-300 via-black to-black mb-4" />
-                  <h2 className="text-2xl font-black uppercase">Education</h2>
+                  <h2 className="text-2xl font-black uppercase">Ausbildung</h2>
                 </div>
 
                 {/* Timeline */}
@@ -124,7 +124,7 @@ const LeipzigLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) => {
                 {/* Section Header with Line */}
                 <div className="mb-6">
                   <div className="h-px bg-gradient-to-r from-gray-300 via-black to-black mb-4" />
-                  <h2 className="text-2xl font-black uppercase">Experience</h2>
+                  <h2 className="text-2xl font-black uppercase">Berufserfahrung</h2>
                 </div>
 
                 {/* Timeline */}
@@ -169,7 +169,7 @@ const LeipzigLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) => {
                 {/* Section Header with Line */}
                 <div className="mb-6">
                   <div className="h-px bg-gradient-to-r from-gray-300 via-black to-black mb-4" />
-                  <h2 className="text-2xl font-black uppercase">Skills</h2>
+                  <h2 className="text-2xl font-black uppercase">Fähigkeiten</h2>
                 </div>
 
                 {/* Circular Skill Icons */}
@@ -192,7 +192,7 @@ const LeipzigLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) => {
             {/* Languages */}
             {data.sprachen && data.sprachen.length > 0 && (
               <div>
-                <h3 className="text-sm font-bold uppercase mb-3">Languages</h3>
+                <h3 className="text-sm font-bold uppercase mb-3">Sprachen</h3>
                 <div className="grid grid-cols-2 gap-2 text-xs">
                   {data.sprachen.map((sprache, idx) => (
                     <div key={idx} className="flex justify-between">
@@ -204,15 +204,6 @@ const LeipzigLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) => {
               </div>
             )}
 
-            {/* Note Section */}
-            {data.ueberMich && (
-              <div className="mt-6">
-                <h3 className="text-sm font-bold mb-2">Note :</h3>
-                <p className="text-xs text-gray-700 leading-relaxed">
-                  {data.ueberMich.substring(0, 200)}...
-                </p>
-              </div>
-            )}
           </div>
         </div>
       </div>

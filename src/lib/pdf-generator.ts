@@ -65,7 +65,23 @@ export const generatePDF = async (
       logging: false,
       width: cvContainer.offsetWidth,
       height: cvContainer.offsetHeight,
-    });
+      windowWidth: 794,
+      windowHeight: 1123,
+      onclone: (clonedDoc) => {
+        const clonedBody = clonedDoc.body;
+        (clonedBody.style as any).webkitFontSmoothing = 'antialiased';
+        (clonedBody.style as any).mozOsxFontSmoothing = 'grayscale';
+        
+        // Fix list positioning
+        const listItems = clonedBody.querySelectorAll('li');
+        listItems.forEach((li) => {
+          const htmlLi = li as HTMLElement;
+          htmlLi.style.listStylePosition = 'inside';
+          htmlLi.style.paddingLeft = '0';
+          htmlLi.style.marginLeft = '20px';
+        });
+      }
+    } as any);
     
     cleanup();
 
