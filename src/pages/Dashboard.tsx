@@ -1,5 +1,5 @@
 import React, { useLayoutEffect, useRef, useState } from 'react';
-import CleanCommunityFeed from '@/components/community/CleanCommunityFeed';
+import CommunityFeed from '@/components/community/CommunityFeed';
 import { ComposerTeaser } from '@/components/dashboard/ComposerTeaser';
 import { LeftPanel } from '@/components/dashboard/LeftPanel';
 import { RightPanel } from '@/components/dashboard/RightPanel';
@@ -58,7 +58,7 @@ const Dashboard = () => {
 
             {/* (3) Post-Liste - kompakterer Abstand */}
             <div className="mt-2 space-y-2 md:space-y-3 relative z-10" role="feed">
-              <CleanCommunityFeed feedHeadHeight={feedHeadH} />
+              <CommunityFeed feedHeadHeight={feedHeadH} />
             </div>
           </section>
 
