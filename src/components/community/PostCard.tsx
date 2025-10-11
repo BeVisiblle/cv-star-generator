@@ -217,7 +217,7 @@ const authorSubtitle = useMemo(() => {
         </div>
       )}
 
-      <div className="p-3 sm:p-4 md:p-5 space-y-3 sm:space-y-4">
+      <div className="p-2 sm:p-3 md:p-4 space-y-2 sm:space-y-3">
         {/* Post Header */}
         <div className="flex items-start gap-2 sm:gap-3">
           <div className="cursor-pointer" onClick={() => navigate(profileRoute)}>

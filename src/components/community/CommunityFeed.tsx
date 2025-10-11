@@ -62,15 +62,9 @@ export default function CommunityFeed({ feedHeadHeight = 0 }: CommunityFeedProps
         .select('*, image_url, media, documents')
         .limit(PAGE_SIZE);
 
-      // Apply sorting based on the selected option
-      if (sort === 'newest') {
-        query = query.order('created_at', { ascending: false });
-      } else {
-        // For 'relevant' sorting, order by engagement (likes + comments)
-        query = query
-          .order('like_count', { ascending: false, nullsFirst: false })
-          .order('created_at', { ascending: false });
-      }
+      // Apply sorting - for now both use created_at since like_count column doesn't exist
+      // TODO: Add like_count as computed column or use a view
+      query = query.order('created_at', { ascending: false });
 
       // Apply pagination
       if (pageParam?.after_published) {

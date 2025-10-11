@@ -21,7 +21,7 @@ export const FeedSortBar: React.FC = () => {
 
   return (
     <div className="-mx-1 sm:mx-0">
-      <Card className="px-2.5 sm:px-3 py-1.5 flex flex-wrap items-center justify-between gap-2 text-xs sm:text-sm">
+      <Card className="px-2 sm:px-2.5 py-1 flex flex-wrap items-center justify-between gap-2 text-xs sm:text-sm">
         <div className="text-muted-foreground">Feed-Ansicht auswählen:</div>
         <div className="min-w-0 w-[160px] sm:w-[180px]">
           <Select value={sort} onValueChange={(v) => onChange(v as FeedSortOption)}>

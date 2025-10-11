@@ -32,7 +32,7 @@ const Dashboard = () => {
       
       {/* Inhalt direkt unter der Navbar */}
       <div className="pt-14">
-        <div className="mx-auto max-w-screen-2xl grid grid-cols-12 gap-4 px-3 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-screen-2xl grid grid-cols-12 gap-4 px-2 sm:px-4 lg:px-6">
           
           {/* (1) Left Panel - normaler Flow, keine eigene Scrollbar */}
           <aside
@@ -45,20 +45,20 @@ const Dashboard = () => {
           {/* Main - Center Column */}
           <section className="col-span-12 lg:col-span-9 xl:col-span-6 relative">
             
-            {/* (2) Sticky: Composer + Feed Controls - kompakter ohne Border */}
+            {/* (2) Sticky: Composer + Feed Controls - extrem kompakt */}
             <div
               ref={feedHeadRef}
               className="sticky z-40 bg-white shadow-sm"
               style={{ top: `${NAVBAR_H}px` }}
             >
-              <div className="px-2 md:px-3 py-1 pb-1.5 space-y-1.5">
+              <div className="px-1.5 md:px-2 py-0.5 pb-1 space-y-1">
                 <ComposerTeaser />
                 <FeedSortBar />
               </div>
             </div>
 
-            {/* (3) Post-Liste - kompakterer Abstand */}
-            <div className="mt-3 md:mt-4 space-y-2 md:space-y-3 relative z-10" role="feed">
+            {/* (3) Post-Liste - minimaler Abstand */}
+            <div className="mt-1.5 md:mt-2 space-y-1.5 md:space-y-2 relative z-10" role="feed">
               <CommunityFeed feedHeadHeight={feedHeadH} />
             </div>
           </section>
