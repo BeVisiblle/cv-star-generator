@@ -48,7 +48,7 @@ const Dashboard = () => {
             <div
               ref={feedHeadRef}
               className="sticky z-40 bg-white shadow-sm"
-              style={{ top: NAVBAR_H }}
+              style={{ top: `${NAVBAR_H}px` }}
             >
               <div className="px-2 md:px-3 py-2 pb-4 space-y-2">
                 <ComposerTeaser />
