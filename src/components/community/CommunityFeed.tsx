@@ -56,12 +56,12 @@ export default function CommunityFeed({ feedHeadHeight = 0 }: CommunityFeedProps
     queryFn: async ({ pageParam }) => {
       console.log('[feed] fetching page', pageParam, sort);
 
-      // Use simple posts table
+      // Use community_posts table
       let query = supabase
-        .from('posts')
+        .from('community_posts' as any)
         .select(`
           *,
-          author:profiles!posts_user_id_fkey(
+          author:profiles!community_posts_actor_user_id_fkey(
             id,
             vorname,
             nachname,
@@ -101,14 +101,17 @@ export default function CommunityFeed({ feedHeadHeight = 0 }: CommunityFeedProps
 
       console.log('[feed] raw posts from DB:', posts?.length, posts);
       
+      // Cast to any to fix TypeScript errors with community_posts table
+      const rawPosts = posts as any[];
+      
       // Debug: Check if we have any posts at all
-      if (!posts || posts.length === 0) {
+      if (!rawPosts || rawPosts.length === 0) {
         console.warn('[feed] No posts found in database!');
         
         // Try to get all posts without filters to debug
         const { data: allPosts, error: allError } = await supabase
-          .from('posts')
-          .select('id, status, created_at, content')
+          .from('community_posts' as any)
+          .select('id, status, created_at, body_md')
           .limit(5);
         
         console.log('[feed] All posts (any status):', allPosts?.length, allPosts);
@@ -117,28 +120,28 @@ export default function CommunityFeed({ feedHeadHeight = 0 }: CommunityFeedProps
         }
       }
 
-      // Transform posts data to match expected structure
-      const transformedPosts = posts?.map(post => {
+      // Transform posts data to match expected structure (map community_posts to expected format)
+      const transformedPosts = rawPosts?.map((post: any) => {
         const author = post.author || null;
         
         return {
           id: post.id,
-          content: post.content || '',
-          body_md: post.content || '',
-          image_url: (post as any).image_url || null,
-          media: (post as any).media || [],
-          documents: (post as any).documents || [],
-          status: 'published',
-          visibility: 'public',
-          user_id: post.user_id,
-          author_type: 'user' as 'user' | 'company',
-          author_id: post.user_id,
-          like_count: (post as any).like_count || 0,
-          likes_count: (post as any).likes_count || 0,
-          comment_count: (post as any).comment_count || 0,
-          comments_count: (post as any).comments_count || 0,
-          share_count: (post as any).share_count || 0,
-          shares_count: (post as any).shares_count || 0,
+          content: post.body_md || '',
+          body_md: post.body_md || '',
+          image_url: post.image_url || null,
+          media: post.media || [],
+          documents: post.documents || [],
+          status: post.status || 'published',
+          visibility: post.visibility || 'public',
+          user_id: post.actor_user_id || post.actor_company_id,
+          author_type: post.actor_user_id ? 'user' : 'company' as 'user' | 'company',
+          author_id: post.actor_user_id || post.actor_company_id,
+          like_count: post.like_count || 0,
+          likes_count: post.like_count || 0,
+          comment_count: post.comment_count || 0,
+          comments_count: post.comment_count || 0,
+          share_count: post.share_count || 0,
+          shares_count: post.share_count || 0,
           created_at: post.created_at,
           updated_at: post.updated_at,
           published_at: post.created_at,
@@ -208,10 +211,10 @@ export default function CommunityFeed({ feedHeadHeight = 0 }: CommunityFeedProps
 
       return {
         posts: transformedPosts,
-        nextPage: posts && posts.length === PAGE_SIZE
+        nextPage: rawPosts && rawPosts.length === PAGE_SIZE
           ? {
-              after_published: posts[posts.length - 1].created_at,
-              after_id: posts[posts.length - 1].id,
+              after_published: rawPosts[rawPosts.length - 1]?.created_at,
+              after_id: rawPosts[rawPosts.length - 1]?.id,
             }
           : undefined,
       };
@@ -227,9 +230,20 @@ export default function CommunityFeed({ feedHeadHeight = 0 }: CommunityFeedProps
   }
 
   if (feedQuery.isError) {
+    const errorMsg = feedQuery.error.message;
+    const isForeignKeyError = errorMsg.includes("relationship") || errorMsg.includes("foreign key");
+    
     return (
-      <Card className="p-6 text-center text-destructive">
-        <p>Fehler beim Laden der Beiträge: {feedQuery.error.message}</p>
+      <Card className="p-6 text-center">
+        <p className="font-semibold mb-2 text-destructive">Fehler beim Laden der Beiträge</p>
+        {isForeignKeyError ? (
+          <p className="text-sm text-muted-foreground">
+            Die Datenbankverbindung ist fehlerhaft konfiguriert. 
+            Bitte kontaktiere den Administrator.
+          </p>
+        ) : (
+          <p className="text-sm text-muted-foreground">{errorMsg}</p>
+        )}
         <Button onClick={() => feedQuery.refetch()} className="mt-4">
           Erneut versuchen
         </Button>

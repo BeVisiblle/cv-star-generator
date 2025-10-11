@@ -122,9 +122,9 @@ export default function NewPostComposer() {
       );
 
       // Create post with auto-capitalization
-      const { error } = await supabase.from("posts").insert({
-        content: capitalizeFirst(content.trim()),
-        user_id: user!.id,
+      const { error } = await supabase.from("community_posts" as any).insert({
+        body_md: capitalizeFirst(content.trim()),
+        actor_user_id: user!.id,
         media: mediaUrls.map((url, i) => ({ 
           url, 
           type: 'image',

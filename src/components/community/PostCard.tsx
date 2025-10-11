@@ -173,10 +173,10 @@ const authorSubtitle = useMemo(() => {
 
   const handleSaveEdit = async () => {
     const { error } = await supabase
-      .from('posts')
-      .update({ content: capitalizeFirst(editedContent.trim()) })
+      .from('community_posts' as any)
+      .update({ body_md: capitalizeFirst(editedContent.trim()) })
       .eq('id', post.id)
-      .eq('user_id', user?.id);
+      .eq('actor_user_id', user?.id);
 
     if (error) {
       toast({

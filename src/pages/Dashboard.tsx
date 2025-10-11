@@ -47,17 +47,17 @@ const Dashboard = () => {
             {/* (2) Sticky: Composer + Feed Controls - kompakter ohne Border */}
             <div
               ref={feedHeadRef}
-              className="sticky z-40 bg-white"
+              className="sticky z-40 bg-white shadow-sm"
               style={{ top: NAVBAR_H }}
             >
-              <div className="px-2 md:px-3 py-2 space-y-2">
+              <div className="px-2 md:px-3 py-2 pb-4 space-y-2">
                 <ComposerTeaser />
                 <FeedSortBar />
               </div>
             </div>
 
             {/* (3) Post-Liste - kompakterer Abstand */}
-            <div className="mt-2 space-y-2 md:space-y-3 relative z-10" role="feed">
+            <div className="mt-4 md:mt-6 space-y-2 md:space-y-3 relative z-10" role="feed">
               <CommunityFeed feedHeadHeight={feedHeadH} />
             </div>
           </section>

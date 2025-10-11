@@ -111,10 +111,10 @@ export const CreatePost = ({
       console.log('Saving post to DB with:', { content, user_id: user.id, image_url });
       
       const { data, error } = await supabase
-        .from("posts")
+        .from("community_posts" as any)
         .insert({
-          content: content,
-          user_id: user.id,
+          body_md: content,
+          actor_user_id: user.id,
           image_url: image_url
         })
         .select();
@@ -130,11 +130,11 @@ export const CreatePost = ({
       if (!data || data.length === 0) {
         console.warn('Post created but no data returned (RLS issue). Post should still be visible.');
         // Return mock data to avoid errors
-        return [{ id: crypto.randomUUID(), content, user_id: user.id, image_url }];
+        return [{ id: crypto.randomUUID(), content, user_id: user.id }];
       }
       
-      // Verify image_url was saved
-      console.log('Saved post with image_url:', data[0].image_url);
+      // Verify data was saved
+      console.log('Saved post:', data[0]);
       
       return data;
     },
