@@ -108,133 +108,137 @@ export function AppSidebar() {
       return () => document.removeEventListener('mousedown', handleClickOutside);
     }
   }, [state, setOpen]);
-  return <>
+  return (
+    <>
       {/* Backdrop overlay */}
       {!collapsed && <div className="fixed inset-0 bg-black/20 z-[390] lg:hidden" onClick={() => setOpen(false)} />}
       
       <Sidebar className={`fixed left-0 top-0 h-screen z-[400] transition-transform duration-200 ${collapsed ? '-translate-x-full lg:translate-x-0' : 'translate-x-0'} ${collapsed ? "w-16 lg:w-16" : "w-64"}`} collapsible="icon" data-sidebar="sidebar">
-      <SidebarHeader className="h-14 border-b flex items-center px-4">
-        <div className="flex items-center gap-2">
-          {!collapsed && <span className="font-semibold text-lg">Menü</span>}
-        </div>
-      </SidebarHeader>
+        <SidebarHeader className="h-14 border-b flex items-center px-4">
+          <div className="flex items-center gap-2">
+            {!collapsed && <span className="font-semibold text-lg">Menü</span>}
+          </div>
+        </SidebarHeader>
 
-      <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupLabel className={collapsed ? "sr-only" : ""}>
-            Navigation
-          </SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {navigationItems.slice(0, 2).map(item => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <button onClick={() => handleNavigation(item.url)} className={`flex items-center gap-3 py-2.5 rounded-lg px-3 transition-all w-full text-left ${isActive(item.url) ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium" : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"}`}>
-                      <item.icon className="h-5 w-5 flex-shrink-0" />
-                      {!collapsed && <span className="text-sm">{item.title}</span>}
-                    </button>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-
-              {/* Community Menu with Submenu */}
-              <Collapsible open={communityOpen} onOpenChange={setCommunityOpen} className="group/collapsible">
-                <SidebarMenuItem>
-                  <CollapsibleTrigger asChild>
-                    <SidebarMenuButton className={`flex items-center gap-3 py-2.5 rounded-lg px-3 transition-all w-full text-left`}>
-                      <Users className="h-5 w-5 flex-shrink-0" />
-                      {!collapsed && <span className="text-sm">Community</span>}
-                      {!collapsed && <ChevronDown className={`ml-auto h-4 w-4 transition-transform ${communityOpen ? 'rotate-180' : ''}`} />}
+        <SidebarContent>
+          <SidebarGroup>
+            <SidebarGroupLabel className={collapsed ? "sr-only" : ""}>
+              Navigation
+            </SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {navigationItems.slice(0, 2).map(item => (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton asChild>
+                      <button onClick={() => handleNavigation(item.url)} className={`flex items-center gap-3 py-2.5 rounded-lg px-3 transition-all w-full text-left ${isActive(item.url) ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium" : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"}`}>
+                        <item.icon className="h-5 w-5 flex-shrink-0" />
+                        {!collapsed && <span className="text-sm">{item.title}</span>}
+                      </button>
                     </SidebarMenuButton>
-                  </CollapsibleTrigger>
-                  {!collapsed && (
-                    <CollapsibleContent>
-                      <SidebarMenuSub>
-                        {communityItems.map(item => (
-                          <SidebarMenuSubItem key={item.title}>
-                            <SidebarMenuSubButton asChild>
-                              <button onClick={() => handleNavigation(item.url)} className={`flex items-center gap-3 py-2 rounded-lg px-3 transition-all w-full text-left text-sm ${isActive(item.url) ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium" : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"}`}>
-                                <item.icon className="h-4 w-4 flex-shrink-0" />
-                                <span>{item.title}</span>
-                              </button>
-                            </SidebarMenuSubButton>
-                          </SidebarMenuSubItem>
-                        ))}
-                      </SidebarMenuSub>
-                    </CollapsibleContent>
-                  )}
-                </SidebarMenuItem>
-              </Collapsible>
+                  </SidebarMenuItem>
+                ))}
 
-              {/* Karriere Menu with Submenu */}
-              <Collapsible open={careerOpen} onOpenChange={setCareerOpen} className="group/collapsible">
-                <SidebarMenuItem>
-                  <CollapsibleTrigger asChild>
-                    <SidebarMenuButton className={`flex items-center gap-3 py-2.5 rounded-lg px-3 transition-all w-full text-left`}>
-                      <Briefcase className="h-5 w-5 flex-shrink-0" />
-                      {!collapsed && <span className="text-sm">Karriere</span>}
-                      {!collapsed && <ChevronDown className={`ml-auto h-4 w-4 transition-transform ${careerOpen ? 'rotate-180' : ''}`} />}
+                {/* Community Menu with Submenu */}
+                <Collapsible open={communityOpen} onOpenChange={setCommunityOpen} className="group/collapsible">
+                  <SidebarMenuItem>
+                    <CollapsibleTrigger asChild>
+                      <SidebarMenuButton className={`flex items-center gap-3 py-2.5 rounded-lg px-3 transition-all w-full text-left`}>
+                        <Users className="h-5 w-5 flex-shrink-0" />
+                        {!collapsed && <span className="text-sm">Community</span>}
+                        {!collapsed && <ChevronDown className={`ml-auto h-4 w-4 transition-transform ${communityOpen ? 'rotate-180' : ''}`} />}
+                      </SidebarMenuButton>
+                    </CollapsibleTrigger>
+                    {!collapsed && (
+                      <CollapsibleContent>
+                        <SidebarMenuSub>
+                          {communityItems.map(item => (
+                            <SidebarMenuSubItem key={item.title}>
+                              <SidebarMenuSubButton asChild>
+                                <button onClick={() => handleNavigation(item.url)} className={`flex items-center gap-3 py-2 rounded-lg px-3 transition-all w-full text-left text-sm ${isActive(item.url) ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium" : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"}`}>
+                                  <item.icon className="h-4 w-4 flex-shrink-0" />
+                                  <span>{item.title}</span>
+                                </button>
+                              </SidebarMenuSubButton>
+                            </SidebarMenuSubItem>
+                          ))}
+                        </SidebarMenuSub>
+                      </CollapsibleContent>
+                    )}
+                  </SidebarMenuItem>
+                </Collapsible>
+
+                {/* Karriere Menu with Submenu */}
+                <Collapsible open={careerOpen} onOpenChange={setCareerOpen} className="group/collapsible">
+                  <SidebarMenuItem>
+                    <CollapsibleTrigger asChild>
+                      <SidebarMenuButton className={`flex items-center gap-3 py-2.5 rounded-lg px-3 transition-all w-full text-left`}>
+                        <Briefcase className="h-5 w-5 flex-shrink-0" />
+                        {!collapsed && <span className="text-sm">Karriere</span>}
+                        {!collapsed && <ChevronDown className={`ml-auto h-4 w-4 transition-transform ${careerOpen ? 'rotate-180' : ''}`} />}
+                      </SidebarMenuButton>
+                    </CollapsibleTrigger>
+                    {!collapsed && (
+                      <CollapsibleContent>
+                        <SidebarMenuSub>
+                          {careerItems.map(item => (
+                            <SidebarMenuSubItem key={item.title}>
+                              <SidebarMenuSubButton asChild>
+                                <button onClick={() => handleNavigation(item.url)} className={`flex items-center gap-3 py-2 rounded-lg px-3 transition-all w-full text-left text-sm ${isActive(item.url) ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium" : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"}`}>
+                                  <item.icon className="h-4 w-4 flex-shrink-0" />
+                                  <span>{item.title}</span>
+                                </button>
+                              </SidebarMenuSubButton>
+                            </SidebarMenuSubItem>
+                          ))}
+                        </SidebarMenuSub>
+                      </CollapsibleContent>
+                    )}
+                  </SidebarMenuItem>
+                </Collapsible>
+
+                {/* Remaining navigation items */}
+                {navigationItems.slice(2).map(item => (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton asChild>
+                      <button onClick={() => handleNavigation(item.url)} className={`flex items-center gap-3 py-2.5 rounded-lg px-3 transition-all w-full text-left ${isActive(item.url) ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium" : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"}`}>
+                        <item.icon className="h-5 w-5 flex-shrink-0" />
+                        {!collapsed && <span className="text-sm">{item.title}</span>}
+                      </button>
                     </SidebarMenuButton>
-                  </CollapsibleTrigger>
-                  {!collapsed && (
-                    <CollapsibleContent>
-                      <SidebarMenuSub>
-                        {careerItems.map(item => (
-                          <SidebarMenuSubItem key={item.title}>
-                            <SidebarMenuSubButton asChild>
-                              <button onClick={() => handleNavigation(item.url)} className={`flex items-center gap-3 py-2 rounded-lg px-3 transition-all w-full text-left text-sm ${isActive(item.url) ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium" : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"}`}>
-                                <item.icon className="h-4 w-4 flex-shrink-0" />
-                                <span>{item.title}</span>
-                              </button>
-                            </SidebarMenuSubButton>
-                          </SidebarMenuSubItem>
-                        ))}
-                      </SidebarMenuSub>
-                    </CollapsibleContent>
-                  )}
-                </SidebarMenuItem>
-              </Collapsible>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        </SidebarContent>
 
-              {/* Remaining navigation items */}
-              {navigationItems.slice(2).map(item => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <button onClick={() => handleNavigation(item.url)} className={`flex items-center gap-3 py-2.5 rounded-lg px-3 transition-all w-full text-left ${isActive(item.url) ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium" : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"}`}>
-                      <item.icon className="h-5 w-5 flex-shrink-0" />
-                      {!collapsed && <span className="text-sm">{item.title}</span>}
-                    </button>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-      </SidebarContent>
-
-      <SidebarFooter className="mt-auto p-4 border-t">
-        {!collapsed ? <div className="space-y-3">
-            <div className="flex items-center gap-3">
-              <Avatar className="h-10 w-10">
-                <AvatarImage src={profile?.avatar_url || undefined} />
-                <AvatarFallback>
-                  {profile?.vorname?.[0]}{profile?.nachname?.[0]}
-                </AvatarFallback>
-              </Avatar>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium truncate">{nameInfo.name}</p>
-                <p className="text-xs text-muted-foreground truncate">{nameInfo.job}</p>
+        <SidebarFooter className="mt-auto p-4 border-t">
+          {!collapsed ? (
+            <div className="space-y-3">
+              <div className="flex items-center gap-3">
+                <Avatar className="h-10 w-10">
+                  <AvatarImage src={profile?.avatar_url || undefined} />
+                  <AvatarFallback>
+                    {profile?.vorname?.[0]}{profile?.nachname?.[0]}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium truncate">{nameInfo.name}</p>
+                  <p className="text-xs text-muted-foreground truncate">{nameInfo.job}</p>
+                </div>
               </div>
+              <Button onClick={() => openPostComposer()} className="w-full justify-start gap-3" variant="default" size="sm">
+                <Plus className="h-4 w-4" />
+                Beitrag posten
+              </Button>
+              <Button variant="ghost" size="sm" className="w-full justify-start gap-3" onClick={handleSignOut}>
+                <LogOut className="h-4 w-4" />
+                Abmelden
+              </Button>
             </div>
-            <Button onClick={() => openPostComposer()} className="w-full justify-start gap-3" variant="default" size="sm">
-              <Plus className="h-4 w-4" />
-              Beitrag posten
-            </Button>
-            <Button variant="ghost" size="sm" className="w-full justify-start gap-3" onClick={handleSignOut}>
-              <LogOut className="h-4 w-4" />
-              Abmelden
-            </Button>
-          </div> : null}
-      </SidebarFooter>
-    </Sidebar>
-    </>;
+          ) : null}
+        </SidebarFooter>
+      </Sidebar>
+    </>
+  );
 }
