@@ -139,18 +139,15 @@ const CVStep7 = () => {
   };
 
   const handleCreateProfile = () => {
-    if (!formData.datenschutz_akzeptiert || !formData.agb_akzeptiert) {
-      toast.error("Bitte akzeptiere die Datenschutzerklärung und AGBs.");
-      return;
-    }
-
-    if (!formData.email) {
-      toast.error("Bitte gib in Schritt 2 eine E-Mail-Adresse ein.");
-      return;
-    }
-
     localStorage.setItem('creating-profile', 'true');
     setShowProfileModal(true);
+  };
+
+  const handleDownloadWithoutProfile = () => {
+    toast.error(
+      "Bitte registriere dich, um deinen Lebenslauf herunterzuladen. Wir haben gerade ein technisches Problem, dass du den CV direkt herunterladen kannst.",
+      { duration: 5000 }
+    );
   };
 
   return (
@@ -266,56 +263,13 @@ const CVStep7 = () => {
                   <li>✓ Daten später bearbeiten</li>
                 </ul>
                 
-                <div className="space-y-3">
-                  <div className="flex items-start space-x-2">
-                    <Checkbox
-                      id="datenschutz"
-                      checked={formData.datenschutz_akzeptiert || false}
-                      onCheckedChange={(checked) => updateFormData({ datenschutz_akzeptiert: !!checked })}
-                    />
-                    <Label 
-                      htmlFor="datenschutz" 
-                      className="text-sm font-normal leading-relaxed cursor-pointer"
-                    >
-                      Ich habe die <a href="/datenschutz" target="_blank" className="text-primary underline hover:text-primary/80">Datenschutzerklärung</a> gelesen und akzeptiere diese.
-                    </Label>
-                  </div>
-                  
-                  <div className="flex items-start space-x-2">
-                    <Checkbox
-                      id="agb"
-                      checked={formData.agb_akzeptiert || false}
-                      onCheckedChange={(checked) => updateFormData({ agb_akzeptiert: !!checked })}
-                    />
-                    <Label 
-                      htmlFor="agb" 
-                      className="text-sm font-normal leading-relaxed cursor-pointer"
-                    >
-                      Ich akzeptiere die <a href="/agb" target="_blank" className="text-primary underline hover:text-primary/80">Allgemeinen Geschäftsbedingungen (AGB)</a>.
-                    </Label>
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="email-input" className="text-sm">E-Mail-Adresse</Label>
-                    <Input
-                      id="email-input"
-                      type="email"
-                      placeholder="deine@email.de"
-                      value={formData.email || ''}
-                      onChange={(e) => updateFormData({ email: e.target.value })}
-                      className="bg-background"
-                    />
-                  </div>
-                  
-            <Button
-              onClick={handleCreateProfile}
-              className="w-full h-11"
-              disabled={!formData.datenschutz_akzeptiert || !formData.agb_akzeptiert || !formData.email}
-            >
-                    <UserPlus className="h-4 w-4 mr-2" />
-                    Jetzt Profil erstellen
-                  </Button>
-                </div>
+                <Button
+                  onClick={handleCreateProfile}
+                  className="w-full h-11"
+                >
+                  <UserPlus className="h-4 w-4 mr-2" />
+                  Jetzt Profil erstellen
+                </Button>
               </div>
             </div>
           </div>
@@ -329,28 +283,18 @@ const CVStep7 = () => {
             </div>
           </div>
 
-          {/* Option 2: Kostenpflichtig herunterladen */}
+          {/* Option 2: Download (nur mit Profil möglich) */}
           <Button
-            onClick={handleDownloadPDF}
+            onClick={handleDownloadWithoutProfile}
             variant="outline"
             className="w-full h-11"
-            disabled={isGeneratingPDF}
           >
-            {isGeneratingPDF ? (
-              <>
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                PDF wird erstellt...
-              </>
-            ) : (
-              <>
-                <Download className="h-4 w-4 mr-2" />
-                CV sofort herunterladen
-              </>
-            )}
+            <Download className="h-4 w-4 mr-2" />
+            Lebenslauf als PDF downloaden
           </Button>
 
           <p className="text-xs text-center text-muted-foreground">
-            Ohne Profil kannst du deinen CV direkt herunterladen, aber nicht später bearbeiten.
+            Ohne Profil ist aktuell leider kein Download möglich. Bitte erstelle ein kostenloses Profil.
           </p>
         </CardContent>
       </Card>
