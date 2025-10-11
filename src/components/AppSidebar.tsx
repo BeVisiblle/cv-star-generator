@@ -41,11 +41,8 @@ const careerItems = [
   { title: "Unternehmen", url: "/companies", icon: Building2 }
 ];
 export function AppSidebar() {
-  const {
-    state,
-    setOpen
-  } = useSidebar();
-  const collapsed = state === "collapsed";
+  const sidebar = useSidebar();
+  const collapsed = sidebar.state === "collapsed";
   const location = useLocation();
   const navigate = useNavigate();
   const currentPath = location.pathname;
@@ -91,27 +88,27 @@ export function AppSidebar() {
   // Auto-close sidebar on navigation
   const handleNavigation = (to: string) => {
     navigate(to);
-    setOpen(false);
+    sidebar.setOpen(false);
   };
 
   // Handle clicks outside sidebar to close it
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      const sidebar = document.querySelector('[data-sidebar="sidebar"]');
+      const sidebarEl = document.querySelector('[data-sidebar="sidebar"]');
       const trigger = document.querySelector('[data-sidebar="trigger"]');
-      if (sidebar && !sidebar.contains(event.target as Node) && trigger && !trigger.contains(event.target as Node)) {
-        setOpen(false);
+      if (sidebarEl && !sidebarEl.contains(event.target as Node) && trigger && !trigger.contains(event.target as Node)) {
+        sidebar.setOpen(false);
       }
     };
-    if (state !== "collapsed") {
+    if (sidebar.state !== "collapsed") {
       document.addEventListener('mousedown', handleClickOutside);
       return () => document.removeEventListener('mousedown', handleClickOutside);
     }
-  }, [state, setOpen]);
+  }, [sidebar]);
   return (
     <>
       {/* Backdrop overlay */}
-      {!collapsed && <div className="fixed inset-0 bg-black/20 z-[390] lg:hidden" onClick={() => setOpen(false)} />}
+      {!collapsed && <div className="fixed inset-0 bg-black/20 z-[390] lg:hidden" onClick={() => sidebar.setOpen(false)} />}
       
       <Sidebar className={`fixed left-0 top-0 h-screen z-[400] transition-transform duration-200 ${collapsed ? '-translate-x-full lg:translate-x-0' : 'translate-x-0'} ${collapsed ? "w-16 lg:w-16" : "w-64"}`} collapsible="icon" data-sidebar="sidebar">
         <SidebarHeader className="h-14 border-b flex items-center px-4">
