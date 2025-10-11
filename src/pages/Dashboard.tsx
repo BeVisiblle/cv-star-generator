@@ -51,7 +51,7 @@ const Dashboard = () => {
               className="sticky z-40 bg-white shadow-sm"
               style={{ top: `${NAVBAR_H}px` }}
             >
-              <div className="px-2 md:px-3 py-1.5 pb-2 space-y-1.5">
+              <div className="px-2 md:px-3 py-1 pb-1.5 space-y-1.5">
                 <ComposerTeaser />
                 <FeedSortBar />
               </div>

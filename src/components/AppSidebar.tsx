@@ -103,16 +103,16 @@ export function AppSidebar() {
         setOpen(false);
       }
     };
-    if (!collapsed) {
+    if (state !== "collapsed") {
       document.addEventListener('mousedown', handleClickOutside);
       return () => document.removeEventListener('mousedown', handleClickOutside);
     }
-  }, [collapsed, setOpen]);
+  }, [state, setOpen]);
   return <>
       {/* Backdrop overlay */}
-      {!collapsed && <div className="fixed inset-0 bg-black/20 z-40 lg:hidden" onClick={() => setOpen(false)} />}
+      {!collapsed && <div className="fixed inset-0 bg-black/20 z-[390] lg:hidden" onClick={() => setOpen(false)} />}
       
-      <Sidebar className={`fixed left-0 top-14 h-[calc(100vh-3.5rem)] z-50 transition-transform duration-200 ${collapsed ? '-translate-x-full lg:translate-x-0' : 'translate-x-0'} ${collapsed ? "w-14 lg:w-14" : "w-60"}`} collapsible="icon" data-sidebar="sidebar">
+      <Sidebar className={`fixed left-0 top-14 h-[calc(100vh-3.5rem)] z-[400] transition-transform duration-200 ${collapsed ? '-translate-x-full lg:translate-x-0' : 'translate-x-0'} ${collapsed ? "w-14 lg:w-14" : "w-60"}`} collapsible="icon" data-sidebar="sidebar">
       
 
       <SidebarContent>

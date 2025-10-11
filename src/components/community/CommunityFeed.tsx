@@ -66,8 +66,10 @@ export default function CommunityFeed({ feedHeadHeight = 0 }: CommunityFeedProps
       if (sort === 'newest') {
         query = query.order('created_at', { ascending: false });
       } else {
-        // For 'relevant' sorting, use newest for now
-        query = query.order('created_at', { ascending: false });
+        // For 'relevant' sorting, order by engagement (likes + comments)
+        query = query
+          .order('like_count', { ascending: false, nullsFirst: false })
+          .order('created_at', { ascending: false });
       }
 
       // Apply pagination
