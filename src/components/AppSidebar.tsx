@@ -112,8 +112,12 @@ export function AppSidebar() {
       {/* Backdrop overlay */}
       {!collapsed && <div className="fixed inset-0 bg-black/20 z-[390] lg:hidden" onClick={() => setOpen(false)} />}
       
-      <Sidebar className={`fixed left-0 top-14 h-[calc(100vh-3.5rem)] z-[400] transition-transform duration-200 ${collapsed ? '-translate-x-full lg:translate-x-0' : 'translate-x-0'} ${collapsed ? "w-14 lg:w-14" : "w-60"}`} collapsible="icon" data-sidebar="sidebar">
-      
+      <Sidebar className={`fixed left-0 top-0 h-screen z-[400] transition-transform duration-200 ${collapsed ? '-translate-x-full lg:translate-x-0' : 'translate-x-0'} ${collapsed ? "w-16 lg:w-16" : "w-64"}`} collapsible="icon" data-sidebar="sidebar">
+      <SidebarHeader className="h-14 border-b flex items-center px-4">
+        <div className="flex items-center gap-2">
+          {!collapsed && <span className="font-semibold text-lg">Menü</span>}
+        </div>
+      </SidebarHeader>
 
       <SidebarContent>
         <SidebarGroup>
@@ -125,10 +129,9 @@ export function AppSidebar() {
               {navigationItems.slice(0, 2).map(item => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
-                    <button onClick={() => handleNavigation(item.url)} className={`flex ${collapsed ? 'flex-col items-center gap-0.5 py-3' : 'items-center gap-3 py-2'} rounded-lg px-3 transition-all w-full ${collapsed ? 'text-center' : 'text-left'} ${isActive(item.url) ? "bg-sidebar-accent text-sidebar-accent-foreground" : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"}`}>
-                      <item.icon className="h-4 w-4 flex-shrink-0" />
-                      <span className={collapsed ? "text-[9px] font-medium leading-tight" : ""}>{item.title}</span>
-                      {!collapsed && isActive(item.url) && <ChevronRight className="ml-auto h-4 w-4" />}
+                    <button onClick={() => handleNavigation(item.url)} className={`flex items-center gap-3 py-2.5 rounded-lg px-3 transition-all w-full text-left ${isActive(item.url) ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium" : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"}`}>
+                      <item.icon className="h-5 w-5 flex-shrink-0" />
+                      {!collapsed && <span className="text-sm">{item.title}</span>}
                     </button>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -138,9 +141,9 @@ export function AppSidebar() {
               <Collapsible open={communityOpen} onOpenChange={setCommunityOpen} className="group/collapsible">
                 <SidebarMenuItem>
                   <CollapsibleTrigger asChild>
-                    <SidebarMenuButton className={`flex ${collapsed ? 'flex-col items-center gap-0.5 py-3' : 'items-center gap-3 py-2'} rounded-lg px-3 transition-all w-full ${collapsed ? 'text-center' : 'text-left'}`}>
-                      <Users className="h-4 w-4 flex-shrink-0" />
-                      <span className={collapsed ? "text-[9px] font-medium leading-tight" : ""}>Community</span>
+                    <SidebarMenuButton className={`flex items-center gap-3 py-2.5 rounded-lg px-3 transition-all w-full text-left`}>
+                      <Users className="h-5 w-5 flex-shrink-0" />
+                      {!collapsed && <span className="text-sm">Community</span>}
                       {!collapsed && <ChevronDown className={`ml-auto h-4 w-4 transition-transform ${communityOpen ? 'rotate-180' : ''}`} />}
                     </SidebarMenuButton>
                   </CollapsibleTrigger>
@@ -150,7 +153,7 @@ export function AppSidebar() {
                         {communityItems.map(item => (
                           <SidebarMenuSubItem key={item.title}>
                             <SidebarMenuSubButton asChild>
-                              <button onClick={() => handleNavigation(item.url)} className={`flex items-center gap-3 py-2 rounded-lg px-3 transition-all w-full text-left ${isActive(item.url) ? "bg-sidebar-accent text-sidebar-accent-foreground" : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"}`}>
+                              <button onClick={() => handleNavigation(item.url)} className={`flex items-center gap-3 py-2 rounded-lg px-3 transition-all w-full text-left text-sm ${isActive(item.url) ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium" : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"}`}>
                                 <item.icon className="h-4 w-4 flex-shrink-0" />
                                 <span>{item.title}</span>
                               </button>
@@ -167,9 +170,9 @@ export function AppSidebar() {
               <Collapsible open={careerOpen} onOpenChange={setCareerOpen} className="group/collapsible">
                 <SidebarMenuItem>
                   <CollapsibleTrigger asChild>
-                    <SidebarMenuButton className={`flex ${collapsed ? 'flex-col items-center gap-0.5 py-3' : 'items-center gap-3 py-2'} rounded-lg px-3 transition-all w-full ${collapsed ? 'text-center' : 'text-left'}`}>
-                      <Briefcase className="h-4 w-4 flex-shrink-0" />
-                      <span className={collapsed ? "text-[9px] font-medium leading-tight" : ""}>Karriere</span>
+                    <SidebarMenuButton className={`flex items-center gap-3 py-2.5 rounded-lg px-3 transition-all w-full text-left`}>
+                      <Briefcase className="h-5 w-5 flex-shrink-0" />
+                      {!collapsed && <span className="text-sm">Karriere</span>}
                       {!collapsed && <ChevronDown className={`ml-auto h-4 w-4 transition-transform ${careerOpen ? 'rotate-180' : ''}`} />}
                     </SidebarMenuButton>
                   </CollapsibleTrigger>
@@ -179,7 +182,7 @@ export function AppSidebar() {
                         {careerItems.map(item => (
                           <SidebarMenuSubItem key={item.title}>
                             <SidebarMenuSubButton asChild>
-                              <button onClick={() => handleNavigation(item.url)} className={`flex items-center gap-3 py-2 rounded-lg px-3 transition-all w-full text-left ${isActive(item.url) ? "bg-sidebar-accent text-sidebar-accent-foreground" : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"}`}>
+                              <button onClick={() => handleNavigation(item.url)} className={`flex items-center gap-3 py-2 rounded-lg px-3 transition-all w-full text-left text-sm ${isActive(item.url) ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium" : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"}`}>
                                 <item.icon className="h-4 w-4 flex-shrink-0" />
                                 <span>{item.title}</span>
                               </button>
@@ -196,10 +199,9 @@ export function AppSidebar() {
               {navigationItems.slice(2).map(item => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
-                    <button onClick={() => handleNavigation(item.url)} className={`flex ${collapsed ? 'flex-col items-center gap-0.5 py-3' : 'items-center gap-3 py-2'} rounded-lg px-3 transition-all w-full ${collapsed ? 'text-center' : 'text-left'} ${isActive(item.url) ? "bg-sidebar-accent text-sidebar-accent-foreground" : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"}`}>
-                      <item.icon className="h-4 w-4 flex-shrink-0" />
-                      <span className={collapsed ? "text-[9px] font-medium leading-tight" : ""}>{item.title}</span>
-                      {!collapsed && isActive(item.url) && <ChevronRight className="ml-auto h-4 w-4" />}
+                    <button onClick={() => handleNavigation(item.url)} className={`flex items-center gap-3 py-2.5 rounded-lg px-3 transition-all w-full text-left ${isActive(item.url) ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium" : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"}`}>
+                      <item.icon className="h-5 w-5 flex-shrink-0" />
+                      {!collapsed && <span className="text-sm">{item.title}</span>}
                     </button>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -209,7 +211,7 @@ export function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter className="mt-auto p-4">
+      <SidebarFooter className="mt-auto p-4 border-t">
         {!collapsed ? <div className="space-y-3">
             <div className="flex items-center gap-3">
               <Avatar className="h-10 w-10">
@@ -223,28 +225,15 @@ export function AppSidebar() {
                 <p className="text-xs text-muted-foreground truncate">{nameInfo.job}</p>
               </div>
             </div>
-            <Button onClick={() => openPostComposer()} className="w-full justify-start gap-3" variant="default">
+            <Button onClick={() => openPostComposer()} className="w-full justify-start gap-3" variant="default" size="sm">
               <Plus className="h-4 w-4" />
               Beitrag posten
             </Button>
-            <Button variant="ghost" className="w-full justify-start gap-3" onClick={handleSignOut}>
+            <Button variant="ghost" size="sm" className="w-full justify-start gap-3" onClick={handleSignOut}>
               <LogOut className="h-4 w-4" />
               Abmelden
             </Button>
-          </div> : <div className="flex flex-col items-center gap-3">
-            <Avatar className="h-8 w-8">
-              <AvatarImage src={profile?.avatar_url || undefined} />
-              <AvatarFallback className="text-xs">
-                {profile?.vorname?.[0]}{profile?.nachname?.[0]}
-              </AvatarFallback>
-            </Avatar>
-            <Button variant="default" size="icon" className="h-9 w-9" onClick={() => openPostComposer()} title="Beitrag posten">
-              <Plus className="h-4 w-4" />
-            </Button>
-            <Button variant="ghost" size="icon" className="h-9 w-9" onClick={handleSignOut} title="Abmelden">
-              <LogOut className="h-4 w-4" />
-            </Button>
-          </div>}
+          </div> : null}
       </SidebarFooter>
     </Sidebar>
     </>;
