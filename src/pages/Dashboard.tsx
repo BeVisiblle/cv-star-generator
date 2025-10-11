@@ -30,7 +30,7 @@ const Dashboard = () => {
       <h1 className="sr-only">Dashboard</h1>
       
       {/* Inhalt direkt unter der Navbar */}
-      <div className="pt-20 sm:pt-24 md:pt-28">
+      <div className="pt-16">
         <div className="mx-auto max-w-screen-2xl grid grid-cols-12 gap-4 px-3 sm:px-6 lg:px-8">
           
           {/* (1) Left Panel - normaler Flow, keine eigene Scrollbar */}
@@ -57,7 +57,7 @@ const Dashboard = () => {
             </div>
 
             {/* (3) Post-Liste - kompakterer Abstand */}
-            <div className="mt-4 md:mt-6 space-y-2 md:space-y-3 relative z-10" role="feed">
+            <div className="mt-6 md:mt-8 space-y-2 md:space-y-3 relative z-10" role="feed">
               <CommunityFeed feedHeadHeight={feedHeadH} />
             </div>
           </section>

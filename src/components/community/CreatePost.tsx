@@ -115,6 +115,7 @@ export const CreatePost = ({
         .insert({
           content: content,
           user_id: user.id,
+          image_url: image_url,
         })
         .select();
 

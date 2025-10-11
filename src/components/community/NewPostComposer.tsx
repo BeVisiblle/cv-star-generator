@@ -122,9 +122,11 @@ export default function NewPostComposer() {
       );
 
       // Create post with auto-capitalization
+      const mediaUrl = mediaUrls.length > 0 ? mediaUrls[0] : null;
       const { error } = await supabase.from("posts").insert({
         content: capitalizeFirst(content.trim()),
         user_id: user!.id,
+        image_url: mediaUrl,
       });
 
       if (error) throw error;

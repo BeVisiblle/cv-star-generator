@@ -59,7 +59,7 @@ export default function CommunityFeed({ feedHeadHeight = 0 }: CommunityFeedProps
       // Use posts table - Author-Infos werden separat gefetched (siehe Fallback-Logik unten)
       let query = supabase
         .from('posts')
-        .select('*')
+        .select('*, image_url, media, documents')
         .limit(PAGE_SIZE);
 
       // Apply sorting based on the selected option
@@ -110,6 +110,9 @@ export default function CommunityFeed({ feedHeadHeight = 0 }: CommunityFeedProps
         return {
           id: post.id,
           content: post.content || '',
+          image_url: post.image_url || null,
+          media: post.media || [],
+          documents: post.documents || [],
           user_id: post.user_id,
           author_type: 'user' as 'user' | 'company',
           author_id: post.user_id,
