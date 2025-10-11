@@ -210,30 +210,32 @@ export function AppSidebar() {
         </SidebarContent>
 
         <SidebarFooter className="mt-auto p-4 border-t">
-          {!collapsed ? (
-            <div className="space-y-3">
-              <div className="flex items-center gap-3">
-                <Avatar className="h-10 w-10">
-                  <AvatarImage src={profile?.avatar_url || undefined} />
-                  <AvatarFallback>
-                    {profile?.vorname?.[0]}{profile?.nachname?.[0]}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium truncate">{nameInfo.name}</p>
-                  <p className="text-xs text-muted-foreground truncate">{nameInfo.job}</p>
+          <div className="space-y-3">
+            {!collapsed && (
+              <>
+                <div className="flex items-center gap-3">
+                  <Avatar className="h-10 w-10">
+                    <AvatarImage src={profile?.avatar_url || undefined} />
+                    <AvatarFallback>
+                      {profile?.vorname?.[0]}{profile?.nachname?.[0]}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium truncate">{nameInfo.name}</p>
+                    <p className="text-xs text-muted-foreground truncate">{nameInfo.job}</p>
+                  </div>
                 </div>
-              </div>
-              <Button onClick={() => openPostComposer()} className="w-full justify-start gap-3" variant="default" size="sm">
-                <Plus className="h-4 w-4" />
-                Beitrag posten
-              </Button>
-              <Button variant="ghost" size="sm" className="w-full justify-start gap-3" onClick={handleSignOut}>
-                <LogOut className="h-4 w-4" />
-                Abmelden
-              </Button>
-            </div>
-          ) : null}
+                <Button onClick={() => openPostComposer()} className="w-full justify-start gap-3" variant="default" size="sm">
+                  <Plus className="h-4 w-4" />
+                  Beitrag posten
+                </Button>
+              </>
+            )}
+            <Button variant="ghost" size="sm" className={collapsed ? "w-full p-2" : "w-full justify-start gap-3"} onClick={handleSignOut}>
+              <LogOut className="h-4 w-4" />
+              {!collapsed && "Abmelden"}
+            </Button>
+          </div>
         </SidebarFooter>
       </Sidebar>
     </>
