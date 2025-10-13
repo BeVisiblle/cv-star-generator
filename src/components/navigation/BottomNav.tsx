@@ -10,53 +10,50 @@ export const BOTTOM_NAV_HEIGHT = 68; // Approximate height: py-1.5 + button heig
 const BottomNav: React.FC = () => {
   const navigate = useNavigate();
 
-  const placeholder = (label: string) => {
-    toast({ title: label, description: 'Coming soon' });
-  };
 
   return (
     <nav className="md:hidden fixed bottom-0 left-0 right-0 border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 z-50">
       <div className="mx-auto max-w-screen-sm">
         <div className="grid grid-cols-5 items-center py-1.5">
           <button
-            className="flex flex-col items-center justify-center gap-0.5 text-muted-foreground hover:text-foreground py-1"
-            onClick={() => navigate('/')}
-            aria-label="Home"
+            className="flex flex-col items-center justify-center gap-0.5 text-muted-foreground hover:text-foreground py-1 min-h-[44px]"
+            onClick={() => navigate('/dashboard')}
+            aria-label="Start"
           >
-            <Home className="h-5 w-5" />
+            <Home className="h-6 w-6" />
             <span className="text-[10px] font-medium">Start</span>
           </button>
 
           <button
-            className="flex flex-col items-center justify-center gap-0.5 text-muted-foreground hover:text-foreground py-1"
-            onClick={() => placeholder('My Network')}
-            aria-label="My Network"
+            className="flex flex-col items-center justify-center gap-0.5 text-muted-foreground hover:text-foreground py-1 min-h-[44px]"
+            onClick={() => navigate('/community/contacts')}
+            aria-label="Netzwerk"
           >
-            <Users className="h-5 w-5" />
+            <Users className="h-6 w-6" />
             <span className="text-[10px] font-medium">Netzwerk</span>
           </button>
 
           <div className="flex items-center justify-center">
-            <Button size="lg" className="rounded-full h-12 w-12 p-0 shadow-md" onClick={() => openPostComposer()} aria-label="Create Post">
+            <Button size="lg" className="rounded-full h-12 w-12 p-0 shadow-md min-h-[48px] min-w-[48px]" onClick={() => openPostComposer()} aria-label="Neuer Beitrag">
               <Plus className="h-6 w-6" />
             </Button>
           </div>
 
           <button
-            className="flex flex-col items-center justify-center gap-0.5 text-muted-foreground hover:text-foreground py-1"
-            onClick={() => placeholder('Notifications')}
-            aria-label="Notifications"
+            className="flex flex-col items-center justify-center gap-0.5 text-muted-foreground hover:text-foreground py-1 min-h-[44px]"
+            onClick={() => navigate('/notifications')}
+            aria-label="Mitteilungen"
           >
-            <Bell className="h-5 w-5" />
+            <Bell className="h-6 w-6" />
             <span className="text-[10px] font-medium">Mitteilungen</span>
           </button>
 
           <button
-            className="flex flex-col items-center justify-center gap-0.5 text-muted-foreground hover:text-foreground py-1"
-            onClick={() => placeholder('Jobs')}
+            className="flex flex-col items-center justify-center gap-0.5 text-muted-foreground hover:text-foreground py-1 min-h-[44px]"
+            onClick={() => navigate('/community/jobs')}
             aria-label="Jobs"
           >
-            <Briefcase className="h-5 w-5" />
+            <Briefcase className="h-6 w-6" />
             <span className="text-[10px] font-medium">Jobs</span>
           </button>
         </div>

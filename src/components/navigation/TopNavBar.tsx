@@ -8,7 +8,8 @@ import ConnectionsDrawer from "@/components/community/ConnectionsDrawer";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import MessagePopoverPanel from "@/components/community/MessagePopoverPanel";
 
-export const NAVBAR_HEIGHT = 56; // h-14 = 56px
+export const NAVBAR_HEIGHT = 56; // h-14 (Desktop) = 56px
+export const NAVBAR_HEIGHT_MOBILE = 48; // h-12 (Mobile) = 48px
 
 const titleMap: Record<string, string> = {
   "/community/contacts": "Meine Kontakte",
@@ -45,7 +46,7 @@ export default function TopNavBar() {
 
   // Sticky navbar at top with high z-index
   return <div className="sticky top-0 z-[300] border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="flex h-14 items-center px-3 md:px-4 gap-2 md:gap-4">
+      <div className="flex h-12 md:h-14 items-center px-3 md:px-4 gap-2 md:gap-4">
         <div className="flex items-center gap-3">
           <SidebarTrigger />
           {/* Logo */}
@@ -81,24 +82,53 @@ export default function TopNavBar() {
         </div>
         
         {/* Icons aligned to the right */}
-        <div className="flex items-center gap-2 md:gap-3 ml-auto">
-          {/* Mobile Search */}
-          <SearchIcon className="h-4 w-4 md:h-5 md:w-5 cursor-pointer hover:text-primary md:hidden" onClick={() => navigate('/marketplace')} />
+        <div className="flex items-center gap-1 md:gap-3 ml-auto">
+          {/* Mobile Search - with proper touch target */}
+          <button 
+            className="p-2 -m-2 hover:bg-accent rounded-md md:hidden min-h-[44px] min-w-[44px] flex items-center justify-center active:scale-95 transition-transform"
+            onClick={() => navigate('/marketplace')}
+            aria-label="Suche"
+          >
+            <SearchIcon className="h-6 w-6 md:h-5 md:w-5" />
+          </button>
           
-          <Users className="h-4 w-4 md:h-5 md:w-5 cursor-pointer hover:text-primary" onClick={() => navigate('/community/contacts')} />
+          <button 
+            className="p-2 -m-2 hover:bg-accent rounded-md min-h-[44px] min-w-[44px] flex items-center justify-center active:scale-95 transition-transform"
+            onClick={() => navigate('/community/contacts')}
+            aria-label="Kontakte"
+          >
+            <Users className="h-6 w-6 md:h-5 md:w-5" />
+          </button>
           
           <Popover open={msgOpen} onOpenChange={setMsgOpen}>
             <PopoverTrigger asChild>
-              <MessageSquareMore className="h-4 w-4 md:h-5 md:w-5 cursor-pointer hover:text-primary" />
+              <button 
+                className="p-2 -m-2 hover:bg-accent rounded-md min-h-[44px] min-w-[44px] flex items-center justify-center active:scale-95 transition-transform"
+                aria-label="Nachrichten"
+              >
+                <MessageSquareMore className="h-6 w-6 md:h-5 md:w-5" />
+              </button>
             </PopoverTrigger>
             <PopoverContent className="w-80 p-0" align="end">
               <MessagePopoverPanel onCompose={() => setMsgOpen(false)} />
             </PopoverContent>
           </Popover>
           
-          <Bell className="h-4 w-4 md:h-5 md:w-5 cursor-pointer hover:text-primary" onClick={() => navigate('/notifications')} />
+          <button 
+            className="p-2 -m-2 hover:bg-accent rounded-md min-h-[44px] min-w-[44px] flex items-center justify-center active:scale-95 transition-transform"
+            onClick={() => navigate('/notifications')}
+            aria-label="Benachrichtigungen"
+          >
+            <Bell className="h-6 w-6 md:h-5 md:w-5" />
+          </button>
           
-          <User className="h-4 w-4 md:h-5 md:w-5 cursor-pointer hover:text-primary" onClick={() => navigate('/profile')} />
+          <button 
+            className="p-2 -m-2 hover:bg-accent rounded-md min-h-[44px] min-w-[44px] flex items-center justify-center active:scale-95 transition-transform"
+            onClick={() => navigate('/profile')}
+            aria-label="Profil"
+          >
+            <User className="h-6 w-6 md:h-5 md:w-5" />
+          </button>
         </div>
       </div>
       

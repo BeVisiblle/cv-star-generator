@@ -201,7 +201,7 @@ const Profile = () => {
   // Early returns after all hooks are declared
 
   return (
-    <div className="min-h-screen pb-16 md:pb-6">
+    <div className="min-h-screen pb-20 md:pb-6">
       {/* Main Content */}
       <div className="px-2 sm:px-4 md:px-6 lg:px-8 py-3 sm:py-4 md:py-6">
         <div className="max-w-screen-2xl mx-auto">
@@ -243,7 +243,7 @@ const Profile = () => {
                 />
 
                 {/* Small tiles under Education: Contact & Profile Highlights */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
                   <Card className="p-3 sm:p-4">
                     <div className="flex items-center justify-between mb-2">
                       <h4 className="text-sm font-semibold">Kontaktdaten</h4>
@@ -252,9 +252,9 @@ const Profile = () => {
                           variant="ghost" 
                           size="sm"
                           onClick={() => setIsEditingContact(true)}
-                          className="h-7 w-7 p-0"
+                          className="h-10 w-10 p-0 md:h-8 md:w-8"
                         >
-                          <Pencil className="h-3.5 w-3.5" />
+                          <Pencil className="h-5 w-5 md:h-4 md:w-4" />
                         </Button>
                       )}
                     </div>

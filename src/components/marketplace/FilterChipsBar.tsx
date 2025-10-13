@@ -46,7 +46,7 @@ export default function FilterChipsBar({ className }: FilterChipsBarProps) {
       {/* Reset */}
       <Badge
         variant={type === "" ? "default" : "secondary"}
-        className="cursor-pointer select-none"
+        className="cursor-pointer select-none px-4 py-2.5 md:px-3 md:py-2 text-base md:text-sm min-h-[44px] md:min-h-0 active:scale-95 transition-transform"
         onClick={clearType}
       >
         Alle
@@ -57,7 +57,7 @@ export default function FilterChipsBar({ className }: FilterChipsBarProps) {
         <Badge
           key={c.id}
           variant={type === c.id ? "default" : "secondary"}
-          className="cursor-pointer select-none"
+          className="cursor-pointer select-none px-4 py-2.5 md:px-3 md:py-2 text-base md:text-sm min-h-[44px] md:min-h-0 active:scale-95 transition-transform"
           onClick={() => setType(c.id)}
         >
           {c.label}
@@ -69,7 +69,7 @@ export default function FilterChipsBar({ className }: FilterChipsBarProps) {
 
       {/* Type‑specific filters (non‑funktional Platzhalter) */}
       {type && filters.map((f) => (
-        <Badge key={f} variant="secondary" className="cursor-pointer select-none">
+        <Badge key={f} variant="secondary" className="cursor-pointer select-none px-4 py-2.5 md:px-3 md:py-2 text-base md:text-sm min-h-[44px] md:min-h-0 active:scale-95 transition-transform">
           {f}
         </Badge>
       ))}

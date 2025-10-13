@@ -2,6 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Mobile Touch Optimizations */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
 /* BeVisiblle Landing Page Animations */
 @keyframes marquee {
   0% {

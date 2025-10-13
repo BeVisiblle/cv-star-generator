@@ -115,7 +115,7 @@ const Settings = () => {
     }
   }, [profile]);
   return (
-    <div className="p-3 md:p-6 min-h-screen bg-background max-w-full overflow-x-hidden pb-24 pt-safe space-y-6">
+    <div className="p-3 md:p-6 min-h-screen bg-background max-w-full overflow-x-hidden pb-20 md:pb-6 space-y-6">
       {/* Header */}
       <div className="space-y-2">
         <h1 className="text-3xl font-bold tracking-tight">Einstellungen</h1>

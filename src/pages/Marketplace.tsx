@@ -195,7 +195,7 @@ React.useEffect(() => {
   }, [location.hash, postsQuery.data]);
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col pb-20 md:pb-0">
 
       {/* Chips under header */}
       <div className="border-b">
@@ -348,8 +348,8 @@ React.useEffect(() => {
         <div className="hidden xl:block"><RightRail /></div>
       </div>
 
-      {/* Mobile FAB */}
-      <Button className="md:hidden fixed bottom-5 right-5 h-12 w-12 rounded-full shadow-lg" size="icon" onClick={() => setOpenComposer(true)}>
+      {/* Mobile FAB - positioned above BottomNav */}
+      <Button className="md:hidden fixed bottom-24 right-5 h-12 w-12 rounded-full shadow-lg min-h-[48px] min-w-[48px]" size="icon" onClick={() => setOpenComposer(true)}>
         <Plus className="h-5 w-5" />
       </Button>
 

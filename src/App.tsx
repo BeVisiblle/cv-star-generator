@@ -217,7 +217,7 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
           : isCompanyRoute 
             ? "flex-1 bg-white" 
             : showTopNav
-              ? "flex-1 pt-14 bg-white"
+              ? "flex-1 pt-12 md:pt-14 bg-white"
               : "flex-1 bg-white"
       }>
         {children}

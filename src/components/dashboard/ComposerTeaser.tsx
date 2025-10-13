@@ -17,7 +17,7 @@ export const ComposerTeaser: React.FC = () => {
       className="p-1.5 sm:p-2 md:p-2.5 hover-scale cursor-pointer"
     >
       <div className="flex items-start gap-2 sm:gap-3">
-        <Avatar className="h-8 w-8 sm:h-10 sm:w-10 shrink-0">
+        <Avatar className="h-8 w-8 md:h-10 md:w-10 shrink-0">
           <AvatarImage src={profile?.avatar_url || undefined} alt={`${profile?.vorname ?? 'Unbekannt'} Avatar`} />
           <AvatarFallback>
             {profile?.vorname && profile?.nachname
@@ -27,8 +27,9 @@ export const ComposerTeaser: React.FC = () => {
         </Avatar>
 
         <div className="flex-1 min-w-0">
-          <div className="w-full px-4 py-2 rounded-md border bg-background text-muted-foreground text-sm">
-            Was möchtest du posten?
+          <div className="w-full px-3 py-1.5 md:px-4 md:py-2 rounded-md border bg-background text-muted-foreground text-sm">
+            <span className="md:hidden">Neuer Beitrag</span>
+            <span className="hidden md:inline">Was möchtest du posten?</span>
           </div>
 
           {/* Quick actions */}

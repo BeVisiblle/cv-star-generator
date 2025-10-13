@@ -191,7 +191,7 @@ export default function Contacts() {
   const totalRequests = incoming.length + outgoing.length + companyFollowRequests.length;
 
   return (
-    <main className="w-full py-6 px-4 max-w-7xl mx-auto">
+    <main className="w-full py-6 px-4 max-w-7xl mx-auto pb-20 md:pb-6">
       <h1 className="text-xl font-semibold mb-4">Meine Kontakte</h1>
 
       <Tabs defaultValue="friends" className="w-full">
