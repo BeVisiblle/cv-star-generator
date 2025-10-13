@@ -134,8 +134,9 @@ export function AppSidebar() {
                 {navigationItems.slice(0, 2).map(item => (
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton asChild tooltip={item.title}>
-                      <button onClick={() => handleNavigation(item.url)} className={`flex items-center justify-center h-12 w-12 mx-auto rounded-lg transition-all ${isActive(item.url) ? "bg-sidebar-accent text-sidebar-accent-foreground" : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"}`}>
-                        <item.icon className="h-5 w-5" />
+                      <button onClick={() => handleNavigation(item.url)} className={`flex items-center gap-3 w-full ${collapsed ? 'justify-center h-12 w-12 mx-auto' : 'px-3 h-10'} rounded-lg transition-all ${isActive(item.url) ? "bg-sidebar-accent text-sidebar-accent-foreground" : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"}`}>
+                        <item.icon className="h-5 w-5 shrink-0" />
+                        {!collapsed && <span>{item.title}</span>}
                       </button>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
@@ -145,10 +146,28 @@ export function AppSidebar() {
                 <Collapsible open={communityOpen} onOpenChange={setCommunityOpen}>
                   <SidebarMenuItem>
                     <CollapsibleTrigger asChild>
-                      <SidebarMenuButton tooltip="Community" className="flex items-center justify-center h-12 w-12 mx-auto">
-                        <Users className="h-5 w-5" />
+                      <SidebarMenuButton tooltip="Community" className={`flex items-center gap-3 w-full ${collapsed ? 'justify-center h-12 w-12 mx-auto' : 'px-3 h-10'} rounded-lg transition-all`}>
+                        <Users className="h-5 w-5 shrink-0" />
+                        {!collapsed && <span>Community</span>}
+                        {!collapsed && (communityOpen ? <ChevronDown className="ml-auto h-4 w-4" /> : <ChevronRight className="ml-auto h-4 w-4" />)}
                       </SidebarMenuButton>
                     </CollapsibleTrigger>
+                    {!collapsed && (
+                      <CollapsibleContent>
+                        <SidebarMenuSub>
+                          {communityItems.map(item => (
+                            <SidebarMenuSubItem key={item.title}>
+                              <SidebarMenuSubButton asChild>
+                                <button onClick={() => handleNavigation(item.url)} className={`flex items-center gap-3 w-full px-3 h-9 rounded-lg transition-all ${isActive(item.url) ? "bg-sidebar-accent text-sidebar-accent-foreground" : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"}`}>
+                                  <item.icon className="h-4 w-4" />
+                                  <span>{item.title}</span>
+                                </button>
+                              </SidebarMenuSubButton>
+                            </SidebarMenuSubItem>
+                          ))}
+                        </SidebarMenuSub>
+                      </CollapsibleContent>
+                    )}
                   </SidebarMenuItem>
                 </Collapsible>
 
@@ -156,10 +175,28 @@ export function AppSidebar() {
                 <Collapsible open={careerOpen} onOpenChange={setCareerOpen}>
                   <SidebarMenuItem>
                     <CollapsibleTrigger asChild>
-                      <SidebarMenuButton tooltip="Karriere" className="flex items-center justify-center h-12 w-12 mx-auto">
-                        <Briefcase className="h-5 w-5" />
+                      <SidebarMenuButton tooltip="Karriere" className={`flex items-center gap-3 w-full ${collapsed ? 'justify-center h-12 w-12 mx-auto' : 'px-3 h-10'} rounded-lg transition-all`}>
+                        <Briefcase className="h-5 w-5 shrink-0" />
+                        {!collapsed && <span>Karriere</span>}
+                        {!collapsed && (careerOpen ? <ChevronDown className="ml-auto h-4 w-4" /> : <ChevronRight className="ml-auto h-4 w-4" />)}
                       </SidebarMenuButton>
                     </CollapsibleTrigger>
+                    {!collapsed && (
+                      <CollapsibleContent>
+                        <SidebarMenuSub>
+                          {careerItems.map(item => (
+                            <SidebarMenuSubItem key={item.title}>
+                              <SidebarMenuSubButton asChild>
+                                <button onClick={() => handleNavigation(item.url)} className={`flex items-center gap-3 w-full px-3 h-9 rounded-lg transition-all ${isActive(item.url) ? "bg-sidebar-accent text-sidebar-accent-foreground" : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"}`}>
+                                  <item.icon className="h-4 w-4" />
+                                  <span>{item.title}</span>
+                                </button>
+                              </SidebarMenuSubButton>
+                            </SidebarMenuSubItem>
+                          ))}
+                        </SidebarMenuSub>
+                      </CollapsibleContent>
+                    )}
                   </SidebarMenuItem>
                 </Collapsible>
 
@@ -167,8 +204,9 @@ export function AppSidebar() {
                 {navigationItems.slice(2).map(item => (
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton asChild tooltip={item.title}>
-                      <button onClick={() => handleNavigation(item.url)} className={`flex items-center justify-center h-12 w-12 mx-auto rounded-lg transition-all ${isActive(item.url) ? "bg-sidebar-accent text-sidebar-accent-foreground" : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"}`}>
-                        <item.icon className="h-5 w-5" />
+                      <button onClick={() => handleNavigation(item.url)} className={`flex items-center gap-3 w-full ${collapsed ? 'justify-center h-12 w-12 mx-auto' : 'px-3 h-10'} rounded-lg transition-all ${isActive(item.url) ? "bg-sidebar-accent text-sidebar-accent-foreground" : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"}`}>
+                        <item.icon className="h-5 w-5 shrink-0" />
+                        {!collapsed && <span>{item.title}</span>}
                       </button>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
@@ -180,32 +218,40 @@ export function AppSidebar() {
 
         {/* Footer with Avatar, Plus Button, and Logout */}
         <SidebarFooter className="mt-auto p-2 border-t space-y-2">
-          <SidebarMenuButton asChild tooltip={nameInfo.name}>
-            <button onClick={() => handleNavigation('/profile')} className="flex items-center justify-center h-12 w-12 mx-auto">
-              <Avatar className="h-10 w-10">
+          <SidebarMenuButton asChild tooltip={collapsed ? nameInfo.name : undefined}>
+            <button onClick={() => handleNavigation('/profile')} className={`flex items-center gap-3 w-full ${collapsed ? 'justify-center h-12 w-12 mx-auto' : 'px-3 h-10'} rounded-lg transition-all hover:bg-sidebar-accent`}>
+              <Avatar className={collapsed ? "h-10 w-10" : "h-8 w-8 shrink-0"}>
                 <AvatarImage src={profile?.avatar_url || undefined} />
                 <AvatarFallback>
                   {profile?.vorname?.[0]}{profile?.nachname?.[0]}
                 </AvatarFallback>
               </Avatar>
+              {!collapsed && (
+                <div className="flex flex-col items-start overflow-hidden">
+                  <span className="text-sm font-medium truncate">{nameInfo.name}</span>
+                  {nameInfo.job && <span className="text-xs text-muted-foreground truncate">{nameInfo.job}</span>}
+                </div>
+              )}
             </button>
           </SidebarMenuButton>
 
-          <SidebarMenuButton asChild tooltip="Beitrag posten">
+          <SidebarMenuButton asChild tooltip={collapsed ? "Beitrag posten" : undefined}>
             <button 
               onClick={() => openPostComposer()} 
-              className="flex items-center justify-center h-12 w-12 mx-auto rounded-full bg-foreground text-background hover:bg-foreground/90 transition-all"
+              className={`flex items-center gap-3 w-full ${collapsed ? 'justify-center h-12 w-12 mx-auto rounded-full' : 'px-3 h-10 rounded-lg'} bg-foreground text-background hover:bg-foreground/90 transition-all`}
             >
-              <Plus className="h-5 w-5" />
+              <Plus className="h-5 w-5 shrink-0" />
+              {!collapsed && <span>Beitrag posten</span>}
             </button>
           </SidebarMenuButton>
 
-          <SidebarMenuButton asChild tooltip="Abmelden">
+          <SidebarMenuButton asChild tooltip={collapsed ? "Abmelden" : undefined}>
             <button 
               onClick={handleSignOut}
-              className="flex items-center justify-center h-12 w-12 mx-auto rounded-lg hover:bg-sidebar-accent transition-all"
+              className={`flex items-center gap-3 w-full ${collapsed ? 'justify-center h-12 w-12 mx-auto' : 'px-3 h-10'} rounded-lg hover:bg-sidebar-accent transition-all`}
             >
-              <LogOut className="h-5 w-5" />
+              <LogOut className="h-5 w-5 shrink-0" />
+              {!collapsed && <span>Abmelden</span>}
             </button>
           </SidebarMenuButton>
         </SidebarFooter>
