@@ -156,40 +156,40 @@ export default function UserProfilePage() {
     if (isOwner) return null;
     if (status === "accepted") {
       return (
-        <div className="flex gap-1.5 sm:gap-2">
-          <Button onClick={() => navigate("/community/messages")} className="min-h-[44px] text-xs sm:text-sm">
-            <MessageSquareMore className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1" /> Nachricht
+        <div className="flex gap-1 sm:gap-2">
+          <Button onClick={() => navigate("/community/messages")} className="min-h-[44px] px-2 sm:px-4 text-xs sm:text-sm">
+            <MessageSquareMore className="h-4 w-4 sm:h-4 sm:w-4 sm:mr-1" /> <span className="hidden sm:inline">Nachricht</span>
           </Button>
         </div>
       );
     }
     if (status === "none" || !user) {
       return (
-        <div className="flex gap-1.5 sm:gap-2">
-          <Button onClick={onConnect} className="min-h-[44px] text-xs sm:text-sm"><UserPlus className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1" /> Vernetzen</Button>
+        <div className="flex gap-1 sm:gap-2">
+          <Button onClick={onConnect} className="min-h-[44px] px-2 sm:px-4 text-xs sm:text-sm"><UserPlus className="h-4 w-4 sm:h-4 sm:w-4 sm:mr-1" /> <span className="hidden sm:inline">Vernetzen</span></Button>
         </div>
       );
     }
     if (status === "pending") {
       return (
-        <div className="flex items-center gap-1.5 sm:gap-2">
-          <Button variant="secondary" disabled className="min-h-[44px] text-xs sm:text-sm"><Check className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1" /> Ausstehend</Button>
-          <Button variant="ghost" onClick={onCancel} className="min-h-[44px] text-xs sm:text-sm"><X className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> Zurückziehen</Button>
+        <div className="flex items-center gap-1 sm:gap-2">
+          <Button variant="secondary" disabled className="min-h-[44px] px-2 sm:px-4 text-xs sm:text-sm"><Check className="h-4 w-4 sm:h-4 sm:w-4 sm:mr-1" /> <span className="hidden sm:inline">Ausstehend</span></Button>
+          <Button variant="ghost" onClick={onCancel} className="min-h-[44px] px-1 sm:px-3 text-xs sm:text-sm"><X className="h-4 w-4 sm:h-4 sm:w-4" /></Button>
         </div>
       );
     }
     if (status === "incoming") {
       return (
-        <div className="flex items-center gap-1.5 sm:gap-2">
-          <Button onClick={onAccept} className="min-h-[44px] text-xs sm:text-sm">Annehmen</Button>
-          <Button variant="outline" onClick={onDecline} className="min-h-[44px] text-xs sm:text-sm">Ablehnen</Button>
+        <div className="flex items-center gap-1 sm:gap-2">
+          <Button onClick={onAccept} className="min-h-[44px] px-2 sm:px-4 text-xs sm:text-sm">Annehmen</Button>
+          <Button variant="outline" onClick={onDecline} className="min-h-[44px] px-2 sm:px-4 text-xs sm:text-sm">Ablehnen</Button>
         </div>
       );
     }
     if (status === "declined") {
       return (
-        <div className="flex items-center gap-1.5 sm:gap-2">
-          <Button onClick={onConnect} className="min-h-[44px] text-xs sm:text-sm">Erneut senden</Button>
+        <div className="flex items-center gap-1 sm:gap-2">
+          <Button onClick={onConnect} className="min-h-[44px] px-2 sm:px-4 text-xs sm:text-sm">Erneut senden</Button>
         </div>
       );
     }
@@ -197,17 +197,17 @@ export default function UserProfilePage() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background pb-20 md:pb-0">
       {/* Header with back button */}
-      <div className="px-3 sm:px-4 md:px-6 py-2 sm:py-3 border-b">
+      <div className="px-2 sm:px-3 md:px-6 py-1.5 sm:py-2 border-b">
         <div className="max-w-screen-2xl mx-auto flex items-center justify-between gap-2">
-          <Button variant="outline" className="flex items-center gap-1.5 min-h-[44px] text-xs sm:text-sm" onClick={() => navigate(-1)}>
-            <ArrowLeft className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> Zurück
+          <Button variant="outline" className="flex items-center gap-1.5 min-h-[44px] px-2 sm:px-4 text-xs sm:text-sm" onClick={() => navigate(-1)}>
+            <ArrowLeft className="h-4 w-4 sm:h-4 sm:w-4" /> <span className="hidden sm:inline">Zurück</span>
           </Button>
-          <div className="flex items-center gap-1.5 sm:gap-2">
+          <div className="flex items-center gap-1 sm:gap-2">
             {isCompanyMember && !isOwner && (
-              <Button onClick={toggleInterest} disabled={interestLoading} variant={interested ? 'secondary' : 'default'} className="min-h-[44px] text-xs sm:text-sm">
-                <HandHeart className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1" /> {interested ? 'Interesse gezeigt' : 'Interesse zeigen'}
+              <Button onClick={toggleInterest} disabled={interestLoading} variant={interested ? 'secondary' : 'default'} className="min-h-[44px] px-2 sm:px-4 text-xs sm:text-sm">
+                <HandHeart className="h-4 w-4 sm:h-4 sm:w-4 sm:mr-1" /> <span className="hidden sm:inline">{interested ? 'Interesse gezeigt' : 'Interesse zeigen'}</span>
               </Button>
             )}
             {renderActions()}
@@ -216,10 +216,10 @@ export default function UserProfilePage() {
       </div>
 
       {/* Main content */}
-      <div className="max-w-screen-2xl mx-auto px-3 sm:px-4 md:px-6 py-3 sm:py-4 md:py-6">
-        <div className="flex flex-col lg:grid lg:grid-cols-12 gap-3 sm:gap-4 md:gap-6">
+      <div className="max-w-screen-2xl mx-auto px-2 sm:px-3 md:px-6 py-2 sm:py-3 md:py-4">
+        <div className="flex flex-col lg:grid lg:grid-cols-12 gap-2 sm:gap-3 md:gap-4">
           {/* Left column */}
-          <main className="lg:col-span-8 space-y-3 sm:space-y-4 md:space-y-6">
+          <main className="lg:col-span-8 space-y-2 sm:space-y-3 md:space-y-4">
             <LinkedInProfileHeader profile={displayProfile} isEditing={false} onProfileUpdate={() => {}} />
             <LinkedInProfileMain profile={displayProfile} isEditing={false} onProfileUpdate={() => {}} readOnly={!isOwner} />
             <LinkedInProfileExperience experiences={displayProfile?.berufserfahrung || []} isEditing={false} onExperiencesUpdate={() => {}} />
@@ -228,8 +228,8 @@ export default function UserProfilePage() {
           </main>
 
           {/* Right column */}
-          <aside className="lg:col-span-4">
-            <div className="lg:sticky lg:top-20 space-y-3 sm:space-y-4 md:space-y-6">
+          <aside className="hidden lg:block lg:col-span-4">
+            <div className="lg:sticky lg:top-20 space-y-2 sm:space-y-3 md:space-y-4">
               <LinkedInProfileSidebar profile={displayProfile} isEditing={false} onProfileUpdate={() => {}} readOnly={!isOwner} showLanguagesAndSkills={isOwner} showLicenseAndStats={isOwner} showCVSection={isOwner} />
               <RightRailAd variant="card" size="sm" />
               <InView rootMargin="300px" placeholder={<div className="h-32 rounded-md bg-muted/50 animate-pulse" />}> 

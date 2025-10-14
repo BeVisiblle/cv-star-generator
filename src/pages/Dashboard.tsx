@@ -32,7 +32,7 @@ const Dashboard = () => {
       
       {/* Inhalt direkt unter der Navbar */}
       <div className="pt-12 md:pt-14">
-        <div className="mx-auto max-w-screen-2xl grid grid-cols-12 gap-4 px-2 sm:px-4 lg:px-6">
+        <div className="mx-auto max-w-screen-2xl grid grid-cols-12 gap-2 sm:gap-3 lg:gap-4 px-2 sm:px-3 lg:px-4">
           
           {/* (1) Left Panel - normaler Flow, keine eigene Scrollbar */}
           <aside
@@ -51,14 +51,14 @@ const Dashboard = () => {
               className="sticky z-40 bg-white shadow-sm"
               style={{ top: `${getNavbarHeight()}px` }}
             >
-              <div className="px-1.5 md:px-2 py-0.5 pb-1 space-y-1">
+              <div className="px-2 md:px-2 py-1 space-y-1">
                 <ComposerTeaser />
                 <FeedSortBar />
               </div>
             </div>
 
             {/* (3) Post-Liste - mehr Abstand auf mobile */}
-            <div className="mt-1.5 md:mt-2 space-y-3 md:space-y-2 relative z-10" role="feed">
+            <div className="mt-2 md:mt-2 space-y-3 md:space-y-2 relative z-10" role="feed">
               <CommunityFeed feedHeadHeight={feedHeadH} />
             </div>
           </section>
