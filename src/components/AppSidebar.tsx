@@ -37,7 +37,7 @@ const communityItems = [
 
 const careerItems = [
   { title: "Jobsuche", url: "/jobs", icon: Search },
-  { title: "Stellenanzeigen", url: "/job-listings", icon: FileText },
+  { title: "Meine Karriere", url: "/meine-karriere", icon: Briefcase },
   { title: "Unternehmen", url: "/companies", icon: Building2 }
 ];
 export function AppSidebar() {
