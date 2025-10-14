@@ -1,8 +1,10 @@
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
+import { Input } from "@/components/ui/input";
 import { RotateCcw } from "lucide-react";
 import {
   Select,
@@ -18,73 +20,102 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 
-interface JobFiltersProps {
+export interface JobFiltersProps {
   selectedJobTypes: string[];
-  selectedLocations: string[];
+  selectedWorkModes: string[];
+  selectedCity: string;
   datePosted: string;
   experience: string;
   salaryRange: [number, number];
+  selectedSkills: string[];
   onJobTypeChange: (types: string[]) => void;
-  onLocationChange: (locations: string[]) => void;
+  onWorkModeChange: (modes: string[]) => void;
+  onCityChange: (city: string) => void;
   onDatePostedChange: (date: string) => void;
   onExperienceChange: (exp: string) => void;
   onSalaryRangeChange: (range: [number, number]) => void;
+  onSkillsChange: (skills: string[]) => void;
   onReset: () => void;
 }
 
 const JOB_TYPES = [
-  { id: 'full_time', label: 'Vollzeit', count: 94 },
-  { id: 'part_time', label: 'Teilzeit', count: 289 },
-  { id: 'apprenticeship', label: 'Ausbildung', count: 84 },
-  { id: 'dual_study', label: 'Duales Studium', count: 42 },
-  { id: 'internship', label: 'Praktikum', count: 56 },
+  { id: "Vollzeit", label: "Vollzeit" },
+  { id: "Teilzeit", label: "Teilzeit" },
+  { id: "Befristet", label: "Befristet" },
+  { id: "Praktikum", label: "Praktikum" },
+  { id: "Ausbildung", label: "Ausbildung" },
 ];
 
-const LOCATIONS = [
-  { id: 'berlin', label: 'Berlin', count: 48 },
-  { id: 'munich', label: 'München', count: 296 },
-  { id: 'hamburg', label: 'Hamburg', count: 62 },
-  { id: 'cologne', label: 'Köln', count: 45 },
+const WORK_MODES = [
+  { id: "remote", label: "Remote" },
+  { id: "hybrid", label: "Hybrid" },
+  { id: "onsite", label: "Vor Ort" },
+];
+
+const EXPERIENCE_LEVELS = [
+  { id: "entry", label: "Berufseinsteiger" },
+  { id: "mid", label: "Mit Berufserfahrung" },
+  { id: "senior", label: "Berufserfahren" },
+  { id: "lead", label: "Führungsposition" },
 ];
 
 export function JobFilters({
   selectedJobTypes,
-  selectedLocations,
+  selectedWorkModes,
+  selectedCity,
   datePosted,
   experience,
   salaryRange,
+  selectedSkills,
   onJobTypeChange,
-  onLocationChange,
+  onWorkModeChange,
+  onCityChange,
   onDatePostedChange,
   onExperienceChange,
   onSalaryRangeChange,
-  onReset,
+  onSkillsChange,
+  onReset
 }: JobFiltersProps) {
-  const toggleJobType = (type: string) => {
-    if (selectedJobTypes.includes(type)) {
-      onJobTypeChange(selectedJobTypes.filter(t => t !== type));
+  const [showMoreFilters, setShowMoreFilters] = useState(false);
+
+  const toggleJobType = (id: string) => {
+    if (selectedJobTypes.includes(id)) {
+      onJobTypeChange(selectedJobTypes.filter(t => t !== id));
     } else {
-      onJobTypeChange([...selectedJobTypes, type]);
+      onJobTypeChange([...selectedJobTypes, id]);
     }
   };
 
-  const toggleLocation = (location: string) => {
-    if (selectedLocations.includes(location)) {
-      onLocationChange(selectedLocations.filter(l => l !== location));
+  const toggleWorkMode = (id: string) => {
+    if (selectedWorkModes.includes(id)) {
+      onWorkModeChange(selectedWorkModes.filter(m => m !== id));
     } else {
-      onLocationChange([...selectedLocations, location]);
+      onWorkModeChange([...selectedWorkModes, id]);
     }
   };
 
-  const hasActiveFilters = selectedJobTypes.length > 0 || 
-    selectedLocations.length > 0 || 
-    datePosted !== 'all' || 
-    experience !== 'all';
+  const toggleSkill = (skill: string) => {
+    if (selectedSkills.includes(skill)) {
+      onSkillsChange(selectedSkills.filter(s => s !== skill));
+    } else {
+      onSkillsChange([...selectedSkills, skill]);
+    }
+  };
+
+  const hasActiveFilters = 
+    selectedJobTypes.length > 0 ||
+    selectedWorkModes.length > 0 ||
+    selectedCity !== '' ||
+    datePosted !== 'all' ||
+    experience !== 'all' ||
+    selectedSkills.length > 0 ||
+    salaryRange[0] !== 15000 ||
+    salaryRange[1] !== 100000;
 
   return (
     <Card className="sticky top-4">
       <CardHeader className="flex flex-row items-center justify-between pb-3">
-        <CardTitle className="text-base">Filter by</CardTitle>
+        <CardTitle className="text-base">Filter</CardTitle>
         {hasActiveFilters && (
           <Button 
             variant="ghost" 
@@ -93,24 +124,70 @@ export function JobFilters({
             className="h-8 px-2 text-xs"
           >
             <RotateCcw className="h-3 w-3 mr-1" />
-            Reset all
+            Zurücksetzen
           </Button>
         )}
       </CardHeader>
       <CardContent className="space-y-4">
-        <Accordion type="multiple" defaultValue={['date', 'type', 'location', 'salary', 'experience']}>
-          {/* Date Posted */}
+        <Accordion type="multiple" defaultValue={["type"]} className="w-full">
+          {/* Stellenart */}
+          <AccordionItem value="type" className="border-0">
+            <AccordionTrigger className="py-3 text-sm font-medium hover:no-underline">
+              Stellenart
+            </AccordionTrigger>
+            <AccordionContent>
+              <div className="space-y-3">
+                {JOB_TYPES.map((type) => (
+                  <div key={type.id} className="flex items-center space-x-2">
+                    <Checkbox
+                      id={type.id}
+                      checked={selectedJobTypes.includes(type.id)}
+                      onCheckedChange={() => toggleJobType(type.id)}
+                    />
+                    <Label htmlFor={type.id} className="text-sm cursor-pointer flex-1">
+                      {type.label}
+                    </Label>
+                  </div>
+                ))}
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+
+          {/* Arbeitsmodell */}
+          <AccordionItem value="workmode" className="border-0">
+            <AccordionTrigger className="py-3 text-sm font-medium hover:no-underline">
+              Arbeitsmodell
+            </AccordionTrigger>
+            <AccordionContent>
+              <div className="space-y-3">
+                {WORK_MODES.map((mode) => (
+                  <div key={mode.id} className="flex items-center space-x-2">
+                    <Checkbox
+                      id={mode.id}
+                      checked={selectedWorkModes.includes(mode.id)}
+                      onCheckedChange={() => toggleWorkMode(mode.id)}
+                    />
+                    <Label htmlFor={mode.id} className="text-sm cursor-pointer flex-1">
+                      {mode.label}
+                    </Label>
+                  </div>
+                ))}
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+
+          {/* Veröffentlichungsdatum */}
           <AccordionItem value="date" className="border-0">
             <AccordionTrigger className="py-3 text-sm font-medium hover:no-underline">
-              Date posted
+              Veröffentlicht
             </AccordionTrigger>
             <AccordionContent>
               <Select value={datePosted} onValueChange={onDatePostedChange}>
-                <SelectTrigger className="w-full">
+                <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">Alle</SelectItem>
+                  <SelectItem value="all">Alle Daten</SelectItem>
                   <SelectItem value="24h">Letzte 24 Stunden</SelectItem>
                   <SelectItem value="7d">Letzte 7 Tage</SelectItem>
                   <SelectItem value="30d">Letzter Monat</SelectItem>
@@ -119,108 +196,78 @@ export function JobFilters({
             </AccordionContent>
           </AccordionItem>
 
-          {/* Job Type */}
-          <AccordionItem value="type" className="border-0">
-            <AccordionTrigger className="py-3 text-sm font-medium hover:no-underline">
-              Job type
-            </AccordionTrigger>
-            <AccordionContent>
-              <div className="space-y-3">
-                {JOB_TYPES.map((type) => (
-                  <div key={type.id} className="flex items-center justify-between">
-                    <div className="flex items-center space-x-2">
-                      <Checkbox
-                        id={type.id}
-                        checked={selectedJobTypes.includes(type.id)}
-                        onCheckedChange={() => toggleJobType(type.id)}
-                      />
-                      <Label
-                        htmlFor={type.id}
-                        className="text-sm font-normal cursor-pointer"
-                      >
-                        {type.label}
-                      </Label>
-                    </div>
-                    <span className="text-xs text-muted-foreground">{type.count}</span>
-                  </div>
-                ))}
-              </div>
-            </AccordionContent>
-          </AccordionItem>
-
-          {/* Location */}
-          <AccordionItem value="location" className="border-0">
-            <AccordionTrigger className="py-3 text-sm font-medium hover:no-underline">
-              Location
-            </AccordionTrigger>
-            <AccordionContent>
-              <div className="space-y-3">
-                {LOCATIONS.map((location) => (
-                  <div key={location.id} className="flex items-center justify-between">
-                    <div className="flex items-center space-x-2">
-                      <Checkbox
-                        id={location.id}
-                        checked={selectedLocations.includes(location.id)}
-                        onCheckedChange={() => toggleLocation(location.id)}
-                      />
-                      <Label
-                        htmlFor={location.id}
-                        className="text-sm font-normal cursor-pointer"
-                      >
-                        {location.label}
-                      </Label>
-                    </div>
-                    <span className="text-xs text-muted-foreground">{location.count}</span>
-                  </div>
-                ))}
-              </div>
-            </AccordionContent>
-          </AccordionItem>
-
-          {/* Salary Estimates */}
-          <AccordionItem value="salary" className="border-0">
-            <AccordionTrigger className="py-3 text-sm font-medium hover:no-underline">
-              Salary estimates
-            </AccordionTrigger>
-            <AccordionContent>
-              <div className="space-y-4">
-                <Slider
-                  min={15000}
-                  max={100000}
-                  step={5000}
-                  value={salaryRange}
-                  onValueChange={onSalaryRangeChange}
-                  className="w-full"
-                />
-                <div className="flex items-center justify-between text-sm">
-                  <span className="font-medium">€{salaryRange[0].toLocaleString()}</span>
-                  <span className="font-medium">€{salaryRange[1].toLocaleString()}</span>
-                </div>
-              </div>
-            </AccordionContent>
-          </AccordionItem>
-
-          {/* Experience Level */}
+          {/* Berufserfahrung */}
           <AccordionItem value="experience" className="border-0">
             <AccordionTrigger className="py-3 text-sm font-medium hover:no-underline">
-              Experience level
+              Berufserfahrung
             </AccordionTrigger>
             <AccordionContent>
               <Select value={experience} onValueChange={onExperienceChange}>
-                <SelectTrigger className="w-full">
+                <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Alle Level</SelectItem>
-                  <SelectItem value="entry">Berufseinsteiger</SelectItem>
-                  <SelectItem value="junior">Junior</SelectItem>
-                  <SelectItem value="mid">Mid-Level</SelectItem>
-                  <SelectItem value="senior">Senior</SelectItem>
+                  {EXPERIENCE_LEVELS.map((level) => (
+                    <SelectItem key={level.id} value={level.id}>
+                      {level.label}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </AccordionContent>
           </AccordionItem>
+
+          {showMoreFilters && (
+            <>
+              {/* Arbeitsort */}
+              <AccordionItem value="city" className="border-0">
+                <AccordionTrigger className="py-3 text-sm font-medium hover:no-underline">
+                  Stadt
+                </AccordionTrigger>
+                <AccordionContent>
+                  <Input
+                    placeholder="Stadt eingeben..."
+                    value={selectedCity}
+                    onChange={(e) => onCityChange(e.target.value)}
+                  />
+                </AccordionContent>
+              </AccordionItem>
+
+              {/* Gehaltsspanne */}
+              <AccordionItem value="salary" className="border-0">
+                <AccordionTrigger className="py-3 text-sm font-medium hover:no-underline">
+                  Gehalt
+                </AccordionTrigger>
+                <AccordionContent>
+                  <div className="space-y-4">
+                    <Slider
+                      min={15000}
+                      max={100000}
+                      step={5000}
+                      value={salaryRange}
+                      onValueChange={(value) => onSalaryRangeChange(value as [number, number])}
+                      className="w-full"
+                    />
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="font-medium">€{salaryRange[0].toLocaleString('de-DE')}</span>
+                      <span className="font-medium">€{salaryRange[1].toLocaleString('de-DE')}</span>
+                    </div>
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+            </>
+          )}
         </Accordion>
+
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setShowMoreFilters(!showMoreFilters)}
+          className="w-full"
+        >
+          {showMoreFilters ? 'Weniger Filter' : 'Mehr Filter'}
+        </Button>
       </CardContent>
     </Card>
   );

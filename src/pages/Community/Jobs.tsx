@@ -11,10 +11,12 @@ export default function CommunityJobs() {
   const [search, setSearch] = useState("");
   const [location, setLocation] = useState("");
   const [selectedJobTypes, setSelectedJobTypes] = useState<string[]>([]);
-  const [selectedLocations, setSelectedLocations] = useState<string[]>([]);
+  const [selectedWorkModes, setSelectedWorkModes] = useState<string[]>([]);
+  const [selectedCity, setSelectedCity] = useState("");
   const [datePosted, setDatePosted] = useState("all");
   const [experience, setExperience] = useState("all");
   const [salaryRange, setSalaryRange] = useState<[number, number]>([15000, 100000]);
+  const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
   const [selectedJob, setSelectedJob] = useState<any>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [sortBy, setSortBy] = useState("recent");
@@ -23,8 +25,7 @@ export default function CommunityJobs() {
     isLoading
   } = usePublicJobs({
     employment_type: selectedJobTypes[0],
-    // API supports single type for now
-    location: location || selectedLocations[0]
+    location: location || selectedCity
   });
 
   // Filter jobs based on all criteria
@@ -36,6 +37,16 @@ export default function CommunityJobs() {
 
     // Job type filter
     if (selectedJobTypes.length > 0 && !selectedJobTypes.includes(job.employment_type)) {
+      return false;
+    }
+
+    // Work mode filter
+    if (selectedWorkModes.length > 0 && !selectedWorkModes.includes(job.work_mode)) {
+      return false;
+    }
+
+    // City filter
+    if (selectedCity && job.city && !job.city.toLowerCase().includes(selectedCity.toLowerCase())) {
       return false;
     }
 
@@ -69,61 +80,43 @@ export default function CommunityJobs() {
   const paginatedJobs = sortedJobs.slice((currentPage - 1) * jobsPerPage, currentPage * jobsPerPage);
   const resetFilters = () => {
     setSelectedJobTypes([]);
-    setSelectedLocations([]);
+    setSelectedWorkModes([]);
+    setSelectedCity("");
     setDatePosted("all");
     setExperience("all");
     setSalaryRange([15000, 100000]);
+    setSelectedSkills([]);
     setSearch("");
     setLocation("");
   };
-  const hasActiveFilters = selectedJobTypes.length > 0 || selectedLocations.length > 0 || datePosted !== 'all' || experience !== 'all' || search || location;
+  const hasActiveFilters = selectedJobTypes.length > 0 || selectedWorkModes.length > 0 || selectedCity !== "" || datePosted !== 'all' || experience !== 'all' || selectedSkills.length > 0 || search || location;
   return <main className="w-full py-6 px-3 sm:px-6 bg-background">
       <div className="max-w-[1400px] mx-auto space-y-6">
         {/* Hero Section */}
         <JobSearchHero search={search} location={location} onSearchChange={setSearch} onLocationChange={setLocation} totalJobs={filteredJobs.length} />
 
-        {/* Quick Filters */}
-        <div className="flex gap-2 flex-wrap mx-[250px] my-0 px-[19px]">
-          <Select value={datePosted} onValueChange={setDatePosted}>
-            <SelectTrigger className="w-[160px]">
-              <SelectValue placeholder="Date Posted" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Alle Daten</SelectItem>
-              <SelectItem value="24h">Letzte 24h</SelectItem>
-              <SelectItem value="7d">Letzte 7 Tage</SelectItem>
-              <SelectItem value="30d">Letzter Monat</SelectItem>
-            </SelectContent>
-          </Select>
-
-          <Select value={experience} onValueChange={setExperience}>
-            <SelectTrigger className="w-[160px]">
-              <SelectValue placeholder="Experience" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Alle Level</SelectItem>
-              <SelectItem value="entry">Einsteiger</SelectItem>
-              <SelectItem value="mid">Mid-Level</SelectItem>
-              <SelectItem value="senior">Senior</SelectItem>
-            </SelectContent>
-          </Select>
-
-          <Select value={sortBy} onValueChange={setSortBy}>
-            <SelectTrigger className="w-[160px]">
-              <SelectValue placeholder="Sort by" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="recent">Neueste</SelectItem>
-              <SelectItem value="relevant">Relevanz</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
 
         {/* Main Content Grid */}
         <div className="grid lg:grid-cols-[280px_1fr] gap-6">
           {/* Filters Sidebar */}
           <aside className="hidden lg:block">
-            <JobFilters selectedJobTypes={selectedJobTypes} selectedLocations={selectedLocations} datePosted={datePosted} experience={experience} salaryRange={salaryRange} onJobTypeChange={setSelectedJobTypes} onLocationChange={setSelectedLocations} onDatePostedChange={setDatePosted} onExperienceChange={setExperience} onSalaryRangeChange={setSalaryRange} onReset={resetFilters} />
+            <JobFilters 
+              selectedJobTypes={selectedJobTypes} 
+              selectedWorkModes={selectedWorkModes}
+              selectedCity={selectedCity}
+              datePosted={datePosted} 
+              experience={experience} 
+              salaryRange={salaryRange} 
+              selectedSkills={selectedSkills}
+              onJobTypeChange={setSelectedJobTypes} 
+              onWorkModeChange={setSelectedWorkModes}
+              onCityChange={setSelectedCity}
+              onDatePostedChange={setDatePosted} 
+              onExperienceChange={setExperience} 
+              onSalaryRangeChange={setSalaryRange} 
+              onSkillsChange={setSelectedSkills}
+              onReset={resetFilters} 
+            />
           </aside>
 
           {/* Jobs List */}
