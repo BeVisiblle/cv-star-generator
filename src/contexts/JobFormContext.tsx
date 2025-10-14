@@ -44,7 +44,7 @@ const initialFormData: JobFormData = {
   title: '',
   industry: '',
   city: '',
-  employment_type: 'apprenticeship',
+  employment_type: 'fulltime',
   start_date: '',
   skills: [],
   required_languages: [],
