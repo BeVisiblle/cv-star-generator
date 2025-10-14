@@ -27,7 +27,7 @@ export default function PublicJobDetailPage() {
   const [companyName, setCompanyName] = useState("");
   
   const { isSaved, toggleSave, isToggling } = useJobSave(id || "");
-  const { hasApplied, applyToJob, isApplying, canApply } = useQuickApply(id || "");
+  const { hasApplied, applyToJob, isApplying, canApply, profileStatus } = useQuickApply(id || "");
 
   const { data: job, isLoading } = useQuery({
     queryKey: ["public-job-detail", id],
@@ -456,13 +456,23 @@ export default function PublicJobDetailPage() {
               {canApply ? (
                 `Dein vollständiges Profil wird an ${companyName} weitergeleitet.`
               ) : (
-                <div className="space-y-2">
+                <div className="space-y-3">
                   <p className="text-destructive font-medium">
                     Bewerbung nicht möglich
                   </p>
                   <p>
                     Du kannst dich nicht bewerben, weil dein Profil noch nicht vollständig ist.
                   </p>
+                  {profileStatus?.missingFields && profileStatus.missingFields.length > 0 && (
+                    <div className="bg-muted p-3 rounded-md">
+                      <p className="font-medium text-sm mb-2">Folgende Angaben fehlen noch:</p>
+                      <ul className="list-disc list-inside space-y-1 text-sm">
+                        {profileStatus.missingFields.map((field, index) => (
+                          <li key={index}>{field}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
                   <p className="text-sm">
                     Bitte vervollständige dein Profil in den Einstellungen, um dich auf Stellen bewerben zu können.
                   </p>

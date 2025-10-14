@@ -29,15 +29,27 @@ export function useQuickApply(jobId: string) {
     queryFn: async () => {
       const { data: profile, error } = await supabase
         .from("candidate_profiles")
-        .select("id")
+        .select("id, profession_id, seniority, availability_date, location_geog")
         .eq("user_id", user!.id)
         .maybeSingle();
 
       if (error) throw error;
       
+      const missing: string[] = [];
+      
+      if (!profile) {
+        missing.push("Profil muss erstellt werden");
+      } else {
+        if (!profile.profession_id) missing.push("Beruf");
+        if (!profile.seniority) missing.push("Erfahrungsstufe");
+        if (!profile.availability_date) missing.push("Verfügbarkeitsdatum");
+        if (!profile.location_geog) missing.push("Standort");
+      }
+      
       return {
         hasProfile: !!profile,
-        profileId: profile?.id || null
+        profileId: profile?.id || null,
+        missingFields: missing
       };
     },
   });
