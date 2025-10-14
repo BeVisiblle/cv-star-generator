@@ -48,6 +48,14 @@ Erstelle eine ansprechende, moderne Stellenbeschreibung mit folgenden Abschnitte
    - Modern und Gen Z-gerecht (Flexibilität, Weiterbildung, Team-Events)
    - Konkret und authentisch
 
+**WICHTIGE Formatierungsregeln:**
+- NIEMALS HTML-Tags wie <strong>, <em>, <b>, etc. verwenden
+- Nur reinen Text mit einfacher Markdown-Formatierung
+- Bullet Points nur mit "•" (Unicode) oder "-" (Bindestrich)
+- Für Hervorhebung: Fettdruck OHNE ** Markierungen schreiben
+- Keine ## Überschriften - stattdessen einfach fetten Text
+- Line breaks mit normalen Zeilenumbrüchen
+
 **Tonalität:**
 - Modern, freundlich, authentisch
 - Kein Corporate-Sprech

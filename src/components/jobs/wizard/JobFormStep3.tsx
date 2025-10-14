@@ -8,17 +8,23 @@ import { Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
-// Helper function to clean AI markdown output
-function cleanAIMarkdown(text: string): string {
+// Helper function to clean AI text output - removes any HTML/markdown formatting
+function cleanAIText(text: string): string {
   if (!text) return '';
   
   return text
-    // Remove ## headers and replace with bold
-    .replace(/##\s+(.+)/g, '<strong>$1</strong>')
-    // Remove ** bold markers and replace with <strong>
-    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    // Remove any HTML tags completely
+    .replace(/<[^>]*>/g, '')
+    // Remove ## headers
+    .replace(/##\s+/g, '')
+    // Remove ** bold markers
+    .replace(/\*\*/g, '')
+    // Remove * italic markers
+    .replace(/\*/g, '')
     // Replace - bullet points with •
     .replace(/^-\s+/gm, '• ')
+    // Clean up multiple spaces
+    .replace(/\s+/g, ' ')
     // Ensure line breaks are preserved
     .trim();
 }
@@ -55,10 +61,10 @@ export function JobFormStep3() {
       if (error) throw error;
 
       if (data) {
-        // Clean the AI output before setting
-        form.setValue('tasks_md', cleanAIMarkdown(data.tasks_md || ''));
-        form.setValue('requirements_md', cleanAIMarkdown(data.requirements_md || ''));
-        form.setValue('benefits_description', cleanAIMarkdown(data.benefits_description || ''));
+        // Clean the AI output before setting - remove all HTML/markdown
+        form.setValue('tasks_md', cleanAIText(data.tasks_md || ''));
+        form.setValue('requirements_md', cleanAIText(data.requirements_md || ''));
+        form.setValue('benefits_description', cleanAIText(data.benefits_description || ''));
         toast.success('Beschreibung erfolgreich generiert!');
       }
     } catch (error: any) {
