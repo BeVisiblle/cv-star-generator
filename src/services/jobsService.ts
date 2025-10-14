@@ -64,14 +64,24 @@ export class JobsService {
 
   // Create a new job (draft)
   static async createJob(companyId: string, jobData: any): Promise<any> {
-    const insertData = {
+    const insertData: any = {
       company_id: companyId,
       status: 'draft',
       title: jobData.title || 'Neue Stelle',
-      city: jobData.location || jobData.city || '',
+      industry: jobData.industry || '',
+      city: jobData.city || '',
       employment_type: jobData.employment_type || 'apprenticeship',
-      description_md: jobData.description,
-      ...jobData,
+      start_date: jobData.start_date || null,
+      description_md: jobData.description_md || '',
+      tasks_md: jobData.tasks_md || '',
+      requirements_md: jobData.requirements_md || '',
+      benefits_description: jobData.benefits_description || '',
+      salary_min: jobData.salary_min || null,
+      salary_max: jobData.salary_max || null,
+      work_mode: jobData.work_mode || null,
+      working_hours: jobData.working_hours || null,
+      is_public: jobData.is_public ?? true,
+      is_active: jobData.is_active ?? false,
     };
 
     const { data, error } = await supabase
