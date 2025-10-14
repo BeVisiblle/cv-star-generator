@@ -8,8 +8,6 @@ import {
   Calendar, 
   Euro,
   Building2,
-  Edit,
-  Clock,
   User,
   Mail,
   Phone,
@@ -300,52 +298,6 @@ export function JobOverviewTab({ job, company }: JobOverviewTabProps) {
               </CardContent>
             </Card>
           )}
-
-          {/* Company Info */}
-          <Card className="shadow-sm">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base">Über das Unternehmen</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {company?.logo_url && (
-                <img 
-                  src={company.logo_url} 
-                  alt={company.name}
-                  className="w-full h-24 object-contain rounded-lg border bg-muted/10"
-                />
-              )}
-              <div>
-                <h4 className="font-semibold mb-1">{company?.name}</h4>
-                {company?.description && (
-                  <p className="text-xs text-muted-foreground line-clamp-3">{company.description}</p>
-                )}
-              </div>
-              <div className="space-y-2">
-                {company?.industry && (
-                  <div>
-                    <p className="text-xs text-muted-foreground">Branche</p>
-                    <p className="text-sm font-medium">{company.industry}</p>
-                  </div>
-                )}
-                {company?.size_range && (
-                  <div>
-                    <p className="text-xs text-muted-foreground">Größe</p>
-                    <p className="text-sm font-medium">{company.size_range}</p>
-                  </div>
-                )}
-              </div>
-              {company?.website_url && (
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="w-full"
-                  onClick={() => window.open(company.website_url, '_blank')}
-                >
-                  Website besuchen
-                </Button>
-              )}
-            </CardContent>
-          </Card>
         </div>
       </div>
     </div>

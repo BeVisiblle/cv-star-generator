@@ -79,6 +79,7 @@ const JobCreate = lazy(() => import("./pages/Company/JobCreate"));
 const JobEdit = lazy(() => import("./pages/Company/JobEdit"));
 const JobDetail = lazy(() => import("./pages/Company/JobDetail"));
 const JobAdBuilder = lazy(() => import("./pages/Company/JobAdBuilder"));
+const PublicJobDetail = lazy(() => import("./pages/Jobs/PublicJobDetail"));
 
 // Admin components - lazy loaded
 const AdminLayout = lazy(() => import("./pages/Admin/AdminLayout"));
@@ -381,6 +382,9 @@ const App = () => {
                 
                 {/* Company Matching Routes */}
               </Route>
+
+              {/* Public Job Detail */}
+              <Route path="/jobs/:id" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><PublicJobDetail /></Suspense>} />
               
               {/* Authenticated routes */}
               <Route element={<AuthenticatedLayout />}>
