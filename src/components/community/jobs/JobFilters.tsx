@@ -24,6 +24,10 @@ export interface JobFiltersProps {
   selectedJobTypes: string[];
   selectedWorkModes: string[];
   selectedCity: string;
+  selectedCompany: string;
+  selectedIndustry: string;
+  startDate: string;
+  requiresLicense: boolean;
   datePosted: string;
   experience: string;
   salaryRange: [number, number];
@@ -31,6 +35,10 @@ export interface JobFiltersProps {
   onJobTypeChange: (types: string[]) => void;
   onWorkModeChange: (modes: string[]) => void;
   onCityChange: (city: string) => void;
+  onCompanyChange: (company: string) => void;
+  onIndustryChange: (industry: string) => void;
+  onStartDateChange: (date: string) => void;
+  onRequiresLicenseChange: (requires: boolean) => void;
   onDatePostedChange: (date: string) => void;
   onExperienceChange: (exp: string) => void;
   onSalaryRangeChange: (range: [number, number]) => void;
@@ -39,11 +47,11 @@ export interface JobFiltersProps {
 }
 
 const JOB_TYPES = [
-  { id: "Vollzeit", label: "Vollzeit" },
-  { id: "Teilzeit", label: "Teilzeit" },
-  { id: "Befristet", label: "Befristet" },
-  { id: "Praktikum", label: "Praktikum" },
-  { id: "Ausbildung", label: "Ausbildung" },
+  { id: "full_time", label: "Vollzeit" },
+  { id: "part_time", label: "Teilzeit" },
+  { id: "internship", label: "Praktikum" },
+  { id: "apprenticeship", label: "Ausbildung" },
+  { id: "temporary", label: "Befristet" },
 ];
 
 const WORK_MODES = [
@@ -59,10 +67,27 @@ const EXPERIENCE_LEVELS = [
   { id: "lead", label: "Führungsposition" },
 ];
 
+const INDUSTRIES = [
+  { id: "handwerk", label: "Handwerk" },
+  { id: "industrie", label: "Industrie" },
+  { id: "dienstleistung", label: "Dienstleistung" },
+  { id: "it", label: "IT & Technologie" },
+  { id: "gesundheit", label: "Gesundheit & Pflege" },
+  { id: "bildung", label: "Bildung" },
+  { id: "einzelhandel", label: "Einzelhandel" },
+  { id: "gastro", label: "Gastronomie & Hotel" },
+  { id: "logistik", label: "Logistik & Transport" },
+  { id: "bau", label: "Bau & Architektur" },
+];
+
 export function JobFilters({
   selectedJobTypes,
   selectedWorkModes,
   selectedCity,
+  selectedCompany,
+  selectedIndustry,
+  startDate,
+  requiresLicense,
   datePosted,
   experience,
   salaryRange,
@@ -70,6 +95,10 @@ export function JobFilters({
   onJobTypeChange,
   onWorkModeChange,
   onCityChange,
+  onCompanyChange,
+  onIndustryChange,
+  onStartDateChange,
+  onRequiresLicenseChange,
   onDatePostedChange,
   onExperienceChange,
   onSalaryRangeChange,
@@ -106,6 +135,10 @@ export function JobFilters({
     selectedJobTypes.length > 0 ||
     selectedWorkModes.length > 0 ||
     selectedCity !== '' ||
+    selectedCompany !== '' ||
+    selectedIndustry !== '' ||
+    startDate !== '' ||
+    requiresLicense ||
     datePosted !== 'all' ||
     experience !== 'all' ||
     selectedSkills.length > 0 ||
@@ -130,6 +163,20 @@ export function JobFilters({
       </CardHeader>
       <CardContent className="space-y-4">
         <Accordion type="multiple" defaultValue={["type"]} className="w-full">
+          {/* Unternehmen */}
+          <AccordionItem value="company" className="border-0">
+            <AccordionTrigger className="py-3 text-sm font-medium hover:no-underline">
+              Unternehmen
+            </AccordionTrigger>
+            <AccordionContent>
+              <Input
+                placeholder="Unternehmen suchen..."
+                value={selectedCompany}
+                onChange={(e) => onCompanyChange(e.target.value)}
+              />
+            </AccordionContent>
+          </AccordionItem>
+
           {/* Stellenart */}
           <AccordionItem value="type" className="border-0">
             <AccordionTrigger className="py-3 text-sm font-medium hover:no-underline">
@@ -150,6 +197,28 @@ export function JobFilters({
                   </div>
                 ))}
               </div>
+            </AccordionContent>
+          </AccordionItem>
+
+          {/* Branche */}
+          <AccordionItem value="industry" className="border-0">
+            <AccordionTrigger className="py-3 text-sm font-medium hover:no-underline">
+              Branche
+            </AccordionTrigger>
+            <AccordionContent>
+              <Select value={selectedIndustry} onValueChange={onIndustryChange}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Branche wählen" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Alle Branchen</SelectItem>
+                  {INDUSTRIES.map((industry) => (
+                    <SelectItem key={industry.id} value={industry.id}>
+                      {industry.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </AccordionContent>
           </AccordionItem>
 
@@ -176,45 +245,17 @@ export function JobFilters({
             </AccordionContent>
           </AccordionItem>
 
-          {/* Veröffentlichungsdatum */}
-          <AccordionItem value="date" className="border-0">
+          {/* Startdatum */}
+          <AccordionItem value="startdate" className="border-0">
             <AccordionTrigger className="py-3 text-sm font-medium hover:no-underline">
-              Veröffentlicht
+              Startdatum
             </AccordionTrigger>
             <AccordionContent>
-              <Select value={datePosted} onValueChange={onDatePostedChange}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Alle Daten</SelectItem>
-                  <SelectItem value="24h">Letzte 24 Stunden</SelectItem>
-                  <SelectItem value="7d">Letzte 7 Tage</SelectItem>
-                  <SelectItem value="30d">Letzter Monat</SelectItem>
-                </SelectContent>
-              </Select>
-            </AccordionContent>
-          </AccordionItem>
-
-          {/* Berufserfahrung */}
-          <AccordionItem value="experience" className="border-0">
-            <AccordionTrigger className="py-3 text-sm font-medium hover:no-underline">
-              Berufserfahrung
-            </AccordionTrigger>
-            <AccordionContent>
-              <Select value={experience} onValueChange={onExperienceChange}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Alle Level</SelectItem>
-                  {EXPERIENCE_LEVELS.map((level) => (
-                    <SelectItem key={level.id} value={level.id}>
-                      {level.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <Input
+                type="date"
+                value={startDate}
+                onChange={(e) => onStartDateChange(e.target.value)}
+              />
             </AccordionContent>
           </AccordionItem>
 
@@ -231,6 +272,67 @@ export function JobFilters({
                     value={selectedCity}
                     onChange={(e) => onCityChange(e.target.value)}
                   />
+                </AccordionContent>
+              </AccordionItem>
+
+              {/* Veröffentlichungsdatum */}
+              <AccordionItem value="date" className="border-0">
+                <AccordionTrigger className="py-3 text-sm font-medium hover:no-underline">
+                  Veröffentlicht
+                </AccordionTrigger>
+                <AccordionContent>
+                  <Select value={datePosted} onValueChange={onDatePostedChange}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Alle Daten</SelectItem>
+                      <SelectItem value="24h">Letzte 24 Stunden</SelectItem>
+                      <SelectItem value="7d">Letzte 7 Tage</SelectItem>
+                      <SelectItem value="30d">Letzter Monat</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </AccordionContent>
+              </AccordionItem>
+
+              {/* Berufserfahrung */}
+              <AccordionItem value="experience" className="border-0">
+                <AccordionTrigger className="py-3 text-sm font-medium hover:no-underline">
+                  Berufserfahrung
+                </AccordionTrigger>
+                <AccordionContent>
+                  <Select value={experience} onValueChange={onExperienceChange}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Alle Level</SelectItem>
+                      {EXPERIENCE_LEVELS.map((level) => (
+                        <SelectItem key={level.id} value={level.id}>
+                          {level.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </AccordionContent>
+              </AccordionItem>
+
+              {/* Führerschein */}
+              <AccordionItem value="license" className="border-0">
+                <AccordionTrigger className="py-3 text-sm font-medium hover:no-underline">
+                  Anforderungen
+                </AccordionTrigger>
+                <AccordionContent>
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="license"
+                      checked={requiresLicense}
+                      onCheckedChange={onRequiresLicenseChange}
+                    />
+                    <Label htmlFor="license" className="text-sm cursor-pointer flex-1">
+                      Führerschein erforderlich
+                    </Label>
+                  </div>
                 </AccordionContent>
               </AccordionItem>
 
@@ -254,6 +356,42 @@ export function JobFilters({
                       <span className="font-medium">€{salaryRange[1].toLocaleString('de-DE')}</span>
                     </div>
                   </div>
+                </AccordionContent>
+              </AccordionItem>
+
+              {/* Skills */}
+              <AccordionItem value="skills" className="border-0">
+                <AccordionTrigger className="py-3 text-sm font-medium hover:no-underline">
+                  Fähigkeiten
+                </AccordionTrigger>
+                <AccordionContent>
+                  <Input
+                    placeholder="z.B. Schweißen, KFZ..."
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && e.currentTarget.value) {
+                        const skill = e.currentTarget.value.trim();
+                        if (skill && !selectedSkills.includes(skill)) {
+                          onSkillsChange([...selectedSkills, skill]);
+                        }
+                        e.currentTarget.value = '';
+                      }
+                    }}
+                  />
+                  {selectedSkills.length > 0 && (
+                    <div className="flex flex-wrap gap-2 mt-3">
+                      {selectedSkills.map((skill) => (
+                        <Button
+                          key={skill}
+                          variant="secondary"
+                          size="sm"
+                          onClick={() => toggleSkill(skill)}
+                          className="h-7 text-xs"
+                        >
+                          {skill} ×
+                        </Button>
+                      ))}
+                    </div>
+                  )}
                 </AccordionContent>
               </AccordionItem>
             </>

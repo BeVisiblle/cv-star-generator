@@ -13,6 +13,10 @@ export default function CommunityJobs() {
   const [selectedJobTypes, setSelectedJobTypes] = useState<string[]>([]);
   const [selectedWorkModes, setSelectedWorkModes] = useState<string[]>([]);
   const [selectedCity, setSelectedCity] = useState("");
+  const [selectedCompany, setSelectedCompany] = useState("");
+  const [selectedIndustry, setSelectedIndustry] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [requiresLicense, setRequiresLicense] = useState(false);
   const [datePosted, setDatePosted] = useState("all");
   const [experience, setExperience] = useState("all");
   const [salaryRange, setSalaryRange] = useState<[number, number]>([15000, 100000]);
@@ -30,14 +34,34 @@ export default function CommunityJobs() {
 
   // Filter jobs based on all criteria
   const filteredJobs = jobs?.filter(job => {
-    // Search filter
-    if (search && !job.title.toLowerCase().includes(search.toLowerCase()) && !job.company?.name?.toLowerCase().includes(search.toLowerCase())) {
+    // Search filter (includes company name)
+    if (search) {
+      const searchLower = search.toLowerCase();
+      const matchesTitle = job.title?.toLowerCase().includes(searchLower);
+      const matchesCompany = job.company?.name?.toLowerCase().includes(searchLower);
+      const matchesDescription = job.description?.toLowerCase().includes(searchLower);
+      if (!matchesTitle && !matchesCompany && !matchesDescription) {
+        return false;
+      }
+    }
+
+    // Company filter
+    if (selectedCompany && job.company?.name) {
+      if (!job.company.name.toLowerCase().includes(selectedCompany.toLowerCase())) {
+        return false;
+      }
+    }
+
+    // Job type filter (Stellenart)
+    if (selectedJobTypes.length > 0 && !selectedJobTypes.includes(job.employment_type)) {
       return false;
     }
 
-    // Job type filter
-    if (selectedJobTypes.length > 0 && !selectedJobTypes.includes(job.employment_type)) {
-      return false;
+    // Industry filter (Branche)
+    if (selectedIndustry && job.industry) {
+      if (job.industry !== selectedIndustry) {
+        return false;
+      }
     }
 
     // Work mode filter
@@ -47,6 +71,25 @@ export default function CommunityJobs() {
 
     // City filter
     if (selectedCity && job.city && !job.city.toLowerCase().includes(selectedCity.toLowerCase())) {
+      return false;
+    }
+
+    // Location filter (from search bar)
+    if (location && job.city && !job.city.toLowerCase().includes(location.toLowerCase())) {
+      return false;
+    }
+
+    // Start date filter
+    if (startDate && job.start_date) {
+      const jobStartDate = new Date(job.start_date);
+      const filterStartDate = new Date(startDate);
+      if (jobStartDate < filterStartDate) {
+        return false;
+      }
+    }
+
+    // License requirement filter
+    if (requiresLicense && !job.requires_drivers_license) {
       return false;
     }
 
@@ -60,9 +103,17 @@ export default function CommunityJobs() {
       if (datePosted === '30d' && hoursDiff > 24 * 30) return false;
     }
 
+    // Experience filter
+    if (experience !== 'all' && job.experience_level) {
+      if (job.experience_level !== experience) {
+        return false;
+      }
+    }
+
     // Salary filter (if job has salary info)
     if (job.salary_min && job.salary_min < salaryRange[0]) return false;
     if (job.salary_max && job.salary_max > salaryRange[1]) return false;
+    
     return true;
   }) || [];
 
@@ -82,6 +133,10 @@ export default function CommunityJobs() {
     setSelectedJobTypes([]);
     setSelectedWorkModes([]);
     setSelectedCity("");
+    setSelectedCompany("");
+    setSelectedIndustry("");
+    setStartDate("");
+    setRequiresLicense(false);
     setDatePosted("all");
     setExperience("all");
     setSalaryRange([15000, 100000]);
@@ -89,11 +144,34 @@ export default function CommunityJobs() {
     setSearch("");
     setLocation("");
   };
-  const hasActiveFilters = selectedJobTypes.length > 0 || selectedWorkModes.length > 0 || selectedCity !== "" || datePosted !== 'all' || experience !== 'all' || selectedSkills.length > 0 || search || location;
+  
+  const hasActiveFilters = 
+    selectedJobTypes.length > 0 || 
+    selectedWorkModes.length > 0 || 
+    selectedCity !== "" || 
+    selectedCompany !== "" ||
+    selectedIndustry !== "" ||
+    startDate !== "" ||
+    requiresLicense ||
+    datePosted !== 'all' || 
+    experience !== 'all' || 
+    selectedSkills.length > 0 || 
+    search || 
+    location;
   return <main className="w-full py-6 px-3 sm:px-6 bg-background">
       <div className="max-w-[1400px] mx-auto space-y-6">
         {/* Hero Section */}
-        <JobSearchHero search={search} location={location} onSearchChange={setSearch} onLocationChange={setLocation} totalJobs={filteredJobs.length} />
+        <JobSearchHero 
+          search={search} 
+          location={location} 
+          onSearchChange={setSearch} 
+          onLocationChange={setLocation} 
+          totalJobs={filteredJobs.length}
+          datePosted={datePosted}
+          experience={experience}
+          onDatePostedChange={setDatePosted}
+          onExperienceChange={setExperience}
+        />
 
 
         {/* Main Content Grid */}
@@ -104,6 +182,10 @@ export default function CommunityJobs() {
               selectedJobTypes={selectedJobTypes} 
               selectedWorkModes={selectedWorkModes}
               selectedCity={selectedCity}
+              selectedCompany={selectedCompany}
+              selectedIndustry={selectedIndustry}
+              startDate={startDate}
+              requiresLicense={requiresLicense}
               datePosted={datePosted} 
               experience={experience} 
               salaryRange={salaryRange} 
@@ -111,6 +193,10 @@ export default function CommunityJobs() {
               onJobTypeChange={setSelectedJobTypes} 
               onWorkModeChange={setSelectedWorkModes}
               onCityChange={setSelectedCity}
+              onCompanyChange={setSelectedCompany}
+              onIndustryChange={setSelectedIndustry}
+              onStartDateChange={setStartDate}
+              onRequiresLicenseChange={setRequiresLicense}
               onDatePostedChange={setDatePosted} 
               onExperienceChange={setExperience} 
               onSalaryRangeChange={setSalaryRange} 

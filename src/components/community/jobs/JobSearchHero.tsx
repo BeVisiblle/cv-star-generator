@@ -74,55 +74,11 @@ export function JobSearchHero({
               </div>
             </div>
 
-            {/* Quick Filters */}
+            {/* Quick Filters - removed to avoid duplication with sidebar filters */}
             <div className="flex flex-wrap gap-2 justify-center">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline" className="bg-white/95 hover:bg-white border-white/50 text-foreground rounded-xl">
-                    <span>Veröffentlicht</span>
-                    <ChevronDown className="ml-2 h-4 w-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="bg-background/95 backdrop-blur-sm">
-                  {/* Filter content */}
-                </DropdownMenuContent>
-              </DropdownMenu>
-
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline" className="bg-white/95 hover:bg-white border-white/50 text-foreground rounded-xl">
-                    <span>Erfahrung</span>
-                    <ChevronDown className="ml-2 h-4 w-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="bg-background/95 backdrop-blur-sm">
-                  {/* Filter content */}
-                </DropdownMenuContent>
-              </DropdownMenu>
-
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline" className="bg-white/95 hover:bg-white border-white/50 text-foreground rounded-xl">
-                    <span>Arbeitsmodell</span>
-                    <ChevronDown className="ml-2 h-4 w-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="bg-background/95 backdrop-blur-sm">
-                  {/* Filter content */}
-                </DropdownMenuContent>
-              </DropdownMenu>
-
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline" className="bg-white/95 hover:bg-white border-white/50 text-foreground rounded-xl">
-                    <span>Jobtyp</span>
-                    <ChevronDown className="ml-2 h-4 w-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="bg-background/95 backdrop-blur-sm">
-                  {/* Filter content */}
-                </DropdownMenuContent>
-              </DropdownMenu>
+              <p className="text-white/80 text-sm">
+                Nutze die Filter links, um deine Suche zu verfeinern
+              </p>
             </div>
           </div>
         </div>
