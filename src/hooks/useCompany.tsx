@@ -90,16 +90,16 @@ export const useCompany = () => {
           companies (*)
         `)
         .eq('user_id', user?.id)
-        .single();
+        .maybeSingle();
 
       if (companyUserError) {
-        if (companyUserError.code === 'PGRST116') {
-          // No company found for user
-          setCompany(null);
-          setCompanyUser(null);
-        } else {
-          throw companyUserError;
-        }
+        throw companyUserError;
+      }
+
+      if (!companyUserData) {
+        // No company found for user
+        setCompany(null);
+        setCompanyUser(null);
       } else {
         setCompanyUser(companyUserData);
         setCompany(companyUserData.companies);
