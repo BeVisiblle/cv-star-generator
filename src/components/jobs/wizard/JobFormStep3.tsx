@@ -21,11 +21,13 @@ function cleanAIText(text: string): string {
     .replace(/\*\*/g, '')
     // Remove * italic markers
     .replace(/\*/g, '')
-    // Replace - bullet points with •
-    .replace(/^-\s+/gm, '• ')
-    // Clean up multiple spaces
-    .replace(/\s+/g, ' ')
-    // Ensure line breaks are preserved
+    // Replace - bullet points with • and ensure line break before
+    .replace(/^-\s+/gm, '\n• ')
+    // Ensure bullet points have line breaks
+    .replace(/•\s+/g, '\n• ')
+    // Clean up multiple consecutive line breaks
+    .replace(/\n{3,}/g, '\n\n')
+    // Trim and ensure proper formatting
     .trim();
 }
 
