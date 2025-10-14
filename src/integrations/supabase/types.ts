@@ -3791,6 +3791,7 @@ export type Database = {
           hours_per_week_max: number | null
           hours_per_week_min: number | null
           id: string
+          industry: string | null
           internship_data: Json | null
           is_active: boolean
           is_draft: boolean | null
@@ -3871,6 +3872,7 @@ export type Database = {
           hours_per_week_max?: number | null
           hours_per_week_min?: number | null
           id?: string
+          industry?: string | null
           internship_data?: Json | null
           is_active?: boolean
           is_draft?: boolean | null
@@ -3951,6 +3953,7 @@ export type Database = {
           hours_per_week_max?: number | null
           hours_per_week_min?: number | null
           id?: string
+          industry?: string | null
           internship_data?: Json | null
           is_active?: boolean
           is_draft?: boolean | null
