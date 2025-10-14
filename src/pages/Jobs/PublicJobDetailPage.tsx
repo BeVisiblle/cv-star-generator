@@ -27,7 +27,7 @@ export default function PublicJobDetailPage() {
   const [companyName, setCompanyName] = useState("");
   
   const { isSaved, toggleSave, isToggling } = useJobSave(id || "");
-  const { hasApplied, applyToJob, isApplying } = useQuickApply(id || "");
+  const { hasApplied, applyToJob, isApplying, canApply } = useQuickApply(id || "");
 
   const { data: job, isLoading } = useQuery({
     queryKey: ["public-job-detail", id],
@@ -453,7 +453,21 @@ export default function PublicJobDetailPage() {
           <AlertDialogHeader>
             <AlertDialogTitle>Bewerbung absenden?</AlertDialogTitle>
             <AlertDialogDescription>
-              Dein vollständiges Profil wird an {companyName} weitergeleitet.
+              {canApply ? (
+                `Dein vollständiges Profil wird an ${companyName} weitergeleitet.`
+              ) : (
+                <div className="space-y-2">
+                  <p className="text-destructive font-medium">
+                    Bewerbung nicht möglich
+                  </p>
+                  <p>
+                    Du kannst dich nicht bewerben, weil dein Profil noch nicht vollständig ist.
+                  </p>
+                  <p className="text-sm">
+                    Bitte vervollständige dein Profil in den Einstellungen, um dich auf Stellen bewerben zu können.
+                  </p>
+                </div>
+              )}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -464,8 +478,9 @@ export default function PublicJobDetailPage() {
                 setConfirmDialogOpen(false);
               }}
               className="bg-blue-600 hover:bg-blue-700"
+              disabled={!canApply || isApplying}
             >
-              Jetzt bewerben
+              {isApplying ? "Wird gesendet..." : "Jetzt bewerben"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

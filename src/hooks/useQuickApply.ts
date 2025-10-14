@@ -23,6 +23,25 @@ export function useQuickApply(jobId: string) {
     },
   });
 
+  const { data: profileStatus, isLoading: isLoadingProfile } = useQuery({
+    queryKey: ["profile-status", user?.id],
+    enabled: !!user?.id,
+    queryFn: async () => {
+      const { data: profile, error } = await supabase
+        .from("candidate_profiles")
+        .select("id")
+        .eq("user_id", user!.id)
+        .maybeSingle();
+
+      if (error) throw error;
+      
+      return {
+        hasProfile: !!profile,
+        profileId: profile?.id || null
+      };
+    },
+  });
+
   const applyToJob = useMutation({
     mutationFn: async () => {
       if (!user) throw new Error("Nicht eingeloggt");
@@ -44,7 +63,7 @@ export function useQuickApply(jobId: string) {
         .maybeSingle();
 
       if (profileError) throw profileError;
-      if (!profile) throw new Error("Bitte vervollständige zuerst dein Profil");
+      if (!profile) throw new Error("Profil nicht vollständig");
 
       // Create application
       const { error: appError } = await supabase
@@ -84,18 +103,16 @@ export function useQuickApply(jobId: string) {
       toast.success("Bewerbung erfolgreich versendet!");
     },
     onError: (error: Error) => {
-      if (error.message.includes("Profil")) {
-        toast.error(error.message);
-      } else {
-        toast.error("Fehler beim Bewerben");
-      }
+      toast.error("Fehler beim Bewerben");
     },
   });
 
   return {
     hasApplied: hasApplied ?? false,
-    isLoading,
+    isLoading: isLoading || isLoadingProfile,
     applyToJob: applyToJob.mutate,
     isApplying: applyToJob.isPending,
+    canApply: profileStatus?.hasProfile ?? false,
+    profileStatus,
   };
 }
