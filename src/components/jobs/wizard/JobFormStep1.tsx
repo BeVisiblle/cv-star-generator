@@ -22,7 +22,7 @@ const INDUSTRIES = [
   'Öffentlicher Dienst'
 ];
 
-export function JobFormStep1() {
+export function JobFormStep1({ isEditMode = false }: { isEditMode?: boolean }) {
   const { formData, setFormData, nextStep } = useJobForm();
   const [isLoadingAI, setIsLoadingAI] = useState(false);
   
@@ -79,18 +79,24 @@ export function JobFormStep1() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold">Basisinformationen</h2>
-          <p className="text-muted-foreground">Grundlegende Details zur Stelle</p>
+          <p className="text-muted-foreground">
+            {isEditMode 
+              ? "Diese Felder können nicht bearbeitet werden" 
+              : "Grundlegende Details zur Stelle"}
+          </p>
         </div>
-        <Button
-          type="button"
-          variant="outline"
-          onClick={handleAISuggest}
-          disabled={isLoadingAI}
-          size="sm"
-        >
-          <Sparkles className="h-4 w-4 mr-2" />
-          {isLoadingAI ? 'Lädt...' : 'AI-Hilfe'}
-        </Button>
+        {!isEditMode && (
+          <Button
+            type="button"
+            variant="outline"
+            onClick={handleAISuggest}
+            disabled={isLoadingAI}
+            size="sm"
+          >
+            <Sparkles className="h-4 w-4 mr-2" />
+            {isLoadingAI ? 'Lädt...' : 'AI-Hilfe'}
+          </Button>
+        )}
       </div>
 
       <Form {...form}>
@@ -105,6 +111,7 @@ export function JobFormStep1() {
                 <FormControl>
                   <Input
                     placeholder="z.B. Ausbildung zum Elektroniker (m/w/d)"
+                    disabled={isEditMode}
                     {...field}
                     className="text-base h-12"
                   />
@@ -121,7 +128,11 @@ export function JobFormStep1() {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Branche</FormLabel>
-                <Select onValueChange={field.onChange} value={field.value}>
+                <Select 
+                  onValueChange={field.onChange} 
+                  value={field.value}
+                  disabled={isEditMode}
+                >
                   <FormControl>
                     <SelectTrigger className="h-12">
                       <SelectValue placeholder="Branche auswählen..." />
@@ -150,6 +161,7 @@ export function JobFormStep1() {
                 <FormControl>
                   <Input
                     placeholder="z.B. Berlin"
+                    disabled={isEditMode}
                     {...field}
                     className="text-base h-12"
                   />
@@ -166,7 +178,11 @@ export function JobFormStep1() {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Anstellungsart</FormLabel>
-                <Select onValueChange={field.onChange} value={field.value}>
+                <Select 
+                  onValueChange={field.onChange} 
+                  value={field.value}
+                  disabled={isEditMode}
+                >
                   <FormControl>
                     <SelectTrigger className="h-12">
                       <SelectValue placeholder="Anstellungsart wählen..." />
@@ -196,6 +212,7 @@ export function JobFormStep1() {
                   <Input
                     type="date"
                     min={minDate}
+                    disabled={isEditMode}
                     {...field}
                     className="text-base h-12"
                   />
@@ -207,7 +224,7 @@ export function JobFormStep1() {
 
           <div className="flex justify-end pt-4">
             <Button type="submit" size="lg">
-              Weiter
+              {isEditMode ? 'Weiter (Nur-Ansicht)' : 'Weiter'}
             </Button>
           </div>
         </form>

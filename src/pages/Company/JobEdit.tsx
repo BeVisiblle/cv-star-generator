@@ -2,20 +2,29 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useCompany } from "@/hooks/useCompany";
 import { useJob, useUpdateJob } from "@/hooks/useJobs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { JobForm } from "@/components/jobs/JobForm";
+import { JobFormProvider, useJobForm } from "@/contexts/JobFormContext";
+import { JobFormWizard } from "@/components/jobs/wizard/JobFormWizard";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-export default function JobEdit() {
+function JobEditContent() {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const { company } = useCompany();
   const { data: job, isLoading } = useJob(id);
   const updateJob = useUpdateJob();
+  const { formData } = useJobForm();
 
-  const handleSubmit = async (data: any) => {
+  const handleSubmit = async () => {
     if (!id) return;
-    await updateJob.mutateAsync({ jobId: id, updates: data });
+    
+    // Don't update Step 1 fields (title, industry, city, employment_type, start_date)
+    const { title, industry, city, employment_type, start_date, ...updatableFields } = formData;
+    
+    await updateJob.mutateAsync({ 
+      jobId: id, 
+      updates: updatableFields 
+    });
     navigate('/company/jobs');
   };
 
@@ -56,14 +65,54 @@ export default function JobEdit() {
           <CardTitle>Stellenanzeige bearbeiten</CardTitle>
         </CardHeader>
         <CardContent>
-          <JobForm
-            initialData={job}
+          <JobFormWizard
             onSubmit={handleSubmit}
-            onCancel={() => navigate('/company/jobs')}
             isLoading={updateJob.isPending}
+            isEditMode={true}
           />
         </CardContent>
       </Card>
     </div>
+  );
+}
+
+export default function JobEdit() {
+  const { id } = useParams<{ id: string }>();
+  const { data: job, isLoading } = useJob(id);
+
+  if (isLoading || !job) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  // Map job data to form format
+  const initialFormData = {
+    title: job.title || '',
+    industry: job.industry || '',
+    city: job.city || '',
+    employment_type: job.employment_type || 'apprenticeship',
+    start_date: job.start_date || '',
+    skills: job.skills || [],
+    required_languages: job.required_languages || [],
+    certifications: job.certifications || [],
+    description_md: job.description_md || '',
+    tasks_md: job.tasks_md || '',
+    requirements_md: job.requirements_md || '',
+    benefits_description: job.benefits_description || '',
+    salary_min: job.salary_min || undefined,
+    salary_max: job.salary_max || undefined,
+    work_mode: job.work_mode || undefined,
+    working_hours: job.working_hours || '',
+    is_public: job.is_public ?? true,
+    is_active: job.is_active ?? false,
+  };
+
+  return (
+    <JobFormProvider initialData={initialFormData}>
+      <JobEditContent />
+    </JobFormProvider>
   );
 }

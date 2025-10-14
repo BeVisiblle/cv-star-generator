@@ -9,9 +9,10 @@ import { cn } from "@/lib/utils";
 interface JobFormWizardProps {
   onSubmit: () => void;
   isLoading?: boolean;
+  isEditMode?: boolean;
 }
 
-export function JobFormWizard({ onSubmit, isLoading }: JobFormWizardProps) {
+export function JobFormWizard({ onSubmit, isLoading, isEditMode = false }: JobFormWizardProps) {
   const { currentStep } = useJobForm();
 
   const steps = [
@@ -64,7 +65,7 @@ export function JobFormWizard({ onSubmit, isLoading }: JobFormWizardProps) {
 
       {/* Step Content */}
       <div className="mt-8">
-        {currentStep === 1 && <JobFormStep1 />}
+        {currentStep === 1 && <JobFormStep1 isEditMode={isEditMode} />}
         {currentStep === 2 && <JobFormStep2 />}
         {currentStep === 3 && <JobFormStep3 />}
         {currentStep === 4 && <JobFormStep4 />}
