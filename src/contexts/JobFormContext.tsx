@@ -19,7 +19,13 @@ export interface JobFormData {
   requirements_md: string;
   benefits_description: string;
   
-  // Step 4: Details
+  // Step 4: Kontaktperson
+  contact_person_name: string;
+  contact_person_email: string;
+  contact_person_phone?: string;
+  contact_person_role?: string;
+  
+  // Step 5: Details
   salary_min?: number;
   salary_max?: number;
   work_mode?: 'remote' | 'hybrid' | 'onsite';
@@ -53,6 +59,10 @@ const initialFormData: JobFormData = {
   tasks_md: '',
   requirements_md: '',
   benefits_description: '',
+  contact_person_name: '',
+  contact_person_email: '',
+  contact_person_phone: '',
+  contact_person_role: '',
   is_public: true,
   is_active: false,
 };
@@ -68,9 +78,9 @@ export function JobFormProvider({ children, initialData }: { children: ReactNode
     setFormDataState(prev => ({ ...prev, ...data }));
   };
 
-  const nextStep = () => setCurrentStep(prev => Math.min(prev + 1, 5));
+  const nextStep = () => setCurrentStep(prev => Math.min(prev + 1, 6));
   const prevStep = () => setCurrentStep(prev => Math.max(prev - 1, 1));
-  const setStep = (step: number) => setCurrentStep(Math.max(1, Math.min(step, 5)));
+  const setStep = (step: number) => setCurrentStep(Math.max(1, Math.min(step, 6)));
   const resetForm = () => {
     setFormDataState(initialFormData);
     setCurrentStep(1);

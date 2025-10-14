@@ -2,6 +2,7 @@ import { useJobForm } from "@/contexts/JobFormContext";
 import { JobFormStep1 } from "./JobFormStep1";
 import { JobFormStep2 } from "./JobFormStep2";
 import { JobFormStep3 } from "./JobFormStep3";
+import { JobFormStep4Contact } from "./JobFormStep4Contact";
 import { JobFormStep4 } from "./JobFormStep4";
 import { JobFormStep5 } from "./JobFormStep5";
 import { cn } from "@/lib/utils";
@@ -19,8 +20,9 @@ export function JobFormWizard({ onSubmit, isLoading, isEditMode = false }: JobFo
     { number: 1, label: 'Basis' },
     { number: 2, label: 'Skills' },
     { number: 3, label: 'Beschreibung' },
-    { number: 4, label: 'Details' },
-    { number: 5, label: 'Vorschau' },
+    { number: 4, label: 'Kontakt' },
+    { number: 5, label: 'Details' },
+    { number: 6, label: 'Vorschau' },
   ];
 
   return (
@@ -68,8 +70,9 @@ export function JobFormWizard({ onSubmit, isLoading, isEditMode = false }: JobFo
         {currentStep === 1 && <JobFormStep1 isEditMode={isEditMode} />}
         {currentStep === 2 && <JobFormStep2 />}
         {currentStep === 3 && <JobFormStep3 />}
-        {currentStep === 4 && <JobFormStep4 />}
-        {currentStep === 5 && <JobFormStep5 onSubmit={onSubmit} isLoading={isLoading} />}
+        {currentStep === 4 && <JobFormStep4Contact />}
+        {currentStep === 5 && <JobFormStep4 />}
+        {currentStep === 6 && <JobFormStep5 onSubmit={onSubmit} isLoading={isLoading} />}
       </div>
     </div>
   );
