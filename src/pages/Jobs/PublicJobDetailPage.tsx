@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, MapPin, Briefcase, Clock, Building2, Calendar, Share2, Bookmark } from "lucide-react";
+import { ArrowLeft, MapPin, Briefcase, Clock, Building2, Calendar, Share2, Bookmark, FileText, Users, Languages, Award } from "lucide-react";
 
 export default function PublicJobDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -23,6 +23,20 @@ export default function PublicJobDetailPage() {
 
       if (error) throw error;
       return data;
+    },
+    enabled: !!id,
+  });
+
+  const { data: applicationsCount } = useQuery({
+    queryKey: ["applications-count", id],
+    queryFn: async () => {
+      const { count, error } = await supabase
+        .from("applications")
+        .select("*", { count: "exact", head: true })
+        .eq("job_post_id", id);
+      
+      if (error) throw error;
+      return count || 0;
     },
     enabled: !!id,
   });
@@ -117,14 +131,16 @@ export default function PublicJobDetailPage() {
           {/* Left Column - Job Details */}
           <div className="lg:col-span-2 space-y-8">
             {/* About the Job */}
-            <section>
-              <h2 className="text-xl font-bold mb-4">Über die Stelle</h2>
-              <div className="prose prose-sm max-w-none">
-                <p className="text-muted-foreground whitespace-pre-wrap">
-                  {job.description_md || 'Keine Beschreibung verfügbar.'}
-                </p>
-              </div>
-            </section>
+            {job.description_md && (
+              <section>
+                <h2 className="text-xl font-bold mb-4">Über die Stelle</h2>
+                <div className="prose prose-sm max-w-none">
+                  <p className="text-muted-foreground whitespace-pre-wrap">
+                    {job.description_md}
+                  </p>
+                </div>
+              </section>
+            )}
 
             {/* Responsibilities */}
             {job.requirements_md && (
@@ -132,6 +148,16 @@ export default function PublicJobDetailPage() {
                 <h2 className="text-xl font-bold mb-4">Anforderungen</h2>
                 <div className="prose prose-sm max-w-none">
                   <p className="text-muted-foreground whitespace-pre-wrap">{job.requirements_md}</p>
+                </div>
+              </section>
+            )}
+
+            {/* Benefits */}
+            {(job as any).benefits && (
+              <section>
+                <h2 className="text-xl font-bold mb-4">Benefits</h2>
+                <div className="prose prose-sm max-w-none">
+                  <p className="text-muted-foreground whitespace-pre-wrap">{(job as any).benefits}</p>
                 </div>
               </section>
             )}
@@ -177,6 +203,29 @@ export default function PublicJobDetailPage() {
 
           {/* Right Column - Sidebar */}
           <div className="space-y-6">
+            {/* Application Stats */}
+            <div className="p-4 border rounded-lg bg-card">
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Users className="h-4 w-4" />
+                <span>{applicationsCount || 0} Personen haben sich bereits beworben</span>
+              </div>
+            </div>
+
+            {/* Apply Buttons */}
+            <div className="space-y-3">
+              <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white" size="lg">
+                Jetzt bewerben
+              </Button>
+              <Button className="w-full bg-orange-500 hover:bg-orange-600 text-white" size="lg">
+                <Bookmark className="h-4 w-4 mr-2" />
+                Speichern
+              </Button>
+              <Button variant="outline" className="w-full" size="lg">
+                <Share2 className="h-4 w-4 mr-2" />
+                Teilen
+              </Button>
+            </div>
+
             {/* Salary */}
             {(job.salary_min || job.salary_max) && (
               <div className="p-6 border rounded-lg bg-card">
@@ -187,22 +236,7 @@ export default function PublicJobDetailPage() {
               </div>
             )}
 
-            {/* Apply Button */}
-            <div className="space-y-3">
-              <Button className="w-full" size="lg">
-                Jetzt bewerben
-              </Button>
-              <Button variant="outline" className="w-full" size="lg">
-                <Bookmark className="h-4 w-4 mr-2" />
-                Speichern
-              </Button>
-              <Button variant="outline" className="w-full" size="lg">
-                <Share2 className="h-4 w-4 mr-2" />
-                Teilen
-              </Button>
-            </div>
-
-            {/* Job Details */}
+            {/* Job Details Card */}
             <div className="p-6 border rounded-lg bg-card space-y-4">
               <h3 className="font-semibold mb-4">Details</h3>
               
@@ -248,6 +282,78 @@ export default function PublicJobDetailPage() {
                 </div>
               )}
             </div>
+
+            {/* Skills */}
+            {job.skills && Array.isArray(job.skills) && job.skills.length > 0 && (
+              <div className="p-6 border rounded-lg bg-card">
+                <div className="flex items-center gap-2 mb-4">
+                  <Award className="h-5 w-5" />
+                  <h3 className="font-semibold">Fähigkeiten</h3>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {job.skills.map((skill: any, index: number) => (
+                    <Badge key={index} variant="secondary">
+                      {typeof skill === 'string' ? skill : skill.name || ''}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Languages */}
+            {job.languages && Array.isArray(job.languages) && job.languages.length > 0 && (
+              <div className="p-6 border rounded-lg bg-card">
+                <div className="flex items-center gap-2 mb-4">
+                  <Languages className="h-5 w-5" />
+                  <h3 className="font-semibold">Sprachen</h3>
+                </div>
+                <div className="space-y-2">
+                  {job.languages.map((lang: any, index: number) => (
+                    <div key={index} className="text-sm">
+                      <span className="font-medium">{typeof lang === 'string' ? lang : lang.language || lang}</span>
+                      {typeof lang === 'object' && lang.level && <span className="text-muted-foreground"> - {lang.level}</span>}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Required Documents */}
+            {job.required_documents && Array.isArray(job.required_documents) && job.required_documents.length > 0 && (
+              <div className="p-6 border rounded-lg bg-card">
+                <div className="flex items-center gap-2 mb-4">
+                  <FileText className="h-5 w-5" />
+                  <h3 className="font-semibold">Benötigte Dokumente</h3>
+                </div>
+                <ul className="space-y-2">
+                  {job.required_documents.map((doc: any, index: number) => (
+                    <li key={index} className="text-sm text-muted-foreground flex items-center gap-2">
+                      <div className="h-1.5 w-1.5 rounded-full bg-primary" />
+                      {typeof doc === 'string' ? doc : doc.name || ''}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {/* Contact Person */}
+            {job.company?.contact_person && (
+              <div className="p-6 border rounded-lg bg-card">
+                <h3 className="font-semibold mb-3">Ansprechperson</h3>
+                <div className="space-y-1">
+                  <p className="text-sm font-medium">{job.company.contact_person}</p>
+                  {job.company.contact_position && (
+                    <p className="text-sm text-muted-foreground">{job.company.contact_position}</p>
+                  )}
+                  {job.company.primary_email && (
+                    <p className="text-sm text-muted-foreground">{job.company.primary_email}</p>
+                  )}
+                  {job.company.phone && (
+                    <p className="text-sm text-muted-foreground">{job.company.phone}</p>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
