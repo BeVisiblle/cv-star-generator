@@ -9,6 +9,15 @@ verify_jwt = true
 [functions.ai-suggest-skills]
 verify_jwt = true
 
+[functions.ai-suggest-job-skills]
+verify_jwt = true
+
+[functions.ai-suggest-job-title]
+verify_jwt = true
+
+[functions.ai-suggest-salary]
+verify_jwt = true
+
 [functions.compute-job-match-batch]
 verify_jwt = false
 
@@ -37,9 +46,6 @@ verify_jwt = true
 verify_jwt = true
 
 [functions.ai-generate-job-bullets]
-verify_jwt = true
-
-[functions.ai-suggest-skills]
 verify_jwt = true
 
 [functions.transcribe-and-normalize]
