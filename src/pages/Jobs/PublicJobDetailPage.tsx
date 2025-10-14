@@ -16,7 +16,7 @@ export default function PublicJobDetailPage() {
         .from("job_posts")
         .select(`
           *,
-          company:companies(*)
+          company:companies!job_posts_company_id_fkey(*)
         `)
         .eq("id", id)
         .single();
