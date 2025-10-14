@@ -10,7 +10,9 @@ import {
   Building2,
   ArrowLeft,
   Bookmark,
-  Users
+  Users,
+  Share2,
+  Globe
 } from "lucide-react";
 
 export default function PublicJobDetail() {
@@ -129,9 +131,9 @@ export default function PublicJobDetail() {
             {/* About the Job */}
             {job.description_md && (
               <div>
-                <h2 className="text-2xl font-bold mb-4">About the job</h2>
+                <h2 className="text-2xl font-bold mb-4">Über die Stelle</h2>
                 <div className="prose prose-sm max-w-none">
-                  <p className="whitespace-pre-wrap text-muted-foreground leading-relaxed">
+                  <p className="text-muted-foreground leading-relaxed" style={{ whiteSpace: 'pre-line' }}>
                     {job.description_md}
                   </p>
                 </div>
@@ -141,9 +143,9 @@ export default function PublicJobDetail() {
             {/* Responsibilities */}
             {job.tasks_md && (
               <div>
-                <h3 className="text-lg font-semibold mb-3">Responsibilities:</h3>
+                <h3 className="text-lg font-semibold mb-3">Aufgaben:</h3>
                 <div className="prose prose-sm max-w-none">
-                  <p className="whitespace-pre-wrap text-muted-foreground leading-relaxed">
+                  <p className="text-muted-foreground leading-relaxed" style={{ whiteSpace: 'pre-line' }}>
                     {job.tasks_md}
                   </p>
                 </div>
@@ -153,9 +155,9 @@ export default function PublicJobDetail() {
             {/* Required Qualifications */}
             {job.requirements_md && (
               <div>
-                <h3 className="text-lg font-semibold mb-3">Required qualifications:</h3>
+                <h3 className="text-lg font-semibold mb-3">Anforderungen:</h3>
                 <div className="prose prose-sm max-w-none">
-                  <p className="whitespace-pre-wrap text-muted-foreground leading-relaxed">
+                  <p className="text-muted-foreground leading-relaxed" style={{ whiteSpace: 'pre-line' }}>
                     {job.requirements_md}
                   </p>
                 </div>
@@ -165,7 +167,7 @@ export default function PublicJobDetail() {
             {/* Skills */}
             {job.industry && (
               <div>
-                <h3 className="text-lg font-semibold mb-3">Skills:</h3>
+                <h3 className="text-lg font-semibold mb-3">Fähigkeiten:</h3>
                 <div className="flex flex-wrap gap-2">
                   <Badge variant="secondary" className="rounded-full px-4 py-2">
                     {job.industry}
@@ -182,7 +184,7 @@ export default function PublicJobDetail() {
             {/* Location Map Placeholder */}
             {job.city && (
               <div>
-                <h3 className="text-lg font-semibold mb-3">Location</h3>
+                <h3 className="text-lg font-semibold mb-3">Standort</h3>
                 <div className="w-full h-64 bg-muted rounded-lg flex items-center justify-center">
                   <div className="text-center text-muted-foreground">
                     <MapPin className="h-8 w-8 mx-auto mb-2" />
@@ -209,7 +211,7 @@ export default function PublicJobDetail() {
                   <div className="text-3xl font-bold">
                     €{job.salary_min.toLocaleString()} - €{job.salary_max.toLocaleString()}
                   </div>
-                  <div className="text-sm text-muted-foreground">Avg. salary</div>
+                  <div className="text-sm text-muted-foreground">Durchschn. Gehalt</div>
                 </div>
               )}
 
@@ -221,7 +223,7 @@ export default function PublicJobDetail() {
                     <Building2 className="h-4 w-4 text-muted-foreground mt-0.5" />
                     <div className="flex-1">
                       <div className="font-medium">{job.industry}</div>
-                      <div className="text-xs text-muted-foreground">Industry</div>
+                      <div className="text-xs text-muted-foreground">Branche</div>
                     </div>
                   </div>
                 )}
@@ -231,7 +233,7 @@ export default function PublicJobDetail() {
                     <Briefcase className="h-4 w-4 text-muted-foreground mt-0.5" />
                     <div className="flex-1">
                       <div className="font-medium">{getEmploymentTypeLabel(job.employment_type)}</div>
-                      <div className="text-xs text-muted-foreground">Employment Type</div>
+                      <div className="text-xs text-muted-foreground">Anstellungsart</div>
                     </div>
                   </div>
                 )}
@@ -241,7 +243,7 @@ export default function PublicJobDetail() {
                     <Users className="h-4 w-4 text-muted-foreground mt-0.5" />
                     <div className="flex-1">
                       <div className="font-medium">{job.work_mode}</div>
-                      <div className="text-xs text-muted-foreground">Job Functions</div>
+                      <div className="text-xs text-muted-foreground">Arbeitsmodell</div>
                     </div>
                   </div>
                 )}
@@ -249,11 +251,15 @@ export default function PublicJobDetail() {
 
               <div className="border-t pt-4 space-y-2">
                 <Button className="w-full bg-green-500 hover:bg-green-600 text-white">
-                  Apply for a job
+                  Jetzt bewerben
                 </Button>
                 <Button variant="outline" className="w-full">
                   <Bookmark className="h-4 w-4 mr-2" />
-                  Save for later
+                  Für später speichern
+                </Button>
+                <Button variant="outline" className="w-full">
+                  <Share2 className="h-4 w-4 mr-2" />
+                  Teilen
                 </Button>
               </div>
             </div>
@@ -261,7 +267,7 @@ export default function PublicJobDetail() {
             {/* Job Posted By */}
             {job.company && (
               <div className="bg-card border rounded-lg p-6 space-y-4">
-                <div className="text-sm font-medium">Job posted by</div>
+                <div className="text-sm font-medium">Veröffentlicht von</div>
                 
                 <div className="flex items-start gap-3">
                   {job.company.logo_url && (
