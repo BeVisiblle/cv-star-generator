@@ -33,31 +33,96 @@ export function JobSearchHero({
           <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/40 to-transparent"></div>
         </div>
         
-        {/* Hero Content */}
-        <div className="relative z-10 h-full flex flex-col justify-center px-8 md:px-16 max-w-4xl">
-          <div className="space-y-6">
-            <div className="space-y-3">
+        {/* Hero Content - Centered */}
+        <div className="relative z-10 h-full flex flex-col justify-center items-center px-4 md:px-8">
+          <div className="w-full max-w-4xl space-y-6">
+            <div className="space-y-3 text-center">
               <h1 className="text-4xl md:text-6xl font-bold text-white">
                 Finde deinen Traumjob
               </h1>
-              <p className="text-white/90 text-base md:text-lg max-w-2xl">
+              <p className="text-white/90 text-base md:text-lg">
                 {totalJobs} offene Stellen warten auf dich
               </p>
             </div>
 
             {/* Search Bar */}
-            <div className="bg-white rounded-2xl shadow-2xl p-3 flex flex-col sm:flex-row gap-3 items-center max-w-3xl">
-              <Button size="lg" className="h-14 w-14 rounded-xl bg-emerald-500 hover:bg-emerald-600 shrink-0">
-                <Search className="h-6 w-6 text-white" />
-              </Button>
-              <div className="relative flex-1 w-full">
-                <Input placeholder="Jobtitel oder Stichwort" value={search} onChange={e => onSearchChange(e.target.value)} className="border-0 focus-visible:ring-0 h-14 text-base font-medium" />
+            <div className="bg-white rounded-2xl shadow-2xl p-2 max-w-3xl mx-auto">
+              <div className="flex flex-col sm:flex-row gap-2 items-stretch">
+                <div className="relative flex-1 flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-accent/5 transition-colors">
+                  <Search className="h-5 w-5 text-muted-foreground shrink-0" />
+                  <Input 
+                    placeholder="Jobtitel oder Stichwort" 
+                    value={search} 
+                    onChange={e => onSearchChange(e.target.value)} 
+                    className="border-0 focus-visible:ring-0 h-auto p-0 text-base font-medium bg-transparent" 
+                  />
+                </div>
+                <div className="h-px sm:h-auto sm:w-px bg-border"></div>
+                <div className="relative flex-1 flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-accent/5 transition-colors">
+                  <MapPin className="h-5 w-5 text-muted-foreground shrink-0" />
+                  <Input 
+                    placeholder="Stadt oder PLZ" 
+                    value={location} 
+                    onChange={e => onLocationChange(e.target.value)} 
+                    className="border-0 focus-visible:ring-0 h-auto p-0 text-base font-medium bg-transparent" 
+                  />
+                </div>
+                <Button size="lg" className="h-12 sm:h-auto px-8 rounded-xl bg-emerald-500 hover:bg-emerald-600 shrink-0">
+                  <Search className="h-5 w-5 text-white sm:mr-2" />
+                  <span className="hidden sm:inline">Suchen</span>
+                </Button>
               </div>
-              <div className="h-8 w-px bg-border hidden sm:block"></div>
-              <div className="relative sm:w-64 w-full flex items-center gap-2">
-                <MapPin className="h-5 w-5 text-muted-foreground shrink-0" />
-                <Input placeholder="Stadt oder PLZ" value={location} onChange={e => onLocationChange(e.target.value)} className="border-0 focus-visible:ring-0 h-14 text-base font-medium" />
-              </div>
+            </div>
+
+            {/* Quick Filters */}
+            <div className="flex flex-wrap gap-2 justify-center">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" className="bg-white/95 hover:bg-white border-white/50 text-foreground rounded-xl">
+                    <span>Veröffentlicht</span>
+                    <ChevronDown className="ml-2 h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="bg-background/95 backdrop-blur-sm">
+                  {/* Filter content */}
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" className="bg-white/95 hover:bg-white border-white/50 text-foreground rounded-xl">
+                    <span>Erfahrung</span>
+                    <ChevronDown className="ml-2 h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="bg-background/95 backdrop-blur-sm">
+                  {/* Filter content */}
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" className="bg-white/95 hover:bg-white border-white/50 text-foreground rounded-xl">
+                    <span>Arbeitsmodell</span>
+                    <ChevronDown className="ml-2 h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="bg-background/95 backdrop-blur-sm">
+                  {/* Filter content */}
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" className="bg-white/95 hover:bg-white border-white/50 text-foreground rounded-xl">
+                    <span>Jobtyp</span>
+                    <ChevronDown className="ml-2 h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="bg-background/95 backdrop-blur-sm">
+                  {/* Filter content */}
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </div>
         </div>
