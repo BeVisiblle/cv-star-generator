@@ -3756,6 +3756,7 @@ export type Database = {
       }
       job_posts: {
         Row: {
+          additional_qualifications: string | null
           address_number: string | null
           address_street: string | null
           application_count: number | null
@@ -3802,6 +3803,8 @@ export type Database = {
           languages: Json | null
           location_lat: number | null
           location_lng: number | null
+          must_have: string[] | null
+          nice_to_have: string[] | null
           one_click_apply: boolean | null
           parking_available: boolean | null
           postal_code: string | null
@@ -3837,6 +3840,7 @@ export type Database = {
           working_hours: string | null
         }
         Insert: {
+          additional_qualifications?: string | null
           address_number?: string | null
           address_street?: string | null
           application_count?: number | null
@@ -3883,6 +3887,8 @@ export type Database = {
           languages?: Json | null
           location_lat?: number | null
           location_lng?: number | null
+          must_have?: string[] | null
+          nice_to_have?: string[] | null
           one_click_apply?: boolean | null
           parking_available?: boolean | null
           postal_code?: string | null
@@ -3918,6 +3924,7 @@ export type Database = {
           working_hours?: string | null
         }
         Update: {
+          additional_qualifications?: string | null
           address_number?: string | null
           address_street?: string | null
           application_count?: number | null
@@ -3964,6 +3971,8 @@ export type Database = {
           languages?: Json | null
           location_lat?: number | null
           location_lng?: number | null
+          must_have?: string[] | null
+          nice_to_have?: string[] | null
           one_click_apply?: boolean | null
           parking_available?: boolean | null
           postal_code?: string | null

@@ -165,18 +165,61 @@ export default function PublicJobDetail() {
             )}
 
             {/* Skills */}
-            {job.industry && (
+            {((job.must_have && job.must_have.length > 0) || (job.nice_to_have && job.nice_to_have.length > 0)) && (
               <div>
                 <h3 className="text-lg font-semibold mb-3">Fähigkeiten:</h3>
+                
+                {job.must_have && job.must_have.length > 0 && (
+                  <div className="mb-4">
+                    <div className="text-sm font-medium text-muted-foreground mb-2">Must-Have:</div>
+                    <div className="flex flex-wrap gap-2">
+                      {job.must_have.map((skill: string, index: number) => (
+                        <Badge key={`must-${index}`} variant="default" className="rounded-full px-4 py-2">
+                          {skill}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {job.nice_to_have && job.nice_to_have.length > 0 && (
+                  <div>
+                    <div className="text-sm font-medium text-muted-foreground mb-2">Nice-to-Have:</div>
+                    <div className="flex flex-wrap gap-2">
+                      {job.nice_to_have.map((skill: string, index: number) => (
+                        <Badge key={`nice-${index}`} variant="secondary" className="rounded-full px-4 py-2">
+                          {skill}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Languages */}
+            {job.languages && Array.isArray(job.languages) && job.languages.length > 0 && (
+              <div>
+                <h3 className="text-lg font-semibold mb-3">Sprachen:</h3>
                 <div className="flex flex-wrap gap-2">
-                  <Badge variant="secondary" className="rounded-full px-4 py-2">
-                    {job.industry}
-                  </Badge>
-                  {job.employment_type && (
-                    <Badge variant="secondary" className="rounded-full px-4 py-2">
-                      {getEmploymentTypeLabel(job.employment_type)}
+                  {job.languages.map((lang: any, index: number) => (
+                    <Badge key={index} variant="outline" className="rounded-full px-4 py-2">
+                      <Globe className="h-3 w-3 mr-1" />
+                      {typeof lang === 'string' ? lang : `${lang.language} (${lang.level})`}
                     </Badge>
-                  )}
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Additional Qualifications */}
+            {job.additional_qualifications && (
+              <div>
+                <h3 className="text-lg font-semibold mb-3">Weitere Qualifikationen:</h3>
+                <div className="prose prose-sm max-w-none">
+                  <p className="text-muted-foreground leading-relaxed" style={{ whiteSpace: 'pre-line' }}>
+                    {job.additional_qualifications}
+                  </p>
                 </div>
               </div>
             )}
