@@ -131,12 +131,12 @@ export default function PublicJobDetailPage() {
           {/* Left Column - Job Details */}
           <div className="lg:col-span-2 space-y-8">
             {/* About the Job */}
-            {job.description_md && (
+            {(job.description_md || job.tasks_md) && (
               <section>
                 <h2 className="text-xl font-bold mb-4">Über die Stelle</h2>
                 <div className="prose prose-sm max-w-none">
                   <p className="text-muted-foreground whitespace-pre-wrap">
-                    {job.description_md}
+                    {job.description_md || job.tasks_md}
                   </p>
                 </div>
               </section>
@@ -153,11 +153,11 @@ export default function PublicJobDetailPage() {
             )}
 
             {/* Benefits */}
-            {(job as any).benefits && (
+            {job.benefits_description && (
               <section>
                 <h2 className="text-xl font-bold mb-4">Benefits</h2>
                 <div className="prose prose-sm max-w-none">
-                  <p className="text-muted-foreground whitespace-pre-wrap">{(job as any).benefits}</p>
+                  <p className="text-muted-foreground whitespace-pre-wrap">{job.benefits_description}</p>
                 </div>
               </section>
             )}
@@ -337,20 +337,29 @@ export default function PublicJobDetailPage() {
             )}
 
             {/* Contact Person */}
-            {job.company?.contact_person && (
+            {job.contact_person_name && (
               <div className="p-6 border rounded-lg bg-card">
-                <h3 className="font-semibold mb-3">Ansprechperson</h3>
-                <div className="space-y-1">
-                  <p className="text-sm font-medium">{job.company.contact_person}</p>
-                  {job.company.contact_position && (
-                    <p className="text-sm text-muted-foreground">{job.company.contact_position}</p>
+                <h3 className="font-semibold mb-4">Ansprechperson</h3>
+                <div className="flex items-start gap-4">
+                  {job.contact_person_photo_url && (
+                    <img 
+                      src={job.contact_person_photo_url} 
+                      alt={job.contact_person_name}
+                      className="h-16 w-16 rounded-full object-cover"
+                    />
                   )}
-                  {job.company.primary_email && (
-                    <p className="text-sm text-muted-foreground">{job.company.primary_email}</p>
-                  )}
-                  {job.company.phone && (
-                    <p className="text-sm text-muted-foreground">{job.company.phone}</p>
-                  )}
+                  <div className="space-y-1 flex-1">
+                    <p className="text-sm font-medium">{job.contact_person_name}</p>
+                    {job.contact_person_role && (
+                      <p className="text-sm text-muted-foreground">{job.contact_person_role}</p>
+                    )}
+                    {job.contact_person_email && (
+                      <p className="text-sm text-muted-foreground">{job.contact_person_email}</p>
+                    )}
+                    {job.contact_person_phone && (
+                      <p className="text-sm text-muted-foreground">{job.contact_person_phone}</p>
+                    )}
+                  </div>
                 </div>
               </div>
             )}
