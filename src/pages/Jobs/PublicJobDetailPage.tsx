@@ -53,7 +53,7 @@ export default function PublicJobDetailPage() {
       const { count, error } = await supabase
         .from("applications")
         .select("*", { count: "exact", head: true })
-        .eq("job_id", id);
+        .eq("job_post_id", id);
       
       if (error) throw error;
       return count || 0;
