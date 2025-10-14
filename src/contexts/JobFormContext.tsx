@@ -12,6 +12,8 @@ export interface JobFormData {
   skills: Array<{ name: string; level: 'must_have' | 'nice_to_have' | 'trainable' }>;
   required_languages: Array<{ language: string; level: string }>;
   certifications: string[];
+  required_documents: Array<{ type: string; label: string; required: boolean }>;
+  optional_documents: Array<{ type: string; label: string; required: boolean }>;
   
   // Step 3: Beschreibung
   description_md: string;
@@ -55,6 +57,8 @@ const initialFormData: JobFormData = {
   skills: [],
   required_languages: [],
   certifications: [],
+  required_documents: [],
+  optional_documents: [],
   description_md: '',
   tasks_md: '',
   requirements_md: '',

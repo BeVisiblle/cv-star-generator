@@ -5,6 +5,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { useJobForm } from "@/contexts/JobFormContext";
 import { LanguageSelector } from "../LanguageSelector";
 import { CertificationInput } from "../CertificationInput";
+import { DocumentRequirementsSelector } from "../DocumentRequirementsSelector";
 import { Sparkles, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -22,6 +23,8 @@ export function JobFormStep2() {
       skills: formData.skills,
       required_languages: formData.required_languages,
       certifications: formData.certifications,
+      required_documents: formData.required_documents,
+      optional_documents: formData.optional_documents,
     },
   });
 
@@ -251,6 +254,15 @@ export function JobFormStep2() {
           <CertificationInput
             value={form.watch('certifications')}
             onChange={(certs) => form.setValue('certifications', certs)}
+          />
+
+          <DocumentRequirementsSelector
+            requiredDocuments={form.watch('required_documents')}
+            optionalDocuments={form.watch('optional_documents')}
+            onChange={(required, optional) => {
+              form.setValue('required_documents', required);
+              form.setValue('optional_documents', optional);
+            }}
           />
 
           <div className="flex justify-between pt-4">
