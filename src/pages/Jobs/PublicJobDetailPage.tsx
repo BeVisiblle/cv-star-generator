@@ -301,17 +301,17 @@ export default function PublicJobDetailPage() {
             )}
 
             {/* Languages */}
-            {job.languages && Array.isArray(job.languages) && job.languages.length > 0 && (
+            {job.required_languages && Array.isArray(job.required_languages) && job.required_languages.length > 0 && (
               <div className="p-6 border rounded-lg bg-card">
                 <div className="flex items-center gap-2 mb-4">
                   <Languages className="h-5 w-5" />
                   <h3 className="font-semibold">Sprachen</h3>
                 </div>
                 <div className="space-y-2">
-                  {job.languages.map((lang: any, index: number) => (
+                  {job.required_languages.map((lang: any, index: number) => (
                     <div key={index} className="text-sm">
-                      <span className="font-medium">{typeof lang === 'string' ? lang : lang.language || lang}</span>
-                      {typeof lang === 'object' && lang.level && <span className="text-muted-foreground"> - {lang.level}</span>}
+                      <span className="font-medium">{lang.language}</span>
+                      {lang.level && <span className="text-muted-foreground"> - {lang.level}</span>}
                     </div>
                   ))}
                 </div>
