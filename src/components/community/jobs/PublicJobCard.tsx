@@ -7,9 +7,10 @@ import { de } from "date-fns/locale";
 interface PublicJobCardProps {
   job: any;
   onClick: () => void;
+  compact?: boolean;
 }
 
-export function PublicJobCard({ job, onClick }: PublicJobCardProps) {
+export function PublicJobCard({ job, onClick, compact = false }: PublicJobCardProps) {
   const getEmploymentTypeLabel = (type: string) => {
     const labels: Record<string, string> = {
       full_time: 'Vollzeit',
@@ -24,6 +25,60 @@ export function PublicJobCard({ job, onClick }: PublicJobCardProps) {
   const timeAgo = job.created_at 
     ? formatDistanceToNow(new Date(job.created_at), { addSuffix: true, locale: de })
     : '';
+
+  if (compact) {
+    return (
+      <Card 
+        className="p-4 hover:shadow-lg transition-shadow cursor-pointer group border-border"
+        onClick={onClick}
+      >
+        <div className="space-y-3">
+          {/* Header */}
+          <div className="flex items-start gap-3">
+            {job.company?.logo_url ? (
+              <img
+                src={job.company.logo_url}
+                alt={job.company.name}
+                className="h-10 w-10 rounded-lg object-cover flex-shrink-0"
+              />
+            ) : (
+              <div className="h-10 w-10 rounded-lg bg-muted flex items-center justify-center flex-shrink-0">
+                <Building2 className="h-5 w-5 text-muted-foreground" />
+              </div>
+            )}
+            <div className="flex-1 min-w-0">
+              <h3 className="font-semibold text-sm group-hover:text-primary transition-colors line-clamp-2">
+                {job.title}
+              </h3>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                {job.company?.name || 'Unbekanntes Unternehmen'}
+              </p>
+            </div>
+          </div>
+
+          {/* Footer */}
+          <div className="flex flex-col gap-1.5 text-xs">
+            <Badge variant="secondary" className="font-normal w-fit">
+              {getEmploymentTypeLabel(job.employment_type)}
+            </Badge>
+            
+            {(job.city || job.state) && (
+              <span className="flex items-center gap-1 text-muted-foreground">
+                <MapPin className="h-3 w-3" />
+                {job.city || job.state}
+              </span>
+            )}
+
+            {(job.salary_min || job.salary_max) && (
+              <p className="text-xs font-medium">
+                €{job.salary_min?.toLocaleString() || '?'} - €{job.salary_max?.toLocaleString() || '?'}
+              </p>
+            )}
+          </div>
+        </div>
+      </Card>
+    );
+  }
 
   return (
     <Card 

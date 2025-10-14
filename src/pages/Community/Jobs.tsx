@@ -9,7 +9,7 @@ import { LayoutGrid, Table as TableIcon, Briefcase, ChevronLeft, ChevronRight } 
 
 export default function CommunityJobs() {
   const navigate = useNavigate();
-  const [viewMode, setViewMode] = useState<"cards" | "table">("cards");
+  const [viewMode, setViewMode] = useState<"large" | "compact">("large");
   const [search, setSearch] = useState("");
   const [location, setLocation] = useState("");
   const [selectedJobTypes, setSelectedJobTypes] = useState<string[]>([]);
@@ -235,20 +235,20 @@ export default function CommunityJobs() {
               </p>
               <div className="flex gap-2">
                 <Button
-                  variant={viewMode === "cards" ? "default" : "outline"}
+                  variant={viewMode === "large" ? "default" : "outline"}
                   size="sm"
-                  onClick={() => setViewMode("cards")}
+                  onClick={() => setViewMode("large")}
                 >
                   <LayoutGrid className="h-4 w-4 mr-2" />
-                  Karten
+                  Groß
                 </Button>
                 <Button
-                  variant={viewMode === "table" ? "default" : "outline"}
+                  variant={viewMode === "compact" ? "default" : "outline"}
                   size="sm"
-                  onClick={() => setViewMode("table")}
+                  onClick={() => setViewMode("compact")}
                 >
-                  <TableIcon className="h-4 w-4 mr-2" />
-                  Tabelle
+                  <LayoutGrid className="h-4 w-4 mr-2" />
+                  Kompakt
                 </Button>
               </div>
             </div>
@@ -260,69 +260,17 @@ export default function CommunityJobs() {
               </div>
             ) : paginatedJobs.length > 0 ? (
               <>
-                {/* Jobs Grid or Table */}
-                {viewMode === "cards" ? (
-                  <div className="grid gap-4">
-                    {paginatedJobs.map(job => (
-                      <PublicJobCard 
-                        key={job.id} 
-                        job={job} 
-                        onClick={() => handleJobClick(job)} 
-                      />
-                    ))}
-                  </div>
-                ) : (
-                  <div className="border rounded-lg overflow-hidden">
-                    <table className="w-full">
-                      <thead className="bg-muted/50">
-                        <tr className="border-b">
-                          <th className="text-left p-4 font-medium">Stellenbezeichnung</th>
-                          <th className="text-left p-4 font-medium">Unternehmen</th>
-                          <th className="text-left p-4 font-medium">Ort</th>
-                          <th className="text-left p-4 font-medium">Stellenart</th>
-                          <th className="text-left p-4 font-medium">Gehalt</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {paginatedJobs.map((job) => (
-                          <tr 
-                            key={job.id}
-                            onClick={() => handleJobClick(job)}
-                            className="border-b hover:bg-muted/50 cursor-pointer transition-colors"
-                          >
-                            <td className="p-4">
-                              <div className="font-medium">{job.title}</div>
-                            </td>
-                            <td className="p-4">
-                              <div className="flex items-center gap-2">
-                                {job.company?.logo_url && (
-                                  <img
-                                    src={job.company.logo_url}
-                                    alt={job.company.name}
-                                    className="h-8 w-8 rounded object-cover"
-                                  />
-                                )}
-                                <span className="text-sm">{job.company?.name || 'Unbekanntes Unternehmen'}</span>
-                              </div>
-                            </td>
-                            <td className="p-4 text-sm text-muted-foreground">
-                              {job.city || job.state || '-'}
-                            </td>
-                            <td className="p-4 text-sm">
-                              {getEmploymentTypeLabel(job.employment_type)}
-                            </td>
-                            <td className="p-4 text-sm">
-                              {job.salary_min && job.salary_max 
-                                ? `€${job.salary_min.toLocaleString()} - €${job.salary_max.toLocaleString()}`
-                                : '-'
-                              }
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                )}
+                {/* Jobs Grid */}
+                <div className={viewMode === "large" ? "grid gap-4" : "grid gap-4 md:grid-cols-2 lg:grid-cols-3"}>
+                  {paginatedJobs.map(job => (
+                    <PublicJobCard 
+                      key={job.id} 
+                      job={job} 
+                      onClick={() => handleJobClick(job)}
+                      compact={viewMode === "compact"}
+                    />
+                  ))}
+                </div>
 
                 {/* Pagination */}
                 {totalPages > 1 && (
