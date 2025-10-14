@@ -24,7 +24,7 @@ export class JobsService {
       .from('job_posts')
       .select('*, company:companies(*)')
       .eq('id', jobId)
-      .single();
+      .maybeSingle();
 
     if (error) throw error;
     return data;

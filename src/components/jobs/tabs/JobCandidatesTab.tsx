@@ -36,6 +36,7 @@ export function JobCandidatesTab({ jobId }: JobCandidatesTabProps) {
 
   const newCandidates = applications?.filter(a => a.stage === "new") || [];
   const interviews = applications?.filter(a => a.stage === "interview") || [];
+  const finalRound = applications?.filter(a => a.stage === "final") || [];
   const approved = applications?.filter(a => a.stage === "approved") || [];
 
   const CandidateCard = ({ application }: { application: any }) => {
@@ -80,11 +81,11 @@ export function JobCandidatesTab({ jobId }: JobCandidatesTabProps) {
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
       {/* New Candidates */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg">New candidates</CardTitle>
+          <CardTitle className="text-lg">Neue Kandidaten</CardTitle>
           <p className="text-sm text-muted-foreground">{newCandidates.length} Kandidaten</p>
         </CardHeader>
         <CardContent className="space-y-3">
@@ -92,7 +93,7 @@ export function JobCandidatesTab({ jobId }: JobCandidatesTabProps) {
             newCandidates.map(app => <CandidateCard key={app.id} application={app} />)
           ) : (
             <p className="text-sm text-muted-foreground text-center py-8">
-              Keine neuen Kandidaten
+              Noch keine Kandidaten
             </p>
           )}
         </CardContent>
@@ -115,10 +116,27 @@ export function JobCandidatesTab({ jobId }: JobCandidatesTabProps) {
         </CardContent>
       </Card>
 
+      {/* Final Round */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg">Finale Runde</CardTitle>
+          <p className="text-sm text-muted-foreground">{finalRound.length} Kandidaten</p>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          {finalRound.length > 0 ? (
+            finalRound.map(app => <CandidateCard key={app.id} application={app} />)
+          ) : (
+            <p className="text-sm text-muted-foreground text-center py-8">
+              Noch keine finalen Kandidaten
+            </p>
+          )}
+        </CardContent>
+      </Card>
+
       {/* Approved */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg">Approved candidates</CardTitle>
+          <CardTitle className="text-lg">Genehmigt</CardTitle>
           <p className="text-sm text-muted-foreground">{approved.length} Kandidaten</p>
         </CardHeader>
         <CardContent className="space-y-3">
