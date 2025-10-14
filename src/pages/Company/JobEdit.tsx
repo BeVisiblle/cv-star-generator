@@ -76,7 +76,7 @@ function JobEditContent() {
   );
 }
 
-export default function JobEdit() {
+function JobEdit() {
   const { id } = useParams<{ id: string }>();
   const { data: job, isLoading } = useJob(id);
 
@@ -116,3 +116,5 @@ export default function JobEdit() {
     </JobFormProvider>
   );
 }
+
+export default JobEdit;
