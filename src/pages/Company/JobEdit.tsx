@@ -10,8 +10,6 @@ import { Button } from "@/components/ui/button";
 function JobEditContent() {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
-  const { company } = useCompany();
-  const { data: job, isLoading } = useJob(id);
   const updateJob = useUpdateJob();
   const { formData } = useJobForm();
 
@@ -27,27 +25,6 @@ function JobEditContent() {
     });
     navigate('/company/jobs');
   };
-
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
-      </div>
-    );
-  }
-
-  if (!job) {
-    return (
-      <div className="px-3 sm:px-6 py-6 max-w-[1000px] mx-auto">
-        <div className="text-center">
-          <p className="text-muted-foreground">Stellenanzeige nicht gefunden</p>
-          <Button onClick={() => navigate('/company/jobs')} className="mt-4">
-            Zurück zur Übersicht
-          </Button>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="px-3 sm:px-6 py-6 max-w-[1000px] mx-auto">
@@ -93,7 +70,7 @@ function JobEdit() {
     title: job.title || '',
     industry: job.industry || '',
     city: job.city || '',
-    employment_type: job.employment_type || 'apprenticeship',
+    employment_type: job.employment_type || 'fulltime',
     start_date: job.start_date || '',
     skills: job.skills || [],
     required_languages: job.required_languages || [],
