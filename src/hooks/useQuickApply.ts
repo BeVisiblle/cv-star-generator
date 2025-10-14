@@ -29,7 +29,7 @@ export function useQuickApply(jobId: string) {
     queryFn: async () => {
       const { data: profile, error } = await supabase
         .from("candidate_profiles")
-        .select("id, profession_id, seniority, availability_date, location_geog")
+        .select("id")
         .eq("user_id", user!.id)
         .maybeSingle();
 
@@ -39,11 +39,6 @@ export function useQuickApply(jobId: string) {
       
       if (!profile) {
         missing.push("Profil muss erstellt werden");
-      } else {
-        if (!profile.profession_id) missing.push("Beruf");
-        if (!profile.seniority) missing.push("Erfahrungsstufe");
-        if (!profile.availability_date) missing.push("Verfügbarkeitsdatum");
-        if (!profile.location_geog) missing.push("Standort");
       }
       
       return {
