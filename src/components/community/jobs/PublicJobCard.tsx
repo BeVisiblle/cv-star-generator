@@ -52,6 +52,12 @@ export function PublicJobCard({ job, onClick }: PublicJobCardProps) {
               <p className="text-sm text-muted-foreground mt-0.5">
                 {job.company?.name || 'Unbekanntes Unternehmen'}
               </p>
+              {(job.city || job.state) && (
+                <p className="text-xs text-muted-foreground mt-0.5 flex items-center gap-1">
+                  <MapPin className="h-3 w-3" />
+                  {job.city || job.state} • {getEmploymentTypeLabel(job.employment_type)}
+                </p>
+              )}
             </div>
           </div>
           <button className="p-1 hover:bg-muted rounded opacity-0 group-hover:opacity-100 transition-opacity">
