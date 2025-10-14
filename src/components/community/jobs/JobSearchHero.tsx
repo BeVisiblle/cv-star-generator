@@ -1,12 +1,7 @@
 import { Search, MapPin, ChevronDown } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-
+import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 interface JobSearchHeroProps {
   search: string;
   location: string;
@@ -18,7 +13,6 @@ interface JobSearchHeroProps {
   onDatePostedChange?: (value: string) => void;
   onExperienceChange?: (value: string) => void;
 }
-
 export function JobSearchHero({
   search,
   location,
@@ -28,10 +22,9 @@ export function JobSearchHero({
   datePosted,
   experience,
   onDatePostedChange,
-  onExperienceChange,
+  onExperienceChange
 }: JobSearchHeroProps) {
-  return (
-    <div className="space-y-6">
+  return <div className="space-y-6">
       <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[hsl(var(--primary))] via-[hsl(var(--primary-glow))] to-[hsl(var(--accent))] p-8 md:p-16">
         {/* Decorative profile circles */}
         <div className="absolute top-12 left-[15%] w-24 h-24 rounded-full bg-white/20 backdrop-blur-sm border-4 border-white/40"></div>
@@ -54,80 +47,22 @@ export function JobSearchHero({
 
           {/* Search Bar */}
           <div className="bg-white rounded-2xl shadow-2xl p-3 flex flex-col sm:flex-row gap-3 items-center max-w-3xl mx-auto">
-            <Button 
-              size="lg" 
-              className="h-14 w-14 rounded-xl bg-emerald-500 hover:bg-emerald-600 shrink-0"
-            >
+            <Button size="lg" className="h-14 w-14 rounded-xl bg-emerald-500 hover:bg-emerald-600 shrink-0">
               <Search className="h-6 w-6 text-white" />
             </Button>
             <div className="relative flex-1 w-full">
-              <Input
-                placeholder="Manager"
-                value={search}
-                onChange={(e) => onSearchChange(e.target.value)}
-                className="border-0 focus-visible:ring-0 h-14 text-base font-medium"
-              />
+              <Input placeholder="Manager" value={search} onChange={e => onSearchChange(e.target.value)} className="border-0 focus-visible:ring-0 h-14 text-base font-medium" />
             </div>
             <div className="h-8 w-px bg-border hidden sm:block"></div>
             <div className="relative sm:w-64 w-full flex items-center gap-2">
               <MapPin className="h-5 w-5 text-muted-foreground shrink-0" />
-              <Input
-                placeholder="New York"
-                value={location}
-                onChange={(e) => onLocationChange(e.target.value)}
-                className="border-0 focus-visible:ring-0 h-14 text-base font-medium"
-              />
+              <Input placeholder="New York" value={location} onChange={e => onLocationChange(e.target.value)} className="border-0 focus-visible:ring-0 h-14 text-base font-medium" />
             </div>
           </div>
         </div>
       </div>
 
       {/* Filter Buttons */}
-      <div className="flex flex-wrap gap-3 justify-center items-center">
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="h-12 px-6 rounded-xl font-medium bg-background">
-              Date Posted <ChevronDown className="ml-2 h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent className="bg-background">
-            {/* Dropdown content can be added here */}
-          </DropdownMenuContent>
-        </DropdownMenu>
-
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="h-12 px-6 rounded-xl font-medium bg-background">
-              Experience <ChevronDown className="ml-2 h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent className="bg-background">
-            {/* Dropdown content can be added here */}
-          </DropdownMenuContent>
-        </DropdownMenu>
-
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="h-12 px-6 rounded-xl font-medium bg-background">
-              Company <ChevronDown className="ml-2 h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent className="bg-background">
-            {/* Dropdown content can be added here */}
-          </DropdownMenuContent>
-        </DropdownMenu>
-
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="h-12 px-6 rounded-xl font-medium bg-background">
-              Job Type <ChevronDown className="ml-2 h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent className="bg-background">
-            {/* Dropdown content can be added here */}
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
-    </div>
-  );
+      
+    </div>;
 }
