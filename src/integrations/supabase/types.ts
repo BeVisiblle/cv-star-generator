@@ -2789,6 +2789,27 @@ export type Database = {
           },
         ]
       }
+      document_type: {
+        Row: {
+          category: string | null
+          created_at: string | null
+          name: string
+          slug: string
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string | null
+          name: string
+          slug: string
+        }
+        Update: {
+          category?: string | null
+          created_at?: string | null
+          name?: string
+          slug?: string
+        }
+        Relationships: []
+      }
       file_pages: {
         Row: {
           bbox: Json | null
@@ -3097,6 +3118,169 @@ export type Database = {
         }
         Relationships: []
       }
+      industry: {
+        Row: {
+          created_at: string | null
+          id: string
+          name: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          name: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
+      industry_skill: {
+        Row: {
+          industry_id: string
+          relevance: number | null
+          skill_id: string
+        }
+        Insert: {
+          industry_id: string
+          relevance?: number | null
+          skill_id: string
+        }
+        Update: {
+          industry_id?: string
+          relevance?: number | null
+          skill_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "industry_skill_industry_id_fkey"
+            columns: ["industry_id"]
+            isOneToOne: false
+            referencedRelation: "industry"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "industry_skill_skill_id_fkey"
+            columns: ["skill_id"]
+            isOneToOne: false
+            referencedRelation: "skill"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      job_ad: {
+        Row: {
+          comp_unit: string | null
+          company_fit_tags: string[] | null
+          company_id: string
+          compensation_max: number | null
+          compensation_min: number | null
+          contract_type: string
+          created_at: string | null
+          id: string
+          industry_id: string | null
+          job_family: string
+          job_role: string
+          location_lat: number | null
+          location_lng: number | null
+          postal_code: string | null
+          seniority: string
+          shifts: string[] | null
+          start_window: unknown | null
+          status: string | null
+          title: string
+          training_offered: Json | null
+          updated_at: string | null
+          upskilling_paths: Json | null
+          work_pattern: string
+        }
+        Insert: {
+          comp_unit?: string | null
+          company_fit_tags?: string[] | null
+          company_id: string
+          compensation_max?: number | null
+          compensation_min?: number | null
+          contract_type: string
+          created_at?: string | null
+          id?: string
+          industry_id?: string | null
+          job_family: string
+          job_role: string
+          location_lat?: number | null
+          location_lng?: number | null
+          postal_code?: string | null
+          seniority: string
+          shifts?: string[] | null
+          start_window?: unknown | null
+          status?: string | null
+          title: string
+          training_offered?: Json | null
+          updated_at?: string | null
+          upskilling_paths?: Json | null
+          work_pattern: string
+        }
+        Update: {
+          comp_unit?: string | null
+          company_fit_tags?: string[] | null
+          company_id?: string
+          compensation_max?: number | null
+          compensation_min?: number | null
+          contract_type?: string
+          created_at?: string | null
+          id?: string
+          industry_id?: string | null
+          job_family?: string
+          job_role?: string
+          location_lat?: number | null
+          location_lng?: number | null
+          postal_code?: string | null
+          seniority?: string
+          shifts?: string[] | null
+          start_window?: unknown | null
+          status?: string | null
+          title?: string
+          training_offered?: Json | null
+          updated_at?: string | null
+          upskilling_paths?: Json | null
+          work_pattern?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "job_ad_industry_id_fkey"
+            columns: ["industry_id"]
+            isOneToOne: false
+            referencedRelation: "industry"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      job_cert_required: {
+        Row: {
+          cert_slug: string
+          job_ad_id: string
+          must_have: boolean | null
+        }
+        Insert: {
+          cert_slug: string
+          job_ad_id: string
+          must_have?: boolean | null
+        }
+        Update: {
+          cert_slug?: string
+          job_ad_id?: string
+          must_have?: boolean | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "job_cert_required_job_ad_id_fkey"
+            columns: ["job_ad_id"]
+            isOneToOne: false
+            referencedRelation: "job_ad"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       job_certifications: {
         Row: {
           certification_name: string
@@ -3174,6 +3358,35 @@ export type Database = {
             columns: ["job_id"]
             isOneToOne: false
             referencedRelation: "public_job_listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      job_language_required: {
+        Row: {
+          job_ad_id: string
+          lang: string
+          min_cefr: string | null
+          must_have: boolean | null
+        }
+        Insert: {
+          job_ad_id: string
+          lang: string
+          min_cefr?: string | null
+          must_have?: boolean | null
+        }
+        Update: {
+          job_ad_id?: string
+          lang?: string
+          min_cefr?: string | null
+          must_have?: boolean | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "job_language_required_job_ad_id_fkey"
+            columns: ["job_ad_id"]
+            isOneToOne: false
+            referencedRelation: "job_ad"
             referencedColumns: ["id"]
           },
         ]
@@ -3816,6 +4029,81 @@ export type Database = {
             columns: ["company_id"]
             isOneToOne: false
             referencedRelation: "v_company_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      job_required_document: {
+        Row: {
+          document_slug: string
+          job_ad_id: string
+          must_have: boolean | null
+          nice_to_have: boolean | null
+        }
+        Insert: {
+          document_slug: string
+          job_ad_id: string
+          must_have?: boolean | null
+          nice_to_have?: boolean | null
+        }
+        Update: {
+          document_slug?: string
+          job_ad_id?: string
+          must_have?: boolean | null
+          nice_to_have?: boolean | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "job_required_document_document_slug_fkey"
+            columns: ["document_slug"]
+            isOneToOne: false
+            referencedRelation: "document_type"
+            referencedColumns: ["slug"]
+          },
+          {
+            foreignKeyName: "job_required_document_job_ad_id_fkey"
+            columns: ["job_ad_id"]
+            isOneToOne: false
+            referencedRelation: "job_ad"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      job_requirement: {
+        Row: {
+          is_soft: boolean | null
+          job_ad_id: string
+          level_required: number | null
+          must_have: boolean | null
+          skill_id: string
+        }
+        Insert: {
+          is_soft?: boolean | null
+          job_ad_id: string
+          level_required?: number | null
+          must_have?: boolean | null
+          skill_id: string
+        }
+        Update: {
+          is_soft?: boolean | null
+          job_ad_id?: string
+          level_required?: number | null
+          must_have?: boolean | null
+          skill_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "job_requirement_job_ad_id_fkey"
+            columns: ["job_ad_id"]
+            isOneToOne: false
+            referencedRelation: "job_ad"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "job_requirement_skill_id_fkey"
+            columns: ["skill_id"]
+            isOneToOne: false
+            referencedRelation: "skill"
             referencedColumns: ["id"]
           },
         ]
@@ -6602,6 +6890,33 @@ export type Database = {
         }
         Relationships: []
       }
+      skill: {
+        Row: {
+          category: string
+          created_at: string | null
+          id: string
+          is_soft: boolean | null
+          name: string
+          slug: string
+        }
+        Insert: {
+          category: string
+          created_at?: string | null
+          id?: string
+          is_soft?: boolean | null
+          name: string
+          slug: string
+        }
+        Update: {
+          category?: string
+          created_at?: string | null
+          id?: string
+          is_soft?: boolean | null
+          name?: string
+          slug?: string
+        }
+        Relationships: []
+      }
       skills: {
         Row: {
           branch: string | null
@@ -9031,7 +9346,10 @@ export type Database = {
               p_sharer_user_id?: string
             }
           | { p_post_id: string; p_sharer_user_id: string }
-        Returns: string
+        Returns: {
+          share_count: number
+          shared: boolean
+        }[]
       }
       share_job_as_post: {
         Args: {
@@ -10186,7 +10504,10 @@ export type Database = {
               p_post_id: string
             }
           | { p_liker_user_id: string; p_post_id: string }
-        Returns: Json
+        Returns: {
+          like_count: number
+          liked: boolean
+        }[]
       }
       toggle_linkedin_like: {
         Args: { p_liker_user_id: string; p_post_id: string }
@@ -10208,6 +10529,10 @@ export type Database = {
           schema_name: string
           table_name: string
         }
+        Returns: string
+      }
+      upsert_job_ad_with_requirements: {
+        Args: { p_job: Json; p_status?: string }
         Returns: string
       }
       upsert_location_with_coords: {

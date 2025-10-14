@@ -77,6 +77,7 @@ const CompanyNeeds = lazy(() => import("./pages/Company/Needs"));
 const CompanyJobsList = lazy(() => import("./pages/Company/JobsList"));
 const JobCreate = lazy(() => import("./pages/Company/JobCreate"));
 const JobEdit = lazy(() => import("./pages/Company/JobEdit"));
+const JobAdBuilder = lazy(() => import("./pages/Company/JobAdBuilder"));
 
 // Admin components - lazy loaded
 const AdminLayout = lazy(() => import("./pages/Admin/AdminLayout"));
@@ -360,6 +361,7 @@ const App = () => {
 
                 <Route path="jobs" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><CompanyJobsList /></Suspense>} />
                 <Route path="jobs/new" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><JobCreate /></Suspense>} />
+                <Route path="jobs/builder" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><JobAdBuilder /></Suspense>} />
                 <Route path="jobs/:id/edit" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><JobEdit /></Suspense>} />
                 <Route path="jobs/:id/applicants" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><CompanyComingSoon /></Suspense>} />
 
