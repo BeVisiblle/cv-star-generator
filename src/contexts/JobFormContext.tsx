@@ -3,6 +3,7 @@ import { createContext, useContext, useState, ReactNode } from 'react';
 export interface JobFormData {
   // Step 1: Basis
   title: string;
+  industry: string;
   city: string;
   employment_type: string;
   start_date: string;
@@ -41,6 +42,7 @@ const JobFormContext = createContext<JobFormContextType | undefined>(undefined);
 
 const initialFormData: JobFormData = {
   title: '',
+  industry: '',
   city: '',
   employment_type: 'apprenticeship',
   start_date: '',

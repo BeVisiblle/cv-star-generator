@@ -8,6 +8,21 @@ import { Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
+// Helper function to clean AI markdown output
+function cleanAIMarkdown(text: string): string {
+  if (!text) return '';
+  
+  return text
+    // Remove ## headers and replace with bold
+    .replace(/##\s+(.+)/g, '<strong>$1</strong>')
+    // Remove ** bold markers and replace with <strong>
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    // Replace - bullet points with •
+    .replace(/^-\s+/gm, '• ')
+    // Ensure line breaks are preserved
+    .trim();
+}
+
 export function JobFormStep3() {
   const { formData, setFormData, nextStep, prevStep } = useJobForm();
   const [isGenerating, setIsGenerating] = useState(false);
@@ -28,6 +43,7 @@ export function JobFormStep3() {
         body: {
           jobData: {
             title: formData.title,
+            industry: formData.industry,
             city: formData.city,
             employment_type: formData.employment_type,
             skills: formData.skills,
@@ -39,9 +55,10 @@ export function JobFormStep3() {
       if (error) throw error;
 
       if (data) {
-        form.setValue('tasks_md', data.tasks_md);
-        form.setValue('requirements_md', data.requirements_md);
-        form.setValue('benefits_description', data.benefits_description);
+        // Clean the AI output before setting
+        form.setValue('tasks_md', cleanAIMarkdown(data.tasks_md || ''));
+        form.setValue('requirements_md', cleanAIMarkdown(data.requirements_md || ''));
+        form.setValue('benefits_description', cleanAIMarkdown(data.benefits_description || ''));
         toast.success('Beschreibung erfolgreich generiert!');
       }
     } catch (error: any) {
@@ -69,6 +86,7 @@ export function JobFormStep3() {
           variant="outline"
           onClick={handleAIGenerate}
           disabled={isGenerating}
+          size="sm"
         >
           <Sparkles className="h-4 w-4 mr-2" />
           {isGenerating ? 'Generiere...' : 'Mit AI generieren'}
@@ -85,8 +103,8 @@ export function JobFormStep3() {
                 <FormLabel>Aufgaben & Tätigkeiten</FormLabel>
                 <FormControl>
                   <Textarea
-                    placeholder="- Diagnose und Wartung von Fahrzeugen&#10;- Reparatur mechanischer Systeme&#10;..."
-                    className="min-h-[120px] font-mono text-sm"
+                    placeholder="• Diagnose und Wartung von Fahrzeugen&#10;• Reparatur mechanischer Systeme&#10;..."
+                    className="min-h-[140px] text-base font-sans leading-relaxed"
                     {...field}
                   />
                 </FormControl>
@@ -103,8 +121,8 @@ export function JobFormStep3() {
                 <FormLabel>Anforderungen (Must-Have & Nice-to-Have)</FormLabel>
                 <FormControl>
                   <Textarea
-                    placeholder="## Must-Have&#10;- Technisches Verständnis&#10;- Handwerkliches Geschick&#10;&#10;## Nice-to-Have&#10;- Führerschein Klasse B&#10;..."
-                    className="min-h-[150px] font-mono text-sm"
+                    placeholder="Must-Have:&#10;• Technisches Verständnis&#10;• Handwerkliches Geschick&#10;&#10;Nice-to-Have:&#10;• Führerschein Klasse B&#10;..."
+                    className="min-h-[160px] text-base font-sans leading-relaxed"
                     {...field}
                   />
                 </FormControl>
@@ -121,8 +139,8 @@ export function JobFormStep3() {
                 <FormLabel>Benefits & Zusatzleistungen</FormLabel>
                 <FormControl>
                   <Textarea
-                    placeholder="- Übernahmegarantie nach Ausbildung&#10;- Modernes Werkzeug & Equipment&#10;- Team-Events&#10;..."
-                    className="min-h-[120px] font-mono text-sm"
+                    placeholder="• Übernahmegarantie nach Ausbildung&#10;• Modernes Werkzeug & Equipment&#10;• Team-Events&#10;..."
+                    className="min-h-[140px] text-base font-sans leading-relaxed"
                     {...field}
                   />
                 </FormControl>
@@ -140,7 +158,7 @@ export function JobFormStep3() {
                 <FormControl>
                   <Textarea
                     placeholder="Weitere Informationen zur Stelle..."
-                    className="min-h-[100px]"
+                    className="min-h-[100px] text-base font-sans leading-relaxed"
                     {...field}
                   />
                 </FormControl>
@@ -150,10 +168,10 @@ export function JobFormStep3() {
           />
 
           <div className="flex justify-between pt-4">
-            <Button type="button" variant="outline" onClick={prevStep}>
+            <Button type="button" variant="outline" onClick={prevStep} size="lg">
               Zurück
             </Button>
-            <Button type="submit">
+            <Button type="submit" size="lg">
               Weiter
             </Button>
           </div>
