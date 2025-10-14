@@ -7188,6 +7188,7 @@ export type Database = {
           created_at: string
           delta: number
           id: number
+          job_id: string | null
           reason: string
           ref: string | null
         }
@@ -7197,6 +7198,7 @@ export type Database = {
           created_at?: string
           delta: number
           id?: number
+          job_id?: string | null
           reason: string
           ref?: string | null
         }
@@ -7206,6 +7208,7 @@ export type Database = {
           created_at?: string
           delta?: number
           id?: number
+          job_id?: string | null
           reason?: string
           ref?: string | null
         }
@@ -7243,6 +7246,20 @@ export type Database = {
             columns: ["company_id"]
             isOneToOne: false
             referencedRelation: "v_company_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "token_ledger_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "job_posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "token_ledger_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "public_job_listings"
             referencedColumns: ["id"]
           },
         ]
