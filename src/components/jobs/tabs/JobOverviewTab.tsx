@@ -11,7 +11,10 @@ import {
   User,
   Mail,
   Phone,
-  Eye
+  Eye,
+  FileCheck,
+  AlertCircle,
+  Globe
 } from "lucide-react";
 import { 
   Accordion,
@@ -295,6 +298,133 @@ export function JobOverviewTab({ job, company }: JobOverviewTabProps) {
                     </div>
                   )}
                 </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Document Requirements Card */}
+          {((job.required_documents && Array.isArray(job.required_documents) && job.required_documents.length > 0) ||
+            (job.optional_documents && Array.isArray(job.optional_documents) && job.optional_documents.length > 0)) && (
+            <Card className="shadow-sm">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base flex items-center gap-2">
+                  <FileCheck className="h-4 w-4" />
+                  Bewerbungsunterlagen
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {job.required_documents && Array.isArray(job.required_documents) && job.required_documents.length > 0 && (
+                  <div>
+                    <div className="text-xs text-muted-foreground mb-2 flex items-center gap-1.5">
+                      <AlertCircle className="h-3 w-3 text-destructive" />
+                      Pflichtdokumente:
+                    </div>
+                    <div className="flex flex-wrap gap-1.5">
+                      {(job.required_documents as Array<{ type: string; label: string }>).map((doc, idx) => (
+                        <Badge key={idx} variant="destructive" className="text-xs rounded-full">
+                          {doc.label}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                
+                {job.optional_documents && Array.isArray(job.optional_documents) && job.optional_documents.length > 0 && (
+                  <div>
+                    <div className="text-xs text-muted-foreground mb-2">Optional:</div>
+                    <div className="flex flex-wrap gap-1.5">
+                      {(job.optional_documents as Array<{ type: string; label: string }>).map((doc, idx) => (
+                        <Badge key={idx} variant="secondary" className="text-xs rounded-full">
+                          {doc.label}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Skills & Qualifications Card */}
+          {((job.must_have && job.must_have.length > 0) || 
+            (job.nice_to_have && job.nice_to_have.length > 0) ||
+            (job.languages && job.languages.length > 0) ||
+            (job.required_certificates && job.required_certificates.length > 0) ||
+            (job.required_licenses && job.required_licenses.length > 0)) && (
+            <Card className="shadow-sm">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base">Anforderungen</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {/* Skills */}
+                {((job.must_have && job.must_have.length > 0) || (job.nice_to_have && job.nice_to_have.length > 0)) && (
+                  <div>
+                    <p className="text-xs text-muted-foreground mb-2">Fähigkeiten:</p>
+                    <div className="space-y-2">
+                      {job.must_have && job.must_have.length > 0 && (
+                        <div className="flex flex-wrap gap-1.5">
+                          {job.must_have.map((skill: string, idx: number) => (
+                            <Badge key={idx} variant="default" className="text-xs rounded-full">
+                              {skill}
+                            </Badge>
+                          ))}
+                        </div>
+                      )}
+                      {job.nice_to_have && job.nice_to_have.length > 0 && (
+                        <div className="flex flex-wrap gap-1.5">
+                          {job.nice_to_have.map((skill: string, idx: number) => (
+                            <Badge key={idx} variant="secondary" className="text-xs rounded-full">
+                              {skill}
+                            </Badge>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Languages */}
+                {job.languages && Array.isArray(job.languages) && job.languages.length > 0 && (
+                  <div>
+                    <p className="text-xs text-muted-foreground mb-2">Sprachen:</p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {job.languages.map((lang: any, idx: number) => (
+                        <Badge key={idx} variant="outline" className="text-xs rounded-full">
+                          <Globe className="h-3 w-3 mr-1" />
+                          {typeof lang === 'string' ? lang : `${lang.language} (${lang.level})`}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Certificates */}
+                {job.required_certificates && job.required_certificates.length > 0 && (
+                  <div>
+                    <p className="text-xs text-muted-foreground mb-2">Zertifikate:</p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {job.required_certificates.map((cert: string, idx: number) => (
+                        <Badge key={idx} variant="outline" className="text-xs rounded-full">
+                          {cert}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Licenses */}
+                {job.required_licenses && job.required_licenses.length > 0 && (
+                  <div>
+                    <p className="text-xs text-muted-foreground mb-2">Führerscheine:</p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {job.required_licenses.map((license: string, idx: number) => (
+                        <Badge key={idx} variant="outline" className="text-xs rounded-full">
+                          {license}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </CardContent>
             </Card>
           )}
