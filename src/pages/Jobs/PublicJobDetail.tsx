@@ -12,12 +12,26 @@ import {
   Bookmark,
   Users,
   Share2,
-  Globe
+  Globe,
+  FileCheck,
+  AlertCircle
 } from "lucide-react";
+import { useState, useEffect } from "react";
+import { useToast } from "@/hooks/use-toast";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 export default function PublicJobDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { toast } = useToast();
+  const [userDocuments, setUserDocuments] = useState<any[]>([]);
+  const [canApply, setCanApply] = useState(false);
+  const [missingDocuments, setMissingDocuments] = useState<string[]>([]);
 
   const { data: job, isLoading } = useQuery({
     queryKey: ['public-job', id],
@@ -51,6 +65,51 @@ export default function PublicJobDetail() {
     },
     enabled: !!job?.company?.id
   });
+
+  // Fetch user's uploaded documents
+  const { data: currentUser } = useQuery({
+    queryKey: ['current-user'],
+    queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      return user;
+    }
+  });
+
+  useEffect(() => {
+    if (!currentUser?.id) return;
+
+    const fetchUserDocuments = async () => {
+      const { data, error } = await supabase
+        .from('user_documents')
+        .select('document_type')
+        .eq('user_id', currentUser.id);
+      
+      if (!error && data) {
+        setUserDocuments(data);
+      }
+    };
+
+    fetchUserDocuments();
+  }, [currentUser?.id]);
+
+  // Check if user can apply based on required documents
+  useEffect(() => {
+    if (!job?.required_documents || !Array.isArray(job.required_documents)) {
+      setCanApply(true);
+      setMissingDocuments([]);
+      return;
+    }
+
+    const requiredDocs = job.required_documents as Array<{ type: string; label: string }>;
+    const userDocTypes = userDocuments.map(d => d.document_type);
+    
+    const missing = requiredDocs
+      .filter(reqDoc => !userDocTypes.includes(reqDoc.type))
+      .map(reqDoc => reqDoc.label);
+    
+    setMissingDocuments(missing);
+    setCanApply(missing.length === 0);
+  }, [job?.required_documents, userDocuments]);
 
   if (isLoading) {
     return (
@@ -224,6 +283,86 @@ export default function PublicJobDetail() {
               </div>
             )}
 
+            {/* Required Certificates */}
+            {job.required_certificates && job.required_certificates.length > 0 && (
+              <div>
+                <h3 className="text-lg font-semibold mb-3">Benötigte Zertifikate:</h3>
+                <div className="flex flex-wrap gap-2">
+                  {job.required_certificates.map((cert: string, index: number) => (
+                    <Badge key={index} variant="outline" className="rounded-full px-4 py-2">
+                      <FileCheck className="h-3 w-3 mr-1" />
+                      {cert}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Required Licenses */}
+            {job.required_licenses && job.required_licenses.length > 0 && (
+              <div>
+                <h3 className="text-lg font-semibold mb-3">Benötigte Führerscheine:</h3>
+                <div className="flex flex-wrap gap-2">
+                  {job.required_licenses.map((license: string, index: number) => (
+                    <Badge key={index} variant="outline" className="rounded-full px-4 py-2">
+                      {license}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Required Qualifications */}
+            {job.required_qualifications && job.required_qualifications.length > 0 && (
+              <div>
+                <h3 className="text-lg font-semibold mb-3">Benötigte Qualifikationen:</h3>
+                <div className="flex flex-wrap gap-2">
+                  {job.required_qualifications.map((qual: string, index: number) => (
+                    <Badge key={index} variant="secondary" className="rounded-full px-4 py-2">
+                      {qual}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Document Requirements for Application */}
+            {((job.required_documents && Array.isArray(job.required_documents) && job.required_documents.length > 0) || 
+              (job.optional_documents && Array.isArray(job.optional_documents) && job.optional_documents.length > 0)) && (
+              <div>
+                <h3 className="text-lg font-semibold mb-3">Benötigte Bewerbungsunterlagen:</h3>
+                
+                {job.required_documents && Array.isArray(job.required_documents) && job.required_documents.length > 0 && (
+                  <div className="mb-4">
+                    <div className="text-sm font-medium text-muted-foreground mb-2 flex items-center gap-2">
+                      <AlertCircle className="h-4 w-4 text-destructive" />
+                      Pflichtdokumente (Must-Have):
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {(job.required_documents as Array<{ type: string; label: string }>).map((doc, index) => (
+                        <Badge key={index} variant="destructive" className="rounded-full px-4 py-2">
+                          {doc.label}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {job.optional_documents && Array.isArray(job.optional_documents) && job.optional_documents.length > 0 && (
+                  <div>
+                    <div className="text-sm font-medium text-muted-foreground mb-2">Optional (Nice-to-Have):</div>
+                    <div className="flex flex-wrap gap-2">
+                      {(job.optional_documents as Array<{ type: string; label: string }>).map((doc, index) => (
+                        <Badge key={index} variant="secondary" className="rounded-full px-4 py-2">
+                          {doc.label}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
             {/* Location Map Placeholder */}
             {job.city && (
               <div>
@@ -293,9 +432,31 @@ export default function PublicJobDetail() {
               </div>
 
               <div className="border-t pt-4 space-y-2">
-                <Button className="w-full bg-green-500 hover:bg-green-600 text-white">
-                  Jetzt bewerben
-                </Button>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div className="w-full">
+                        <Button 
+                          className="w-full bg-green-500 hover:bg-green-600 text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                          disabled={!canApply}
+                        >
+                          Jetzt bewerben
+                        </Button>
+                      </div>
+                    </TooltipTrigger>
+                    {!canApply && missingDocuments.length > 0 && (
+                      <TooltipContent side="top" className="max-w-xs">
+                        <p className="font-semibold mb-1">Unvollständige Dokumente</p>
+                        <p className="text-sm">Fehlende Pflichtdokumente:</p>
+                        <ul className="text-sm list-disc list-inside mt-1">
+                          {missingDocuments.map((doc, idx) => (
+                            <li key={idx}>{doc}</li>
+                          ))}
+                        </ul>
+                      </TooltipContent>
+                    )}
+                  </Tooltip>
+                </TooltipProvider>
                 <Button variant="outline" className="w-full">
                   <Bookmark className="h-4 w-4 mr-2" />
                   Für später speichern

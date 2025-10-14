@@ -3806,13 +3806,18 @@ export type Database = {
           must_have: string[] | null
           nice_to_have: string[] | null
           one_click_apply: boolean | null
+          optional_documents: Json | null
           parking_available: boolean | null
           postal_code: string | null
           professional_data: Json | null
           public_transport: boolean | null
           published_at: string | null
           relocation_support: boolean | null
+          required_certificates: string[] | null
+          required_documents: Json | null
           required_languages: Json | null
+          required_licenses: string[] | null
+          required_qualifications: string[] | null
           requirements_description: string | null
           requirements_md: string | null
           role_family: string | null
@@ -3890,13 +3895,18 @@ export type Database = {
           must_have?: string[] | null
           nice_to_have?: string[] | null
           one_click_apply?: boolean | null
+          optional_documents?: Json | null
           parking_available?: boolean | null
           postal_code?: string | null
           professional_data?: Json | null
           public_transport?: boolean | null
           published_at?: string | null
           relocation_support?: boolean | null
+          required_certificates?: string[] | null
+          required_documents?: Json | null
           required_languages?: Json | null
+          required_licenses?: string[] | null
+          required_qualifications?: string[] | null
           requirements_description?: string | null
           requirements_md?: string | null
           role_family?: string | null
@@ -3974,13 +3984,18 @@ export type Database = {
           must_have?: string[] | null
           nice_to_have?: string[] | null
           one_click_apply?: boolean | null
+          optional_documents?: Json | null
           parking_available?: boolean | null
           postal_code?: string | null
           professional_data?: Json | null
           public_transport?: boolean | null
           published_at?: string | null
           relocation_support?: boolean | null
+          required_certificates?: string[] | null
+          required_documents?: Json | null
           required_languages?: Json | null
+          required_licenses?: string[] | null
+          required_qualifications?: string[] | null
           requirements_description?: string | null
           requirements_md?: string | null
           role_family?: string | null
