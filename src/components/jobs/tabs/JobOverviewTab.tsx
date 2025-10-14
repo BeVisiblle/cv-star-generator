@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { 
@@ -8,8 +8,19 @@ import {
   Calendar, 
   Euro,
   Building2,
-  Edit
+  Edit,
+  Clock,
+  User,
+  Mail,
+  Phone,
+  Eye
 } from "lucide-react";
+import { 
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
 
@@ -42,237 +53,299 @@ export function JobOverviewTab({ job, company }: JobOverviewTabProps) {
   };
 
   return (
-    <div className="max-w-5xl mx-auto">
+    <div className="max-w-7xl mx-auto">
       {/* Preview Notice */}
-      <Card className="mb-6 border-primary/50 bg-primary/5">
+      <Card className="mb-6 border-accent/20 bg-accent/5">
         <CardContent className="p-4">
           <div className="flex items-center justify-between">
-            <div>
-              <h3 className="font-semibold text-lg mb-1">Kandidaten-Vorschau</h3>
-              <p className="text-sm text-muted-foreground">
-                So sehen Kandidaten Ihre Stellenanzeige
-              </p>
+            <div className="flex items-center gap-3">
+              <Eye className="h-5 w-5 text-accent" />
+              <div>
+                <h3 className="font-semibold mb-0.5">Kandidaten-Vorschau</h3>
+                <p className="text-sm text-muted-foreground">
+                  So sehen Kandidaten Ihre Stellenanzeige
+                </p>
+              </div>
             </div>
             <Button 
-              onClick={() => navigate(`/company/jobs/${job.id}/edit`)}
+              variant="outline"
+              onClick={() => navigate(`/jobs/${job.id}`)}
               className="gap-2"
             >
-              <Edit className="h-4 w-4" />
-              Bearbeiten
+              <Eye className="h-4 w-4" />
+              Vorschau öffnen
             </Button>
           </div>
         </CardContent>
       </Card>
 
-      {/* Job Header */}
-      <Card className="mb-6">
-        <CardContent className="p-6">
-          <div className="flex items-start gap-4 mb-6">
-            {company?.logo_url && (
-              <img 
-                src={company.logo_url} 
-                alt={company.name}
-                className="w-16 h-16 object-contain rounded-lg border"
-              />
-            )}
-            <div className="flex-1">
-              <h1 className="text-3xl font-bold mb-2">{job.title}</h1>
-              <div className="flex flex-wrap gap-4 text-muted-foreground">
-                <div className="flex items-center gap-2">
-                  <Building2 className="h-4 w-4" />
-                  <span>{company?.name || "Unternehmen"}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <MapPin className="h-4 w-4" />
-                  <span>{job.city || "Standort nicht angegeben"}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Briefcase className="h-4 w-4" />
-                  <span>{getEmploymentTypeLabel(job.employment_type)}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Job Meta Info */}
-          <div className="flex flex-wrap gap-4 mb-6">
-            {job.salary_min && job.salary_max && (
-              <div className="flex items-center gap-2 text-sm">
-                <Euro className="h-4 w-4 text-muted-foreground" />
-                <span className="font-medium">
-                  {job.salary_min.toLocaleString()} - {job.salary_max.toLocaleString()} € / Jahr
-                </span>
-              </div>
-            )}
-            {job.start_date && (
-              <div className="flex items-center gap-2 text-sm">
-                <Calendar className="h-4 w-4 text-muted-foreground" />
-                <span>
-                  Start: {format(new Date(job.start_date), "dd. MMMM yyyy", { locale: de })}
-                </span>
-              </div>
-            )}
-            {job.work_mode && (
-              <Badge variant="secondary">
-                {getWorkModeLabel(job.work_mode)}
-              </Badge>
-            )}
-          </div>
-
-          {/* Job Details Grid */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-4 bg-muted/50 rounded-lg">
-            <div>
-              <p className="text-sm text-muted-foreground mb-1">Branche</p>
-              <p className="font-medium">{job.industry || "—"}</p>
-            </div>
-            <div>
-              <p className="text-sm text-muted-foreground mb-1">Anstellungsart</p>
-              <p className="font-medium">{getEmploymentTypeLabel(job.employment_type)}</p>
-            </div>
-            <div>
-              <p className="text-sm text-muted-foreground mb-1">Arbeitszeit</p>
-              <p className="font-medium">{job.working_hours || "—"} Std./Woche</p>
-            </div>
-            <div>
-              <p className="text-sm text-muted-foreground mb-1">Standort</p>
-              <p className="font-medium">{job.city || "—"}</p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Job Description */}
+      {/* Two Column Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Left Column - Main Content (70%) */}
         <div className="lg:col-span-2 space-y-6">
-          {/* About the Job */}
-          {job.description_md && (
-            <Card>
-              <CardContent className="p-6">
-                <h2 className="text-xl font-semibold mb-4">Über die Stelle</h2>
-                <div className="prose prose-sm max-w-none">
-                  <p className="whitespace-pre-wrap">{job.description_md}</p>
+          {/* Job Header Card */}
+          <Card className="shadow-sm">
+            <CardContent className="p-6">
+              <div className="flex items-start gap-4 mb-6">
+                {company?.logo_url && (
+                  <div className="flex-shrink-0">
+                    <img 
+                      src={company.logo_url} 
+                      alt={company.name}
+                      className="w-14 h-14 object-contain rounded-lg border"
+                    />
+                  </div>
+                )}
+                <div className="flex-1 min-w-0">
+                  <h2 className="text-2xl font-bold mb-2">{job.title}</h2>
+                  <div className="flex flex-wrap gap-3 text-sm text-muted-foreground">
+                    <div className="flex items-center gap-1.5">
+                      <Building2 className="h-4 w-4" />
+                      <span>{company?.name || "Unternehmen"}</span>
+                    </div>
+                    <span>•</span>
+                    <div className="flex items-center gap-1.5">
+                      <MapPin className="h-4 w-4" />
+                      <span>{job.city || "Standort nicht angegeben"}</span>
+                    </div>
+                    <span>•</span>
+                    <div className="flex items-center gap-1.5">
+                      <Briefcase className="h-4 w-4" />
+                      <span>{getEmploymentTypeLabel(job.employment_type)}</span>
+                    </div>
+                  </div>
                 </div>
-              </CardContent>
-            </Card>
-          )}
+              </div>
 
-          {/* Responsibilities */}
-          {job.tasks_md && (
-            <Card>
-              <CardContent className="p-6">
-                <h2 className="text-xl font-semibold mb-4">Aufgaben</h2>
-                <div className="prose prose-sm max-w-none">
-                  <p className="whitespace-pre-wrap">{job.tasks_md}</p>
-                </div>
-              </CardContent>
-            </Card>
-          )}
+              {/* Key Info */}
+              <div className="flex flex-wrap gap-4 pb-4 border-b">
+                {job.salary_min && job.salary_max && (
+                  <div className="flex items-center gap-2">
+                    <Euro className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-sm font-medium">
+                      {job.salary_min.toLocaleString()} - {job.salary_max.toLocaleString()} €
+                    </span>
+                  </div>
+                )}
+                {job.start_date && (
+                  <div className="flex items-center gap-2">
+                    <Calendar className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-sm">
+                      Start: {format(new Date(job.start_date), "dd.MM.yyyy")}
+                    </span>
+                  </div>
+                )}
+                {job.work_mode && (
+                  <Badge variant="secondary" className="rounded-full">
+                    {getWorkModeLabel(job.work_mode)}
+                  </Badge>
+                )}
+              </div>
 
-          {/* Requirements */}
-          {job.requirements_md && (
-            <Card>
-              <CardContent className="p-6">
-                <h2 className="text-xl font-semibold mb-4">Anforderungen</h2>
-                <div className="prose prose-sm max-w-none">
-                  <p className="whitespace-pre-wrap">{job.requirements_md}</p>
+              {/* Metadata Grid */}
+              <div className="grid grid-cols-3 gap-4 mt-4">
+                <div className="bg-muted/30 rounded-lg p-3">
+                  <p className="text-xs text-muted-foreground mb-1">Branche</p>
+                  <p className="font-medium text-sm">{job.industry || "—"}</p>
                 </div>
-              </CardContent>
-            </Card>
-          )}
+                <div className="bg-muted/30 rounded-lg p-3">
+                  <p className="text-xs text-muted-foreground mb-1">Anstellungsart</p>
+                  <p className="font-medium text-sm">{getEmploymentTypeLabel(job.employment_type)}</p>
+                </div>
+                <div className="bg-muted/30 rounded-lg p-3">
+                  <p className="text-xs text-muted-foreground mb-1">Arbeitszeit</p>
+                  <p className="font-medium text-sm">{job.working_hours || "—"} Std./Wo.</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
 
-          {/* Benefits */}
-          {job.benefits_description && (
-            <Card>
-              <CardContent className="p-6">
-                <h2 className="text-xl font-semibold mb-4">Benefits</h2>
-                <div className="prose prose-sm max-w-none">
-                  <p className="whitespace-pre-wrap">{job.benefits_description}</p>
-                </div>
-              </CardContent>
-            </Card>
-          )}
+          {/* Job Details Accordion */}
+          <Card className="shadow-sm">
+            <CardContent className="p-6">
+              <Accordion type="multiple" defaultValue={["description", "tasks"]} className="w-full">
+                {job.description_md && (
+                  <AccordionItem value="description">
+                    <AccordionTrigger className="text-lg font-semibold hover:no-underline">
+                      Über die Stelle
+                    </AccordionTrigger>
+                    <AccordionContent>
+                      <div className="prose prose-sm max-w-none pt-2">
+                        <p className="whitespace-pre-wrap text-muted-foreground">{job.description_md}</p>
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
+                )}
+
+                {job.tasks_md && (
+                  <AccordionItem value="tasks">
+                    <AccordionTrigger className="text-lg font-semibold hover:no-underline">
+                      Aufgaben
+                    </AccordionTrigger>
+                    <AccordionContent>
+                      <div className="prose prose-sm max-w-none pt-2">
+                        <p className="whitespace-pre-wrap text-muted-foreground">{job.tasks_md}</p>
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
+                )}
+
+                {job.requirements_md && (
+                  <AccordionItem value="requirements">
+                    <AccordionTrigger className="text-lg font-semibold hover:no-underline">
+                      Anforderungen
+                    </AccordionTrigger>
+                    <AccordionContent>
+                      <div className="prose prose-sm max-w-none pt-2">
+                        <p className="whitespace-pre-wrap text-muted-foreground">{job.requirements_md}</p>
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
+                )}
+
+                {job.benefits_description && (
+                  <AccordionItem value="benefits">
+                    <AccordionTrigger className="text-lg font-semibold hover:no-underline">
+                      Benefits
+                    </AccordionTrigger>
+                    <AccordionContent>
+                      <div className="prose prose-sm max-w-none pt-2">
+                        <p className="whitespace-pre-wrap text-muted-foreground">{job.benefits_description}</p>
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
+                )}
+              </Accordion>
+            </CardContent>
+          </Card>
         </div>
 
-        {/* Sidebar */}
+        {/* Right Sidebar (30%) */}
         <div className="space-y-6">
-          {/* Company Info */}
-          <Card>
-            <CardContent className="p-6">
-              <h3 className="font-semibold mb-4">Über das Unternehmen</h3>
-              {company?.logo_url && (
-                <img 
-                  src={company.logo_url} 
-                  alt={company.name}
-                  className="w-full h-32 object-contain mb-4 rounded-lg border"
-                />
-              )}
-              <h4 className="font-semibold text-lg mb-2">{company?.name}</h4>
-              {company?.description && (
-                <p className="text-sm text-muted-foreground mb-4">{company.description}</p>
-              )}
-              {company?.industry && (
-                <div className="mb-2">
-                  <p className="text-sm text-muted-foreground">Branche</p>
-                  <p className="font-medium">{company.industry}</p>
+          {/* Job Status Widget */}
+          <Card className="shadow-sm">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base">Jobstatus</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div>
+                <p className="text-xs text-muted-foreground mb-1">Status</p>
+                <Badge variant={job.status === 'published' ? 'default' : 'secondary'} className="rounded-full">
+                  {job.status === 'published' ? 'Aktiv' : job.status === 'draft' ? 'Entwurf' : 'Archiviert'}
+                </Badge>
+              </div>
+              {job.created_at && (
+                <div>
+                  <p className="text-xs text-muted-foreground mb-1">Erstellt am</p>
+                  <p className="text-sm font-medium">
+                    {format(new Date(job.created_at), "dd.MM.yyyy", { locale: de })}
+                  </p>
                 </div>
               )}
-              {company?.size_range && (
-                <div className="mb-2">
-                  <p className="text-sm text-muted-foreground">Unternehmensgröße</p>
-                  <p className="font-medium">{company.size_range}</p>
+              {job.updated_at && (
+                <div>
+                  <p className="text-xs text-muted-foreground mb-1">Geändert am</p>
+                  <p className="text-sm font-medium">
+                    {format(new Date(job.updated_at), "dd.MM.yyyy", { locale: de })}
+                  </p>
                 </div>
-              )}
-              {company?.website_url && (
-                <a 
-                  href={company.website_url} 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="text-sm text-primary hover:underline"
-                >
-                  Website besuchen →
-                </a>
               )}
             </CardContent>
           </Card>
 
           {/* Contact Person */}
           {(job.contact_person_name || job.contact_person_email) && (
-            <Card>
-              <CardContent className="p-6">
-                <h3 className="font-semibold mb-4">Ansprechperson</h3>
+            <Card className="shadow-sm">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base">Ansprechpartner</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
                 {job.contact_person_name && (
-                  <div className="mb-3">
-                    <p className="font-medium">{job.contact_person_name}</p>
-                    {job.contact_person_role && (
-                      <p className="text-sm text-muted-foreground">{job.contact_person_role}</p>
-                    )}
+                  <div className="flex items-start gap-3">
+                    <div className="flex-shrink-0 w-10 h-10 rounded-full bg-muted flex items-center justify-center">
+                      <User className="h-5 w-5 text-muted-foreground" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-semibold text-sm">{job.contact_person_name}</p>
+                      {job.contact_person_role && (
+                        <p className="text-xs text-muted-foreground">{job.contact_person_role}</p>
+                      )}
+                    </div>
                   </div>
                 )}
-                {job.contact_person_email && (
-                  <div className="mb-2">
-                    <p className="text-sm text-muted-foreground">E-Mail</p>
-                    <a 
-                      href={`mailto:${job.contact_person_email}`}
-                      className="text-sm text-primary hover:underline"
-                    >
-                      {job.contact_person_email}
-                    </a>
-                  </div>
-                )}
-                {job.contact_person_phone && (
-                  <div>
-                    <p className="text-sm text-muted-foreground">Telefon</p>
-                    <a 
-                      href={`tel:${job.contact_person_phone}`}
-                      className="text-sm text-primary hover:underline"
-                    >
-                      {job.contact_person_phone}
-                    </a>
-                  </div>
-                )}
+                <div className="space-y-2">
+                  {job.contact_person_email && (
+                    <div className="flex items-center gap-2">
+                      <Mail className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                      <a 
+                        href={`mailto:${job.contact_person_email}`}
+                        className="text-sm text-accent hover:underline truncate"
+                      >
+                        {job.contact_person_email}
+                      </a>
+                    </div>
+                  )}
+                  {job.contact_person_phone && (
+                    <div className="flex items-center gap-2">
+                      <Phone className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                      <a 
+                        href={`tel:${job.contact_person_phone}`}
+                        className="text-sm text-accent hover:underline"
+                      >
+                        {job.contact_person_phone}
+                      </a>
+                    </div>
+                  )}
+                </div>
               </CardContent>
             </Card>
           )}
+
+          {/* Company Info */}
+          <Card className="shadow-sm">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base">Über das Unternehmen</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {company?.logo_url && (
+                <img 
+                  src={company.logo_url} 
+                  alt={company.name}
+                  className="w-full h-24 object-contain rounded-lg border bg-muted/10"
+                />
+              )}
+              <div>
+                <h4 className="font-semibold mb-1">{company?.name}</h4>
+                {company?.description && (
+                  <p className="text-xs text-muted-foreground line-clamp-3">{company.description}</p>
+                )}
+              </div>
+              <div className="space-y-2">
+                {company?.industry && (
+                  <div>
+                    <p className="text-xs text-muted-foreground">Branche</p>
+                    <p className="text-sm font-medium">{company.industry}</p>
+                  </div>
+                )}
+                {company?.size_range && (
+                  <div>
+                    <p className="text-xs text-muted-foreground">Größe</p>
+                    <p className="text-sm font-medium">{company.size_range}</p>
+                  </div>
+                )}
+              </div>
+              {company?.website_url && (
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="w-full"
+                  onClick={() => window.open(company.website_url, '_blank')}
+                >
+                  Website besuchen
+                </Button>
+              )}
+            </CardContent>
+          </Card>
         </div>
       </div>
     </div>
