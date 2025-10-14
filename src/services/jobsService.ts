@@ -22,7 +22,10 @@ export class JobsService {
   static async getJobById(jobId: string): Promise<any> {
     const { data, error } = await supabase
       .from('job_posts')
-      .select('*, company:companies(*)')
+      .select(`
+        *,
+        company:companies!job_posts_company_id_fkey(*)
+      `)
       .eq('id', jobId)
       .maybeSingle();
 
@@ -39,7 +42,10 @@ export class JobsService {
     // Build base query
     const baseQuery = supabase
       .from('job_posts')
-      .select('*, company:companies(id, name, logo_url)')
+      .select(`
+        *,
+        company:companies!job_posts_company_id_fkey(id, name, logo_url)
+      `)
       .eq('status', 'published')
       .eq('is_active', true)
       .eq('is_public', true);
