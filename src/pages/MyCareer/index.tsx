@@ -38,15 +38,15 @@ export default function MyCareer() {
         <TabsList className="grid w-full grid-cols-3 mb-8">
           <TabsTrigger value="applications" className="flex items-center gap-2">
             <Briefcase className="h-4 w-4" />
-            <span>Bewerbungen</span>
+            <span className="hidden sm:inline">Bewerbungen</span>
           </TabsTrigger>
           <TabsTrigger value="saved" className="flex items-center gap-2">
             <Bookmark className="h-4 w-4" />
-            <span>Gespeichert</span>
+            <span className="hidden sm:inline">Gespeichert</span>
           </TabsTrigger>
           <TabsTrigger value="interests" className="flex items-center gap-2">
             <Building2 className="h-4 w-4" />
-            <span>Interessierte Unternehmen</span>
+            <span className="hidden sm:inline">Interessierte</span>
           </TabsTrigger>
         </TabsList>
 
