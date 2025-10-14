@@ -1,27 +1,17 @@
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
-import { Form } from "@/components/ui/form";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useJobForm } from "@/contexts/JobFormContext";
-import { SkillSelector } from "../SkillSelector";
 import { LanguageSelector } from "../LanguageSelector";
 import { CertificationInput } from "../CertificationInput";
-import { Sparkles } from "lucide-react";
+import { Sparkles, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-
-const INDUSTRY_SKILLS_MAP: Record<string, string[]> = {
-  'IT & Technologie': ['JavaScript', 'Python', 'React', 'SQL', 'Git', 'Teamarbeit', 'Problemlösung'],
-  'Handwerk': ['Handwerkliches Geschick', 'Technisches Verständnis', 'Präzision', 'Sorgfalt', 'Teamarbeit'],
-  'Gesundheit & Pflege': ['Empathie', 'Kommunikation', 'Belastbarkeit', 'Teamarbeit', 'Verantwortungsbewusstsein'],
-  'Einzelhandel': ['Kundenorientierung', 'Kommunikation', 'Verkaufstalent', 'Teamarbeit', 'Flexibilität'],
-  'Gastronomie': ['Gastfreundschaft', 'Stressresistenz', 'Teamarbeit', 'Hygienebewusstsein', 'Flexibilität'],
-  'Logistik': ['Organisationstalent', 'Sorgfalt', 'Belastbarkeit', 'Zeitmanagement', 'Teamarbeit'],
-  'Finanzwesen': ['Analytisches Denken', 'Zahlenverständnis', 'Sorgfalt', 'Kommunikation', 'Vertraulichkeit'],
-  'Bildung': ['Pädagogisches Geschick', 'Kommunikation', 'Geduld', 'Kreativität', 'Empathie'],
-  'Industrie': ['Technisches Verständnis', 'Präzision', 'Teamarbeit', 'Sorgfalt', 'Belastbarkeit'],
-  'Öffentlicher Dienst': ['Zuverlässigkeit', 'Kommunikation', 'Organisationstalent', 'Vertraulichkeit', 'Teamarbeit']
-};
+import { getSkillsForBranch } from "@/data/branchenSkills";
+import { Combobox } from "@/components/ui/combobox";
+import { Badge } from "@/components/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export function JobFormStep2() {
   const { formData, setFormData, nextStep, prevStep } = useJobForm();
@@ -35,17 +25,17 @@ export function JobFormStep2() {
     },
   });
 
-  // Auto-suggest skills based on industry when component mounts
+  // Get branch-specific skills
+  const branchSkills = getSkillsForBranch(formData.industry);
+
+  // Auto-suggest skills based on industry when component mounts or industry changes
   useEffect(() => {
     if (formData.industry && formData.skills.length === 0) {
-      const suggestedSkills = INDUSTRY_SKILLS_MAP[formData.industry] || [];
-      if (suggestedSkills.length > 0) {
-        const defaultSkills = suggestedSkills.slice(0, 5).map(name => ({
-          name,
-          level: 'must_have' as const
-        }));
-        form.setValue('skills', defaultSkills);
-      }
+      const suggestedSkills = branchSkills.slice(0, 5).map(name => ({
+        name,
+        level: 'must_have' as const
+      }));
+      form.setValue('skills', suggestedSkills);
     }
   }, [formData.industry]);
 
@@ -79,8 +69,40 @@ export function JobFormStep2() {
     }
   };
 
+  const addSkill = (skillName: string, level: 'must_have' | 'nice_to_have' = 'must_have') => {
+    const currentSkills = form.watch('skills');
+    const levelSkills = currentSkills.filter(s => s.level === level);
+    
+    if (levelSkills.length >= 5) {
+      toast.error(`Maximal 5 ${level === 'must_have' ? 'Must-Have' : 'Nice-to-Have'} Fähigkeiten erlaubt`);
+      return;
+    }
+    
+    if (!currentSkills.some(s => s.name === skillName)) {
+      form.setValue('skills', [...currentSkills, { name: skillName, level }]);
+    }
+  };
+
+  const removeSkill = (index: number) => {
+    const currentSkills = form.watch('skills');
+    form.setValue('skills', currentSkills.filter((_, i) => i !== index));
+  };
+
+  const changeSkillLevel = (index: number, newLevel: 'must_have' | 'nice_to_have') => {
+    const currentSkills = form.watch('skills');
+    const newLevelSkills = currentSkills.filter(s => s.level === newLevel);
+    
+    if (newLevelSkills.length >= 5) {
+      toast.error(`Maximal 5 ${newLevel === 'must_have' ? 'Must-Have' : 'Nice-to-Have'} Fähigkeiten erlaubt`);
+      return;
+    }
+    
+    const updatedSkills = [...currentSkills];
+    updatedSkills[index] = { ...updatedSkills[index], level: newLevel };
+    form.setValue('skills', updatedSkills);
+  };
+
   const onSubmit = (data: any) => {
-    // Validate: max 5 must_have and max 5 nice_to_have
     const mustHave = data.skills.filter((s: any) => s.level === 'must_have');
     const niceToHave = data.skills.filter((s: any) => s.level === 'nice_to_have');
     
@@ -96,6 +118,11 @@ export function JobFormStep2() {
     setFormData(data);
     nextStep();
   };
+
+  const currentSkills = form.watch('skills');
+  const mustHaveSkills = currentSkills.filter(s => s.level === 'must_have');
+  const niceToHaveSkills = currentSkills.filter(s => s.level === 'nice_to_have');
+  const availableSkills = branchSkills.filter(skill => !currentSkills.some(s => s.name === skill));
 
   return (
     <div className="space-y-6">
@@ -118,10 +145,103 @@ export function JobFormStep2() {
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-          <SkillSelector
-            value={form.watch('skills')}
-            onChange={(skills) => form.setValue('skills', skills)}
-          />
+          {/* Must-Have Skills */}
+          <div className="space-y-4">
+            <div className="flex justify-between items-center">
+              <FormLabel className="text-base">Must-Have Fähigkeiten</FormLabel>
+              <span className="text-sm text-muted-foreground">
+                {mustHaveSkills.length}/5
+              </span>
+            </div>
+            
+            <Combobox
+              items={availableSkills.map(skill => ({ value: skill, label: skill }))}
+              value={undefined}
+              onChange={(value) => addSkill(value, 'must_have')}
+              placeholder={mustHaveSkills.length >= 5 ? "Maximum erreicht" : "Fähigkeit auswählen..."}
+              searchPlaceholder="Fähigkeit suchen..."
+              disabled={mustHaveSkills.length >= 5}
+            />
+
+            <div className="flex flex-wrap gap-2">
+              {mustHaveSkills.map((skill, index) => {
+                const actualIndex = currentSkills.findIndex(s => s === skill);
+                return (
+                  <Badge key={actualIndex} variant="default" className="px-3 py-2 text-sm">
+                    {skill.name}
+                    <Select
+                      value={skill.level}
+                      onValueChange={(value) => changeSkillLevel(actualIndex, value as any)}
+                    >
+                      <SelectTrigger className="h-6 w-auto ml-2 border-0 bg-transparent">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="must_have">Must-Have</SelectItem>
+                        <SelectItem value="nice_to_have">Nice-to-Have</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <button
+                      type="button"
+                      onClick={() => removeSkill(actualIndex)}
+                      className="ml-2 hover:text-destructive"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </Badge>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Nice-to-Have Skills */}
+          <div className="space-y-4">
+            <div className="flex justify-between items-center">
+              <FormLabel className="text-base">Nice-to-Have Fähigkeiten</FormLabel>
+              <span className="text-sm text-muted-foreground">
+                {niceToHaveSkills.length}/5
+              </span>
+            </div>
+            
+            <Combobox
+              items={availableSkills.map(skill => ({ value: skill, label: skill }))}
+              value={undefined}
+              onChange={(value) => addSkill(value, 'nice_to_have')}
+              placeholder={niceToHaveSkills.length >= 5 ? "Maximum erreicht" : "Fähigkeit auswählen..."}
+              searchPlaceholder="Fähigkeit suchen..."
+              disabled={niceToHaveSkills.length >= 5}
+            />
+
+            <div className="flex flex-wrap gap-2">
+              {niceToHaveSkills.map((skill, index) => {
+                const actualIndex = currentSkills.findIndex(s => s === skill);
+                return (
+                  <Badge key={actualIndex} variant="outline" className="px-3 py-2 text-sm">
+                    {skill.name}
+                    <Select
+                      value={skill.level}
+                      onValueChange={(value) => changeSkillLevel(actualIndex, value as any)}
+                    >
+                      <SelectTrigger className="h-6 w-auto ml-2 border-0 bg-transparent">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="must_have">Must-Have</SelectItem>
+                        <SelectItem value="nice_to_have">Nice-to-Have</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <button
+                      type="button"
+                      onClick={() => removeSkill(actualIndex)}
+                      className="ml-2 hover:text-destructive"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </Badge>
+                );
+              })}
+            </div>
+          </div>
 
           <LanguageSelector
             value={form.watch('required_languages')}
