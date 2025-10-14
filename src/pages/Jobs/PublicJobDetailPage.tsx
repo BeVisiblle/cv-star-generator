@@ -1,13 +1,33 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
+import { useJobSave } from "@/hooks/useJobSave";
+import { useQuickApply } from "@/hooks/useQuickApply";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, MapPin, Briefcase, Clock, Building2, Calendar, Share2, Bookmark, FileText, Users, Languages, Award } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { ArrowLeft, MapPin, Briefcase, Clock, Building2, Calendar, Share2, Bookmark, BookmarkCheck, FileText, Users, Languages, Award, CheckCircle } from "lucide-react";
 
 export default function PublicJobDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
+  const [companyName, setCompanyName] = useState("");
+  
+  const { isSaved, toggleSave, isToggling } = useJobSave(id || "");
+  const { hasApplied, applyToJob, isApplying } = useQuickApply(id || "");
 
   const { data: job, isLoading } = useQuery({
     queryKey: ["public-job-detail", id],
@@ -213,14 +233,74 @@ export default function PublicJobDetailPage() {
 
             {/* Apply Buttons */}
             <div className="space-y-3">
-              <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white" size="lg">
-                Jetzt bewerben
+              {!hasApplied ? (
+                <Button 
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white" 
+                  size="lg"
+                  onClick={() => {
+                    if (!user) {
+                      navigate("/auth");
+                      return;
+                    }
+                    setCompanyName(job.company?.name || "das Unternehmen");
+                    setConfirmDialogOpen(true);
+                  }}
+                  disabled={isApplying}
+                >
+                  {isApplying ? "Wird gesendet..." : "Jetzt bewerben"}
+                </Button>
+              ) : (
+                <Button 
+                  className="w-full bg-green-600 hover:bg-green-700 text-white" 
+                  size="lg"
+                  disabled
+                >
+                  <CheckCircle className="h-4 w-4 mr-2" />
+                  Beworben
+                </Button>
+              )}
+              
+              <Button 
+                className={`w-full ${isSaved ? 'bg-orange-600 hover:bg-orange-700' : 'bg-orange-500 hover:bg-orange-600'} text-white`}
+                size="lg"
+                onClick={() => {
+                  if (!user) {
+                    navigate("/auth");
+                    return;
+                  }
+                  toggleSave();
+                }}
+                disabled={isToggling}
+              >
+                {isSaved ? (
+                  <>
+                    <BookmarkCheck className="h-4 w-4 mr-2" />
+                    Gespeichert
+                  </>
+                ) : (
+                  <>
+                    <Bookmark className="h-4 w-4 mr-2" />
+                    Speichern
+                  </>
+                )}
               </Button>
-              <Button className="w-full bg-orange-500 hover:bg-orange-600 text-white" size="lg">
-                <Bookmark className="h-4 w-4 mr-2" />
-                Speichern
-              </Button>
-              <Button variant="outline" className="w-full" size="lg">
+              
+              <Button 
+                variant="outline" 
+                className="w-full" 
+                size="lg"
+                onClick={() => {
+                  if (navigator.share) {
+                    navigator.share({
+                      title: job.title,
+                      text: `Schau dir diese Stelle an: ${job.title} bei ${job.company?.name}`,
+                      url: window.location.href,
+                    });
+                  } else {
+                    navigator.clipboard.writeText(window.location.href);
+                  }
+                }}
+              >
                 <Share2 className="h-4 w-4 mr-2" />
                 Teilen
               </Button>
@@ -366,6 +446,30 @@ export default function PublicJobDetailPage() {
           </div>
         </div>
       </div>
+
+      {/* Bewerbungs-Bestätigungs-Dialog */}
+      <AlertDialog open={confirmDialogOpen} onOpenChange={setConfirmDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Bewerbung absenden?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Dein vollständiges Profil wird an {companyName} weitergeleitet.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Abbrechen</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={() => {
+                applyToJob();
+                setConfirmDialogOpen(false);
+              }}
+              className="bg-blue-600 hover:bg-blue-700"
+            >
+              Jetzt bewerben
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
