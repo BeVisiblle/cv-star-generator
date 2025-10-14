@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useAuth } from "./useAuth";
 
-export type ApplicationStatus = "pending" | "accepted" | "rejected" | "withdrawn";
+export type ApplicationStatus = "pending" | "unlocked" | "accepted" | "rejected" | "withdrawn" | "interview_scheduled";
 
 export type MyApplication = {
   id: string;
@@ -11,6 +11,11 @@ export type MyApplication = {
   status: ApplicationStatus;
   created_at: string;
   viewed_by_company: boolean;
+  unlocked_at?: string;
+  company_response_at?: string;
+  interview_note?: string;
+  contacted_confirmed?: boolean;
+  contacted_confirmed_at?: string;
   job: {
     id: string;
     title: string;
@@ -39,6 +44,11 @@ export function useMyApplications() {
           status,
           created_at,
           viewed_by_company,
+          unlocked_at,
+          company_response_at,
+          interview_note,
+          contacted_confirmed,
+          contacted_confirmed_at,
           job:job_posts!job_id (
             id,
             title,

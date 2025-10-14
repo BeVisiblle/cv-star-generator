@@ -1,12 +1,23 @@
 import { useState, useMemo } from "react";
 import { useMyApplications, useWithdrawApplication, ApplicationStatus } from "@/hooks/useMyApplications";
+import { useConfirmContact } from "@/hooks/useConfirmContact";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { MoreVertical, Eye, XCircle, CheckCircle, Clock, AlertCircle } from "lucide-react";
-import { formatDistanceToNow } from "date-fns";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { MoreVertical, Eye, XCircle, CheckCircle, Clock, AlertCircle, Calendar } from "lucide-react";
+import { formatDistanceToNow, format } from "date-fns";
 import { de } from "date-fns/locale";
 import { useNavigate } from "react-router-dom";
 
@@ -17,8 +28,11 @@ interface ApplicationsListProps {
 export function ApplicationsList({ searchQuery }: ApplicationsListProps) {
   const { data: applications, isLoading } = useMyApplications();
   const withdrawMutation = useWithdrawApplication();
+  const confirmContact = useConfirmContact();
   const navigate = useNavigate();
   const [statusFilter, setStatusFilter] = useState<ApplicationStatus | "all">("all");
+  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
+  const [selectedApplicationId, setSelectedApplicationId] = useState<string | null>(null);
 
   const filteredApplications = useMemo(() => {
     if (!applications) return [];
@@ -48,14 +62,28 @@ export function ApplicationsList({ searchQuery }: ApplicationsListProps) {
     switch (status) {
       case "pending":
         return {
-          label: "In Bearbeitung",
+          label: "Ausstehend",
           variant: "secondary" as const,
           icon: Clock,
+          color: "text-yellow-600",
+        };
+      case "unlocked":
+        return {
+          label: "Freigeschaltet",
+          variant: "default" as const,
+          icon: CheckCircle,
           color: "text-blue-600",
+        };
+      case "interview_scheduled":
+        return {
+          label: "Interview geplant",
+          variant: "default" as const,
+          icon: Calendar,
+          color: "text-purple-600",
         };
       case "accepted":
         return {
-          label: "Angenommen",
+          label: "Akzeptiert",
           variant: "default" as const,
           icon: CheckCircle,
           color: "text-green-600",
@@ -74,6 +102,14 @@ export function ApplicationsList({ searchQuery }: ApplicationsListProps) {
           icon: AlertCircle,
           color: "text-gray-600",
         };
+    }
+  };
+
+  const handleConfirmContact = () => {
+    if (selectedApplicationId) {
+      confirmContact.mutate(selectedApplicationId);
+      setConfirmDialogOpen(false);
+      setSelectedApplicationId(null);
     }
   };
 
@@ -99,7 +135,23 @@ export function ApplicationsList({ searchQuery }: ApplicationsListProps) {
           onClick={() => setStatusFilter("pending")}
           className="rounded-full"
         >
-          In Bearbeitung
+          Ausstehend
+        </Button>
+        <Button
+          variant={statusFilter === "unlocked" ? "default" : "outline"}
+          size="sm"
+          onClick={() => setStatusFilter("unlocked")}
+          className="rounded-full"
+        >
+          Freigeschaltet
+        </Button>
+        <Button
+          variant={statusFilter === "interview_scheduled" ? "default" : "outline"}
+          size="sm"
+          onClick={() => setStatusFilter("interview_scheduled")}
+          className="rounded-full"
+        >
+          Interview
         </Button>
         <Button
           variant={statusFilter === "accepted" ? "default" : "outline"}
@@ -107,7 +159,7 @@ export function ApplicationsList({ searchQuery }: ApplicationsListProps) {
           onClick={() => setStatusFilter("accepted")}
           className="rounded-full"
         >
-          Angenommen
+          Akzeptiert
         </Button>
         <Button
           variant={statusFilter === "rejected" ? "default" : "outline"}
@@ -177,6 +229,18 @@ export function ApplicationsList({ searchQuery }: ApplicationsListProps) {
                             <Eye className="h-4 w-4 mr-2" />
                             Job ansehen
                           </DropdownMenuItem>
+                          {application.status === "interview_scheduled" && !application.contacted_confirmed && (
+                            <DropdownMenuItem
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setSelectedApplicationId(application.id);
+                                setConfirmDialogOpen(true);
+                              }}
+                            >
+                              <CheckCircle className="h-4 w-4 mr-2" />
+                              Kontakt bestätigen
+                            </DropdownMenuItem>
+                          )}
                           {application.status === "pending" && (
                             <DropdownMenuItem
                               onClick={(e) => {
@@ -208,6 +272,22 @@ export function ApplicationsList({ searchQuery }: ApplicationsListProps) {
                         </Badge>
                       )}
                     </div>
+
+                    {/* Interview Note Display */}
+                    {application.status === "interview_scheduled" && application.interview_note && (
+                      <div className="mt-4 p-3 bg-muted rounded-lg">
+                        <p className="text-sm font-medium mb-1">Interview-Notiz:</p>
+                        <p className="text-sm text-muted-foreground">{application.interview_note}</p>
+                      </div>
+                    )}
+
+                    {/* Contact Confirmation Status */}
+                    {application.status === "interview_scheduled" && application.contacted_confirmed && (
+                      <div className="mt-4 flex items-center gap-2 text-sm text-green-600">
+                        <CheckCircle className="h-4 w-4" />
+                        <span>Kontakt bestätigt am {format(new Date(application.contacted_confirmed_at!), "dd.MM.yyyy", { locale: de })}</span>
+                      </div>
+                    )}
                   </div>
                 </div>
               </Card>
@@ -215,6 +295,24 @@ export function ApplicationsList({ searchQuery }: ApplicationsListProps) {
           })}
         </div>
       )}
+
+      {/* Confirmation Dialog */}
+      <AlertDialog open={confirmDialogOpen} onOpenChange={setConfirmDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Kontakt bestätigen</AlertDialogTitle>
+            <AlertDialogDescription>
+              Hast du bereits Kontakt vom Unternehmen erhalten bezüglich des Interview-Termins?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Abbrechen</AlertDialogCancel>
+            <AlertDialogAction onClick={handleConfirmContact}>
+              Ja, ich wurde kontaktiert
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

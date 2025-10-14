@@ -198,14 +198,47 @@ export type Database = {
           },
         ]
       }
+      application_reminders: {
+        Row: {
+          application_id: string
+          id: string
+          reminder_type: string
+          sent_at: string
+        }
+        Insert: {
+          application_id: string
+          id?: string
+          reminder_type: string
+          sent_at?: string
+        }
+        Update: {
+          application_id?: string
+          id?: string
+          reminder_type?: string
+          sent_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "application_reminders_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: false
+            referencedRelation: "applications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       applications: {
         Row: {
           applied_at: string | null
           candidate_id: string
           company_id: string
+          company_response_at: string | null
+          contacted_confirmed: boolean | null
+          contacted_confirmed_at: string | null
           cover_letter: string | null
           created_at: string
           id: string
+          interview_note: string | null
           job_id: string
           job_post_id: string | null
           linked_job_id: string | null
@@ -216,6 +249,7 @@ export type Database = {
           stage: string
           status: string | null
           unlock_type: string | null
+          unlocked_at: string | null
           unread: boolean
           updated_at: string
           user_id: string | null
@@ -225,9 +259,13 @@ export type Database = {
           applied_at?: string | null
           candidate_id: string
           company_id: string
+          company_response_at?: string | null
+          contacted_confirmed?: boolean | null
+          contacted_confirmed_at?: string | null
           cover_letter?: string | null
           created_at?: string
           id?: string
+          interview_note?: string | null
           job_id: string
           job_post_id?: string | null
           linked_job_id?: string | null
@@ -238,6 +276,7 @@ export type Database = {
           stage?: string
           status?: string | null
           unlock_type?: string | null
+          unlocked_at?: string | null
           unread?: boolean
           updated_at?: string
           user_id?: string | null
@@ -247,9 +286,13 @@ export type Database = {
           applied_at?: string | null
           candidate_id?: string
           company_id?: string
+          company_response_at?: string | null
+          contacted_confirmed?: boolean | null
+          contacted_confirmed_at?: string | null
           cover_letter?: string | null
           created_at?: string
           id?: string
+          interview_note?: string | null
           job_id?: string
           job_post_id?: string | null
           linked_job_id?: string | null
@@ -260,6 +303,7 @@ export type Database = {
           stage?: string
           status?: string | null
           unlock_type?: string | null
+          unlocked_at?: string | null
           unread?: boolean
           updated_at?: string
           user_id?: string | null
