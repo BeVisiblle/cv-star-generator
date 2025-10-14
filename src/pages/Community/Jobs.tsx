@@ -1,8 +1,11 @@
 import { useState } from "react";
 import { usePublicJobs } from "@/hooks/useJobs";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
+import { JobSearchHero } from "@/components/community/jobs/JobSearchHero";
+import { JobFilters } from "@/components/community/jobs/JobFilters";
+import { PublicJobCard } from "@/components/community/jobs/PublicJobCard";
+import { JobDetailDialog } from "@/components/community/jobs/JobDetailDialog";
 import { Button } from "@/components/ui/button";
+import { Briefcase, ChevronLeft, ChevronRight } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -10,140 +13,260 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
-import { Search, MapPin, Briefcase, Building2 } from "lucide-react";
 
 export default function CommunityJobs() {
   const [search, setSearch] = useState("");
-  const [employmentType, setEmploymentType] = useState<string>();
-  const [location, setLocation] = useState<string>();
+  const [location, setLocation] = useState("");
+  const [selectedJobTypes, setSelectedJobTypes] = useState<string[]>([]);
+  const [selectedLocations, setSelectedLocations] = useState<string[]>([]);
+  const [datePosted, setDatePosted] = useState("all");
+  const [experience, setExperience] = useState("all");
+  const [salaryRange, setSalaryRange] = useState<[number, number]>([15000, 100000]);
+  const [selectedJob, setSelectedJob] = useState<any>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [sortBy, setSortBy] = useState("recent");
 
   const { data: jobs, isLoading } = usePublicJobs({
-    employment_type: employmentType,
-    location: location,
+    employment_type: selectedJobTypes[0], // API supports single type for now
+    location: location || selectedLocations[0],
   });
 
-  const filteredJobs = jobs?.filter((job) =>
-    job.title.toLowerCase().includes(search.toLowerCase())
+  // Filter jobs based on all criteria
+  const filteredJobs = jobs?.filter((job) => {
+    // Search filter
+    if (search && !job.title.toLowerCase().includes(search.toLowerCase()) &&
+        !job.company?.name?.toLowerCase().includes(search.toLowerCase())) {
+      return false;
+    }
+
+    // Job type filter
+    if (selectedJobTypes.length > 0 && !selectedJobTypes.includes(job.employment_type)) {
+      return false;
+    }
+
+    // Date posted filter
+    if (datePosted !== 'all') {
+      const jobDate = new Date(job.created_at);
+      const now = new Date();
+      const hoursDiff = (now.getTime() - jobDate.getTime()) / (1000 * 60 * 60);
+      
+      if (datePosted === '24h' && hoursDiff > 24) return false;
+      if (datePosted === '7d' && hoursDiff > 24 * 7) return false;
+      if (datePosted === '30d' && hoursDiff > 24 * 30) return false;
+    }
+
+    // Salary filter (if job has salary info)
+    if (job.salary_min && job.salary_min < salaryRange[0]) return false;
+    if (job.salary_max && job.salary_max > salaryRange[1]) return false;
+
+    return true;
+  }) || [];
+
+  // Sort jobs
+  const sortedJobs = [...filteredJobs].sort((a, b) => {
+    if (sortBy === 'recent') {
+      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+    }
+    return 0;
+  });
+
+  // Pagination
+  const jobsPerPage = 10;
+  const totalPages = Math.ceil(sortedJobs.length / jobsPerPage);
+  const paginatedJobs = sortedJobs.slice(
+    (currentPage - 1) * jobsPerPage,
+    currentPage * jobsPerPage
   );
 
+  const resetFilters = () => {
+    setSelectedJobTypes([]);
+    setSelectedLocations([]);
+    setDatePosted("all");
+    setExperience("all");
+    setSalaryRange([15000, 100000]);
+    setSearch("");
+    setLocation("");
+  };
+
+  const hasActiveFilters = selectedJobTypes.length > 0 || 
+    selectedLocations.length > 0 || 
+    datePosted !== 'all' || 
+    experience !== 'all' ||
+    search ||
+    location;
+
   return (
-    <main className="w-full py-6 px-3 sm:px-6">
-      <div className="max-w-[1200px] mx-auto space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold mb-2">Stellenangebote</h1>
-          <p className="text-muted-foreground">
-            Entdecken Sie passende Ausbildungs- und Jobmöglichkeiten
-          </p>
+    <main className="w-full py-6 px-3 sm:px-6 bg-background">
+      <div className="max-w-[1400px] mx-auto space-y-6">
+        {/* Hero Section */}
+        <JobSearchHero
+          search={search}
+          location={location}
+          onSearchChange={setSearch}
+          onLocationChange={setLocation}
+          totalJobs={filteredJobs.length}
+        />
+
+        {/* Quick Filters */}
+        <div className="flex gap-2 flex-wrap">
+          <Select value={datePosted} onValueChange={setDatePosted}>
+            <SelectTrigger className="w-[160px]">
+              <SelectValue placeholder="Date Posted" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Alle Daten</SelectItem>
+              <SelectItem value="24h">Letzte 24h</SelectItem>
+              <SelectItem value="7d">Letzte 7 Tage</SelectItem>
+              <SelectItem value="30d">Letzter Monat</SelectItem>
+            </SelectContent>
+          </Select>
+
+          <Select value={experience} onValueChange={setExperience}>
+            <SelectTrigger className="w-[160px]">
+              <SelectValue placeholder="Experience" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Alle Level</SelectItem>
+              <SelectItem value="entry">Einsteiger</SelectItem>
+              <SelectItem value="mid">Mid-Level</SelectItem>
+              <SelectItem value="senior">Senior</SelectItem>
+            </SelectContent>
+          </Select>
+
+          <Select value={sortBy} onValueChange={setSortBy}>
+            <SelectTrigger className="w-[160px]">
+              <SelectValue placeholder="Sort by" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="recent">Neueste</SelectItem>
+              <SelectItem value="relevant">Relevanz</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
 
-        {/* Filters */}
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex gap-3 flex-wrap">
-              <div className="relative flex-1 min-w-[200px]">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="Suche nach Titel..."
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  className="pl-10"
-                />
-              </div>
-              <Select value={employmentType} onValueChange={setEmploymentType}>
-                <SelectTrigger className="w-[200px]">
-                  <SelectValue placeholder="Beschäftigungsart" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="apprenticeship">Ausbildung</SelectItem>
-                  <SelectItem value="dual_study">Duales Studium</SelectItem>
-                  <SelectItem value="internship">Praktikum</SelectItem>
-                  <SelectItem value="full_time">Vollzeit</SelectItem>
-                </SelectContent>
-              </Select>
-              <Input
-                placeholder="Ort..."
-                value={location}
-                onChange={(e) => setLocation(e.target.value)}
-                className="w-[200px]"
-              />
-              {(employmentType || location) && (
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    setEmploymentType(undefined);
-                    setLocation(undefined);
-                  }}
-                >
-                  Filter zurücksetzen
-                </Button>
-              )}
-            </div>
-          </CardContent>
-        </Card>
+        {/* Main Content Grid */}
+        <div className="grid lg:grid-cols-[280px_1fr] gap-6">
+          {/* Filters Sidebar */}
+          <aside className="hidden lg:block">
+            <JobFilters
+              selectedJobTypes={selectedJobTypes}
+              selectedLocations={selectedLocations}
+              datePosted={datePosted}
+              experience={experience}
+              salaryRange={salaryRange}
+              onJobTypeChange={setSelectedJobTypes}
+              onLocationChange={setSelectedLocations}
+              onDatePostedChange={setDatePosted}
+              onExperienceChange={setExperience}
+              onSalaryRangeChange={setSalaryRange}
+              onReset={resetFilters}
+            />
+          </aside>
 
-        {/* Jobs List */}
-        {isLoading ? (
-          <div className="text-center py-12">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-          </div>
-        ) : filteredJobs && filteredJobs.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {filteredJobs.map((job: any) => (
-              <Card key={job.id} className="hover:shadow-md transition-shadow">
-                <CardHeader>
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="flex items-start gap-3 flex-1">
-                      {job.company?.logo_url && (
-                        <img
-                          src={job.company.logo_url}
-                          alt={job.company.name}
-                          className="h-12 w-12 rounded object-cover"
-                        />
-                      )}
-                      <div className="flex-1">
-                        <CardTitle className="text-lg mb-1">{job.title}</CardTitle>
-                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                          <Building2 className="h-4 w-4" />
-                          {job.company?.name}
-                        </div>
-                      </div>
-                    </div>
-                    <Badge variant="secondary" className="capitalize">
-                      {job.employment_type?.replace('_', ' ')}
-                    </Badge>
+          {/* Jobs List */}
+          <div className="space-y-6">
+            {/* Results Header */}
+            {hasActiveFilters && (
+              <div className="flex items-center justify-between">
+                <p className="text-sm text-muted-foreground">
+                  {filteredJobs.length} Job{filteredJobs.length !== 1 ? 's' : ''} gefunden
+                </p>
+              </div>
+            )}
+
+            {/* Loading State */}
+            {isLoading ? (
+              <div className="text-center py-12">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+              </div>
+            ) : paginatedJobs.length > 0 ? (
+              <>
+                {/* Jobs Grid */}
+                <div className="grid gap-4">
+                  {paginatedJobs.map((job) => (
+                    <PublicJobCard
+                      key={job.id}
+                      job={job}
+                      onClick={() => setSelectedJob(job)}
+                    />
+                  ))}
+                </div>
+
+                {/* Pagination */}
+                {totalPages > 1 && (
+                  <div className="flex items-center justify-center gap-2 pt-6">
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                      disabled={currentPage === 1}
+                    >
+                      <ChevronLeft className="h-4 w-4" />
+                    </Button>
+
+                    {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                      let pageNum;
+                      if (totalPages <= 5) {
+                        pageNum = i + 1;
+                      } else if (currentPage <= 3) {
+                        pageNum = i + 1;
+                      } else if (currentPage >= totalPages - 2) {
+                        pageNum = totalPages - 4 + i;
+                      } else {
+                        pageNum = currentPage - 2 + i;
+                      }
+
+                      return (
+                        <Button
+                          key={pageNum}
+                          variant={currentPage === pageNum ? "default" : "outline"}
+                          size="icon"
+                          onClick={() => setCurrentPage(pageNum)}
+                          className="w-10"
+                        >
+                          {pageNum}
+                        </Button>
+                      );
+                    })}
+
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                      disabled={currentPage === totalPages}
+                    >
+                      <ChevronRight className="h-4 w-4" />
+                    </Button>
                   </div>
-                </CardHeader>
-                <CardContent>
-                    <div className="space-y-3">
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <MapPin className="h-4 w-4" />
-                      {job.city || job.state || job.country || '—'}
-                    </div>
-                    {job.description_md && (
-                      <p className="text-sm text-muted-foreground line-clamp-2">
-                        {job.description_md}
-                      </p>
-                    )}
-                    <div className="pt-2">
-                      <Button className="w-full">Details ansehen</Button>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+                )}
+              </>
+            ) : (
+              /* Empty State */
+              <div className="text-center py-16">
+                <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-muted mb-4">
+                  <Briefcase className="h-10 w-10 text-muted-foreground" />
+                </div>
+                <h3 className="text-lg font-semibold mb-2">Keine Jobs gefunden</h3>
+                <p className="text-muted-foreground max-w-sm mx-auto mb-4">
+                  Versuche, deine Suchkriterien anzupassen oder erstelle ein neues Projekt von Grund auf
+                </p>
+                {hasActiveFilters && (
+                  <Button variant="outline" onClick={resetFilters}>
+                    Filter zurücksetzen
+                  </Button>
+                )}
+              </div>
+            )}
           </div>
-        ) : (
-          <Card>
-            <CardContent className="py-12 text-center">
-              <Briefcase className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-              <p className="text-muted-foreground">
-                Keine Stellenangebote gefunden
-              </p>
-            </CardContent>
-          </Card>
-        )}
+        </div>
       </div>
+
+      {/* Job Detail Dialog */}
+      <JobDetailDialog
+        job={selectedJob}
+        open={!!selectedJob}
+        onOpenChange={(open) => !open && setSelectedJob(null)}
+      />
     </main>
   );
 }
