@@ -70,6 +70,21 @@ export class JobsService {
 
   // Create a new job (draft)
   static async createJob(companyId: string, jobData: any): Promise<any> {
+    // Transform skills array to must_have/nice_to_have arrays
+    const mustHave = jobData.skills?.filter((s: any) => s.level === 'must_have').map((s: any) => s.name) || [];
+    const niceToHave = jobData.skills?.filter((s: any) => s.level === 'nice_to_have').map((s: any) => s.name) || [];
+    
+    // Transform document requirements to JSONB format expected by database
+    const requiredDocs = jobData.required_documents?.map((doc: any) => ({
+      type: doc.type,
+      label: doc.label
+    })) || [];
+    
+    const optionalDocs = jobData.optional_documents?.map((doc: any) => ({
+      type: doc.type,
+      label: doc.label
+    })) || [];
+
     const insertData: any = {
       company_id: companyId,
       status: 'draft',
@@ -88,6 +103,16 @@ export class JobsService {
       working_hours: jobData.working_hours || null,
       is_public: jobData.is_public ?? true,
       is_active: jobData.is_active ?? false,
+      must_have: mustHave,
+      nice_to_have: niceToHave,
+      languages: jobData.required_languages || [],
+      required_certificates: jobData.certifications || [],
+      required_documents: requiredDocs,
+      optional_documents: optionalDocs,
+      contact_person_name: jobData.contact_person_name || '',
+      contact_person_email: jobData.contact_person_email || '',
+      contact_person_phone: jobData.contact_person_phone || null,
+      contact_person_role: jobData.contact_person_role || null,
     };
 
     const { data, error } = await supabase
