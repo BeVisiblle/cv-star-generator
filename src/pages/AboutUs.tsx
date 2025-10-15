@@ -16,7 +16,7 @@ declare global {
 import toddMoraweImage from "@/assets/todd-morawe.jpeg";
 import tomMoraweImage from "@/assets/tom-morawe.jpeg";
 import aiMasterImage from "@/assets/ai-master.png";
-import emmaNebImage from "@/assets/emma-neb.png";
+import emmaMoraweImage from "@/assets/emma-morawe.jpg";
 
 const teamMembers = [
   {
@@ -41,10 +41,10 @@ const teamMembers = [
     linkedin: "https://www.linkedin.com/in/tommorawe/"
   },
   {
-    name: "Emma Neb",
+    name: "Emma Morawe",
     role: "Marketing",
     description: "Gute Laune & Marketing",
-    image: emmaNebImage,
+    image: emmaMoraweImage,
     linkedin: ""
   }
 ];

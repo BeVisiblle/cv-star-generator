@@ -20,8 +20,7 @@ export default function Footer() {
             </span>
           </div>
           <p className="mt-3 text-sm text-zinc-300 max-w-xs">
-            Die smarte Brücke zwischen Schülern, Azubis und Fachkräften und Unternehmen – 
-            Austausch untereinander, einem AI-Matching und einer Datenbank mit vollständigen Profilen.
+            BeVisible ist mehr als eine Jobplattform. Mit uns findest du Menschen, Chancen und Unternehmen, die zu dir passen. Vernetze dich, teile Erfahrungen und werde sichtbar für deinen Traumjob. 💙
           </p>
           <div className="mt-6 flex items-center gap-4 justify-center md:justify-start">
             <img 

@@ -229,13 +229,10 @@ export default function CompanyLanding() {
               >
                 Jetzt registrieren
               </Link>
-              <button
-                onClick={() => openCalendly('Profile Cluster (Hero)')}
-                className="inline-flex items-center gap-3 rounded-full border border-white/40 bg-white/30 px-5 py-2 text-sm font-semibold text-[#5170ff] shadow-sm backdrop-blur transition hover:bg-white"
-              >
+              <div className="inline-flex items-center gap-3">
                 <img src="/assets/Cluster1.png" alt="Profile Cluster" className="h-10 w-auto object-contain" />
-                +345 weitere Profile
-              </button>
+                <span className="text-xs font-medium text-gray-700 tracking-wide">+345 weitere Profile</span>
+              </div>
             </div>
           </div>
 
