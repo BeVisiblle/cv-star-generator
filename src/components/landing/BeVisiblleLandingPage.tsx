@@ -66,12 +66,12 @@ export default function BeVisiblleLandingPage() {
 
               {/* Right: Actions */}
               <div className="flex items-center gap-2">
-                <Link to="/auth" className="hidden sm:inline-flex rounded-md px-3 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50">
-                  Login
-                </Link>
-                <Link to="/cv-generator" className="rounded-full px-4 py-2 text-sm font-medium text-white bg-[#5170ff]">
-                  Jetzt registrieren
-                </Link>
+              <Link to="/auth" className="hidden sm:inline-flex rounded-md px-3 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50">
+                Login
+              </Link>
+              <Link to="/cv-generator" className="rounded-full px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-medium text-white bg-[#5170ff]">
+                Jetzt registrieren
+              </Link>
                 {/* Mobile menu button */}
                 <button
                   onClick={toggleMobileMenu}
@@ -96,7 +96,7 @@ export default function BeVisiblleLandingPage() {
             <Link to="/company" className="block py-2 text-gray-700 hover:text-gray-900">
               Unternehmen
             </Link>
-            <Link to="/about" className="block py-2 font-semibold text-[#5170ff]">
+            <Link to="/about" className="block py-2 text-gray-700 hover:text-gray-900">
               Über uns
             </Link>
             <Link to="/auth" className="block py-2 text-gray-700 hover:text-gray-900">
@@ -120,8 +120,8 @@ export default function BeVisiblleLandingPage() {
               Mit <span className="font-medium">be visiblle</span> kannst du dich mit deinen Kolleg:innen und Freund:innen vernetzen, dein Wissen & Arbeitsalltag teilen und neue Jobs & Unternehmen finden.
             </p>
 
-            {/* CTA + Profile cluster */}
-            <div className="mt-8 flex items-center justify-center gap-4 flex-wrap">
+            {/* CTA */}
+            <div className="mt-8 flex items-center justify-center">
               <Link 
                 to="/cv-generator" 
                 className="inline-flex items-center gap-2 rounded-full px-8 py-4 text-base font-semibold text-white shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105"
@@ -132,10 +132,6 @@ export default function BeVisiblleLandingPage() {
               >
                 Jetzt registrieren
               </Link>
-              <div className="inline-flex items-center gap-3 rounded-full border border-white/40 bg-white/30 px-5 py-2 shadow-sm">
-                <img src="/assets/Cluster1.png" alt="Profile Cluster" className="h-10 w-auto object-contain" />
-                <span className="text-xs font-medium text-gray-700 tracking-wide">+345 weitere Profile</span>
-              </div>
             </div>
           </div>
 
@@ -279,7 +275,7 @@ export default function BeVisiblleLandingPage() {
                   </span>
                 </div>
                 <p className="mt-3 text-sm text-gray-600">
-                  Netzwerk für Austausch & echte Arbeit – Jobs als Zusatz.
+                  BeVisible ist mehr als eine Jobplattform. Mit uns findest du Menschen, Chancen und Unternehmen, die zu dir passen. Vernetze dich, teile Erfahrungen und werde sichtbar für deinen Traumjob. 💙
                 </p>
               </div>
 
