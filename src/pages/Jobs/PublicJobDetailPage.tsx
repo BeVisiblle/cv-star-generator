@@ -460,22 +460,44 @@ export default function PublicJobDetailPage() {
                   <p className="text-destructive font-medium">
                     Bewerbung nicht möglich
                   </p>
-                  <p>
-                    Du kannst dich nicht bewerben, weil dein Profil noch nicht vollständig ist.
-                  </p>
-                  {profileStatus?.missingFields && profileStatus.missingFields.length > 0 && (
-                    <div className="bg-muted p-3 rounded-md">
-                      <p className="font-medium text-sm mb-2">Folgende Angaben fehlen noch:</p>
-                      <ul className="list-disc list-inside space-y-1 text-sm">
-                        {profileStatus.missingFields.map((field, index) => (
-                          <li key={index}>{field}</li>
-                        ))}
-                      </ul>
-                    </div>
+                  
+                  {profileStatus?.missingDocuments && profileStatus.missingDocuments.length > 0 ? (
+                    <>
+                      <p>
+                        Für diese Stelle sind folgende Dokumente erforderlich:
+                      </p>
+                      <div className="bg-muted p-3 rounded-md">
+                        <p className="font-medium text-sm mb-2">Bitte lade folgende Dokumente hoch:</p>
+                        <ul className="list-disc list-inside space-y-1 text-sm">
+                          {profileStatus.missingDocuments.map((doc, index) => (
+                            <li key={index}>{doc}</li>
+                          ))}
+                        </ul>
+                      </div>
+                      <p className="text-sm">
+                        Du kannst deine Dokumente in deinem Profil hochladen.
+                      </p>
+                    </>
+                  ) : (
+                    <>
+                      <p>
+                        Du kannst dich nicht bewerben, weil dein Profil noch nicht vollständig ist.
+                      </p>
+                      {profileStatus?.missingFields && profileStatus.missingFields.length > 0 && (
+                        <div className="bg-muted p-3 rounded-md">
+                          <p className="font-medium text-sm mb-2">Folgende Angaben fehlen noch:</p>
+                          <ul className="list-disc list-inside space-y-1 text-sm">
+                            {profileStatus.missingFields.map((field, index) => (
+                              <li key={index}>{field}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                      <p className="text-sm">
+                        Bitte vervollständige dein Profil in den Einstellungen, um dich auf Stellen bewerben zu können.
+                      </p>
+                    </>
                   )}
-                  <p className="text-sm">
-                    Bitte vervollständige dein Profil in den Einstellungen, um dich auf Stellen bewerben zu können.
-                  </p>
                 </div>
               )}
             </AlertDialogDescription>

@@ -24,9 +24,10 @@ export function useQuickApply(jobId: string) {
   });
 
   const { data: profileStatus, isLoading: isLoadingProfile } = useQuery({
-    queryKey: ["profile-status", user?.id],
-    enabled: !!user?.id,
+    queryKey: ["profile-status", jobId, user?.id],
+    enabled: !!user?.id && !!jobId,
     queryFn: async () => {
+      // Profil prüfen
       const { data: profile, error } = await supabase
         .from("candidate_profiles")
         .select("id")
@@ -39,12 +40,57 @@ export function useQuickApply(jobId: string) {
       
       if (!profile) {
         missing.push("Profil muss erstellt werden");
+        return {
+          hasProfile: false,
+          profileId: null,
+          missingFields: missing,
+          missingDocuments: []
+        };
+      }
+
+      // Job-Details laden um erforderliche Dokumente zu prüfen
+      const { data: job, error: jobError } = await supabase
+        .from("job_posts")
+        .select("required_documents")
+        .eq("id", jobId)
+        .single();
+
+      if (jobError) throw jobError;
+
+      const missingDocuments: string[] = [];
+
+      // Nur prüfen wenn Dokumente erforderlich sind
+      if (job?.required_documents && Array.isArray(job.required_documents) && job.required_documents.length > 0) {
+        // Benutzer-Dokumente laden
+        const { data: userDocs, error: docsError } = await supabase
+          .from("user_documents")
+          .select("document_type")
+          .eq("user_id", user!.id);
+
+        if (docsError) throw docsError;
+
+        const uploadedDocTypes = userDocs?.map(d => d.document_type) || [];
+
+        // Prüfe welche erforderlichen Dokumente fehlen
+        for (const reqDoc of job.required_documents) {
+          const docType = typeof reqDoc === 'string' ? reqDoc : (reqDoc as any).type;
+          const docLabel = typeof reqDoc === 'string' ? reqDoc : ((reqDoc as any).label || (reqDoc as any).type);
+          
+          if (!uploadedDocTypes.includes(docType)) {
+            missingDocuments.push(docLabel);
+          }
+        }
+
+        if (missingDocuments.length > 0) {
+          missing.push("Erforderliche Dokumente fehlen");
+        }
       }
       
       return {
-        hasProfile: !!profile,
-        profileId: profile?.id || null,
-        missingFields: missing
+        hasProfile: true,
+        profileId: profile.id,
+        missingFields: missing,
+        missingDocuments
       };
     },
   });
@@ -52,6 +98,12 @@ export function useQuickApply(jobId: string) {
   const applyToJob = useMutation({
     mutationFn: async () => {
       if (!user) throw new Error("Nicht eingeloggt");
+
+      // Prüfe ob erforderliche Dokumente fehlen
+      if (profileStatus?.missingDocuments && profileStatus.missingDocuments.length > 0) {
+        const docList = profileStatus.missingDocuments.join(", ");
+        throw new Error(`Bitte lade folgende Dokumente hoch: ${docList}`);
+      }
 
       // Get job details
       const { data: job, error: jobError } = await supabase
@@ -110,7 +162,11 @@ export function useQuickApply(jobId: string) {
       toast.success("Bewerbung erfolgreich versendet!");
     },
     onError: (error: Error) => {
-      toast.error("Fehler beim Bewerben");
+      if (error.message.includes("Bitte lade folgende Dokumente hoch")) {
+        toast.error(error.message);
+      } else {
+        toast.error("Fehler beim Bewerben");
+      }
     },
   });
 
@@ -119,7 +175,7 @@ export function useQuickApply(jobId: string) {
     isLoading: isLoading || isLoadingProfile,
     applyToJob: applyToJob.mutate,
     isApplying: applyToJob.isPending,
-    canApply: profileStatus?.hasProfile ?? false,
+    canApply: (profileStatus?.hasProfile && (!profileStatus?.missingDocuments || profileStatus.missingDocuments.length === 0)) ?? false,
     profileStatus,
   };
 }
