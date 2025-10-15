@@ -120,8 +120,8 @@ export default function BeVisiblleLandingPage() {
               Mit <span className="font-medium">be visiblle</span> kannst du dich mit deinen Kolleg:innen und Freund:innen vernetzen, dein Wissen & Arbeitsalltag teilen und neue Jobs & Unternehmen finden.
             </p>
 
-            {/* CTA */}
-            <div className="mt-8 flex items-center justify-center">
+            {/* CTA + Profile cluster */}
+            <div className="mt-8 flex items-center justify-center gap-4 flex-wrap">
               <Link 
                 to="/cv-generator" 
                 className="inline-flex items-center gap-2 rounded-full px-8 py-4 text-base font-semibold text-white shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105"
@@ -132,6 +132,12 @@ export default function BeVisiblleLandingPage() {
               >
                 Jetzt registrieren
               </Link>
+              
+              {/* Profile Cluster ohne Card */}
+              <div className="inline-flex items-center gap-3">
+                <img src="/assets/Cluster1.png" alt="Profile Cluster" className="h-10 w-auto object-contain" />
+                <span className="text-xs font-medium text-gray-700 tracking-wide">+345 weitere Profile</span>
+              </div>
             </div>
           </div>
 
