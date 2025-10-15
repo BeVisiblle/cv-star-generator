@@ -27,11 +27,11 @@ export function useQuickApply(jobId: string) {
     queryKey: ["profile-status", jobId, user?.id],
     enabled: !!user?.id && !!jobId,
     queryFn: async () => {
-      // Profil prüfen
+      // Profil prüfen (profiles Tabelle, nicht candidate_profiles!)
       const { data: profile, error } = await supabase
-        .from("candidate_profiles")
+        .from("profiles")
         .select("id")
-        .eq("user_id", user!.id)
+        .eq("id", user!.id)
         .maybeSingle();
 
       if (error) throw error;
@@ -114,15 +114,8 @@ export function useQuickApply(jobId: string) {
 
       if (jobError) throw jobError;
 
-      // Get candidate profile
-      const { data: profile, error: profileError } = await supabase
-        .from("candidate_profiles")
-        .select("id")
-        .eq("user_id", user.id)
-        .maybeSingle();
-
-      if (profileError) throw profileError;
-      if (!profile) throw new Error("Profil nicht vollständig");
+      // Profil-ID ist die User-ID selbst (profiles Tabelle verwendet auth.users id)
+      const profileId = user.id;
 
       // Create application
       const { error: appError } = await supabase
@@ -131,7 +124,7 @@ export function useQuickApply(jobId: string) {
           user_id: user.id,
           job_id: jobId,
           company_id: job.company_id,
-          candidate_id: profile.id,
+          candidate_id: profileId,
           status: "pending",
           source: "portal",
           viewed_by_company: false,
@@ -144,7 +137,7 @@ export function useQuickApply(jobId: string) {
         .from("company_candidates")
         .insert({
           company_id: job.company_id,
-          candidate_id: profile.id,
+          candidate_id: profileId,
           stage: "new",
           source: "application",
         })
