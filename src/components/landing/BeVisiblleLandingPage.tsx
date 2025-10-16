@@ -207,18 +207,21 @@ export default function BeVisiblleLandingPage() {
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.8, delay: 0.3 }}
-            className="relative mt-8 flex justify-center overflow-hidden"
-            style={{ maxHeight: '500px' }}
+            className={`relative mt-8 flex justify-center ${selectedHero === 0 ? '' : 'overflow-hidden'}`}
+            style={selectedHero !== 0 ? { maxHeight: '500px' } : {}}
           >
             <img 
               src={heroVariants[selectedHero].image} 
               alt="BeVisiblle – Menschen vernetzen sich" 
-              className="w-full h-full object-cover object-center"
-              style={{ 
+              className={selectedHero === 0 
+                ? "max-w-5xl w-full h-auto object-contain"
+                : "w-full h-full object-cover object-center"
+              }
+              style={selectedHero !== 0 ? { 
                 objectFit: 'cover',
                 objectPosition: 'center 20%',
                 maxHeight: '500px'
-              }}
+              } : {}}
             />
           </motion.div>
         </div>
