@@ -17,22 +17,23 @@ const heroVariants = [
   },
   {
     id: 'business',
-    image: '/assets/hero-main.png', // Temporär - wird später ersetzt
+    image: '/assets/hero-business.png',
     headline: 'Finde deinen Traumjob mit',
     subtitle: 'Vernetze dich mit Unternehmen, die zu dir passen',
     description: 'Erstelle deinen Lebenslauf, präsentiere deine Fähigkeiten und werde sichtbar für Unternehmen, die genau nach dir suchen.'
   },
   {
     id: 'healthcare',
-    image: '/assets/hero-main.png', // Temporär - wird später ersetzt
+    image: '/assets/hero-healthcare.png',
     headline: 'Deine Karriere in der Pflege startet hier mit',
     subtitle: 'Jobs, Community und Weiterbildung an einem Ort',
     description: 'Ob Ausbildung oder Fachkraft – finde passende Stellen im Gesundheitswesen und tausche dich mit Kolleg:innen aus der Branche aus.'
   },
   {
     id: 'construction',
-    image: '/assets/hero-main.png', // Temporär - wird später ersetzt
-    headline: 'Handwerk hat goldenen Boden – und',
+    image: '/assets/hero-construction.png',
+    headline: 'Handwerk hat goldenen Boden',
+    headlineExtra: '–\u00A0und', // Non-breaking space
     subtitle: 'Dein Netzwerk für Azubis und Fachkräfte im Handwerk',
     description: 'Zeige deine praktischen Fähigkeiten, finde Ausbildungsplätze oder Jobs im Handwerk und vernetze dich mit Gleichgesinnten.'
   }
@@ -155,9 +156,10 @@ export default function BeVisiblleLandingPage() {
               className="text-4xl md:text-6xl font-bold text-gray-900 leading-tight"
             >
               {heroVariants[selectedHero].headline}{' '}
-              <span className="text-gray-900">
-                BeVisib<span className="text-[#5170ff]">ll</span>e
-              </span>
+              {heroVariants[selectedHero].headlineExtra && (
+                <span className="whitespace-nowrap">{heroVariants[selectedHero].headlineExtra}{' '}</span>
+              )}
+              <span className="text-[#5170ff]">BeVisiblle</span>
             </motion.h1>
             <motion.p
               key={`subtitle-${selectedHero}`}
