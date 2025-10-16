@@ -15,7 +15,7 @@ export function useQuickApply(jobId: string) {
         .from("applications")
         .select("id")
         .eq("user_id", user!.id)
-        .eq("job_id", jobId)
+        .eq("job_post_id", jobId)
         .maybeSingle();
 
       if (error) throw error;
