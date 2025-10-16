@@ -160,9 +160,11 @@ export function useQuickApply(jobId: string) {
         .insert({
           user_id: user.id,
           job_id: jobId,
+          job_post_id: jobId,
           company_id: job.company_id,
           candidate_id: candidateId,
           status: "pending",
+          stage: "new",
           source: "portal",
           viewed_by_company: false,
         });

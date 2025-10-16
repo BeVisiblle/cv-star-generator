@@ -26,7 +26,7 @@ export function JobCandidatesTab({ jobId }: JobCandidatesTabProps) {
             title
           )
         `)
-        .eq("job_id", jobId)
+        .eq("job_post_id", jobId)
         .order("created_at", { ascending: false });
 
       if (error) throw error;

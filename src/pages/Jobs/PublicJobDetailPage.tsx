@@ -250,14 +250,19 @@ export default function PublicJobDetailPage() {
                   {isApplying ? "Wird gesendet..." : "Jetzt bewerben"}
                 </Button>
               ) : (
-                <Button 
-                  className="w-full bg-green-600 hover:bg-green-700 text-white" 
-                  size="lg"
-                  disabled
-                >
-                  <CheckCircle className="h-4 w-4 mr-2" />
-                  Beworben
-                </Button>
+                <div className="space-y-2">
+                  <Button 
+                    className="w-full bg-green-600 hover:bg-green-700 text-white" 
+                    size="lg"
+                    disabled
+                  >
+                    <CheckCircle className="h-4 w-4 mr-2" />
+                    Bereits beworben
+                  </Button>
+                  <p className="text-xs text-center text-muted-foreground">
+                    Du kannst den Status deiner Bewerbung unter "Meine Karriere" einsehen
+                  </p>
+                </div>
               )}
               
               <Button 
