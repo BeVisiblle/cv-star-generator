@@ -207,19 +207,25 @@ export default function BeVisiblleLandingPage() {
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.8, delay: 0.3 }}
-            className="relative mt-8 flex justify-center"
+            className="relative mt-8 flex justify-center overflow-hidden"
+            style={{ maxHeight: '500px' }}
           >
             <img 
               src={heroVariants[selectedHero].image} 
               alt="BeVisiblle – Menschen vernetzen sich" 
-              className="max-w-5xl w-full h-auto object-contain" 
+              className="w-full h-full object-cover object-center"
+              style={{ 
+                objectFit: 'cover',
+                objectPosition: 'center 20%',
+                maxHeight: '500px'
+              }}
             />
           </motion.div>
         </div>
       </section>
 
-      {/* CTA Section unter den Frauen */}
-      <section className="relative -mt-8 z-10 flex justify-center gap-6">
+      {/* CTA Section direkt unter dem Bild */}
+      <section className="relative -mt-4 z-10 flex justify-center gap-6 pb-16">
         <button
           onClick={() => openCalendly('Demo buchen (Hero)')}
           className="inline-flex items-center rounded-full border border-gray-300 px-8 py-4 text-base font-semibold text-gray-700 bg-white shadow-lg hover:bg-gray-50 transition-all duration-300 hover:scale-105"
