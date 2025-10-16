@@ -17,13 +17,16 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { ArrowLeft, MapPin, Briefcase, Clock, Building2, Calendar, Share2, Bookmark, BookmarkCheck, FileText, Users, Languages, Award, CheckCircle } from "lucide-react";
+import { ArrowLeft, MapPin, Briefcase, Clock, Building2, Calendar, Share2, Bookmark, BookmarkCheck, FileText, Users, Languages, Award, CheckCircle, AlertCircle } from "lucide-react";
+import { DocumentUploadPrompt } from "@/components/jobs/DocumentUploadPrompt";
+import { DOCUMENT_TYPE_LABELS, type DocType } from "@/lib/document-types";
 
 export default function PublicJobDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
+  const [documentUploadOpen, setDocumentUploadOpen] = useState(false);
   const [companyName, setCompanyName] = useState("");
   const [jobTitle, setJobTitle] = useState("");
   const [jobLocation, setJobLocation] = useState("");
@@ -236,23 +239,72 @@ export default function PublicJobDetailPage() {
             {/* Apply Buttons */}
             <div className="space-y-3">
               {!hasApplied ? (
-                <Button 
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white" 
-                  size="lg"
-                  onClick={() => {
-                    if (!user) {
-                      navigate("/auth");
-                      return;
-                    }
-                    setCompanyName(job.company?.name || "das Unternehmen");
-                    setJobTitle(job.title || "");
-                    setJobLocation(job.city || job.state || "");
-                    setConfirmDialogOpen(true);
-                  }}
-                  disabled={isApplying}
-                >
-                  {isApplying ? "Wird gesendet..." : "Jetzt bewerben"}
-                </Button>
+                <>
+                  <Button 
+                    className="w-full bg-blue-600 hover:bg-blue-700 text-white" 
+                    size="lg"
+                    onClick={() => {
+                      if (!user) {
+                        navigate("/auth");
+                        return;
+                      }
+                      
+                      // Check if documents are missing
+                      if (!canApply && profileStatus?.missingDocuments && profileStatus.missingDocuments.length > 0) {
+                        setDocumentUploadOpen(true);
+                        return;
+                      }
+                      
+                      setCompanyName(job.company?.name || "das Unternehmen");
+                      setJobTitle(job.title || "");
+                      setJobLocation(job.city || job.state || "");
+                      setConfirmDialogOpen(true);
+                    }}
+                    disabled={isApplying || (!canApply && profileStatus?.missingFields && profileStatus.missingFields.length > 0)}
+                  >
+                    {isApplying ? "Wird gesendet..." : "Jetzt bewerben"}
+                  </Button>
+                  
+                  {/* Document Status Indicator */}
+                  {user && !canApply && profileStatus?.missingDocuments && profileStatus.missingDocuments.length > 0 && (
+                    <div className="p-3 bg-orange-50 border border-orange-200 rounded-lg">
+                      <div className="flex items-start gap-2">
+                        <AlertCircle className="h-5 w-5 text-orange-600 flex-shrink-0 mt-0.5" />
+                        <div className="flex-1">
+                          <p className="text-sm font-medium text-orange-900">
+                            {profileStatus.missingDocuments.length} {profileStatus.missingDocuments.length === 1 ? 'Dokument fehlt' : 'Dokumente fehlen'}
+                          </p>
+                          <p className="text-xs text-orange-700 mt-1">
+                            Klicken Sie auf "Jetzt bewerben", um die fehlenden Dokumente hochzuladen
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Profile Incomplete Warning */}
+                  {user && !canApply && profileStatus?.missingFields && profileStatus.missingFields.length > 0 && (
+                    <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
+                      <div className="flex items-start gap-2">
+                        <AlertCircle className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" />
+                        <div className="flex-1">
+                          <p className="text-sm font-medium text-red-900">Profil unvollständig</p>
+                          <p className="text-xs text-red-700 mt-1">
+                            Bitte vervollständigen Sie Ihr Profil, um sich zu bewerben
+                          </p>
+                          <Button 
+                            variant="link" 
+                            size="sm" 
+                            className="text-red-700 h-auto p-0 mt-1"
+                            onClick={() => navigate("/profile")}
+                          >
+                            Zum Profil →
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </>
               ) : (
                 <div className="space-y-2">
                   <Button 
@@ -523,6 +575,23 @@ export default function PublicJobDetailPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Document Upload Prompt */}
+      {user && profileStatus?.missingDocuments && profileStatus.missingDocuments.length > 0 && (
+        <DocumentUploadPrompt
+          open={documentUploadOpen}
+          onOpenChange={setDocumentUploadOpen}
+          missingDocuments={profileStatus.missingDocuments}
+          userId={user.id}
+          onUploadComplete={() => {
+            // Refresh profile status by triggering apply dialog
+            setCompanyName(job?.company?.name || "das Unternehmen");
+            setJobTitle(job?.title || "");
+            setJobLocation(job?.city || job?.state || "");
+            setConfirmDialogOpen(true);
+          }}
+        />
+      )}
     </div>
   );
 }

@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, MapPin, Briefcase, Euro, Calendar, Edit, Eye, User } from "lucide-react";
@@ -13,6 +14,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { JobPreviewDialog } from "./JobPreviewDialog";
 interface JobDetailHeaderProps {
   job: any;
   company: any;
@@ -22,6 +24,7 @@ export function JobDetailHeader({
   company
 }: JobDetailHeaderProps) {
   const navigate = useNavigate();
+  const [previewOpen, setPreviewOpen] = useState(false);
 
   // Fetch applications count
   const {
@@ -85,7 +88,7 @@ export function JobDetailHeader({
 
             {/* Action Buttons - Right Side */}
             <div className="flex items-center gap-2">
-              <Button variant="outline" size="sm" onClick={() => navigate(`/jobs/${job.id}`)}>
+              <Button variant="outline" size="sm" onClick={() => setPreviewOpen(true)}>
                 <Eye className="h-4 w-4 mr-2" />
                 Vorschau
               </Button>
@@ -200,5 +203,12 @@ export function JobDetailHeader({
           </div>
         </div>
       </div>
+
+      <JobPreviewDialog
+        open={previewOpen}
+        onOpenChange={setPreviewOpen}
+        job={job}
+        company={company}
+      />
     </TooltipProvider>;
 }

@@ -9,8 +9,11 @@ import {
   User,
   Mail,
   Phone,
-  Globe
+  Globe,
+  FileText,
+  FileCheck
 } from "lucide-react";
+import { DOCUMENT_TYPE_LABELS, type DocType } from "@/lib/document-types";
 import { 
   Accordion,
   AccordionContent,
@@ -249,6 +252,51 @@ export function JobOverviewTab({ job, company }: JobOverviewTabProps) {
               )}
             </CardContent>
           </Card>
+
+          {/* Document Requirements */}
+          {((job.required_documents && Array.isArray(job.required_documents) && job.required_documents.length > 0) ||
+            (job.optional_documents && Array.isArray(job.optional_documents) && job.optional_documents.length > 0)) && (
+            <Card className="shadow-sm">
+              <CardHeader className="pb-3">
+                <div className="flex items-center gap-2">
+                  <FileText className="h-4 w-4" />
+                  <CardTitle className="text-base">Benötigte Dokumente</CardTitle>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {job.required_documents && job.required_documents.length > 0 && (
+                  <div>
+                    <p className="text-xs font-medium mb-2 flex items-center gap-2 text-red-600">
+                      <FileCheck className="h-3 w-3" />
+                      Pflicht:
+                    </p>
+                    <ul className="space-y-2">
+                      {job.required_documents.map((doc: string, index: number) => (
+                        <li key={index} className="text-sm flex items-center gap-2">
+                          <div className="h-1.5 w-1.5 rounded-full bg-red-500 flex-shrink-0" />
+                          {DOCUMENT_TYPE_LABELS[doc as DocType] || doc}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+                
+                {job.optional_documents && job.optional_documents.length > 0 && (
+                  <div>
+                    <p className="text-xs font-medium mb-2 text-muted-foreground">Optional:</p>
+                    <ul className="space-y-2">
+                      {job.optional_documents.map((doc: string, index: number) => (
+                        <li key={index} className="text-sm text-muted-foreground flex items-center gap-2">
+                          <div className="h-1.5 w-1.5 rounded-full bg-muted-foreground flex-shrink-0" />
+                          {DOCUMENT_TYPE_LABELS[doc as DocType] || doc}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          )}
         </div>
       </div>
     </div>
