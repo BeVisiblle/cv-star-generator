@@ -6,9 +6,6 @@ import jobsFeature from '@/assets/jobs-feature.png';
 import communityFeature from '@/assets/community-feature.png';
 import { trackCalendlyClick, trackPageView } from '@/lib/telemetry';
 import { motion } from 'framer-motion';
-import heroBusiness from '@/assets/hero-business.png';
-import heroHealthcare from '@/assets/hero-healthcare.png';
-import heroConstruction from '@/assets/hero-construction.png';
 
 const heroVariants = [
   {
@@ -20,21 +17,21 @@ const heroVariants = [
   },
   {
     id: 'business',
-    image: heroBusiness,
+    image: '/assets/hero-main.png', // Temporär - wird später ersetzt
     headline: 'Finde deinen Traumjob mit',
     subtitle: 'Vernetze dich mit Unternehmen, die zu dir passen',
     description: 'Erstelle deinen Lebenslauf, präsentiere deine Fähigkeiten und werde sichtbar für Unternehmen, die genau nach dir suchen.'
   },
   {
     id: 'healthcare',
-    image: heroHealthcare,
+    image: '/assets/hero-main.png', // Temporär - wird später ersetzt
     headline: 'Deine Karriere in der Pflege startet hier mit',
     subtitle: 'Jobs, Community und Weiterbildung an einem Ort',
     description: 'Ob Ausbildung oder Fachkraft – finde passende Stellen im Gesundheitswesen und tausche dich mit Kolleg:innen aus der Branche aus.'
   },
   {
     id: 'construction',
-    image: heroConstruction,
+    image: '/assets/hero-main.png', // Temporär - wird später ersetzt
     headline: 'Handwerk hat goldenen Boden – und',
     subtitle: 'Dein Netzwerk für Azubis und Fachkräfte im Handwerk',
     description: 'Zeige deine praktischen Fähigkeiten, finde Ausbildungsplätze oder Jobs im Handwerk und vernetze dich mit Gleichgesinnten.'
