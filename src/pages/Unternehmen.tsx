@@ -19,11 +19,10 @@ export default function Unternehmen() {
           </Button>
           
           <h1 className="text-4xl font-bold mb-4 text-foreground">
-            Für Unternehmen
+            Über BeVisiblle
           </h1>
           <p className="text-lg text-muted-foreground max-w-3xl">
-            Finden Sie die passenden Azubis und Fachkräfte direkt über unsere Matching-Plattform. 
-            Keine aufwändigen Bewerbungsprozesse mehr – die Talente kommen zu Ihnen.
+            Mit BeVisible präsentieren Sie Ihr Unternehmen authentisch, zeigen Ihre Kultur und offene Stellen, greifen auf eine stetig wachsende Datenbank qualifizierter Talente zu und schalten gezielt bisher unsichtbare Profile frei, um direkt mit passenden Bewerber:innen in Kontakt zu treten.
           </p>
         </div>
 

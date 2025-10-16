@@ -271,13 +271,13 @@ export default function CompanyLanding() {
           <div className="grid grid-cols-1 md:grid-cols-[auto,1fr] items-start gap-6">
             <div className="flex">
               <span className="inline-flex items-center rounded-full bg-white/80 backdrop-blur px-3 py-1 text-xs font-medium text-gray-700 shadow-sm border">
-                About be Visiblle
+                Über BeVisiblle
               </span>
             </div>
             <div className="flex justify-end">
               <div className="max-w-xl text-right">
                 <p className="text-gray-800 text-sm leading-relaxed">
-                  Mit <span className="font-semibold">Visiblle</span> kannst du easy deinen Lebenslauf erstellen – dieser wird direkt zu deinem Profil, wo du dich mit Freund:innen, Kolleg:innen oder Gleichgesinnten vernetzen, austauschen und dein Wissen teilen kannst. Außerdem wirst du auf Jobs & Unternehmen aufmerksam und kannst dich bewerben.
+                  Mit <span className="font-semibold">BeVisible</span> präsentieren Sie Ihr Unternehmen authentisch, zeigen Ihre Kultur und offene Stellen, greifen auf eine stetig wachsende Datenbank qualifizierter Talente zu und schalten gezielt bisher unsichtbare Profile frei, um direkt mit passenden Bewerber:innen in Kontakt zu treten.
                 </p>
               </div>
             </div>
