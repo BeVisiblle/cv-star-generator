@@ -1,15 +1,17 @@
-import { useParams, useSearchParams } from "react-router-dom";
+import { useParams, useSearchParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useIsCompanyOwner } from "@/hooks/useIsCompanyOwner";
 import { useFollowCompany } from "@/hooks/useFollowCompany";
 import { CompanyProfileHeader } from "@/components/company/profile/CompanyProfileHeader";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
 import { CompanyHomeTab } from "@/components/company/profile/tabs/CompanyHomeTab";
 import { CompanyAboutTab } from "@/components/company/profile/tabs/CompanyAboutTab";
 import { CompanyJobsTab } from "@/components/company/profile/tabs/CompanyJobsTab";
 import { CompanyPeopleTab } from "@/components/company/profile/tabs/CompanyPeopleTab";
 import { CompanyPostsTab } from "@/components/company/profile/tabs/CompanyPostsTab";
+import { ArrowLeft } from "lucide-react";
 import { useEffect, useState } from "react";
 
 type Company = {
@@ -29,7 +31,9 @@ type Company = {
 export default function PublicCompanyViewNew() {
   const { id } = useParams();
   const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState(searchParams.get("tab") || "home");
+  const fromJobId = searchParams.get("fromJob");
   
   const { data: isOwner } = useIsCompanyOwner(id);
   const { isFollowing, toggleFollow } = useFollowCompany(id);
@@ -92,6 +96,22 @@ export default function PublicCompanyViewNew() {
 
   return (
     <div className="min-h-screen bg-background">
+      {/* Back to Job Button */}
+      {fromJobId && (
+        <div className="border-b bg-card">
+          <div className="max-w-6xl mx-auto px-6 py-3">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => navigate(`/jobs/${fromJobId}`)}
+            >
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Zurück zur Stellenanzeige
+            </Button>
+          </div>
+        </div>
+      )}
+      
       {/* Header Section */}
       <CompanyProfileHeader 
         company={company}

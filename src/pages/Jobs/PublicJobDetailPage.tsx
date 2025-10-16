@@ -201,7 +201,10 @@ export default function PublicJobDetailPage() {
             {job.company && (
               <section>
                 <h2 className="text-xl font-bold mb-4">Über das Unternehmen</h2>
-                <div className="flex items-start gap-4 p-4 border rounded-lg">
+                <div 
+                  className="flex items-start gap-4 p-4 border rounded-lg cursor-pointer hover:border-primary transition-colors"
+                  onClick={() => navigate(`/companies/${job.company.id}?fromJob=${id}`)}
+                >
                   {job.company.logo_url ? (
                     <img
                       src={job.company.logo_url}
@@ -213,8 +216,13 @@ export default function PublicJobDetailPage() {
                       <Building2 className="h-6 w-6 text-muted-foreground" />
                     </div>
                   )}
-                  <div>
-                    <h3 className="font-semibold mb-1">{job.company.name}</h3>
+                  <div className="flex-1">
+                    <div className="flex items-center justify-between">
+                      <h3 className="font-semibold mb-1">{job.company.name}</h3>
+                      <Button variant="ghost" size="sm" className="text-primary">
+                        Profil ansehen →
+                      </Button>
+                    </div>
                     {job.company.description && (
                       <p className="text-sm text-muted-foreground line-clamp-3">
                         {job.company.description}
