@@ -39,7 +39,7 @@ export default function JobDetail() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
       <JobDetailHeader job={job} company={company} />
       <JobDetailTabs job={job} company={company} />
     </div>
