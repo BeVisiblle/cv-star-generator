@@ -17,23 +17,23 @@ const heroVariants = [
   },
   {
     id: 'business',
-    image: '/assets/hero-business.png',
+    image: '/assets/hero-business-v2.png',
     headline: 'Finde deinen Traumjob mit',
     subtitle: 'Vernetze dich mit Unternehmen, die zu dir passen',
     description: 'Erstelle deinen Lebenslauf, präsentiere deine Fähigkeiten und werde sichtbar für Unternehmen, die genau nach dir suchen.'
   },
   {
     id: 'healthcare',
-    image: '/assets/hero-healthcare.png',
+    image: '/assets/hero-healthcare-v2.png',
     headline: 'Deine Karriere in der Pflege startet hier mit',
     subtitle: 'Jobs, Community und Weiterbildung an einem Ort',
     description: 'Ob Ausbildung oder Fachkraft – finde passende Stellen im Gesundheitswesen und tausche dich mit Kolleg:innen aus der Branche aus.'
   },
   {
     id: 'construction',
-    image: '/assets/hero-construction.png',
+    image: '/assets/hero-construction-v2.png',
     headline: 'Handwerk hat goldenen Boden',
-    headlineExtra: '–\u00A0und', // Non-breaking space
+    headlineExtra: '–\u00A0und',
     subtitle: 'Dein Netzwerk für Azubis und Fachkräfte im Handwerk',
     description: 'Zeige deine praktischen Fähigkeiten, finde Ausbildungsplätze oder Jobs im Handwerk und vernetze dich mit Gleichgesinnten.'
   }
