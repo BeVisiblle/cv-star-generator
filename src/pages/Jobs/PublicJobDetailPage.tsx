@@ -25,6 +25,8 @@ export default function PublicJobDetailPage() {
   const { user } = useAuth();
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
   const [companyName, setCompanyName] = useState("");
+  const [jobTitle, setJobTitle] = useState("");
+  const [jobLocation, setJobLocation] = useState("");
   
   const { isSaved, toggleSave, isToggling } = useJobSave(id || "");
   const { hasApplied, applyToJob, isApplying, canApply, profileStatus } = useQuickApply(id || "");
@@ -243,6 +245,8 @@ export default function PublicJobDetailPage() {
                       return;
                     }
                     setCompanyName(job.company?.name || "das Unternehmen");
+                    setJobTitle(job.title || "");
+                    setJobLocation(job.city || job.state || "");
                     setConfirmDialogOpen(true);
                   }}
                   disabled={isApplying}
@@ -457,52 +461,49 @@ export default function PublicJobDetailPage() {
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Bewerbung absenden?</AlertDialogTitle>
-            <AlertDialogDescription>
+            <AlertDialogDescription className="space-y-4">
               {canApply ? (
-                `Dein vollständiges Profil wird an ${companyName} weitergeleitet.`
+                <p className="text-base">
+                  Du bewirbst dich damit bei <span className="font-semibold">{companyName}</span> auf 
+                  die Position <span className="font-semibold">{jobTitle}</span> in{" "}
+                  <span className="font-semibold">{jobLocation}</span> - und dein vollständiges 
+                  Profil wird an <span className="font-semibold">{companyName}</span> weitergeleitet.
+                </p>
               ) : (
                 <div className="space-y-3">
                   <p className="text-destructive font-medium">
-                    Bewerbung nicht möglich
+                    Du kannst dich derzeit nicht bewerben:
                   </p>
                   
-                  {profileStatus?.missingDocuments && profileStatus.missingDocuments.length > 0 ? (
-                    <>
-                      <p>
-                        Für diese Stelle sind folgende Dokumente erforderlich:
+                  {profileStatus?.missingFields && profileStatus.missingFields.length > 0 && (
+                    <div className="p-3 bg-destructive/10 rounded-lg">
+                      <p className="text-sm font-medium text-destructive mb-2">
+                        Dein Profil ist unvollständig:
                       </p>
-                      <div className="bg-muted p-3 rounded-md">
-                        <p className="font-medium text-sm mb-2">Bitte lade folgende Dokumente hoch:</p>
-                        <ul className="list-disc list-inside space-y-1 text-sm">
-                          {profileStatus.missingDocuments.map((doc, index) => (
-                            <li key={index}>{doc}</li>
-                          ))}
-                        </ul>
-                      </div>
-                      <p className="text-sm">
-                        Du kannst deine Dokumente in deinem Profil hochladen.
-                      </p>
-                    </>
-                  ) : (
-                    <>
-                      <p>
-                        Du kannst dich nicht bewerben, weil dein Profil noch nicht vollständig ist.
-                      </p>
-                      {profileStatus?.missingFields && profileStatus.missingFields.length > 0 && (
-                        <div className="bg-muted p-3 rounded-md">
-                          <p className="font-medium text-sm mb-2">Folgende Angaben fehlen noch:</p>
-                          <ul className="list-disc list-inside space-y-1 text-sm">
-                            {profileStatus.missingFields.map((field, index) => (
-                              <li key={index}>{field}</li>
-                            ))}
-                          </ul>
-                        </div>
-                      )}
-                      <p className="text-sm">
-                        Bitte vervollständige dein Profil in den Einstellungen, um dich auf Stellen bewerben zu können.
-                      </p>
-                    </>
+                      <ul className="text-sm text-destructive list-disc list-inside space-y-1">
+                        {profileStatus.missingFields.map((field, idx) => (
+                          <li key={idx}>{field}</li>
+                        ))}
+                      </ul>
+                    </div>
                   )}
+                  
+                  {profileStatus?.missingDocuments && profileStatus.missingDocuments.length > 0 && (
+                    <div className="p-3 bg-destructive/10 rounded-lg">
+                      <p className="text-sm font-medium text-destructive mb-2">
+                        Folgende Dokumente fehlen:
+                      </p>
+                      <ul className="text-sm text-destructive list-disc list-inside space-y-1">
+                        {profileStatus.missingDocuments.map((doc, idx) => (
+                          <li key={idx}>{doc}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                  
+                  <p className="text-sm text-muted-foreground">
+                    Bitte vervollständige dein Profil, bevor du dich bewirbst.
+                  </p>
                 </div>
               )}
             </AlertDialogDescription>

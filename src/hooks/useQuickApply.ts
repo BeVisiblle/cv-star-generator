@@ -30,13 +30,14 @@ export function useQuickApply(jobId: string) {
       // Profil prüfen (profiles Tabelle, nicht candidate_profiles!)
       const { data: profile, error } = await supabase
         .from("profiles")
-        .select("id")
+        .select("id, vorname, nachname, email, cv_url")
         .eq("id", user!.id)
         .maybeSingle();
 
       if (error) throw error;
       
       const missing: string[] = [];
+      const missingFields: string[] = [];
       
       if (!profile) {
         missing.push("Profil muss erstellt werden");
@@ -44,8 +45,19 @@ export function useQuickApply(jobId: string) {
           hasProfile: false,
           profileId: null,
           missingFields: missing,
-          missingDocuments: []
+          missingDocuments: [],
+          profile: null
         };
+      }
+
+      // Prüfe grundlegende Profildaten
+      if (!profile.vorname) missingFields.push("Vorname");
+      if (!profile.nachname) missingFields.push("Nachname");
+      if (!profile.email) missingFields.push("E-Mail");
+      if (!profile.cv_url) missingFields.push("Lebenslauf");
+
+      if (missingFields.length > 0) {
+        missing.push(`Profildaten unvollständig: ${missingFields.join(", ")}`);
       }
 
       // Job-Details laden um erforderliche Dokumente zu prüfen
@@ -90,7 +102,8 @@ export function useQuickApply(jobId: string) {
         hasProfile: true,
         profileId: profile.id,
         missingFields: missing,
-        missingDocuments
+        missingDocuments,
+        profile
       };
     },
   });
@@ -174,13 +187,17 @@ export function useQuickApply(jobId: string) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["application-status", jobId, user?.id] });
       queryClient.invalidateQueries({ queryKey: ["my-applications", user?.id] });
+      queryClient.invalidateQueries({ queryKey: ["applications-count", jobId] });
       toast.success("Bewerbung erfolgreich versendet!");
     },
     onError: (error: Error) => {
+      console.error("Application error:", error);
       if (error.message.includes("Bitte lade folgende Dokumente hoch")) {
         toast.error(error.message);
+      } else if (error.message.includes("Profildaten unvollständig")) {
+        toast.error(error.message);
       } else {
-        toast.error("Fehler beim Bewerben");
+        toast.error(`Fehler beim Bewerben: ${error.message}`);
       }
     },
   });
