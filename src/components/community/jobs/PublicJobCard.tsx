@@ -1,16 +1,19 @@
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Building2, MapPin, Clock, MoreVertical } from "lucide-react";
-import { formatDistanceToNow } from "date-fns";
+import { Button } from "@/components/ui/button";
+import { Building2, MapPin, Clock, MoreVertical, CheckCircle2 } from "lucide-react";
+import { formatDistanceToNow, format } from "date-fns";
 import { de } from "date-fns/locale";
+import type { MyApplication } from "@/hooks/useMyApplications";
 
 interface PublicJobCardProps {
   job: any;
   onClick: () => void;
   compact?: boolean;
+  application?: MyApplication;
 }
 
-export function PublicJobCard({ job, onClick, compact = false }: PublicJobCardProps) {
+export function PublicJobCard({ job, onClick, compact = false, application }: PublicJobCardProps) {
   const getEmploymentTypeLabel = (type: string) => {
     const labels: Record<string, string> = {
       full_time: 'Vollzeit',
@@ -73,6 +76,18 @@ export function PublicJobCard({ job, onClick, compact = false }: PublicJobCardPr
               <p className="text-xs font-medium">
                 €{job.salary_min?.toLocaleString() || '?'} - €{job.salary_max?.toLocaleString() || '?'}
               </p>
+            )}
+
+            {/* Application Status */}
+            {application && (
+              <Button 
+                size="sm" 
+                variant="outline"
+                className="mt-2 w-full pointer-events-none"
+              >
+                <CheckCircle2 className="h-3 w-3 mr-1" />
+                Bereits beworben am {format(new Date(application.created_at), "dd.MM.yyyy", { locale: de })}
+              </Button>
             )}
           </div>
         </div>
@@ -154,6 +169,20 @@ export function PublicJobCard({ job, onClick, compact = false }: PublicJobCardPr
             <p className="text-sm font-medium">
               €{job.salary_min?.toLocaleString() || '?'} - €{job.salary_max?.toLocaleString() || '?'}
             </p>
+          </div>
+        )}
+
+        {/* Application Status */}
+        {application && (
+          <div className="pt-2 border-t">
+            <Button 
+              size="sm" 
+              variant="outline"
+              className="w-full pointer-events-none"
+            >
+              <CheckCircle2 className="h-4 w-4 mr-2" />
+              Bereits beworben am {format(new Date(application.created_at), "dd.MM.yyyy", { locale: de })}
+            </Button>
           </div>
         )}
       </div>

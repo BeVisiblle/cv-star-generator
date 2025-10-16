@@ -1,11 +1,14 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { usePublicJobs } from "@/hooks/useJobs";
+import { useMyApplications } from "@/hooks/useMyApplications";
 import { JobSearchHero } from "@/components/community/jobs/JobSearchHero";
 import { JobFilters } from "@/components/community/jobs/JobFilters";
 import { PublicJobCard } from "@/components/community/jobs/PublicJobCard";
 import { Button } from "@/components/ui/button";
 import { LayoutGrid, Table as TableIcon, Briefcase, ChevronLeft, ChevronRight } from "lucide-react";
+import { format } from "date-fns";
+import { de } from "date-fns/locale";
 
 export default function CommunityJobs() {
   const navigate = useNavigate();
@@ -34,8 +37,22 @@ export default function CommunityJobs() {
     location: location || selectedCity
   });
 
+  const { data: myApplications } = useMyApplications();
+
+  // Create a map of job_id to application for quick lookup
+  const applicationsByJobId = myApplications?.reduce((acc, app) => {
+    acc[app.job_id] = app;
+    return acc;
+  }, {} as Record<string, typeof myApplications[0]>) || {};
+
   // Filter jobs based on all criteria
   const filteredJobs = jobs?.filter(job => {
+    // Hide rejected applications
+    const application = applicationsByJobId[job.id];
+    if (application?.status === 'rejected') {
+      return false;
+    }
+
     // Search filter (includes company name)
     if (search) {
       const searchLower = search.toLowerCase();
@@ -262,14 +279,18 @@ export default function CommunityJobs() {
               <>
                 {/* Jobs Grid */}
                 <div className={viewMode === "large" ? "grid gap-4" : "grid gap-4 md:grid-cols-2 lg:grid-cols-3"}>
-                  {paginatedJobs.map(job => (
-                    <PublicJobCard 
-                      key={job.id} 
-                      job={job} 
-                      onClick={() => handleJobClick(job)}
-                      compact={viewMode === "compact"}
-                    />
-                  ))}
+                  {paginatedJobs.map(job => {
+                    const application = applicationsByJobId[job.id];
+                    return (
+                      <PublicJobCard 
+                        key={job.id} 
+                        job={job} 
+                        onClick={() => handleJobClick(job)}
+                        compact={viewMode === "compact"}
+                        application={application}
+                      />
+                    );
+                  })}
                 </div>
 
                 {/* Pagination */}
