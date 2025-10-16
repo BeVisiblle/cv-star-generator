@@ -93,6 +93,7 @@ const AdminSettings = lazy(() => import("./pages/Admin/AdminSettings"));
 const PublicPage = lazy(() => import("./pages/PublicPage"));
 const UserProfilePage = lazy(() => import("./pages/UserProfile"));
 const PublicCompanyView = lazy(() => import("./pages/Companies/PublicCompanyView"));
+const PublicCompanyViewNew = lazy(() => import("./pages/Companies/PublicCompanyViewNew"));
 const Overview = lazy(() => import("./pages/Admin/Overview"));
 const UsersPage = lazy(() => import("./pages/Admin/Users"));
 const CompaniesPage = lazy(() => import("./pages/Admin/Companies"));
@@ -395,7 +396,7 @@ const App = () => {
                 <Route path="/profile" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><Profile /></Suspense>} />
                 <Route path="/dashboard" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><Dashboard /></Suspense>} />
                 <Route path="/marketplace" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><Marketplace /></Suspense>} />
-                <Route path="/companies/:id" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><PublicCompanyView /></Suspense>} />
+                <Route path="/companies/:id" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><PublicCompanyViewNew /></Suspense>} />
                 <Route path="/community" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><Community /></Suspense>} />
                 <Route path="/community/contacts" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><CommunityContacts /></Suspense>} />
                 <Route path="/community/companies" element={<Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><CommunityCompanies /></Suspense>} />
