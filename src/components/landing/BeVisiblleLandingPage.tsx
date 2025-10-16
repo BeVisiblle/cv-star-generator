@@ -5,9 +5,45 @@ import lebenslaufFeature from '@/assets/lebenslauf-feature.png';
 import jobsFeature from '@/assets/jobs-feature.png';
 import communityFeature from '@/assets/community-feature.png';
 import { trackCalendlyClick, trackPageView } from '@/lib/telemetry';
+import { motion } from 'framer-motion';
+import heroBusiness from '@/assets/hero-business.png';
+import heroHealthcare from '@/assets/hero-healthcare.png';
+import heroConstruction from '@/assets/hero-construction.png';
+
+const heroVariants = [
+  {
+    id: 'main',
+    image: '/assets/hero-main.png',
+    headline: 'Hey, wir sind',
+    subtitle: 'Dein Netzwerk für Austausch und neue Jobs',
+    description: 'Mit BeVisiblle kannst du dich mit deinen Kolleg:innen und Freund:innen vernetzen, dein Wissen & Arbeitsalltag teilen und neue Jobs & Unternehmen finden.'
+  },
+  {
+    id: 'business',
+    image: heroBusiness,
+    headline: 'Finde deinen Traumjob mit',
+    subtitle: 'Vernetze dich mit Unternehmen, die zu dir passen',
+    description: 'Erstelle deinen Lebenslauf, präsentiere deine Fähigkeiten und werde sichtbar für Unternehmen, die genau nach dir suchen.'
+  },
+  {
+    id: 'healthcare',
+    image: heroHealthcare,
+    headline: 'Deine Karriere in der Pflege startet hier mit',
+    subtitle: 'Jobs, Community und Weiterbildung an einem Ort',
+    description: 'Ob Ausbildung oder Fachkraft – finde passende Stellen im Gesundheitswesen und tausche dich mit Kolleg:innen aus der Branche aus.'
+  },
+  {
+    id: 'construction',
+    image: heroConstruction,
+    headline: 'Handwerk hat goldenen Boden – und',
+    subtitle: 'Dein Netzwerk für Azubis und Fachkräfte im Handwerk',
+    description: 'Zeige deine praktischen Fähigkeiten, finde Ausbildungsplätze oder Jobs im Handwerk und vernetze dich mit Gleichgesinnten.'
+  }
+];
 
 export default function BeVisiblleLandingPage() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [selectedHero, setSelectedHero] = useState(0);
   const [activeFeature, setActiveFeature] = useState<number | null>(null);
 
   // Mobile menu toggle
@@ -28,6 +64,10 @@ export default function BeVisiblleLandingPage() {
   };
 
   useEffect(() => {
+    // Zufällige Hero-Version auswählen
+    const randomIndex = Math.floor(Math.random() * heroVariants.length);
+    setSelectedHero(randomIndex);
+
     trackPageView('Landing Page');
   }, []);
 
@@ -110,15 +150,36 @@ export default function BeVisiblleLandingPage() {
       <section className="relative pt-28 pb-16">
         <div className="mx-auto max-w-6xl px-4">
           <div className="text-center">
-            <h1 className="text-4xl md:text-6xl font-bold text-gray-900 leading-tight">
-              Hey, wir sind <span className="text-[#5170ff]">BeVisiblle</span>
-            </h1>
-            <p className="mt-2 text-lg md:text-2xl text-gray-800">
-              Dein Netzwerk für Austausch und neue Jobs
-            </p>
-            <p className="mt-4 text-gray-600 max-w-2xl mx-auto">
-              Mit <span className="font-medium">be visiblle</span> kannst du dich mit deinen Kolleg:innen und Freund:innen vernetzen, dein Wissen & Arbeitsalltag teilen und neue Jobs & Unternehmen finden.
-            </p>
+            <motion.h1
+              key={`headline-${selectedHero}`}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              className="text-4xl md:text-6xl font-bold text-gray-900 leading-tight"
+            >
+              {heroVariants[selectedHero].headline}{' '}
+              <span className="text-gray-900">
+                BeVisib<span className="text-[#5170ff]">ll</span>e
+              </span>
+            </motion.h1>
+            <motion.p
+              key={`subtitle-${selectedHero}`}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.1 }}
+              className="mt-2 text-lg md:text-2xl text-gray-800"
+            >
+              {heroVariants[selectedHero].subtitle}
+            </motion.p>
+            <motion.p
+              key={`desc-${selectedHero}`}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              className="mt-4 text-gray-600 max-w-2xl mx-auto"
+            >
+              {heroVariants[selectedHero].description}
+            </motion.p>
 
             {/* CTA + Profile cluster */}
             <div className="mt-8 flex items-center justify-center gap-4 flex-wrap">
@@ -142,9 +203,19 @@ export default function BeVisiblleLandingPage() {
           </div>
 
           {/* Hero-Bild */}
-          <div className="relative mt-8 flex justify-center">
-            <img src="/assets/hero-main.png" alt="BeVisiblle – Menschen vernetzen sich" className="max-w-5xl w-full h-auto object-contain" />
-          </div>
+          <motion.div
+            key={`image-${selectedHero}`}
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.8, delay: 0.3 }}
+            className="relative mt-8 flex justify-center"
+          >
+            <img 
+              src={heroVariants[selectedHero].image} 
+              alt="BeVisiblle – Menschen vernetzen sich" 
+              className="max-w-5xl w-full h-auto object-contain" 
+            />
+          </motion.div>
         </div>
       </section>
 
@@ -177,14 +248,14 @@ export default function BeVisiblleLandingPage() {
             {/* Links: Pill */}
             <div className="flex">
               <span className="inline-flex items-center rounded-full bg-white/80 backdrop-blur px-3 py-1 text-xs font-medium text-gray-700 shadow-sm border">
-                About be Visiblle
+                Über BeVisib<span className="text-[#5170ff]">ll</span>e
               </span>
             </div>
             {/* Rechts: Text */}
             <div className="flex justify-end">
               <div className="max-w-xl text-right">
                 <p className="text-gray-800 text-sm leading-relaxed">
-                  Mit <span className="font-semibold">Visiblle</span> kannst du easy deinen Lebenslauf erstellen – dieser wird
+                  Mit <span className="font-semibold">BeVisib<span className="text-[#5170ff]">ll</span>e</span> kannst du easy deinen Lebenslauf erstellen – dieser wird
                   direkt zu deinem Profil, wo du dich mit Freund:innen, Kolleg:innen oder Gleichgesinnten vernetzen,
                   austauschen und dein Wissen teilen kannst. Außerdem wirst du auf Jobs & Unternehmen aufmerksam und
                   kannst dich bewerben.
