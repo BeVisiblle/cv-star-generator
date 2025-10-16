@@ -482,7 +482,7 @@ export default function CompanyLanding() {
                   </span>
                 </div>
                 <p className="mt-3 text-sm text-gray-600">
-                  Netzwerk für Austausch & echte Arbeit – Jobs als Zusatz.
+                  BeVisible ist mehr als eine Jobplattform. Mit uns findest du Menschen, Chancen und Unternehmen, die zu dir passen. Vernetze dich, teile Erfahrungen und werde sichtbar für deinen Traumjob. 💙
                 </p>
               </div>
 

@@ -9,6 +9,7 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import CompanySignupFooter from "./CompanySignupFooter";
 
 export default function CompanySignup() {
   const navigate = useNavigate();
@@ -427,6 +428,8 @@ export default function CompanySignup() {
           </motion.div>
         </div>
       </main>
+      
+      <CompanySignupFooter />
     </div>
   );
 }

@@ -381,9 +381,9 @@ export default function AboutUs() {
                     BeVisib<span className="text-primary">ll</span>e
                   </span>
                 </div>
-                  <p className="mt-3 text-sm text-gray-600">
-                    Netzwerk für Austausch & echte Arbeit – Jobs als Zusatz.
-                  </p>
+                <p className="mt-3 text-sm text-gray-600">
+                  BeVisible ist mehr als eine Jobplattform. Mit uns findest du Menschen, Chancen und Unternehmen, die zu dir passen. Vernetze dich, teile Erfahrungen und werde sichtbar für deinen Traumjob. 💙
+                </p>
                 </div>
                 <div>
                   <h4 className="text-sm font-semibold text-gray-900">Company</h4>
