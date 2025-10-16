@@ -4,6 +4,17 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { 
   MapPin, 
   Briefcase, 
@@ -14,7 +25,8 @@ import {
   Building2,
   School,
   Award,
-  X
+  X,
+  XCircle
 } from "lucide-react";
 
 interface Profile {
@@ -51,6 +63,8 @@ interface UnlockProfileModalProps {
   onConfirmUnlock: () => void;
   tokenCost: number;
   isLoading?: boolean;
+  applicationId?: string;
+  onReject?: (reason?: string) => void;
 }
 
 const getStatusIcon = (status: string) => {
@@ -92,11 +106,25 @@ export function UnlockProfileModal({
   matchPercentage,
   onConfirmUnlock,
   tokenCost,
-  isLoading = false
+  isLoading = false,
+  applicationId,
+  onReject
 }: UnlockProfileModalProps) {
+  const [isRejecting, setIsRejecting] = useState(false);
+  const [showRejectDialog, setShowRejectDialog] = useState(false);
+  const [rejectReason, setRejectReason] = useState('');
+
   if (!profile) return null;
 
-  const displayName = `${profile.vorname} ${profile.nachname?.charAt(0)}.`;
+  const displayName = profile.vorname;
+  
+  const handleReject = () => {
+    setIsRejecting(true);
+    onReject?.(rejectReason);
+    setShowRejectDialog(false);
+    setRejectReason('');
+    setTimeout(() => setIsRejecting(false), 1000);
+  };
   
   const age = profile.geburtsdatum 
     ? new Date().getFullYear() - new Date(profile.geburtsdatum).getFullYear()
@@ -328,6 +356,17 @@ export function UnlockProfileModal({
             Kosten: {tokenCost} Token
           </div>
           <div className="flex gap-2">
+            {onReject && (
+              <Button 
+                variant="destructive" 
+                onClick={() => setShowRejectDialog(true)}
+                disabled={isLoading || isRejecting}
+              >
+                <XCircle className="h-4 w-4 mr-2" />
+                Absagen
+              </Button>
+            )}
+            
             <Button variant="outline" onClick={onClose}>
               Abbrechen
             </Button>
@@ -341,6 +380,36 @@ export function UnlockProfileModal({
             </Button>
           </div>
         </DialogFooter>
+
+        {/* Reject Reason Dialog */}
+        <AlertDialog open={showRejectDialog} onOpenChange={setShowRejectDialog}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Bewerbung absagen</AlertDialogTitle>
+              <AlertDialogDescription>
+                Möchten Sie diese Bewerbung wirklich absagen? 
+                Sie können optional einen Grund angeben.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            
+            <Textarea
+              placeholder="Grund für Absage (optional)"
+              value={rejectReason}
+              onChange={(e) => setRejectReason(e.target.value)}
+              rows={3}
+            />
+            
+            <AlertDialogFooter>
+              <AlertDialogCancel>Abbrechen</AlertDialogCancel>
+              <AlertDialogAction 
+                onClick={handleReject}
+                className="bg-red-600 hover:bg-red-700"
+              >
+                Bewerbung absagen
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </DialogContent>
     </Dialog>
   );

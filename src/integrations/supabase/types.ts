@@ -230,6 +230,8 @@ export type Database = {
       applications: {
         Row: {
           applied_at: string | null
+          archived_at: string | null
+          archived_by: string | null
           candidate_id: string
           company_id: string
           company_response_at: string | null
@@ -244,6 +246,7 @@ export type Database = {
           linked_job_id: string | null
           match_score: number | null
           portfolio_url: string | null
+          rejection_reason: string | null
           resume_url: string | null
           source: string
           stage: string
@@ -257,6 +260,8 @@ export type Database = {
         }
         Insert: {
           applied_at?: string | null
+          archived_at?: string | null
+          archived_by?: string | null
           candidate_id: string
           company_id: string
           company_response_at?: string | null
@@ -271,6 +276,7 @@ export type Database = {
           linked_job_id?: string | null
           match_score?: number | null
           portfolio_url?: string | null
+          rejection_reason?: string | null
           resume_url?: string | null
           source?: string
           stage?: string
@@ -284,6 +290,8 @@ export type Database = {
         }
         Update: {
           applied_at?: string | null
+          archived_at?: string | null
+          archived_by?: string | null
           candidate_id?: string
           company_id?: string
           company_response_at?: string | null
@@ -298,6 +306,7 @@ export type Database = {
           linked_job_id?: string | null
           match_score?: number | null
           portfolio_url?: string | null
+          rejection_reason?: string | null
           resume_url?: string | null
           source?: string
           stage?: string
@@ -8225,6 +8234,10 @@ export type Database = {
       approve_join_request: {
         Args: { approve: boolean; request_id: string }
         Returns: boolean
+      }
+      archive_application: {
+        Args: { p_application_id: string; p_rejection_reason?: string }
+        Returns: undefined
       }
       auto_freeze_unverified_companies: {
         Args: Record<PropertyKey, never>

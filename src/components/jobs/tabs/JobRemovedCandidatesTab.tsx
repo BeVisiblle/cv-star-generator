@@ -21,14 +21,16 @@ export function JobRemovedCandidatesTab({ jobId }: JobRemovedCandidatesTabProps)
           candidates (
             id,
             full_name,
+            vorname,
+            nachname,
             email,
             profile_image,
             title
           )
         `)
-        .eq("job_id", jobId)
-        .eq("stage", "rejected")
-        .order("updated_at", { ascending: false });
+        .eq("job_post_id", jobId)
+        .not("archived_at", "is", null)
+        .order("archived_at", { ascending: false });
 
       if (error) throw error;
       return data;
@@ -61,7 +63,7 @@ export function JobRemovedCandidatesTab({ jobId }: JobRemovedCandidatesTabProps)
         return (
           <Card key={application.id}>
             <CardContent className="p-4">
-              <div className="flex items-center gap-4">
+              <div className="flex items-start gap-4">
                 <Avatar>
                   <AvatarImage src={candidate?.profile_image} />
                   <AvatarFallback>
@@ -69,14 +71,24 @@ export function JobRemovedCandidatesTab({ jobId }: JobRemovedCandidatesTabProps)
                   </AvatarFallback>
                 </Avatar>
                 <div className="flex-1">
-                  <h4 className="font-semibold">{candidate?.full_name || "Unbekannt"}</h4>
+                  <div className="flex items-center justify-between mb-2">
+                    <h4 className="font-semibold">{candidate?.vorname || "Unbekannt"}</h4>
+                    <span className="text-xs bg-muted px-2 py-1 rounded">Archiviert</span>
+                  </div>
                   <p className="text-sm text-muted-foreground">{candidate?.title || "—"}</p>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Entfernt {formatDistanceToNow(new Date(application.updated_at), { 
-                      addSuffix: true,
-                      locale: de 
-                    })}
-                  </p>
+                  <div className="text-xs text-muted-foreground space-y-1 mt-2">
+                    <div>
+                      Archiviert am: {formatDistanceToNow(new Date(application.archived_at), { 
+                        addSuffix: true,
+                        locale: de 
+                      })}
+                    </div>
+                    {application.rejection_reason && (
+                      <div>
+                        Grund: {application.rejection_reason}
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             </CardContent>

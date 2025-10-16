@@ -59,9 +59,9 @@ export function ApplicationCandidateCard({
     }
   };
 
-  const displayName = candidate.full_name || 
-    `${candidate.vorname || ""} ${candidate.nachname || ""}`.trim() || 
-    "Unbekannt";
+  const displayName = isUnlocked 
+    ? (candidate.full_name || `${candidate.vorname || ""} ${candidate.nachname || ""}`.trim())
+    : (candidate.vorname || "Kandidat");
 
   const skills = candidate.skills || [];
   const seeking = candidate.bio_short || "";

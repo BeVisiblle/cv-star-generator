@@ -1,10 +1,11 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { ApplicationCandidateCard } from "../ApplicationCandidateCard";
 import { UnlockProfileModal } from "@/components/Company/UnlockProfileModal";
 import { FullProfileModal } from "@/components/Company/FullProfileModal";
+import { toast } from "sonner";
 
 interface JobCandidatesTabProps {
   jobId: string;
@@ -39,6 +40,7 @@ const STAGES = {
 };
 
 export function JobCandidatesTab({ jobId }: JobCandidatesTabProps) {
+  const queryClient = useQueryClient();
   const [selectedApplication, setSelectedApplication] = useState<any | null>(null);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<"preview" | "full">("preview");
@@ -71,12 +73,35 @@ export function JobCandidatesTab({ jobId }: JobCandidatesTabProps) {
         `
         )
         .eq("job_post_id", jobId)
+        .is("archived_at", null)
         .order("created_at", { ascending: false });
 
       if (error) throw error;
       return data;
     },
   });
+
+  const archiveMutation = useMutation({
+    mutationFn: async ({ applicationId, reason }: { applicationId: string; reason?: string }) => {
+      const { error } = await supabase.rpc('archive_application', {
+        p_application_id: applicationId,
+        p_rejection_reason: reason || null
+      });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["job-applications-detailed", jobId] });
+      toast.success("Bewerbung archiviert");
+      setIsProfileModalOpen(false);
+    },
+    onError: (error: any) => {
+      toast.error(error.message || "Fehler beim Archivieren");
+    }
+  });
+
+  const handleArchive = (applicationId: string, reason?: string) => {
+    archiveMutation.mutate({ applicationId, reason });
+  };
 
   const handleViewProfile = (application: any) => {
     setSelectedApplication(application);
@@ -142,11 +167,11 @@ export function JobCandidatesTab({ jobId }: JobCandidatesTabProps) {
                 {apps.length > 0 ? (
                   <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
                     {apps.map((app) => (
-                      <ApplicationCandidateCard
-                        key={app.id}
-                        application={app}
-                        onViewProfile={() => handleViewProfile(app)}
-                      />
+                       <ApplicationCandidateCard
+                         key={app.id}
+                         application={app}
+                         onViewProfile={() => handleViewProfile(app)}
+                       />
                     ))}
                   </div>
                 ) : (
@@ -185,6 +210,8 @@ export function JobCandidatesTab({ jobId }: JobCandidatesTabProps) {
           onConfirmUnlock={handleUnlockProfile}
           tokenCost={10}
           isLoading={false}
+          applicationId={selectedApplication.id}
+          onReject={(reason) => handleArchive(selectedApplication.id, reason)}
         />
       )}
     </>
