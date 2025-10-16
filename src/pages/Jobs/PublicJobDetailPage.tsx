@@ -460,20 +460,51 @@ export default function PublicJobDetailPage() {
             )}
 
             {/* Required Documents */}
-            {job.required_documents && Array.isArray(job.required_documents) && job.required_documents.length > 0 && (
+            {((job.required_documents && Array.isArray(job.required_documents) && job.required_documents.length > 0) ||
+              (job.optional_documents && Array.isArray(job.optional_documents) && job.optional_documents.length > 0)) && (
               <div className="p-6 border rounded-lg bg-card">
                 <div className="flex items-center gap-2 mb-4">
                   <FileText className="h-5 w-5" />
                   <h3 className="font-semibold">Benötigte Dokumente</h3>
                 </div>
-                <ul className="space-y-2">
-                  {job.required_documents.map((doc: any, index: number) => (
-                    <li key={index} className="text-sm text-muted-foreground flex items-center gap-2">
-                      <div className="h-1.5 w-1.5 rounded-full bg-primary" />
-                      {typeof doc === 'string' ? doc : doc.name || ''}
-                    </li>
-                  ))}
-                </ul>
+                
+                {job.required_documents && Array.isArray(job.required_documents) && job.required_documents.length > 0 && (
+                  <div className="mb-3">
+                    <p className="text-xs font-medium text-red-600 mb-2">Pflicht:</p>
+                    <ul className="space-y-2">
+                      {job.required_documents.map((doc: any, index: number) => {
+                        const docLabel = typeof doc === 'string' 
+                          ? DOCUMENT_TYPE_LABELS[doc as DocType] || doc
+                          : doc.label || DOCUMENT_TYPE_LABELS[doc.type as DocType] || doc.type;
+                        return (
+                          <li key={index} className="text-sm flex items-center gap-2">
+                            <div className="h-1.5 w-1.5 rounded-full bg-red-500" />
+                            {docLabel}
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </div>
+                )}
+                
+                {job.optional_documents && Array.isArray(job.optional_documents) && job.optional_documents.length > 0 && (
+                  <div>
+                    <p className="text-xs font-medium text-muted-foreground mb-2">Optional:</p>
+                    <ul className="space-y-2">
+                      {job.optional_documents.map((doc: any, index: number) => {
+                        const docLabel = typeof doc === 'string' 
+                          ? DOCUMENT_TYPE_LABELS[doc as DocType] || doc
+                          : doc.label || DOCUMENT_TYPE_LABELS[doc.type as DocType] || doc.type;
+                        return (
+                          <li key={index} className="text-sm text-muted-foreground flex items-center gap-2">
+                            <div className="h-1.5 w-1.5 rounded-full bg-muted-foreground" />
+                            {docLabel}
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </div>
+                )}
               </div>
             )}
 

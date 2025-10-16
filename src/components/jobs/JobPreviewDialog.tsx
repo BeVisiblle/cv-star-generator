@@ -202,12 +202,18 @@ export function JobPreviewDialog({ open, onOpenChange, job, company }: JobPrevie
                     <div className="mb-3">
                       <p className="text-xs font-medium text-muted-foreground mb-2">Pflicht:</p>
                       <ul className="space-y-1">
-                        {job.required_documents.map((doc: string, index: number) => (
-                          <li key={index} className="text-sm flex items-center gap-2">
-                            <div className="h-1.5 w-1.5 rounded-full bg-red-500" />
-                            {DOCUMENT_TYPE_LABELS[doc as keyof typeof DOCUMENT_TYPE_LABELS] || doc}
-                          </li>
-                        ))}
+                        {job.required_documents.map((doc: any, index: number) => {
+                          const docType = typeof doc === 'string' ? doc : doc.type;
+                          const docLabel = typeof doc === 'string' 
+                            ? DOCUMENT_TYPE_LABELS[doc as keyof typeof DOCUMENT_TYPE_LABELS] || doc
+                            : doc.label || DOCUMENT_TYPE_LABELS[doc.type as keyof typeof DOCUMENT_TYPE_LABELS] || doc.type;
+                          return (
+                            <li key={index} className="text-sm flex items-center gap-2">
+                              <div className="h-1.5 w-1.5 rounded-full bg-red-500" />
+                              {docLabel}
+                            </li>
+                          );
+                        })}
                       </ul>
                     </div>
                   )}
@@ -216,12 +222,17 @@ export function JobPreviewDialog({ open, onOpenChange, job, company }: JobPrevie
                     <div>
                       <p className="text-xs font-medium text-muted-foreground mb-2">Optional:</p>
                       <ul className="space-y-1">
-                        {job.optional_documents.map((doc: string, index: number) => (
-                          <li key={index} className="text-sm text-muted-foreground flex items-center gap-2">
-                            <div className="h-1.5 w-1.5 rounded-full bg-muted-foreground" />
-                            {DOCUMENT_TYPE_LABELS[doc as keyof typeof DOCUMENT_TYPE_LABELS] || doc}
-                          </li>
-                        ))}
+                        {job.optional_documents.map((doc: any, index: number) => {
+                          const docLabel = typeof doc === 'string' 
+                            ? DOCUMENT_TYPE_LABELS[doc as keyof typeof DOCUMENT_TYPE_LABELS] || doc
+                            : doc.label || DOCUMENT_TYPE_LABELS[doc.type as keyof typeof DOCUMENT_TYPE_LABELS] || doc.type;
+                          return (
+                            <li key={index} className="text-sm text-muted-foreground flex items-center gap-2">
+                              <div className="h-1.5 w-1.5 rounded-full bg-muted-foreground" />
+                              {docLabel}
+                            </li>
+                          );
+                        })}
                       </ul>
                     </div>
                   )}

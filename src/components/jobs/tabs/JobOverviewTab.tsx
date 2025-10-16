@@ -271,12 +271,17 @@ export function JobOverviewTab({ job, company }: JobOverviewTabProps) {
                       Pflicht:
                     </p>
                     <ul className="space-y-2">
-                      {job.required_documents.map((doc: string, index: number) => (
-                        <li key={index} className="text-sm flex items-center gap-2">
-                          <div className="h-1.5 w-1.5 rounded-full bg-red-500 flex-shrink-0" />
-                          {DOCUMENT_TYPE_LABELS[doc as DocType] || doc}
-                        </li>
-                      ))}
+                      {job.required_documents.map((doc: any, index: number) => {
+                        const docLabel = typeof doc === 'string' 
+                          ? DOCUMENT_TYPE_LABELS[doc as DocType] || doc
+                          : doc.label || DOCUMENT_TYPE_LABELS[doc.type as DocType] || doc.type;
+                        return (
+                          <li key={index} className="text-sm flex items-center gap-2">
+                            <div className="h-1.5 w-1.5 rounded-full bg-red-500 flex-shrink-0" />
+                            {docLabel}
+                          </li>
+                        );
+                      })}
                     </ul>
                   </div>
                 )}
@@ -285,12 +290,17 @@ export function JobOverviewTab({ job, company }: JobOverviewTabProps) {
                   <div>
                     <p className="text-xs font-medium mb-2 text-muted-foreground">Optional:</p>
                     <ul className="space-y-2">
-                      {job.optional_documents.map((doc: string, index: number) => (
-                        <li key={index} className="text-sm text-muted-foreground flex items-center gap-2">
-                          <div className="h-1.5 w-1.5 rounded-full bg-muted-foreground flex-shrink-0" />
-                          {DOCUMENT_TYPE_LABELS[doc as DocType] || doc}
-                        </li>
-                      ))}
+                      {job.optional_documents.map((doc: any, index: number) => {
+                        const docLabel = typeof doc === 'string' 
+                          ? DOCUMENT_TYPE_LABELS[doc as DocType] || doc
+                          : doc.label || DOCUMENT_TYPE_LABELS[doc.type as DocType] || doc.type;
+                        return (
+                          <li key={index} className="text-sm text-muted-foreground flex items-center gap-2">
+                            <div className="h-1.5 w-1.5 rounded-full bg-muted-foreground flex-shrink-0" />
+                            {docLabel}
+                          </li>
+                        );
+                      })}
                     </ul>
                   </div>
                 )}
