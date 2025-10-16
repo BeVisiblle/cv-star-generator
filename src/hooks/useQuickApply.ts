@@ -114,8 +114,45 @@ export function useQuickApply(jobId: string) {
 
       if (jobError) throw jobError;
 
-      // Profil-ID ist die User-ID selbst (profiles Tabelle verwendet auth.users id)
-      const profileId = user.id;
+      // Get or create candidate entry for this company
+      const { data: existingCandidate } = await supabase
+        .from("candidates")
+        .select("id")
+        .eq("user_id", user.id)
+        .eq("company_id", job.company_id)
+        .maybeSingle();
+
+      let candidateId: string;
+
+      if (existingCandidate) {
+        candidateId = existingCandidate.id;
+      } else {
+        // Get profile data
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("vorname, nachname, email, cv_url, ort")
+          .eq("id", user.id)
+          .single();
+
+        // Create candidate entry
+        const { data: newCandidate, error: candidateError } = await supabase
+          .from("candidates")
+          .insert({
+            company_id: job.company_id,
+            user_id: user.id,
+            vorname: profile?.vorname,
+            nachname: profile?.nachname,
+            full_name: `${profile?.vorname || ''} ${profile?.nachname || ''}`.trim(),
+            email: profile?.email || user.email,
+            cv_url: profile?.cv_url,
+            city: profile?.ort,
+          })
+          .select("id")
+          .single();
+
+        if (candidateError) throw candidateError;
+        candidateId = newCandidate.id;
+      }
 
       // Create application
       const { error: appError } = await supabase
@@ -124,30 +161,13 @@ export function useQuickApply(jobId: string) {
           user_id: user.id,
           job_id: jobId,
           company_id: job.company_id,
-          candidate_id: profileId,
+          candidate_id: candidateId,
           status: "pending",
           source: "portal",
           viewed_by_company: false,
         });
 
       if (appError) throw appError;
-
-      // Create company_candidates entry if not exists
-      const { error: candidateError } = await supabase
-        .from("company_candidates")
-        .insert({
-          company_id: job.company_id,
-          candidate_id: profileId,
-          stage: "new",
-          source: "application",
-        })
-        .select()
-        .single();
-
-      // Ignore duplicate errors
-      if (candidateError && !candidateError.message.includes("duplicate")) {
-        throw candidateError;
-      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["application-status", jobId, user?.id] });
