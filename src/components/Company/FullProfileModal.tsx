@@ -2,7 +2,11 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { MapPin, Mail, Phone, Calendar, Briefcase, GraduationCap, Award, User } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { Textarea } from "@/components/ui/textarea";
+import { MapPin, Mail, Phone, Calendar, Briefcase, GraduationCap, Award, User, CheckCircle, XCircle } from "lucide-react";
+import { useState } from "react";
 
 interface Profile {
   id: string;
@@ -33,9 +37,25 @@ interface FullProfileModalProps {
   isOpen: boolean;
   onClose: () => void;
   isUnlocked: boolean;
+  applicationId?: string;
+  currentStage?: string;
+  onStageChange?: (newStage: string) => void;
+  onArchive?: (reason?: string) => void;
 }
 
-export function FullProfileModal({ profile, isOpen, onClose, isUnlocked }: FullProfileModalProps) {
+export function FullProfileModal({ 
+  profile, 
+  isOpen, 
+  onClose, 
+  isUnlocked,
+  applicationId,
+  currentStage,
+  onStageChange,
+  onArchive
+}: FullProfileModalProps) {
+  const [showArchiveDialog, setShowArchiveDialog] = useState(false);
+  const [rejectionReason, setRejectionReason] = useState("");
+
   if (!profile) return null;
 
   const displayName = isUnlocked 
@@ -43,6 +63,12 @@ export function FullProfileModal({ profile, isOpen, onClose, isUnlocked }: FullP
     : profile.vorname;
 
   const avatarSrc = isUnlocked ? profile.avatar_url : undefined;
+
+  const handleArchiveConfirm = () => {
+    onArchive?.(rejectionReason || undefined);
+    setShowArchiveDialog(false);
+    setRejectionReason("");
+  };
 
   const getJobTitle = () => {
     if (profile.status === 'azubi' && profile.ausbildungsberuf) {
@@ -235,8 +261,66 @@ export function FullProfileModal({ profile, isOpen, onClose, isUnlocked }: FullP
               </p>
             </div>
           )}
+
+          {/* Action Buttons for unlocked candidates in "new" stage */}
+          {applicationId && currentStage === "new" && isUnlocked && (
+            <div className="flex gap-3 pt-4 border-t">
+              <Button 
+                className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white"
+                onClick={() => onStageChange?.('interview')}
+              >
+                <CheckCircle className="mr-2 h-4 w-4" />
+                Interessant - Interview planen
+              </Button>
+              
+              <Button 
+                variant="outline"
+                className="flex-1 border-red-600 text-red-600 hover:bg-red-50"
+                onClick={() => setShowArchiveDialog(true)}
+              >
+                <XCircle className="mr-2 h-4 w-4" />
+                Absagen für diese Stelle
+              </Button>
+            </div>
+          )}
         </div>
       </DialogContent>
+
+      {/* Archive Confirmation Dialog */}
+      <AlertDialog open={showArchiveDialog} onOpenChange={setShowArchiveDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Bewerbung absagen</AlertDialogTitle>
+            <AlertDialogDescription>
+              Möchten Sie diesem Kandidaten wirklich absagen? Optional können Sie einen Grund angeben.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          
+          <div className="py-4">
+            <Textarea
+              placeholder="Grund der Absage (optional)..."
+              value={rejectionReason}
+              onChange={(e) => setRejectionReason(e.target.value)}
+              className="min-h-[100px]"
+            />
+          </div>
+
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => {
+              setRejectionReason("");
+              setShowArchiveDialog(false);
+            }}>
+              Abbrechen
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleArchiveConfirm}
+              className="bg-red-600 hover:bg-red-700 text-white"
+            >
+              Absagen
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Dialog>
   );
 }

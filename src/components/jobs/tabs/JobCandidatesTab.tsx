@@ -6,6 +6,7 @@ import { ApplicationCandidateCard } from "../ApplicationCandidateCard";
 import { UnlockProfileModal } from "@/components/Company/UnlockProfileModal";
 import { FullProfileModal } from "@/components/Company/FullProfileModal";
 import { toast } from "sonner";
+import { unlockService } from "@/services/unlockService";
 
 interface JobCandidatesTabProps {
   jobId: string;
@@ -20,7 +21,7 @@ const STAGES = {
   freigeschaltet: {
     key: "freigeschaltet",
     title: "Freigeschaltet",
-    filter: (app: any) => app.unlocked_at !== null,
+    filter: (app: any) => app.unlocked_at !== null && app.stage === "new",
   },
   interview: {
     key: "interview",
@@ -43,7 +44,8 @@ export function JobCandidatesTab({ jobId }: JobCandidatesTabProps) {
   const queryClient = useQueryClient();
   const [selectedApplication, setSelectedApplication] = useState<any | null>(null);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
-  const [modalMode, setModalMode] = useState<"preview" | "full">("preview");
+  const [modalMode, setModalMode] = useState<"preview" | "full-readonly" | "full-actions">("preview");
+  const [isUnlocking, setIsUnlocking] = useState(false);
 
   const { data: applications, isLoading } = useQuery({
     queryKey: ["job-applications-detailed", jobId],
@@ -99,6 +101,24 @@ export function JobCandidatesTab({ jobId }: JobCandidatesTabProps) {
     }
   });
 
+  const stageUpdateMutation = useMutation({
+    mutationFn: async ({ applicationId, stage }: { applicationId: string; stage: string }) => {
+      const { error } = await supabase
+        .from('applications')
+        .update({ stage })
+        .eq('id', applicationId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["job-applications-detailed", jobId] });
+      toast.success("Status aktualisiert");
+      setIsProfileModalOpen(false);
+    },
+    onError: (error: any) => {
+      toast.error(error.message || "Fehler beim Aktualisieren");
+    }
+  });
+
   const handleArchive = (applicationId: string, reason?: string) => {
     archiveMutation.mutate({ applicationId, reason });
   };
@@ -106,19 +126,62 @@ export function JobCandidatesTab({ jobId }: JobCandidatesTabProps) {
   const handleViewProfile = (application: any) => {
     setSelectedApplication(application);
 
-    if (application.unlocked_at) {
-      setModalMode("full");
-    } else {
+    if (!application.unlocked_at) {
       setModalMode("preview");
+    } else if (application.stage === "new") {
+      setModalMode("full-actions");
+    } else {
+      setModalMode("full-readonly");
     }
 
     setIsProfileModalOpen(true);
   };
 
   const handleUnlockProfile = async () => {
-    // TODO: Implement unlock logic
-    console.log("Unlock profile:", selectedApplication?.id);
-    setIsProfileModalOpen(false);
+    if (!selectedApplication) return;
+    
+    setIsUnlocking(true);
+    
+    try {
+      // 1. Unlock via Service (writes to company_candidates)
+      const result = await unlockService.unlockBasic({
+        profileId: selectedApplication.candidate_id,
+        jobPostId: jobId
+      });
+      
+      if (result.success) {
+        // 2. Update applications.unlocked_at
+        const { error } = await supabase
+          .from('applications')
+          .update({ 
+            unlocked_at: new Date().toISOString(),
+            viewed_by_company: true 
+          })
+          .eq('id', selectedApplication.id);
+        
+        if (!error) {
+          toast.success("Profil freigeschaltet!");
+          queryClient.invalidateQueries({ queryKey: ["job-applications-detailed", jobId] });
+          setIsProfileModalOpen(false);
+        } else {
+          toast.error("Fehler beim Aktualisieren der Bewerbung");
+        }
+      } else {
+        toast.error("Fehler beim Freischalten");
+      }
+    } catch (error: any) {
+      toast.error(error.message || "Fehler beim Freischalten");
+    } finally {
+      setIsUnlocking(false);
+    }
+  };
+
+  const handleStageChange = (newStage: string) => {
+    if (!selectedApplication) return;
+    stageUpdateMutation.mutate({ 
+      applicationId: selectedApplication.id, 
+      stage: newStage 
+    });
   };
 
   if (isLoading) {
@@ -192,12 +255,16 @@ export function JobCandidatesTab({ jobId }: JobCandidatesTabProps) {
       </Tabs>
 
       {/* Modals */}
-      {modalMode === "full" && selectedApplication && (
+      {(modalMode === "full-readonly" || modalMode === "full-actions") && selectedApplication && (
         <FullProfileModal
           isOpen={isProfileModalOpen}
           onClose={() => setIsProfileModalOpen(false)}
           profile={selectedApplication.candidates}
           isUnlocked={true}
+          applicationId={modalMode === "full-actions" ? selectedApplication.id : undefined}
+          currentStage={selectedApplication.stage}
+          onStageChange={handleStageChange}
+          onArchive={(reason) => handleArchive(selectedApplication.id, reason)}
         />
       )}
 
@@ -209,7 +276,7 @@ export function JobCandidatesTab({ jobId }: JobCandidatesTabProps) {
           matchPercentage={selectedApplication.match_score || 0}
           onConfirmUnlock={handleUnlockProfile}
           tokenCost={10}
-          isLoading={false}
+          isLoading={isUnlocking}
           applicationId={selectedApplication.id}
           onReject={(reason) => handleArchive(selectedApplication.id, reason)}
         />

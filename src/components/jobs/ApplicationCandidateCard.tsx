@@ -1,7 +1,7 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Heart, MapPin, Car, Briefcase, Mail, Phone, Download, Eye } from "lucide-react";
+import { Heart, MapPin, Car, Briefcase, Mail, Phone, Download, Eye, Unlock } from "lucide-react";
 import { useState } from "react";
 
 interface Candidate {
@@ -81,6 +81,13 @@ export function ApplicationCandidateCard({
           </div>
         </div>
         <div className="flex shrink-0 items-center gap-1">
+          {/* Unlocked Badge */}
+          {isUnlocked && (
+            <Badge variant="secondary" className="mr-1 flex items-center gap-1 px-2 py-1">
+              <Unlock className="h-3 w-3" />
+              <span className="text-xs">Freigeschaltet</span>
+            </Badge>
+          )}
           {/* Match */}
           {match > 0 && (
             <div className="flex items-center gap-1 rounded-full bg-secondary px-2 py-1">
