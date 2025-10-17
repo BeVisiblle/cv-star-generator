@@ -11,7 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import CompanySignupFooter from "./CompanySignupFooter";
 
-export default function CompanySignup() {
+function CompanySignup() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [step, setStep] = useState(1);
@@ -454,3 +454,5 @@ function ProgressDot({ active, label }: { active: boolean; label: string }) {
     </div>
   );
 }
+
+export default CompanySignup;
