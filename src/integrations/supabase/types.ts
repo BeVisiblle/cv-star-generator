@@ -10739,6 +10739,7 @@ export type Database = {
       plan_code: "free" | "starter" | "premium"
       post_kind: "text" | "media" | "job_share" | "poll"
       post_visibility: "public" | "followers" | "connections" | "org_only"
+      recipient_type: "profile" | "company"
       tag_type:
         | "profession"
         | "target_group"
@@ -10909,6 +10910,7 @@ export const Constants = {
       plan_code: ["free", "starter", "premium"],
       post_kind: ["text", "media", "job_share", "poll"],
       post_visibility: ["public", "followers", "connections", "org_only"],
+      recipient_type: ["profile", "company"],
       tag_type: [
         "profession",
         "target_group",
