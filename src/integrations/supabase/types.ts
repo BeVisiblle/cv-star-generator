@@ -5139,6 +5139,7 @@ export type Database = {
           body: string | null
           channels: Database["public"]["Enums"]["notif_channel"][] | null
           created_at: string
+          deleted_at: string | null
           group_key: string | null
           id: string
           payload: Json | null
@@ -5156,6 +5157,7 @@ export type Database = {
           body?: string | null
           channels?: Database["public"]["Enums"]["notif_channel"][] | null
           created_at?: string
+          deleted_at?: string | null
           group_key?: string | null
           id?: string
           payload?: Json | null
@@ -5173,6 +5175,7 @@ export type Database = {
           body?: string | null
           channels?: Database["public"]["Enums"]["notif_channel"][] | null
           created_at?: string
+          deleted_at?: string | null
           group_key?: string | null
           id?: string
           payload?: Json | null
@@ -8419,6 +8422,22 @@ export type Database = {
           p_website?: string
         }
         Returns: undefined
+      }
+      create_notification: {
+        Args: {
+          p_actor_id?: string
+          p_actor_type?: Database["public"]["Enums"]["recipient_type"]
+          p_body?: string
+          p_channels?: Database["public"]["Enums"]["notif_channel"][]
+          p_group_key?: string
+          p_payload?: Json
+          p_priority?: number
+          p_recipient_id: string
+          p_recipient_type: Database["public"]["Enums"]["recipient_type"]
+          p_title: string
+          p_type: Database["public"]["Enums"]["notif_type"]
+        }
+        Returns: string
       }
       deduct_company_tokens: {
         Args: { company_uuid: string; token_amount: number }

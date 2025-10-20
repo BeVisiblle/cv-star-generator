@@ -2,19 +2,28 @@ import { useEffect } from 'react';
 import { EmptyState } from '@/components/shared/EmptyState';
 import { LoadingSkeleton } from '@/components/shared/LoadingSkeleton';
 import { useNotifications } from '@/hooks/useNotifications';
-import type { NotificationRow } from '@/types/notifications';
+import type { NotificationRow, NotifType } from '@/types/notifications';
 import type { RecipientType } from '@/types/notifications';
 import NotificationCard from './NotificationCard';
 
 type Props = {
   recipientType: RecipientType;
   recipientId: string | null;
+  filter?: NotifType[] | 'unread' | null;
   onAction?: Parameters<typeof NotificationCard>[0]['onAction'];
 };
 
-export default function NotificationsList({ recipientType, recipientId, onAction }: Props) {
+export default function NotificationsList({ recipientType, recipientId, filter, onAction }: Props) {
   const { items, loading, hasMore, error, fetchPage, markRead, reset } =
     useNotifications(recipientType, recipientId);
+
+  // Filter items based on filter prop
+  const filteredItems = items.filter(n => {
+    if (!filter) return true;
+    if (filter === 'unread') return !n.read_at;
+    if (Array.isArray(filter)) return filter.includes(n.type);
+    return true;
+  });
 
   useEffect(() => {
     reset();
@@ -46,7 +55,7 @@ export default function NotificationsList({ recipientType, recipientId, onAction
 
   return (
     <div className="space-y-3">
-      {items.map(n => (
+      {filteredItems.map(n => (
         <NotificationCard key={n.id} n={n} onRead={markRead} onAction={onAction} />
       ))}
 
@@ -61,7 +70,7 @@ export default function NotificationsList({ recipientType, recipientId, onAction
         </button>
       )}
 
-      {!loading && items.length === 0 && (
+      {!loading && filteredItems.length === 0 && (
         <EmptyState 
           text="Keine Benachrichtigungen." 
           icon="🔔"

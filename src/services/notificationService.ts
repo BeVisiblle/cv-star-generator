@@ -34,6 +34,7 @@ export class NotificationService {
         .select('*')
         .eq('recipient_type', recipientType)
         .eq('recipient_id', recipientId)
+        .is('deleted_at', null)
         .order('created_at', { ascending: false })
         .limit(limit);
 
@@ -107,7 +108,8 @@ export class NotificationService {
         .update({ read_at: new Date().toISOString() })
         .eq('recipient_type', recipientType)
         .eq('recipient_id', recipientId)
-        .is('read_at', null);
+        .is('read_at', null)
+        .is('deleted_at', null);
 
       if (error) {
         console.error('NotificationService.markAllAsRead:', error);
@@ -117,6 +119,36 @@ export class NotificationService {
       return { success: true };
     } catch (error) {
       console.error('NotificationService.markAllAsRead:', error);
+      return { 
+        success: false, 
+        error: error instanceof Error ? error.message : 'Unknown error' 
+      };
+    }
+  }
+
+  /**
+   * Soft delete all notifications for a recipient
+   */
+  static async deleteAll(
+    recipientType: RecipientType,
+    recipientId: string
+  ): Promise<{ success: boolean; error?: string }> {
+    try {
+      const { error } = await supabase
+        .from('notifications')
+        .update({ deleted_at: new Date().toISOString() })
+        .eq('recipient_type', recipientType)
+        .eq('recipient_id', recipientId)
+        .is('deleted_at', null);
+
+      if (error) {
+        console.error('NotificationService.deleteAll:', error);
+        return { success: false, error: error.message };
+      }
+
+      return { success: true };
+    } catch (error) {
+      console.error('NotificationService.deleteAll:', error);
       return { 
         success: false, 
         error: error instanceof Error ? error.message : 'Unknown error' 

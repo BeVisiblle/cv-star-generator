@@ -7,6 +7,7 @@ import { Coins, Search as SearchIcon } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import SearchAutosuggestCompany from "@/components/company/feed/SearchAutosuggestCompany";
 import { useNavigate } from "react-router-dom";
+import { NotificationBell } from "@/components/notifications/NotificationBell";
 
 export function CompanyHeader() {
   const { company } = useCompany();
@@ -71,8 +72,9 @@ export function CompanyHeader() {
           </div>
         </div>
 
-        {/* Right: Tokens */}
+        {/* Right: Notifications + Tokens */}
         <div className="flex items-center space-x-4">
+          <NotificationBell recipientType="company" recipientId={company?.id ?? null} />
           {company && (
             <Badge variant="secondary" className="flex items-center space-x-1">
               <Coins className="h-4 w-4" />

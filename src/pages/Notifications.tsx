@@ -1,13 +1,18 @@
-import NotificationsList from '@/components/notifications/NotificationsList';
+import { useState } from 'react';
+import { NotificationsListWithFilters } from '@/components/notifications/NotificationsListWithFilters';
+import { NotificationPreferencesDialog } from '@/components/notifications/NotificationPreferencesDialog';
 import { useAuth } from '@/hooks/useAuth';
 import { useNotifications } from '@/hooks/useNotifications';
 import { LeftPanel } from '@/components/dashboard/LeftPanel';
 import { RightPanel } from '@/components/dashboard/RightPanel';
+import { Settings } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 export default function NotificationsPage() {
   const { profile } = useAuth();
-  const isCompany = false; // TODO: Implement company context detection
-  const companyId = null; // TODO: Get from company context
+  const isCompany = false;
+  const companyId = null;
+  const [prefsOpen, setPrefsOpen] = useState(false);
 
   const { markAllRead } = useNotifications(
     isCompany ? 'company' : 'profile',
@@ -33,24 +38,41 @@ export default function NotificationsPage() {
               <div className="sticky top-14 z-30 -mx-4 mb-2 bg-background/70 px-4 py-2 backdrop-blur md:mx-0 md:rounded-2xl md:border">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <span className="text-lg font-medium">Benachrichtigungen</span>
-                  <button
-                    onClick={markAllRead}
-                    className="rounded-lg border px-3 py-1.5 text-xs hover:bg-accent"
-                    title="Alle ungelesenen Benachrichtigungen als gelesen markieren"
-                  >
-                    Alle als gelesen markieren
-                  </button>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setPrefsOpen(true)}
+                    >
+                      <Settings className="h-4 w-4 mr-2" />
+                      Einstellungen
+                    </Button>
+                    <button
+                      onClick={markAllRead}
+                      className="rounded-lg border px-3 py-1.5 text-xs hover:bg-accent"
+                      title="Alle ungelesenen Benachrichtigungen als gelesen markieren"
+                    >
+                      Alle als gelesen markieren
+                    </button>
+                  </div>
                 </div>
               </div>
 
-              <NotificationsList
+              <NotificationsListWithFilters
                 recipientType={isCompany ? 'company' : 'profile'}
                 recipientId={isCompany ? companyId : profile?.id ?? null}
                 onAction={(n, action) => {
-                  // TODO: verbinde mit deinen Edge Functions (accept/decline/etc.)
                   console.log('action', n.id, action);
                 }}
               />
+
+              {profile && (
+                <NotificationPreferencesDialog
+                  open={prefsOpen}
+                  onOpenChange={setPrefsOpen}
+                  userId={profile.id}
+                />
+              )}
             </div>
           </section>
 

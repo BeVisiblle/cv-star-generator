@@ -1,7 +1,8 @@
 import { timeAgo } from '@/utils/timeAgo';
 import type { NotificationRow, NotifType } from '@/types/notifications';
 import { useAcceptEmployment, useDeclineEmployment } from '@/hooks/useEmployment';
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 
 type Props = {
   n: NotificationRow;
@@ -33,9 +34,32 @@ export default function NotificationCard({ n, onRead, onAction }: Props) {
   const [busy, setBusy] = useState(false);
   const accept = useAcceptEmployment();
   const decline = useDeclineEmployment();
+  const cardRef = useRef<HTMLElement>(null);
   
   const unread = !n.read_at;
   const icon = typeIcon[n.type] || '🔔';
+
+  // Auto-mark as seen when in viewport
+  useEffect(() => {
+    if (!cardRef.current || n.seen_at) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setTimeout(async () => {
+            await supabase
+              .from('notifications')
+              .update({ seen_at: new Date().toISOString() })
+              .eq('id', n.id);
+          }, 1000);
+        }
+      },
+      { threshold: 0.5 }
+    );
+
+    observer.observe(cardRef.current);
+    return () => observer.disconnect();
+  }, [n.id, n.seen_at]);
 
   // Handle employment request actions
   const handleAcceptEmployment = async () => {
@@ -169,6 +193,7 @@ export default function NotificationCard({ n, onRead, onAction }: Props) {
 
   return (
     <article
+      ref={cardRef}
       className={`rounded-2xl border bg-card p-4 shadow-sm transition hover:shadow ${
         unread ? 'border-[#5CE1E6]/50' : 'border-border'
       }`}
