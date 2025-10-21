@@ -66,17 +66,38 @@ export function JobCandidatesTab({ jobId }: JobCandidatesTabProps) {
   const { data: applications, isLoading } = useQuery({
     queryKey: ["job-applications-detailed", jobId],
     queryFn: async () => {
-      // Query 1: Regular applications
+      // Step 1: Load applications WITHOUT join (more reliable)
       const { data: appData, error: appError } = await supabase
         .from("applications")
-        .select("*, candidates(*)")
+        .select("id, candidate_id, job_post_id, stage, match_score, unlocked_at, created_at")
         .eq("job_post_id", jobId)
         .is("archived_at", null)
         .order("created_at", { ascending: false });
 
       if (appError) throw appError;
 
-      // Query 2: Linked candidates via SQL join with candidates table
+      // Step 2: Load candidates separately
+      const candidateIds = appData?.map(a => a.candidate_id).filter(Boolean) || [];
+      const { data: candidatesData, error: candidatesError } = await supabase
+        .from("candidates")
+        .select("*")
+        .in("id", candidateIds);
+
+      if (candidatesError) throw candidatesError;
+
+      // Step 3: Create candidate map and join manually
+      const candidateMap = new Map(candidatesData?.map(c => [c.id, c]));
+      const enrichedAppData = appData?.map(app => ({
+        ...app,
+        candidates: candidateMap.get(app.candidate_id) || null
+      })) || [];
+
+      console.log("=== Applications loaded ===");
+      console.log("Total applications:", enrichedAppData.length);
+      console.log("New stage (should show in Bewerber):", enrichedAppData.filter(a => a.stage === 'new' && !a.unlocked_at).length);
+      console.log("Data:", enrichedAppData);
+
+      // Step 4: Load linked candidates
       const { data: linkedCandidates, error: linkedError } = await supabase
         .from("company_candidates")
         .select(`
@@ -110,11 +131,11 @@ export function JobCandidatesTab({ jobId }: JobCandidatesTabProps) {
 
       if (linkedError) throw linkedError;
 
-      // Combine: Create virtual applications for linked candidates
+      // Step 5: Create virtual applications for linked candidates
       const virtualApplications = linkedCandidates
         ?.filter((cc) => {
           // Only include if no regular application exists
-          return !appData?.some((app) => app.candidate_id === cc.candidate_id);
+          return !enrichedAppData?.some((app) => app.candidate_id === cc.candidate_id);
         })
         .map((cc) => {
           const linkedJobIds = cc.linked_job_ids as any;
@@ -132,9 +153,9 @@ export function JobCandidatesTab({ jobId }: JobCandidatesTabProps) {
           };
         }) || [];
 
-      const allApplications = [...(appData || []), ...virtualApplications];
+      const allApplications = [...enrichedAppData, ...virtualApplications];
 
-      // Query 3: Load job titles for all linked_job_ids
+      // Step 6: Load job titles for linked_job_ids
       const allJobIds = new Set<string>();
       allApplications.forEach((app: any) => {
         if (app.linked_job_ids && Array.isArray(app.linked_job_ids)) {
@@ -158,13 +179,14 @@ export function JobCandidatesTab({ jobId }: JobCandidatesTabProps) {
           linkedJobTitles: app.linked_job_ids?.map((id: string) => ({
             id,
             title: jobTitleMap.get(id) || "Unbekannte Stelle"
-          })) || []
+          })) || []  // ✅ Fallback to empty array
         }));
       }
 
+      // Ensure linkedJobTitles is always an array
       return allApplications.map((app: any) => ({
         ...app,
-        linkedJobTitles: []
+        linkedJobTitles: []  // ✅ Fallback to empty array
       }));
     },
   });
@@ -286,6 +308,8 @@ export function JobCandidatesTab({ jobId }: JobCandidatesTabProps) {
     finale: applications?.filter(STAGES.finale.filter) || [],
     angebot: applications?.filter(STAGES.angebot.filter) || [],
   };
+
+  console.log("=== Stage Breakdown ===", stageApplications);
 
   return (
     <>

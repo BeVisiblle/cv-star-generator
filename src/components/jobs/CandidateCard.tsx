@@ -133,11 +133,13 @@ export function CandidateCard(p: CandidateCardProps) {
       {/* 4) Skills */}
       <div className="mt-2 min-h-[64px]">
         <div className="flex flex-wrap gap-1.5">
-          {p.skills?.length ? p.skills.map((s, i) => (
-            <Badge key={i} variant="outline" className="text-[11px] px-2 py-1 leading-none">
-              {s}
-            </Badge>
-          )) : (
+          {(p.skills && Array.isArray(p.skills) && p.skills.length > 0) ? (
+            p.skills.map((s, i) => (
+              <Badge key={i} variant="outline" className="text-[11px] px-2 py-1 leading-none">
+                {s}
+              </Badge>
+            ))
+          ) : (
             <Badge variant="outline" className="text-[11px] px-2 py-1 text-muted-foreground">
               Keine Skills hinterlegt
             </Badge>
