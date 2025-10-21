@@ -138,23 +138,25 @@ export function ApplicationCandidateCard({
 
       {/* 3) Intent (Sucht) + Linked Job Badges */}
       <div className="mt-1 min-h-[36px]">
-        {seeking ? (
+        {linkedJobTitles.length > 0 ? (
+          <>
+            <div className="text-xs font-medium text-primary mb-1">Zugeordnete Stellen:</div>
+            <div className="flex flex-wrap gap-1">
+              {linkedJobTitles.map((job) => (
+                <Badge key={job.id} variant="outline" className="flex items-center gap-1 border-primary/30 bg-primary/5 px-2 py-0.5 text-[10px] text-primary">
+                  <Briefcase className="h-2.5 w-2.5" />
+                  <span className="truncate max-w-[140px]">{job.title}</span>
+                </Badge>
+              ))}
+            </div>
+          </>
+        ) : seeking ? (
           <>
             <div className="text-xs font-medium text-emerald-600">Sucht:</div>
             <div className="line-clamp-2 text-xs text-emerald-700">{seeking}</div>
           </>
         ) : (
           <div className="text-xs text-muted-foreground">Keine Präferenz angegeben</div>
-        )}
-        {linkedJobTitles.length > 0 && (
-          <div className="mt-1 flex flex-wrap gap-1">
-            {linkedJobTitles.map((job) => (
-              <Badge key={job.id} variant="secondary" className="flex items-center gap-1 px-2 py-0.5 text-[10px]">
-                <Briefcase className="h-2.5 w-2.5" />
-                {job.title}
-              </Badge>
-            ))}
-          </div>
         )}
       </div>
 
@@ -193,16 +195,20 @@ export function ApplicationCandidateCard({
       </div>
 
       {/* 6) Kontakt (compact, always same height) */}
-      {isUnlocked && (
-        <div className="mt-2 h-[52px] border-t border-border pt-2 text-xs">
-          <div className="flex items-center gap-1 text-muted-foreground">
-            <Mail className="h-3 w-3" />
-            <span className="truncate">{candidate.email ?? "—"}</span>
-          </div>
-          <div className="mt-0.5 flex items-center gap-1 text-muted-foreground">
-            <Phone className="h-3 w-3" />
-            <span className="truncate">{candidate.phone ?? "—"}</span>
-          </div>
+      {isUnlocked && (candidate.email || candidate.phone) && (
+        <div className="mt-2 rounded-lg bg-muted/30 p-2 text-xs">
+          {candidate.email && (
+            <div className="flex items-center gap-1 text-muted-foreground">
+              <Mail className="h-3 w-3" />
+              <a href={`mailto:${candidate.email}`} className="truncate hover:underline hover:text-foreground">{candidate.email}</a>
+            </div>
+          )}
+          {candidate.phone && (
+            <div className="mt-0.5 flex items-center gap-1 text-muted-foreground">
+              <Phone className="h-3 w-3" />
+              <a href={`tel:${candidate.phone}`} className="truncate hover:underline hover:text-foreground">{candidate.phone}</a>
+            </div>
+          )}
         </div>
       )}
     </article>

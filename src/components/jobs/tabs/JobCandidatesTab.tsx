@@ -19,11 +19,11 @@ const STAGES = {
     title: "Bewerber",
     filter: (app: any) => app.stage === "new" && !app.unlocked_at,
   },
-  freigeschaltet: {
-    key: "freigeschaltet",
-    title: "Freigeschaltet",
-    filter: (app: any) => app.unlocked_at !== null && app.stage === "new",
-  },
+        freigeschaltet: {
+          key: "freigeschaltet",
+          title: "Freigeschaltet",
+          filter: (app: any) => app.unlocked_at !== null && (app.stage === "new" || app.is_virtual),
+        },
   interview: {
     key: "interview",
     title: "Interview geplant",
@@ -132,7 +132,40 @@ export function JobCandidatesTab({ jobId }: JobCandidatesTabProps) {
           };
         }) || [];
 
-      return [...(appData || []), ...virtualApplications];
+      const allApplications = [...(appData || []), ...virtualApplications];
+
+      // Query 3: Load job titles for all linked_job_ids
+      const allJobIds = new Set<string>();
+      allApplications.forEach((app: any) => {
+        if (app.linked_job_ids && Array.isArray(app.linked_job_ids)) {
+          app.linked_job_ids.forEach((id: string) => allJobIds.add(id));
+        }
+      });
+
+      if (allJobIds.size > 0) {
+        const { data: jobTitles } = await supabase
+          .from("job_posts")
+          .select("id, title")
+          .in("id", Array.from(allJobIds));
+
+        const jobTitleMap = new Map(
+          jobTitles?.map(j => [j.id, j.title]) || []
+        );
+
+        // Attach linkedJobTitles to each application
+        return allApplications.map((app: any) => ({
+          ...app,
+          linkedJobTitles: app.linked_job_ids?.map((id: string) => ({
+            id,
+            title: jobTitleMap.get(id) || "Unbekannte Stelle"
+          })) || []
+        }));
+      }
+
+      return allApplications.map((app: any) => ({
+        ...app,
+        linkedJobTitles: []
+      }));
     },
   });
 
