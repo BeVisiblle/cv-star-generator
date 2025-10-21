@@ -13,8 +13,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { SearchHeader } from "@/components/Company/SearchHeader";
 import { ProfileCard } from "@/components/profile/ProfileCard";
-import { UnlockProfileModal } from "@/components/Company/UnlockProfileModal";
 import { FullProfileModal } from "@/components/Company/FullProfileModal";
+import CandidateUnlockModal from "@/components/unlock/CandidateUnlockModal";
 import { useProfiles } from "@/hooks/useProfiles";
 import {
   Search as SearchIcon,
@@ -78,9 +78,11 @@ export default function CompanySearch() {
   const [unlockedProfiles, setUnlockedProfiles] = useState<Set<string>>(new Set());
   const [savedMatches, setSavedMatches] = useState<Profile[]>([]);
   const [selectedProfile, setSelectedProfile] = useState<Profile | null>(null);
-  const [isUnlockModalOpen, setIsUnlockModalOpen] = useState(false);
   const [isFullProfileModalOpen, setIsFullProfileModalOpen] = useState(false);
-  const [isUnlocking, setIsUnlocking] = useState(false);
+  const [unlockModalData, setUnlockModalData] = useState<{
+    open: boolean;
+    profile: Profile | null;
+  }>({ open: false, profile: null });
   const [currentPage, setCurrentPage] = useState(1);
   const [filters, setFilters] = useState<SearchFilters>({
     keywords: "",
@@ -257,109 +259,8 @@ export default function CompanySearch() {
     navigate(`/company/profile/${profile.id}`);
   };
 
-  const handleConfirmUnlock = async () => {
-    if (!selectedProfile || !company) return;
-
-    setIsUnlocking(true);
-    
-    try {
-      // Check if already unlocked
-      if (unlockedProfiles.has(selectedProfile.id)) {
-        toast({ title: "Profil bereits freigeschaltet", variant: "destructive" });
-        return;
-      }
-
-      // Check if already used token for this profile
-      const alreadyUsed = await hasUsedToken(selectedProfile.id);
-      if (alreadyUsed) {
-        toast({ title: "Token bereits für dieses Profil verwendet", variant: "destructive" });
-        return;
-      }
-
-      const result = await useToken(selectedProfile.id);
-      if (result.success) {
-        // Add to pipeline in 'new' stage (but mark as unlocked)
-        try {
-          if (company) {
-            const { data: existing } = await supabase
-              .from('company_candidates')
-              .select('id, stage')
-              .eq('company_id', company.id)
-              .eq('candidate_id', selectedProfile.id)
-              .maybeSingle();
-
-            if (existing) {
-              // Only update if not already in a later stage
-              const shouldUpdateStage = existing.stage === 'new' || !existing.stage;
-              await supabase
-                .from('company_candidates')
-                .update({
-                  ...(shouldUpdateStage && { stage: 'new' }),
-                  unlocked_at: new Date().toISOString(),
-                  unlocked_by_user_id: user?.id ?? null,
-                  last_touched_at: new Date().toISOString(),
-                })
-                .eq('id', existing.id)
-                .eq('company_id', company.id);
-            } else {
-              await supabase.from('company_candidates').insert({
-                company_id: company.id,
-                candidate_id: selectedProfile.id,
-                stage: 'new',
-                unlocked_at: new Date().toISOString(),
-                unlocked_by_user_id: user?.id ?? null,
-                owner_user_id: user?.id ?? null,
-              });
-            }
-          }
-        } catch (e) {
-          console.error('Failed to add to pipeline', e);
-        }
-
-        setUnlockedProfiles(prev => new Set([...prev, selectedProfile.id]));
-        toast({ title: "Profil erfolgreich freigeschaltet!" });
-
-        // Ensure tokens_used row exists (fallback if RPC didn't create it)
-        try {
-          if (company) {
-            const { data: existing } = await supabase
-              .from('tokens_used')
-              .select('id')
-              .eq('company_id', company.id)
-              .eq('profile_id', selectedProfile.id)
-              .maybeSingle();
-            if (!existing) {
-              await supabase.from('tokens_used').insert({
-                company_id: company.id,
-                profile_id: selectedProfile.id,
-                used_at: new Date().toISOString()
-              });
-            }
-          }
-        } catch (e) {
-          console.warn('Konnte tokens_used Fallback nicht schreiben (optional):', e);
-        }
-
-        setIsUnlockModalOpen(false);
-        const openedId = selectedProfile.id;
-        setSelectedProfile(null);
-        // Open profile immediately
-        navigate(`/company/profile/${openedId}`);
-      } else {
-        toast({ 
-          title: "Fehler beim Freischalten", 
-          description: result.error,
-          variant: "destructive" 
-        });
-      }
-    } finally {
-      setIsUnlocking(false);
-    }
-  };
-
   const handleUnlockProfile = async (profile: Profile) => {
-    setSelectedProfile(profile);
-    setIsUnlockModalOpen(true);
+    setUnlockModalData({ open: true, profile });
   };
 
   const handleSaveMatch = async (profile: Profile) => {
@@ -676,19 +577,6 @@ export default function CompanySearch() {
         isUnlocked={selectedProfile ? isProfileUnlocked(selectedProfile.id) : false}
       />
 
-      {/* Unlock Profile Modal */}
-      <UnlockProfileModal
-        isOpen={isUnlockModalOpen}
-        onClose={() => {
-          setIsUnlockModalOpen(false);
-          setSelectedProfile(null);
-        }}
-        profile={selectedProfile}
-        matchPercentage={selectedProfile ? calculateMatchPercentage(selectedProfile) : 0}
-        onConfirmUnlock={handleConfirmUnlock}
-        tokenCost={1}
-        isLoading={isUnlocking}
-      />
     </div>
   );
 }

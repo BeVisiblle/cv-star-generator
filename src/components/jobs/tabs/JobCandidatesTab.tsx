@@ -1,12 +1,13 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { ApplicationCandidateCard } from "../ApplicationCandidateCard";
-import { UnlockProfileModal } from "@/components/Company/UnlockProfileModal";
 import { FullProfileModal } from "@/components/Company/FullProfileModal";
+import CandidateUnlockModal from "@/components/unlock/CandidateUnlockModal";
 import { toast } from "sonner";
 import { unlockService } from "@/services/unlockService";
+import { useCompany } from "@/hooks/useCompany";
 
 interface JobCandidatesTabProps {
   jobId: string;
@@ -42,38 +43,32 @@ const STAGES = {
 
 export function JobCandidatesTab({ jobId }: JobCandidatesTabProps) {
   const queryClient = useQueryClient();
+  const { company } = useCompany();
   const [selectedApplication, setSelectedApplication] = useState<any | null>(null);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<"preview" | "full-readonly" | "full-actions">("preview");
-  const [isUnlocking, setIsUnlocking] = useState(false);
+  const [unlockModalOpen, setUnlockModalOpen] = useState(false);
+  const [jobTitle, setJobTitle] = useState<string>("");
+
+  // Fetch job title
+  useEffect(() => {
+    const loadJobTitle = async () => {
+      const jobResult: any = await supabase
+        .from("job_posts")
+        .select("title")
+        .eq("id", jobId)
+        .single();
+      if (jobResult.data) setJobTitle(jobResult.data.title);
+    };
+    loadJobTitle();
+  }, [jobId]);
 
   const { data: applications, isLoading } = useQuery({
     queryKey: ["job-applications-detailed", jobId],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("applications")
-        .select(
-          `
-          *,
-          candidates (
-            id,
-            full_name,
-            vorname,
-            nachname,
-            email,
-            phone,
-            profile_image,
-            title,
-            city,
-            skills,
-            bio_short,
-            cv_url,
-            languages,
-            experience_years,
-            availability_status
-          )
-        `
-        )
+        .select("*, candidates(*)")
         .eq("job_post_id", jobId)
         .is("archived_at", null)
         .order("created_at", { ascending: false });
@@ -127,54 +122,16 @@ export function JobCandidatesTab({ jobId }: JobCandidatesTabProps) {
     setSelectedApplication(application);
 
     if (!application.unlocked_at) {
-      setModalMode("preview");
+      setUnlockModalOpen(true);
     } else if (application.stage === "new") {
       setModalMode("full-actions");
+      setIsProfileModalOpen(true);
     } else {
       setModalMode("full-readonly");
-    }
-
-    setIsProfileModalOpen(true);
-  };
-
-  const handleUnlockProfile = async () => {
-    if (!selectedApplication) return;
-    
-    setIsUnlocking(true);
-    
-    try {
-      // 1. Unlock via Service (writes to company_candidates)
-      const result = await unlockService.unlockBasic({
-        profileId: selectedApplication.candidate_id,
-        jobPostId: jobId
-      });
-      
-      if (result.success) {
-        // 2. Update applications.unlocked_at
-        const { error } = await supabase
-          .from('applications')
-          .update({ 
-            unlocked_at: new Date().toISOString(),
-            viewed_by_company: true 
-          })
-          .eq('id', selectedApplication.id);
-        
-        if (!error) {
-          toast.success("Profil freigeschaltet!");
-          queryClient.invalidateQueries({ queryKey: ["job-applications-detailed", jobId] });
-          setIsProfileModalOpen(false);
-        } else {
-          toast.error("Fehler beim Aktualisieren der Bewerbung");
-        }
-      } else {
-        toast.error("Fehler beim Freischalten");
-      }
-    } catch (error: any) {
-      toast.error(error.message || "Fehler beim Freischalten");
-    } finally {
-      setIsUnlocking(false);
+      setIsProfileModalOpen(true);
     }
   };
+
 
   const handleStageChange = (newStage: string) => {
     if (!selectedApplication) return;
@@ -268,17 +225,31 @@ export function JobCandidatesTab({ jobId }: JobCandidatesTabProps) {
         />
       )}
 
-      {modalMode === "preview" && selectedApplication && (
-        <UnlockProfileModal
-          isOpen={isProfileModalOpen}
-          onClose={() => setIsProfileModalOpen(false)}
-          profile={selectedApplication.candidates}
-          matchPercentage={selectedApplication.match_score || 0}
-          onConfirmUnlock={handleUnlockProfile}
-          tokenCost={10}
-          isLoading={isUnlocking}
-          applicationId={selectedApplication.id}
-          onReject={(reason) => handleArchive(selectedApplication.id, reason)}
+      {selectedApplication && (
+        <CandidateUnlockModal
+          open={unlockModalOpen}
+          onOpenChange={setUnlockModalOpen}
+          candidate={{
+            id: selectedApplication.candidate_id,
+            full_name: selectedApplication.candidates?.full_name,
+            vorname: selectedApplication.candidates?.vorname,
+            nachname: selectedApplication.candidates?.nachname,
+          }}
+          companyId={company?.id || ""}
+          contextApplication={{
+            id: selectedApplication.id,
+            job_id: jobId,
+            job_title: jobTitle || "Stellenanzeige",
+            status: selectedApplication.stage,
+          }}
+          contextType="application"
+          onSuccess={() => {
+            queryClient.invalidateQueries({ queryKey: ["job-applications-detailed", jobId] });
+            toast.success("Kandidat freigeschaltet!");
+            setUnlockModalOpen(false);
+            setModalMode("full-actions");
+            setIsProfileModalOpen(true);
+          }}
         />
       )}
     </>

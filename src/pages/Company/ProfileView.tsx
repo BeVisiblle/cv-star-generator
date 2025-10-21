@@ -16,6 +16,7 @@ import { LinkedInProfileSidebar } from "@/components/linkedin/LinkedInProfileSid
 import { WeitereDokumenteSection } from "@/components/linkedin/right-rail/WeitereDokumenteSection";
 import { ContactInfoCard } from "@/components/linkedin/right-rail/ContactInfoCard";
 import { AdCard } from "@/components/linkedin/right-rail/AdCard";
+import CandidateUnlockModal from "@/components/unlock/CandidateUnlockModal";
 
 export default function ProfileView() {
   const { id } = useParams<{ id: string }>();
@@ -25,10 +26,10 @@ export default function ProfileView() {
   const [profile, setProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [isUnlocked, setIsUnlocked] = useState(false);
-  const [unlocking, setUnlocking] = useState(false);
   const [followStatus, setFollowStatus] = useState<'none' | 'pending' | 'accepted'>('none');
   const [following, setFollowing] = useState(false);
   const [applications, setApplications] = useState<any[]>([]);
+  const [unlockModalOpen, setUnlockModalOpen] = useState(false);
 
   useEffect(() => {
     if (!id || !company) return;
@@ -104,25 +105,6 @@ export default function ProfileView() {
     }
   };
 
-  const handleUnlock = async () => {
-    if (!id) return;
-    setUnlocking(true);
-    try {
-      const result = await unlockService.unlockBasic({ profileId: id });
-      if (result.success) {
-        toast.success('Profil freigeschaltet!');
-        setIsUnlocked(true);
-        await loadProfile();
-      } else {
-        const errorMsg = 'error' in result ? result.error : 'Fehler beim Freischalten';
-        toast.error(errorMsg);
-      }
-    } catch (error: any) {
-      toast.error(error.message || 'Fehler beim Freischalten');
-    } finally {
-      setUnlocking(false);
-    }
-  };
 
   const handleFollow = async () => {
     if (!id || !company) return;
@@ -277,19 +259,12 @@ export default function ProfileView() {
                 </div>
               </div>
               <Button
-                onClick={handleUnlock}
-                disabled={unlocking}
+                onClick={() => setUnlockModalOpen(true)}
                 size="lg"
                 className="flex-shrink-0"
               >
-                {unlocking ? (
-                  "Wird freigeschaltet..."
-                ) : (
-                  <>
-                    <Lock className="h-4 w-4 mr-2" />
-                    Profil freischalten (1 Token)
-                  </>
-                )}
+                <Lock className="h-4 w-4 mr-2" />
+                Profil freischalten
               </Button>
             </div>
           </div>
@@ -369,6 +344,30 @@ export default function ProfileView() {
             </div>
           </div>
         </div>
+
+        {/* Unlock Modal */}
+        {profile && (
+          <CandidateUnlockModal
+            open={unlockModalOpen}
+            onOpenChange={setUnlockModalOpen}
+            candidate={{
+              id: profile.id,
+              full_name: profile.full_name,
+              vorname: profile.vorname,
+              nachname: profile.nachname,
+            }}
+            companyId={company?.id || ""}
+            contextApplication={null}
+            contextType="none"
+            onSuccess={async () => {
+              setIsUnlocked(true);
+              await loadProfile();
+              await checkUnlockState();
+              toast.success("Profil freigeschaltet!");
+              setUnlockModalOpen(false);
+            }}
+          />
+        )}
       </div>
     </div>
   );
