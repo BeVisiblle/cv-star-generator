@@ -17,13 +17,13 @@ const STAGES = {
   bewerber: {
     key: "bewerber",
     title: "Bewerber",
-    filter: (app: any) => app.stage === "new" && !app.unlocked_at,
+    filter: (app: any) => app.stage === "new" && !app.unlocked_at && !app.global_unlocked_at,
   },
-        freigeschaltet: {
-          key: "freigeschaltet",
-          title: "Freigeschaltet",
-          filter: (app: any) => app.unlocked_at !== null && (app.stage === "new" || app.is_virtual),
-        },
+  freigeschaltet: {
+    key: "freigeschaltet",
+    title: "Freigeschaltet",
+    filter: (app: any) => (app.unlocked_at || app.global_unlocked_at) && (app.stage === "new" || app.is_virtual),
+  },
   interview: {
     key: "interview",
     title: "Interview geplant",
@@ -101,9 +101,28 @@ export function JobCandidatesTab({ jobId }: JobCandidatesTabProps) {
 
       if (appError) throw appError;
 
+      // Step 1.5: Add global unlock status from company_candidates
+      if (appData && company?.id) {
+        const candidateIds = appData.map(a => a.candidate_id);
+        const { data: unlockData } = await supabase
+          .from('company_candidates')
+          .select('candidate_id, unlocked_at')
+          .eq('company_id', company.id)
+          .in('candidate_id', candidateIds)
+          .not('unlocked_at', 'is', null);
+
+        const unlockMap = new Map(
+          (unlockData || []).map(u => [u.candidate_id, u.unlocked_at])
+        );
+
+        appData.forEach(app => {
+          (app as any).global_unlocked_at = unlockMap.get(app.candidate_id) || null;
+        });
+      }
+
       console.log("=== Applications loaded ===");
       console.log("Total applications:", appData?.length || 0);
-      console.log("New stage (should show in Bewerber):", appData?.filter(a => a.stage === 'new' && !a.unlocked_at).length || 0);
+      console.log("New stage (should show in Bewerber):", appData?.filter(a => a.stage === 'new' && !a.unlocked_at && !(a as any).global_unlocked_at).length || 0);
       console.log("Data:", appData);
 
       // Step 2: Load linked candidates
@@ -246,9 +265,11 @@ export function JobCandidatesTab({ jobId }: JobCandidatesTabProps) {
   const handleViewProfile = (application: any) => {
     setSelectedApplication(application);
 
-    if (!application.unlocked_at) {
+    const isUnlocked = application.unlocked_at || application.global_unlocked_at;
+
+    if (!isUnlocked) {
       setUnlockModalOpen(true);
-    } else if (application.stage === "new") {
+    } else if (application.stage === "new" || application.is_virtual) {
       setModalMode("full-actions");
       setIsProfileModalOpen(true);
     } else {
@@ -359,8 +380,8 @@ export function JobCandidatesTab({ jobId }: JobCandidatesTabProps) {
                   <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
                     {apps.map((app) => {
                       const candidate = app.candidates;
-                      const isUnlocked = !!app.unlocked_at;
-                      const isNewStage = app.stage === "new";
+                      const isUnlocked = !!app.unlocked_at || !!app.global_unlocked_at;
+                      const isNewStage = app.stage === "new" || app.is_virtual;
                       
                       // Determine variant
                       let variant: "preview" | "unlocked" | "unlocked-actions" = "preview";
