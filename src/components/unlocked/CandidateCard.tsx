@@ -1,8 +1,8 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Heart, MapPin, Car, Briefcase, Mail, Phone, Download, Eye } from "lucide-react";
-import { useState } from "react";
+import { Heart, MapPin, Car, Briefcase, Mail, Phone, Download, Eye, Search } from "lucide-react";
+import { useState, useMemo } from "react";
 
 type CandidateCardProps = {
   name: string;
@@ -12,6 +12,7 @@ type CandidateCardProps = {
   city?: string;
   hasLicense?: boolean;
   seeking?: string;
+  jobSearchPreferences?: string[];
   skills: string[];
   email?: string;
   phone?: string;
@@ -30,8 +31,65 @@ export function CandidateCard(p: CandidateCardProps) {
     p.onToggleFavorite?.();
   };
 
+  // Calculate status info from job search preferences
+  const statusInfo = useMemo(() => {
+    const prefs = p.jobSearchPreferences;
+    if (!prefs || prefs.length === 0) {
+      return null;
+    }
+    
+    let label = "Sucht: ";
+    let bgClass = "";
+    let textClass = "";
+    let borderClass = "";
+    
+    if (prefs.includes("Praktikum") && prefs.includes("Ausbildung")) {
+      label += "Praktikum & Ausbildung";
+      bgClass = "bg-amber-50 dark:bg-amber-950";
+      textClass = "text-amber-700 dark:text-amber-300";
+      borderClass = "border-amber-200 dark:border-amber-800";
+    } else if (prefs.includes("Ausbildung")) {
+      label += "Ausbildung";
+      bgClass = "bg-green-50 dark:bg-green-950";
+      textClass = "text-green-700 dark:text-green-300";
+      borderClass = "border-green-200 dark:border-green-800";
+    } else if (prefs.includes("Praktikum")) {
+      label += "Praktikum";
+      bgClass = "bg-red-50 dark:bg-red-950";
+      textClass = "text-red-700 dark:text-red-300";
+      borderClass = "border-red-200 dark:border-red-800";
+    } else if (prefs.includes("Nach der Ausbildung einen Job")) {
+      label += "Job nach Ausbildung";
+      bgClass = "bg-blue-50 dark:bg-blue-950";
+      textClass = "text-blue-700 dark:text-blue-300";
+      borderClass = "border-blue-200 dark:border-blue-800";
+    } else if (prefs.includes("Ausbildungsplatzwechsel")) {
+      label += "Ausbildungsplatzwechsel";
+      bgClass = "bg-purple-50 dark:bg-purple-950";
+      textClass = "text-purple-700 dark:text-purple-300";
+      borderClass = "border-purple-200 dark:border-purple-800";
+    } else {
+      label += prefs.join(", ");
+      bgClass = "bg-slate-50 dark:bg-slate-950";
+      textClass = "text-slate-700 dark:text-slate-300";
+      borderClass = "border-slate-200 dark:border-slate-800";
+    }
+    
+    return { label, bgClass, textClass, borderClass };
+  }, [p.jobSearchPreferences]);
+
   return (
     <article className="ab-card flex h-full w-full sm:max-w-full flex-col rounded-xl border bg-card p-3 shadow-sm transition-shadow hover:shadow-md">
+      {/* Status Banner */}
+      {statusInfo && (
+        <div className={`flex items-center gap-2 p-2 rounded-lg border mb-3 ${statusInfo.bgClass} ${statusInfo.borderClass}`}>
+          <Search className={`h-4 w-4 ${statusInfo.textClass}`} />
+          <span className={`text-sm font-medium ${statusInfo.textClass}`}>
+            {statusInfo.label}
+          </span>
+        </div>
+      )}
+
       {/* 1) Header (compact) */}
       <div className="flex min-h-[48px] items-start justify-between gap-2">
         <div className="flex items-center gap-2">

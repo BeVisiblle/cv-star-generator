@@ -45,6 +45,12 @@ interface FullProfileModalProps {
   onUnlock?: () => void;
   onMarkUnsuitable?: (reason?: string) => void;
   showUnlockButton?: boolean;
+  companyCandidate?: {
+    id: string;
+    stage: string;
+    unlocked_at: string;
+  };
+  linkedJobs?: Array<{ id: string; title: string }>;
 }
 
 export function FullProfileModal({ 
@@ -58,7 +64,9 @@ export function FullProfileModal({
   onArchive,
   onUnlock,
   onMarkUnsuitable,
-  showUnlockButton = false
+  showUnlockButton = false,
+  companyCandidate,
+  linkedJobs
 }: FullProfileModalProps) {
   const [showArchiveDialog, setShowArchiveDialog] = useState(false);
   const [rejectionReason, setRejectionReason] = useState("");
@@ -98,14 +106,38 @@ export function FullProfileModal({
     return profile.headline || profile.branche;
   };
 
+  const getStageLabel = (stage: string) => {
+    const labels: Record<string, string> = {
+      new: 'Neu',
+      interview: 'Interview geplant',
+      offer: 'Angebot gemacht',
+      hired: 'Eingestellt',
+      rejected: 'Abgelehnt'
+    };
+    return labels[stage] || stage;
+  };
+
+  const getStageVariant = (stage: string): "default" | "secondary" | "destructive" | "outline" => {
+    const variants: Record<string, "default" | "secondary" | "destructive" | "outline"> = {
+      new: 'secondary',
+      interview: 'default',
+      offer: 'default',
+      hired: 'default',
+      rejected: 'destructive'
+    };
+    return variants[stage] || 'secondary';
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-6xl max-h-[90vh] overflow-hidden">
         <DialogHeader>
           <DialogTitle>Profil ansehen</DialogTitle>
         </DialogHeader>
         
-        <div className="space-y-6">
+        <div className="flex gap-6 overflow-hidden h-[calc(90vh-100px)]">
+          {/* LEFT: Profile Information (scrollable) */}
+          <div className="flex-1 overflow-y-auto pr-4 space-y-6">
           {/* Header Section */}
           <div className="flex items-start space-x-6">
             <Avatar className="h-24 w-24">
@@ -285,42 +317,114 @@ export function FullProfileModal({
             </div>
           )}
 
-          {/* Action Buttons */}
-          {isUnlocked && (applicationId || onMarkUnsuitable) && (
-            <div className="space-y-3 pt-4 border-t">
-              {/* Bewerbungs-Aktionen (nur wenn applicationId vorhanden) */}
-              {applicationId && currentStage === "new" && (
-                <div className="flex gap-3">
-                  <Button 
-                    className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white"
-                    onClick={() => onStageChange?.('interview')}
-                  >
-                    <CheckCircle className="mr-2 h-4 w-4" />
-                    Interessant - Interview planen
-                  </Button>
-                  
-                  <Button 
-                    variant="outline"
-                    className="flex-1 border-red-600 text-red-600 hover:bg-red-50"
-                    onClick={() => setShowArchiveDialog(true)}
-                  >
-                    <XCircle className="mr-2 h-4 w-4" />
-                    Absagen für diese Stelle
-                  </Button>
-                </div>
-              )}
+          </div>
 
-              {/* AI-Learning: Als unpassend markieren */}
-              {onMarkUnsuitable && (
-                <Button
-                  variant="outline"
-                  className="w-full border-orange-500 text-orange-600 hover:bg-orange-50"
-                  onClick={() => setShowUnsuitableDialog(true)}
-                >
-                  <AlertTriangle className="mr-2 h-4 w-4" />
-                  Als unpassend markieren (für bessere Vorschläge)
-                </Button>
+          {/* RIGHT: Action Panel (fixed, no scroll) */}
+          {isUnlocked && companyCandidate && (
+            <div className="w-80 flex-shrink-0 border-l pl-6 space-y-4">
+              {/* Stage Status Card */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-sm">Status</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <Badge variant={getStageVariant(companyCandidate.stage)}>
+                    {getStageLabel(companyCandidate.stage)}
+                  </Badge>
+                  <p className="text-xs text-muted-foreground mt-2">
+                    Freigeschaltet am {new Date(companyCandidate.unlocked_at).toLocaleDateString('de-DE')}
+                  </p>
+                </CardContent>
+              </Card>
+              
+              {/* Job Context */}
+              {linkedJobs && linkedJobs.length > 0 && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-sm">Bewerbungen</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-1">
+                    {linkedJobs.map(job => (
+                      <div key={job.id} className="text-sm">• {job.title}</div>
+                    ))}
+                  </CardContent>
+                </Card>
               )}
+              
+              {/* Actions based on stage */}
+              <div className="space-y-2">
+                {companyCandidate.stage === 'new' && (
+                  <>
+                    <Button 
+                      className="w-full bg-emerald-600 hover:bg-emerald-700"
+                      onClick={() => onStageChange?.('interview')}
+                    >
+                      <CheckCircle className="mr-2 h-4 w-4" />
+                      Interview planen
+                    </Button>
+                    <Button 
+                      variant="outline"
+                      className="w-full border-red-600 text-red-600 hover:bg-red-50"
+                      onClick={() => setShowArchiveDialog(true)}
+                    >
+                      <XCircle className="mr-2 h-4 w-4" />
+                      Absagen
+                    </Button>
+                  </>
+                )}
+                {companyCandidate.stage === 'interview' && (
+                  <>
+                    <Button 
+                      className="w-full"
+                      onClick={() => onStageChange?.('offer')}
+                    >
+                      <CheckCircle className="mr-2 h-4 w-4" />
+                      Angebot machen
+                    </Button>
+                    <Button 
+                      variant="outline"
+                      className="w-full border-red-600 text-red-600 hover:bg-red-50"
+                      onClick={() => setShowArchiveDialog(true)}
+                    >
+                      <XCircle className="mr-2 h-4 w-4" />
+                      Absagen
+                    </Button>
+                  </>
+                )}
+                {companyCandidate.stage === 'offer' && (
+                  <>
+                    <Button 
+                      className="w-full bg-green-600 hover:bg-green-700"
+                      onClick={() => onStageChange?.('hired')}
+                    >
+                      <CheckCircle className="mr-2 h-4 w-4" />
+                      Als eingestellt markieren
+                    </Button>
+                    <Button 
+                      variant="outline"
+                      className="w-full border-red-600 text-red-600 hover:bg-red-50"
+                      onClick={() => setShowArchiveDialog(true)}
+                    >
+                      <XCircle className="mr-2 h-4 w-4" />
+                      Absagen
+                    </Button>
+                  </>
+                )}
+                {companyCandidate.stage === 'hired' && (
+                  <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
+                    <p className="text-sm text-green-800 font-medium">
+                      ✓ Kandidat wurde eingestellt
+                    </p>
+                  </div>
+                )}
+                {companyCandidate.stage === 'rejected' && (
+                  <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+                    <p className="text-sm text-red-800 font-medium">
+                      Kandidat wurde abgelehnt
+                    </p>
+                  </div>
+                )}
+              </div>
             </div>
           )}
         </div>

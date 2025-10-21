@@ -15,6 +15,7 @@ import { toast } from "sonner";
 import { ProfileCard } from "@/components/profile/ProfileCard";
 import { useEqualizeCards } from "@/components/unlocked/useEqualizeCards";
 import { useProfiles } from "@/hooks/useProfiles";
+import { FullProfileModal } from "@/components/Company/FullProfileModal";
 import {
   Pagination,
   PaginationContent,
@@ -38,6 +39,11 @@ interface Profile {
   email?: string;
   telefon?: string;
   cv_url?: string;
+  job_search_preferences?: string[];
+  has_drivers_license?: boolean;
+  stage?: string;
+  company_candidate_id?: string;
+  unlocked_at?: string;
 }
 
 const ITEMS_PER_PAGE = 20;
@@ -54,6 +60,8 @@ export default function CompanyUnlocked() {
   const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
+  const [selectedProfile, setSelectedProfile] = useState<Profile | null>(null);
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const gridRef = useEqualizeCards();
 
   // Bulk operations hooks
@@ -65,34 +73,55 @@ export default function CompanyUnlocked() {
     const load = async () => {
       setLoading(true);
       try {
-        // Primary source: tokens_used
-        const { data: tokenRows, error: tuErr } = await supabase
-          .from('tokens_used')
-          .select(`*, profiles (*)`)
-          .eq('company_id', company.id)
-          .order('used_at', { ascending: false });
-        if (tuErr) throw tuErr;
-        const fromTokens = (tokenRows || [])
-          .map((row: any) => row.profiles)
-          .filter(Boolean) as Profile[];
-
-        // Fallback/merge: company_candidates
-        const { data: ccRows } = await supabase
+        // Query company_candidates with profiles JOIN to get all unlocked candidates
+        const { data: ccRows, error: ccErr } = await supabase
           .from('company_candidates')
-          .select(`*, profiles (*)`)
+          .select(`
+            id,
+            candidate_id,
+            stage,
+            unlocked_at,
+            match_score,
+            profiles:candidate_id (
+              id,
+              vorname,
+              nachname,
+              email,
+              telefon,
+              avatar_url,
+              ort,
+              plz,
+              branche,
+              status,
+              headline,
+              faehigkeiten,
+              job_search_preferences,
+              has_drivers_license,
+              cv_url,
+              beschreibung,
+              ausbildung,
+              berufserfahrung,
+              zertifikate
+            )
+          `)
           .eq('company_id', company.id)
-          .order('updated_at', { ascending: false });
-        const fromPipeline = (ccRows || [])
-          .map((row: any) => row.profiles)
-          .filter(Boolean) as Profile[];
+          .not('unlocked_at', 'is', null)
+          .order('unlocked_at', { ascending: false });
 
-        // Merge unique by id, tokens first
-        const map = new Map<string, Profile>();
-        [...fromTokens, ...fromPipeline].forEach((p) => {
-          if (p && !map.has(p.id)) map.set(p.id, { ...p, plz: (p as any).plz ?? '' });
-        });
+        if (ccErr) throw ccErr;
 
-        setProfiles(Array.from(map.values()));
+        // Map to UI Profile type with company_candidate metadata
+        const profilesData = (ccRows || [])
+          .filter((cc: any) => cc.profiles)
+          .map((cc: any) => ({
+            ...cc.profiles,
+            stage: cc.stage,
+            company_candidate_id: cc.id,
+            unlocked_at: cc.unlocked_at,
+            plz: cc.profiles.plz ?? '',
+          })) as Profile[];
+
+        setProfiles(profilesData);
       } catch (e) {
         console.error('Error loading unlocked profiles', e);
       } finally {
@@ -143,7 +172,54 @@ export default function CompanyUnlocked() {
         console.error('Failed to log profile view', e);
       }
     }
-    navigate(`/company/profile/${p.id}`);
+    // Open modal instead of navigating
+    setSelectedProfile(p);
+    setIsProfileModalOpen(true);
+  };
+
+  const handleStageChange = async (newStage: string) => {
+    if (!selectedProfile?.company_candidate_id || !company) return;
+    
+    const { error } = await supabase
+      .from('company_candidates')
+      .update({ stage: newStage })
+      .eq('id', selectedProfile.company_candidate_id);
+    
+    if (!error) {
+      toast.success('Status aktualisiert');
+      setIsProfileModalOpen(false);
+      // Reload profiles
+      const load = async () => {
+        const { data: ccRows } = await supabase
+          .from('company_candidates')
+          .select(`
+            id,
+            candidate_id,
+            stage,
+            unlocked_at,
+            match_score,
+            profiles:candidate_id (*)
+          `)
+          .eq('company_id', company.id)
+          .not('unlocked_at', 'is', null)
+          .order('unlocked_at', { ascending: false });
+
+        const profilesData = (ccRows || [])
+          .filter((cc: any) => cc.profiles)
+          .map((cc: any) => ({
+            ...cc.profiles,
+            stage: cc.stage,
+            company_candidate_id: cc.id,
+            unlocked_at: cc.unlocked_at,
+            plz: cc.profiles.plz ?? '',
+          })) as Profile[];
+
+        setProfiles(profilesData);
+      };
+      load();
+    } else {
+      toast.error('Fehler beim Aktualisieren');
+    }
   };
 
   // Selection handlers
@@ -291,10 +367,10 @@ export default function CompanyUnlocked() {
                            id: p.id,
                            name: `${p.vorname} ${p.nachname}`.trim(),
                            avatar_url: p.avatar_url || null,
-                           role: p.branche,
+                           role: p.headline || p.branche,
                            city: p.ort,
-                           fs: (p as any).has_drivers_license || false,
-                           seeking: (p as any).job_search_preferences ? (Array.isArray((p as any).job_search_preferences) ? (p as any).job_search_preferences.join(', ') : (p as any).job_search_preferences) : null,
+                           fs: p.has_drivers_license || false,
+                           seeking: p.job_search_preferences ? (Array.isArray(p.job_search_preferences) ? p.job_search_preferences.join(', ') : p.job_search_preferences) : null,
                            status: p.status,
                            email: p.email || null,
                            phone: p.telefon || null,
@@ -452,7 +528,7 @@ export default function CompanyUnlocked() {
                            id: p.id,
                            name: `${p.vorname} ${p.nachname}`.trim(),
                            avatar_url: p.avatar_url || null,
-                           role: p.branche,
+                           role: p.headline || p.branche,
                            city: p.ort,
                            fs: (p as any).has_drivers_license || false,
                            seeking: (p as any).job_search_preferences ? (Array.isArray((p as any).job_search_preferences) ? (p as any).job_search_preferences.join(', ') : (p as any).job_search_preferences) : null,
@@ -595,6 +671,71 @@ export default function CompanyUnlocked() {
           )}
         </CardContent>
       </Card>
+
+      {/* Full Profile Modal */}
+      <FullProfileModal
+        isOpen={isProfileModalOpen}
+        onClose={() => {
+          setIsProfileModalOpen(false);
+          setSelectedProfile(null);
+        }}
+        profile={selectedProfile}
+        isUnlocked={true}
+        companyCandidate={selectedProfile ? {
+          id: selectedProfile.company_candidate_id || '',
+          stage: selectedProfile.stage || 'new',
+          unlocked_at: selectedProfile.unlocked_at || ''
+        } : undefined}
+        onStageChange={handleStageChange}
+        onArchive={async (reason) => {
+          if (!selectedProfile?.company_candidate_id) return;
+          
+          const { error } = await supabase
+            .from('company_candidates')
+            .update({ 
+              stage: 'rejected',
+              notes: reason ? `Absage: ${reason}` : undefined
+            })
+            .eq('id', selectedProfile.company_candidate_id);
+          
+          if (!error) {
+            toast.success('Kandidat abgelehnt');
+            setIsProfileModalOpen(false);
+            // Reload
+            const load = async () => {
+              if (!company) return;
+              const { data: ccRows } = await supabase
+                .from('company_candidates')
+                .select(`
+                  id,
+                  candidate_id,
+                  stage,
+                  unlocked_at,
+                  match_score,
+                  profiles:candidate_id (*)
+                `)
+                .eq('company_id', company.id)
+                .not('unlocked_at', 'is', null)
+                .order('unlocked_at', { ascending: false });
+
+              const profilesData = (ccRows || [])
+                .filter((cc: any) => cc.profiles)
+                .map((cc: any) => ({
+                  ...cc.profiles,
+                  stage: cc.stage,
+                  company_candidate_id: cc.id,
+                  unlocked_at: cc.unlocked_at,
+                  plz: cc.profiles.plz ?? '',
+                })) as Profile[];
+
+              setProfiles(profilesData);
+            };
+            load();
+          } else {
+            toast.error('Fehler beim Ablehnen');
+          }
+        }}
+      />
     </div>
   );
 }
