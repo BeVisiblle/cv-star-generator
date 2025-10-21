@@ -12,9 +12,10 @@ interface Props {
 const FILTER_GROUPS: Record<string, NotifType[] | 'unread' | null> = {
   all: null,
   unread: 'unread',
-  jobs: ['pipeline_activity_team', 'new_matches_available', 'pipeline_move_for_you'],
+  jobs: ['pipeline_activity_team', 'new_matches_available', 'pipeline_move_for_you', 'application_received', 'application_withdrawn', 'job_post_approved', 'job_post_rejected', 'job_post_expiring'],
   profile: ['company_unlocked_you', 'follow_request_received', 'profile_incomplete_reminder'],
-  social: ['post_interaction', 'follow_accepted_chat_unlocked', 'employment_request', 'employment_accepted', 'employment_declined'],
+  social: ['post_interaction', 'follow_accepted_chat_unlocked', 'employment_request', 'employment_accepted', 'employment_declined', 'candidate_message'],
+  billing: ['billing_update', 'billing_invoice_ready', 'low_tokens'],
 };
 
 export function NotificationsListWithFilters({ recipientType, recipientId, onAction }: Props) {
@@ -28,6 +29,7 @@ export function NotificationsListWithFilters({ recipientType, recipientId, onAct
         <TabsTrigger value="jobs">Jobs</TabsTrigger>
         <TabsTrigger value="profile">Profil</TabsTrigger>
         <TabsTrigger value="social">Social</TabsTrigger>
+        <TabsTrigger value="billing">Abrechnung</TabsTrigger>
       </TabsList>
 
       <TabsContent value={filter} className="mt-0">

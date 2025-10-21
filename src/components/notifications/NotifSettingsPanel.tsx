@@ -22,6 +22,13 @@ const LABELS: Record<NotifType, string> = {
   employment_request: 'Neue Beschäftigungsanfrage',
   employment_accepted: 'Beschäftigung bestätigt',
   employment_declined: 'Beschäftigung abgelehnt',
+  application_received: 'Neue Bewerbung eingegangen',
+  application_withdrawn: 'Bewerbung zurückgezogen',
+  candidate_message: 'Neue Nachricht von Kandidat',
+  job_post_approved: 'Stellenanzeige freigegeben',
+  job_post_rejected: 'Stellenanzeige abgelehnt',
+  job_post_expiring: 'Stellenanzeige läuft bald ab',
+  billing_invoice_ready: 'Neue Rechnung verfügbar',
 };
 
 export default function NotifSettingsPanel({ userId }: Props) {

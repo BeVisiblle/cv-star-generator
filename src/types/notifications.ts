@@ -17,7 +17,14 @@ export type NotifType =
   | 'product_update'
   | 'employment_request'
   | 'employment_accepted'
-  | 'employment_declined';
+  | 'employment_declined'
+  | 'application_received'
+  | 'application_withdrawn'
+  | 'candidate_message'
+  | 'job_post_approved'
+  | 'job_post_rejected'
+  | 'job_post_expiring'
+  | 'billing_invoice_ready';
 
 export type NotifChannel = 'in_app' | 'email';
 

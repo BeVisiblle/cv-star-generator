@@ -9196,6 +9196,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: boolean
       }
+      notify_expiring_jobs: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
       path: {
         Args: { "": unknown }
         Returns: unknown
@@ -10755,6 +10759,13 @@ export type Database = {
         | "weekly_digest_company"
         | "billing_update"
         | "product_update"
+        | "application_received"
+        | "application_withdrawn"
+        | "candidate_message"
+        | "job_post_approved"
+        | "job_post_rejected"
+        | "job_post_expiring"
+        | "billing_invoice_ready"
       plan_code: "free" | "starter" | "premium"
       post_kind: "text" | "media" | "job_share" | "poll"
       post_visibility: "public" | "followers" | "connections" | "org_only"
@@ -10925,6 +10936,13 @@ export const Constants = {
         "weekly_digest_company",
         "billing_update",
         "product_update",
+        "application_received",
+        "application_withdrawn",
+        "candidate_message",
+        "job_post_approved",
+        "job_post_rejected",
+        "job_post_expiring",
+        "billing_invoice_ready",
       ],
       plan_code: ["free", "starter", "premium"],
       post_kind: ["text", "media", "job_share", "poll"],

@@ -17,6 +17,13 @@ export const DEFAULT_TYPES: NotifType[] = [
   'weekly_digest_company',
   'billing_update',
   'product_update',
+  'application_received',
+  'application_withdrawn',
+  'candidate_message',
+  'job_post_approved',
+  'job_post_rejected',
+  'job_post_expiring',
+  'billing_invoice_ready',
 ];
 
 export function useNotifPrefs(userId: string | null) {

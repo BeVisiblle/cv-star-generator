@@ -28,6 +28,13 @@ const typeIcon: Record<NotifType, string> = {
   employment_request: '👋',
   employment_accepted: '✅',
   employment_declined: 'ℹ️',
+  application_received: '📨',
+  application_withdrawn: '↩️',
+  candidate_message: '💬',
+  job_post_approved: '✅',
+  job_post_rejected: '❌',
+  job_post_expiring: '⏰',
+  billing_invoice_ready: '🧾',
 };
 
 export default function NotificationCard({ n, onRead, onAction }: Props) {
