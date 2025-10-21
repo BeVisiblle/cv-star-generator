@@ -492,6 +492,10 @@ export default function CompanySearch() {
                     }}
                     variant="search"
                     onUnlock={() => handleUnlockProfile(profile)}
+                    onView={() => {
+                      setSelectedProfile(profile);
+                      setIsFullProfileModalOpen(true);
+                    }}
                     onToggleFavorite={() => handleSaveMatch(profile)}
                   />
                 );
@@ -576,6 +580,29 @@ export default function CompanySearch() {
         profile={selectedProfile}
         isUnlocked={selectedProfile ? isProfileUnlocked(selectedProfile.id) : false}
       />
+
+      {/* Unlock Modal */}
+      {unlockModalData.profile && (
+        <CandidateUnlockModal
+          open={unlockModalData.open}
+          onOpenChange={(open) => setUnlockModalData({ open, profile: null })}
+          candidate={{
+            id: unlockModalData.profile.id,
+            full_name: `${unlockModalData.profile.vorname} ${unlockModalData.profile.nachname}`,
+            vorname: unlockModalData.profile.vorname,
+            nachname: unlockModalData.profile.nachname,
+          }}
+          companyId={company?.id || ""}
+          contextApplication={null}
+          contextType="none"
+          onSuccess={() => {
+            loadUnlockedProfiles();
+            loadProfiles();
+            toast({ title: "Kandidat freigeschaltet!" });
+            setUnlockModalData({ open: false, profile: null });
+          }}
+        />
+      )}
 
     </div>
   );
