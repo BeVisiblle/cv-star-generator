@@ -22,24 +22,26 @@ export function NotificationsListWithFilters({ recipientType, recipientId, onAct
   const [filter, setFilter] = useState<keyof typeof FILTER_GROUPS>('all');
 
   return (
-    <Tabs value={filter} onValueChange={(v) => setFilter(v as any)}>
-      <TabsList className="w-full justify-start mb-4">
-        <TabsTrigger value="all">Alle</TabsTrigger>
-        <TabsTrigger value="unread">Ungelesen</TabsTrigger>
-        <TabsTrigger value="jobs">Jobs</TabsTrigger>
-        <TabsTrigger value="profile">Profil</TabsTrigger>
-        <TabsTrigger value="social">Social</TabsTrigger>
-        <TabsTrigger value="billing">Abrechnung</TabsTrigger>
-      </TabsList>
+    <div className="w-full">
+      <Tabs value={filter} onValueChange={(v) => setFilter(v as any)} className="w-full">
+        <TabsList className="w-full grid grid-cols-6 mb-4">
+          <TabsTrigger value="all">Alle</TabsTrigger>
+          <TabsTrigger value="unread">Ungelesen</TabsTrigger>
+          <TabsTrigger value="jobs">Jobs</TabsTrigger>
+          <TabsTrigger value="profile">Profil</TabsTrigger>
+          <TabsTrigger value="social">Social</TabsTrigger>
+          <TabsTrigger value="billing">Abrechnung</TabsTrigger>
+        </TabsList>
 
-      <TabsContent value={filter} className="mt-0">
-        <NotificationsList
-          recipientType={recipientType}
-          recipientId={recipientId}
-          filter={FILTER_GROUPS[filter]}
-          onAction={onAction}
-        />
-      </TabsContent>
-    </Tabs>
+        <TabsContent value={filter} className="mt-0">
+          <NotificationsList
+            recipientType={recipientType}
+            recipientId={recipientId}
+            filter={FILTER_GROUPS[filter]}
+            onAction={onAction}
+          />
+        </TabsContent>
+      </Tabs>
+    </div>
   );
 }
