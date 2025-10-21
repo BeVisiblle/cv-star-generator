@@ -173,13 +173,14 @@ export default function CompanySearch() {
       const from = (currentPage - 1) * ITEMS_PER_PAGE;
       const to = from + ITEMS_PER_PAGE - 1;
 
-      // First get unlocked profile IDs
+      // Get already unlocked candidate IDs from company_candidates
       const { data: unlockedData } = await supabase
-        .from('tokens_used')
-        .select('profile_id')
-        .eq('company_id', company.id);
+        .from('company_candidates')
+        .select('candidate_id')
+        .eq('company_id', company.id)
+        .not('unlocked_at', 'is', null);
 
-      const unlockedIds = unlockedData?.map(item => item.profile_id) || [];
+      const unlockedIds = unlockedData?.map(item => item.candidate_id) || [];
 
       let query = supabase
         .from('profiles')

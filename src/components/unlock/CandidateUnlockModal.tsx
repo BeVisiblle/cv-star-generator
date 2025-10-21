@@ -231,7 +231,7 @@ export default function CandidateUnlockModal(props: CandidateUnlockModalProps) {
           company_id: companyId,
           candidate_id: candidate.id,
           source: unlockType,
-          source_need_id: relatedJobId,
+          source_need_id: null, // Set to null - job_posts are not company_needs
           notes: notes.trim() || null,
           unlocked_at: new Date().toISOString(),
           unlocked_by_user_id: currentUserId,
