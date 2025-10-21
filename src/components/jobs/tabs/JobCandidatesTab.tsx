@@ -310,6 +310,11 @@ export function JobCandidatesTab({ jobId }: JobCandidatesTabProps) {
     );
   }
 
+  console.log("=== Filter Debug ===");
+  console.log("applications array:", applications);
+  console.log("First app:", applications?.[0]);
+  console.log("Test filter on first:", applications?.[0] ? STAGES.bewerber.filter(applications[0]) : "no app");
+
   const stageApplications = {
     bewerber: applications?.filter(STAGES.bewerber.filter) || [],
     freigeschaltet: applications?.filter(STAGES.freigeschaltet.filter) || [],
