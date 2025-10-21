@@ -296,15 +296,15 @@ export default function CandidateUnlockModal(props: CandidateUnlockModalProps) {
   const jobSelect = (
     <div className="space-y-2">
       <Label>Stelle (optional)</Label>
-      <Select onValueChange={(v) => setSelectedJobId(v || null)} value={selectedJobId || ""}>
+      <Select onValueChange={(v) => setSelectedJobId(v === "none" ? null : v)} value={selectedJobId || "none"}>
         <SelectTrigger>
           <SelectValue placeholder={jobs.length ? "Stelle wählen (optional)" : "Keine aktiven Stellen"} />
         </SelectTrigger>
         <SelectContent>
+          <SelectItem value="none">Keine bestimmte Stelle (Initiativ)</SelectItem>
           {jobs.map((j) => (
             <SelectItem key={j.id} value={j.id}>{j.title}</SelectItem>
           ))}
-          <SelectItem value="">Keine bestimmte Stelle (Initiativ)</SelectItem>
         </SelectContent>
       </Select>
       {contextApplication?.job_title && (
