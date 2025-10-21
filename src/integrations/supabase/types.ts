@@ -8430,33 +8430,19 @@ export type Database = {
         Returns: undefined
       }
       create_notification: {
-        Args:
-          | {
-              p_actor_id?: string
-              p_actor_type?: Database["public"]["Enums"]["notif_recipient"]
-              p_body?: string
-              p_channels?: Database["public"]["Enums"]["notif_channel"][]
-              p_group_key?: string
-              p_payload?: Json
-              p_priority?: number
-              p_recipient_id: string
-              p_recipient_type: Database["public"]["Enums"]["notif_recipient"]
-              p_title: string
-              p_type: Database["public"]["Enums"]["notif_type"]
-            }
-          | {
-              p_actor_id?: string
-              p_actor_type?: Database["public"]["Enums"]["recipient_type"]
-              p_body?: string
-              p_channels?: Database["public"]["Enums"]["notif_channel"][]
-              p_group_key?: string
-              p_payload?: Json
-              p_priority?: number
-              p_recipient_id: string
-              p_recipient_type: Database["public"]["Enums"]["recipient_type"]
-              p_title: string
-              p_type: Database["public"]["Enums"]["notif_type"]
-            }
+        Args: {
+          p_actor_id?: string
+          p_actor_type?: Database["public"]["Enums"]["notif_recipient"]
+          p_body?: string
+          p_channels?: Database["public"]["Enums"]["notif_channel"][]
+          p_group_key?: string
+          p_payload?: Json
+          p_priority?: number
+          p_recipient_id: string
+          p_recipient_type: Database["public"]["Enums"]["notif_recipient"]
+          p_title: string
+          p_type: Database["public"]["Enums"]["notif_type"]
+        }
         Returns: string
       }
       deduct_company_tokens: {
