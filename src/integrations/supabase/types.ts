@@ -1489,6 +1489,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "fk_company_candidates_candidate"
+            columns: ["candidate_id"]
+            isOneToOne: false
+            referencedRelation: "candidates"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "fk_company_candidates_company"
             columns: ["company_id"]
             isOneToOne: false
@@ -1521,27 +1528,6 @@ export type Database = {
             columns: ["company_id"]
             isOneToOne: false
             referencedRelation: "v_company_profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "fk_company_candidates_profile"
-            columns: ["candidate_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "fk_company_candidates_profile"
-            columns: ["candidate_id"]
-            isOneToOne: false
-            referencedRelation: "profiles_public"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "fk_company_candidates_profile"
-            columns: ["candidate_id"]
-            isOneToOne: false
-            referencedRelation: "profiles_public_secure"
             referencedColumns: ["id"]
           },
         ]
