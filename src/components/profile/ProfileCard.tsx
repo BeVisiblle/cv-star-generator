@@ -168,22 +168,12 @@ export function ProfileCard({
           </>
         )}
         {(variant === "search" || variant === "dashboard") && (
-          <div className="flex gap-2">
-            {onView && (
-              <button 
-                onClick={onView} 
-                className="flex-1 rounded-lg border border-blue-600 px-3 py-2 text-center text-xs text-blue-600 hover:bg-blue-50"
-              >
-                Ansehen
-              </button>
-            )}
-            <button 
-              onClick={onUnlock} 
-              className="flex-1 rounded-lg bg-blue-600 px-3 py-2 text-center text-xs text-white hover:bg-blue-700"
-            >
-              Freischalten
-            </button>
-          </div>
+          <button 
+            onClick={onView} 
+            className="w-full rounded-lg bg-blue-600 px-3 py-2 text-center text-xs text-white hover:bg-blue-700"
+          >
+            Profil ansehen
+          </button>
         )}
       </div>
     </article>

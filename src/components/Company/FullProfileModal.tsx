@@ -5,7 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Textarea } from "@/components/ui/textarea";
-import { MapPin, Mail, Phone, Calendar, Briefcase, GraduationCap, Award, User, CheckCircle, XCircle } from "lucide-react";
+import { Label } from "@/components/ui/label";
+import { MapPin, Mail, Phone, Calendar, Briefcase, GraduationCap, Award, User, CheckCircle, XCircle, AlertTriangle } from "lucide-react";
 import { useState } from "react";
 
 interface Profile {
@@ -41,6 +42,9 @@ interface FullProfileModalProps {
   currentStage?: string;
   onStageChange?: (newStage: string) => void;
   onArchive?: (reason?: string) => void;
+  onUnlock?: () => void;
+  onMarkUnsuitable?: (reason?: string) => void;
+  showUnlockButton?: boolean;
 }
 
 export function FullProfileModal({ 
@@ -51,10 +55,15 @@ export function FullProfileModal({
   applicationId,
   currentStage,
   onStageChange,
-  onArchive
+  onArchive,
+  onUnlock,
+  onMarkUnsuitable,
+  showUnlockButton = false
 }: FullProfileModalProps) {
   const [showArchiveDialog, setShowArchiveDialog] = useState(false);
   const [rejectionReason, setRejectionReason] = useState("");
+  const [showUnsuitableDialog, setShowUnsuitableDialog] = useState(false);
+  const [unsuitableReason, setUnsuitableReason] = useState("");
 
   if (!profile) return null;
 
@@ -68,6 +77,12 @@ export function FullProfileModal({
     onArchive?.(rejectionReason || undefined);
     setShowArchiveDialog(false);
     setRejectionReason("");
+  };
+
+  const handleUnsuitableConfirm = () => {
+    onMarkUnsuitable?.(unsuitableReason || undefined);
+    setShowUnsuitableDialog(false);
+    setUnsuitableReason("");
   };
 
   const getJobTitle = () => {
@@ -255,32 +270,57 @@ export function FullProfileModal({
           )}
 
           {!isUnlocked && (
-            <div className="text-center py-8 bg-gray-50 rounded-lg">
-              <p className="text-muted-foreground mb-4">
+            <div className="text-center py-8 bg-gray-50 rounded-lg space-y-4">
+              <p className="text-muted-foreground">
                 Schalten Sie das Profil frei, um alle Details und Kontaktinformationen zu sehen.
               </p>
+              {showUnlockButton && onUnlock && (
+                <Button 
+                  onClick={onUnlock}
+                  className="bg-blue-600 hover:bg-blue-700 text-white"
+                >
+                  Profil jetzt freischalten
+                </Button>
+              )}
             </div>
           )}
 
-          {/* Action Buttons for unlocked candidates in "new" stage */}
-          {applicationId && currentStage === "new" && isUnlocked && (
-            <div className="flex gap-3 pt-4 border-t">
-              <Button 
-                className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white"
-                onClick={() => onStageChange?.('interview')}
-              >
-                <CheckCircle className="mr-2 h-4 w-4" />
-                Interessant - Interview planen
-              </Button>
-              
-              <Button 
-                variant="outline"
-                className="flex-1 border-red-600 text-red-600 hover:bg-red-50"
-                onClick={() => setShowArchiveDialog(true)}
-              >
-                <XCircle className="mr-2 h-4 w-4" />
-                Absagen für diese Stelle
-              </Button>
+          {/* Action Buttons */}
+          {isUnlocked && (applicationId || onMarkUnsuitable) && (
+            <div className="space-y-3 pt-4 border-t">
+              {/* Bewerbungs-Aktionen (nur wenn applicationId vorhanden) */}
+              {applicationId && currentStage === "new" && (
+                <div className="flex gap-3">
+                  <Button 
+                    className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white"
+                    onClick={() => onStageChange?.('interview')}
+                  >
+                    <CheckCircle className="mr-2 h-4 w-4" />
+                    Interessant - Interview planen
+                  </Button>
+                  
+                  <Button 
+                    variant="outline"
+                    className="flex-1 border-red-600 text-red-600 hover:bg-red-50"
+                    onClick={() => setShowArchiveDialog(true)}
+                  >
+                    <XCircle className="mr-2 h-4 w-4" />
+                    Absagen für diese Stelle
+                  </Button>
+                </div>
+              )}
+
+              {/* AI-Learning: Als unpassend markieren */}
+              {onMarkUnsuitable && (
+                <Button
+                  variant="outline"
+                  className="w-full border-orange-500 text-orange-600 hover:bg-orange-50"
+                  onClick={() => setShowUnsuitableDialog(true)}
+                >
+                  <AlertTriangle className="mr-2 h-4 w-4" />
+                  Als unpassend markieren (für bessere Vorschläge)
+                </Button>
+              )}
             </div>
           )}
         </div>
@@ -317,6 +357,44 @@ export function FullProfileModal({
               className="bg-red-600 hover:bg-red-700 text-white"
             >
               Absagen
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Unsuitable Marking Dialog */}
+      <AlertDialog open={showUnsuitableDialog} onOpenChange={setShowUnsuitableDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Als unpassend markieren</AlertDialogTitle>
+            <AlertDialogDescription>
+              Warum passt dieser Kandidat nicht zu Ihren Anforderungen? 
+              Dies hilft uns, Ihre zukünftigen Empfehlungen zu verbessern.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          
+          <div className="py-4 space-y-2">
+            <Label>Grund (optional)</Label>
+            <Textarea
+              placeholder="z.B. Zu weit entfernt, falsche Branche, fehlende Qualifikationen..."
+              value={unsuitableReason}
+              onChange={(e) => setUnsuitableReason(e.target.value)}
+              className="min-h-[100px]"
+            />
+          </div>
+
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => {
+              setUnsuitableReason("");
+              setShowUnsuitableDialog(false);
+            }}>
+              Abbrechen
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleUnsuitableConfirm}
+              className="bg-orange-600 hover:bg-orange-700 text-white"
+            >
+              Markieren
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

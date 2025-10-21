@@ -141,6 +141,45 @@ export function JobCandidatesTab({ jobId }: JobCandidatesTabProps) {
     });
   };
 
+  const handleMarkUnsuitableApplication = async (application: any, reason?: string) => {
+    if (!company?.id) return;
+    
+    try {
+      // Update application mit unsuitable-Flag
+      await supabase
+        .from('applications')
+        .update({ 
+          stage: 'unsuitable',
+          rejection_reason: reason || 'Als unpassend markiert',
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', application.id);
+
+      // Speichere für AI-Learning
+      const { data: userData } = await supabase.auth.getUser();
+      if (userData.user) {
+        await supabase.from('company_activity').insert([{
+          type: 'application_marked_unsuitable',
+          company_id: company.id,
+          actor_user_id: userData.user.id,
+          payload: {
+            candidate_id: application.candidate_id,
+            job_id: jobId,
+            application_id: application.id,
+            reason: reason || 'Keine Angabe'
+          }
+        }]);
+      }
+
+      toast.success("Bewerbung als unpassend markiert");
+      queryClient.invalidateQueries({ queryKey: ["job-applications-detailed", jobId] });
+      setIsProfileModalOpen(false);
+    } catch (error) {
+      console.error('Error:', error);
+      toast.error("Fehler beim Markieren");
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="py-12 text-center">
@@ -222,6 +261,12 @@ export function JobCandidatesTab({ jobId }: JobCandidatesTabProps) {
           currentStage={selectedApplication.stage}
           onStageChange={handleStageChange}
           onArchive={(reason) => handleArchive(selectedApplication.id, reason)}
+          showUnlockButton={!selectedApplication.unlocked_at}
+          onUnlock={() => {
+            setIsProfileModalOpen(false);
+            setUnlockModalOpen(true);
+          }}
+          onMarkUnsuitable={(reason) => handleMarkUnsuitableApplication(selectedApplication, reason)}
         />
       )}
 

@@ -84,6 +84,47 @@ export default function CompanySearch() {
     profile: Profile | null;
   }>({ open: false, profile: null });
   const [currentPage, setCurrentPage] = useState(1);
+
+  const handleUnlockFromPreview = (profile: Profile) => {
+    setIsFullProfileModalOpen(false);
+    setUnlockModalData({ open: true, profile });
+  };
+
+  const handleMarkUnsuitable = async (profile: Profile, reason?: string) => {
+    if (!company?.id || !user?.id) return;
+    
+    try {
+      const { error } = await supabase.from('company_activity').insert([{
+        type: 'candidate_marked_unsuitable',
+        company_id: company.id,
+        actor_user_id: user.id,
+        payload: {
+          candidate_id: profile.id,
+          reason: reason || 'Keine Angabe',
+          filters_at_time: JSON.parse(JSON.stringify(filters)),
+          timestamp: new Date().toISOString()
+        } as any
+      }]);
+      
+      if (error) throw error;
+
+      toast({ 
+        title: "Feedback gespeichert",
+        description: "Wir werden Ihre Empfehlungen entsprechend anpassen." 
+      });
+      
+      // Entferne Profil aus aktueller Liste
+      setProfiles(profiles.filter(p => p.id !== profile.id));
+      setIsFullProfileModalOpen(false);
+    } catch (error) {
+      console.error('Error marking unsuitable:', error);
+      toast({ 
+        title: "Fehler", 
+        description: "Feedback konnte nicht gespeichert werden.",
+        variant: "destructive" 
+      });
+    }
+  };
   const [filters, setFilters] = useState<SearchFilters>({
     keywords: "",
     targetGroup: "",
@@ -579,6 +620,9 @@ export default function CompanySearch() {
         }}
         profile={selectedProfile}
         isUnlocked={selectedProfile ? isProfileUnlocked(selectedProfile.id) : false}
+        showUnlockButton={true}
+        onUnlock={() => selectedProfile && handleUnlockFromPreview(selectedProfile)}
+        onMarkUnsuitable={(reason) => selectedProfile && handleMarkUnsuitable(selectedProfile, reason)}
       />
 
       {/* Unlock Modal */}
