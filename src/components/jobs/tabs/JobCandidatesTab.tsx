@@ -138,7 +138,10 @@ export function JobCandidatesTab({ jobId }: JobCandidatesTabProps) {
         .contains("linked_job_ids", [jobId])
         .not("unlocked_at", "is", null);
 
-      if (linkedError) throw linkedError;
+      if (linkedError) {
+        console.warn("Could not load linked candidates:", linkedError);
+        // Continue with just the regular applications
+      }
 
       // Step 3: Create virtual applications for linked candidates
       const virtualApplications = linkedCandidates
