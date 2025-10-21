@@ -1432,6 +1432,7 @@ export type Database = {
           match_score: number | null
           next_action_at: string | null
           next_action_note: string | null
+          notes: string | null
           owner_user_id: string | null
           source: string | null
           source_need_id: string | null
@@ -1449,6 +1450,7 @@ export type Database = {
           match_score?: number | null
           next_action_at?: string | null
           next_action_note?: string | null
+          notes?: string | null
           owner_user_id?: string | null
           source?: string | null
           source_need_id?: string | null
@@ -1466,6 +1468,7 @@ export type Database = {
           match_score?: number | null
           next_action_at?: string | null
           next_action_note?: string | null
+          notes?: string | null
           owner_user_id?: string | null
           source?: string | null
           source_need_id?: string | null
