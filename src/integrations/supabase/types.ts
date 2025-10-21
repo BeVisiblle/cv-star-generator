@@ -1429,6 +1429,7 @@ export type Database = {
           created_at: string
           id: string
           last_touched_at: string | null
+          linked_job_ids: Json | null
           match_score: number | null
           next_action_at: string | null
           next_action_note: string | null
@@ -1447,6 +1448,7 @@ export type Database = {
           created_at?: string
           id?: string
           last_touched_at?: string | null
+          linked_job_ids?: Json | null
           match_score?: number | null
           next_action_at?: string | null
           next_action_note?: string | null
@@ -1465,6 +1467,7 @@ export type Database = {
           created_at?: string
           id?: string
           last_touched_at?: string | null
+          linked_job_ids?: Json | null
           match_score?: number | null
           next_action_at?: string | null
           next_action_note?: string | null

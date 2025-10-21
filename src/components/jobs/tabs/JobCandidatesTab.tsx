@@ -66,15 +66,73 @@ export function JobCandidatesTab({ jobId }: JobCandidatesTabProps) {
   const { data: applications, isLoading } = useQuery({
     queryKey: ["job-applications-detailed", jobId],
     queryFn: async () => {
-      const { data, error } = await supabase
+      // Query 1: Regular applications
+      const { data: appData, error: appError } = await supabase
         .from("applications")
         .select("*, candidates(*)")
         .eq("job_post_id", jobId)
         .is("archived_at", null)
         .order("created_at", { ascending: false });
 
-      if (error) throw error;
-      return data;
+      if (appError) throw appError;
+
+      // Query 2: Linked candidates via SQL join with candidates table
+      const { data: linkedCandidates, error: linkedError } = await supabase
+        .from("company_candidates")
+        .select(`
+          id,
+          candidate_id,
+          stage,
+          match_score,
+          unlocked_at,
+          created_at,
+          linked_job_ids,
+          candidates:candidate_id (
+            id,
+            full_name,
+            vorname,
+            nachname,
+            email,
+            phone,
+            profile_image,
+            title,
+            city,
+            skills,
+            bio_short,
+            cv_url,
+            languages,
+            experience_years,
+            availability_status
+          )
+        `)
+        .contains("linked_job_ids", [jobId])
+        .not("unlocked_at", "is", null);
+
+      if (linkedError) throw linkedError;
+
+      // Combine: Create virtual applications for linked candidates
+      const virtualApplications = linkedCandidates
+        ?.filter((cc) => {
+          // Only include if no regular application exists
+          return !appData?.some((app) => app.candidate_id === cc.candidate_id);
+        })
+        .map((cc) => {
+          const linkedJobIds = cc.linked_job_ids as any;
+          return {
+            id: `virtual-${cc.id}`,
+            candidate_id: cc.candidate_id,
+            job_post_id: jobId,
+            stage: cc.stage || "new",
+            match_score: cc.match_score || 0,
+            unlocked_at: cc.unlocked_at,
+            created_at: cc.created_at,
+            candidates: Array.isArray(cc.candidates) ? cc.candidates[0] : cc.candidates,
+            linked_job_ids: Array.isArray(linkedJobIds) ? linkedJobIds as string[] : [],
+            is_virtual: true,
+          };
+        }) || [];
+
+      return [...(appData || []), ...virtualApplications];
     },
   });
 

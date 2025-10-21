@@ -224,19 +224,22 @@ export default function CandidateUnlockModal(props: CandidateUnlockModalProps) {
         });
       }
 
-      // Upsert company_candidates
+      // Upsert company_candidates with linked_job_ids
+      const linkedJobIds = selectedJobId ? [selectedJobId] : [];
+      
       const { error: unlockError } = await supabase
         .from("company_candidates")
         .upsert({
           company_id: companyId,
           candidate_id: candidate.id,
           source: unlockType,
-          source_need_id: null, // Set to null - job_posts are not company_needs
+          source_need_id: null,
           notes: notes.trim() || null,
           unlocked_at: new Date().toISOString(),
           unlocked_by_user_id: currentUserId,
           stage: "new",
-          last_touched_at: new Date().toISOString()
+          last_touched_at: new Date().toISOString(),
+          linked_job_ids: linkedJobIds,
         }, {
           onConflict: "company_id,candidate_id"
         });

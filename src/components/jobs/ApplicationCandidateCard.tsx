@@ -28,6 +28,8 @@ interface Application {
   match_score?: number;
   unlocked_at?: string;
   candidates: Candidate;
+  linked_job_ids?: string[];
+  is_virtual?: boolean;
 }
 
 type ApplicationCandidateCardProps = {
@@ -35,6 +37,7 @@ type ApplicationCandidateCardProps = {
   onViewProfile: () => void;
   onToggleFavorite?: () => void;
   isFavorite?: boolean;
+  linkedJobTitles?: Array<{ id: string; title: string }>;
 };
 
 export function ApplicationCandidateCard({
@@ -42,6 +45,7 @@ export function ApplicationCandidateCard({
   onViewProfile,
   onToggleFavorite,
   isFavorite: initialFavorite = false,
+  linkedJobTitles = [],
 }: ApplicationCandidateCardProps) {
   const candidate = application.candidates;
   const match = Math.round(application.match_score ?? 0);
@@ -88,6 +92,13 @@ export function ApplicationCandidateCard({
               <span className="text-xs">Freigeschaltet</span>
             </Badge>
           )}
+          {/* Virtual/Linked Badge */}
+          {application.is_virtual && (
+            <Badge variant="outline" className="mr-1 flex items-center gap-1 px-2 py-1">
+              <Briefcase className="h-3 w-3" />
+              <span className="text-xs">Zugeordnet</span>
+            </Badge>
+          )}
           {/* Match */}
           {match > 0 && (
             <div className="flex items-center gap-1 rounded-full bg-secondary px-2 py-1">
@@ -125,7 +136,7 @@ export function ApplicationCandidateCard({
         )}
       </div>
 
-      {/* 3) Intent (Sucht) */}
+      {/* 3) Intent (Sucht) + Linked Job Badges */}
       <div className="mt-1 min-h-[36px]">
         {seeking ? (
           <>
@@ -134,6 +145,16 @@ export function ApplicationCandidateCard({
           </>
         ) : (
           <div className="text-xs text-muted-foreground">Keine Präferenz angegeben</div>
+        )}
+        {linkedJobTitles.length > 0 && (
+          <div className="mt-1 flex flex-wrap gap-1">
+            {linkedJobTitles.map((job) => (
+              <Badge key={job.id} variant="secondary" className="flex items-center gap-1 px-2 py-0.5 text-[10px]">
+                <Briefcase className="h-2.5 w-2.5" />
+                {job.title}
+              </Badge>
+            ))}
+          </div>
         )}
       </div>
 
