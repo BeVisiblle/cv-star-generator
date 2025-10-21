@@ -351,8 +351,14 @@ export function JobCandidatesTab({ jobId }: JobCandidatesTabProps) {
                             }
                           }}
                           onUnlock={() => handleViewProfile(app)}
-                          onAcceptInterview={() => handleStageChange("interview")}
-                          onReject={() => handleMarkUnsuitableApplication(app)}
+                          onAcceptInterview={() => {
+                            setSelectedApplication(app);
+                            handleStageChange("interview");
+                          }}
+                          onReject={() => {
+                            setSelectedApplication(app);
+                            handleMarkUnsuitableApplication(app);
+                          }}
                         />
                       );
                     })}
