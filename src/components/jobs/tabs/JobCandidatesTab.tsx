@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { ApplicationCandidateCard } from "../ApplicationCandidateCard";
+import { CandidateCard } from "../CandidateCard";
 import { FullProfileModal } from "@/components/Company/FullProfileModal";
 import CandidateUnlockModal from "@/components/unlock/CandidateUnlockModal";
 import { toast } from "sonner";
@@ -316,13 +316,46 @@ export function JobCandidatesTab({ jobId }: JobCandidatesTabProps) {
 
                 {apps.length > 0 ? (
                   <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-                    {apps.map((app) => (
-                       <ApplicationCandidateCard
-                         key={app.id}
-                         application={app}
-                         onViewProfile={() => handleViewProfile(app)}
-                       />
-                    ))}
+                    {apps.map((app) => {
+                      const candidate = app.candidates;
+                      const isUnlocked = !!app.unlocked_at;
+                      const isNewStage = app.stage === "new";
+                      
+                      // Determine variant
+                      let variant: "preview" | "unlocked" | "unlocked-actions" = "preview";
+                      if (isUnlocked) {
+                        variant = isNewStage ? "unlocked-actions" : "unlocked";
+                      }
+
+                      return (
+                        <CandidateCard
+                          key={app.id}
+                          name={candidate?.full_name || `${candidate?.vorname} ${candidate?.nachname}`.trim() || "Unbekannt"}
+                          matchPercent={app.match_score || 0}
+                          avatarUrl={candidate?.profile_image}
+                          role={candidate?.title}
+                          city={candidate?.city}
+                          hasLicense={false}
+                          seeking={candidate?.bio_short}
+                          skills={Array.isArray(candidate?.skills) ? candidate.skills : []}
+                          email={isUnlocked ? candidate?.email : undefined}
+                          phone={isUnlocked ? candidate?.phone : undefined}
+                          variant={variant}
+                          linkedJobTitles={app.linkedJobTitles}
+                          onViewProfile={() => handleViewProfile(app)}
+                          onDownloadCV={() => {
+                            if (candidate?.cv_url) {
+                              window.open(candidate.cv_url, '_blank');
+                            } else {
+                              toast.error("Kein CV verfügbar");
+                            }
+                          }}
+                          onUnlock={() => handleViewProfile(app)}
+                          onAcceptInterview={() => handleStageChange("interview")}
+                          onReject={() => handleMarkUnsuitableApplication(app)}
+                        />
+                      );
+                    })}
                   </div>
                 ) : (
                   <div className="rounded-lg border border-dashed py-12 text-center">

@@ -3,6 +3,7 @@ import type { NotificationRow, NotifType } from '@/types/notifications';
 import { useAcceptEmployment, useDeclineEmployment } from '@/hooks/useEmployment';
 import { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { useNavigate } from 'react-router-dom';
 
 type Props = {
   n: NotificationRow;
@@ -42,9 +43,75 @@ export default function NotificationCard({ n, onRead, onAction }: Props) {
   const accept = useAcceptEmployment();
   const decline = useDeclineEmployment();
   const cardRef = useRef<HTMLElement>(null);
+  const navigate = useNavigate();
   
   const unread = !n.read_at;
   const icon = typeIcon[n.type] || '🔔';
+
+  // Get notification link based on type
+  const getNotificationLink = (notif: NotificationRow): string | null => {
+    switch (notif.type) {
+      case 'application_received':
+        return notif.payload?.job_id ? `/company/jobs/${notif.payload.job_id}?tab=bewerber` : null;
+      
+      case 'pipeline_move_for_you':
+      case 'pipeline_activity_team':
+        return notif.payload?.job_id ? `/company/jobs/${notif.payload.job_id}` : null;
+      
+      case 'company_unlocked_you':
+        return notif.actor_id ? `/profile/${notif.actor_id}` : null;
+      
+      case 'follow_request_received':
+        return notif.actor_id ? `/profile/${notif.actor_id}` : null;
+      
+      case 'post_interaction':
+        return notif.payload?.post_id ? `/feed/post/${notif.payload.post_id}` : null;
+      
+      case 'new_matches_available':
+        return '/company/search';
+      
+      case 'low_tokens':
+        return '/company/settings#tokens';
+      
+      case 'job_post_approved':
+      case 'job_post_rejected':
+      case 'job_post_expiring':
+        return notif.payload?.job_id ? `/company/jobs/${notif.payload.job_id}` : null;
+      
+      case 'billing_invoice_ready':
+        return '/company/settings#billing';
+      
+      case 'employment_request':
+      case 'employment_accepted':
+      case 'employment_declined':
+        return notif.payload?.user_id ? `/profile/${notif.payload.user_id}` : null;
+      
+      case 'candidate_message':
+        return notif.actor_id ? `/messages/${notif.actor_id}` : null;
+      
+      case 'application_withdrawn':
+        return notif.payload?.job_id ? `/company/jobs/${notif.payload.job_id}` : null;
+      
+      default:
+        return null;
+    }
+  };
+
+  const handleCardClick = (e: React.MouseEvent) => {
+    // Don't navigate if clicking on a button
+    if ((e.target as HTMLElement).closest('button, a')) {
+      return;
+    }
+
+    const link = getNotificationLink(n);
+    if (link) {
+      navigate(link);
+    }
+    
+    if (unread) {
+      onRead(n.id);
+    }
+  };
 
   // Auto-mark as seen when in viewport
   useEffect(() => {
@@ -201,10 +268,10 @@ export default function NotificationCard({ n, onRead, onAction }: Props) {
   return (
     <article
       ref={cardRef}
-      className={`rounded-2xl border bg-card p-4 shadow-sm transition hover:shadow ${
+      className={`rounded-2xl border bg-card p-4 shadow-sm transition cursor-pointer hover:shadow-md ${
         unread ? 'border-[#5CE1E6]/50' : 'border-border'
       }`}
-      onClick={() => unread && onRead(n.id)}
+      onClick={handleCardClick}
     >
       <div className="flex items-start gap-3">
         <div className="mt-0.5 text-xl" aria-hidden>{icon}</div>
