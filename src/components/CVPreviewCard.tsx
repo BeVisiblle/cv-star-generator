@@ -57,10 +57,9 @@ export const CVPreviewCard: React.FC<CVPreviewCardProps> = ({
   };
 
   const handleLayoutUpdated = () => {
-    // Trigger parent refresh if needed
-    if (onDownload) {
-      onDownload();
-    }
+    // Toast wird in CVLayoutSelectorDialog angezeigt
+    // Dialog wird automatisch geschlossen
+    // Keine zusätzlichen Actions nötig
   };
 
   const handleDownload = async () => {
