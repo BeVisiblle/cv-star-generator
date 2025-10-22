@@ -1,5 +1,5 @@
 import React from 'react';
-import { CVData, CVLayoutProps, formatDate, ProfileImage } from './CVLayoutBase';
+import { CVData, CVLayoutProps, formatDate, formatMonthYear, SignatureBlock, ProfileImage } from './CVLayoutBase';
 
 const LeipzigLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) => {
   const fullName = `${data.vorname || ''} ${data.nachname || ''}`.trim();
@@ -29,7 +29,9 @@ const LeipzigLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) => {
           {/* About Me */}
           <div className="mb-8">
             <h3 className="text-xl font-bold uppercase mb-3">Über mich</h3>
-            <p className="text-sm leading-relaxed text-white/90">
+            <p className={`leading-relaxed text-white/90 line-clamp-12 ${
+              (data.ueberMich?.length || 0) > 500 ? 'text-xs' : 'text-sm'
+            }`}>
               {data.ueberMich || 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit.'}
             </p>
           </div>
@@ -87,13 +89,13 @@ const LeipzigLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) => {
                   {data.schulbildung.map((schule, idx) => (
                     <div key={idx} className="flex gap-4 items-start">
                       {/* Timeline Date */}
-                      <div className="text-sm font-bold w-24 flex-shrink-0 pt-1">
-                        {schule.zeitraum_von} - {schule.zeitraum_bis}
+                      <div className="text-sm font-bold w-24 flex-shrink-0 pt-0.5">
+                        {formatMonthYear(schule.zeitraum_von)} - {formatMonthYear(schule.zeitraum_bis)}
                       </div>
                       
                       {/* Timeline Dot & Line */}
                       <div className="flex flex-col items-center flex-shrink-0">
-                        <div className="w-3 h-3 rounded-full border-2 border-black bg-white mt-2" />
+                        <div className="w-3 h-3 rounded-full border-2 border-black bg-white mt-1.5" />
                         {idx < data.schulbildung.length - 1 && (
                           <div className="w-0.5 h-full bg-black" style={{ minHeight: '60px' }} />
                         )}
@@ -132,13 +134,13 @@ const LeipzigLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) => {
                   {data.berufserfahrung.map((arbeit, idx) => (
                     <div key={idx} className="flex gap-4 items-start">
                       {/* Timeline Date */}
-                      <div className="text-sm font-bold w-24 flex-shrink-0 pt-1">
-                        {arbeit.zeitraum_von} - {arbeit.zeitraum_bis || 'heute'}
+                      <div className="text-sm font-bold w-24 flex-shrink-0 pt-0.5">
+                        {formatMonthYear(arbeit.zeitraum_von)} - {arbeit.zeitraum_bis ? formatMonthYear(arbeit.zeitraum_bis) : 'heute'}
                       </div>
                       
                       {/* Timeline Dot & Line */}
                       <div className="flex flex-col items-center flex-shrink-0">
-                        <div className="w-3 h-3 rounded-full border-2 border-black bg-white mt-2" />
+                        <div className="w-3 h-3 rounded-full border-2 border-black bg-white mt-1.5" />
                         {idx < data.berufserfahrung.length - 1 && (
                           <div className="w-0.5 h-full bg-black" style={{ minHeight: '60px' }} />
                         )}
@@ -180,7 +182,9 @@ const LeipzigLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) => {
                         className="w-20 h-20 rounded-full border-4 border-gray-400 flex items-center justify-center text-2xl font-black"
                         style={{ backgroundColor: 'hsl(0, 0%, 85%)' }}
                       >
-                        {skill.substring(0, 2).toUpperCase()}
+                        <span className="text-center leading-none">
+                          {skill.substring(0, 2).toUpperCase()}
+                        </span>
                       </div>
                       <span className="text-xs font-medium text-center w-20 truncate">{skill}</span>
                     </div>
@@ -204,6 +208,14 @@ const LeipzigLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) => {
               </div>
             )}
 
+            {/* Signature Block - at the bottom */}
+            <div className="mt-auto pt-8 flex justify-end">
+              <SignatureBlock
+                vorname={data.vorname}
+                nachname={data.nachname}
+                ort={data.ort}
+              />
+            </div>
           </div>
         </div>
       </div>

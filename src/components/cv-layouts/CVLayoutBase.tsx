@@ -69,6 +69,44 @@ export const formatDate = (date: Date | string | undefined) => {
   return new Intl.DateTimeFormat('de-DE').format(new Date(date));
 };
 
+// Format date as MM/YYYY (German format for CV periods)
+export const formatMonthYear = (date: Date | string | undefined) => {
+  if (!date) return '';
+  const d = new Date(date);
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const year = d.getFullYear();
+  return `${month}/${year}`;
+};
+
+// Get current date formatted as DD.MM.YYYY
+export const getCurrentDateFormatted = () => {
+  return new Intl.DateTimeFormat('de-DE').format(new Date());
+};
+
+// Signature block component
+export const SignatureBlock: React.FC<{ 
+  vorname?: string; 
+  nachname?: string; 
+  ort?: string;
+  className?: string;
+}> = ({ vorname, nachname, ort, className = '' }) => {
+  const fullName = `${vorname || ''} ${nachname || ''}`.trim();
+  const location = ort || '';
+  const date = getCurrentDateFormatted();
+  
+  return (
+    <div className={`text-xs text-gray-600 ${className}`}>
+      <div className="mb-6">
+        {location}, {date}
+      </div>
+      <div className="mb-2 border-b border-gray-400" style={{ width: '150px' }} />
+      <div className="font-medium text-gray-800">
+        {fullName || 'Vorname Nachname'}
+      </div>
+    </div>
+  );
+};
+
 export const getBrancheTitle = (branche?: string) => {
   switch (branche) {
     case 'handwerk': return 'Handwerk';
