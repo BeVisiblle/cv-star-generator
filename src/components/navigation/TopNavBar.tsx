@@ -45,29 +45,29 @@ export default function TopNavBar() {
   };
 
   // Sticky navbar at top with high z-index
-  return <div className="sticky top-0 z-[300] border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+  return <div className="sticky top-0 z-[300] border-b border-border/40 bg-gradient-to-r from-background via-soft-gray/20 to-background backdrop-blur-md supports-[backdrop-filter]:bg-background/80 shadow-soft transition-all duration-300">
       <div className="flex h-12 md:h-14 items-center px-3 md:px-4 gap-2 md:gap-4">
         <div className="flex items-center gap-3">
           <SidebarTrigger />
           {/* Logo */}
-          <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate('/dashboard')}>
-            <img src="/assets/Logo_visiblle-2.svg" alt="BeVisiblle Logo" className="h-8 w-8" />
-            <span className="font-semibold hidden md:block">
-              <span className="text-foreground">Be</span>
-              <span className="text-foreground">Visib</span>
-              <span className="text-primary">ll</span>
-              <span className="text-foreground">e</span>
+          <div className="flex items-center gap-2 cursor-pointer group transition-all duration-300 hover:scale-[1.02]" onClick={() => navigate('/dashboard')}>
+            <img src="/assets/Logo_visiblle-2.svg" alt="BeVisiblle Logo" className="h-8 w-8 transition-transform duration-300 group-hover:rotate-6" />
+            <span className="font-semibold hidden md:block transition-colors duration-300">
+              <span className="text-foreground group-hover:text-primary/80">Be</span>
+              <span className="text-foreground group-hover:text-primary/80">Visib</span>
+              <span className="text-primary group-hover:text-primary/90">ll</span>
+              <span className="text-foreground group-hover:text-primary/80">e</span>
             </span>
           </div>
         </div>
         
         {/* Desktop Search Bar */}
-        <div className="hidden md:flex flex-1 max-w-md mx-4 relative">
+        <div className="hidden md:flex flex-1 max-w-md mx-4 relative group">
           <Input ref={inputRef} placeholder="Personen, Unternehmen suchen..." value={q} onChange={e => {
           setQ(e.target.value);
           setOpen(e.target.value.trim().length >= 2);
-        }} onKeyDown={e => e.key === 'Enter' && handleSubmit()} onFocus={() => setOpen(q.trim().length >= 2)} className="pr-10" />
-          <SearchIcon className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground cursor-pointer" onClick={handleSubmit} />
+        }} onKeyDown={e => e.key === 'Enter' && handleSubmit()} onFocus={() => setOpen(q.trim().length >= 2)} className="pr-10 rounded-2xl border-border/60 bg-gradient-to-br from-background to-soft-gray/10 shadow-soft transition-all duration-300 hover:shadow-soft-lg hover:border-primary/30 focus:border-primary/50" />
+          <SearchIcon className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground cursor-pointer transition-colors duration-200 hover:text-primary" onClick={handleSubmit} />
           <SearchAutosuggest query={q} open={open} anchorRef={inputRef} onClose={handleSearchClose} onSelect={(type: SuggestionType, item: {
           id: string;
           label: string;
@@ -85,49 +85,49 @@ export default function TopNavBar() {
         <div className="flex items-center gap-1 md:gap-3 ml-auto">
           {/* Mobile Search - with proper touch target */}
           <button 
-            className="p-2 -m-2 hover:bg-accent rounded-md md:hidden min-h-[44px] min-w-[44px] flex items-center justify-center active:scale-95 transition-transform"
+            className="p-2 -m-2 hover:bg-gradient-to-br hover:from-accent hover:to-accent/60 rounded-2xl md:hidden min-h-[44px] min-w-[44px] flex items-center justify-center active:scale-95 transition-all duration-300 hover:shadow-soft"
             onClick={() => navigate('/marketplace')}
             aria-label="Suche"
           >
-            <SearchIcon className="h-6 w-6 md:h-5 md:w-5" />
+            <SearchIcon className="h-6 w-6 md:h-5 md:w-5 transition-colors duration-200" />
           </button>
           
           <button 
-            className="p-2 -m-2 hover:bg-accent rounded-md min-h-[44px] min-w-[44px] flex items-center justify-center active:scale-95 transition-transform"
+            className="p-2 -m-2 hover:bg-gradient-to-br hover:from-accent hover:to-accent/60 rounded-2xl min-h-[44px] min-w-[44px] flex items-center justify-center active:scale-95 transition-all duration-300 hover:shadow-soft"
             onClick={() => navigate('/community/contacts')}
             aria-label="Kontakte"
           >
-            <Users className="h-6 w-6 md:h-5 md:w-5" />
+            <Users className="h-6 w-6 md:h-5 md:w-5 transition-colors duration-200" />
           </button>
           
           <Popover open={msgOpen} onOpenChange={setMsgOpen}>
             <PopoverTrigger asChild>
               <button 
-                className="p-2 -m-2 hover:bg-accent rounded-md min-h-[44px] min-w-[44px] flex items-center justify-center active:scale-95 transition-transform"
+                className="p-2 -m-2 hover:bg-gradient-to-br hover:from-accent hover:to-accent/60 rounded-2xl min-h-[44px] min-w-[44px] flex items-center justify-center active:scale-95 transition-all duration-300 hover:shadow-soft"
                 aria-label="Nachrichten"
               >
-                <MessageSquareMore className="h-6 w-6 md:h-5 md:w-5" />
+                <MessageSquareMore className="h-6 w-6 md:h-5 md:w-5 transition-colors duration-200" />
               </button>
             </PopoverTrigger>
-            <PopoverContent className="w-80 p-0" align="end">
+            <PopoverContent className="w-80 p-0 rounded-2xl shadow-soft-lg border-border/40" align="end">
               <MessagePopoverPanel onCompose={() => setMsgOpen(false)} />
             </PopoverContent>
           </Popover>
           
           <button 
-            className="p-2 -m-2 hover:bg-accent rounded-md min-h-[44px] min-w-[44px] flex items-center justify-center active:scale-95 transition-transform"
+            className="p-2 -m-2 hover:bg-gradient-to-br hover:from-accent hover:to-accent/60 rounded-2xl min-h-[44px] min-w-[44px] flex items-center justify-center active:scale-95 transition-all duration-300 hover:shadow-soft"
             onClick={() => navigate('/notifications')}
             aria-label="Benachrichtigungen"
           >
-            <Bell className="h-6 w-6 md:h-5 md:w-5" />
+            <Bell className="h-6 w-6 md:h-5 md:w-5 transition-colors duration-200" />
           </button>
           
           <button 
-            className="p-2 -m-2 hover:bg-accent rounded-md min-h-[44px] min-w-[44px] flex items-center justify-center active:scale-95 transition-transform"
+            className="p-2 -m-2 hover:bg-gradient-to-br hover:from-accent hover:to-accent/60 rounded-2xl min-h-[44px] min-w-[44px] flex items-center justify-center active:scale-95 transition-all duration-300 hover:shadow-soft"
             onClick={() => navigate('/profile')}
             aria-label="Profil"
           >
-            <User className="h-6 w-6 md:h-5 md:w-5" />
+            <User className="h-6 w-6 md:h-5 md:w-5 transition-colors duration-200" />
           </button>
         </div>
       </div>
