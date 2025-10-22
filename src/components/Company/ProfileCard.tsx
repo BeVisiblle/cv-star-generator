@@ -322,9 +322,9 @@ export function ProfileCard({
 
   return (
     <TooltipProvider>
-      <Card hover="lift" className="group border-0 shadow-sm h-[340px] flex flex-col hover:shadow-soft-xl">
+      <Card className="group hover:shadow-lg transition-all duration-200 border-0 shadow-sm hover:shadow-md h-[340px] flex flex-col">
         <CardHeader className="pb-3 flex-shrink-0">
-          <div className="flex items-start justify-between transition-transform duration-300 group-hover:scale-[1.01]">
+          <div className="flex items-start justify-between">
             <div className="flex items-start space-x-3 flex-1 min-w-0">
               <div className="relative flex-shrink-0">
                 <Avatar className="h-12 w-12">
