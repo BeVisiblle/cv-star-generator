@@ -95,7 +95,7 @@ const LeipzigLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) => {
                       
                       {/* Timeline Dot & Line */}
                       <div className="flex flex-col items-center flex-shrink-0">
-                        <div className="w-3 h-3 rounded-full border-2 border-black bg-white mt-1.5" />
+                        <div className="w-3 h-3 rounded-full border-2 border-black bg-white" />
                         {idx < data.schulbildung.length - 1 && (
                           <div className="w-0.5 h-full bg-black" style={{ minHeight: '60px' }} />
                         )}
@@ -109,7 +109,7 @@ const LeipzigLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) => {
                           {schule.ort && ` • ${schule.ort}`}
                         </p>
                         {schule.beschreibung && (
-                          <p className="text-sm text-gray-700 leading-relaxed">
+                          <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-line">
                             {schule.beschreibung}
                           </p>
                         )}
@@ -140,7 +140,7 @@ const LeipzigLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) => {
                       
                       {/* Timeline Dot & Line */}
                       <div className="flex flex-col items-center flex-shrink-0">
-                        <div className="w-3 h-3 rounded-full border-2 border-black bg-white mt-1.5" />
+                        <div className="w-3 h-3 rounded-full border-2 border-black bg-white" />
                         {idx < data.berufserfahrung.length - 1 && (
                           <div className="w-0.5 h-full bg-black" style={{ minHeight: '60px' }} />
                         )}
@@ -154,7 +154,7 @@ const LeipzigLayout: React.FC<CVLayoutProps> = ({ data, className = '' }) => {
                           {arbeit.ort && ` • ${arbeit.ort}`}
                         </p>
                         {arbeit.beschreibung && (
-                          <p className="text-sm text-gray-700 leading-relaxed">
+                          <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-line">
                             {arbeit.beschreibung}
                           </p>
                         )}
