@@ -453,4 +453,37 @@ html.overflow-fix, .overflow-fix body {
     background-image: radial-gradient(circle, hsl(214, 20%, 95%) 1px, transparent 1px);
     background-size: 20px 20px;
   }
+
+  /* Smooth scroll behavior */
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  /* Reduce motion for accessibility */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+  
+  /* Interactive feedback classes */
+  .interactive-feedback {
+    @apply transition-all duration-200 active:scale-95 hover:scale-[1.02];
+  }
+  
+  .spring-hover {
+    @apply hover:animate-spring-bounce;
+  }
+  
+  /* Stagger animation delays */
+  .stagger-1 { animation-delay: 0ms; }
+  .stagger-2 { animation-delay: 100ms; }
+  .stagger-3 { animation-delay: 200ms; }
+  .stagger-4 { animation-delay: 300ms; }
+  .stagger-5 { animation-delay: 400ms; }
 }

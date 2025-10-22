@@ -23,6 +23,7 @@ import { SkillsLanguagesSidebar } from '@/components/linkedin/SkillsLanguagesSid
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { InView } from '@/components/util/InView';
+import { CardSkeleton } from '@/components/ui/skeleton';
 
 const Profile = () => {
   const navigate = useNavigate();
@@ -181,7 +182,11 @@ const Profile = () => {
   }, [profile?.id]);
   if (isLoading) {
     return <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
+        <div className="w-full max-w-2xl px-6 space-y-4">
+          <CardSkeleton />
+          <CardSkeleton />
+          <CardSkeleton />
+        </div>
       </div>;
   }
   if (!profile) {
@@ -227,24 +232,29 @@ const Profile = () => {
                 <LinkedInProfileActivity profile={profile} />
 
                 {/* Experience Section */}
-                <LinkedInProfileExperience 
-                  experiences={profile?.berufserfahrung || []} 
-                  isEditing={isEditing} 
-                  onExperiencesUpdate={handleExperiencesUpdate}
-                  onEditingChange={setIsEditing}
-                />
+                <InView animation="fade-scale" delay={0}>
+                  <LinkedInProfileExperience 
+                    experiences={profile?.berufserfahrung || []} 
+                    isEditing={isEditing} 
+                    onExperiencesUpdate={handleExperiencesUpdate}
+                    onEditingChange={setIsEditing}
+                  />
+                </InView>
 
                 {/* Education Section */}
-                <LinkedInProfileEducation 
-                  education={profile?.schulbildung || []} 
-                  isEditing={isEditing} 
-                  onEducationUpdate={handleEducationUpdate}
-                  onEditingChange={setIsEditing}
-                />
+                <InView animation="fade-scale" delay={100}>
+                  <LinkedInProfileEducation 
+                    education={profile?.schulbildung || []} 
+                    isEditing={isEditing} 
+                    onEducationUpdate={handleEducationUpdate}
+                    onEditingChange={setIsEditing}
+                  />
+                </InView>
 
                 {/* Small tiles under Education: Contact & Profile Highlights */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
-                  <Card className="p-3 sm:p-4">
+                  <InView animation="slide-up" delay={0}>
+                    <Card hover="none" className="p-3 sm:p-4">
                     <div className="flex items-center justify-between mb-2">
                       <h4 className="text-sm font-semibold">Kontaktdaten</h4>
                       {!isEditingContact && !isEditing && (
@@ -343,7 +353,9 @@ const Profile = () => {
                       </div>
                     )}
                   </Card>
-                  <Card className="p-3 sm:p-4">
+                  </InView>
+                  <InView animation="slide-up" delay={100}>
+                    <Card hover="none" className="p-3 sm:p-4">
                     <h4 className="text-sm font-semibold mb-2">Profilaktivitäten</h4>
                     <div className="space-y-2 text-sm text-muted-foreground">
                       <div className="flex items-start gap-2">
@@ -368,6 +380,7 @@ const Profile = () => {
                       </div>
                     </div>
                   </Card>
+                  </InView>
                 </div>
               </div>
             </main>
