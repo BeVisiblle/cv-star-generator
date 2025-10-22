@@ -96,57 +96,65 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 220 13% 13%;
+    /* Backgrounds - Soft whites mit warmth */
+    --background: 0 0% 99%;
+    --foreground: 215 16% 20%;
 
+    /* Cards - Subtile Elevation */
     --card: 0 0% 100%;
-    --card-foreground: 220 13% 13%;
+    --card-foreground: 215 16% 20%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 220 13% 13%;
+    --popover-foreground: 215 16% 20%;
 
-    --primary: 220 13% 13%;
+    /* Primary - Soft Blue (Notion-inspiriert) */
+    --primary: 214 84% 56%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 220 13% 91%;
-    --secondary-foreground: 220 13% 13%;
+    /* Secondary - Sehr soft gray mit blue undertone */
+    --secondary: 214 20% 97%;
+    --secondary-foreground: 215 16% 20%;
 
-    --muted: 220 13% 91%;
-    --muted-foreground: 220 8.9% 46.1%;
+    /* Muted - Fast unsichtbar */
+    --muted: 214 20% 96%;
+    --muted-foreground: 215 10% 55%;
 
-    --accent: 201 100% 35%;
+    /* Accent - Warm Blue (leicht heller als primary) */
+    --accent: 214 84% 60%;
     --accent-foreground: 0 0% 100%;
-    
-    --linkedin-blue: 201 100% 35%;
-    --linkedin-blue-light: 201 100% 95%;
 
-    --hero-gradient-from: 197 100% 95%;
+    /* LinkedIn compatibility */
+    --linkedin-blue: 214 84% 56%;
+    --linkedin-blue-light: 214 100% 95%;
+
+    /* Soft Gradients */
+    --hero-gradient-from: 214 100% 97%;
     --hero-gradient-to: 0 0% 100%;
+
+    /* Additional gradients for cards/sections */
+    --subtle-gradient-from: 214 50% 98%;
+    --subtle-gradient-to: 0 0% 99%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 220 13% 91%;
-    --input: 220 13% 91%;
-    --ring: 220 13% 13%;
+    /* Borders - Kaum sichtbar */
+    --border: 214 20% 93%;
+    --input: 214 20% 95%;
+    --ring: 214 84% 56%;
 
+    /* Border Radius - Alles 2xl */
     --radius: 1rem;
 
-    --sidebar-background: 0 0% 98%;
-
-    --sidebar-foreground: 240 5.3% 26.1%;
-
-    --sidebar-primary: 240 5.9% 10%;
-
-    --sidebar-primary-foreground: 0 0% 98%;
-
-    --sidebar-accent: 240 4.8% 95.9%;
-
-    --sidebar-accent-foreground: 240 5.9% 10%;
-
-    --sidebar-border: 220 13% 91%;
-
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    /* Sidebar - Extra soft */
+    --sidebar-background: 0 0% 98.5%;
+    --sidebar-foreground: 215 16% 30%;
+    --sidebar-primary: 214 84% 56%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 214 30% 97%;
+    --sidebar-accent-foreground: 215 16% 20%;
+    --sidebar-border: 214 20% 94%;
+    --sidebar-ring: 214 84% 56%;
   }
 
   .dark {
@@ -194,9 +202,26 @@ All colors MUST be HSL.
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground antialiased;
     overflow-x: hidden;
     font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+    letter-spacing: -0.011em;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-semibold tracking-tight;
+    letter-spacing: -0.02em;
+  }
+
+  h1 { @apply text-4xl md:text-5xl; }
+  h2 { @apply text-3xl md:text-4xl; }
+  h3 { @apply text-2xl md:text-3xl; }
+  h4 { @apply text-xl md:text-2xl; }
+
+  p {
+    @apply leading-relaxed;
+    letter-spacing: -0.011em;
   }
 
   /* Media defaults to prevent horizontal overflow */
@@ -399,5 +424,33 @@ html.overflow-fix, .overflow-fix body {
     .pb-bottom-nav {
       padding-bottom: 0;
     }
+  }
+
+  /* Soft shadows */
+  .shadow-soft {
+    box-shadow: 0 2px 8px -2px rgba(0, 0, 0, 0.08);
+  }
+
+  .shadow-soft-lg {
+    box-shadow: 0 4px 16px -4px rgba(0, 0, 0, 0.1);
+  }
+
+  .shadow-soft-xl {
+    box-shadow: 0 8px 24px -6px rgba(0, 0, 0, 0.12);
+  }
+
+  .shadow-soft-hover {
+    box-shadow: 0 8px 32px -8px rgba(214, 84%, 56%, 0.15);
+  }
+
+  /* Smooth transitions */
+  .transition-smooth {
+    transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* Subtle background patterns */
+  .bg-pattern-dots {
+    background-image: radial-gradient(circle, hsl(214, 20%, 95%) 1px, transparent 1px);
+    background-size: 20px 20px;
   }
 }

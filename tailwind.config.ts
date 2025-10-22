@@ -61,15 +61,31 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
-				}
+				},
+				'soft-blue': 'hsl(214, 84%, 56%)',
+				'soft-gray': 'hsl(214, 20%, 97%)'
 			},
 			backgroundImage: {
-				'hero-gradient': 'linear-gradient(to bottom right, hsl(var(--hero-gradient-from)), hsl(var(--hero-gradient-to)))'
+				'hero-gradient': 'linear-gradient(135deg, hsl(var(--hero-gradient-from)), hsl(var(--hero-gradient-to)))',
+				'subtle-gradient': 'linear-gradient(to bottom right, hsl(var(--subtle-gradient-from)), hsl(var(--subtle-gradient-to)))',
+				'card-hover': 'linear-gradient(to bottom right, hsl(214, 50%, 99%), hsl(0, 0%, 100%))'
 			},
 			borderRadius: {
-				lg: 'var(--radius)',
+				lg: '1rem',
+				xl: '1.25rem',
+				'2xl': '1.5rem',
+				'3xl': '2rem',
 				md: 'calc(var(--radius) - 2px)',
 				sm: 'calc(var(--radius) - 4px)'
+			},
+			boxShadow: {
+				'soft': '0 2px 8px -2px rgba(0, 0, 0, 0.08)',
+				'soft-lg': '0 4px 16px -4px rgba(0, 0, 0, 0.1)',
+				'soft-xl': '0 8px 24px -6px rgba(0, 0, 0, 0.12)',
+				'soft-hover': '0 8px 32px -8px rgba(214, 84%, 56%, 0.15)'
+			},
+			spacing: {
+				'safe': 'env(safe-area-inset-bottom)'
 			},
 			keyframes: {
 				'accordion-down': {

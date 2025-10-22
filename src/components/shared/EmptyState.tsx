@@ -14,10 +14,10 @@ interface EmptyStateProps {
  */
 export function EmptyState({ text, icon, action, className = '' }: EmptyStateProps) {
   return (
-    <div className={`rounded-xl border bg-muted/20 p-6 text-center ${className}`}>
-      {icon && <div className="text-2xl mb-2" aria-hidden="true">{icon}</div>}
-      <p className="text-sm text-muted-foreground mb-3">{text}</p>
-      {action && <div className="mt-3">{action}</div>}
+    <div className={`rounded-2xl border border-border/40 bg-gradient-to-br from-muted/30 to-muted/10 p-8 text-center ${className}`}>
+      {icon && <div className="text-3xl mb-3" aria-hidden="true">{icon}</div>}
+      <p className="text-sm text-muted-foreground mb-4 leading-relaxed">{text}</p>
+      {action && <div className="mt-4">{action}</div>}
     </div>
   );
 }

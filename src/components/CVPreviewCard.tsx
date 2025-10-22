@@ -142,8 +142,8 @@ export const CVPreviewCard: React.FC<CVPreviewCardProps> = ({
 
   return (
     <>
-      <Card>
-        <CardContent className="p-4">
+      <Card className="border-border/60">
+        <CardContent className="p-6">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <FileText className="h-5 w-5 text-muted-foreground" />
@@ -161,7 +161,7 @@ export const CVPreviewCard: React.FC<CVPreviewCardProps> = ({
             </Button>
           </div>
           
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-3">
             <Button 
               className="w-full"
               onClick={handleDownload}

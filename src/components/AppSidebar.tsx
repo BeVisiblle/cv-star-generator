@@ -134,7 +134,7 @@ export function AppSidebar() {
                 {navigationItems.slice(0, 2).map(item => (
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton asChild tooltip={collapsed ? item.title : undefined}>
-                      <button onClick={() => handleNavigation(item.url)} className={`flex items-center w-full ${collapsed ? 'justify-center h-12 w-12 mx-auto' : 'justify-between px-3 h-10'} rounded-lg transition-all ${isActive(item.url) ? "bg-sidebar-accent text-sidebar-accent-foreground" : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"}`}>
+                      <button onClick={() => handleNavigation(item.url)} className={`flex items-center w-full ${collapsed ? 'justify-center h-12 w-12 mx-auto' : 'justify-between px-3 h-10'} rounded-xl transition-all ${isActive(item.url) ? "bg-sidebar-accent/60 text-sidebar-accent-foreground shadow-soft" : "text-sidebar-foreground hover:bg-sidebar-accent/80 hover:text-sidebar-accent-foreground hover:shadow-soft"}`}>
                         <div className="flex items-center gap-3">
                           <item.icon className="h-5 w-5 shrink-0" />
                           {!collapsed && <span>{item.title}</span>}
@@ -149,7 +149,7 @@ export function AppSidebar() {
                 <Collapsible open={communityOpen} onOpenChange={setCommunityOpen}>
                   <SidebarMenuItem>
                     <CollapsibleTrigger asChild>
-                      <SidebarMenuButton tooltip={collapsed ? "Community" : undefined} className={`flex items-center w-full ${collapsed ? 'justify-center h-12 w-12 mx-auto' : 'justify-between px-3 h-10'} rounded-lg transition-all`}>
+                      <SidebarMenuButton tooltip={collapsed ? "Community" : undefined} className={`flex items-center w-full ${collapsed ? 'justify-center h-12 w-12 mx-auto' : 'justify-between px-3 h-10'} rounded-xl transition-all hover:bg-sidebar-accent/80 hover:shadow-soft`}>
                         <div className="flex items-center gap-3">
                           <Users className="h-5 w-5 shrink-0" />
                           {!collapsed && <span>Community</span>}
@@ -163,7 +163,7 @@ export function AppSidebar() {
                           {communityItems.map(item => (
                             <SidebarMenuSubItem key={item.title}>
                               <SidebarMenuSubButton asChild>
-                                <button onClick={() => handleNavigation(item.url)} className={`flex items-center gap-3 w-full pl-9 pr-3 h-9 rounded-lg transition-all ${isActive(item.url) ? "bg-sidebar-accent text-sidebar-accent-foreground" : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"}`}>
+                                <button onClick={() => handleNavigation(item.url)} className={`flex items-center gap-3 w-full pl-9 pr-3 h-9 rounded-xl transition-all ${isActive(item.url) ? "bg-sidebar-accent/60 text-sidebar-accent-foreground shadow-soft" : "text-sidebar-foreground hover:bg-sidebar-accent/80 hover:text-sidebar-accent-foreground hover:shadow-soft"}`}>
                                   <item.icon className="h-4 w-4 shrink-0" />
                                   <span>{item.title}</span>
                                 </button>
@@ -180,7 +180,7 @@ export function AppSidebar() {
                 <Collapsible open={careerOpen} onOpenChange={setCareerOpen}>
                   <SidebarMenuItem>
                     <CollapsibleTrigger asChild>
-                      <SidebarMenuButton tooltip={collapsed ? "Karriere" : undefined} className={`flex items-center w-full ${collapsed ? 'justify-center h-12 w-12 mx-auto' : 'justify-between px-3 h-10'} rounded-lg transition-all`}>
+                      <SidebarMenuButton tooltip={collapsed ? "Karriere" : undefined} className={`flex items-center w-full ${collapsed ? 'justify-center h-12 w-12 mx-auto' : 'justify-between px-3 h-10'} rounded-xl transition-all hover:bg-sidebar-accent/80 hover:shadow-soft`}>
                         <div className="flex items-center gap-3">
                           <Briefcase className="h-5 w-5 shrink-0" />
                           {!collapsed && <span>Karriere</span>}
@@ -194,7 +194,7 @@ export function AppSidebar() {
                           {careerItems.map(item => (
                             <SidebarMenuSubItem key={item.title}>
                               <SidebarMenuSubButton asChild>
-                                <button onClick={() => handleNavigation(item.url)} className={`flex items-center gap-3 w-full pl-9 pr-3 h-9 rounded-lg transition-all ${isActive(item.url) ? "bg-sidebar-accent text-sidebar-accent-foreground" : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"}`}>
+                                <button onClick={() => handleNavigation(item.url)} className={`flex items-center gap-3 w-full pl-9 pr-3 h-9 rounded-xl transition-all ${isActive(item.url) ? "bg-sidebar-accent/60 text-sidebar-accent-foreground shadow-soft" : "text-sidebar-foreground hover:bg-sidebar-accent/80 hover:text-sidebar-accent-foreground hover:shadow-soft"}`}>
                                   <item.icon className="h-4 w-4 shrink-0" />
                                   <span>{item.title}</span>
                                 </button>
@@ -211,7 +211,7 @@ export function AppSidebar() {
                 {navigationItems.slice(2).map(item => (
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton asChild tooltip={collapsed ? item.title : undefined}>
-                      <button onClick={() => handleNavigation(item.url)} className={`flex items-center w-full ${collapsed ? 'justify-center h-12 w-12 mx-auto' : 'justify-between px-3 h-10'} rounded-lg transition-all ${isActive(item.url) ? "bg-sidebar-accent text-sidebar-accent-foreground" : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"}`}>
+                      <button onClick={() => handleNavigation(item.url)} className={`flex items-center w-full ${collapsed ? 'justify-center h-12 w-12 mx-auto' : 'justify-between px-3 h-10'} rounded-xl transition-all ${isActive(item.url) ? "bg-sidebar-accent/60 text-sidebar-accent-foreground shadow-soft" : "text-sidebar-foreground hover:bg-sidebar-accent/80 hover:text-sidebar-accent-foreground hover:shadow-soft"}`}>
                         <div className="flex items-center gap-3">
                           <item.icon className="h-5 w-5 shrink-0" />
                           {!collapsed && <span>{item.title}</span>}
@@ -246,7 +246,7 @@ export function AppSidebar() {
               <SidebarMenuButton asChild>
                 <button 
                   onClick={() => openPostComposer()} 
-                  className="flex items-center justify-center gap-2 w-full px-4 h-12 rounded-lg bg-foreground text-background hover:bg-foreground/90 transition-all"
+                  className="flex items-center justify-center gap-2 w-full px-4 h-12 rounded-2xl bg-foreground text-background hover:bg-foreground/90 shadow-soft transition-all"
                 >
                   <Plus className="h-5 w-5 shrink-0" />
                   <span className="font-medium">Beitrag posten</span>
@@ -256,7 +256,7 @@ export function AppSidebar() {
               <SidebarMenuButton asChild>
                 <button 
                   onClick={handleSignOut}
-                  className="flex items-center gap-3 w-full px-3 h-10 rounded-lg hover:bg-sidebar-accent transition-all text-sidebar-foreground"
+                  className="flex items-center gap-3 w-full px-3 h-10 rounded-xl hover:bg-sidebar-accent/80 hover:shadow-soft transition-all text-sidebar-foreground"
                 >
                   <LogOut className="h-5 w-5 shrink-0" />
                   <span>Abmelden</span>
@@ -290,7 +290,7 @@ export function AppSidebar() {
               <SidebarMenuButton asChild tooltip="Abmelden">
                 <button 
                   onClick={handleSignOut}
-                  className="flex items-center justify-center h-12 w-12 mx-auto rounded-lg hover:bg-sidebar-accent transition-all"
+                  className="flex items-center justify-center h-12 w-12 mx-auto rounded-xl hover:bg-sidebar-accent/80 hover:shadow-soft transition-all"
                 >
                   <LogOut className="h-5 w-5" />
                 </button>
