@@ -85,7 +85,8 @@ export default {
 				'soft-hover': '0 8px 32px -8px rgba(214, 84%, 56%, 0.15)'
 			},
 			spacing: {
-				'safe': 'env(safe-area-inset-bottom)'
+				'safe': 'env(safe-area-inset-bottom)',
+				'nav-bottom': '56px'
 			},
 			keyframes: {
 				'accordion-down': {

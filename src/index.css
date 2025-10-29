@@ -414,10 +414,18 @@ html.overflow-fix, .overflow-fix body {
     }
   }
   
+  /* Mobile-optimized Padding Classes */
+  .px-mobile {
+    @apply px-3 sm:px-4 md:px-6;
+  }
+  
+  .py-mobile {
+    @apply py-2 sm:py-3 md:py-4;
+  }
+  
   /* Bottom Navigation Compensation */
   .pb-bottom-nav {
-    @apply pb-0 md:pb-0;
-    padding-bottom: 68px;
+    padding-bottom: 56px;
   }
   
   @media (min-width: 768px) {

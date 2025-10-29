@@ -113,7 +113,7 @@ export default function CommunityMessages() {
   };
 
   return (
-    <main className="w-full py-4 sm:py-6 pb-20 md:pb-6">
+    <main className="w-full py-2 sm:py-4 pb-[56px] md:pb-6">
       <div className="grid grid-cols-1 lg:grid-cols-[320px_minmax(0,1fr)_320px] gap-4">
         {/* Left: Conversation list */}
         <Card className="p-0 overflow-hidden">
