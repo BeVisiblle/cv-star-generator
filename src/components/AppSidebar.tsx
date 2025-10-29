@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
-import { LayoutDashboard, User, Users, Settings, FileText, LogOut, ChevronRight, ChevronDown, Plus, MessageSquare, Briefcase, Building2, Search, Sparkles, UserPlus, Mail, UsersRound, Menu } from "lucide-react";
+import { LayoutDashboard, User, Users, Settings, FileText, LogOut, ChevronRight, ChevronDown, Plus, MessageSquare, Briefcase, Building2, Search, Sparkles, UserPlus, Mail, UsersRound, Menu, X } from "lucide-react";
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarMenuSub, SidebarMenuSubItem, SidebarMenuSubButton, SidebarHeader, SidebarFooter, SidebarTrigger, useSidebar } from "@/components/ui/sidebar";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Button } from "@/components/ui/button";
@@ -129,6 +129,19 @@ export function AppSidebar() {
         collapsible="icon" 
         data-sidebar="sidebar"
       >
+        {/* Mobile Close Button */}
+        {sidebar.isMobile && sidebar.open && (
+          <div className="flex justify-end p-4 border-b lg:hidden">
+            <button 
+              onClick={() => sidebar.setOpenMobile(false)}
+              className="p-2 hover:bg-sidebar-accent/80 rounded-xl transition-colors"
+              aria-label="Schließen"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          </div>
+        )}
+
         {/* Trigger Button at the top - only on desktop */}
         <SidebarHeader className="hidden lg:flex h-14 border-b items-center justify-center px-2">
           <SidebarTrigger className="h-8 w-8" />

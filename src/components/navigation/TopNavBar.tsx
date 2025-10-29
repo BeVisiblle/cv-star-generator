@@ -7,6 +7,9 @@ import SearchAutosuggest, { SuggestionType } from "@/components/marketplace/Sear
 import ConnectionsDrawer from "@/components/community/ConnectionsDrawer";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import MessagePopoverPanel from "@/components/community/MessagePopoverPanel";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 export const NAVBAR_HEIGHT = 56; // h-14 (Desktop) = 56px
 export const NAVBAR_HEIGHT_MOBILE = 48; // h-12 (Mobile) = 48px
@@ -34,6 +37,23 @@ export default function TopNavBar() {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [msgOpen, setMsgOpen] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  // Fetch user profile for avatar
+  const { data: profile } = useQuery({
+    queryKey: ['user-profile'],
+    queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return null;
+      
+      const { data } = await supabase
+        .from('profiles')
+        .select('avatar_url, first_name, last_name')
+        .eq('id', user.id)
+        .single();
+      
+      return data;
+    }
+  });
   const handleSubmit = () => {
     const term = q.trim();
     const sp = new URLSearchParams(location.search);
@@ -85,30 +105,22 @@ export default function TopNavBar() {
         
         {/* Icons aligned to the right */}
         <div className="flex items-center gap-1 md:gap-3 ml-auto">
-          {/* Mobile Search - with proper touch target */}
+          {/* Desktop Icons */}
           <button 
-            className="p-2 -m-2 hover:bg-muted/40 hover:shadow-soft rounded-xl transition-all duration-200 md:hidden min-h-[44px] min-w-[44px] flex items-center justify-center active:scale-95"
-            onClick={() => navigate('/marketplace')}
-            aria-label="Suche"
-          >
-            <SearchIcon className="h-6 w-6 md:h-5 md:w-5" />
-          </button>
-          
-          <button 
-            className="p-2 -m-2 hover:bg-muted/40 hover:shadow-soft rounded-xl transition-all duration-200 min-h-[44px] min-w-[44px] flex items-center justify-center active:scale-95"
+            className="hidden md:flex p-2 -m-2 hover:bg-muted/40 hover:shadow-soft rounded-xl transition-all duration-200 min-h-[44px] min-w-[44px] items-center justify-center active:scale-95"
             onClick={() => navigate('/community/contacts')}
             aria-label="Kontakte"
           >
-            <Users className="h-6 w-6 md:h-5 md:w-5" />
+            <Users className="h-5 w-5" />
           </button>
           
           <Popover open={msgOpen} onOpenChange={setMsgOpen}>
             <PopoverTrigger asChild>
               <button 
-                className="p-2 -m-2 hover:bg-muted/40 hover:shadow-soft rounded-xl transition-all duration-200 min-h-[44px] min-w-[44px] flex items-center justify-center active:scale-95"
+                className="hidden md:flex p-2 -m-2 hover:bg-muted/40 hover:shadow-soft rounded-xl transition-all duration-200 min-h-[44px] min-w-[44px] items-center justify-center active:scale-95"
                 aria-label="Nachrichten"
               >
-                <MessageSquareMore className="h-6 w-6 md:h-5 md:w-5" />
+                <MessageSquareMore className="h-5 w-5" />
               </button>
             </PopoverTrigger>
             <PopoverContent className="w-80 p-0" align="end">
@@ -117,19 +129,25 @@ export default function TopNavBar() {
           </Popover>
           
           <button 
-            className="p-2 -m-2 hover:bg-muted/40 hover:shadow-soft rounded-xl transition-all duration-200 min-h-[44px] min-w-[44px] flex items-center justify-center active:scale-95"
+            className="hidden md:flex p-2 -m-2 hover:bg-muted/40 hover:shadow-soft rounded-xl transition-all duration-200 min-h-[44px] min-w-[44px] items-center justify-center active:scale-95"
             onClick={() => navigate('/notifications')}
             aria-label="Benachrichtigungen"
           >
-            <Bell className="h-6 w-6 md:h-5 md:w-5" />
+            <Bell className="h-5 w-5" />
           </button>
           
+          {/* Profile Avatar (Mobile + Desktop) */}
           <button 
-            className="p-2 -m-2 hover:bg-muted/40 hover:shadow-soft rounded-xl transition-all duration-200 min-h-[44px] min-w-[44px] flex items-center justify-center active:scale-95"
+            className="p-1 -m-1 hover:opacity-80 transition-opacity min-h-[44px] min-w-[44px] flex items-center justify-center active:scale-95"
             onClick={() => navigate('/profile')}
             aria-label="Profil"
           >
-            <User className="h-6 w-6 md:h-5 md:w-5" />
+            <Avatar className="h-8 w-8">
+              <AvatarImage src={profile?.avatar_url || undefined} alt={`${profile?.first_name || ''} ${profile?.last_name || ''}`} />
+              <AvatarFallback className="bg-primary/10 text-primary">
+                {profile?.first_name?.[0] || 'U'}
+              </AvatarFallback>
+            </Avatar>
           </button>
         </div>
       </div>
