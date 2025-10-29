@@ -201,7 +201,7 @@ const Profile = () => {
   // Early returns after all hooks are declared
 
   return (
-    <div className="min-h-screen pb-20 md:pb-6">
+    <div className="min-h-screen pb-[72px] md:pb-6 overflow-x-hidden">
       {/* Main Content */}
       <div className="px-2 sm:px-3 md:px-6 py-2 sm:py-3 md:py-4">
         <div className="max-w-screen-2xl mx-auto">
@@ -244,7 +244,7 @@ const Profile = () => {
 
                 {/* Small tiles under Education: Contact & Profile Highlights */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
-                  <Card className="p-3 sm:p-4">
+                  <Card className="p-3 sm:p-4 overflow-hidden">
                     <div className="flex items-center justify-between mb-2">
                       <h4 className="text-sm font-semibold">Kontaktdaten</h4>
                       {!isEditingContact && !isEditing && (
@@ -343,7 +343,7 @@ const Profile = () => {
                       </div>
                     )}
                   </Card>
-                  <Card className="p-3 sm:p-4">
+                  <Card className="p-3 sm:p-4 overflow-hidden">
                     <h4 className="text-sm font-semibold mb-2">Profilaktivitäten</h4>
                     <div className="space-y-2 text-sm text-muted-foreground">
                       <div className="flex items-start gap-2">

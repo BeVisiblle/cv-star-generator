@@ -92,7 +92,7 @@ export function CompanyCard({
                 {displayMutuals.map((mutual) => (
                   <Avatar key={mutual.id} className="h-5 w-5 border border-background">
                     <AvatarImage src={mutual.avatar_url || ''} alt={mutual.name || ''} />
-                    <AvatarFallback className="text-[10px]">
+                    <AvatarFallback className="text-[11px]">
                       {(mutual.name || '?').charAt(0).toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
@@ -100,7 +100,7 @@ export function CompanyCard({
               </div>
               
               {remainingCount > 0 && (
-                <Badge variant="secondary" className="h-5 px-1.5 text-[10px]">
+                <Badge variant="secondary" className="h-5 px-1.5 text-[11px]">
                   +{remainingCount}
                 </Badge>
               )}
@@ -119,7 +119,7 @@ export function CompanyCard({
           <div className="mt-2">
             <div className="flex flex-wrap gap-1">
               {reasons.slice(0, 2).map((reason, index) => (
-                <Badge key={index} variant="outline" className="text-[10px] px-1.5 py-0.5">
+                <Badge key={index} variant="outline" className="text-[11px] px-1.5 py-0.5">
                   {reason}
                 </Badge>
               ))}

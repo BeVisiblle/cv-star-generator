@@ -27,7 +27,7 @@ const Dashboard = () => {
   }, []);
 
   return (
-    <main className="w-full min-h-dvh bg-white pb-20 md:pb-0">
+    <main className="w-full min-h-dvh bg-white pb-[72px] md:pb-0">
       <h1 className="sr-only">Dashboard</h1>
       
       {/* Inhalt direkt unter der Navbar */}

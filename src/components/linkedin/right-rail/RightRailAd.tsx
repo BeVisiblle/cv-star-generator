@@ -35,7 +35,7 @@ export const RightRailAd: React.FC<RightRailAdProps> = ({
   return (
     <Card className={cn("relative overflow-hidden", className)}>
       <div className="absolute top-2 right-2">
-        <Badge variant="secondary" className="text-[10px]">Anzeige</Badge>
+        <Badge variant="secondary" className="text-[11px]">Anzeige</Badge>
       </div>
 
       <div className={cn("w-full", imgClass)}>

@@ -143,7 +143,7 @@ export function ApplicationCandidateCard({
             <div className="text-xs font-medium text-primary mb-1">Zugeordnete Stellen:</div>
             <div className="flex flex-wrap gap-1">
               {linkedJobTitles.map((job) => (
-                <Badge key={job.id} variant="outline" className="flex items-center gap-1 border-primary/30 bg-primary/5 px-2 py-0.5 text-[10px] text-primary">
+                <Badge key={job.id} variant="outline" className="flex items-center gap-1 border-primary/30 bg-primary/5 px-2 py-0.5 text-[11px] text-primary">
                   <Briefcase className="h-2.5 w-2.5" />
                   <span className="truncate max-w-[140px]">{job.title}</span>
                 </Badge>

@@ -51,7 +51,7 @@ export function BranchSelector({ selectedBranches, onSelectionChange, error }: B
             <div className="text-center">
               <div className="text-xl mb-1">{branch.emoji}</div>
               <h4 className="font-medium text-xs mb-1">{branch.title}</h4>
-              <p className="text-[10px] text-muted-foreground leading-tight">{branch.desc}</p>
+              <p className="text-[11px] text-muted-foreground leading-tight">{branch.desc}</p>
             </div>
           </Card>
         ))}

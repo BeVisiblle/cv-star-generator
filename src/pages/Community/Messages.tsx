@@ -225,7 +225,7 @@ export default function CommunityMessages() {
           <Card className="p-4">
             <div className="text-sm font-semibold mb-3">Weitere Posteingänge</div>
             <div className="space-y-2 text-sm">
-              <div className="flex items-center justify-between"><span>Ausbildungsbasis</span><span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-primary text-primary-foreground text-[10px] leading-none px-1">1</span></div>
+              <div className="flex items-center justify-between"><span>Ausbildungsbasis</span><span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-primary text-primary-foreground text-[11px] leading-none px-1">1</span></div>
               <div className="flex items-center justify-between"><span>Zettelcloud</span><span className="text-muted-foreground text-xs">—</span></div>
               <div className="flex items-center justify-between"><span>Recruiter‑Nachrichten</span><span className="text-muted-foreground text-xs">—</span></div>
             </div>

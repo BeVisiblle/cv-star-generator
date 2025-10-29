@@ -408,12 +408,12 @@ export function ProfileCard({
             {topSkills.length > 0 ? (
               <div className="flex flex-wrap gap-1 w-full">
                 {topSkills.map((skill: any, index: number) => (
-                  <Badge key={index} variant="secondary" className="text-[10px] sm:text-xs truncate max-w-[70px] sm:max-w-[80px] px-1 sm:px-2 py-0.5">
+                  <Badge key={index} variant="secondary" className="text-[11px] sm:text-xs truncate max-w-[70px] sm:max-w-[80px] px-1 sm:px-2 py-0.5">
                     {skill.name || skill}
                   </Badge>
                 ))}
                 {profile.faehigkeiten && profile.faehigkeiten.length > 3 && (
-                  <Badge variant="outline" className="text-[10px] sm:text-xs px-1 sm:px-2 py-0.5">
+                  <Badge variant="outline" className="text-[11px] sm:text-xs px-1 sm:px-2 py-0.5">
                     +{profile.faehigkeiten.length - 3}
                   </Badge>
                 )}
@@ -444,14 +444,14 @@ export function ProfileCard({
                   size="sm" 
                   onClick={onPreview}
                   variant="outline" 
-                  className="flex-1 text-[10px] sm:text-xs px-1 sm:px-2 h-8"
+                  className="flex-1 text-[11px] sm:text-xs px-1 sm:px-2 h-8"
                 >
                   Profil ansehen
                 </Button>
                 <Button 
                   size="sm" 
                   variant="outline" 
-                  className="flex-1 text-[10px] sm:text-xs px-1 sm:px-2 h-8"
+                  className="flex-1 text-[11px] sm:text-xs px-1 sm:px-2 h-8"
                   onClick={handleDownloadCV}
                   disabled={isGeneratingPDF}
                 >
@@ -469,7 +469,7 @@ export function ProfileCard({
                 <Button 
                   size="sm"
                   onClick={onUnlock}
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-[10px] sm:text-xs px-2 h-8"
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-[11px] sm:text-xs px-2 h-8"
                 >
                   <Coins className="h-3 w-3 mr-1" />
                   <span className="hidden sm:inline">Freischalten (1 Token)</span>
@@ -483,13 +483,13 @@ export function ProfileCard({
           {isUnlocked && (
             <div className="mt-3 pt-3 border-t space-y-1">
               {profile.email && (
-                <div className="flex items-center text-[10px] sm:text-xs min-w-0">
+                <div className="flex items-center text-[11px] sm:text-xs min-w-0">
                   <Mail className="h-3 w-3 mr-2 text-muted-foreground flex-shrink-0" />
                   <span className="truncate">{profile.email}</span>
                 </div>
               )}
               {profile.telefon && (
-                <div className="flex items-center text-[10px] sm:text-xs">
+                <div className="flex items-center text-[11px] sm:text-xs">
                   <Phone className="h-3 w-3 mr-2 text-muted-foreground flex-shrink-0" />
                   <span className="truncate">{profile.telefon}</span>
                 </div>
