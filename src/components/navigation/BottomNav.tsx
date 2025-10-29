@@ -1,5 +1,5 @@
 import React from 'react';
-import { Home, Users, Plus, Bell, Briefcase, MessageSquareMore } from 'lucide-react';
+import { Home, Users, Plus, Bell, Menu } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { openPostComposer } from '@/lib/event-bus';
 import { Button } from '@/components/ui/button';
@@ -50,11 +50,14 @@ const BottomNav: React.FC = () => {
 
           <button
             className="flex flex-col items-center justify-center gap-0.5 text-muted-foreground hover:text-foreground py-1 min-h-[44px]"
-            onClick={() => navigate('/community/jobs')}
-            aria-label="Jobs"
+            onClick={() => {
+              const sidebar = document.querySelector('[data-sidebar="trigger"]') as HTMLElement;
+              sidebar?.click();
+            }}
+            aria-label="Menü"
           >
-            <Briefcase className="h-6 w-6" />
-            <span className="text-[10px] font-medium">Jobs</span>
+            <Menu className="h-6 w-6" />
+            <span className="text-[10px] font-medium">Menü</span>
           </button>
         </div>
       </div>

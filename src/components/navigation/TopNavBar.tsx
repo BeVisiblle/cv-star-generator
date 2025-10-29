@@ -48,7 +48,9 @@ export default function TopNavBar() {
   return <div className="sticky top-0 z-[300] border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="flex h-12 md:h-14 items-center px-3 md:px-4 gap-2 md:gap-4">
         <div className="flex items-center gap-3">
-          <SidebarTrigger />
+          <div className="hidden lg:block">
+            <SidebarTrigger />
+          </div>
           {/* Logo */}
           <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate('/dashboard')}>
             <img src="/assets/Logo_visiblle-2.svg" alt="BeVisiblle Logo" className="h-8 w-8" />
@@ -85,7 +87,7 @@ export default function TopNavBar() {
         <div className="flex items-center gap-1 md:gap-3 ml-auto">
           {/* Mobile Search - with proper touch target */}
           <button 
-            className="p-2 -m-2 hover:bg-accent rounded-md md:hidden min-h-[44px] min-w-[44px] flex items-center justify-center active:scale-95 transition-transform"
+            className="p-2 -m-2 hover:bg-muted/40 hover:shadow-soft rounded-xl transition-all duration-200 md:hidden min-h-[44px] min-w-[44px] flex items-center justify-center active:scale-95"
             onClick={() => navigate('/marketplace')}
             aria-label="Suche"
           >
@@ -93,7 +95,7 @@ export default function TopNavBar() {
           </button>
           
           <button 
-            className="p-2 -m-2 hover:bg-accent rounded-md min-h-[44px] min-w-[44px] flex items-center justify-center active:scale-95 transition-transform"
+            className="p-2 -m-2 hover:bg-muted/40 hover:shadow-soft rounded-xl transition-all duration-200 min-h-[44px] min-w-[44px] flex items-center justify-center active:scale-95"
             onClick={() => navigate('/community/contacts')}
             aria-label="Kontakte"
           >
@@ -103,7 +105,7 @@ export default function TopNavBar() {
           <Popover open={msgOpen} onOpenChange={setMsgOpen}>
             <PopoverTrigger asChild>
               <button 
-                className="p-2 -m-2 hover:bg-accent rounded-md min-h-[44px] min-w-[44px] flex items-center justify-center active:scale-95 transition-transform"
+                className="p-2 -m-2 hover:bg-muted/40 hover:shadow-soft rounded-xl transition-all duration-200 min-h-[44px] min-w-[44px] flex items-center justify-center active:scale-95"
                 aria-label="Nachrichten"
               >
                 <MessageSquareMore className="h-6 w-6 md:h-5 md:w-5" />
@@ -115,7 +117,7 @@ export default function TopNavBar() {
           </Popover>
           
           <button 
-            className="p-2 -m-2 hover:bg-accent rounded-md min-h-[44px] min-w-[44px] flex items-center justify-center active:scale-95 transition-transform"
+            className="p-2 -m-2 hover:bg-muted/40 hover:shadow-soft rounded-xl transition-all duration-200 min-h-[44px] min-w-[44px] flex items-center justify-center active:scale-95"
             onClick={() => navigate('/notifications')}
             aria-label="Benachrichtigungen"
           >
@@ -123,7 +125,7 @@ export default function TopNavBar() {
           </button>
           
           <button 
-            className="p-2 -m-2 hover:bg-accent rounded-md min-h-[44px] min-w-[44px] flex items-center justify-center active:scale-95 transition-transform"
+            className="p-2 -m-2 hover:bg-muted/40 hover:shadow-soft rounded-xl transition-all duration-200 min-h-[44px] min-w-[44px] flex items-center justify-center active:scale-95"
             onClick={() => navigate('/profile')}
             aria-label="Profil"
           >

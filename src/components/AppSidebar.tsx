@@ -9,6 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { openPostComposer } from "@/lib/event-bus";
 import { formatNameWithJob } from "@/utils/profileUtils";
+import { cn } from "@/lib/utils";
 
 const navigationItems = [{
   title: "Dashboard",
@@ -112,18 +113,24 @@ export function AppSidebar() {
       {/* Backdrop overlay for mobile */}
       {sidebar.open && sidebar.isMobile && (
         <div 
-          className="fixed inset-0 bg-black/20 z-[390] lg:hidden" 
+          className="fixed inset-0 bg-gradient-to-b from-black/60 to-black/40 backdrop-blur-md z-[490] lg:hidden" 
           onClick={() => sidebar.setOpenMobile(false)} 
         />
       )}
       
       <Sidebar 
-        className={`fixed left-0 top-0 h-screen z-[400] ${collapsed ? 'w-16' : 'w-64'}`}
+        className={cn(
+          // Desktop: Normal sidebar behavior (left-aligned)
+          "hidden lg:flex lg:fixed lg:left-0 lg:top-0 lg:h-screen lg:z-[400]",
+          collapsed ? "lg:w-16" : "lg:w-64",
+          // Mobile: Fullscreen overlay (above bottom nav)
+          sidebar.isMobile && sidebar.open && "!flex fixed inset-0 w-full h-full z-[500]"
+        )}
         collapsible="icon" 
         data-sidebar="sidebar"
       >
-        {/* Trigger Button at the top */}
-        <SidebarHeader className="h-14 border-b flex items-center justify-center px-2">
+        {/* Trigger Button at the top - only on desktop */}
+        <SidebarHeader className="hidden lg:flex h-14 border-b items-center justify-center px-2">
           <SidebarTrigger className="h-8 w-8" />
         </SidebarHeader>
 
@@ -133,8 +140,12 @@ export function AppSidebar() {
               <SidebarMenu>
                 {navigationItems.slice(0, 2).map(item => (
                   <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton asChild tooltip={collapsed ? item.title : undefined}>
-                      <button onClick={() => handleNavigation(item.url)} className={`flex items-center w-full ${collapsed ? 'justify-center h-12 w-12 mx-auto' : 'justify-between px-3 h-10'} rounded-xl transition-all ${isActive(item.url) ? "bg-sidebar-accent/60 text-sidebar-accent-foreground shadow-soft" : "text-sidebar-foreground hover:bg-sidebar-accent/80 hover:text-sidebar-accent-foreground hover:shadow-soft"}`}>
+                    <SidebarMenuButton asChild tooltip={collapsed && !sidebar.isMobile ? item.title : undefined}>
+                      <button onClick={() => handleNavigation(item.url)} className={cn(
+                        "flex items-center w-full rounded-xl transition-all",
+                        sidebar.isMobile ? "justify-between px-3 h-12" : (collapsed ? 'justify-center h-12 w-12 mx-auto' : 'justify-between px-3 h-10'),
+                        isActive(item.url) ? "bg-sidebar-accent/60 text-sidebar-accent-foreground shadow-soft" : "text-sidebar-foreground hover:bg-sidebar-accent/80 hover:text-sidebar-accent-foreground hover:shadow-soft"
+                      )}>
                         <div className="flex items-center gap-3">
                           <item.icon className="h-5 w-5 shrink-0" />
                           {!collapsed && <span>{item.title}</span>}
@@ -146,10 +157,19 @@ export function AppSidebar() {
                 ))}
 
                 {/* Community Menu */}
-                <Collapsible open={communityOpen} onOpenChange={setCommunityOpen}>
+                <Collapsible 
+                  open={sidebar.isMobile ? communityOpen : (collapsed ? false : communityOpen)} 
+                  onOpenChange={setCommunityOpen}
+                >
                   <SidebarMenuItem>
                     <CollapsibleTrigger asChild>
-                      <SidebarMenuButton tooltip={collapsed ? "Community" : undefined} className={`flex items-center w-full ${collapsed ? 'justify-center h-12 w-12 mx-auto' : 'justify-between px-3 h-10'} rounded-xl transition-all hover:bg-sidebar-accent/80 hover:shadow-soft`}>
+                      <SidebarMenuButton 
+                        tooltip={collapsed && !sidebar.isMobile ? "Community" : undefined} 
+                        className={cn(
+                          "flex items-center w-full rounded-xl transition-all hover:bg-sidebar-accent/80 hover:shadow-soft",
+                          sidebar.isMobile ? "justify-between px-3 h-12" : (collapsed ? 'justify-center h-12 w-12 mx-auto' : 'justify-between px-3 h-10')
+                        )}
+                      >
                         <div className="flex items-center gap-3">
                           <Users className="h-5 w-5 shrink-0" />
                           {!collapsed && <span>Community</span>}
@@ -157,7 +177,7 @@ export function AppSidebar() {
                         {!collapsed && (communityOpen ? <ChevronDown className="h-4 w-4 shrink-0" /> : <ChevronRight className="h-4 w-4 shrink-0" />)}
                       </SidebarMenuButton>
                     </CollapsibleTrigger>
-                    {!collapsed && (
+                    {(sidebar.isMobile || !collapsed) && (
                       <CollapsibleContent>
                         <SidebarMenuSub>
                           {communityItems.map(item => (
@@ -177,10 +197,19 @@ export function AppSidebar() {
                 </Collapsible>
 
                 {/* Karriere Menu */}
-                <Collapsible open={careerOpen} onOpenChange={setCareerOpen}>
+                <Collapsible 
+                  open={sidebar.isMobile ? careerOpen : (collapsed ? false : careerOpen)} 
+                  onOpenChange={setCareerOpen}
+                >
                   <SidebarMenuItem>
                     <CollapsibleTrigger asChild>
-                      <SidebarMenuButton tooltip={collapsed ? "Karriere" : undefined} className={`flex items-center w-full ${collapsed ? 'justify-center h-12 w-12 mx-auto' : 'justify-between px-3 h-10'} rounded-xl transition-all hover:bg-sidebar-accent/80 hover:shadow-soft`}>
+                      <SidebarMenuButton 
+                        tooltip={collapsed && !sidebar.isMobile ? "Karriere" : undefined} 
+                        className={cn(
+                          "flex items-center w-full rounded-xl transition-all hover:bg-sidebar-accent/80 hover:shadow-soft",
+                          sidebar.isMobile ? "justify-between px-3 h-12" : (collapsed ? 'justify-center h-12 w-12 mx-auto' : 'justify-between px-3 h-10')
+                        )}
+                      >
                         <div className="flex items-center gap-3">
                           <Briefcase className="h-5 w-5 shrink-0" />
                           {!collapsed && <span>Karriere</span>}
@@ -188,7 +217,7 @@ export function AppSidebar() {
                         {!collapsed && (careerOpen ? <ChevronDown className="h-4 w-4 shrink-0" /> : <ChevronRight className="h-4 w-4 shrink-0" />)}
                       </SidebarMenuButton>
                     </CollapsibleTrigger>
-                    {!collapsed && (
+                    {(sidebar.isMobile || !collapsed) && (
                       <CollapsibleContent>
                         <SidebarMenuSub>
                           {careerItems.map(item => (
@@ -210,8 +239,12 @@ export function AppSidebar() {
                 {/* Remaining navigation items */}
                 {navigationItems.slice(2).map(item => (
                   <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton asChild tooltip={collapsed ? item.title : undefined}>
-                      <button onClick={() => handleNavigation(item.url)} className={`flex items-center w-full ${collapsed ? 'justify-center h-12 w-12 mx-auto' : 'justify-between px-3 h-10'} rounded-xl transition-all ${isActive(item.url) ? "bg-sidebar-accent/60 text-sidebar-accent-foreground shadow-soft" : "text-sidebar-foreground hover:bg-sidebar-accent/80 hover:text-sidebar-accent-foreground hover:shadow-soft"}`}>
+                    <SidebarMenuButton asChild tooltip={collapsed && !sidebar.isMobile ? item.title : undefined}>
+                      <button onClick={() => handleNavigation(item.url)} className={cn(
+                        "flex items-center w-full rounded-xl transition-all",
+                        sidebar.isMobile ? "justify-between px-3 h-12" : (collapsed ? 'justify-center h-12 w-12 mx-auto' : 'justify-between px-3 h-10'),
+                        isActive(item.url) ? "bg-sidebar-accent/60 text-sidebar-accent-foreground shadow-soft" : "text-sidebar-foreground hover:bg-sidebar-accent/80 hover:text-sidebar-accent-foreground hover:shadow-soft"
+                      )}>
                         <div className="flex items-center gap-3">
                           <item.icon className="h-5 w-5 shrink-0" />
                           {!collapsed && <span>{item.title}</span>}
