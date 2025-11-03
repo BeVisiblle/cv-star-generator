@@ -367,20 +367,20 @@ export function AppSidebar() {
             <>
               <button 
                 onClick={() => handleNavigation('/profile')} 
-                className="flex flex-col items-center justify-center gap-1 w-full py-2 hover:bg-sidebar-accent/80 rounded-xl transition-colors"
+                className="flex items-center gap-2 w-full px-2 py-2 hover:bg-sidebar-accent/80 rounded-xl transition-colors"
               >
-                <Avatar className="h-10 w-10 ring-2 ring-primary/20">
+                <Avatar className="h-10 w-10 shrink-0 ring-2 ring-primary/20">
                   <AvatarImage src={profile?.avatar_url || undefined} />
                   <AvatarFallback>
                     {profile?.vorname?.[0]}{profile?.nachname?.[0]}
                   </AvatarFallback>
                 </Avatar>
-                <div className="text-center">
-                  <div className="text-[10px] font-medium leading-tight truncate max-w-[60px]">
+                <div className="flex flex-col items-start overflow-hidden min-w-0">
+                  <div className="text-xs font-medium leading-tight truncate w-full">
                     {nameInfo.name}
                   </div>
                   {nameInfo.job && (
-                    <div className="text-[9px] text-muted-foreground leading-tight truncate max-w-[60px]">
+                    <div className="text-[10px] text-muted-foreground leading-tight truncate w-full">
                       {nameInfo.job}
                     </div>
                   )}
