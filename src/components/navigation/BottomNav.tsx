@@ -16,7 +16,7 @@ const BottomNav: React.FC = () => {
   return (
     <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur-2xl border-t border-border/60 shadow-[0_-8px_24px_rgba(0,0,0,0.12)] z-50 pb-safe">
       <div className="mx-auto max-w-screen-sm px-2">
-        <div className="grid grid-cols-5 items-center gap-1 py-1.5">
+        <div className="grid grid-cols-4 items-center gap-1 py-1.5">
           {/* Start */}
           <button
             className={cn(
@@ -65,7 +65,7 @@ const BottomNav: React.FC = () => {
             </Button>
           </div>
 
-          {/* Nachrichten (instead of Notifications) */}
+          {/* Nachrichten */}
           <button
             className={cn(
               "flex flex-col items-center justify-center gap-0.5 min-h-[48px] transition-colors duration-200",
@@ -81,22 +81,6 @@ const BottomNav: React.FC = () => {
               <span className="w-1 h-1 rounded-full bg-foreground mt-0.5" />
             )}
             <span className="text-xs font-medium">Nachrichten</span>
-          </button>
-
-          {/* Menü */}
-          <button
-            className={cn(
-              "flex flex-col items-center justify-center gap-0.5 min-h-[48px] transition-colors duration-200",
-              "text-muted-foreground/70 hover:text-muted-foreground"
-            )}
-            onClick={() => {
-              const sidebar = document.querySelector('[data-sidebar="trigger"]') as HTMLElement;
-              sidebar?.click();
-            }}
-            aria-label="Menü"
-          >
-            <Menu className="h-6 w-6" />
-            <span className="text-xs font-medium">Menü</span>
           </button>
         </div>
       </div>
