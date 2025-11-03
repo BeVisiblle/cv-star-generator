@@ -10,7 +10,7 @@ import MessagePopoverPanel from "@/components/community/MessagePopoverPanel";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { MobileSearchSheet } from "@/components/MobileSearchSheet";
+
 
 export const NAVBAR_HEIGHT = 56; // h-14 (Desktop) = 56px
 export const NAVBAR_HEIGHT_MOBILE = 48; // h-12 (Mobile) = 48px
@@ -37,8 +37,8 @@ export default function TopNavBar() {
   const [open, setOpen] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [msgOpen, setMsgOpen] = useState(false);
-  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const mobileInputRef = useRef<HTMLInputElement>(null);
 
   // Fetch user profile for avatar
   const { data: profile } = useQuery({
@@ -85,14 +85,25 @@ export default function TopNavBar() {
           </div>
         </div>
 
-        {/* Mobile Search Icon */}
-        <button
-          onClick={() => setMobileSearchOpen(true)}
-          className="md:hidden p-2 -m-2 hover:bg-muted/40 rounded-xl transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center active:scale-95"
-          aria-label="Suchen"
-        >
-          <SearchIcon className="h-5 w-5" />
-        </button>
+        {/* Mobile Search Bar */}
+        <div className="flex md:hidden flex-1 mx-2 relative">
+          <Input ref={mobileInputRef} placeholder="Suchen..." value={q} onChange={e => {
+          setQ(e.target.value);
+          setOpen(e.target.value.trim().length >= 2);
+        }} onKeyDown={e => e.key === 'Enter' && handleSubmit()} onFocus={() => setOpen(q.trim().length >= 2)} className="pr-10 h-9 text-sm" />
+          <SearchIcon className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground cursor-pointer" onClick={handleSubmit} />
+          <SearchAutosuggest query={q} open={open} anchorRef={mobileInputRef} onClose={handleSearchClose} onSelect={(type: SuggestionType, item: {
+          id: string;
+          label: string;
+        }) => {
+          setOpen(false);
+          if (type === 'person') {
+            navigate(`/u/${item.id}`);
+          } else if (type === 'company') {
+            navigate(`/companies/${item.id}`);
+          }
+        }} />
+        </div>
         
         {/* Desktop Search Bar */}
         <div className="hidden md:flex flex-1 max-w-md mx-4 relative">
@@ -159,8 +170,5 @@ export default function TopNavBar() {
       
       {/* Connections Drawer */}
       <ConnectionsDrawer open={drawerOpen} onOpenChange={setDrawerOpen} />
-
-      {/* Mobile Search Sheet */}
-      <MobileSearchSheet open={mobileSearchOpen} onOpenChange={setMobileSearchOpen} />
     </div>;
 }
