@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
-import { SidebarTrigger } from "@/components/ui/sidebar";
-import { Bell, Search as SearchIcon, MessageSquare, Users, User } from "lucide-react";
+import { SidebarTrigger, useSidebar } from "@/components/ui/sidebar";
+import { Bell, Search as SearchIcon, MessageSquare, Users, User, Menu } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import SearchAutosuggest, { SuggestionType } from "@/components/marketplace/SearchAutosuggest";
@@ -70,9 +70,11 @@ export default function TopNavBar() {
   return <div className="sticky top-0 z-[300] border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="flex h-12 md:h-14 items-center px-3 md:px-4 gap-2 md:gap-4">
         <div className="flex items-center gap-3">
-          <div className="hidden lg:block">
-            <SidebarTrigger />
-          </div>
+          {/* Menu Trigger Button */}
+          <SidebarTrigger className="h-8 w-8 flex items-center justify-center hover:bg-muted/40 rounded-xl transition-colors">
+            <Menu className="h-5 w-5" />
+          </SidebarTrigger>
+          
           {/* Logo */}
           <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate('/dashboard')}>
             <img src="/assets/Logo_visiblle-2.svg" alt="BeVisiblle Logo" className="h-8 w-8" />
