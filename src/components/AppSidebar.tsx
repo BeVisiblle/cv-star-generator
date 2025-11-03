@@ -123,10 +123,11 @@ export function AppSidebar() {
       <Sidebar 
         className={cn(
           // Desktop: Normal sidebar behavior (left-aligned)
-          "hidden lg:flex lg:fixed lg:left-0 lg:top-0 lg:h-screen lg:z-[400]",
+          "hidden lg:flex lg:fixed lg:left-0 lg:h-screen lg:z-[400]",
+          "lg:pt-14", // Below TopNavBar
           collapsed ? "lg:w-16" : "lg:w-64",
           // Mobile: Fullscreen overlay (above bottom nav)
-          sidebar.isMobile && sidebar.open && "!flex fixed inset-0 w-full h-full z-[500]"
+          sidebar.isMobile && sidebar.open && "!flex fixed inset-0 w-full h-full z-[500] pt-0"
         )}
         collapsible="icon" 
         data-sidebar="sidebar"
@@ -179,13 +180,18 @@ export function AppSidebar() {
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton asChild tooltip={collapsed && !sidebar.isMobile ? item.title : undefined}>
                       <button onClick={() => handleNavigation(item.url)} className={cn(
-                        "flex items-center w-full rounded-xl transition-all",
-                        sidebar.isMobile ? "justify-between px-3 h-12" : (collapsed ? 'justify-center h-12 w-12 mx-auto' : 'justify-between px-3 h-10'),
+                        "flex w-full rounded-xl transition-all",
+                        sidebar.isMobile ? "items-center justify-between px-3 h-12" : (collapsed ? 'flex-col items-center justify-center h-14 w-12 mx-auto gap-1' : 'items-center justify-between px-3 h-10'),
                         isActive(item.url) ? "bg-sidebar-accent/60 text-sidebar-accent-foreground shadow-soft" : "text-sidebar-foreground hover:bg-sidebar-accent/80 hover:text-sidebar-accent-foreground hover:shadow-soft"
                       )}>
-                        <div className="flex items-center gap-3">
+                        <div className={cn(
+                          "flex items-center gap-3",
+                          collapsed && !sidebar.isMobile && "flex-col gap-1"
+                        )}>
                           <item.icon className="h-5 w-5 shrink-0" />
-                          {!collapsed && <span>{item.title}</span>}
+                          <span className={cn(collapsed && !sidebar.isMobile && "text-[10px] leading-tight text-center")}>
+                            {item.title}
+                          </span>
                         </div>
                         {!collapsed && isActive(item.url) && <ChevronRight className="h-4 w-4 shrink-0" />}
                       </button>
@@ -205,13 +211,18 @@ export function AppSidebar() {
                       <SidebarMenuButton 
                         tooltip={collapsed && !sidebar.isMobile ? "Community" : undefined} 
                         className={cn(
-                          "flex items-center w-full rounded-xl transition-all hover:bg-sidebar-accent/80 hover:shadow-soft",
-                          sidebar.isMobile ? "justify-between px-3 h-12" : (collapsed ? 'justify-center h-12 w-12 mx-auto' : 'justify-between px-3 h-10')
+                          "flex w-full rounded-xl transition-all hover:bg-sidebar-accent/80 hover:shadow-soft",
+                          sidebar.isMobile ? "items-center justify-between px-3 h-12" : (collapsed ? 'flex-col items-center justify-center h-14 w-12 mx-auto gap-1' : 'items-center justify-between px-3 h-10')
                         )}
                       >
-                        <div className="flex items-center gap-3">
+                        <div className={cn(
+                          "flex items-center gap-3",
+                          collapsed && !sidebar.isMobile && "flex-col gap-1"
+                        )}>
                           <Users className="h-5 w-5 shrink-0" />
-                          {!collapsed && <span>Community</span>}
+                          <span className={cn(collapsed && !sidebar.isMobile && "text-[10px] leading-tight text-center")}>
+                            Community
+                          </span>
                         </div>
                         {!collapsed && (communityOpen ? <ChevronDown className="h-4 w-4 shrink-0" /> : <ChevronRight className="h-4 w-4 shrink-0" />)}
                       </SidebarMenuButton>
@@ -247,13 +258,18 @@ export function AppSidebar() {
                       <SidebarMenuButton 
                         tooltip={collapsed && !sidebar.isMobile ? "Karriere" : undefined} 
                         className={cn(
-                          "flex items-center w-full rounded-xl transition-all hover:bg-sidebar-accent/80 hover:shadow-soft",
-                          sidebar.isMobile ? "justify-between px-3 h-12" : (collapsed ? 'justify-center h-12 w-12 mx-auto' : 'justify-between px-3 h-10')
+                          "flex w-full rounded-xl transition-all hover:bg-sidebar-accent/80 hover:shadow-soft",
+                          sidebar.isMobile ? "items-center justify-between px-3 h-12" : (collapsed ? 'flex-col items-center justify-center h-14 w-12 mx-auto gap-1' : 'items-center justify-between px-3 h-10')
                         )}
                       >
-                        <div className="flex items-center gap-3">
+                        <div className={cn(
+                          "flex items-center gap-3",
+                          collapsed && !sidebar.isMobile && "flex-col gap-1"
+                        )}>
                           <Briefcase className="h-5 w-5 shrink-0" />
-                          {!collapsed && <span>Karriere</span>}
+                          <span className={cn(collapsed && !sidebar.isMobile && "text-[10px] leading-tight text-center")}>
+                            Karriere
+                          </span>
                         </div>
                         {!collapsed && (careerOpen ? <ChevronDown className="h-4 w-4 shrink-0" /> : <ChevronRight className="h-4 w-4 shrink-0" />)}
                       </SidebarMenuButton>
@@ -282,13 +298,18 @@ export function AppSidebar() {
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton asChild tooltip={collapsed && !sidebar.isMobile ? item.title : undefined}>
                       <button onClick={() => handleNavigation(item.url)} className={cn(
-                        "flex items-center w-full rounded-xl transition-all",
-                        sidebar.isMobile ? "justify-between px-3 h-12" : (collapsed ? 'justify-center h-12 w-12 mx-auto' : 'justify-between px-3 h-10'),
+                        "flex w-full rounded-xl transition-all",
+                        sidebar.isMobile ? "items-center justify-between px-3 h-12" : (collapsed ? 'flex-col items-center justify-center h-14 w-12 mx-auto gap-1' : 'items-center justify-between px-3 h-10'),
                         isActive(item.url) ? "bg-sidebar-accent/60 text-sidebar-accent-foreground shadow-soft" : "text-sidebar-foreground hover:bg-sidebar-accent/80 hover:text-sidebar-accent-foreground hover:shadow-soft"
                       )}>
-                        <div className="flex items-center gap-3">
+                        <div className={cn(
+                          "flex items-center gap-3",
+                          collapsed && !sidebar.isMobile && "flex-col gap-1"
+                        )}>
                           <item.icon className="h-5 w-5 shrink-0" />
-                          {!collapsed && <span>{item.title}</span>}
+                          <span className={cn(collapsed && !sidebar.isMobile && "text-[10px] leading-tight text-center")}>
+                            {item.title}
+                          </span>
                         </div>
                         {!collapsed && isActive(item.url) && <ChevronRight className="h-4 w-4 shrink-0" />}
                       </button>
@@ -304,8 +325,11 @@ export function AppSidebar() {
         <SidebarFooter className="mt-auto p-2 border-t space-y-2">
           {!collapsed && (
             <>
-              <div className="flex items-center gap-3 px-3 py-2">
-                <Avatar className="h-12 w-12 shrink-0">
+              <button 
+                onClick={() => handleNavigation('/profile')}
+                className="flex items-center gap-3 px-3 py-2 w-full hover:bg-sidebar-accent/80 rounded-xl transition-colors"
+              >
+                <Avatar className="h-12 w-12 shrink-0 ring-2 ring-primary/20">
                   <AvatarImage src={profile?.avatar_url || undefined} />
                   <AvatarFallback>
                     {profile?.vorname?.[0]}{profile?.nachname?.[0]}
@@ -315,7 +339,7 @@ export function AppSidebar() {
                   <span className="text-sm font-medium truncate">{nameInfo.name}</span>
                   {nameInfo.job && <span className="text-xs text-muted-foreground truncate">{nameInfo.job}</span>}
                 </div>
-              </div>
+              </button>
 
               <SidebarMenuButton asChild>
                 <button 
@@ -341,32 +365,45 @@ export function AppSidebar() {
 
           {collapsed && (
             <>
-              <SidebarMenuButton asChild tooltip={nameInfo.name}>
-                <button onClick={() => handleNavigation('/profile')} className="flex items-center justify-center h-12 w-12 mx-auto">
-                  <Avatar className="h-10 w-10">
-                    <AvatarImage src={profile?.avatar_url || undefined} />
-                    <AvatarFallback>
-                      {profile?.vorname?.[0]}{profile?.nachname?.[0]}
-                    </AvatarFallback>
-                  </Avatar>
-                </button>
-              </SidebarMenuButton>
+              <button 
+                onClick={() => handleNavigation('/profile')} 
+                className="flex flex-col items-center justify-center gap-1 w-full py-2 hover:bg-sidebar-accent/80 rounded-xl transition-colors"
+              >
+                <Avatar className="h-10 w-10 ring-2 ring-primary/20">
+                  <AvatarImage src={profile?.avatar_url || undefined} />
+                  <AvatarFallback>
+                    {profile?.vorname?.[0]}{profile?.nachname?.[0]}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="text-center">
+                  <div className="text-[10px] font-medium leading-tight truncate max-w-[60px]">
+                    {nameInfo.name}
+                  </div>
+                  {nameInfo.job && (
+                    <div className="text-[9px] text-muted-foreground leading-tight truncate max-w-[60px]">
+                      {nameInfo.job}
+                    </div>
+                  )}
+                </div>
+              </button>
 
               <SidebarMenuButton asChild tooltip="Beitrag posten">
                 <button 
                   onClick={() => openPostComposer()} 
-                  className="flex items-center justify-center h-12 w-12 mx-auto rounded-full bg-foreground text-background hover:bg-foreground/90 transition-all"
+                  className="flex flex-col items-center justify-center gap-1 h-14 w-12 mx-auto rounded-xl bg-foreground text-background hover:bg-foreground/90 transition-all"
                 >
-                  <Plus className="h-5 w-5" />
+                  <Plus className="h-5 w-5 shrink-0" />
+                  <span className="text-[10px] leading-tight text-center">Posten</span>
                 </button>
               </SidebarMenuButton>
 
               <SidebarMenuButton asChild tooltip="Abmelden">
                 <button 
                   onClick={handleSignOut}
-                  className="flex items-center justify-center h-12 w-12 mx-auto rounded-xl hover:bg-sidebar-accent/80 hover:shadow-soft transition-all"
+                  className="flex flex-col items-center justify-center gap-1 h-14 w-12 mx-auto rounded-xl hover:bg-sidebar-accent/80 hover:shadow-soft transition-all"
                 >
-                  <LogOut className="h-5 w-5" />
+                  <LogOut className="h-5 w-5 shrink-0" />
+                  <span className="text-[10px] leading-tight text-center">Abmelden</span>
                 </button>
               </SidebarMenuButton>
             </>
