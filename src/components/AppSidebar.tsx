@@ -123,11 +123,11 @@ export function AppSidebar() {
       <Sidebar 
         className={cn(
           // Desktop: Normal sidebar behavior (left-aligned)
-          "hidden lg:flex lg:fixed lg:left-0 lg:h-screen lg:z-[400]",
-          "lg:pt-14", // Below TopNavBar
+          "hidden lg:flex lg:fixed lg:left-0 lg:z-[400]",
+          "lg:top-14 lg:h-[calc(100vh-3.5rem)]", // Start below TopNavBar
           collapsed ? "lg:w-16" : "lg:w-64",
           // Mobile: Fullscreen overlay (above bottom nav)
-          sidebar.isMobile && sidebar.open && "!flex fixed inset-0 w-full h-full z-[500] pt-0"
+          sidebar.isMobile && sidebar.open && "!flex fixed inset-0 w-full h-full z-[500]"
         )}
         collapsible="icon" 
         data-sidebar="sidebar"
