@@ -48,7 +48,6 @@ export function AppSidebar() {
   const location = useLocation();
   const navigate = useNavigate();
   const currentPath = location.pathname;
-  const [sidebarSearch, setSidebarSearch] = useState("");
   
   // Determine if groups should be open based on current path
   const isCommunityPath = communityItems.some(item => currentPath === item.url);
@@ -132,9 +131,9 @@ export function AppSidebar() {
         collapsible="icon" 
         data-sidebar="sidebar"
       >
-        {/* Mobile Header mit Suchleiste */}
+        {/* Mobile Header */}
         {sidebar.isMobile && sidebar.open && (
-          <div className="p-4 border-b lg:hidden space-y-3">
+          <div className="p-4 border-b lg:hidden">
             <div className="flex justify-between items-center">
               <h2 className="text-lg font-semibold">Menü</h2>
               <button 
@@ -144,24 +143,6 @@ export function AppSidebar() {
               >
                 <X className="h-5 w-5" />
               </button>
-            </div>
-            
-            {/* Mobile Search in Sidebar */}
-            <div className="relative">
-              <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                value={sidebarSearch}
-                onChange={(e) => setSidebarSearch(e.target.value)}
-                placeholder="Suchen..."
-                className="pl-9 h-10"
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' && sidebarSearch.trim()) {
-                    navigate(`/marketplace?q=${encodeURIComponent(sidebarSearch)}`);
-                    sidebar.setOpenMobile(false);
-                    setSidebarSearch("");
-                  }
-                }}
-              />
             </div>
           </div>
         )}
