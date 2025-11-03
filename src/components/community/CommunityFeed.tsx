@@ -56,15 +56,21 @@ export default function CommunityFeed({ feedHeadHeight = 0 }: CommunityFeedProps
     queryFn: async ({ pageParam }) => {
       console.log('[feed] fetching page', pageParam, sort);
 
-      // Use posts table - Author-Infos werden separat gefetched (siehe Fallback-Logik unten)
+      // Use view with engagement scores
       let query = supabase
-        .from('posts')
+        .from('posts_with_engagement')
         .select('*, image_url, media, documents')
         .limit(PAGE_SIZE);
 
-      // Apply sorting - for now both use created_at since like_count column doesn't exist
-      // TODO: Add like_count as computed column or use a view
-      query = query.order('created_at', { ascending: false });
+      // Apply sorting based on user selection
+      if (sort === 'newest') {
+        query = query.order('created_at', { ascending: false });
+      } else {
+        // Sort by relevance (engagement score), then by date for tie-breaker
+        query = query
+          .order('engagement_score', { ascending: false })
+          .order('created_at', { ascending: false });
+      }
 
       // Apply pagination
       if (pageParam?.after_published) {

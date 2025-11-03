@@ -40,17 +40,20 @@ export default function CommunityFeed({ feedHeadHeight = 0 }: CommunityFeedProps
     queryFn: async ({ pageParam }) => {
       console.log('[feed] Fetching clean posts page', pageParam, sort);
 
-      // Use simple posts table - load posts first
+      // Use view with engagement scores
       let query = supabase
-        .from('posts')
+        .from('posts_with_engagement')
         .select('*')
         .limit(PAGE_SIZE);
 
-      // Apply sorting
+      // Apply sorting based on user selection
       if (sort === 'newest') {
         query = query.order('created_at', { ascending: false });
       } else {
-        query = query.order('created_at', { ascending: false });
+        // Sort by relevance (engagement score), then by date for tie-breaker
+        query = query
+          .order('engagement_score', { ascending: false })
+          .order('created_at', { ascending: false });
       }
 
       // Apply pagination
