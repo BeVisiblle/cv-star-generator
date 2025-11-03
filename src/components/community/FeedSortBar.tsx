@@ -21,11 +21,11 @@ export const FeedSortBar: React.FC = () => {
 
   return (
     <div className="-mx-1 sm:mx-0">
-      <Card className="px-2 sm:px-2.5 py-1 flex flex-wrap items-center justify-between gap-2 text-xs sm:text-sm">
-        <div className="text-muted-foreground">Feed-Ansicht auswählen:</div>
-        <div className="min-w-0 w-[160px] sm:w-[180px]">
+      <Card className="px-3 py-1.5 flex items-center justify-between gap-2 text-xs">
+        <div className="text-muted-foreground text-xs">Feed-Ansicht auswählen:</div>
+        <div className="min-w-0 w-[150px]">
           <Select value={sort} onValueChange={(v) => onChange(v as FeedSortOption)}>
-            <SelectTrigger className="h-8 text-xs sm:text-sm">
+            <SelectTrigger className="h-7 text-xs border-0 bg-transparent shadow-none">
               <SelectValue placeholder="Relevanteste zuerst" />
             </SelectTrigger>
             <SelectContent>

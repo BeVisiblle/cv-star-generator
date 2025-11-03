@@ -45,20 +45,20 @@ const Dashboard = () => {
           {/* Main - Center Column */}
           <section className="col-span-12 lg:col-span-9 xl:col-span-6 relative">
             
-            {/* (2) Sticky: Composer + Feed Controls - kompakt auf mobile */}
+            {/* (2) Sticky: Composer + Feed Controls - kompakt */}
             <div
               ref={feedHeadRef}
-              className="sticky z-40 bg-white shadow-sm"
+              className="sticky z-40 bg-background/95 backdrop-blur-sm"
               style={{ top: `${getNavbarHeight()}px` }}
             >
-              <div className="px-3 py-2 space-y-2">
+              <div className="px-3 py-2 space-y-1.5">
                 <ComposerTeaser />
                 <FeedSortBar />
               </div>
             </div>
 
-            {/* (3) Post-Liste - mehr Abstand auf mobile */}
-            <div className="mt-2 md:mt-2 space-y-2 md:space-y-3 relative z-10" role="feed">
+            {/* (3) Post-Liste - kompakter Abstand */}
+            <div className="mt-1.5 space-y-2 relative z-10" role="feed">
               <CommunityFeed feedHeadHeight={feedHeadH} />
             </div>
           </section>
