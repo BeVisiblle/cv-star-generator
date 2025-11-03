@@ -112,7 +112,7 @@ export function AppSidebar() {
       {/* Backdrop overlay */}
       {sidebar.open && (
         <div 
-          className="fixed inset-0 bg-gradient-to-b from-black/60 to-black/40 backdrop-blur-md z-[490]" 
+          className="fixed inset-0 bg-black/40 z-[490]" 
           onClick={() => sidebar.setOpen(false)} 
         />
       )}
@@ -121,7 +121,7 @@ export function AppSidebar() {
         className={cn(
           "fixed top-0 left-0 h-full z-[500]",
           "w-full sm:w-80 md:w-96",
-          "bg-background/98 backdrop-blur-xl shadow-2xl border-r",
+          "bg-background shadow-xl border-r",
           !sidebar.open && "hidden"
         )}
         collapsible="none"
