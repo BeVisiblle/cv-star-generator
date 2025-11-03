@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
-import { LayoutDashboard, User, Users, Settings, FileText, LogOut, ChevronRight, ChevronDown, Plus, MessageSquare, Briefcase, Building2, Search, Sparkles, UserPlus, Mail, UsersRound, Menu, X } from "lucide-react";
+import { LayoutDashboard, User, Users, Settings, FileText, LogOut, ChevronRight, ChevronDown, Plus, MessageSquare, Briefcase, Building2, Search as SearchIcon, Sparkles, UserPlus, Mail, UsersRound, Menu, X } from "lucide-react";
+import { Input } from "@/components/ui/input";
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarMenuSub, SidebarMenuSubItem, SidebarMenuSubButton, SidebarHeader, SidebarFooter, SidebarTrigger, useSidebar } from "@/components/ui/sidebar";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Button } from "@/components/ui/button";
@@ -37,7 +38,7 @@ const communityItems = [
 ];
 
 const careerItems = [
-  { title: "Jobsuche", url: "/jobs", icon: Search },
+  { title: "Jobsuche", url: "/jobs", icon: SearchIcon },
   { title: "Meine Karriere", url: "/meine-karriere", icon: Briefcase },
   { title: "Unternehmen", url: "/companies", icon: Building2 }
 ];
@@ -47,6 +48,7 @@ export function AppSidebar() {
   const location = useLocation();
   const navigate = useNavigate();
   const currentPath = location.pathname;
+  const [sidebarSearch, setSidebarSearch] = useState("");
   
   // Determine if groups should be open based on current path
   const isCommunityPath = communityItems.some(item => currentPath === item.url);
@@ -129,16 +131,37 @@ export function AppSidebar() {
         collapsible="icon" 
         data-sidebar="sidebar"
       >
-        {/* Mobile Close Button */}
+        {/* Mobile Header mit Suchleiste */}
         {sidebar.isMobile && sidebar.open && (
-          <div className="flex justify-end p-4 border-b lg:hidden">
-            <button 
-              onClick={() => sidebar.setOpenMobile(false)}
-              className="p-2 hover:bg-sidebar-accent/80 rounded-xl transition-colors"
-              aria-label="Schließen"
-            >
-              <X className="h-5 w-5" />
-            </button>
+          <div className="p-4 border-b lg:hidden space-y-3">
+            <div className="flex justify-between items-center">
+              <h2 className="text-lg font-semibold">Menü</h2>
+              <button 
+                onClick={() => sidebar.setOpenMobile(false)}
+                className="p-2 hover:bg-sidebar-accent/80 rounded-xl transition-colors"
+                aria-label="Schließen"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            
+            {/* Mobile Search in Sidebar */}
+            <div className="relative">
+              <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                value={sidebarSearch}
+                onChange={(e) => setSidebarSearch(e.target.value)}
+                placeholder="Suchen..."
+                className="pl-9 h-10"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && sidebarSearch.trim()) {
+                    navigate(`/marketplace?q=${encodeURIComponent(sidebarSearch)}`);
+                    sidebar.setOpenMobile(false);
+                    setSidebarSearch("");
+                  }
+                }}
+              />
+            </div>
           </div>
         )}
 
@@ -149,6 +172,7 @@ export function AppSidebar() {
 
         <SidebarContent>
           <SidebarGroup>
+            {sidebar.isMobile && <SidebarGroupLabel>Hauptnavigation</SidebarGroupLabel>}
             <SidebarGroupContent>
               <SidebarMenu>
                 {navigationItems.slice(0, 2).map(item => (
@@ -169,7 +193,9 @@ export function AppSidebar() {
                   </SidebarMenuItem>
                 ))}
 
-                {/* Community Menu */}
+                {/* Community Section */}
+                {sidebar.isMobile && <SidebarGroupLabel className="mt-4">Community</SidebarGroupLabel>}
+                
                 <Collapsible 
                   open={sidebar.isMobile ? communityOpen : (collapsed ? false : communityOpen)} 
                   onOpenChange={setCommunityOpen}
@@ -209,7 +235,9 @@ export function AppSidebar() {
                   </SidebarMenuItem>
                 </Collapsible>
 
-                {/* Karriere Menu */}
+                {/* Karriere Section */}
+                {sidebar.isMobile && <SidebarGroupLabel className="mt-4">Karriere</SidebarGroupLabel>}
+                
                 <Collapsible 
                   open={sidebar.isMobile ? careerOpen : (collapsed ? false : careerOpen)} 
                   onOpenChange={setCareerOpen}

@@ -10,6 +10,7 @@ import MessagePopoverPanel from "@/components/community/MessagePopoverPanel";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { MobileSearchSheet } from "@/components/MobileSearchSheet";
 
 export const NAVBAR_HEIGHT = 56; // h-14 (Desktop) = 56px
 export const NAVBAR_HEIGHT_MOBILE = 48; // h-12 (Mobile) = 48px
@@ -36,6 +37,7 @@ export default function TopNavBar() {
   const [open, setOpen] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [msgOpen, setMsgOpen] = useState(false);
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   // Fetch user profile for avatar
@@ -82,6 +84,15 @@ export default function TopNavBar() {
             </span>
           </div>
         </div>
+
+        {/* Mobile Search Icon */}
+        <button
+          onClick={() => setMobileSearchOpen(true)}
+          className="md:hidden p-2 -m-2 hover:bg-muted/40 rounded-xl transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center active:scale-95"
+          aria-label="Suchen"
+        >
+          <SearchIcon className="h-5 w-5" />
+        </button>
         
         {/* Desktop Search Bar */}
         <div className="hidden md:flex flex-1 max-w-md mx-4 relative">
@@ -148,5 +159,8 @@ export default function TopNavBar() {
       
       {/* Connections Drawer */}
       <ConnectionsDrawer open={drawerOpen} onOpenChange={setDrawerOpen} />
+
+      {/* Mobile Search Sheet */}
+      <MobileSearchSheet open={mobileSearchOpen} onOpenChange={setMobileSearchOpen} />
     </div>;
 }
