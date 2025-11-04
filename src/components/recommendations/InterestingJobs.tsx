@@ -31,7 +31,7 @@ export function InterestingJobs() {
       onPrimary={async (job: Job) => {
         window.location.href = `/jobs/${job.id}`;
       }}
-      onView={(job: Job) => {
+      onView={async (job: Job) => {
         window.location.href = `/jobs/${job.id}`;
       }}
       onSkip={async (job: Job) => {
