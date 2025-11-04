@@ -31,7 +31,7 @@ const Dashboard = () => {
       <h1 className="sr-only">Dashboard</h1>
       
       {/* Inhalt direkt unter der Navbar */}
-      <div className="pt-4 md:pt-6">
+      <div className="pt-1 md:pt-2">
         <div className="mx-auto max-w-screen-2xl grid grid-cols-12 gap-3 sm:gap-4 lg:gap-6 px-3 sm:px-4 lg:px-6">
           
           {/* (1) Left Panel - sticky */}
@@ -51,7 +51,7 @@ const Dashboard = () => {
             <div
               ref={feedHeadRef}
               className="sticky z-40 bg-background/95 backdrop-blur-sm"
-              style={{ top: `${getNavbarHeight() + 8}px` }}
+              style={{ top: `${getNavbarHeight()}px` }}
             >
               <div className="px-3 py-3 space-y-2">
                 <ComposerTeaser />
@@ -60,7 +60,7 @@ const Dashboard = () => {
             </div>
 
             {/* (3) Post-Liste - kompakter Abstand */}
-            <div className="mt-1.5 space-y-2 relative z-10" role="feed">
+            <div className="mt-4 space-y-2 relative z-10" role="feed">
               <CommunityFeed feedHeadHeight={feedHeadH} />
             </div>
           </section>
