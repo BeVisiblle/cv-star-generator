@@ -34,9 +34,9 @@ const Dashboard = () => {
       <div className="pt-12 md:pt-14">
         <div className="mx-auto max-w-screen-2xl grid grid-cols-12 gap-3 sm:gap-4 lg:gap-6 px-3 sm:px-4 lg:px-6">
           
-          {/* (1) Left Panel - normaler Flow, keine eigene Scrollbar */}
+          {/* (1) Left Panel - sticky */}
           <aside
-            className="hidden lg:block col-span-3"
+            className="hidden lg:block col-span-3 sticky top-14 h-[calc(100vh-3.5rem)] overflow-y-auto"
             aria-label="Linke Spalte"
           >
             <LeftPanel />
@@ -63,9 +63,9 @@ const Dashboard = () => {
             </div>
           </section>
 
-          {/* (4) Right Panel - normaler Flow, keine eigene Scrollbar */}
+          {/* (4) Right Panel - sticky */}
           <aside
-            className="hidden xl:block col-span-3"
+            className="hidden xl:block col-span-3 sticky top-14 h-[calc(100vh-3.5rem)] overflow-y-auto"
             aria-label="Rechte Spalte"
           >
             <RightPanel />
