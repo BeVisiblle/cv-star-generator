@@ -21,7 +21,7 @@ export function InterestingCompanies() {
     <AnySuggestionList
       title="Interessante Unternehmen"
       fetchFn={() =>
-        (supabase as any).rpc("suggest_companies", { p_viewer: viewerId, p_limit: 3 }) as Promise<{
+        (supabase as any).rpc("suggest_companies", { p_profile_id: viewerId, p_limit: 3 }) as Promise<{
           data: Company[] | null;
           error: any;
         }>

@@ -9,8 +9,8 @@ type Job = {
   company_name?: string | null;
   city?: string | null;
   employment_type?: string | null;
-  salary_min?: number | null;
-  salary_max?: number | null;
+  salary_min?: string | number | null;
+  salary_max?: string | number | null;
 };
 
 export function InterestingJobs() {
