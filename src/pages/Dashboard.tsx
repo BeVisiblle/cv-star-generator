@@ -36,10 +36,12 @@ const Dashboard = () => {
           
           {/* (1) Left Panel - sticky */}
           <aside
-            className="hidden lg:block col-span-3 sticky top-14 h-[calc(100vh-3.5rem)] overflow-y-auto"
+            className="hidden lg:block col-span-3"
             aria-label="Linke Spalte"
           >
-            <LeftPanel />
+            <div className="sticky top-14 h-[calc(100vh-3.5rem)] overflow-y-auto">
+              <LeftPanel />
+            </div>
           </aside>
 
           {/* Main - Center Column */}
@@ -65,10 +67,12 @@ const Dashboard = () => {
 
           {/* (4) Right Panel - sticky */}
           <aside
-            className="hidden xl:block col-span-3 sticky top-14 h-[calc(100vh-3.5rem)] overflow-y-auto"
+            className="hidden xl:block col-span-3"
             aria-label="Rechte Spalte"
           >
-            <RightPanel />
+            <div className="sticky top-14 h-[calc(100vh-3.5rem)] overflow-y-auto">
+              <RightPanel />
+            </div>
           </aside>
         </div>
       </div>
