@@ -108,20 +108,26 @@ export function SuggestionList<T>({
                   <AvatarImage src={it.avatar ?? undefined} alt={alt} />
                   <AvatarFallback>{it.title.slice(0, 2)}</AvatarFallback>
                 </Avatar>
-                <div className="min-w-0 flex-1">
+                <div 
+                  className="min-w-0 flex-1 cursor-pointer hover:opacity-80 transition-opacity"
+                  onClick={() => onView?.(item)}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => e.key === 'Enter' && onView?.(item)}
+                >
                   <div className={cn("text-sm font-medium truncate")}>{it.title}</div>
                   <div className="text-xs text-muted-foreground truncate">
                     {[it.subtitle, it.meta].filter(Boolean).join(" • ")}
                   </div>
                 </div>
-                {onView && (
+                {secondaryLabel && onView && (
                   <Button
                     size="sm"
                     variant="outline"
-                    aria-label={secondaryLabel || "View"}
+                    aria-label={secondaryLabel}
                     onClick={() => onView(item)}
                   >
-                    {secondaryLabel || "View"}
+                    {secondaryLabel}
                   </Button>
                 )}
                 <Button size="sm" onClick={() => handlePrimary(idx)} aria-label={primaryLabel}>

@@ -38,7 +38,6 @@ export function InterestingPeople() {
         await supabase.rpc("suggestions_touch", { p_viewer: viewerId, p_type: "profile", p_target: p.id });
       }}
       primaryLabel="Vernetzen"
-      secondaryLabel="Profil ansehen"
       itemKey={(p) => p.id}
       renderItem={(p) => ({
         id: p.id,
