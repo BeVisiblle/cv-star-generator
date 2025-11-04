@@ -60,7 +60,7 @@ const Dashboard = () => {
             </div>
 
             {/* (3) Post-Liste - kompakter Abstand */}
-            <div className="mt-6 space-y-2 relative z-10" role="feed">
+            <div className="mt-8 space-y-2 relative z-10" role="feed">
               <CommunityFeed feedHeadHeight={feedHeadH} />
             </div>
           </section>
