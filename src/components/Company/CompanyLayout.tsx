@@ -11,6 +11,7 @@ import { TargetGroupSelector } from "@/components/company/onboarding/TargetGroup
 import { PlanSelector } from "@/components/company/onboarding/PlanSelector";
 import { WelcomePopup } from "@/components/company/onboarding/WelcomePopup";
 import { supabase } from "@/integrations/supabase/client";
+import { SidebarProvider } from "@/components/ui/sidebar";
 
 export function CompanyLayout() {
   const { user, isLoading: authLoading } = useAuth();
@@ -111,22 +112,24 @@ export function CompanyLayout() {
   };
 
   return (
-    <div className="min-h-screen flex w-full">
-      <CompanySidebar />
-      
-      <main className="flex-1 flex flex-col">
-        <CompanyHeader />
+    <SidebarProvider>
+      <div className="min-h-screen flex w-full">
+        <CompanySidebar />
         
-        {/* Main Content */}
-        <div className="flex-1 p-0">
-          <BaseLayout>
-            <Outlet />
-          </BaseLayout>
-        </div>
-      </main>
+        <main className="flex-1 flex flex-col">
+          <CompanyHeader />
+          
+          {/* Main Content */}
+          <div className="flex-1 p-0">
+            <BaseLayout>
+              <Outlet />
+            </BaseLayout>
+          </div>
+        </main>
 
-      {/* Onboarding Popups */}
-      {renderOnboardingPopup()}
-    </div>
+        {/* Onboarding Popups */}
+        {renderOnboardingPopup()}
+      </div>
+    </SidebarProvider>
   );
 }
