@@ -14,8 +14,7 @@ const FILTER_GROUPS: Record<string, NotifType[] | 'unread' | null> = {
   unread: 'unread',
   jobs: ['pipeline_activity_team', 'new_matches_available', 'pipeline_move_for_you', 'application_received', 'application_withdrawn', 'job_post_approved', 'job_post_rejected', 'job_post_expiring'],
   profile: ['company_unlocked_you', 'follow_request_received', 'profile_incomplete_reminder'],
-  social: ['post_interaction', 'follow_accepted_chat_unlocked', 'employment_request', 'employment_accepted', 'employment_declined', 'candidate_message'],
-  billing: ['billing_update', 'billing_invoice_ready', 'low_tokens'],
+  social: ['post_interaction', 'follow_accepted_chat_unlocked', 'employment_request', 'employment_accepted', 'employment_declined', 'candidate_message', 'billing_update', 'billing_invoice_ready', 'low_tokens'],
 };
 
 export function NotificationsListWithFilters({ recipientType, recipientId, onAction }: Props) {
@@ -24,13 +23,12 @@ export function NotificationsListWithFilters({ recipientType, recipientId, onAct
   return (
     <div className="w-full">
       <Tabs value={filter} onValueChange={(v) => setFilter(v as any)} className="w-full">
-        <TabsList className="w-full flex flex-nowrap overflow-x-auto sm:grid sm:grid-cols-6 mb-3 sm:mb-4 gap-1 sm:gap-0">
-          <TabsTrigger value="all" className="px-3 py-1.5 text-xs sm:text-sm whitespace-nowrap">Alle</TabsTrigger>
-          <TabsTrigger value="unread" className="px-3 py-1.5 text-xs sm:text-sm whitespace-nowrap">Ungelesen</TabsTrigger>
-          <TabsTrigger value="jobs" className="px-3 py-1.5 text-xs sm:text-sm whitespace-nowrap">Jobs</TabsTrigger>
-          <TabsTrigger value="profile" className="px-3 py-1.5 text-xs sm:text-sm whitespace-nowrap">Profil</TabsTrigger>
-          <TabsTrigger value="social" className="px-3 py-1.5 text-xs sm:text-sm whitespace-nowrap">Social</TabsTrigger>
-          <TabsTrigger value="billing" className="px-3 py-1.5 text-xs sm:text-sm whitespace-nowrap">Abrechnung</TabsTrigger>
+        <TabsList className="w-full flex flex-nowrap overflow-x-auto sm:grid sm:grid-cols-5 mb-3 sm:mb-4 gap-1 sm:gap-0">
+          <TabsTrigger value="all" className="px-3 py-1.5 text-xs sm:text-sm whitespace-nowrap flex-shrink-0">Alle</TabsTrigger>
+          <TabsTrigger value="unread" className="px-3 py-1.5 text-xs sm:text-sm whitespace-nowrap flex-shrink-0">Ungelesen</TabsTrigger>
+          <TabsTrigger value="jobs" className="px-3 py-1.5 text-xs sm:text-sm whitespace-nowrap flex-shrink-0">Jobs</TabsTrigger>
+          <TabsTrigger value="profile" className="px-3 py-1.5 text-xs sm:text-sm whitespace-nowrap flex-shrink-0">Profil</TabsTrigger>
+          <TabsTrigger value="social" className="px-3 py-1.5 text-xs sm:text-sm whitespace-nowrap flex-shrink-0">Social</TabsTrigger>
         </TabsList>
 
         <TabsContent value={filter} className="mt-0">
