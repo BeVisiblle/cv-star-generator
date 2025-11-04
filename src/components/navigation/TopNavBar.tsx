@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { SidebarTrigger } from "@/components/ui/sidebar";
-import { Bell, Search as SearchIcon, MessageSquare, Users, User } from "lucide-react";
+import { Bell, Search as SearchIcon, MessageSquare, Users, User, LogOut, Settings } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import SearchAutosuggest, { SuggestionType } from "@/components/marketplace/SearchAutosuggest";
@@ -10,6 +10,15 @@ import MessagePopoverPanel from "@/components/community/MessagePopoverPanel";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { NotificationBell } from "@/components/notifications/NotificationBell";
+import { useAuth } from "@/hooks/useAuth";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 
 export const NAVBAR_HEIGHT = 56; // h-14 (Desktop) = 56px
@@ -31,6 +40,7 @@ const titleMap: Record<string, string> = {
 export default function TopNavBar() {
   const location = useLocation();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const path = location.pathname;
   const title = Object.keys(titleMap).find(p => path.startsWith(p)) ? titleMap[Object.keys(titleMap).find(p => path.startsWith(p)) as string] : "Home Feed";
   const [q, setQ] = useState("");
@@ -64,6 +74,11 @@ export default function TopNavBar() {
   };
   const handleSearchClose = () => {
     setOpen(false);
+  };
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    navigate('/auth');
   };
 
   // Sticky navbar at top with high z-index
@@ -142,17 +157,14 @@ export default function TopNavBar() {
             <MessageSquare className="h-5 w-5" />
           </button>
           
-          <button 
-            className="hidden md:flex p-2 -m-2 hover:bg-muted/40 hover:shadow-soft rounded-xl transition-all duration-200 min-h-[44px] min-w-[44px] items-center justify-center active:scale-95"
-            onClick={() => navigate('/notifications')}
-            aria-label="Benachrichtigungen"
-          >
-            <Bell className="h-5 w-5" />
-          </button>
+          {/* Desktop Notification Bell */}
+          <div className="hidden md:block">
+            <NotificationBell recipientType="profile" recipientId={user?.id || null} />
+          </div>
           
-          {/* Profile Avatar (Mobile + Desktop) */}
+          {/* Desktop Profile Avatar - Direct Link */}
           <button 
-            className="p-1 -m-1 hover:opacity-80 transition-opacity min-h-[44px] min-w-[44px] flex items-center justify-center active:scale-95"
+            className="hidden md:flex p-1 -m-1 hover:opacity-80 transition-opacity min-h-[44px] min-w-[44px] items-center justify-center active:scale-95"
             onClick={() => navigate('/profile')}
             aria-label="Profil"
           >
@@ -163,6 +175,42 @@ export default function TopNavBar() {
               </AvatarFallback>
             </Avatar>
           </button>
+
+          {/* Mobile Profile Avatar - Dropdown */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button 
+                className="md:hidden p-1 -m-1 min-h-[44px] min-w-[44px] flex items-center justify-center active:scale-95"
+                aria-label="Profil Menü"
+              >
+                <Avatar className="h-8 w-8">
+                  <AvatarImage src={profile?.avatar_url || undefined} alt={`${profile?.first_name || ''} ${profile?.last_name || ''}`} />
+                  <AvatarFallback className="bg-primary/10 text-primary">
+                    {profile?.first_name?.[0] || 'U'}
+                  </AvatarFallback>
+                </Avatar>
+              </button>
+            </DropdownMenuTrigger>
+            
+            <DropdownMenuContent align="end" className="w-48 bg-background border-border z-[400]">
+              <DropdownMenuItem onClick={() => navigate('/profile')}>
+                <User className="mr-2 h-4 w-4" />
+                Profil anzeigen
+              </DropdownMenuItem>
+              
+              <DropdownMenuItem onClick={() => navigate('/settings')}>
+                <Settings className="mr-2 h-4 w-4" />
+                Einstellungen
+              </DropdownMenuItem>
+              
+              <DropdownMenuSeparator />
+              
+              <DropdownMenuItem onClick={handleSignOut}>
+                <LogOut className="mr-2 h-4 w-4" />
+                Abmelden
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
       
