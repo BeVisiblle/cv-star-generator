@@ -203,7 +203,7 @@ const Profile = () => {
   return (
     <div className="min-h-screen pb-[72px] md:pb-6 overflow-x-hidden">
       {/* Main Content */}
-      <div className="px-2 sm:px-3 md:px-6 py-2 sm:py-3 md:py-4">
+      <div className="px-2 sm:px-3 md:px-6 py-2 md:py-4">
         <div className="max-w-screen-2xl mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-2 sm:gap-3 md:gap-4">
             {/* Main Content */}

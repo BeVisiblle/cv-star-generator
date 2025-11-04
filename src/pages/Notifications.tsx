@@ -22,7 +22,7 @@ export default function NotificationsPage() {
   return (
     <main className="w-full overflow-x-hidden">
       <h1 className="sr-only">Benachrichtigungen</h1>
-      <div className="mx-auto max-w-screen-2xl px-3 sm:px-6 lg:px-8 py-3 md:py-4">
+      <div className="mx-auto max-w-screen-2xl px-3 sm:px-6 lg:px-8 py-2 md:py-4">
         <div className="flex gap-4 lg:gap-6">
           {/* Left column (fixed width) */}
           <aside className="hidden lg:block w-[280px] xl:w-[320px] shrink-0">
