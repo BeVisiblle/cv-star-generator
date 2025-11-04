@@ -33,40 +33,40 @@ export default function NotificationsPage() {
 
           {/* Center column (flex grows) */}
           <section className="flex-1 min-w-0">
-            <div className="w-full max-w-[560px] mx-auto px-3 sm:px-4 md:max-w-none md:px-0 space-y-3 sm:space-y-4">
+            <div className="w-full max-w-[560px] mx-auto px-3 sm:px-4 md:max-w-none md:px-0">
               {/* Header with "Mark all as read" button */}
-              <div className="sticky top-14 z-30 -mx-4 mb-4 sm:mb-6 bg-background/70 px-4 py-2 backdrop-blur md:mx-0 md:rounded-2xl md:border">
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <span className="text-lg font-medium">Benachrichtigungen</span>
-                  <div className="flex items-center gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setPrefsOpen(true)}
-                      className="px-2 sm:px-3"
-                    >
-                      <Settings className="h-4 w-4 sm:mr-2" />
-                      <span className="hidden sm:inline">Einstellungen</span>
-                    </Button>
-                    <button
-                      onClick={markAllRead}
-                      className="rounded-lg border px-2 sm:px-3 py-1.5 text-xs hover:bg-accent whitespace-nowrap"
-                      title="Alle ungelesenen Benachrichtigungen als gelesen markieren"
-                    >
-                      <span className="hidden sm:inline">Alle als gelesen markieren</span>
-                      <span className="sm:hidden">Gelesen</span>
-                    </button>
-                  </div>
+              <div className="mb-6 flex items-center justify-between">
+                <h1 className="text-2xl font-semibold">Benachrichtigungen</h1>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setPrefsOpen(true)}
+                    className="px-2 sm:px-3"
+                  >
+                    <Settings className="h-4 w-4 sm:mr-2" />
+                    <span className="hidden sm:inline">Einstellungen</span>
+                  </Button>
+                  <button
+                    onClick={markAllRead}
+                    className="rounded-lg border px-2 sm:px-3 py-1.5 text-xs hover:bg-accent whitespace-nowrap"
+                    title="Alle ungelesenen Benachrichtigungen als gelesen markieren"
+                  >
+                    <span className="hidden sm:inline">Alle als gelesen markieren</span>
+                    <span className="sm:hidden">Gelesen</span>
+                  </button>
                 </div>
               </div>
 
-              <NotificationsListWithFilters
-                recipientType={isCompany ? 'company' : 'profile'}
-                recipientId={isCompany ? companyId : profile?.id ?? null}
-                onAction={(n, action) => {
-                  console.log('action', n.id, action);
-                }}
-              />
+              <div className="bg-card rounded-lg border p-4">
+                <NotificationsListWithFilters
+                  recipientType={isCompany ? 'company' : 'profile'}
+                  recipientId={isCompany ? companyId : profile?.id ?? null}
+                  onAction={(n, action) => {
+                    console.log('action', n.id, action);
+                  }}
+                />
+              </div>
 
               {profile && (
                 <NotificationPreferencesDialog
