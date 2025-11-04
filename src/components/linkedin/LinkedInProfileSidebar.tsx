@@ -66,8 +66,8 @@ export function LinkedInProfileSidebar({
       {/* Skills Section - After Ads */}
       {showLanguagesAndSkills && profile?.faehigkeiten && profile.faehigkeiten.length > 0 && (
         <Card>
-          <CardHeader className="pb-2 sm:pb-3 px-3 sm:px-4 pt-3 sm:pt-4 flex flex-row items-center justify-between space-y-0">
-            <CardTitle className="text-base sm:text-lg font-semibold flex items-center gap-2">
+          <CardHeader className="pb-2 sm:pb-3 px-4 sm:px-4 pt-4 sm:pt-4 flex flex-row items-center justify-between space-y-0">
+            <CardTitle className="text-lg sm:text-lg font-semibold flex items-center gap-2">
               <Award className="h-4 w-4 sm:h-5 sm:w-5" />
               Fähigkeiten
             </CardTitle>
@@ -82,7 +82,7 @@ export function LinkedInProfileSidebar({
               </Button>
             )}
           </CardHeader>
-          <CardContent className="px-3 sm:px-4 pb-3 sm:pb-4">
+          <CardContent className="px-4 sm:px-4 pb-4 sm:pb-4">
             <div className="flex flex-wrap gap-1.5 sm:gap-2">
               {profile.faehigkeiten.map((skill: string, idx: number) => (
                 <Badge key={idx} variant="secondary" className="text-xs">
@@ -97,8 +97,8 @@ export function LinkedInProfileSidebar({
       {/* Languages Section - After Skills */}
       {showLanguagesAndSkills && profile?.sprachen && profile.sprachen.length > 0 && (
         <Card>
-          <CardHeader className="pb-2 sm:pb-3 px-3 sm:px-4 pt-3 sm:pt-4 flex flex-row items-center justify-between space-y-0">
-            <CardTitle className="text-base sm:text-lg font-semibold flex items-center gap-2">
+          <CardHeader className="pb-2 sm:pb-3 px-4 sm:px-4 pt-4 sm:pt-4 flex flex-row items-center justify-between space-y-0">
+            <CardTitle className="text-lg sm:text-lg font-semibold flex items-center gap-2">
               <Languages className="h-4 w-4 sm:h-5 sm:w-5" />
               Sprachen
             </CardTitle>
@@ -113,7 +113,7 @@ export function LinkedInProfileSidebar({
               </Button>
             )}
           </CardHeader>
-          <CardContent className="px-3 sm:px-4 pb-3 sm:pb-4">
+          <CardContent className="px-4 sm:px-4 pb-4 sm:pb-4">
             <div className="space-y-1.5 sm:space-y-2">
               {profile.sprachen.map((lang: any, idx: number) => (
                 <div key={idx} className="flex justify-between items-center text-sm">

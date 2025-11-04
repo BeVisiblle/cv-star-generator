@@ -242,8 +242,8 @@ export const LinkedInProfileExperience: React.FC<LinkedInProfileExperienceProps>
 
   return (
     <Card>
-      <CardHeader className="p-3 sm:p-4 md:p-6 flex flex-row flex-wrap items-center justify-between gap-2 space-y-0 pb-2 sm:pb-3 md:pb-4">
-        <CardTitle className="text-base sm:text-lg md:text-xl font-semibold flex items-center gap-2">
+      <CardHeader className="p-4 sm:p-4 md:p-6 flex flex-row flex-wrap items-center justify-between gap-2 space-y-0 pb-2 sm:pb-3 md:pb-4">
+        <CardTitle className="text-lg sm:text-lg md:text-xl font-semibold flex items-center gap-2">
           <Building className="h-4 w-4 md:h-5 md:w-5" />
           <span className="hidden sm:inline">Berufserfahrung</span>
           <span className="sm:hidden">Erfahrung</span>
@@ -268,7 +268,7 @@ export const LinkedInProfileExperience: React.FC<LinkedInProfileExperienceProps>
           )}
         </div>
       </CardHeader>
-      <CardContent className="p-3 sm:p-4 md:p-6 pt-0">
+      <CardContent className="p-4 sm:p-4 md:p-6 pt-0">
         {isAddingNew && (
           <div className="mb-3 sm:mb-4 md:mb-6">
             <ExperienceForm formData={formData} setFormData={setFormData} />
