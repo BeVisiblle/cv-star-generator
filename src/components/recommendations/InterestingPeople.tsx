@@ -32,7 +32,7 @@ export function InterestingPeople() {
         await supabase.rpc("suggestions_touch", { p_viewer: viewerId, p_type: "profile", p_target: p.id });
       }}
       onView={(p: Person) => {
-        window.location.href = `/profile/${p.id}`;
+        window.location.href = `/u/${p.id}`;
       }}
       onSkip={async (p: Person) => {
         await supabase.rpc("suggestions_touch", { p_viewer: viewerId, p_type: "profile", p_target: p.id });
