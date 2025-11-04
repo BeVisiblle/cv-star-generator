@@ -85,7 +85,7 @@ export default function TopNavBar() {
   return <div className="sticky top-0 z-[300] border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="flex h-12 md:h-14 items-center px-3 md:px-4 gap-2 md:gap-4">
         <div className="flex items-center gap-3">
-          <SidebarTrigger className="p-2 hover:bg-muted/40 rounded-lg transition-colors" />
+          <SidebarTrigger className="hidden md:flex p-2 hover:bg-muted/40 rounded-lg transition-colors" />
           {/* Logo */}
           <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate('/dashboard')}>
             <img src="/assets/Logo_visiblle-2.svg" alt="BeVisiblle Logo" className="h-8 w-8" />

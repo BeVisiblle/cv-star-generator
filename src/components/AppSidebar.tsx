@@ -122,7 +122,8 @@ export function AppSidebar() {
           "fixed top-0 left-0 h-full z-[500]",
           "w-full sm:w-80 md:w-96",
           "bg-background shadow-xl border-r",
-          !sidebar.open && "hidden"
+          "transition-transform duration-300 ease-in-out",
+          sidebar.open ? "translate-x-0" : "-translate-x-full"
         )}
         collapsible="none"
         data-sidebar="sidebar"
