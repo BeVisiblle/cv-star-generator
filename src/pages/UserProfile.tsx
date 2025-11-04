@@ -216,10 +216,10 @@ export default function UserProfilePage() {
       </div>
 
       {/* Main content */}
-      <div className="max-w-screen-2xl mx-auto px-2 sm:px-3 md:px-6 py-2 sm:py-3 md:py-4">
-        <div className="flex flex-col lg:grid lg:grid-cols-12 gap-2 sm:gap-3 md:gap-4">
+      <div className="max-w-screen-2xl mx-auto px-3 sm:px-3 md:px-6 py-3 sm:py-3 md:py-4">
+        <div className="flex flex-col lg:grid lg:grid-cols-12 gap-3 sm:gap-3 md:gap-4">
           {/* Left column */}
-          <main className="lg:col-span-8 space-y-2 sm:space-y-3 md:space-y-4">
+          <main className="lg:col-span-8 space-y-3 sm:space-y-3 md:space-y-4">
             <LinkedInProfileHeader profile={displayProfile} isEditing={false} onProfileUpdate={() => {}} />
             <LinkedInProfileMain profile={displayProfile} isEditing={false} onProfileUpdate={() => {}} readOnly={!isOwner} />
             <LinkedInProfileExperience experiences={displayProfile?.berufserfahrung || []} isEditing={false} onExperiencesUpdate={() => {}} />
