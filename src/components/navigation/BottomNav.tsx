@@ -1,12 +1,10 @@
 import React from 'react';
-import { Home, Users, Plus, MessageSquare, Menu } from 'lucide-react';
+import { Home, Users, Plus, Menu, Briefcase } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { openPostComposer } from '@/lib/event-bus';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useSidebar } from '@/components/ui/sidebar';
-import { NotificationBell } from '@/components/notifications/NotificationBell';
-import { useAuth } from '@/hooks/useAuth';
 
 export const BOTTOM_NAV_HEIGHT = 56; // Modern compact design (LinkedIn-style)
 
@@ -14,7 +12,6 @@ const BottomNav: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { setOpen } = useSidebar();
-  const { user } = useAuth();
 
   const isActive = (path: string) => location.pathname === path;
 
@@ -50,6 +47,36 @@ const BottomNav: React.FC = () => {
             <span className="text-xs font-medium">Start</span>
           </button>
 
+          {/* Plus Button - Elevated */}
+          <div className="flex items-center justify-center">
+            <Button 
+              size="lg" 
+              className="relative -top-2 rounded-full h-14 w-14 p-0 shadow-xl hover:scale-[1.05] active:scale-95 transition-transform duration-200 bg-gradient-to-br from-primary to-primary/80" 
+              onClick={() => openPostComposer()} 
+              aria-label="Neuer Beitrag"
+            >
+              <Plus className="h-7 w-7" />
+            </Button>
+          </div>
+
+          {/* Jobs */}
+          <button
+            className={cn(
+              "flex flex-col items-center justify-center gap-0.5 min-h-[48px] transition-colors duration-200",
+              isActive('/community/jobs')
+                ? "text-foreground"
+                : "text-muted-foreground/70 hover:text-muted-foreground"
+            )}
+            onClick={() => navigate('/community/jobs')}
+            aria-label="Jobs"
+          >
+            <Briefcase className="h-6 w-6" />
+            {isActive('/community/jobs') && (
+              <span className="w-1 h-1 rounded-full bg-foreground mt-0.5" />
+            )}
+            <span className="text-xs font-medium">Jobs</span>
+          </button>
+
           {/* Netzwerk */}
           <button
             className={cn(
@@ -67,45 +94,6 @@ const BottomNav: React.FC = () => {
             )}
             <span className="text-xs font-medium">Netzwerk</span>
           </button>
-
-          {/* Plus Button - Elevated */}
-          <div className="flex items-center justify-center">
-            <Button 
-              size="lg" 
-              className="relative -top-2 rounded-full h-14 w-14 p-0 shadow-xl hover:scale-[1.05] active:scale-95 transition-transform duration-200 bg-gradient-to-br from-primary to-primary/80" 
-              onClick={() => openPostComposer()} 
-              aria-label="Neuer Beitrag"
-            >
-              <Plus className="h-7 w-7" />
-            </Button>
-          </div>
-
-          {/* Nachrichten */}
-          <button
-            className={cn(
-              "flex flex-col items-center justify-center gap-0.5 min-h-[48px] transition-colors duration-200",
-              isActive('/community/messages')
-                ? "text-foreground"
-                : "text-muted-foreground/70 hover:text-muted-foreground"
-            )}
-            onClick={() => navigate('/community/messages')}
-            aria-label="Nachrichten"
-          >
-            <MessageSquare className="h-6 w-6" />
-            {isActive('/community/messages') && (
-              <span className="w-1 h-1 rounded-full bg-foreground mt-0.5" />
-            )}
-            <span className="text-xs font-medium">Nachrichten</span>
-          </button>
-
-          {/* Mitteilungen */}
-          <div className="flex flex-col items-center justify-center min-h-[48px]">
-            <NotificationBell 
-              recipientType="profile" 
-              recipientId={user?.id || null} 
-            />
-            <span className="text-xs font-medium text-muted-foreground/70">Mitteilungen</span>
-          </div>
         </div>
       </div>
     </nav>

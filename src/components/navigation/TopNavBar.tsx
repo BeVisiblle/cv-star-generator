@@ -176,6 +176,20 @@ export default function TopNavBar() {
             </Avatar>
           </button>
 
+          {/* Mobile Nachrichten Button */}
+          <button 
+            className="md:hidden p-2 -m-2 hover:bg-muted/40 hover:shadow-soft rounded-xl transition-all duration-200 min-h-[44px] min-w-[44px] flex items-center justify-center active:scale-95"
+            onClick={() => navigate('/community/messages')}
+            aria-label="Nachrichten"
+          >
+            <MessageSquare className="h-5 w-5" />
+          </button>
+
+          {/* Mobile Notification Bell */}
+          <div className="md:hidden">
+            <NotificationBell recipientType="profile" recipientId={user?.id || null} />
+          </div>
+
           {/* Mobile Profile Avatar - Dropdown */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
