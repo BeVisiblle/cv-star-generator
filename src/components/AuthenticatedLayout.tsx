@@ -44,10 +44,8 @@ export function AuthenticatedLayout() {
 
   return (
     <div className="min-h-screen flex w-full">
-      {/* Sidebar nur Desktop */}
-      <div className="hidden md:block">
-        <AppSidebar />
-      </div>
+      {/* Sidebar - Mobile als Overlay, Desktop persistent */}
+      <AppSidebar />
       
       <main className="flex-1 flex flex-col">
         {/* Main Content - TopNavBar is now handled by UniversalLayout */}
