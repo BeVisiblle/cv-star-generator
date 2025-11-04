@@ -31,7 +31,7 @@ const Dashboard = () => {
       <h1 className="sr-only">Dashboard</h1>
       
       {/* Inhalt direkt unter der Navbar */}
-      <div className="pt-2 md:pt-4">
+      <div className="pt-4 md:pt-6">
         <div className="mx-auto max-w-screen-2xl grid grid-cols-12 gap-3 sm:gap-4 lg:gap-6 px-3 sm:px-4 lg:px-6">
           
           {/* (1) Left Panel - sticky */}
@@ -51,9 +51,9 @@ const Dashboard = () => {
             <div
               ref={feedHeadRef}
               className="sticky z-40 bg-background/95 backdrop-blur-sm"
-              style={{ top: `${getNavbarHeight()}px` }}
+              style={{ top: `${getNavbarHeight() + 8}px` }}
             >
-              <div className="px-3 py-2 space-y-1.5">
+              <div className="px-3 py-3 space-y-2">
                 <ComposerTeaser />
                 <FeedSortBar />
               </div>
