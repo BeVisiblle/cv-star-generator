@@ -29,9 +29,10 @@ export function InterestingJobs() {
         }>
       }
       onPrimary={async (job: Job) => {
+        await supabase.rpc("suggestions_touch", { p_viewer: viewerId, p_type: "job", p_target: job.id });
         window.location.href = `/jobs/${job.id}`;
       }}
-      onView={async (job: Job) => {
+      onView={(job: Job) => {
         window.location.href = `/jobs/${job.id}`;
       }}
       onSkip={async (job: Job) => {
