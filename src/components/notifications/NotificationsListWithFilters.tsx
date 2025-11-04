@@ -24,13 +24,13 @@ export function NotificationsListWithFilters({ recipientType, recipientId, onAct
   return (
     <div className="w-full">
       <Tabs value={filter} onValueChange={(v) => setFilter(v as any)} className="w-full">
-        <TabsList className="w-full grid grid-cols-6 mb-4">
-          <TabsTrigger value="all">Alle</TabsTrigger>
-          <TabsTrigger value="unread">Ungelesen</TabsTrigger>
-          <TabsTrigger value="jobs">Jobs</TabsTrigger>
-          <TabsTrigger value="profile">Profil</TabsTrigger>
-          <TabsTrigger value="social">Social</TabsTrigger>
-          <TabsTrigger value="billing">Abrechnung</TabsTrigger>
+        <TabsList className="w-full flex flex-nowrap overflow-x-auto sm:grid sm:grid-cols-6 mb-3 sm:mb-4 gap-1 sm:gap-0">
+          <TabsTrigger value="all" className="px-3 py-1.5 text-xs sm:text-sm whitespace-nowrap">Alle</TabsTrigger>
+          <TabsTrigger value="unread" className="px-3 py-1.5 text-xs sm:text-sm whitespace-nowrap">Ungelesen</TabsTrigger>
+          <TabsTrigger value="jobs" className="px-3 py-1.5 text-xs sm:text-sm whitespace-nowrap">Jobs</TabsTrigger>
+          <TabsTrigger value="profile" className="px-3 py-1.5 text-xs sm:text-sm whitespace-nowrap">Profil</TabsTrigger>
+          <TabsTrigger value="social" className="px-3 py-1.5 text-xs sm:text-sm whitespace-nowrap">Social</TabsTrigger>
+          <TabsTrigger value="billing" className="px-3 py-1.5 text-xs sm:text-sm whitespace-nowrap">Abrechnung</TabsTrigger>
         </TabsList>
 
         <TabsContent value={filter} className="mt-0">

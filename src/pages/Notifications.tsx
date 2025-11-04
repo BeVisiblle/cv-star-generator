@@ -22,7 +22,7 @@ export default function NotificationsPage() {
   return (
     <main className="w-full overflow-x-hidden">
       <h1 className="sr-only">Benachrichtigungen</h1>
-      <div className="mx-auto max-w-screen-2xl px-3 sm:px-6 lg:px-8 py-3 md:py-4">
+      <div className="mx-auto max-w-screen-2xl px-2 sm:px-6 lg:px-8 py-3 md:py-4">
         <div className="flex gap-4 lg:gap-6">
           {/* Left column (fixed width) */}
           <aside className="hidden lg:block w-[280px] xl:w-[320px] shrink-0">
@@ -33,9 +33,9 @@ export default function NotificationsPage() {
 
           {/* Center column (flex grows) */}
           <section className="flex-1 min-w-0">
-            <div className="w-full max-w-[560px] mx-auto px-4 md:max-w-none md:px-0 space-y-4">
+            <div className="w-full max-w-[560px] mx-auto px-3 sm:px-4 md:max-w-none md:px-0 space-y-3 sm:space-y-4">
               {/* Header with "Mark all as read" button */}
-              <div className="sticky top-14 z-30 -mx-4 mb-16 bg-background/70 px-4 py-2 backdrop-blur md:mx-0 md:rounded-2xl md:border">
+              <div className="sticky top-14 z-30 -mx-4 mb-4 sm:mb-6 bg-background/70 px-4 py-2 backdrop-blur md:mx-0 md:rounded-2xl md:border">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <span className="text-lg font-medium">Benachrichtigungen</span>
                   <div className="flex items-center gap-2">
@@ -43,16 +43,18 @@ export default function NotificationsPage() {
                       variant="outline"
                       size="sm"
                       onClick={() => setPrefsOpen(true)}
+                      className="px-2 sm:px-3"
                     >
-                      <Settings className="h-4 w-4 mr-2" />
-                      Einstellungen
+                      <Settings className="h-4 w-4 sm:mr-2" />
+                      <span className="hidden sm:inline">Einstellungen</span>
                     </Button>
                     <button
                       onClick={markAllRead}
-                      className="rounded-lg border px-3 py-1.5 text-xs hover:bg-accent"
+                      className="rounded-lg border px-2 sm:px-3 py-1.5 text-xs hover:bg-accent whitespace-nowrap"
                       title="Alle ungelesenen Benachrichtigungen als gelesen markieren"
                     >
-                      Alle als gelesen markieren
+                      <span className="hidden sm:inline">Alle als gelesen markieren</span>
+                      <span className="sm:hidden">Gelesen</span>
                     </button>
                   </div>
                 </div>
