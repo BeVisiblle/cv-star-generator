@@ -50,10 +50,10 @@ const Dashboard = () => {
             {/* (2) Sticky: Composer + Feed Controls - kompakt */}
             <div
               ref={feedHeadRef}
-              className="sticky z-40 bg-background/95 backdrop-blur-sm"
+              className="sticky z-40 bg-background/95 backdrop-blur-sm -mt-1"
               style={{ top: `${getNavbarHeight()}px` }}
             >
-              <div className="px-3 py-3 space-y-2">
+              <div className="px-3 py-2 space-y-2">
                 <ComposerTeaser />
                 <FeedSortBar />
               </div>
