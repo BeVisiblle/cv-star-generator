@@ -1,6 +1,6 @@
 
 import React, { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -34,6 +34,7 @@ type Company = {
 
 export default function PublicCompanyView() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const { profile } = useAuth();
   const { toast } = useToast();
   const pid = profile?.id;
@@ -208,9 +209,14 @@ const c = companyQuery.data;
     <div className="min-h-screen w-full overflow-x-hidden">
       <header className="w-full border-b">
         <div className="mx-auto max-w-6xl w-full px-3 sm:px-6 py-2 sm:py-3 flex items-center gap-3">
-          <Link to="/marketplace" className="inline-flex items-center text-xs sm:text-sm text-muted-foreground hover:text-foreground">
-            <ArrowLeft className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1" /> Zurück zum Marktplatz
-          </Link>
+          <Button 
+            variant="ghost" 
+            size="sm"
+            onClick={() => navigate(-1)}
+            className="inline-flex items-center text-xs sm:text-sm -ml-2"
+          >
+            <ArrowLeft className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1" /> Zurück
+          </Button>
         </div>
       </header>
 

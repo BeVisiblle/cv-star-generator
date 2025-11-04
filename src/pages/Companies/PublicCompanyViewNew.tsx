@@ -103,10 +103,10 @@ export default function PublicCompanyViewNew() {
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => navigate(`/jobs/${fromJobId}`)}
+              onClick={() => navigate(-1)}
             >
               <ArrowLeft className="h-4 w-4 mr-2" />
-              Zurück zur Stellenanzeige
+              Zurück
             </Button>
           </div>
         </div>

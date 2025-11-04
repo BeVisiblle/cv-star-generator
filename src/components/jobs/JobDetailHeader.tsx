@@ -81,9 +81,9 @@ export function JobDetailHeader({
         <div className="max-w-[1600px] mx-auto px-6 py-6">
           {/* Top Bar with Back Button and Action Buttons */}
           <div className="flex items-center justify-between mb-6">
-            <Button variant="ghost" size="sm" onClick={() => navigate('/company/jobs')} className="-ml-2">
+            <Button variant="ghost" size="sm" onClick={() => navigate(-1)} className="-ml-2">
               <ArrowLeft className="h-4 w-4 mr-2" />
-              Zurück zu allen Anzeigen
+              Zurück
             </Button>
 
             {/* Action Buttons - Right Side */}
