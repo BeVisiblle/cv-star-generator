@@ -76,6 +76,17 @@ export function SuggestionList<T>({
     }
   }
 
+  async function handleView(idx: number) {
+    const target = items[idx];
+    const snapshot = items.filter((_, i) => i !== idx);
+    setItems(snapshot);
+    try {
+      onView?.(target);
+    } finally {
+      if (snapshot.length < 3) await refillOne(snapshot);
+    }
+  }
+
   return (
     <Card className="p-3 sm:p-4" aria-live="polite">
       <div className="flex items-center justify-between mb-2">
@@ -119,7 +130,7 @@ export function SuggestionList<T>({
                     size="sm"
                     variant="outline"
                     aria-label={secondaryLabel || "View"}
-                    onClick={() => onView(item)}
+                    onClick={() => handleView(idx)}
                   >
                     {secondaryLabel || "View"}
                   </Button>

@@ -37,8 +37,8 @@ export function InterestingJobs() {
       onSkip={async (job: Job) => {
         await supabase.rpc("suggestions_touch", { p_viewer: viewerId, p_type: "job", p_target: job.id });
       }}
-      primaryLabel="Ansehen"
-      secondaryLabel="Details"
+      primaryLabel="Jetzt bewerben"
+      secondaryLabel="Details ansehen"
       itemKey={(job) => job.id}
       renderItem={(job) => ({
         id: job.id,

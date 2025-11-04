@@ -19,7 +19,7 @@ export function InterestingCompanies() {
 
   return (
     <AnySuggestionList
-      title="Interesting Companies"
+      title="Interessante Unternehmen"
       fetchFn={() =>
         (supabase as any).rpc("suggest_companies", { p_viewer: viewerId, p_limit: 3 }) as Promise<{
           data: Company[] | null;
@@ -42,8 +42,8 @@ export function InterestingCompanies() {
       onSkip={async (c: Company) => {
         await supabase.rpc("suggestions_touch", { p_viewer: viewerId, p_type: "company", p_target: c.id });
       }}
-      primaryLabel="Follow"
-      secondaryLabel="View"
+      primaryLabel="Folgen"
+      secondaryLabel="Mehr erfahren"
       itemKey={(c) => c.id}
       renderItem={(c) => ({
         id: c.id,
