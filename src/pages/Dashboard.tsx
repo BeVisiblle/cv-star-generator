@@ -39,7 +39,7 @@ const Dashboard = () => {
             className="hidden lg:block col-span-3"
             aria-label="Linke Spalte"
           >
-            <div className="sticky top-14 h-[calc(100vh-3.5rem)] overflow-y-auto">
+            <div className="sticky top-14">
               <LeftPanel />
             </div>
           </aside>
@@ -70,7 +70,7 @@ const Dashboard = () => {
             className="hidden xl:block col-span-3"
             aria-label="Rechte Spalte"
           >
-            <div className="sticky top-14 h-[calc(100vh-3.5rem)] overflow-y-auto">
+            <div className="sticky top-14">
               <RightPanel />
             </div>
           </aside>
