@@ -196,6 +196,7 @@ export function JobCandidatesTab({ jobId }: JobCandidatesTabProps) {
           console.log("🗺️ CC Map:", Array.from(ccMap.entries()));
 
           // Attach to applications using the resolved user_id
+          // ✅ CRITICAL: Override application stage with company_candidates stage if unlocked
           appData.forEach(app => {
             const userId = candidateIdToUserId.get(app.candidate_id);
             console.log(`📎 App ${app.id}: candidate_id=${app.candidate_id}, userId=${userId}`);
@@ -204,6 +205,12 @@ export function JobCandidatesTab({ jobId }: JobCandidatesTabProps) {
               console.log(`   → CC data:`, cc);
               (app as any).global_unlocked_at = cc?.unlocked_at || null;
               (app as any).companyCandidate = cc || null;
+              
+              // ✅ USE COMPANY_CANDIDATES STAGE AS SOURCE OF TRUTH
+              if (cc?.unlocked_at) {
+                app.stage = cc.stage;
+                console.log(`   ✅ Overriding stage to "${cc.stage}" from company_candidates`);
+              }
             }
           });
         }
@@ -359,6 +366,22 @@ export function JobCandidatesTab({ jobId }: JobCandidatesTabProps) {
 
   const stageUpdateMutation = useMutation({
     mutationFn: async ({ applicationId, stage }: { applicationId: string; stage: string }) => {
+      // ✅ Update company_candidates stage (source of truth for unlocked candidates)
+      const app = applications?.find(a => a.id === applicationId);
+      if (!app) throw new Error("Application not found");
+      
+      const userId = app.candidates?.user_id;
+      if (!userId) throw new Error("User ID not found");
+      
+      const { error: ccError } = await supabase
+        .from('company_candidates')
+        .update({ stage })
+        .eq('candidate_id', userId)
+        .eq('company_id', company?.id || '');
+      
+      if (ccError) throw ccError;
+      
+      // Also update applications table for consistency
       const { error } = await supabase
         .from('applications')
         .update({ stage })
