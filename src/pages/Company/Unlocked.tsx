@@ -106,11 +106,7 @@ export default function CompanyUnlocked() {
               faehigkeiten,
               job_search_preferences,
               has_drivers_license,
-              cv_url,
-              beschreibung,
-              ausbildung,
-              berufserfahrung,
-              zertifikate
+              cv_url
             )
           `)
           .eq('company_id', company.id)
