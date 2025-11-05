@@ -17,12 +17,12 @@ const STAGES = {
   bewerber: {
     key: "bewerber",
     title: "Bewerber",
-    filter: (app: any) => app.stage === "new" && !app.unlocked_at && !app.global_unlocked_at,
+    filter: (app: any) => app.stage === "new" && !app.unlocked_at && !app.global_unlocked_at && !app.archived_at,
   },
   freigeschaltet: {
     key: "freigeschaltet",
     title: "Freigeschaltet",
-    filter: (app: any) => (app.unlocked_at || app.global_unlocked_at) && (app.stage === "new" || app.is_virtual),
+    filter: (app: any) => (app.unlocked_at || app.global_unlocked_at) && !app.archived_at && (app.stage === "new" || app.stage === "unlocked" || app.is_virtual),
   },
   interview: {
     key: "interview",
@@ -326,38 +326,39 @@ export function JobCandidatesTab({ jobId }: JobCandidatesTabProps) {
     if (!company?.id) return;
     
     try {
-      // Update application mit unsuitable-Flag
+      // Update application status to rejected
       await supabase
         .from('applications')
         .update({ 
-          stage: 'unsuitable',
-          rejection_reason: reason || 'Als unpassend markiert',
+          status: 'rejected',
+          stage: 'rejected',
+          rejection_reason: reason || 'Profil passt nicht zur Stelle',
           updated_at: new Date().toISOString()
         })
         .eq('id', application.id);
 
-      // Speichere für AI-Learning
+      // Log company activity
       const { data: userData } = await supabase.auth.getUser();
       if (userData.user) {
         await supabase.from('company_activity').insert([{
-          type: 'application_marked_unsuitable',
+          type: 'application_rejected',
           company_id: company.id,
           actor_user_id: userData.user.id,
           payload: {
             candidate_id: application.candidate_id,
             job_id: jobId,
             application_id: application.id,
-            reason: reason || 'Keine Angabe'
+            reason: reason || 'Profil passt nicht zur Stelle'
           }
         }]);
       }
 
-      toast.success("Bewerbung als unpassend markiert");
+      toast.success("Bewerbung wurde abgesagt");
       queryClient.invalidateQueries({ queryKey: ["job-applications-detailed", jobId] });
       setIsProfileModalOpen(false);
     } catch (error) {
       console.error('Error:', error);
-      toast.error("Fehler beim Markieren");
+      toast.error("Fehler beim Absagen der Bewerbung");
     }
   };
 
@@ -476,8 +477,11 @@ export function JobCandidatesTab({ jobId }: JobCandidatesTabProps) {
                             handleStageChange("interview");
                           }}
                           onReject={() => {
-                            setSelectedApplication(app);
-                            handleMarkUnsuitableApplication(app);
+                            const reason = window.prompt("Bitte geben Sie einen Grund für die Absage ein (optional):");
+                            if (reason !== null) {
+                              setSelectedApplication(app);
+                              handleMarkUnsuitableApplication(app, reason);
+                            }
                           }}
                         />
                       );
