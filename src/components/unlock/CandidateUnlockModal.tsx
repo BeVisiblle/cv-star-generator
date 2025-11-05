@@ -273,17 +273,26 @@ export default function CandidateUnlockModal(props: CandidateUnlockModalProps) {
         });
       }
 
+      // Get the profile_id (user_id) from candidates table first
+      const { data: candidateData } = await supabase
+        .from('candidates')
+        .select('user_id')
+        .eq('id', candidate.id)
+        .single();
+      
+      const profileId = candidateData?.user_id || candidate.id;
+      
       // Use RPC function to unlock profile (bypasses RLS)
       const linkedJobIds = selectedJobId ? [selectedJobId] : [];
       
       const { error: unlockError } = await supabase.rpc("unlock_candidate_profile", {
         p_company_id: companyId,
-        p_candidate_id: candidate.id,
+        p_candidate_id: profileId, // CRITICAL: Use profile_id (user_id), not candidates.id
         p_source: unlockType,
         p_unlock_type: unlockType, // 'bewerbung', 'initiativ', 'match', 'community', 'search'
         p_notes: notes.trim() || null,
         p_unlocked_by_user_id: currentUserId,
-        p_linked_job_ids: linkedJobIds
+        p_linked_job_ids: JSON.stringify(linkedJobIds) // Convert to JSONB string
       });
 
       if (unlockError) {
@@ -306,15 +315,6 @@ export default function CandidateUnlockModal(props: CandidateUnlockModalProps) {
       });
 
       // Navigate to LinkedIn-style profile view BEFORE closing modal
-      // Get the user_id (profile_id) from candidates table
-      const { data: candidateData } = await supabase
-        .from('candidates')
-        .select('user_id')
-        .eq('id', candidate.id)
-        .single();
-      
-      const profileId = candidateData?.user_id || candidate.id;
-      
       toast.success("Kandidat erfolgreich freigeschaltet");
       handleOpenChange(false);
       onSuccess?.();
