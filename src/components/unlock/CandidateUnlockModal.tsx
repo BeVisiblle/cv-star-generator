@@ -292,7 +292,7 @@ export default function CandidateUnlockModal(props: CandidateUnlockModalProps) {
         p_unlock_type: unlockType, // 'bewerbung', 'initiativ', 'match', 'community', 'search'
         p_notes: notes.trim() || null,
         p_unlocked_by_user_id: currentUserId,
-        p_linked_job_ids: JSON.stringify(linkedJobIds) // Convert to JSONB string
+        p_linked_job_ids: linkedJobIds // ✅ Pass array directly as JSONB
       });
 
       if (unlockError) {
