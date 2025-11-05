@@ -116,9 +116,12 @@ export default function CandidateUnlockModal(props: CandidateUnlockModalProps) {
           .order("title", { ascending: true });
 
         if (jobsError) throw jobsError;
+        
+        console.log("🔍 Loaded jobs:", jobsList?.length || 0, jobsList);
         setJobs(jobsList || []);
 
         if (!jobsList?.length) {
+          console.log("⚠️ No active jobs found, defaulting to initiativ");
           setUnlockType("initiativ");
           setSelectedJobId(null);
         }

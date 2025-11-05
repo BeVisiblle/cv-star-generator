@@ -16,6 +16,7 @@ import { ProfileCard } from "@/components/profile/ProfileCard";
 import { useEqualizeCards } from "@/components/unlocked/useEqualizeCards";
 import { useProfiles } from "@/hooks/useProfiles";
 import { FullProfileModal } from "@/components/Company/FullProfileModal";
+import { UserCVModal } from "@/components/admin/user/UserCVModal";
 import {
   Pagination,
   PaginationContent,
@@ -65,6 +66,8 @@ export default function CompanyUnlocked() {
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
   const [selectedProfile, setSelectedProfile] = useState<Profile | null>(null);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+  const [cvModalOpen, setCvModalOpen] = useState(false);
+  const [selectedCVUserId, setSelectedCVUserId] = useState<string | null>(null);
   const gridRef = useEqualizeCards();
 
   // Bulk operations hooks
@@ -562,110 +565,31 @@ export default function CompanyUnlocked() {
                         aria-label={`${p.vorname} ${p.nachname} auswählen`}
                       />
                        <ProfileCard
-                         profile={{
-                           id: p.id,
-                           name: `${p.vorname} ${p.nachname}`.trim(),
-                           avatar_url: p.avatar_url || null,
-                           role: p.headline || p.branche,
-                           city: p.ort,
-                           fs: (p as any).has_drivers_license || false,
-                           seeking: (p as any).job_search_preferences ? (Array.isArray((p as any).job_search_preferences) ? (p as any).job_search_preferences.join(', ') : (p as any).job_search_preferences) : null,
-                           status: p.status,
-                           email: p.email || null,
-                           phone: p.telefon || null,
-                           skills: p.faehigkeiten ? (Array.isArray(p.faehigkeiten) ? p.faehigkeiten : []) : [],
-                           match: 75,
-                         }}
-                         variant="unlocked"
-                         onView={() => handlePreview(p)}
-                          onDownload={async () => {
-                            try {
-                              setIsGeneratingPDF(true);
-                              
-                              // Create temporary container for CV rendering
-                              const tempContainer = document.createElement('div');
-                              tempContainer.style.position = 'absolute';
-                              tempContainer.style.left = '-9999px';
-                              tempContainer.style.top = '-9999px';
-                              tempContainer.style.width = '210mm';
-                              tempContainer.style.backgroundColor = 'white';
-                              document.body.appendChild(tempContainer);
-
-                              // Import CV layout component dynamically
-                              const BerlinLayout = (await import('@/components/cv-layouts/BerlinLayout')).default;
-                              const { mapFormDataToCVData } = await import('@/components/cv-layouts/mapFormDataToCVData');
-                              
-                               // Create CV data using the correct CVFormData structure
-                               const formData = {
-                                 vorname: p.vorname || '',
-                                 nachname: p.nachname || '',
-                                 email: p.email || '',
-                                 telefon: p.telefon || '',
-                                 ort: p.ort || '',
-                                 plz: (p as any).plz || '',
-                                 strasse: (p as any).strasse || '',
-                                 hausnummer: (p as any).hausnummer || '',
-                                 geburtsdatum: (p as any).geburtsdatum || '',
-                                 avatar_url: p.avatar_url || '',
-                                 has_drivers_license: (p as any).has_drivers_license || false,
-                                 driver_license_class: (p as any).driver_license_class || '',
-                                 status: (p.status as any) || 'azubi',
-                                 branche: (p.branche as any) || 'handwerk',
-                                 ueberMich: (p as any).ueberMich || (p as any).bio || '',
-                                 schulbildung: (p as any).schulbildung || [],
-                                 berufserfahrung: (p as any).berufserfahrung || [],
-                                 faehigkeiten: p.faehigkeiten || [],
-                                 sprachen: (p as any).sprachen || [],
-                                 hobbys: (p as any).hobbys || [],
-                                 cvLayout: 'professional' as const
-                               };
-
-                              const cvData = mapFormDataToCVData(formData);
-
-                              // Create and render CV element
-                              const React = await import('react');
-                              const ReactDOM = await import('react-dom/client');
-                              
-                              const cvElement = React.createElement(BerlinLayout, { 
-                                data: cvData
-                              });
-                              const root = ReactDOM.createRoot(tempContainer);
-                              root.render(cvElement);
-
-                              // Wait for rendering
-                              await new Promise(resolve => setTimeout(resolve, 1000));
-                              
-                              // Find the CV preview element
-                              const cvPreviewElement = tempContainer.querySelector('[data-cv-preview]') as HTMLElement;
-                              if (!cvPreviewElement) {
-                                throw new Error('CV preview element not found');
-                              }
-
-                              // Generate filename and PDF
-                              const { generatePDF, generateCVFilename } = await import('@/lib/pdf-generator');
-                              const filename = generateCVFilename(p.vorname || 'Candidate', p.nachname || 'CV');
-                              
-                              await generatePDF(cvPreviewElement, {
-                                filename,
-                                quality: 2,
-                                format: 'a4',
-                                margin: 10
-                              });
-
-                              // Clean up
-                              document.body.removeChild(tempContainer);
-                              root.unmount();
-                            } catch (error) {
-                              console.error('Error downloading CV:', error);
-                              toast.error('Fehler beim CV-Download');
-                            } finally {
-                              setIsGeneratingPDF(false);
-                            }
+                          profile={{
+                            id: p.id,
+                            name: `${p.vorname} ${p.nachname}`.trim(),
+                            avatar_url: p.avatar_url || null,
+                            role: p.headline || p.branche,
+                            city: p.ort,
+                            fs: (p as any).has_drivers_license || false,
+                            seeking: (p as any).job_search_preferences ? (Array.isArray((p as any).job_search_preferences) ? (p as any).job_search_preferences.join(', ') : (p as any).job_search_preferences) : null,
+                            status: p.status,
+                            email: p.email || null,
+                            phone: p.telefon || null,
+                            skills: p.faehigkeiten ? (Array.isArray(p.faehigkeiten) ? p.faehigkeiten : []) : [],
+                            match: 75,
                           }}
-                         onToggleFavorite={() => {
-                           toast.success('Favorit-Funktion wird bald verfügbar sein');
-                         }}
-                       />
+                          variant="unlocked"
+                          onView={() => handlePreview(p)}
+                          onDownload={() => {
+                            // Open CV modal instead of generating PDF
+                            setSelectedCVUserId(p.id);
+                            setCvModalOpen(true);
+                          }}
+                          onToggleFavorite={() => {
+                            toast.success('Favorit-Funktion wird bald verfügbar sein');
+                          }}
+                         />
                     </div>
                   ))}
                 </div>
@@ -773,6 +697,13 @@ export default function CompanyUnlocked() {
             toast.error('Fehler beim Ablehnen');
           }
         }}
+      />
+
+      {/* CV Modal */}
+      <UserCVModal
+        open={cvModalOpen}
+        onOpenChange={setCvModalOpen}
+        userId={selectedCVUserId || ''}
       />
     </div>
   );
