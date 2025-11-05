@@ -204,7 +204,7 @@ export default function CompanyUnlocked() {
       }
     }
     // Navigate to LinkedIn-style profile page
-    navigate(`/profile/${p.id}`);
+    navigate(`/company/profile/${p.id}`);
   };
 
   const handleStageChange = async (newStage: string) => {

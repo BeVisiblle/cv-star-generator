@@ -308,6 +308,9 @@ export default function CandidateUnlockModal(props: CandidateUnlockModalProps) {
       toast.success("Kandidat erfolgreich freigeschaltet");
       onSuccess?.();
       handleOpenChange(false);
+      
+      // Navigate to LinkedIn-style profile view after unlock
+      window.location.href = `/company/profile/${candidate.id}`;
 
     } catch (e: any) {
       // Rollback tokens if deducted - get current balance and add back

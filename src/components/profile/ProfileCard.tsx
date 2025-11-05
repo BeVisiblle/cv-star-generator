@@ -57,7 +57,12 @@ export function ProfileCard({
             </AvatarFallback>
           </Avatar>
           <div className="min-w-0">
-            <h3 className="truncate text-sm font-semibold">{p.name}</h3>
+            <h3 
+              className="truncate text-sm font-semibold cursor-pointer hover:underline" 
+              onClick={onView}
+            >
+              {p.name}
+            </h3>
             {(p.role || p.status) && (
               <div className="truncate text-xs text-gray-600">{p.status ?? p.role}</div>
             )}
