@@ -203,9 +203,8 @@ export default function CompanyUnlocked() {
         console.error('Failed to log profile view', e);
       }
     }
-    // Open modal instead of navigating
-    setSelectedProfile(p);
-    setIsProfileModalOpen(true);
+    // Navigate to LinkedIn-style profile page
+    navigate(`/profile/${p.id}`);
   };
 
   const handleStageChange = async (newStage: string) => {
