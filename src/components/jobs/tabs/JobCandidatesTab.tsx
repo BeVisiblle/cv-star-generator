@@ -702,12 +702,24 @@ export function JobCandidatesTab({ jobId }: JobCandidatesTabProps) {
               queryKey: ["job-applications-detailed", jobId] 
             });
             
-            // Force refetch to get unlocked data
-            await queryClient.refetchQueries({
-              queryKey: ["job-applications-detailed", jobId]
-            });
+            // Wait a bit for the refetch to complete
+            await new Promise(resolve => setTimeout(resolve, 300));
             
-            toast.success("Profil wurde freigeschaltet und ist jetzt verfügbar");
+            // Get the updated data from cache
+            const updatedData = queryClient.getQueryData<any[]>(["job-applications-detailed", jobId]);
+            
+            // Open the profile modal with unlocked data
+            if (updatedData) {
+              const unlockedApp = updatedData.find(a => a.candidate_id === selectedApplication.candidate_id);
+              
+              if (unlockedApp) {
+                setSelectedApplication(unlockedApp);
+                setModalMode("full-actions");
+                setIsProfileModalOpen(true);
+              }
+            }
+            
+            toast.success("Profil wurde freigeschaltet");
           }}
         />
       )}
