@@ -17,6 +17,9 @@ type CandidateCardProps = {
   phone?: string;
   variant?: "preview" | "unlocked" | "unlocked-actions";
   linkedJobTitles?: Array<{ id: string; title: string }>;
+  unlockReason?: string;
+  unlockSource?: "bewerbung" | "initiativ";
+  unlockNotes?: string;
   onViewProfile?: () => void;
   onDownloadCV?: () => void;
   onUnlock?: () => void;
@@ -61,6 +64,13 @@ export function CandidateCard(p: CandidateCardProps) {
           <div className="min-w-0">
             <h3 className="truncate text-sm font-semibold text-foreground">{displayName}</h3>
             {p.role && <div className="truncate text-xs text-muted-foreground">{p.role}</div>}
+            
+            {/* Unlock Reason Badge */}
+            {(variant === "unlocked" || variant === "unlocked-actions") && p.unlockReason && (
+              <Badge variant="secondary" className="mt-1 text-[10px]">
+                {p.unlockReason}
+              </Badge>
+            )}
           </div>
         </div>
         <div className="flex shrink-0 items-center gap-1">
@@ -192,14 +202,26 @@ export function CandidateCard(p: CandidateCardProps) {
 
       {/* 7) Contact (only unlocked variants) */}
       {(variant === "unlocked" || variant === "unlocked-actions") && (
-        <div className="mt-2 h-[52px] border-t border-border pt-2 text-xs">
-          <div className="flex items-center gap-1 text-muted-foreground">
-            <Mail className="h-3 w-3" />
-            <span className="truncate">{p.email ?? "—"}</span>
+        <div className="mt-2 border-t border-border pt-2">
+          <div className="flex items-center gap-1 text-xs mb-1">
+            <Mail className="h-3 w-3 text-blue-600" />
+            <a 
+              href={`mailto:${p.email}`} 
+              className="truncate text-blue-600 hover:underline"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {p.email ?? "—"}
+            </a>
           </div>
-          <div className="mt-0.5 flex items-center gap-1 text-muted-foreground">
-            <Phone className="h-3 w-3" />
-            <span className="truncate">{p.phone ?? "—"}</span>
+          <div className="flex items-center gap-1 text-xs">
+            <Phone className="h-3 w-3 text-green-600" />
+            <a 
+              href={`tel:${p.phone}`} 
+              className="truncate text-green-600 hover:underline"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {p.phone ?? "—"}
+            </a>
           </div>
         </div>
       )}

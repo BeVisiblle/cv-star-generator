@@ -6,8 +6,10 @@ import { Button } from "@/components/ui/button";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { MapPin, Mail, Phone, Calendar, Briefcase, GraduationCap, Award, User, CheckCircle, XCircle, AlertTriangle } from "lucide-react";
+import { MapPin, Mail, Phone, Calendar, Briefcase, GraduationCap, Award, User, CheckCircle, XCircle, AlertTriangle, Download } from "lucide-react";
 import { useState } from "react";
+import { toast } from "sonner";
+import { WeitereDokumenteSection } from "@/components/linkedin/right-rail/WeitereDokumenteSection";
 
 interface Profile {
   id: string;
@@ -45,6 +47,7 @@ interface FullProfileModalProps {
   onUnlock?: () => void;
   onMarkUnsuitable?: (reason?: string) => void;
   showUnlockButton?: boolean;
+  showDownloadButtons?: boolean;
   companyCandidate?: {
     id: string;
     stage: string;
@@ -65,6 +68,7 @@ export function FullProfileModal({
   onUnlock,
   onMarkUnsuitable,
   showUnlockButton = false,
+  showDownloadButtons = false,
   companyCandidate,
   linkedJobs
 }: FullProfileModalProps) {
@@ -296,6 +300,55 @@ export function FullProfileModal({
                       )}
                     </div>
                   ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Documents Section */}
+          {isUnlocked && showDownloadButtons && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg flex items-center">
+                  <Download className="h-5 w-5 mr-2" />
+                  Dokumente
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {profile.cv_url && (
+                  <Button 
+                    variant="outline" 
+                    className="w-full justify-start"
+                    onClick={async () => {
+                      try {
+                        const link = document.createElement('a');
+                        link.href = profile.cv_url!;
+                        link.download = `CV_${profile.vorname}_${profile.nachname}.pdf`;
+                        link.target = '_blank';
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                        toast.success('CV wird heruntergeladen');
+                      } catch (error) {
+                        toast.error('Fehler beim Download');
+                      }
+                    }}
+                  >
+                    <Download className="h-4 w-4 mr-2" />
+                    Lebenslauf herunterladen
+                  </Button>
+                )}
+                
+                <div className="pt-2 border-t">
+                  <p className="text-xs text-muted-foreground mb-2">
+                    Weitere Dokumente (Zeugnisse, Zertifikate):
+                  </p>
+                  <WeitereDokumenteSection
+                    userId={profile.id}
+                    readOnly={true}
+                    openWidget={() => {}}
+                    refreshTrigger={0}
+                  />
                 </div>
               </CardContent>
             </Card>

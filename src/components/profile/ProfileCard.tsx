@@ -1,6 +1,7 @@
 import React from "react";
 import { Heart, Eye, Download, MapPin, Car, Briefcase, User, Mail, Phone } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 
 export type Profile = {
   id: string;
@@ -20,6 +21,8 @@ export type Profile = {
 type Props = {
   profile: Profile;
   variant?: "search" | "dashboard" | "unlocked";
+  unlockReason?: string;
+  unlockNotes?: string;
   onUnlock?: () => void;
   onView?: () => void;
   onDownload?: () => void;
@@ -29,6 +32,8 @@ type Props = {
 export function ProfileCard({
   profile: p,
   variant = "search",
+  unlockReason,
+  unlockNotes,
   onUnlock,
   onView,
   onDownload,
@@ -55,6 +60,12 @@ export function ProfileCard({
             <h3 className="truncate text-sm font-semibold">{p.name}</h3>
             {(p.role || p.status) && (
               <div className="truncate text-xs text-gray-600">{p.status ?? p.role}</div>
+            )}
+            {/* Unlock Reason Badge */}
+            {variant === "unlocked" && unlockReason && (
+              <Badge variant="secondary" className="mt-1 text-[10px]">
+                {unlockReason}
+              </Badge>
             )}
           </div>
         </div>

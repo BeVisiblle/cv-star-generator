@@ -44,6 +44,9 @@ interface Profile {
   stage?: string;
   company_candidate_id?: string;
   unlocked_at?: string;
+  unlock_source?: "bewerbung" | "initiativ";
+  unlock_notes?: string;
+  linkedJobTitles?: Array<{ id: string; title: string }>;
 }
 
 const ITEMS_PER_PAGE = 20;
@@ -82,6 +85,9 @@ export default function CompanyUnlocked() {
             stage,
             unlocked_at,
             match_score,
+            source,
+            notes,
+            linked_job_ids,
             profiles:candidate_id (
               id,
               vorname,
@@ -110,7 +116,27 @@ export default function CompanyUnlocked() {
 
         if (ccErr) throw ccErr;
 
-        // Map to UI Profile type with company_candidate metadata
+        // Fetch job titles for linked_job_ids
+        const allJobIds = new Set<string>();
+        (ccRows || []).forEach((cc: any) => {
+          if (cc.linked_job_ids && Array.isArray(cc.linked_job_ids)) {
+            cc.linked_job_ids.forEach((id: string) => allJobIds.add(id));
+          }
+        });
+
+        let jobTitleMap = new Map();
+        if (allJobIds.size > 0) {
+          const { data: jobTitles } = await supabase
+            .from("job_posts")
+            .select("id, title")
+            .in("id", Array.from(allJobIds));
+          
+          jobTitleMap = new Map(
+            jobTitles?.map(j => [j.id, j.title]) || []
+          );
+        }
+
+        // Map to UI Profile type with unlock metadata
         const profilesData = (ccRows || [])
           .filter((cc: any) => cc.profiles)
           .map((cc: any) => ({
@@ -118,6 +144,12 @@ export default function CompanyUnlocked() {
             stage: cc.stage,
             company_candidate_id: cc.id,
             unlocked_at: cc.unlocked_at,
+            unlock_source: cc.source,
+            unlock_notes: cc.notes,
+            linkedJobTitles: (cc.linked_job_ids || []).map((id: string) => ({
+              id,
+              title: jobTitleMap.get(id) || "Unbekannte Stelle"
+            })),
             plz: cc.profiles.plz ?? '',
           })) as Profile[];
 
@@ -378,6 +410,12 @@ export default function CompanyUnlocked() {
                            match: 75,
                          }}
                          variant="unlocked"
+                         unlockReason={
+                           p.unlock_source === "bewerbung" 
+                             ? `Bewerbung ${p.linkedJobTitles?.[0]?.title ? `auf ${p.linkedJobTitles[0].title}` : ''}`
+                             : "Initiativ freigeschaltet"
+                         }
+                         unlockNotes={p.unlock_notes}
                          onView={() => handlePreview(p)}
                           onDownload={async () => {
                             try {

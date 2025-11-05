@@ -49,6 +49,8 @@ export function JobCandidatesTab({ jobId }: JobCandidatesTabProps) {
   const [modalMode, setModalMode] = useState<"preview" | "full-readonly" | "full-actions">("preview");
   const [unlockModalOpen, setUnlockModalOpen] = useState(false);
   const [jobTitle, setJobTitle] = useState<string>("");
+  const [postUnlockProfile, setPostUnlockProfile] = useState<any | null>(null);
+  const [showPostUnlockModal, setShowPostUnlockModal] = useState(false);
 
   // Fetch job title
   useEffect(() => {
@@ -101,22 +103,24 @@ export function JobCandidatesTab({ jobId }: JobCandidatesTabProps) {
 
       if (appError) throw appError;
 
-      // Step 1.5: Add global unlock status from company_candidates
+      // Step 1.5: Add global unlock status AND company_candidate data
       if (appData && company?.id) {
         const candidateIds = appData.map(a => a.candidate_id);
-        const { data: unlockData } = await supabase
+        const { data: companyCandidates } = await supabase
           .from('company_candidates')
-          .select('candidate_id, unlocked_at')
+          .select('candidate_id, unlocked_at, source, notes, linked_job_ids, stage')
           .eq('company_id', company.id)
           .in('candidate_id', candidateIds)
           .not('unlocked_at', 'is', null);
 
-        const unlockMap = new Map(
-          (unlockData || []).map(u => [u.candidate_id, u.unlocked_at])
+        const ccMap = new Map(
+          (companyCandidates || []).map(cc => [cc.candidate_id, cc])
         );
 
         appData.forEach(app => {
-          (app as any).global_unlocked_at = unlockMap.get(app.candidate_id) || null;
+          const cc = ccMap.get(app.candidate_id);
+          (app as any).global_unlocked_at = cc?.unlocked_at || null;
+          (app as any).companyCandidate = cc || null;
         });
       }
 
@@ -265,7 +269,8 @@ export function JobCandidatesTab({ jobId }: JobCandidatesTabProps) {
   const handleViewProfile = (application: any) => {
     setSelectedApplication(application);
 
-    const isUnlocked = application.unlocked_at || application.global_unlocked_at;
+    const isGloballyUnlocked = application.global_unlocked_at;
+    const isUnlocked = application.unlocked_at || isGloballyUnlocked;
 
     if (!isUnlocked) {
       setUnlockModalOpen(true);
@@ -275,6 +280,11 @@ export function JobCandidatesTab({ jobId }: JobCandidatesTabProps) {
     } else {
       setModalMode("full-readonly");
       setIsProfileModalOpen(true);
+    }
+
+    // Show info if globally unlocked but not for this job
+    if (isGloballyUnlocked && !application.unlocked_at) {
+      toast.info("Dieser Kandidat wurde bereits für eine andere Stelle freigeschaltet");
     }
   };
 
@@ -383,6 +393,26 @@ export function JobCandidatesTab({ jobId }: JobCandidatesTabProps) {
                       const isUnlocked = !!app.unlocked_at || !!app.global_unlocked_at;
                       const isNewStage = app.stage === "new" || app.is_virtual;
                       
+                      // Calculate unlock reason
+                      let unlockReason = "";
+                      if (isUnlocked && app.companyCandidate) {
+                        if (app.companyCandidate.source === "bewerbung") {
+                          unlockReason = `Bewerbung auf ${jobTitle}`;
+                        } else if (app.companyCandidate.source === "initiativ") {
+                          unlockReason = "Initiativ freigeschaltet";
+                        }
+                        
+                        // Check if unlocked for other jobs
+                        if (app.linkedJobTitles && app.linkedJobTitles.length > 0) {
+                          const otherJobs = app.linkedJobTitles
+                            .filter((j: any) => j.id !== jobId)
+                            .map((j: any) => j.title);
+                          if (otherJobs.length > 0) {
+                            unlockReason += ` (auch: ${otherJobs.join(", ")})`;
+                          }
+                        }
+                      }
+                      
                       // Determine variant
                       let variant: "preview" | "unlocked" | "unlocked-actions" = "preview";
                       if (isUnlocked) {
@@ -404,6 +434,9 @@ export function JobCandidatesTab({ jobId }: JobCandidatesTabProps) {
                           phone={isUnlocked ? candidate?.phone : undefined}
                           variant={variant}
                           linkedJobTitles={app.linkedJobTitles}
+                          unlockReason={unlockReason}
+                          unlockSource={app.companyCandidate?.source}
+                          unlockNotes={app.companyCandidate?.notes}
                           onViewProfile={() => handleViewProfile(app)}
                           onDownloadCV={() => {
                             if (candidate?.cv_url) {
@@ -480,13 +513,65 @@ export function JobCandidatesTab({ jobId }: JobCandidatesTabProps) {
             status: selectedApplication.stage,
           }}
           contextType="application"
-          onSuccess={() => {
-            queryClient.invalidateQueries({ queryKey: ["job-applications-detailed", jobId] });
-            toast.success("Kandidat freigeschaltet!");
-            setUnlockModalOpen(false);
-            setModalMode("full-actions");
-            setIsProfileModalOpen(true);
+          onSuccess={async () => {
+            try {
+              // 1. Reload applications
+              await queryClient.invalidateQueries({ 
+                queryKey: ["job-applications-detailed", jobId] 
+              });
+              
+              // 2. Fetch full profile data
+              const { data: fullProfile } = await supabase
+                .from('profiles')
+                .select('*')
+                .eq('id', selectedApplication.candidate_id)
+                .single();
+              
+              // 3. Fetch company_candidate entry
+              const { data: companyCandidate } = await supabase
+                .from('company_candidates')
+                .select('id, stage, unlocked_at, source, notes, linked_job_ids')
+                .eq('company_id', company?.id || '')
+                .eq('candidate_id', selectedApplication.candidate_id)
+                .single();
+              
+              // 4. Close unlock modal
+              setUnlockModalOpen(false);
+              
+              // 5. Open full profile modal
+              setPostUnlockProfile({
+                ...fullProfile,
+                companyCandidate,
+                linkedJobTitles: selectedApplication.linkedJobTitles
+              });
+              setShowPostUnlockModal(true);
+              
+              toast.success("Profil freigeschaltet! Jetzt alle Details sichtbar.");
+            } catch (error) {
+              console.error("Error loading profile after unlock:", error);
+              toast.success("Profil erfolgreich freigeschaltet");
+              setUnlockModalOpen(false);
+            }
           }}
+        />
+      )}
+
+      {/* Post-Unlock Profile Modal */}
+      {postUnlockProfile && (
+        <FullProfileModal
+          isOpen={showPostUnlockModal}
+          onClose={() => {
+            setShowPostUnlockModal(false);
+            setPostUnlockProfile(null);
+          }}
+          profile={postUnlockProfile}
+          isUnlocked={true}
+          companyCandidate={postUnlockProfile.companyCandidate}
+          linkedJobs={postUnlockProfile.linkedJobTitles}
+          currentStage={postUnlockProfile.companyCandidate?.stage}
+          onStageChange={handleStageChange}
+          onArchive={(reason) => handleArchive(selectedApplication.id, reason)}
+          showDownloadButtons={true}
         />
       )}
     </>
