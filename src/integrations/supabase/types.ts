@@ -7471,27 +7471,6 @@ export type Database = {
             referencedRelation: "v_company_profiles"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "token_transactions_profile_id_fkey"
-            columns: ["profile_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "token_transactions_profile_id_fkey"
-            columns: ["profile_id"]
-            isOneToOne: false
-            referencedRelation: "profiles_public"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "token_transactions_profile_id_fkey"
-            columns: ["profile_id"]
-            isOneToOne: false
-            referencedRelation: "profiles_public_secure"
-            referencedColumns: ["id"]
-          },
         ]
       }
       tokens_used: {
