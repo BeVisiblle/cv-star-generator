@@ -277,9 +277,10 @@ export default function CandidateUnlockModal(props: CandidateUnlockModalProps) {
         p_company_id: companyId,
         p_candidate_id: candidate.id,
         p_source: unlockType,
-        p_unlock_type: unlockType,
-        p_linked_job_ids: linkedJobIds,
-        p_notes: notes.trim() || null
+        p_unlock_type: unlockType, // 'bewerbung', 'initiativ', 'match', 'community', 'search'
+        p_notes: notes.trim() || null,
+        p_unlocked_by_user_id: currentUserId,
+        p_linked_job_ids: linkedJobIds
       });
 
       if (unlockError) {

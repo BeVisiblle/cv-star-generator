@@ -122,7 +122,9 @@ export class UnlockService {
       // RPC: Token abziehen und Profil freischalten
       const { data, error } = await supabase.rpc('use_company_token', {
         p_company_id: companyId,
-        p_profile_id: options.profileId
+        p_profile_id: options.profileId,
+        p_token_cost: 2, // Basic unlock costs 2 tokens
+        p_reason: 'basic_unlock'
       });
 
       if (error) {
