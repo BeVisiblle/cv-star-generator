@@ -197,7 +197,7 @@ export default function UserProfilePage() {
   };
 
   return (
-    <div className="min-h-screen bg-background pb-20 md:pb-0">
+    <div className="min-h-screen pb-20 md:pb-0">
       {/* Header with back button */}
       <div className="px-2 sm:px-3 md:px-6 py-1.5 sm:py-2 border-b">
         <div className="max-w-screen-2xl mx-auto flex items-center justify-between gap-2">
