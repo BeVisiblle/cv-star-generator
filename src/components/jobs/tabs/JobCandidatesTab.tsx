@@ -187,7 +187,7 @@ export function JobCandidatesTab({ jobId }: JobCandidatesTabProps) {
       console.log("New stage (should show in Bewerber):", appData?.filter(a => a.stage === 'new' && !a.unlocked_at && !(a as any).global_unlocked_at).length || 0);
       console.log("Data:", appData);
 
-      // Step 2: Load linked candidates
+      // Step 2: Load linked candidates - FIX: Don't select phone/email from profiles (they don't exist)
       const { data: linkedCandidates, error: linkedError } = await supabase
         .from("company_candidates")
         .select(`
@@ -197,8 +197,24 @@ export function JobCandidatesTab({ jobId }: JobCandidatesTabProps) {
           match_score,
           unlocked_at,
           created_at,
-          linked_job_ids,
-          candidates:candidate_id (
+          linked_job_ids
+        `)
+        .contains("linked_job_ids", [jobId])
+        .not("unlocked_at", "is", null);
+
+      if (linkedError) {
+        console.warn("Could not load linked candidates:", linkedError);
+        // Continue with just the regular applications
+      }
+      
+      // Now get candidate details separately for linked candidates
+      let linkedCandidatesWithDetails = [];
+      if (linkedCandidates && linkedCandidates.length > 0) {
+        const linkedCandidateIds = linkedCandidates.map(cc => cc.candidate_id);
+        
+        const { data: candidateDetails } = await supabase
+          .from('candidates')
+          .select(`
             id,
             full_name,
             vorname,
@@ -214,18 +230,21 @@ export function JobCandidatesTab({ jobId }: JobCandidatesTabProps) {
             languages,
             experience_years,
             availability_status
-          )
-        `)
-        .contains("linked_job_ids", [jobId])
-        .not("unlocked_at", "is", null);
-
-      if (linkedError) {
-        console.warn("Could not load linked candidates:", linkedError);
-        // Continue with just the regular applications
+          `)
+          .in('user_id', linkedCandidateIds);
+        
+        const candidateMap = new Map(
+          (candidateDetails || []).map(c => [c.id, c])
+        );
+        
+        linkedCandidatesWithDetails = linkedCandidates.map(cc => ({
+          ...cc,
+          candidates: candidateMap.get(cc.candidate_id)
+        }));
       }
 
       // Step 3: Create virtual applications for linked candidates
-      const virtualApplications = linkedCandidates
+      const virtualApplications = linkedCandidatesWithDetails
         ?.filter((cc) => {
           // Only include if no regular application exists
           return !appData?.some((app) => app.candidate_id === cc.candidate_id);
@@ -240,7 +259,7 @@ export function JobCandidatesTab({ jobId }: JobCandidatesTabProps) {
             match_score: cc.match_score || 0,
             unlocked_at: cc.unlocked_at,
             created_at: cc.created_at,
-            candidates: Array.isArray(cc.candidates) ? cc.candidates[0] : cc.candidates,
+            candidates: cc.candidates,
             linked_job_ids: Array.isArray(linkedJobIds) ? linkedJobIds as string[] : [],
             is_virtual: true,
           };
@@ -366,13 +385,15 @@ export function JobCandidatesTab({ jobId }: JobCandidatesTabProps) {
     if (!company?.id) return;
     
     try {
-      // Update application status to rejected
+      // ✅ FIX: Update application to rejected AND archive it
       await supabase
         .from('applications')
         .update({ 
           status: 'rejected',
           stage: 'rejected',
           rejection_reason: reason || 'Profil passt nicht zur Stelle',
+          archived_at: new Date().toISOString(), // ✅ Set archived_at
+          archived_by: (await supabase.auth.getUser()).data.user?.id,
           updated_at: new Date().toISOString()
         })
         .eq('id', application.id);
@@ -393,9 +414,10 @@ export function JobCandidatesTab({ jobId }: JobCandidatesTabProps) {
         }]);
       }
 
-      toast.success("Bewerbung wurde abgesagt");
+      toast.success("Bewerbung wurde abgesagt und archiviert");
       queryClient.invalidateQueries({ queryKey: ["job-applications-detailed", jobId] });
       setIsProfileModalOpen(false);
+      setPreviewModalOpen(false);
     } catch (error) {
       console.error('Error:', error);
       toast.error("Fehler beim Absagen der Bewerbung");
