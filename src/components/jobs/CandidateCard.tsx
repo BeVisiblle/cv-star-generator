@@ -164,9 +164,10 @@ export function CandidateCard(p: CandidateCardProps) {
       <div className="mt-2 flex h-[44px] items-center gap-2">
         {variant === "preview" && (
           <>
+            {/* ✅ Preview Button: Opens UnlockProfileModal with onViewProfile */}
             <Button variant="outline" size="sm" className="h-9 flex-1 text-xs px-3" onClick={p.onViewProfile}>
               <Eye className="mr-1 h-4 w-4" />
-              Profil ansehen
+              Vorschau
             </Button>
             <Button variant="default" size="sm" className="h-9 flex-1 text-xs px-3" onClick={p.onUnlock}>
               <Unlock className="mr-1 h-4 w-4" />

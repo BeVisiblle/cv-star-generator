@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { CandidateCard } from "../CandidateCard";
 import { FullProfileModal } from "@/components/Company/FullProfileModal";
+import { UnlockProfileModal } from "@/components/Company/UnlockProfileModal";
 import CandidateUnlockModal from "@/components/unlock/CandidateUnlockModal";
 import { toast } from "sonner";
 import { unlockService } from "@/services/unlockService";
@@ -17,27 +18,36 @@ const STAGES = {
   bewerber: {
     key: "bewerber",
     title: "Bewerber",
-    filter: (app: any) => app.stage === "new" && !app.unlocked_at && !app.global_unlocked_at && !app.archived_at,
+    // ✅ Fixed: Only show candidates NOT unlocked yet
+    filter: (app: any) => 
+      app.stage === "new" && 
+      !app.unlocked_at && 
+      !app.global_unlocked_at && 
+      !app.archived_at,
   },
   freigeschaltet: {
     key: "freigeschaltet",
     title: "Freigeschaltet",
-    filter: (app: any) => (app.unlocked_at || app.global_unlocked_at) && !app.archived_at && (app.stage === "new" || app.stage === "unlocked" || app.is_virtual),
+    // ✅ Fixed: Show candidates that ARE unlocked (via unlocked_at or global_unlocked_at)
+    filter: (app: any) => 
+      (app.unlocked_at || app.global_unlocked_at) && 
+      !app.archived_at && 
+      (app.stage === "new" || app.stage === "unlocked" || app.is_virtual),
   },
   interview: {
     key: "interview",
     title: "Interview geplant",
-    filter: (app: any) => app.stage === "interview",
+    filter: (app: any) => app.stage === "interview" && !app.archived_at,
   },
   finale: {
     key: "finale",
     title: "Finale Runde",
-    filter: (app: any) => app.stage === "final",
+    filter: (app: any) => app.stage === "final" && !app.archived_at,
   },
   angebot: {
     key: "angebot",
     title: "Angebot",
-    filter: (app: any) => app.stage === "approved",
+    filter: (app: any) => app.stage === "approved" && !app.archived_at,
   },
 };
 
@@ -48,6 +58,7 @@ export function JobCandidatesTab({ jobId }: JobCandidatesTabProps) {
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<"preview" | "full-readonly" | "full-actions">("preview");
   const [unlockModalOpen, setUnlockModalOpen] = useState(false);
+  const [previewModalOpen, setPreviewModalOpen] = useState(false); // ✅ NEW: Preview modal
   const [jobTitle, setJobTitle] = useState<string>("");
   const [postUnlockProfile, setPostUnlockProfile] = useState<any | null>(null);
   const [showPostUnlockModal, setShowPostUnlockModal] = useState(false);
@@ -298,7 +309,8 @@ export function JobCandidatesTab({ jobId }: JobCandidatesTabProps) {
     const isUnlocked = application.unlocked_at || isGloballyUnlocked;
 
     if (!isUnlocked) {
-      setUnlockModalOpen(true);
+      // ✅ NEW: Open preview modal instead of unlock modal
+      setPreviewModalOpen(true);
     } else if (application.stage === "new" || application.is_virtual) {
       setModalMode("full-actions");
       setIsProfileModalOpen(true);
@@ -311,6 +323,12 @@ export function JobCandidatesTab({ jobId }: JobCandidatesTabProps) {
     if (isGloballyUnlocked && !application.unlocked_at) {
       toast.info("Dieser Kandidat wurde bereits für eine andere Stelle freigeschaltet");
     }
+  };
+
+  // ✅ NEW: Handler for opening unlock modal from preview
+  const handleUnlockFromPreview = (application: any) => {
+    setPreviewModalOpen(false);
+    setUnlockModalOpen(true);
   };
 
 
@@ -471,7 +489,10 @@ export function JobCandidatesTab({ jobId }: JobCandidatesTabProps) {
                               toast.error("Kein CV verfügbar");
                             }
                           }}
-                          onUnlock={() => handleViewProfile(app)}
+                          onUnlock={() => {
+                            setSelectedApplication(app);
+                            setUnlockModalOpen(true);
+                          }}
                           onAcceptInterview={() => {
                             setSelectedApplication(app);
                             handleStageChange("interview");
@@ -524,6 +545,21 @@ export function JobCandidatesTab({ jobId }: JobCandidatesTabProps) {
         />
       )}
 
+      {/* Preview Modal (shows profile without unlocking) */}
+      {selectedApplication && (
+        <UnlockProfileModal
+          isOpen={previewModalOpen}
+          onClose={() => setPreviewModalOpen(false)}
+          profile={selectedApplication.candidates}
+          matchPercentage={selectedApplication.match_score || 0}
+          onConfirmUnlock={() => handleUnlockFromPreview(selectedApplication)}
+          tokenCost={1}
+          applicationId={selectedApplication.id}
+          onReject={(reason) => handleMarkUnsuitableApplication(selectedApplication, reason)}
+        />
+      )}
+
+      {/* Unlock Modal (actual unlock with token cost) */}
       {selectedApplication && (
         <CandidateUnlockModal
           open={unlockModalOpen}
