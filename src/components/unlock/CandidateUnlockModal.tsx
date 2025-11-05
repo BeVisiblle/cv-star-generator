@@ -230,6 +230,31 @@ export default function CandidateUnlockModal(props: CandidateUnlockModalProps) {
         });
       }
 
+      // Ensure candidate exists in candidates table
+      const { data: existingCandidate } = await supabase
+        .from("candidates")
+        .select("id")
+        .eq("id", candidate.id)
+        .maybeSingle();
+
+      if (!existingCandidate) {
+        // Create candidate entry if it doesn't exist
+        const { error: candidateError } = await supabase
+          .from("candidates")
+          .insert({
+            id: candidate.id,
+            full_name: candidate.full_name || `${candidate.vorname || ""} ${candidate.nachname || ""}`.trim(),
+            vorname: candidate.vorname,
+            nachname: candidate.nachname,
+            company_id: companyId,
+          });
+
+        if (candidateError) {
+          console.error("Error creating candidate:", candidateError);
+          throw new Error("Fehler beim Erstellen des Kandidatenprofils");
+        }
+      }
+
       // Upsert company_candidates with linked_job_ids
       const linkedJobIds = selectedJobId ? [selectedJobId] : [];
       
