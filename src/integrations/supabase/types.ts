@@ -1489,13 +1489,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "fk_company_candidates_candidate"
-            columns: ["candidate_id"]
-            isOneToOne: false
-            referencedRelation: "candidates"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "fk_company_candidates_company"
             columns: ["company_id"]
             isOneToOne: false
@@ -1528,6 +1521,27 @@ export type Database = {
             columns: ["company_id"]
             isOneToOne: false
             referencedRelation: "v_company_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_company_candidates_profile"
+            columns: ["candidate_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_company_candidates_profile"
+            columns: ["candidate_id"]
+            isOneToOne: false
+            referencedRelation: "profiles_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_company_candidates_profile"
+            columns: ["candidate_id"]
+            isOneToOne: false
+            referencedRelation: "profiles_public_secure"
             referencedColumns: ["id"]
           },
         ]
@@ -9781,6 +9795,17 @@ export type Database = {
       unfollow_company: {
         Args: { p_company_id: string; p_profile_id: string }
         Returns: undefined
+      }
+      unlock_candidate_profile: {
+        Args: {
+          p_candidate_id: string
+          p_company_id: string
+          p_linked_job_ids: Json
+          p_notes: string
+          p_source: string
+          p_unlocked_by_user_id: string
+        }
+        Returns: Json
       }
       unlockrows: { Args: { "": string }; Returns: number }
       updategeometrysrid: {

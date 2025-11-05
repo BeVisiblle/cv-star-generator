@@ -230,27 +230,22 @@ export default function CandidateUnlockModal(props: CandidateUnlockModalProps) {
         });
       }
 
-      // Upsert company_candidates with linked_job_ids
+      // Use RPC function to unlock profile (bypasses RLS)
       const linkedJobIds = selectedJobId ? [selectedJobId] : [];
       
-      const { error: unlockError } = await supabase
-        .from("company_candidates")
-        .upsert({
-          company_id: companyId,
-          candidate_id: candidate.id,
-          source: unlockType,
-          source_need_id: null,
-          notes: notes.trim() || null,
-          unlocked_at: new Date().toISOString(),
-          unlocked_by_user_id: currentUserId,
-          stage: "new",
-          last_touched_at: new Date().toISOString(),
-          linked_job_ids: linkedJobIds,
-        }, {
-          onConflict: "company_id,candidate_id"
-        });
+      const { data: unlockResult, error: unlockError } = await supabase.rpc("unlock_candidate_profile", {
+        p_company_id: companyId,
+        p_candidate_id: candidate.id,
+        p_source: unlockType,
+        p_notes: notes.trim() || null,
+        p_unlocked_by_user_id: currentUserId,
+        p_linked_job_ids: linkedJobIds
+      });
 
-      if (unlockError) throw unlockError;
+      const unlockRes = unlockResult as any;
+      if (unlockError || !unlockRes?.success) {
+        throw new Error(unlockRes?.error || unlockError?.message || "Fehler beim Freischalten");
+      }
 
       // Track analytics in company_activity
       await supabase.from("company_activity").insert({
