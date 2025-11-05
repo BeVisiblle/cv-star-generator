@@ -87,7 +87,7 @@ export class JobsService {
 
     const insertData: any = {
       company_id: companyId,
-      status: 'draft',
+      status: 'published',
       title: jobData.title || 'Neue Stelle',
       industry: jobData.industry || '',
       city: jobData.city || '',
@@ -102,7 +102,7 @@ export class JobsService {
       work_mode: jobData.work_mode || null,
       working_hours: jobData.working_hours || null,
       is_public: jobData.is_public ?? true,
-      is_active: jobData.is_active ?? false,
+      is_active: jobData.is_active ?? true,
       must_have: mustHave,
       nice_to_have: niceToHave,
       languages: jobData.required_languages || [],
