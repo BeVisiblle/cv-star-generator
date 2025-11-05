@@ -119,46 +119,68 @@ export function JobCandidatesTab({ jobId }: JobCandidatesTabProps) {
         // First, resolve candidate IDs to user IDs
         const candidateIds = appData.map(a => a.candidate_id);
         
+        console.log("🔍 Resolving candidate IDs to user IDs:", candidateIds);
+        
         // Get user_ids from candidates table
-        const { data: candidatesData } = await supabase
+        const { data: candidatesData, error: candidatesError } = await supabase
           .from('candidates')
           .select('id, user_id')
           .in('id', candidateIds);
         
+        console.log("👥 Candidates data:", candidatesData, "Error:", candidatesError);
+        
         const candidateIdToUserId = new Map(
           (candidatesData || []).map(c => [c.id, c.user_id])
         );
+        
+        console.log("🗺️ Candidate ID to User ID map:", Array.from(candidateIdToUserId.entries()));
         
         // Get all unique user_ids
         const userIds = Array.from(new Set(
           Array.from(candidateIdToUserId.values()).filter(Boolean)
         ));
         
+        console.log("🎯 Unique user IDs:", userIds);
+        
         if (userIds.length > 0) {
           // Query company_candidates using user_ids (profiles.id)
-          const { data: companyCandidates } = await supabase
+          const { data: companyCandidates, error: ccError } = await supabase
             .from('company_candidates')
             .select('candidate_id, unlocked_at, source, notes, linked_job_ids, stage')
             .eq('company_id', company.id)
             .in('candidate_id', userIds)
             .not('unlocked_at', 'is', null);
 
+          console.log("🏢 Company candidates:", companyCandidates, "Error:", ccError);
+
           // Map by user_id
           const ccMap = new Map(
             (companyCandidates || []).map(cc => [cc.candidate_id, cc])
           );
 
+          console.log("🗺️ CC Map:", Array.from(ccMap.entries()));
+
           // Attach to applications using the resolved user_id
           appData.forEach(app => {
             const userId = candidateIdToUserId.get(app.candidate_id);
+            console.log(`📎 App ${app.id}: candidate_id=${app.candidate_id}, userId=${userId}`);
             if (userId) {
               const cc = ccMap.get(userId);
+              console.log(`   → CC data:`, cc);
               (app as any).global_unlocked_at = cc?.unlocked_at || null;
               (app as any).companyCandidate = cc || null;
             }
           });
         }
       }
+
+      console.log("=== Applications after global unlock check ===");
+      console.log("Data with global_unlocked_at:", appData?.map(a => ({
+        id: a.id,
+        candidate_id: a.candidate_id,
+        unlocked_at: a.unlocked_at,
+        global_unlocked_at: (a as any).global_unlocked_at
+      })));
 
       console.log("=== Applications loaded ===");
       console.log("Total applications:", appData?.length || 0);
