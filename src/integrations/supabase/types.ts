@@ -1438,6 +1438,7 @@ export type Database = {
           source: string | null
           source_need_id: string | null
           stage: string
+          unlock_type: string | null
           unlocked_at: string | null
           unlocked_by_user_id: string | null
           updated_at: string
@@ -1457,6 +1458,7 @@ export type Database = {
           source?: string | null
           source_need_id?: string | null
           stage?: string
+          unlock_type?: string | null
           unlocked_at?: string | null
           unlocked_by_user_id?: string | null
           updated_at?: string
@@ -1476,6 +1478,7 @@ export type Database = {
           source?: string | null
           source_need_id?: string | null
           stage?: string
+          unlock_type?: string | null
           unlocked_at?: string | null
           unlocked_by_user_id?: string | null
           updated_at?: string
@@ -9804,9 +9807,9 @@ export type Database = {
               p_linked_job_ids: Json
               p_notes: string
               p_source: string
-              p_unlocked_by_user_id: string
+              p_unlock_type: string
             }
-            Returns: Json
+            Returns: undefined
           }
         | {
             Args: {
@@ -9816,8 +9819,9 @@ export type Database = {
               p_notes: string
               p_source: string
               p_unlock_type: string
+              p_unlocked_by_user_id: string
             }
-            Returns: undefined
+            Returns: Json
           }
       unlockrows: { Args: { "": string }; Returns: number }
       update_candidate_job_assignment: {
