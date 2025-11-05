@@ -26,7 +26,9 @@ import {
   School,
   Award,
   X,
-  XCircle
+  XCircle,
+  ExternalLink,
+  Languages
 } from "lucide-react";
 
 interface Profile {
@@ -53,6 +55,9 @@ interface Profile {
   has_drivers_license?: boolean;
   driver_license_class?: string;
   praktische_erfahrung?: string;
+  languages?: Array<{ code: string; name?: string; level: string }>;
+  linkedin_url?: string;
+  experience_years?: number;
 }
 
 interface UnlockProfileModalProps {
@@ -286,6 +291,48 @@ export function UnlockProfileModal({
                   </Badge>
                 )}
               </div>
+            </div>
+          )}
+
+          {/* Languages */}
+          {profile.languages && profile.languages.length > 0 && (
+            <div className="space-y-3">
+              <h3 className="text-lg font-semibold flex items-center gap-2">
+                <Languages className="h-5 w-5" />
+                Sprachen
+              </h3>
+              <div className="flex flex-wrap gap-2">
+                {profile.languages.map((lang, i) => (
+                  <Badge key={i} variant="outline">
+                    {lang.name || lang.code} {lang.level}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Experience Years */}
+          {profile.experience_years && profile.experience_years > 0 && (
+            <div className="space-y-2">
+              <h3 className="text-lg font-semibold">Berufserfahrung</h3>
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <Briefcase className="h-4 w-4" />
+                <span>{profile.experience_years} Jahre Berufserfahrung</span>
+              </div>
+            </div>
+          )}
+
+          {/* LinkedIn Profile */}
+          {profile.linkedin_url && (
+            <div className="space-y-2">
+              <Button 
+                variant="outline" 
+                className="w-full"
+                onClick={() => window.open(profile.linkedin_url, '_blank', 'noopener')}
+              >
+                <ExternalLink className="h-4 w-4 mr-2" />
+                LinkedIn-Profil anschauen
+              </Button>
             </div>
           )}
 

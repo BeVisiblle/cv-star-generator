@@ -20,6 +20,8 @@ type CandidateCardProps = {
   unlockReason?: string;
   unlockSource?: "bewerbung" | "initiativ";
   unlockNotes?: string;
+  appliedAt?: string;
+  unlockedAt?: string;
   onViewProfile?: () => void;
   onDownloadCV?: () => void;
   onUnlock?: () => void;
@@ -46,6 +48,18 @@ export function CandidateCard(p: CandidateCardProps) {
 
   return (
     <article className="ab-card flex h-full w-full sm:max-w-full flex-col rounded-xl border bg-card p-3 shadow-sm transition-shadow hover:shadow-md">
+      {/* Status Badges */}
+      {p.appliedAt && (
+        <Badge variant="default" className="mb-2 bg-green-600 text-white">
+          ✓ Beworben am {new Date(p.appliedAt).toLocaleDateString('de-DE')}
+        </Badge>
+      )}
+      {!p.appliedAt && p.unlockedAt && (
+        <Badge variant="secondary" className="mb-2">
+          🔓 Freigeschaltet
+        </Badge>
+      )}
+      
       {/* 1) Header */}
       <div className="flex min-h-[48px] items-start justify-between gap-2">
         <div className="flex items-center gap-2">

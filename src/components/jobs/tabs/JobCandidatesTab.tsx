@@ -49,6 +49,11 @@ const STAGES = {
     title: "Angebot",
     filter: (app: any) => app.stage === "approved" && !app.archived_at,
   },
+  archiv: {
+    key: "archiv",
+    title: "Archiv",
+    filter: (app: any) => app.archived_at !== null
+  },
 };
 
 export function JobCandidatesTab({ jobId }: JobCandidatesTabProps) {
@@ -216,6 +221,7 @@ export function JobCandidatesTab({ jobId }: JobCandidatesTabProps) {
           .from('candidates')
           .select(`
             id,
+            user_id,
             full_name,
             vorname,
             nachname,
@@ -234,7 +240,7 @@ export function JobCandidatesTab({ jobId }: JobCandidatesTabProps) {
           .in('user_id', linkedCandidateIds);
         
         const candidateMap = new Map(
-          (candidateDetails || []).map(c => [c.id, c])
+          (candidateDetails || []).map(c => [c.user_id, c])
         );
         
         linkedCandidatesWithDetails = linkedCandidates.map(cc => ({

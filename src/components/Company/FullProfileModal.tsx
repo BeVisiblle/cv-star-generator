@@ -10,6 +10,7 @@ import { MapPin, Mail, Phone, Calendar, Briefcase, GraduationCap, Award, User, C
 import { useState } from "react";
 import { toast } from "sonner";
 import { WeitereDokumenteSection } from "@/components/linkedin/right-rail/WeitereDokumenteSection";
+import { ApplicationAlert } from "@/components/jobs/ApplicationAlert";
 
 interface Profile {
   id: string;
@@ -54,6 +55,7 @@ interface FullProfileModalProps {
     unlocked_at: string;
   };
   linkedJobs?: Array<{ id: string; title: string }>;
+  appliedAt?: string | null;
 }
 
 export function FullProfileModal({ 
@@ -70,7 +72,8 @@ export function FullProfileModal({
   showUnlockButton = false,
   showDownloadButtons = false,
   companyCandidate,
-  linkedJobs
+  linkedJobs,
+  appliedAt
 }: FullProfileModalProps) {
   const [showArchiveDialog, setShowArchiveDialog] = useState(false);
   const [rejectionReason, setRejectionReason] = useState("");
@@ -142,6 +145,9 @@ export function FullProfileModal({
         <div className="flex gap-6 overflow-hidden h-[calc(90vh-100px)]">
           {/* LEFT: Profile Information (scrollable) */}
           <div className="flex-1 overflow-y-auto pr-4 space-y-6">
+          {/* Application Alert */}
+          <ApplicationAlert appliedAt={appliedAt} />
+          
           {/* Header Section */}
           <div className="flex items-start space-x-6">
             <Avatar className="h-24 w-24">
