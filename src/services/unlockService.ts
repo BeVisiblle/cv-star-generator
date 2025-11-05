@@ -135,7 +135,9 @@ export class UnlockService {
         };
       }
 
-      // Erstelle oder update company_candidates Eintrag
+      // Erstelle oder update company_candidates Eintrag mit job_posting_id
+      const linkedJobIds = options.jobPostId ? [options.jobPostId] : [];
+      
       const { error: candidateError } = await supabase
         .from('company_candidates')
         .upsert({
@@ -144,6 +146,7 @@ export class UnlockService {
           unlocked_at: new Date().toISOString(),
           unlocked_by_user_id: user.id,
           source_need_id: options.jobPostId || null,
+          linked_job_ids: linkedJobIds,
           stage: 'new'
         }, {
           onConflict: 'company_id,candidate_id'

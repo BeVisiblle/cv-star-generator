@@ -314,13 +314,10 @@ export default function CandidateUnlockModal(props: CandidateUnlockModalProps) {
         }
       });
 
-      // Navigate to LinkedIn-style profile view BEFORE closing modal
+      // Success - stay on current page
       toast.success("Kandidat erfolgreich freigeschaltet");
       handleOpenChange(false);
       onSuccess?.();
-      
-      // Navigate to LinkedIn-style profile view
-      window.location.href = `/company/profile/${profileId}`;
 
     } catch (e: any) {
       // Rollback tokens if deducted - get current balance and add back
