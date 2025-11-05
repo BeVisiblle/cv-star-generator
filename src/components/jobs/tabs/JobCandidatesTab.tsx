@@ -28,11 +28,11 @@ const STAGES = {
   freigeschaltet: {
     key: "freigeschaltet",
     title: "Freigeschaltet",
-    // ✅ Fixed: Show candidates that ARE unlocked (via unlocked_at or global_unlocked_at)
+    // ✅ Fixed: Show candidates that ARE unlocked with stage "new" (awaiting interview decision)
     filter: (app: any) => 
       (app.unlocked_at || app.global_unlocked_at) && 
       !app.archived_at && 
-      (app.stage === "new" || app.stage === "unlocked" || app.is_virtual),
+      app.stage === "new",
   },
   interview: {
     key: "interview",
@@ -83,8 +83,12 @@ export function JobCandidatesTab({ jobId }: JobCandidatesTabProps) {
 
   const { data: applications, isLoading } = useQuery({
     queryKey: ["job-applications-detailed", jobId],
+    refetchOnMount: true, // Always refetch when component mounts
+    refetchOnWindowFocus: false,
     queryFn: async () => {
-      // Step 1: Load applications WITH join (nutzt RLS-Permissions von applications)
+      console.log("🔄 Fetching applications for job:", jobId);
+      
+      // Step 1: Load applications WITHOUT join first
       const { data: appData, error: appError } = await supabase
         .from("applications")
         .select(`
@@ -94,9 +98,26 @@ export function JobCandidatesTab({ jobId }: JobCandidatesTabProps) {
           stage,
           match_score,
           unlocked_at,
-          created_at,
-          candidates:candidate_id (
+          created_at
+        `)
+        .eq("job_post_id", jobId)
+        .is("archived_at", null)
+        .order("created_at", { ascending: false });
+
+      if (appError) throw appError;
+
+      console.log("📥 Raw applications:", appData?.length);
+
+      // Step 1.5: Load full candidate details from candidates table
+      // This ensures we get unmasked data if the candidate is unlocked
+      if (appData && appData.length > 0) {
+        const candidateIds = appData.map(a => a.candidate_id);
+        
+        const { data: candidatesData, error: candidatesError } = await supabase
+          .from('candidates')
+          .select(`
             id,
+            user_id,
             full_name,
             vorname,
             nachname,
@@ -111,15 +132,24 @@ export function JobCandidatesTab({ jobId }: JobCandidatesTabProps) {
             languages,
             experience_years,
             availability_status
-          )
-        `)
-        .eq("job_post_id", jobId)
-        .is("archived_at", null)
-        .order("created_at", { ascending: false });
+          `)
+          .in('id', candidateIds);
 
-      if (appError) throw appError;
+        if (candidatesError) {
+          console.error("Error loading candidates:", candidatesError);
+        }
 
-      // Step 1.5: Add global unlock status AND company_candidate data
+        // Map candidates to applications
+        const candidateMap = new Map(
+          (candidatesData || []).map(c => [c.id, c])
+        );
+
+        appData.forEach(app => {
+          (app as any).candidates = candidateMap.get(app.candidate_id) || null;
+        });
+      }
+
+      // Step 1.6: Add global unlock status AND company_candidate data
       if (appData && company?.id) {
         // First, resolve candidate IDs to user IDs
         const candidateIds = appData.map(a => a.candidate_id);
@@ -508,10 +538,20 @@ export function JobCandidatesTab({ jobId }: JobCandidatesTabProps) {
                         }
                       }
                       
-                      // Determine variant
+                      // Determine variant based on stage and tab
                       let variant: "preview" | "unlocked" | "unlocked-actions" = "preview";
+                      
                       if (isUnlocked) {
-                        variant = isNewStage ? "unlocked-actions" : "unlocked";
+                        // In "Freigeschaltet" tab: always show actions (Interview/Absagen)
+                        if (key === "freigeschaltet") {
+                          variant = "unlocked-actions";
+                        } else if (key === "interview" || key === "finale" || key === "angebot") {
+                          // In later stages: read-only view
+                          variant = "unlocked";
+                        } else {
+                          // Default: unlocked with actions if new stage
+                          variant = isNewStage ? "unlocked-actions" : "unlocked";
+                        }
                       }
 
                       return (
@@ -630,11 +670,17 @@ export function JobCandidatesTab({ jobId }: JobCandidatesTabProps) {
           }}
           contextType="application"
           onSuccess={async () => {
-            // Reload applications to update the lists (this will move card to Freigeschaltet tab)
+            // Reload applications to update the lists AND candidate data
             await queryClient.invalidateQueries({ 
               queryKey: ["job-applications-detailed", jobId] 
             });
-            // Modal handles navigation to profile view automatically
+            
+            // Force refetch to get unlocked data
+            await queryClient.refetchQueries({
+              queryKey: ["job-applications-detailed", jobId]
+            });
+            
+            toast.success("Profil wurde freigeschaltet und ist jetzt verfügbar");
           }}
         />
       )}
