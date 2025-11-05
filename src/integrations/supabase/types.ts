@@ -9858,8 +9858,8 @@ export type Database = {
         Args: {
           p_company_id: string
           p_profile_id: string
-          p_reason?: string
-          p_token_cost?: number
+          p_reason: string
+          p_token_cost: number
         }
         Returns: Json
       }
