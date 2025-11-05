@@ -342,25 +342,43 @@ export default function CandidateUnlockModal(props: CandidateUnlockModalProps) {
 
   const jobSelect = (
     <div className="space-y-2">
-      <Label>Stelle (optional)</Label>
-      <Select onValueChange={(v) => setSelectedJobId(v === "none" ? null : v)} value={selectedJobId || "none"}>
-        <SelectTrigger>
-          <SelectValue placeholder={jobs.length ? "Stelle wählen (optional)" : "Keine aktiven Stellen"} />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="none">Keine bestimmte Stelle (Initiativ)</SelectItem>
-          {jobs.map((j) => (
-            <SelectItem key={j.id} value={j.id}>{j.title}</SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-      {contextApplication?.job_title && (
-        <p className="text-xs text-muted-foreground">
-          Kontext: <span className="font-medium">{contextApplication.job_title}</span>
-          {selectedJobId && contextApplication.job_id && selectedJobId !== contextApplication.job_id && (
-            <span className="ml-2 text-amber-600">(abweichend von Bewerbung)</span>
+      <Label>
+        Stelle (optional)
+        {jobs.length === 0 && (
+          <span className="ml-2 text-xs text-amber-600 font-normal">
+            ⚠️ Keine aktiven Stellen vorhanden
+          </span>
+        )}
+      </Label>
+      {jobs.length > 0 ? (
+        <>
+          <Select onValueChange={(v) => setSelectedJobId(v === "none" ? null : v)} value={selectedJobId || "none"}>
+            <SelectTrigger>
+              <SelectValue placeholder="Stelle wählen (optional)" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="none">Keine bestimmte Stelle (Initiativ)</SelectItem>
+              {jobs.map((j) => (
+                <SelectItem key={j.id} value={j.id}>{j.title}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          {contextApplication?.job_title && (
+            <p className="text-xs text-muted-foreground">
+              Kontext: <span className="font-medium">{contextApplication.job_title}</span>
+              {selectedJobId && contextApplication.job_id && selectedJobId !== contextApplication.job_id && (
+                <span className="ml-2 text-amber-600">(abweichend von Bewerbung)</span>
+              )}
+            </p>
           )}
-        </p>
+        </>
+      ) : (
+        <div className="rounded-md border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">
+          <p className="font-medium mb-1">Keine aktiven Stellenanzeigen</p>
+          <p className="text-xs text-amber-700">
+            Sie können den Kandidaten trotzdem initiativ freischalten. Erstellen Sie eine Stellenanzeige, um Jobs zuzuordnen.
+          </p>
+        </div>
       )}
     </div>
   );
