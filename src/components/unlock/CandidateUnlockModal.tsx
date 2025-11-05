@@ -67,10 +67,11 @@ export default function CandidateUnlockModal(props: CandidateUnlockModalProps) {
     "Kandidat";
 
   const tokenCost = useMemo(() => {
+    if (alreadyUnlocked) return 0; // No cost for job assignment
     if (contextType === "match") return 3;
     if (unlockType === "bewerbung") return 1;
     return 2; // initiativ
-  }, [unlockType, contextType]);
+  }, [unlockType, contextType, alreadyUnlocked]);
 
   useEffect(() => {
     if (!open) return;
@@ -84,13 +85,27 @@ export default function CandidateUnlockModal(props: CandidateUnlockModalProps) {
         // Check if already unlocked
         const { data: existing } = await supabase
           .from("company_candidates")
-          .select("id")
+          .select("id, unlocked_at, linked_job_ids, notes")
           .eq("company_id", companyId)
           .eq("candidate_id", candidate.id)
           .not("unlocked_at", "is", null)
           .maybeSingle();
 
-        setAlreadyUnlocked(!!existing);
+        if (existing) {
+          setAlreadyUnlocked(true);
+          // Pre-populate linked jobs and notes
+          const linkedJobIds = Array.isArray(existing.linked_job_ids) 
+            ? existing.linked_job_ids 
+            : [];
+          if (linkedJobIds.length > 0 && typeof linkedJobIds[0] === 'string') {
+            setSelectedJobId(linkedJobIds[0]);
+          }
+          if (typeof existing.notes === 'string') {
+            setNotes(existing.notes);
+          }
+          // Skip to job assignment step
+          setStep(2);
+        }
 
         // Fetch active jobs
         const { data: jobsList, error: jobsError } = await supabase
@@ -134,7 +149,32 @@ export default function CandidateUnlockModal(props: CandidateUnlockModalProps) {
     let tokenDeducted = false;
 
     try {
-      // Final check for duplicate
+      // If already unlocked, just update job assignment without token deduction
+      if (alreadyUnlocked) {
+        const linkedJobIds = selectedJobId ? [selectedJobId] : [];
+        
+        const { error: updateError } = await supabase.rpc(
+          "update_candidate_job_assignment",
+          {
+            p_company_id: companyId,
+            p_candidate_id: candidate.id,
+            p_linked_job_ids: linkedJobIds,
+            p_notes: notes.trim() || null,
+          }
+        );
+
+        if (updateError) {
+          toast.error(`Fehler: ${updateError.message}`);
+          return;
+        }
+
+        toast.success("Job-Zuordnung erfolgreich aktualisiert");
+        onSuccess?.();
+        handleOpenChange(false);
+        return;
+      }
+
+      // Final check for duplicate (new unlocks only)
       const { data: existing } = await supabase
         .from("company_candidates")
         .select("id")
@@ -233,18 +273,17 @@ export default function CandidateUnlockModal(props: CandidateUnlockModalProps) {
       // Use RPC function to unlock profile (bypasses RLS)
       const linkedJobIds = selectedJobId ? [selectedJobId] : [];
       
-      const { data: unlockResult, error: unlockError } = await supabase.rpc("unlock_candidate_profile", {
+      const { error: unlockError } = await supabase.rpc("unlock_candidate_profile", {
         p_company_id: companyId,
         p_candidate_id: candidate.id,
         p_source: unlockType,
-        p_notes: notes.trim() || null,
-        p_unlocked_by_user_id: currentUserId,
-        p_linked_job_ids: linkedJobIds
+        p_unlock_type: unlockType,
+        p_linked_job_ids: linkedJobIds,
+        p_notes: notes.trim() || null
       });
 
-      const unlockRes = unlockResult as any;
-      if (unlockError || !unlockRes?.success) {
-        throw new Error(unlockRes?.error || unlockError?.message || "Fehler beim Freischalten");
+      if (unlockError) {
+        throw new Error(unlockError.message || "Fehler beim Freischalten");
       }
 
       // Track analytics in company_activity
@@ -326,32 +365,39 @@ export default function CandidateUnlockModal(props: CandidateUnlockModalProps) {
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-xl">
         <DialogHeader>
-          <DialogTitle>Kandidat freischalten</DialogTitle>
+          <DialogTitle>
+            {alreadyUnlocked ? "Job-Zuordnung bearbeiten" : "Kandidat freischalten"}
+          </DialogTitle>
           <DialogDescription>
-            {candidateName} freischalten für {tokenCost} Token{tokenCost !== 1 && "s"}
+            {alreadyUnlocked 
+              ? `Bearbeiten Sie die Job-Zuordnung für ${candidateName}`
+              : `${candidateName} freischalten für ${tokenCost} Token${tokenCost !== 1 ? "s" : ""}`
+            }
           </DialogDescription>
         </DialogHeader>
 
-        <div className="flex items-center gap-4 mb-4">
-          <StepBadge index={1} active={step === 1} done={step > 1} />
-          <div className={`h-[2px] grow ${step > 1 ? "bg-emerald-600" : "bg-border"}`} />
-          <StepBadge index={2} active={step === 2} done={step > 2} />
-          <div className={`h-[2px] grow ${step > 2 ? "bg-emerald-600" : "bg-border"}`} />
-          <StepBadge index={3} active={step === 3} done={false} />
-        </div>
+        {/* Progress Steps - Hide for already unlocked */}
+        {!alreadyUnlocked && (
+          <div className="flex items-center gap-4 mb-4">
+            <StepBadge index={1} active={step === 1} done={step > 1} />
+            <div className={`h-[2px] grow ${step > 1 ? "bg-emerald-600" : "bg-border"}`} />
+            <StepBadge index={2} active={step === 2} done={step > 2} />
+            <div className={`h-[2px] grow ${step > 2 ? "bg-emerald-600" : "bg-border"}`} />
+            <StepBadge index={3} active={step === 3} done={false} />
+          </div>
+        )}
 
+        {/* Info Banner for already unlocked */}
         {alreadyUnlocked && (
-          <div className="flex items-start gap-2 rounded-lg border p-3 bg-emerald-50">
-            <CheckCircle2 className="h-5 w-5 text-emerald-600 mt-0.5" />
-            <div>
-              <div className="text-sm font-medium">Bereits freigeschaltet</div>
-              <div className="text-sm text-muted-foreground">Dieser Kandidat ist bereits freigeschaltet.</div>
-            </div>
+          <div className="mb-4 p-3 bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded-lg">
+            <p className="text-sm text-blue-700 dark:text-blue-300">
+              ✓ Kandidat bereits freigeschaltet - Sie können die Job-Zuordnung anpassen
+            </p>
           </div>
         )}
 
         <div className="min-h-[220px]">
-          {step === 1 && (
+          {!alreadyUnlocked && step === 1 && (
             <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
               <div className="rounded-lg border p-4">
                 <Label className="mb-2 block">Freischaltungsgrund</Label>
@@ -390,7 +436,7 @@ export default function CandidateUnlockModal(props: CandidateUnlockModalProps) {
             </motion.div>
           )}
 
-          {step === 2 && (
+          {(alreadyUnlocked || step === 2) && (
             <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
               {jobSelect}
               <div className="space-y-2">
@@ -410,7 +456,7 @@ export default function CandidateUnlockModal(props: CandidateUnlockModalProps) {
             </motion.div>
           )}
 
-          {step === 3 && (
+          {!alreadyUnlocked && step === 3 && (
             <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
               <div className="rounded-lg border p-4 space-y-2">
                 <div className="text-sm">
@@ -435,8 +481,10 @@ export default function CandidateUnlockModal(props: CandidateUnlockModalProps) {
                   </div>
                 )}
                 <div className="text-sm pt-2 border-t flex items-center gap-2">
-                  <Coins className="h-4 w-4 text-primary" />
-                  <span className="font-medium">{tokenCost} Token{tokenCost !== 1 && "s"} werden abgezogen</span>
+                  <Coins className="h-4 w-4 text-amber-600" />
+                  <span>
+                    <strong>{tokenCost} Token{tokenCost !== 1 && "s"}</strong> werden abgezogen
+                  </span>
                 </div>
               </div>
             </motion.div>
@@ -444,28 +492,38 @@ export default function CandidateUnlockModal(props: CandidateUnlockModalProps) {
         </div>
 
         <DialogFooter className="gap-2">
-          <Button variant="outline" onClick={() => handleOpenChange(false)} disabled={loading}>
+          <Button variant="outline" onClick={() => handleOpenChange(false)}>
             Abbrechen
           </Button>
-          {step > 1 && (
-            <Button variant="ghost" onClick={() => setStep(s => Math.max(1, s - 1))} disabled={loading}>
-              <ChevronLeft className="mr-2 h-4 w-4" /> Zurück
-            </Button>
-          )}
-          {step < 3 ? (
-            <Button onClick={() => setStep(s => Math.min(3, s + 1))} disabled={loading}>
-              Weiter <ChevronRight className="ml-2 h-4 w-4" />
+
+          {alreadyUnlocked ? (
+            <Button onClick={handleConfirm} disabled={loading}>
+              {loading ? "Wird gespeichert..." : "Job-Zuordnung speichern"}
             </Button>
           ) : (
-            <Button onClick={handleConfirm} disabled={loading || alreadyUnlocked}>
-              {loading ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Speichern...
-                </>
-              ) : (
-                <>Freischaltung bestätigen</>
+            <>
+              {step > 1 && (
+                <Button
+                  variant="outline"
+                  onClick={() => setStep(step - 1)}
+                  disabled={loading}
+                >
+                  Zurück
+                </Button>
               )}
-            </Button>
+
+              {step < 3 && (
+                <Button onClick={() => setStep(step + 1)} disabled={loading}>
+                  Weiter
+                </Button>
+              )}
+
+              {step === 3 && (
+                <Button onClick={handleConfirm} disabled={loading}>
+                  {loading ? "Wird freigeschaltet..." : "Freischalten"}
+                </Button>
+              )}
+            </>
           )}
         </DialogFooter>
       </DialogContent>

@@ -9796,18 +9796,39 @@ export type Database = {
         Args: { p_company_id: string; p_profile_id: string }
         Returns: undefined
       }
-      unlock_candidate_profile: {
+      unlock_candidate_profile:
+        | {
+            Args: {
+              p_candidate_id: string
+              p_company_id: string
+              p_linked_job_ids: Json
+              p_notes: string
+              p_source: string
+              p_unlocked_by_user_id: string
+            }
+            Returns: Json
+          }
+        | {
+            Args: {
+              p_candidate_id: string
+              p_company_id: string
+              p_linked_job_ids: Json
+              p_notes: string
+              p_source: string
+              p_unlock_type: string
+            }
+            Returns: undefined
+          }
+      unlockrows: { Args: { "": string }; Returns: number }
+      update_candidate_job_assignment: {
         Args: {
           p_candidate_id: string
           p_company_id: string
           p_linked_job_ids: Json
           p_notes: string
-          p_source: string
-          p_unlocked_by_user_id: string
         }
-        Returns: Json
+        Returns: undefined
       }
-      unlockrows: { Args: { "": string }; Returns: number }
       updategeometrysrid: {
         Args: {
           catalogn_name: string
