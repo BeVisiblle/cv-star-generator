@@ -449,6 +449,7 @@ export function JobCandidatesTab({ jobId }: JobCandidatesTabProps) {
     interview: applications?.filter(STAGES.interview.filter) || [],
     finale: applications?.filter(STAGES.finale.filter) || [],
     angebot: applications?.filter(STAGES.angebot.filter) || [],
+    archiv: applications?.filter(STAGES.archiv.filter) || [],
   };
 
   console.log("=== Stage Breakdown ===", stageApplications);
