@@ -27,23 +27,13 @@ export function InterestingCompanies() {
         }>
       }
       onPrimary={async (c: Company) => {
-        await supabase.from("follows").insert({ 
-          follower_id: viewerId, 
-          followee_id: c.id,
-          follower_type: 'profile',
-          followee_type: 'company',
-          status: "accepted" 
-        });
         await supabase.rpc("suggestions_touch", { p_viewer: viewerId, p_type: "company", p_target: c.id });
-      }}
-      onView={async (c: Company) => {
         window.location.href = `/companies/${c.id}`;
       }}
       onSkip={async (c: Company) => {
         await supabase.rpc("suggestions_touch", { p_viewer: viewerId, p_type: "company", p_target: c.id });
       }}
-      primaryLabel="Folgen"
-      secondaryLabel="Mehr erfahren"
+      primaryLabel="Ansehen"
       itemKey={(c) => c.id}
       renderItem={(c) => ({
         id: c.id,
