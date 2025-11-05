@@ -105,23 +105,48 @@ export function JobCandidatesTab({ jobId }: JobCandidatesTabProps) {
 
       // Step 1.5: Add global unlock status AND company_candidate data
       if (appData && company?.id) {
+        // First, resolve candidate IDs to user IDs
         const candidateIds = appData.map(a => a.candidate_id);
-        const { data: companyCandidates } = await supabase
-          .from('company_candidates')
-          .select('candidate_id, unlocked_at, source, notes, linked_job_ids, stage')
-          .eq('company_id', company.id)
-          .in('candidate_id', candidateIds)
-          .not('unlocked_at', 'is', null);
-
-        const ccMap = new Map(
-          (companyCandidates || []).map(cc => [cc.candidate_id, cc])
+        
+        // Get user_ids from candidates table
+        const { data: candidatesData } = await supabase
+          .from('candidates')
+          .select('id, user_id')
+          .in('id', candidateIds);
+        
+        const candidateIdToUserId = new Map(
+          (candidatesData || []).map(c => [c.id, c.user_id])
         );
+        
+        // Get all unique user_ids
+        const userIds = Array.from(new Set(
+          Array.from(candidateIdToUserId.values()).filter(Boolean)
+        ));
+        
+        if (userIds.length > 0) {
+          // Query company_candidates using user_ids (profiles.id)
+          const { data: companyCandidates } = await supabase
+            .from('company_candidates')
+            .select('candidate_id, unlocked_at, source, notes, linked_job_ids, stage')
+            .eq('company_id', company.id)
+            .in('candidate_id', userIds)
+            .not('unlocked_at', 'is', null);
 
-        appData.forEach(app => {
-          const cc = ccMap.get(app.candidate_id);
-          (app as any).global_unlocked_at = cc?.unlocked_at || null;
-          (app as any).companyCandidate = cc || null;
-        });
+          // Map by user_id
+          const ccMap = new Map(
+            (companyCandidates || []).map(cc => [cc.candidate_id, cc])
+          );
+
+          // Attach to applications using the resolved user_id
+          appData.forEach(app => {
+            const userId = candidateIdToUserId.get(app.candidate_id);
+            if (userId) {
+              const cc = ccMap.get(userId);
+              (app as any).global_unlocked_at = cc?.unlocked_at || null;
+              (app as any).companyCandidate = cc || null;
+            }
+          });
+        }
       }
 
       console.log("=== Applications loaded ===");
@@ -514,44 +539,13 @@ export function JobCandidatesTab({ jobId }: JobCandidatesTabProps) {
           }}
           contextType="application"
           onSuccess={async () => {
-            try {
-              // 1. Reload applications
-              await queryClient.invalidateQueries({ 
-                queryKey: ["job-applications-detailed", jobId] 
-              });
-              
-              // 2. Fetch full profile data
-              const { data: fullProfile } = await supabase
-                .from('profiles')
-                .select('*')
-                .eq('id', selectedApplication.candidate_id)
-                .single();
-              
-              // 3. Fetch company_candidate entry
-              const { data: companyCandidate } = await supabase
-                .from('company_candidates')
-                .select('id, stage, unlocked_at, source, notes, linked_job_ids')
-                .eq('company_id', company?.id || '')
-                .eq('candidate_id', selectedApplication.candidate_id)
-                .single();
-              
-              // 4. Close unlock modal
-              setUnlockModalOpen(false);
-              
-              // 5. Open full profile modal
-              setPostUnlockProfile({
-                ...fullProfile,
-                companyCandidate,
-                linkedJobTitles: selectedApplication.linkedJobTitles
-              });
-              setShowPostUnlockModal(true);
-              
-              toast.success("Profil freigeschaltet! Jetzt alle Details sichtbar.");
-            } catch (error) {
-              console.error("Error loading profile after unlock:", error);
-              toast.success("Profil erfolgreich freigeschaltet");
-              setUnlockModalOpen(false);
-            }
+            // Reload applications to update the lists
+            await queryClient.invalidateQueries({ 
+              queryKey: ["job-applications-detailed", jobId] 
+            });
+            setUnlockModalOpen(false);
+            setSelectedApplication(null);
+            // Modal navigates to profile view automatically
           }}
         />
       )}
