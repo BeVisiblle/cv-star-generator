@@ -197,19 +197,20 @@ export function JobCandidatesTab({ jobId }: JobCandidatesTabProps) {
 
           // Attach to applications using the resolved user_id
           // ✅ CRITICAL: Override application stage with company_candidates stage if unlocked
-          appData.forEach(app => {
+          appData.forEach((app: any) => {
             const userId = candidateIdToUserId.get(app.candidate_id);
             console.log(`📎 App ${app.id}: candidate_id=${app.candidate_id}, userId=${userId}`);
             if (userId) {
               const cc = ccMap.get(userId);
               console.log(`   → CC data:`, cc);
-              (app as any).global_unlocked_at = cc?.unlocked_at || null;
-              (app as any).companyCandidate = cc || null;
+              app.global_unlocked_at = cc?.unlocked_at || null;
+              app.companyCandidate = cc || null;
               
               // ✅ USE COMPANY_CANDIDATES STAGE AS SOURCE OF TRUTH
               if (cc?.unlocked_at) {
+                const oldStage = app.stage;
                 app.stage = cc.stage;
-                console.log(`   ✅ Overriding stage to "${cc.stage}" from company_candidates`);
+                console.log(`   ✅ Overriding stage from "${oldStage}" to "${cc.stage}" (company_candidates is source of truth)`);
               }
             }
           });
@@ -646,16 +647,19 @@ export function JobCandidatesTab({ jobId }: JobCandidatesTabProps) {
           onClose={() => setIsProfileModalOpen(false)}
           profile={selectedApplication.candidates}
           isUnlocked={true}
+          companyCandidate={selectedApplication.companyCandidate}
+          linkedJobs={selectedApplication.linkedJobTitles}
           applicationId={modalMode === "full-actions" ? selectedApplication.id : undefined}
           currentStage={selectedApplication.stage}
           onStageChange={handleStageChange}
           onArchive={(reason) => handleArchive(selectedApplication.id, reason)}
-          showUnlockButton={!selectedApplication.unlocked_at}
+          showUnlockButton={!selectedApplication.unlocked_at && !selectedApplication.global_unlocked_at}
           onUnlock={() => {
             setIsProfileModalOpen(false);
             setUnlockModalOpen(true);
           }}
           onMarkUnsuitable={(reason) => handleMarkUnsuitableApplication(selectedApplication, reason)}
+          showDownloadButtons={true}
         />
       )}
 
