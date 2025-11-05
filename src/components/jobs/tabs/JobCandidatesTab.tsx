@@ -539,13 +539,11 @@ export function JobCandidatesTab({ jobId }: JobCandidatesTabProps) {
           }}
           contextType="application"
           onSuccess={async () => {
-            // Reload applications to update the lists
+            // Reload applications to update the lists (this will move card to Freigeschaltet tab)
             await queryClient.invalidateQueries({ 
               queryKey: ["job-applications-detailed", jobId] 
             });
-            setUnlockModalOpen(false);
-            setSelectedApplication(null);
-            // Modal navigates to profile view automatically
+            // Modal handles navigation to profile view automatically
           }}
         />
       )}

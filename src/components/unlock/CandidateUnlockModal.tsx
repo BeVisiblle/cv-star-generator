@@ -305,12 +305,22 @@ export default function CandidateUnlockModal(props: CandidateUnlockModalProps) {
         }
       });
 
-      toast.success("Kandidat erfolgreich freigeschaltet");
-      onSuccess?.();
-      handleOpenChange(false);
+      // Navigate to LinkedIn-style profile view BEFORE closing modal
+      // Get the user_id (profile_id) from candidates table
+      const { data: candidateData } = await supabase
+        .from('candidates')
+        .select('user_id')
+        .eq('id', candidate.id)
+        .single();
       
-      // Navigate to LinkedIn-style profile view after unlock
-      window.location.href = `/company/profile/${candidate.id}`;
+      const profileId = candidateData?.user_id || candidate.id;
+      
+      toast.success("Kandidat erfolgreich freigeschaltet");
+      handleOpenChange(false);
+      onSuccess?.();
+      
+      // Navigate to LinkedIn-style profile view
+      window.location.href = `/company/profile/${profileId}`;
 
     } catch (e: any) {
       // Rollback tokens if deducted - get current balance and add back
