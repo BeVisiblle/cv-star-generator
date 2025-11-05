@@ -27,18 +27,29 @@ export function useProfiles(params: {
 
       if (error) throw error;
 
-      // map to UI Profile type
-      return (data ?? []).map((r: any) => ({
-        id: r.id,
-        name: r.name,
-        avatar_url: r.avatar_url,
-        role: r.role,
-        city: r.city,
-        fs: r.fs,
-        seeking: r.seeking,
-        skills: r.skills || [],
-        match: r.match ?? null,
-      }));
+      // Calculate match scores dynamically using the new function
+      const profilesWithMatch = await Promise.all(
+        (data ?? []).map(async (r: any) => {
+          const { data: matchScore } = await supabase.rpc("calculate_match_score", {
+            p_profile_id: r.id,
+            p_company_id: companyId,
+          });
+
+          return {
+            id: r.id,
+            name: r.name,
+            avatar_url: r.avatar_url,
+            role: r.role,
+            city: r.city,
+            fs: r.fs,
+            seeking: r.seeking,
+            skills: r.skills || [],
+            match: matchScore ?? 0,
+          };
+        })
+      );
+
+      return profilesWithMatch;
     },
   });
 }

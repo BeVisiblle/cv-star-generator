@@ -8255,6 +8255,10 @@ export type Database = {
         }
         Returns: undefined
       }
+      calculate_match_score: {
+        Args: { p_company_id: string; p_job_id?: string; p_profile_id: string }
+        Returns: number
+      }
       can_access_conversation: {
         Args: { _conv_id: string; _uid: string }
         Returns: boolean
@@ -8783,6 +8787,27 @@ export type Database = {
           candidate_id: string
           passed_gates: boolean
           score: number
+        }[]
+      }
+      get_profile_preview: {
+        Args: { p_company_id: string; p_profile_id: string }
+        Returns: {
+          age: number
+          avatar_url: string
+          bio_preview: string
+          birth_date: string
+          branche: string
+          city: string
+          email: string
+          full_address: string
+          id: string
+          is_unlocked: boolean
+          name: string
+          phone: string
+          role: string
+          skills: string[]
+          status: string
+          unlocked_at: string
         }[]
       }
       get_token_unit_price_cents: { Args: { qty: number }; Returns: number }
@@ -9805,7 +9830,12 @@ export type Database = {
         Returns: number
       }
       use_company_token: {
-        Args: { p_company_id: string; p_profile_id: string }
+        Args: {
+          p_company_id: string
+          p_profile_id: string
+          p_reason?: string
+          p_token_cost?: number
+        }
         Returns: Json
       }
       use_token: {

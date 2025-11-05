@@ -154,14 +154,20 @@ export default function CandidateUnlockModal(props: CandidateUnlockModalProps) {
         ? (selectedJobId || contextApplication?.job_id || null)
         : (selectedJobId || null);
 
-      // Deduct tokens (call RPC multiple times based on cost)
-      for (let i = 0; i < tokenCost; i++) {
-        const { error: tokenError } = await supabase.rpc("use_company_token", {
-          p_company_id: companyId,
-          p_profile_id: candidate.id
-        });
-        if (tokenError) throw new Error("Nicht genügend Tokens verfügbar");
+      // Deduct tokens using the new RPC function (single call)
+      const { data: tokenResult, error: tokenError } = await supabase.rpc("use_company_token", {
+        p_company_id: companyId,
+        p_profile_id: candidate.id,
+        p_token_cost: tokenCost,
+        p_reason: unlockType === "bewerbung" ? "unlock_application" : "unlock_initiative"
+      });
+
+      const result = tokenResult as any;
+      if (tokenError || !result?.success) {
+        const errorMsg = result?.error || tokenError?.message || "Unbekannter Fehler";
+        throw new Error(errorMsg);
       }
+      
       tokenDeducted = true;
 
       // Reject original application if job changed
