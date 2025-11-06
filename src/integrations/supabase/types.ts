@@ -2194,6 +2194,57 @@ export type Database = {
           },
         ]
       }
+      company_plans: {
+        Row: {
+          active: boolean
+          code: string
+          created_at: string
+          features: Json | null
+          id: string
+          included_seats: number
+          included_tokens: number
+          monthly_price_cents: number
+          monthly_unlocks_quota: number
+          monthly_views_quota: number
+          name: string
+          sort_order: number
+          updated_at: string
+          yearly_price_cents: number
+        }
+        Insert: {
+          active?: boolean
+          code: string
+          created_at?: string
+          features?: Json | null
+          id: string
+          included_seats?: number
+          included_tokens?: number
+          monthly_price_cents?: number
+          monthly_unlocks_quota?: number
+          monthly_views_quota?: number
+          name: string
+          sort_order?: number
+          updated_at?: string
+          yearly_price_cents?: number
+        }
+        Update: {
+          active?: boolean
+          code?: string
+          created_at?: string
+          features?: Json | null
+          id?: string
+          included_seats?: number
+          included_tokens?: number
+          monthly_price_cents?: number
+          monthly_unlocks_quota?: number
+          monthly_views_quota?: number
+          name?: string
+          sort_order?: number
+          updated_at?: string
+          yearly_price_cents?: number
+        }
+        Relationships: []
+      }
       company_posts: {
         Row: {
           company_id: string | null
