@@ -60,9 +60,9 @@ export function ApplicationsList({ searchQuery }: ApplicationsListProps) {
 
   const getStatusConfig = (status: ApplicationStatus) => {
     switch (status) {
-      case "new":
+      case "pending":
         return {
-          label: "Neu",
+          label: "Ausstehend",
           variant: "secondary" as const,
           icon: Clock,
           color: "text-yellow-600",
@@ -74,23 +74,16 @@ export function ApplicationsList({ searchQuery }: ApplicationsListProps) {
           icon: CheckCircle,
           color: "text-blue-600",
         };
-      case "interview":
+      case "interview_scheduled":
         return {
-          label: "Im Gespräch",
+          label: "Interview geplant",
           variant: "default" as const,
           icon: Calendar,
           color: "text-purple-600",
         };
-      case "offer":
+      case "accepted":
         return {
-          label: "Angebot",
-          variant: "default" as const,
-          icon: CheckCircle,
-          color: "text-indigo-600",
-        };
-      case "hired":
-        return {
-          label: "Eingestellt",
+          label: "Akzeptiert",
           variant: "default" as const,
           icon: CheckCircle,
           color: "text-green-600",
@@ -102,9 +95,9 @@ export function ApplicationsList({ searchQuery }: ApplicationsListProps) {
           icon: XCircle,
           color: "text-red-600",
         };
-      case "archived":
+      case "withdrawn":
         return {
-          label: "Archiviert",
+          label: "Zurückgezogen",
           variant: "outline" as const,
           icon: AlertCircle,
           color: "text-gray-600",
@@ -137,12 +130,12 @@ export function ApplicationsList({ searchQuery }: ApplicationsListProps) {
           Alle
         </Button>
         <Button
-          variant={statusFilter === "new" ? "default" : "outline"}
+          variant={statusFilter === "pending" ? "default" : "outline"}
           size="sm"
-          onClick={() => setStatusFilter("new")}
+          onClick={() => setStatusFilter("pending")}
           className="rounded-full"
         >
-          Neu
+          Ausstehend
         </Button>
         <Button
           variant={statusFilter === "unlocked" ? "default" : "outline"}
@@ -153,20 +146,20 @@ export function ApplicationsList({ searchQuery }: ApplicationsListProps) {
           Freigeschaltet
         </Button>
         <Button
-          variant={statusFilter === "interview" ? "default" : "outline"}
+          variant={statusFilter === "interview_scheduled" ? "default" : "outline"}
           size="sm"
-          onClick={() => setStatusFilter("interview")}
+          onClick={() => setStatusFilter("interview_scheduled")}
           className="rounded-full"
         >
           Interview
         </Button>
         <Button
-          variant={statusFilter === "offer" ? "default" : "outline"}
+          variant={statusFilter === "accepted" ? "default" : "outline"}
           size="sm"
-          onClick={() => setStatusFilter("offer")}
+          onClick={() => setStatusFilter("accepted")}
           className="rounded-full"
         >
-          Angebot
+          Akzeptiert
         </Button>
         <Button
           variant={statusFilter === "rejected" ? "default" : "outline"}
@@ -236,7 +229,7 @@ export function ApplicationsList({ searchQuery }: ApplicationsListProps) {
                             <Eye className="h-4 w-4 mr-2" />
                             Job ansehen
                           </DropdownMenuItem>
-                          {application.status === "interview" && (
+                          {application.status === "interview_scheduled" && !application.contacted_confirmed && (
                             <DropdownMenuItem
                               onClick={(e) => {
                                 e.stopPropagation();
@@ -245,10 +238,10 @@ export function ApplicationsList({ searchQuery }: ApplicationsListProps) {
                               }}
                             >
                               <CheckCircle className="h-4 w-4 mr-2" />
-                              Details ansehen
+                              Kontakt bestätigen
                             </DropdownMenuItem>
                           )}
-                          {application.status === "new" && (
+                          {application.status === "pending" && (
                             <DropdownMenuItem
                               onClick={(e) => {
                                 e.stopPropagation();
@@ -273,13 +266,28 @@ export function ApplicationsList({ searchQuery }: ApplicationsListProps) {
                       <span className="text-sm text-muted-foreground">
                         vor {formatDistanceToNow(new Date(application.created_at), { locale: de })}
                       </span>
-                      {application.is_new && (
+                      {!application.viewed_by_company && application.status === "pending" && (
                         <Badge variant="outline" className="text-xs">
-                          Neu
+                          Noch nicht gesehen
                         </Badge>
                       )}
                     </div>
 
+                    {/* Interview Note Display */}
+                    {application.status === "interview_scheduled" && application.interview_note && (
+                      <div className="mt-4 p-3 bg-muted rounded-lg">
+                        <p className="text-sm font-medium mb-1">Interview-Notiz:</p>
+                        <p className="text-sm text-muted-foreground">{application.interview_note}</p>
+                      </div>
+                    )}
+
+                    {/* Contact Confirmation Status */}
+                    {application.status === "interview_scheduled" && application.contacted_confirmed && (
+                      <div className="mt-4 flex items-center gap-2 text-sm text-green-600">
+                        <CheckCircle className="h-4 w-4" />
+                        <span>Kontakt bestätigt am {format(new Date(application.contacted_confirmed_at!), "dd.MM.yyyy", { locale: de })}</span>
+                      </div>
+                    )}
                   </div>
                 </div>
               </Card>

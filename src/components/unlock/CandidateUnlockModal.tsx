@@ -15,7 +15,6 @@ type ContextType = "application" | "match" | "none";
 
 type Candidate = { 
   id: string; 
-  user_id: string;
   full_name?: string | null;
   vorname?: string | null;
   nachname?: string | null;
@@ -83,21 +82,14 @@ export default function CandidateUnlockModal(props: CandidateUnlockModalProps) {
         if (!user) throw new Error("Nicht angemeldet");
         setCurrentUserId(user.id);
 
-        // Check if already unlocked - use user_id as candidate_id in company_candidates
+        // Check if already unlocked
         const { data: existing } = await supabase
           .from("company_candidates")
           .select("id, unlocked_at, linked_job_ids, notes")
           .eq("company_id", companyId)
-          .eq("candidate_id", candidate.user_id)
+          .eq("candidate_id", candidate.id)
           .not("unlocked_at", "is", null)
           .maybeSingle();
-        
-        console.log("🔍 Checking unlock status:", {
-          companyId,
-          candidateId: candidate.id,
-          userId: candidate.user_id,
-          existing: existing ? "Already unlocked ✅" : "Not unlocked yet"
-        });
 
         if (existing) {
           setAlreadyUnlocked(true);
@@ -185,12 +177,12 @@ export default function CandidateUnlockModal(props: CandidateUnlockModalProps) {
         return;
       }
 
-      // Final check for duplicate (new unlocks only) - use user_id
+      // Final check for duplicate (new unlocks only)
       const { data: existing } = await supabase
         .from("company_candidates")
         .select("id")
         .eq("company_id", companyId)
-        .eq("candidate_id", candidate.user_id)
+        .eq("candidate_id", candidate.id)
         .not("unlocked_at", "is", null)
         .maybeSingle();
 
@@ -205,10 +197,10 @@ export default function CandidateUnlockModal(props: CandidateUnlockModalProps) {
         ? (selectedJobId || contextApplication?.job_id || null)
         : (selectedJobId || null);
 
-      // Deduct tokens using the new RPC function (single call) - use user_id
+      // Deduct tokens using the new RPC function (single call)
       const { data: tokenResult, error: tokenError } = await supabase.rpc("use_company_token", {
         p_company_id: companyId,
-        p_profile_id: candidate.user_id,
+        p_profile_id: candidate.id,
         p_token_cost: tokenCost,
         p_reason: unlockType === "bewerbung" ? "unlock_application" : "unlock_initiative"
       });
@@ -234,10 +226,10 @@ export default function CandidateUnlockModal(props: CandidateUnlockModalProps) {
           })
           .eq("id", contextApplication.id);
 
-        // Notify candidate about reassignment - use user_id
+        // Notify candidate about reassignment
         await supabase.rpc("create_notification", {
           p_recipient_type: "profile",
-          p_recipient_id: candidate.user_id,
+          p_recipient_id: candidate.id,
           p_type: "candidate_message",
           p_title: "Update zu deiner Bewerbung 💡",
           p_body: `Deine Bewerbung auf "${contextApplication.job_title}" wurde leider nicht angenommen. Das Unternehmen hat jedoch dein Profil positiv bewertet und möchte dich gerne für eine andere Stelle oder initiativ in Betracht ziehen.`,
@@ -252,10 +244,10 @@ export default function CandidateUnlockModal(props: CandidateUnlockModalProps) {
           p_priority: 6
         });
       } else if (unlockType === "initiativ") {
-        // Notify candidate about initiativ unlock - use user_id
+        // Notify candidate about initiativ unlock
         await supabase.rpc("create_notification", {
           p_recipient_type: "profile",
-          p_recipient_id: candidate.user_id,
+          p_recipient_id: candidate.id,
           p_type: "candidate_message",
           p_title: "Dein Profil wurde freigeschaltet 🎉",
           p_body: "Ein Unternehmen hat dein Profil auf Ausbildungsbasis freigeschaltet, weil es dich interessant findet – auch ohne konkrete Bewerbung. Du kannst dich jetzt direkt austauschen oder dich für passende Stellen im Unternehmensprofil bewerben.",
@@ -266,10 +258,10 @@ export default function CandidateUnlockModal(props: CandidateUnlockModalProps) {
           p_priority: 5
         });
       } else if (unlockType === "bewerbung") {
-        // Notify about standard unlock - use user_id
+        // Notify about standard unlock
         await supabase.rpc("create_notification", {
           p_recipient_type: "profile",
-          p_recipient_id: candidate.user_id,
+          p_recipient_id: candidate.id,
           p_type: "candidate_message",
           p_title: "Dein Profil wurde freigeschaltet ✅",
           p_body: "Das Unternehmen, bei dem du dich beworben hast, hat dein Profil freigeschaltet. Du bist jetzt für das Recruiting-Team sichtbar und kannst direkt kontaktiert werden, wenn du in die engere Auswahl kommst.",
@@ -281,12 +273,21 @@ export default function CandidateUnlockModal(props: CandidateUnlockModalProps) {
         });
       }
 
-      // Use RPC function to unlock profile (bypasses RLS) - use user_id directly
+      // Get the profile_id (user_id) from candidates table first
+      const { data: candidateData } = await supabase
+        .from('candidates')
+        .select('user_id')
+        .eq('id', candidate.id)
+        .single();
+      
+      const profileId = candidateData?.user_id || candidate.id;
+      
+      // Use RPC function to unlock profile (bypasses RLS)
       const linkedJobIds = selectedJobId ? [selectedJobId] : [];
       
       const { error: unlockError } = await supabase.rpc("unlock_candidate_profile", {
         p_company_id: companyId,
-        p_candidate_id: candidate.user_id, // CRITICAL: Use user_id directly
+        p_candidate_id: profileId, // CRITICAL: Use profile_id (user_id), not candidates.id
         p_source: unlockType,
         p_unlock_type: unlockType, // 'bewerbung', 'initiativ', 'match', 'community', 'search'
         p_notes: notes.trim() || null,

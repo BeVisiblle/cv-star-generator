@@ -14,8 +14,8 @@ export function useQuickApply(jobId: string) {
       const { data, error } = await supabase
         .from("applications")
         .select("id")
-        .eq("candidate_id", user!.id)
-        .eq("job_id", jobId)
+        .eq("user_id", user!.id)
+        .eq("job_post_id", jobId)
         .maybeSingle();
 
       if (error) throw error;
@@ -171,11 +171,15 @@ export function useQuickApply(jobId: string) {
       const { error: appError } = await supabase
         .from("applications")
         .insert({
+          user_id: user.id,
           job_id: jobId,
+          job_post_id: jobId,
           company_id: job.company_id,
           candidate_id: candidateId,
-          status: "new",
-          source: "applied",
+          status: "pending",
+          stage: "new",
+          source: "portal",
+          viewed_by_company: false,
         });
 
       if (appError) throw appError;

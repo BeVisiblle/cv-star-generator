@@ -227,66 +227,96 @@ export type Database = {
           },
         ]
       }
-      application_transitions: {
-        Row: {
-          from_status: Database["public"]["Enums"]["application_status"]
-          to_status: Database["public"]["Enums"]["application_status"]
-        }
-        Insert: {
-          from_status: Database["public"]["Enums"]["application_status"]
-          to_status: Database["public"]["Enums"]["application_status"]
-        }
-        Update: {
-          from_status?: Database["public"]["Enums"]["application_status"]
-          to_status?: Database["public"]["Enums"]["application_status"]
-        }
-        Relationships: []
-      }
       applications: {
         Row: {
+          applied_at: string | null
+          archived_at: string | null
+          archived_by: string | null
           candidate_id: string
           company_id: string
+          company_response_at: string | null
+          contacted_confirmed: boolean | null
+          contacted_confirmed_at: string | null
+          cover_letter: string | null
           created_at: string
           id: string
-          is_new: boolean | null
-          job_id: string | null
+          interview_note: string | null
+          job_id: string
+          job_post_id: string | null
+          linked_job_id: string | null
           match_score: number | null
-          reason_custom: string | null
-          reason_short: string | null
-          source: Database["public"]["Enums"]["application_source"]
-          status: Database["public"]["Enums"]["application_status"]
+          portfolio_url: string | null
+          rejection_reason: string | null
+          resume_url: string | null
+          source: string
+          stage: string
+          status: string | null
+          unlock_type: string | null
           unlocked_at: string | null
+          unread: boolean
           updated_at: string
+          user_id: string | null
+          viewed_by_company: boolean | null
         }
         Insert: {
+          applied_at?: string | null
+          archived_at?: string | null
+          archived_by?: string | null
           candidate_id: string
           company_id: string
+          company_response_at?: string | null
+          contacted_confirmed?: boolean | null
+          contacted_confirmed_at?: string | null
+          cover_letter?: string | null
           created_at?: string
           id?: string
-          is_new?: boolean | null
-          job_id?: string | null
+          interview_note?: string | null
+          job_id: string
+          job_post_id?: string | null
+          linked_job_id?: string | null
           match_score?: number | null
-          reason_custom?: string | null
-          reason_short?: string | null
-          source: Database["public"]["Enums"]["application_source"]
-          status: Database["public"]["Enums"]["application_status"]
+          portfolio_url?: string | null
+          rejection_reason?: string | null
+          resume_url?: string | null
+          source?: string
+          stage?: string
+          status?: string | null
+          unlock_type?: string | null
           unlocked_at?: string | null
+          unread?: boolean
           updated_at?: string
+          user_id?: string | null
+          viewed_by_company?: boolean | null
         }
         Update: {
+          applied_at?: string | null
+          archived_at?: string | null
+          archived_by?: string | null
           candidate_id?: string
           company_id?: string
+          company_response_at?: string | null
+          contacted_confirmed?: boolean | null
+          contacted_confirmed_at?: string | null
+          cover_letter?: string | null
           created_at?: string
           id?: string
-          is_new?: boolean | null
-          job_id?: string | null
+          interview_note?: string | null
+          job_id?: string
+          job_post_id?: string | null
+          linked_job_id?: string | null
           match_score?: number | null
-          reason_custom?: string | null
-          reason_short?: string | null
-          source?: Database["public"]["Enums"]["application_source"]
-          status?: Database["public"]["Enums"]["application_status"]
+          portfolio_url?: string | null
+          rejection_reason?: string | null
+          resume_url?: string | null
+          source?: string
+          stage?: string
+          status?: string | null
+          unlock_type?: string | null
           unlocked_at?: string | null
+          unread?: boolean
           updated_at?: string
+          user_id?: string | null
+          viewed_by_company?: boolean | null
         }
         Relationships: [
           {
@@ -345,100 +375,35 @@ export type Database = {
             referencedRelation: "public_job_listings"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "applications_job_post_id_fkey"
+            columns: ["job_post_id"]
+            isOneToOne: false
+            referencedRelation: "job_posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "applications_job_post_id_fkey"
+            columns: ["job_post_id"]
+            isOneToOne: false
+            referencedRelation: "public_job_listings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "applications_linked_job_id_fkey"
+            columns: ["linked_job_id"]
+            isOneToOne: false
+            referencedRelation: "job_posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "applications_linked_job_id_fkey"
+            columns: ["linked_job_id"]
+            isOneToOne: false
+            referencedRelation: "public_job_listings"
+            referencedColumns: ["id"]
+          },
         ]
-      }
-      applications_backup_migration: {
-        Row: {
-          applied_at: string | null
-          archived_at: string | null
-          archived_by: string | null
-          candidate_id: string | null
-          company_id: string | null
-          company_response_at: string | null
-          contacted_confirmed: boolean | null
-          contacted_confirmed_at: string | null
-          cover_letter: string | null
-          created_at: string | null
-          id: string | null
-          interview_note: string | null
-          job_id: string | null
-          job_post_id: string | null
-          linked_job_id: string | null
-          match_score: number | null
-          portfolio_url: string | null
-          rejection_reason: string | null
-          resume_url: string | null
-          source: string | null
-          stage: string | null
-          status: string | null
-          unlock_type: string | null
-          unlocked_at: string | null
-          unread: boolean | null
-          updated_at: string | null
-          user_id: string | null
-          viewed_by_company: boolean | null
-        }
-        Insert: {
-          applied_at?: string | null
-          archived_at?: string | null
-          archived_by?: string | null
-          candidate_id?: string | null
-          company_id?: string | null
-          company_response_at?: string | null
-          contacted_confirmed?: boolean | null
-          contacted_confirmed_at?: string | null
-          cover_letter?: string | null
-          created_at?: string | null
-          id?: string | null
-          interview_note?: string | null
-          job_id?: string | null
-          job_post_id?: string | null
-          linked_job_id?: string | null
-          match_score?: number | null
-          portfolio_url?: string | null
-          rejection_reason?: string | null
-          resume_url?: string | null
-          source?: string | null
-          stage?: string | null
-          status?: string | null
-          unlock_type?: string | null
-          unlocked_at?: string | null
-          unread?: boolean | null
-          updated_at?: string | null
-          user_id?: string | null
-          viewed_by_company?: boolean | null
-        }
-        Update: {
-          applied_at?: string | null
-          archived_at?: string | null
-          archived_by?: string | null
-          candidate_id?: string | null
-          company_id?: string | null
-          company_response_at?: string | null
-          contacted_confirmed?: boolean | null
-          contacted_confirmed_at?: string | null
-          cover_letter?: string | null
-          created_at?: string | null
-          id?: string | null
-          interview_note?: string | null
-          job_id?: string | null
-          job_post_id?: string | null
-          linked_job_id?: string | null
-          match_score?: number | null
-          portfolio_url?: string | null
-          rejection_reason?: string | null
-          resume_url?: string | null
-          source?: string | null
-          stage?: string | null
-          status?: string | null
-          unlock_type?: string | null
-          unlocked_at?: string | null
-          unread?: boolean | null
-          updated_at?: string | null
-          user_id?: string | null
-          viewed_by_company?: boolean | null
-        }
-        Relationships: []
       }
       billing_events: {
         Row: {
@@ -2193,57 +2158,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
-      }
-      company_plans: {
-        Row: {
-          active: boolean
-          code: string
-          created_at: string
-          features: Json | null
-          id: string
-          included_seats: number
-          included_tokens: number
-          monthly_price_cents: number
-          monthly_unlocks_quota: number
-          monthly_views_quota: number
-          name: string
-          sort_order: number
-          updated_at: string
-          yearly_price_cents: number
-        }
-        Insert: {
-          active?: boolean
-          code: string
-          created_at?: string
-          features?: Json | null
-          id: string
-          included_seats?: number
-          included_tokens?: number
-          monthly_price_cents?: number
-          monthly_unlocks_quota?: number
-          monthly_views_quota?: number
-          name: string
-          sort_order?: number
-          updated_at?: string
-          yearly_price_cents?: number
-        }
-        Update: {
-          active?: boolean
-          code?: string
-          created_at?: string
-          features?: Json | null
-          id?: string
-          included_seats?: number
-          included_tokens?: number
-          monthly_price_cents?: number
-          monthly_unlocks_quota?: number
-          monthly_views_quota?: number
-          name?: string
-          sort_order?: number
-          updated_at?: string
-          yearly_price_cents?: number
-        }
-        Relationships: []
       }
       company_posts: {
         Row: {
@@ -8695,33 +8609,6 @@ export type Database = {
           share_id: string
         }[]
       }
-      get_applications_by_status: {
-        Args: {
-          _company_id: string
-          _job_id?: string
-          _limit?: number
-          _offset?: number
-          _status: Database["public"]["Enums"]["application_status"]
-        }
-        Returns: {
-          application_id: string
-          candidate_email: string
-          candidate_full_name: string
-          candidate_id: string
-          candidate_phone: string
-          candidate_profile_image: string
-          created_at: string
-          is_new: boolean
-          job_id: string
-          match_score: number
-          reason_custom: string
-          reason_short: string
-          source: Database["public"]["Enums"]["application_source"]
-          status: Database["public"]["Enums"]["application_status"]
-          unlocked_at: string
-          updated_at: string
-        }[]
-      }
       get_authorized_applications: {
         Args: { p_company_id: string; p_requester_id: string }
         Returns: {
@@ -8746,25 +8633,6 @@ export type Database = {
           full_name: string
           headline: string
           skills: string[]
-        }[]
-      }
-      get_candidates_for_job: {
-        Args: { p_filters?: Json; p_job_id: string }
-        Returns: {
-          applied_at: string
-          avatar_url: string
-          candidate_id: string
-          city: string
-          email: string
-          first_name: string
-          is_unlocked: boolean
-          last_name: string
-          match_score: number
-          phone: string
-          profile_id: string
-          skills: string[]
-          stage: string
-          unlocked_at: string
         }[]
       }
       get_community_feed: {
@@ -9098,19 +8966,6 @@ export type Database = {
         Args: { p_job: string; p_user: string }
         Returns: string[]
       }
-      move_application_stage:
-        | {
-            Args: {
-              p_application_id: string
-              p_archived_reason?: string
-              p_new_stage: string
-            }
-            Returns: undefined
-          }
-        | {
-            Args: { p_application_id: string; p_new_stage: string }
-            Returns: undefined
-          }
       must_set_password: { Args: never; Returns: boolean }
       notify_expiring_jobs: { Args: never; Returns: undefined }
       pause_job: {
@@ -9200,35 +9055,6 @@ export type Database = {
         Args: { actor: string; job_uuid: string }
         Returns: undefined
       }
-      search_candidates: {
-        Args: {
-          _company_id: string
-          _job_id?: string
-          _limit?: number
-          _offset?: number
-          _search_text?: string
-        }
-        Returns: {
-          application_id: string
-          application_status: Database["public"]["Enums"]["application_status"]
-          bio_short: string
-          city: string
-          country: string
-          created_at: string
-          email: string
-          experience_years: number
-          full_name: string
-          id: string
-          is_unlocked: boolean
-          languages: string[]
-          phone: string
-          profile_image: string
-          salary_expectation_max: number
-          salary_expectation_min: number
-          skills: string[]
-          user_id: string
-        }[]
-      }
       search_candidates_within_radius: {
         Args: { lat_input: number; lon_input: number; radius_km: number }
         Returns: {
@@ -9256,15 +9082,6 @@ export type Database = {
           name: string
           postal_code: string
         }[]
-      }
-      set_application_status: {
-        Args: {
-          _application_id: string
-          _new_status: Database["public"]["Enums"]["application_status"]
-          _reason_custom?: string
-          _reason_short?: string
-        }
-        Returns: Json
       }
       set_community_preferences: {
         Args: {
@@ -9982,10 +9799,6 @@ export type Database = {
         Args: { p_company_id: string; p_profile_id: string }
         Returns: undefined
       }
-      unlock_candidate: {
-        Args: { _candidate_id: string; _company_id: string; _job_id?: string }
-        Returns: Json
-      }
       unlock_candidate_profile:
         | {
             Args: {
@@ -10081,15 +9894,6 @@ export type Database = {
     Enums: {
       actor_kind: "user" | "company"
       app_role: "admin" | "editor" | "viewer"
-      application_source: "applied" | "sourced"
-      application_status:
-        | "new"
-        | "unlocked"
-        | "interview"
-        | "offer"
-        | "hired"
-        | "rejected"
-        | "archived"
       company_size_band: "1-9" | "10-49" | "50-249" | "250-999" | "1000+"
       follow_entity: "profile" | "company"
       follow_status: "pending" | "accepted" | "rejected" | "blocked"
@@ -10120,7 +9924,6 @@ export type Database = {
         | "job_post_expiring"
         | "billing_invoice_ready"
       plan_code: "free" | "starter" | "premium"
-      plan_tier: "free" | "starter" | "growth" | "enterprise"
       post_kind: "text" | "media" | "job_share" | "poll"
       post_visibility: "public" | "followers" | "connections" | "org_only"
       recipient_type: "profile" | "company"
@@ -10268,16 +10071,6 @@ export const Constants = {
     Enums: {
       actor_kind: ["user", "company"],
       app_role: ["admin", "editor", "viewer"],
-      application_source: ["applied", "sourced"],
-      application_status: [
-        "new",
-        "unlocked",
-        "interview",
-        "offer",
-        "hired",
-        "rejected",
-        "archived",
-      ],
       company_size_band: ["1-9", "10-49", "50-249", "250-999", "1000+"],
       follow_entity: ["profile", "company"],
       follow_status: ["pending", "accepted", "rejected", "blocked"],
@@ -10309,7 +10102,6 @@ export const Constants = {
         "billing_invoice_ready",
       ],
       plan_code: ["free", "starter", "premium"],
-      plan_tier: ["free", "starter", "growth", "enterprise"],
       post_kind: ["text", "media", "job_share", "poll"],
       post_visibility: ["public", "followers", "connections", "org_only"],
       recipient_type: ["profile", "company"],

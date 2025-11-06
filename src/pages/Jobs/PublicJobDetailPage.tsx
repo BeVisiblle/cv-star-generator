@@ -52,13 +52,13 @@ export default function PublicJobDetailPage() {
     enabled: !!id,
   });
 
-  const { data: applicationsCount } = useQuery<number>({
+  const { data: applicationsCount } = useQuery({
     queryKey: ["applications-count", id],
-    queryFn: async (): Promise<number> => {
+    queryFn: async () => {
       const { count, error } = await supabase
         .from("applications")
         .select("*", { count: "exact", head: true })
-        .eq("job_id", id);
+        .eq("job_post_id", id);
       
       if (error) throw error;
       return count || 0;

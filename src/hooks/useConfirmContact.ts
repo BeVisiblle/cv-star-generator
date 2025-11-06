@@ -7,12 +7,11 @@ export function useConfirmContact() {
 
   return useMutation({
     mutationFn: async (applicationId: string) => {
-      // Note: This feature is deprecated after migration
-      // Consider removing or reimplementing with new schema
       const { error } = await supabase
         .from("applications")
         .update({ 
-          updated_at: new Date().toISOString()
+          contacted_confirmed: true,
+          contacted_confirmed_at: new Date().toISOString()
         })
         .eq("id", applicationId);
 
