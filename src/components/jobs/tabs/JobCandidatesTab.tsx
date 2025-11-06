@@ -56,22 +56,22 @@ export function JobCandidatesTab({ jobId }: JobCandidatesTabProps) {
 
   // Calculate statistics and map candidates
   const candidates: Candidate[] = (candidatesData || []).slice(0, limit).map((c: any) => ({
-    id: c.application_id || c.candidate_id,
-    name: c.full_name || "Unbekannt",
+    id: c.candidate_id,
+    name: `${c.first_name || ""} ${c.last_name || ""}`.trim() || "Unbekannt",
     avatar: c.avatar_url,
     city: c.city,
     skills: c.skills || [],
     matchScore: c.match_score,
     stage: (c.stage || "neu") as Stage,
-    isUnlocked: !!c.unlocked_at,
+    isUnlocked: c.is_unlocked,
     tokenCost: 5,
     email: c.email,
     phone: c.phone,
-    role: c.headline,
-    hasLicense: c.license,
-    seeking: c.bio_short,
-    jobSearchPreferences: c.job_search_preferences,
-    linkedJobTitles: c.linked_job_titles || [],
+    role: "",
+    hasLicense: false,
+    seeking: "",
+    jobSearchPreferences: [],
+    linkedJobTitles: [],
   }));
 
   // Filter candidates by stage if active
@@ -115,7 +115,7 @@ export function JobCandidatesTab({ jobId }: JobCandidatesTabProps) {
 
   const handleViewProfile = (candidate: Candidate) => {
     const fullCandidate = candidatesData?.find((c: any) => 
-      c.application_id === candidate.id || c.candidate_id === candidate.id
+      c.candidate_id === candidate.id
     );
     setSelectedCandidate(fullCandidate);
     setIsProfileModalOpen(true);
@@ -123,7 +123,7 @@ export function JobCandidatesTab({ jobId }: JobCandidatesTabProps) {
 
   const handleUnlock = (candidate: Candidate) => {
     const fullCandidate = candidatesData?.find((c: any) => 
-      c.application_id === candidate.id || c.candidate_id === candidate.id
+      c.candidate_id === candidate.id
     );
     setSelectedCandidate(fullCandidate);
     setIsUnlockModalOpen(true);
@@ -178,25 +178,25 @@ export function JobCandidatesTab({ jobId }: JobCandidatesTabProps) {
             isOpen={isProfileModalOpen}
             onClose={() => setIsProfileModalOpen(false)}
             profile={{
-              id: selectedCandidate.candidate_id,
-              vorname: selectedCandidate.vorname || "",
-              nachname: selectedCandidate.nachname || "",
-              status: selectedCandidate.status || "",
-              branche: selectedCandidate.industry || "",
+              id: selectedCandidate.profile_id,
+              vorname: selectedCandidate.first_name || "",
+              nachname: selectedCandidate.last_name || "",
+              status: "",
+              branche: "",
               ort: selectedCandidate.city || "",
-              plz: selectedCandidate.plz || "",
+              plz: "",
               avatar_url: selectedCandidate.avatar_url,
-              headline: selectedCandidate.headline,
+              headline: "",
               email: selectedCandidate.email,
               telefon: selectedCandidate.phone,
-              cv_url: selectedCandidate.cv_url,
+              cv_url: null,
               faehigkeiten: selectedCandidate.skills,
             }}
-            isUnlocked={!!selectedCandidate.unlocked_at}
-            applicationId={selectedCandidate.application_id}
+            isUnlocked={selectedCandidate.is_unlocked}
+            applicationId={selectedCandidate.candidate_id}
             currentStage={selectedCandidate.stage}
             onStageChange={(stage) => {
-              handleStageChange(selectedCandidate.application_id, stage as Stage);
+              handleStageChange(selectedCandidate.candidate_id, stage as Stage);
               setIsProfileModalOpen(false);
             }}
           />
@@ -205,13 +205,13 @@ export function JobCandidatesTab({ jobId }: JobCandidatesTabProps) {
             open={isUnlockModalOpen}
             onOpenChange={setIsUnlockModalOpen}
             candidate={{
-              id: selectedCandidate.candidate_id,
-              user_id: selectedCandidate.candidate_id,
-              full_name: selectedCandidate.full_name,
+              id: selectedCandidate.profile_id,
+              user_id: selectedCandidate.profile_id,
+              full_name: `${selectedCandidate.first_name || ""} ${selectedCandidate.last_name || ""}`.trim(),
             }}
             companyId={company!.id}
             contextApplication={{
-              id: selectedCandidate.application_id,
+              id: selectedCandidate.candidate_id,
               job_id: jobId,
             }}
             contextType="application"
