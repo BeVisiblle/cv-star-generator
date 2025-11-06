@@ -13,14 +13,14 @@ export function JobAnalyticsTab({ jobId }: JobAnalyticsTabProps) {
     queryFn: async () => {
       const { data: applications, error } = await supabase
         .from("applications")
-        .select("stage")
+        .select("status")
         .eq("job_id", jobId);
 
       if (error) throw error;
 
       return {
         total: applications?.length || 0,
-        approved: applications?.filter(a => a.stage === "approved").length || 0,
+        approved: applications?.filter(a => a.status === "hired").length || 0,
         views: 0, // Placeholder - can be implemented later
       };
     },

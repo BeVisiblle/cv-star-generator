@@ -3,19 +3,15 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useAuth } from "./useAuth";
 
-export type ApplicationStatus = "pending" | "unlocked" | "accepted" | "rejected" | "withdrawn" | "interview_scheduled";
+export type ApplicationStatus = "new" | "unlocked" | "interview" | "offer" | "rejected" | "hired" | "archived";
 
 export type MyApplication = {
   id: string;
   job_id: string;
   status: ApplicationStatus;
   created_at: string;
-  viewed_by_company: boolean;
   unlocked_at?: string;
-  company_response_at?: string;
-  interview_note?: string;
-  contacted_confirmed?: boolean;
-  contacted_confirmed_at?: string;
+  is_new?: boolean;
   job: {
     id: string;
     title: string;
@@ -43,12 +39,8 @@ export function useMyApplications() {
           job_id,
           status,
           created_at,
-          viewed_by_company,
           unlocked_at,
-          company_response_at,
-          interview_note,
-          contacted_confirmed,
-          contacted_confirmed_at,
+          is_new,
           job:job_posts!job_id (
             id,
             title,
@@ -61,7 +53,7 @@ export function useMyApplications() {
             )
           )
         `)
-        .eq("user_id", user!.id)
+        .eq("candidate_id", user!.id)
         .order("created_at", { ascending: false });
 
       if (error) throw error;
@@ -77,7 +69,7 @@ export function useWithdrawApplication() {
     mutationFn: async (applicationId: string) => {
       const { error } = await supabase
         .from("applications")
-        .update({ status: "withdrawn" })
+        .update({ status: "archived" })
         .eq("id", applicationId);
 
       if (error) throw error;

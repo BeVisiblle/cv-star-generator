@@ -28,9 +28,9 @@ export function JobRemovedCandidatesTab({ jobId }: JobRemovedCandidatesTabProps)
             title
           )
         `)
-        .eq("job_post_id", jobId)
-        .not("archived_at", "is", null)
-        .order("archived_at", { ascending: false });
+        .eq("job_id", jobId)
+        .in("status", ["rejected", "archived"])
+        .order("updated_at", { ascending: false });
 
       if (error) throw error;
       return data;
@@ -73,19 +73,22 @@ export function JobRemovedCandidatesTab({ jobId }: JobRemovedCandidatesTabProps)
                 <div className="flex-1">
                   <div className="flex items-center justify-between mb-2">
                     <h4 className="font-semibold">{candidate?.vorname || "Unbekannt"}</h4>
-                    <span className="text-xs bg-muted px-2 py-1 rounded">Archiviert</span>
+                    <span className="text-xs bg-muted px-2 py-1 rounded">
+                      {application.status === "rejected" ? "Abgelehnt" : "Archiviert"}
+                    </span>
                   </div>
                   <p className="text-sm text-muted-foreground">{candidate?.title || "—"}</p>
                   <div className="text-xs text-muted-foreground space-y-1 mt-2">
                     <div>
-                      Archiviert am: {formatDistanceToNow(new Date(application.archived_at), { 
+                      Aktualisiert: {formatDistanceToNow(new Date(application.updated_at), { 
                         addSuffix: true,
                         locale: de 
                       })}
                     </div>
-                    {application.rejection_reason && (
+                    {application.reason_short && (
                       <div>
-                        Grund: {application.rejection_reason}
+                        Grund: {application.reason_short}
+                        {application.reason_custom && ` - ${application.reason_custom}`}
                       </div>
                     )}
                   </div>
