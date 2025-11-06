@@ -244,94 +244,49 @@ export type Database = {
       }
       applications: {
         Row: {
-          applied_at: string | null
-          archived_at: string | null
-          archived_by: string | null
           candidate_id: string
           company_id: string
-          company_response_at: string | null
-          contacted_confirmed: boolean | null
-          contacted_confirmed_at: string | null
-          cover_letter: string | null
           created_at: string
           id: string
-          interview_note: string | null
-          job_id: string
-          job_post_id: string | null
-          linked_job_id: string | null
+          is_new: boolean | null
+          job_id: string | null
           match_score: number | null
-          portfolio_url: string | null
-          rejection_reason: string | null
-          resume_url: string | null
-          source: string
-          stage: string
-          status: string | null
-          unlock_type: string | null
+          reason_custom: string | null
+          reason_short: string | null
+          source: Database["public"]["Enums"]["application_source"]
+          status: Database["public"]["Enums"]["application_status"]
           unlocked_at: string | null
-          unread: boolean
           updated_at: string
-          user_id: string | null
-          viewed_by_company: boolean | null
         }
         Insert: {
-          applied_at?: string | null
-          archived_at?: string | null
-          archived_by?: string | null
           candidate_id: string
           company_id: string
-          company_response_at?: string | null
-          contacted_confirmed?: boolean | null
-          contacted_confirmed_at?: string | null
-          cover_letter?: string | null
           created_at?: string
           id?: string
-          interview_note?: string | null
-          job_id: string
-          job_post_id?: string | null
-          linked_job_id?: string | null
+          is_new?: boolean | null
+          job_id?: string | null
           match_score?: number | null
-          portfolio_url?: string | null
-          rejection_reason?: string | null
-          resume_url?: string | null
-          source?: string
-          stage?: string
-          status?: string | null
-          unlock_type?: string | null
+          reason_custom?: string | null
+          reason_short?: string | null
+          source: Database["public"]["Enums"]["application_source"]
+          status: Database["public"]["Enums"]["application_status"]
           unlocked_at?: string | null
-          unread?: boolean
           updated_at?: string
-          user_id?: string | null
-          viewed_by_company?: boolean | null
         }
         Update: {
-          applied_at?: string | null
-          archived_at?: string | null
-          archived_by?: string | null
           candidate_id?: string
           company_id?: string
-          company_response_at?: string | null
-          contacted_confirmed?: boolean | null
-          contacted_confirmed_at?: string | null
-          cover_letter?: string | null
           created_at?: string
           id?: string
-          interview_note?: string | null
-          job_id?: string
-          job_post_id?: string | null
-          linked_job_id?: string | null
+          is_new?: boolean | null
+          job_id?: string | null
           match_score?: number | null
-          portfolio_url?: string | null
-          rejection_reason?: string | null
-          resume_url?: string | null
-          source?: string
-          stage?: string
-          status?: string | null
-          unlock_type?: string | null
+          reason_custom?: string | null
+          reason_short?: string | null
+          source?: Database["public"]["Enums"]["application_source"]
+          status?: Database["public"]["Enums"]["application_status"]
           unlocked_at?: string | null
-          unread?: boolean
           updated_at?: string
-          user_id?: string | null
-          viewed_by_company?: boolean | null
         }
         Relationships: [
           {
@@ -390,35 +345,100 @@ export type Database = {
             referencedRelation: "public_job_listings"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "applications_job_post_id_fkey"
-            columns: ["job_post_id"]
-            isOneToOne: false
-            referencedRelation: "job_posts"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "applications_job_post_id_fkey"
-            columns: ["job_post_id"]
-            isOneToOne: false
-            referencedRelation: "public_job_listings"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "applications_linked_job_id_fkey"
-            columns: ["linked_job_id"]
-            isOneToOne: false
-            referencedRelation: "job_posts"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "applications_linked_job_id_fkey"
-            columns: ["linked_job_id"]
-            isOneToOne: false
-            referencedRelation: "public_job_listings"
-            referencedColumns: ["id"]
-          },
         ]
+      }
+      applications_backup_migration: {
+        Row: {
+          applied_at: string | null
+          archived_at: string | null
+          archived_by: string | null
+          candidate_id: string | null
+          company_id: string | null
+          company_response_at: string | null
+          contacted_confirmed: boolean | null
+          contacted_confirmed_at: string | null
+          cover_letter: string | null
+          created_at: string | null
+          id: string | null
+          interview_note: string | null
+          job_id: string | null
+          job_post_id: string | null
+          linked_job_id: string | null
+          match_score: number | null
+          portfolio_url: string | null
+          rejection_reason: string | null
+          resume_url: string | null
+          source: string | null
+          stage: string | null
+          status: string | null
+          unlock_type: string | null
+          unlocked_at: string | null
+          unread: boolean | null
+          updated_at: string | null
+          user_id: string | null
+          viewed_by_company: boolean | null
+        }
+        Insert: {
+          applied_at?: string | null
+          archived_at?: string | null
+          archived_by?: string | null
+          candidate_id?: string | null
+          company_id?: string | null
+          company_response_at?: string | null
+          contacted_confirmed?: boolean | null
+          contacted_confirmed_at?: string | null
+          cover_letter?: string | null
+          created_at?: string | null
+          id?: string | null
+          interview_note?: string | null
+          job_id?: string | null
+          job_post_id?: string | null
+          linked_job_id?: string | null
+          match_score?: number | null
+          portfolio_url?: string | null
+          rejection_reason?: string | null
+          resume_url?: string | null
+          source?: string | null
+          stage?: string | null
+          status?: string | null
+          unlock_type?: string | null
+          unlocked_at?: string | null
+          unread?: boolean | null
+          updated_at?: string | null
+          user_id?: string | null
+          viewed_by_company?: boolean | null
+        }
+        Update: {
+          applied_at?: string | null
+          archived_at?: string | null
+          archived_by?: string | null
+          candidate_id?: string | null
+          company_id?: string | null
+          company_response_at?: string | null
+          contacted_confirmed?: boolean | null
+          contacted_confirmed_at?: string | null
+          cover_letter?: string | null
+          created_at?: string | null
+          id?: string | null
+          interview_note?: string | null
+          job_id?: string | null
+          job_post_id?: string | null
+          linked_job_id?: string | null
+          match_score?: number | null
+          portfolio_url?: string | null
+          rejection_reason?: string | null
+          resume_url?: string | null
+          source?: string | null
+          stage?: string | null
+          status?: string | null
+          unlock_type?: string | null
+          unlocked_at?: string | null
+          unread?: boolean | null
+          updated_at?: string | null
+          user_id?: string | null
+          viewed_by_company?: boolean | null
+        }
+        Relationships: []
       }
       billing_events: {
         Row: {
