@@ -8985,14 +8985,19 @@ export type Database = {
         Args: { p_job: string; p_user: string }
         Returns: string[]
       }
-      move_application_stage: {
-        Args: {
-          p_application_id: string
-          p_archived_reason?: string
-          p_new_stage: string
-        }
-        Returns: undefined
-      }
+      move_application_stage:
+        | {
+            Args: {
+              p_application_id: string
+              p_archived_reason?: string
+              p_new_stage: string
+            }
+            Returns: undefined
+          }
+        | {
+            Args: { p_application_id: string; p_new_stage: string }
+            Returns: undefined
+          }
       must_set_password: { Args: never; Returns: boolean }
       notify_expiring_jobs: { Args: never; Returns: undefined }
       pause_job: {
