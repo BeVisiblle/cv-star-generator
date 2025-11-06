@@ -430,13 +430,11 @@ export function JobCandidatesTab({ jobId }: JobCandidatesTabProps) {
     const isUnlocked = application.unlocked_at || isGloballyUnlocked;
 
     if (!isUnlocked) {
-      // ✅ NEW: Open preview modal instead of unlock modal
+      // Open preview modal for locked profiles
       setPreviewModalOpen(true);
-    } else if (application.stage === "new" || application.is_virtual) {
-      setModalMode("full-actions");
-      setIsProfileModalOpen(true);
     } else {
-      setModalMode("full-readonly");
+      // Open full profile modal for unlocked profiles with actions
+      setModalMode("full-actions");
       setIsProfileModalOpen(true);
     }
 
