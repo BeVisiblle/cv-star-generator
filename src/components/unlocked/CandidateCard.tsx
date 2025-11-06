@@ -19,6 +19,8 @@ type CandidateCardProps = {
   profileHref: string;
   onDownloadCV?: () => void;
   onToggleFavorite?: () => void;
+  onAcceptInterview?: () => void;
+  onReject?: () => void;
   isFavorite?: boolean;
 };
 
@@ -176,7 +178,17 @@ export function CandidateCard(p: CandidateCardProps) {
       {/* Spacer, damit Actions/Kontakt nach unten gedrückt werden */}
       <div className="flex-1" />
 
-      {/* 5) Actions (compact buttons) */}
+      {/* 5) Actions - Interview & Ablehnen */}
+      <div className="mt-2 flex h-[44px] items-center gap-2">
+        <Button variant="outline" size="sm" className="h-9 flex-1 text-xs px-3" onClick={p.onReject}>
+          ❌ Absagen
+        </Button>
+        <Button variant="default" size="sm" className="h-9 flex-1 text-xs px-3" onClick={p.onAcceptInterview}>
+          ✅ Interview planen
+        </Button>
+      </div>
+
+      {/* 6) Actions - Profil & CV */}
       <div className="mt-2 flex h-[44px] items-center gap-2">
         <Button variant="outline" size="sm" className="h-9 flex-1 text-xs px-3" asChild>
           <a href={p.profileHref}>
@@ -190,15 +202,27 @@ export function CandidateCard(p: CandidateCardProps) {
         </Button>
       </div>
 
-      {/* 6) Kontakt (compact, always same height) */}
-      <div className="mt-2 h-[52px] border-t border-border pt-2 text-xs">
-        <div className="flex items-center gap-1 text-muted-foreground">
-          <Mail className="h-3 w-3" />
-          <span className="truncate">{p.email ?? "—"}</span>
+      {/* 7) Kontakt */}
+      <div className="mt-2 border-t border-border pt-2">
+        <div className="flex items-center gap-1 text-xs mb-1">
+          <Mail className="h-3 w-3 text-blue-600" />
+          <a 
+            href={`mailto:${p.email}`} 
+            className="truncate text-blue-600 hover:underline"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {p.email ?? "—"}
+          </a>
         </div>
-        <div className="mt-0.5 flex items-center gap-1 text-muted-foreground">
-          <Phone className="h-3 w-3" />
-          <span className="truncate">{p.phone ?? "—"}</span>
+        <div className="flex items-center gap-1 text-xs">
+          <Phone className="h-3 w-3 text-green-600" />
+          <a 
+            href={`tel:${p.phone}`} 
+            className="truncate text-green-600 hover:underline"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {p.phone ?? "—"}
+          </a>
         </div>
       </div>
     </article>
