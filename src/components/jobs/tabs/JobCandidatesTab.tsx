@@ -53,7 +53,7 @@ export function JobCandidatesTab({ jobId }: JobCandidatesTabProps) {
     },
   });
 
-  // Calculate statistics
+  // Calculate statistics and map candidates
   const candidates: Candidate[] = (candidatesData || []).slice(0, limit).map((c: any) => ({
     id: c.application_id || c.candidate_id,
     name: c.full_name || "Unbekannt",
@@ -64,6 +64,13 @@ export function JobCandidatesTab({ jobId }: JobCandidatesTabProps) {
     stage: (c.stage || "neu") as Stage,
     isUnlocked: !!c.unlocked_at,
     tokenCost: 5,
+    email: c.email,
+    phone: c.phone,
+    role: c.headline,
+    hasLicense: c.license,
+    seeking: c.bio_short,
+    jobSearchPreferences: c.job_search_preferences,
+    linkedJobTitles: c.linked_job_titles || [],
   }));
 
   const totalCandidates = candidatesData?.length || 0;

@@ -13,6 +13,13 @@ export interface Candidate {
   stage: Stage;
   isUnlocked: boolean;
   tokenCost?: number;
+  email?: string;
+  phone?: string;
+  role?: string;
+  hasLicense?: boolean;
+  seeking?: string;
+  jobSearchPreferences?: string[];
+  linkedJobTitles?: Array<{ id: string; title: string }>;
 }
 
 interface CandidateListProps {
@@ -65,6 +72,13 @@ export function CandidateList({
             stage={candidate.stage}
             isUnlocked={candidate.isUnlocked}
             tokenCost={candidate.tokenCost}
+            email={candidate.email}
+            phone={candidate.phone}
+            role={candidate.role}
+            hasLicense={candidate.hasLicense}
+            seeking={candidate.seeking}
+            jobSearchPreferences={candidate.jobSearchPreferences}
+            linkedJobTitles={candidate.linkedJobTitles}
             onViewProfile={() => onViewProfile?.(candidate)}
             onUnlock={() => onUnlock?.(candidate)}
             onStageChange={(stage) => onStageChange?.(candidate.id, stage)}
