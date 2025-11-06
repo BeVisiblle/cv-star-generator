@@ -227,6 +227,21 @@ export type Database = {
           },
         ]
       }
+      application_transitions: {
+        Row: {
+          from_status: Database["public"]["Enums"]["application_status"]
+          to_status: Database["public"]["Enums"]["application_status"]
+        }
+        Insert: {
+          from_status: Database["public"]["Enums"]["application_status"]
+          to_status: Database["public"]["Enums"]["application_status"]
+        }
+        Update: {
+          from_status?: Database["public"]["Enums"]["application_status"]
+          to_status?: Database["public"]["Enums"]["application_status"]
+        }
+        Relationships: []
+      }
       applications: {
         Row: {
           applied_at: string | null
@@ -9930,6 +9945,15 @@ export type Database = {
     Enums: {
       actor_kind: "user" | "company"
       app_role: "admin" | "editor" | "viewer"
+      application_source: "applied" | "sourced"
+      application_status:
+        | "new"
+        | "unlocked"
+        | "interview"
+        | "offer"
+        | "hired"
+        | "rejected"
+        | "archived"
       company_size_band: "1-9" | "10-49" | "50-249" | "250-999" | "1000+"
       follow_entity: "profile" | "company"
       follow_status: "pending" | "accepted" | "rejected" | "blocked"
@@ -9960,6 +9984,7 @@ export type Database = {
         | "job_post_expiring"
         | "billing_invoice_ready"
       plan_code: "free" | "starter" | "premium"
+      plan_tier: "free" | "starter" | "growth" | "enterprise"
       post_kind: "text" | "media" | "job_share" | "poll"
       post_visibility: "public" | "followers" | "connections" | "org_only"
       recipient_type: "profile" | "company"
@@ -10107,6 +10132,16 @@ export const Constants = {
     Enums: {
       actor_kind: ["user", "company"],
       app_role: ["admin", "editor", "viewer"],
+      application_source: ["applied", "sourced"],
+      application_status: [
+        "new",
+        "unlocked",
+        "interview",
+        "offer",
+        "hired",
+        "rejected",
+        "archived",
+      ],
       company_size_band: ["1-9", "10-49", "50-249", "250-999", "1000+"],
       follow_entity: ["profile", "company"],
       follow_status: ["pending", "accepted", "rejected", "blocked"],
@@ -10138,6 +10173,7 @@ export const Constants = {
         "billing_invoice_ready",
       ],
       plan_code: ["free", "starter", "premium"],
+      plan_tier: ["free", "starter", "growth", "enterprise"],
       post_kind: ["text", "media", "job_share", "poll"],
       post_visibility: ["public", "followers", "connections", "org_only"],
       recipient_type: ["profile", "company"],
