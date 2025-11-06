@@ -19,9 +19,9 @@ import { Badge } from "@/components/ui/badge";
 export default function CompaniesSearch() {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
-  const [industry, setIndustry] = useState<string>("");
+  const [industry, setIndustry] = useState<string>("all");
   const [location, setLocation] = useState<string>("");
-  const [sizeRange, setSizeRange] = useState<string>("");
+  const [sizeRange, setSizeRange] = useState<string>("all");
   const [showFilters, setShowFilters] = useState(false);
 
   // SEO
@@ -49,7 +49,7 @@ export default function CompaniesSearch() {
         query = query.ilike("name", `%${searchQuery.trim()}%`);
       }
 
-      if (industry) {
+      if (industry && industry !== "all") {
         query = query.eq("industry", industry);
       }
 
@@ -57,7 +57,7 @@ export default function CompaniesSearch() {
         query = query.ilike("main_location", `%${location}%`);
       }
 
-      if (sizeRange) {
+      if (sizeRange && sizeRange !== "all") {
         query = query.eq("size_range", sizeRange);
       }
 
@@ -83,12 +83,16 @@ export default function CompaniesSearch() {
     },
   });
 
-  const activeFiltersCount = [industry, location, sizeRange].filter(Boolean).length;
+  const activeFiltersCount = [
+    industry !== "all" && industry,
+    location,
+    sizeRange !== "all" && sizeRange
+  ].filter(Boolean).length;
 
   const clearFilters = () => {
-    setIndustry("");
+    setIndustry("all");
     setLocation("");
-    setSizeRange("");
+    setSizeRange("all");
   };
 
   return (
@@ -137,7 +141,7 @@ export default function CompaniesSearch() {
                     <SelectValue placeholder="Alle Branchen" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Alle Branchen</SelectItem>
+                    <SelectItem value="all">Alle Branchen</SelectItem>
                     {industries?.map((ind) => (
                       <SelectItem key={ind} value={ind}>
                         {ind}
@@ -163,7 +167,7 @@ export default function CompaniesSearch() {
                     <SelectValue placeholder="Alle Größen" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Alle Größen</SelectItem>
+                    <SelectItem value="all">Alle Größen</SelectItem>
                     <SelectItem value="1-10">1-10 Mitarbeiter</SelectItem>
                     <SelectItem value="11-50">11-50 Mitarbeiter</SelectItem>
                     <SelectItem value="51-200">51-200 Mitarbeiter</SelectItem>
