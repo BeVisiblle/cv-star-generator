@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useAuth } from "./useAuth";
 
-export type ApplicationStatus = "pending" | "unlocked" | "accepted" | "rejected" | "withdrawn" | "interview_scheduled";
+export type ApplicationStatus = "new" | "pending" | "unlocked" | "accepted" | "rejected" | "withdrawn" | "interview_scheduled";
 
 export type MyApplication = {
   id: string;

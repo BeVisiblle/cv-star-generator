@@ -60,6 +60,13 @@ export function ApplicationsList({ searchQuery }: ApplicationsListProps) {
 
   const getStatusConfig = (status: ApplicationStatus) => {
     switch (status) {
+      case "new":
+        return {
+          label: "Neu",
+          variant: "secondary" as const,
+          icon: Clock,
+          color: "text-blue-600",
+        };
       case "pending":
         return {
           label: "Ausstehend",
@@ -98,6 +105,13 @@ export function ApplicationsList({ searchQuery }: ApplicationsListProps) {
       case "withdrawn":
         return {
           label: "Zurückgezogen",
+          variant: "outline" as const,
+          icon: AlertCircle,
+          color: "text-gray-600",
+        };
+      default:
+        return {
+          label: status,
           variant: "outline" as const,
           icon: AlertCircle,
           color: "text-gray-600",
