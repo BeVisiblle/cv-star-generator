@@ -132,14 +132,14 @@ export function JobCandidatesTab({ jobId }: JobCandidatesTabProps) {
           console.error("Error loading candidates:", candidatesError);
         }
 
-        // Also load profiles for job_search_preferences
+        // Also load profiles for job_search_preferences AND avatar_url
         const userIds = candidatesData?.map(c => c.user_id).filter(Boolean) || [];
         let profilesMap = new Map();
         
         if (userIds.length > 0) {
           const { data: profilesData } = await supabase
             .from('profiles')
-            .select('id, job_search_preferences')
+            .select('id, job_search_preferences, avatar_url, full_name')
             .in('id', userIds);
           
           profilesMap = new Map(
@@ -147,13 +147,14 @@ export function JobCandidatesTab({ jobId }: JobCandidatesTabProps) {
           );
         }
 
-        // Map candidates to applications with job_search_preferences
+        // Map candidates to applications with job_search_preferences and avatar
         const candidateMap = new Map(
           (candidatesData || []).map(c => {
             const profile = profilesMap.get(c.user_id);
             return [c.id, {
               ...c,
-              job_search_preferences: profile?.job_search_preferences || []
+              job_search_preferences: profile?.job_search_preferences || [],
+              avatar_url: profile?.avatar_url || c.profile_image // Use profile avatar or candidate profile_image
             }];
           })
         );
@@ -288,14 +289,14 @@ export function JobCandidatesTab({ jobId }: JobCandidatesTabProps) {
           `)
           .in('user_id', linkedCandidateIds);
         
-        // Also load profiles for job_search_preferences
+        // Also load profiles for job_search_preferences AND avatar_url
         const userIds = candidateDetails?.map(c => c.user_id).filter(Boolean) || [];
         let profilesMap = new Map();
         
         if (userIds.length > 0) {
           const { data: profilesData } = await supabase
             .from('profiles')
-            .select('id, job_search_preferences')
+            .select('id, job_search_preferences, avatar_url, full_name')
             .in('id', userIds);
           
           profilesMap = new Map(
@@ -308,7 +309,8 @@ export function JobCandidatesTab({ jobId }: JobCandidatesTabProps) {
             const profile = profilesMap.get(c.user_id);
             return [c.user_id, {
               ...c,
-              job_search_preferences: profile?.job_search_preferences || []
+              job_search_preferences: profile?.job_search_preferences || [],
+              avatar_url: profile?.avatar_url || c.profile_image
             }];
           })
         );
@@ -604,7 +606,7 @@ export function JobCandidatesTab({ jobId }: JobCandidatesTabProps) {
                           key={app.id}
                           name={candidate?.full_name || `${candidate?.vorname} ${candidate?.nachname}`.trim() || "Unbekannt"}
                           matchPercent={app.match_score || 0}
-                          avatarUrl={candidate?.profile_image}
+                          avatarUrl={candidate?.avatar_url || candidate?.profile_image}
                           role={candidate?.title}
                           city={candidate?.city}
                           hasLicense={false}
