@@ -30,18 +30,26 @@ export default function ProfileView() {
   const [following, setFollowing] = useState(false);
   const [applications, setApplications] = useState<any[]>([]);
   const [unlockModalOpen, setUnlockModalOpen] = useState(false);
+  const [actualUserId, setActualUserId] = useState<string | null>(null); // Store the actual user_id for unlock checks
 
   useEffect(() => {
     if (!id || !company) return;
     loadProfile();
+  }, [id, company]);
+
+  // Separate useEffect for unlock/follow/applications that waits for actualUserId
+  useEffect(() => {
+    if (!actualUserId || !company) return;
     checkUnlockState();
     checkFollowState();
     loadApplications();
-  }, [id, company]);
+  }, [actualUserId, company]);
 
   const loadProfile = async () => {
     try {
       console.log("🔍 Loading profile for ID:", id);
+      
+      let userId = id; // This will be the actual user_id
       
       // First, try to load from profiles table directly (user_id)
       let { data: profileData, error: profileError } = await supabase
@@ -56,7 +64,7 @@ export default function ProfileView() {
         
         const { data: candidateData, error: candidateError } = await supabase
           .from('candidates')
-          .select('user_id, full_name, vorname, nachname, email, phone, city, profile_image, title, bio_short, skills, cv_url')
+          .select('user_id')
           .eq('id', id)
           .maybeSingle();
 
@@ -64,8 +72,9 @@ export default function ProfileView() {
           console.error("Error loading from candidates:", candidateError);
         }
 
-        if (candidateData) {
+        if (candidateData?.user_id) {
           console.log("✅ Found in candidates table, loading profile for user_id:", candidateData.user_id);
+          userId = candidateData.user_id;
           
           // Now load the full profile using the user_id
           const { data: userProfile, error: userProfileError } = await supabase
@@ -78,8 +87,7 @@ export default function ProfileView() {
             console.error("Error loading user profile:", userProfileError);
           }
 
-          // Use the full user profile if it exists, otherwise profileData remains null
-          // and we'll show the "Profil nicht gefunden" message
+          // Use the full user profile if it exists
           if (userProfile) {
             profileData = userProfile;
           }
@@ -92,6 +100,7 @@ export default function ProfileView() {
 
       console.log("✅ Profile loaded:", profileData);
       setProfile(profileData);
+      setActualUserId(userId || null);
     } catch (error: any) {
       console.error('Error loading profile:', error);
       toast.error('Fehler beim Laden des Profils');
@@ -101,19 +110,38 @@ export default function ProfileView() {
   };
 
   const checkUnlockState = async () => {
-    if (!id) return;
-    const state = await unlockService.checkUnlockState(id);
-    setIsUnlocked(state?.basic_unlocked || false);
+    if (!actualUserId || !company) return;
+    
+    console.log("🔓 Checking unlock state for user_id:", actualUserId);
+    
+    try {
+      const { data, error } = await supabase
+        .from('company_candidates')
+        .select('unlocked_at, stage')
+        .eq('candidate_id', actualUserId)
+        .eq('company_id', company.id)
+        .maybeSingle();
+
+      if (error) {
+        console.error("Error checking unlock:", error);
+      }
+
+      const unlocked = !!data?.unlocked_at;
+      console.log("🔓 Unlock state:", { unlocked, data });
+      setIsUnlocked(unlocked);
+    } catch (error) {
+      console.error('Error checking unlock state:', error);
+    }
   };
 
   const checkFollowState = async () => {
-    if (!id || !company) return;
+    if (!actualUserId || !company) return;
     try {
       const { data, error } = await supabase
         .from('company_follows')
         .select('status')
         .eq('company_id', company.id)
-        .eq('candidate_id', id)
+        .eq('candidate_id', actualUserId)
         .maybeSingle();
 
       if (error) throw error;
@@ -126,19 +154,19 @@ export default function ProfileView() {
   };
 
   const loadApplications = async () => {
-    if (!id || !company) return;
+    if (!actualUserId || !company) return;
     try {
       const { data, error } = await supabase
         .from('applications')
         .select(`
           *,
-          job_posts (
+          job_posts!applications_job_id_fkey (
             id,
             title,
-            location
+            city
           )
         `)
-        .eq('candidate_id', id)
+        .eq('candidate_id', actualUserId)
         .eq('company_id', company.id);
 
       if (error) throw error;
@@ -150,7 +178,7 @@ export default function ProfileView() {
 
 
   const handleFollow = async () => {
-    if (!id || !company) return;
+    if (!actualUserId || !company) return;
     setFollowing(true);
     try {
       if (followStatus === 'accepted') {
@@ -159,7 +187,7 @@ export default function ProfileView() {
           .from('company_follows')
           .delete()
           .eq('company_id', company.id)
-          .eq('candidate_id', id);
+          .eq('candidate_id', actualUserId);
 
         if (error) throw error;
         setFollowStatus('none');
@@ -170,7 +198,7 @@ export default function ProfileView() {
           .from('company_follows')
           .insert({
             company_id: company.id,
-            candidate_id: id,
+            candidate_id: actualUserId,
             status: 'pending'
           });
 
@@ -373,9 +401,9 @@ export default function ProfileView() {
               />
 
               {/* Weitere Dokumente - only when unlocked */}
-              {isUnlocked && (
+              {isUnlocked && actualUserId && (
                 <WeitereDokumenteSection
-                  userId={id || ''}
+                  userId={actualUserId}
                   readOnly={true}
                   openWidget={() => {}}
                   refreshTrigger={0}
@@ -389,12 +417,12 @@ export default function ProfileView() {
         </div>
 
         {/* Unlock Modal */}
-        {profile && (
+        {profile && actualUserId && (
           <CandidateUnlockModal
             open={unlockModalOpen}
             onOpenChange={setUnlockModalOpen}
             candidate={{
-              id: profile.id,
+              id: actualUserId,
               full_name: profile.full_name,
               vorname: profile.vorname,
               nachname: profile.nachname,
