@@ -26,7 +26,7 @@ export default function Community() {
       title: "Nachrichten",
       description: "Chatte mit deinen Kontakten",
       icon: MessageSquare,
-      path: "/community/messages",
+      path: "/messages",
       color: "text-purple-600"
     },
     {
