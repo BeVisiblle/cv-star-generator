@@ -18,41 +18,32 @@ const STAGES = {
   bewerber: {
     key: "bewerber",
     title: "Bewerber",
-    // ✅ Fixed: Only show candidates NOT unlocked yet
+    // Show new applications not yet unlocked
     filter: (app: any) => 
-      app.stage === "new" && 
-      !app.unlocked_at && 
-      !app.global_unlocked_at && 
-      !app.archived_at,
+      app.status === "new" && 
+      !app.unlocked_at,
   },
   freigeschaltet: {
     key: "freigeschaltet",
     title: "Freigeschaltet",
-    // ✅ Fixed: Show candidates that ARE unlocked with stage "new" (awaiting interview decision)
+    // Show unlocked applications
     filter: (app: any) => 
-      (app.unlocked_at || app.global_unlocked_at) && 
-      !app.archived_at && 
-      app.stage === "new",
+      app.status === "unlocked",
   },
   interview: {
     key: "interview",
     title: "Interview geplant",
-    filter: (app: any) => app.stage === "interview" && !app.archived_at,
-  },
-  finale: {
-    key: "finale",
-    title: "Finale Runde",
-    filter: (app: any) => app.stage === "final" && !app.archived_at,
+    filter: (app: any) => app.status === "interview_scheduled",
   },
   angebot: {
     key: "angebot",
     title: "Angebot",
-    filter: (app: any) => app.stage === "approved" && !app.archived_at,
+    filter: (app: any) => app.status === "accepted",
   },
-  archiv: {
-    key: "archiv",
-    title: "Archiv",
-    filter: (app: any) => app.archived_at !== null
+  abgelehnt: {
+    key: "abgelehnt",
+    title: "Abgelehnt",
+    filter: (app: any) => app.status === "rejected"
   },
 };
 
@@ -94,14 +85,13 @@ export function JobCandidatesTab({ jobId }: JobCandidatesTabProps) {
         .select(`
           id,
           candidate_id,
-          job_post_id,
-          stage,
+          job_id,
+          status,
           match_score,
           unlocked_at,
           created_at
         `)
-        .eq("job_post_id", jobId)
-        .is("archived_at", null)
+        .eq("job_id", jobId)
         .order("created_at", { ascending: false });
 
       if (appError) throw appError;
@@ -219,7 +209,7 @@ export function JobCandidatesTab({ jobId }: JobCandidatesTabProps) {
 
       console.log("=== Applications loaded ===");
       console.log("Total applications:", appData?.length || 0);
-      console.log("New stage (should show in Bewerber):", appData?.filter(a => a.stage === 'new' && !a.unlocked_at && !(a as any).global_unlocked_at).length || 0);
+      console.log("New status (should show in Bewerber):", appData?.filter(a => a.status === 'new' && !a.unlocked_at).length || 0);
       console.log("Data:", appData);
 
       // Step 2: Load linked candidates - FIX: Don't select phone/email from profiles (they don't exist)
@@ -426,10 +416,7 @@ export function JobCandidatesTab({ jobId }: JobCandidatesTabProps) {
         .from('applications')
         .update({ 
           status: 'rejected',
-          stage: 'rejected',
-          rejection_reason: reason || 'Profil passt nicht zur Stelle',
-          archived_at: new Date().toISOString(), // ✅ Set archived_at
-          archived_by: (await supabase.auth.getUser()).data.user?.id,
+          reason_short: reason || 'Profil passt nicht zur Stelle',
           updated_at: new Date().toISOString()
         })
         .eq('id', application.id);
@@ -477,9 +464,8 @@ export function JobCandidatesTab({ jobId }: JobCandidatesTabProps) {
     bewerber: applications?.filter(STAGES.bewerber.filter) || [],
     freigeschaltet: applications?.filter(STAGES.freigeschaltet.filter) || [],
     interview: applications?.filter(STAGES.interview.filter) || [],
-    finale: applications?.filter(STAGES.finale.filter) || [],
     angebot: applications?.filter(STAGES.angebot.filter) || [],
-    archiv: applications?.filter(STAGES.archiv.filter) || [],
+    abgelehnt: applications?.filter(STAGES.abgelehnt.filter) || [],
   };
 
   console.log("=== Stage Breakdown ===", stageApplications);
@@ -516,7 +502,7 @@ export function JobCandidatesTab({ jobId }: JobCandidatesTabProps) {
                     {apps.map((app) => {
                       const candidate = app.candidates;
                       const isUnlocked = !!app.unlocked_at || !!app.global_unlocked_at;
-                      const isNewStage = app.stage === "new" || app.is_virtual;
+                      const isNewStage = app.status === "new" || app.is_virtual;
                       
                       // Calculate unlock reason
                       let unlockReason = "";
@@ -545,7 +531,7 @@ export function JobCandidatesTab({ jobId }: JobCandidatesTabProps) {
                         // In "Freigeschaltet" tab: always show actions (Interview/Absagen)
                         if (key === "freigeschaltet") {
                           variant = "unlocked-actions";
-                        } else if (key === "interview" || key === "finale" || key === "angebot") {
+                        } else if (key === "interview" || key === "angebot") {
                           // In later stages: read-only view
                           variant = "unlocked";
                         } else {
@@ -605,8 +591,8 @@ export function JobCandidatesTab({ jobId }: JobCandidatesTabProps) {
                       {key === "bewerber" && "Noch keine Bewerbungen eingegangen"}
                       {key === "freigeschaltet" && "Noch keine Profile freigeschaltet"}
                       {key === "interview" && "Keine Interviews geplant"}
-                      {key === "finale" && "Noch keine Kandidaten in der finalen Runde"}
                       {key === "angebot" && "Noch keine Angebote gemacht"}
+                      {key === "abgelehnt" && "Keine abgelehnten Bewerbungen"}
                     </p>
                   </div>
                 )}
@@ -624,7 +610,7 @@ export function JobCandidatesTab({ jobId }: JobCandidatesTabProps) {
           profile={selectedApplication.candidates}
           isUnlocked={true}
           applicationId={modalMode === "full-actions" ? selectedApplication.id : undefined}
-          currentStage={selectedApplication.stage}
+          currentStage={selectedApplication.status}
           onStageChange={handleStageChange}
           onArchive={(reason) => handleArchive(selectedApplication.id, reason)}
           showUnlockButton={!selectedApplication.unlocked_at}
