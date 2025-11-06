@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
@@ -48,6 +49,7 @@ const STAGES = {
 };
 
 export function JobCandidatesTab({ jobId }: JobCandidatesTabProps) {
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { company } = useCompany();
   const [selectedApplication, setSelectedApplication] = useState<any | null>(null);
@@ -423,7 +425,7 @@ export function JobCandidatesTab({ jobId }: JobCandidatesTabProps) {
     archiveMutation.mutate({ applicationId, reason });
   };
 
-  const handleViewProfile = (application: any) => {
+  const handleViewProfile = async (application: any) => {
     console.log("🔍 handleViewProfile called:", {
       unlocked_at: application.unlocked_at,
       global_unlocked_at: application.global_unlocked_at,
@@ -431,8 +433,6 @@ export function JobCandidatesTab({ jobId }: JobCandidatesTabProps) {
       candidate: application.candidates
     });
     
-    setSelectedApplication(application);
-
     const isGloballyUnlocked = application.global_unlocked_at;
     const isUnlocked = application.unlocked_at || isGloballyUnlocked;
 
@@ -440,11 +440,22 @@ export function JobCandidatesTab({ jobId }: JobCandidatesTabProps) {
 
     if (!isUnlocked) {
       console.log("❌ Opening preview modal (not unlocked)");
+      setSelectedApplication(application);
       setPreviewModalOpen(true);
     } else {
-      console.log("✅ Opening full profile modal (unlocked)");
-      setModalMode("full-actions");
-      setIsProfileModalOpen(true);
+      console.log("✅ Navigating to profile page");
+      
+      // Log profile view activity
+      if (company?.id && application.candidates?.id) {
+        try {
+          await unlockService.logProfileView(application.candidates.id, company.id);
+        } catch (e) {
+          console.error('Failed to log profile view', e);
+        }
+      }
+      
+      // Navigate to profile page (same as in Search and Unlocked pages)
+      navigate(`/company/profile/${application.candidates.id}`);
     }
 
     // Show info if globally unlocked but not for this job
@@ -453,13 +464,11 @@ export function JobCandidatesTab({ jobId }: JobCandidatesTabProps) {
     }
   };
 
-  // ✅ NEW: Handler for opening unlock modal from preview
   const handleUnlockFromPreview = (application: any) => {
     setPreviewModalOpen(false);
+    setSelectedApplication(application);
     setUnlockModalOpen(true);
   };
-
-
   const handleStageChange = (newStage: string) => {
     if (!selectedApplication) return;
     stageUpdateMutation.mutate({ 
