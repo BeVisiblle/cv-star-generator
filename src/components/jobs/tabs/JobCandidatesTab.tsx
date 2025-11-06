@@ -24,6 +24,7 @@ export function JobCandidatesTab({ jobId }: JobCandidatesTabProps) {
   const [city, setCity] = useState("");
   const [skills, setSkills] = useState<string[]>([]);
   const [search, setSearch] = useState("");
+  const [stageFilter, setStageFilter] = useState<string | null>(null);
   
   // Pagination
   const [limit, setLimit] = useState(ITEMS_PER_PAGE);
@@ -73,9 +74,10 @@ export function JobCandidatesTab({ jobId }: JobCandidatesTabProps) {
     linkedJobTitles: c.linked_job_titles || [],
   }));
 
-  const totalCandidates = candidatesData?.length || 0;
-  const unlockedCount = candidatesData?.filter((c: any) => c.unlocked_at).length || 0;
-  const tokenCost = unlockedCount * 5;
+  // Filter candidates by stage if active
+  const filteredCandidates = stageFilter
+    ? candidates.filter(c => c.stage === stageFilter)
+    : candidates;
 
   const stageCounts = {
     neu: candidatesData?.filter((c: any) => c.stage === "neu").length || 0,
@@ -144,10 +146,12 @@ export function JobCandidatesTab({ jobId }: JobCandidatesTabProps) {
   return (
     <div className="space-y-6">
       <HeaderJobSummary
-        totalCandidates={totalCandidates}
-        unlockedCount={unlockedCount}
-        tokenCost={tokenCost}
+        totalCandidates={candidatesData?.length || 0}
+        unlockedCount={candidatesData?.filter((c: any) => c.unlocked_at).length || 0}
+        tokenCost={(candidatesData?.filter((c: any) => c.unlocked_at).length || 0) * 5}
         stageCounts={stageCounts}
+        activeStage={stageFilter}
+        onStageFilter={setStageFilter}
       />
 
       <FilterBar
@@ -158,9 +162,9 @@ export function JobCandidatesTab({ jobId }: JobCandidatesTabProps) {
       />
 
       <CandidateList
-        candidates={candidates}
+        candidates={filteredCandidates}
         isLoading={isLoading}
-        hasMore={totalCandidates > limit}
+        hasMore={(candidatesData?.length || 0) > limit}
         onLoadMore={handleLoadMore}
         onViewProfile={handleViewProfile}
         onUnlock={handleUnlock}

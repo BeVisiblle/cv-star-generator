@@ -12,6 +12,8 @@ interface HeaderJobSummaryProps {
     gespräch: number;
     archiv: number;
   };
+  activeStage?: string | null;
+  onStageFilter?: (stage: string | null) => void;
   onUnlockMore?: () => void;
 }
 
@@ -20,6 +22,8 @@ export function HeaderJobSummary({
   unlockedCount,
   tokenCost,
   stageCounts,
+  activeStage,
+  onStageFilter,
   onUnlockMore
 }: HeaderJobSummaryProps) {
   return (
@@ -48,21 +52,45 @@ export function HeaderJobSummary({
         )}
       </div>
 
-      {/* Phase Counter */}
+      {/* Phase Counter - Clickable Filters */}
       <div className="flex flex-wrap gap-3">
-        <Badge variant="outline" className="px-4 py-2">
+        <Badge 
+          variant={activeStage === null ? "default" : "outline"} 
+          className="cursor-pointer px-4 py-2 transition-colors hover:bg-accent"
+          onClick={() => onStageFilter?.(null)}
+        >
+          <span className="mr-2 text-muted-foreground">Alle</span>
+          <span className="font-semibold">{totalCandidates}</span>
+        </Badge>
+        <Badge 
+          variant={activeStage === "neu" ? "default" : "outline"} 
+          className="cursor-pointer px-4 py-2 transition-colors hover:bg-accent"
+          onClick={() => onStageFilter?.("neu")}
+        >
           <span className="mr-2 text-muted-foreground">Neu:</span>
           <span className="font-semibold">{stageCounts.neu}</span>
         </Badge>
-        <Badge variant="outline" className="px-4 py-2">
+        <Badge 
+          variant={activeStage === "freigeschaltet" ? "default" : "outline"} 
+          className="cursor-pointer px-4 py-2 transition-colors hover:bg-accent"
+          onClick={() => onStageFilter?.("freigeschaltet")}
+        >
           <span className="mr-2 text-muted-foreground">Freigeschaltet:</span>
           <span className="font-semibold">{stageCounts.freigeschaltet}</span>
         </Badge>
-        <Badge variant="outline" className="px-4 py-2">
+        <Badge 
+          variant={activeStage === "gespräch" ? "default" : "outline"} 
+          className="cursor-pointer px-4 py-2 transition-colors hover:bg-accent"
+          onClick={() => onStageFilter?.("gespräch")}
+        >
           <span className="mr-2 text-muted-foreground">Gespräch:</span>
           <span className="font-semibold">{stageCounts.gespräch}</span>
         </Badge>
-        <Badge variant="outline" className="px-4 py-2">
+        <Badge 
+          variant={activeStage === "archiv" ? "default" : "outline"} 
+          className="cursor-pointer px-4 py-2 transition-colors hover:bg-accent"
+          onClick={() => onStageFilter?.("archiv")}
+        >
           <span className="mr-2 text-muted-foreground">Archiv:</span>
           <span className="font-semibold">{stageCounts.archiv}</span>
         </Badge>

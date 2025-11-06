@@ -77,11 +77,11 @@ export function CandidateList({
             role={candidate.role}
             hasLicense={candidate.hasLicense}
             seeking={candidate.seeking}
-            jobSearchPreferences={candidate.jobSearchPreferences}
             linkedJobTitles={candidate.linkedJobTitles}
             onViewProfile={() => onViewProfile?.(candidate)}
             onUnlock={() => onUnlock?.(candidate)}
             onStageChange={(stage) => onStageChange?.(candidate.id, stage)}
+            onDownloadCV={() => {}}
           />
         ))}
       </div>
