@@ -11,6 +11,7 @@ export type MyApplication = {
   status: ApplicationStatus;
   created_at: string;
   unlocked_at?: string;
+  reason_short?: string;
   job: {
     id: string;
     title: string;
@@ -51,6 +52,7 @@ export function useMyApplications() {
           status,
           created_at,
           unlocked_at,
+          reason_short,
           job:job_posts!job_id (
             id,
             title,

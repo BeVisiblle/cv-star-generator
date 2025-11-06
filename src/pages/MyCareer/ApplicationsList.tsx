@@ -281,6 +281,68 @@ export function ApplicationsList({ searchQuery }: ApplicationsListProps) {
                         vor {formatDistanceToNow(new Date(application.created_at), { locale: de })}
                       </span>
                     </div>
+
+                    {/* Status Messages */}
+                    {application.status === "unlocked" && (
+                      <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                        <div className="flex items-start gap-2">
+                          <CheckCircle className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" />
+                          <div className="flex-1">
+                            <p className="text-sm font-medium text-blue-900">
+                              Profil wurde freigeschaltet
+                            </p>
+                            <p className="text-xs text-blue-700 mt-1">
+                              Das Unternehmen hat Zugriff auf Ihr vollständiges Profil erhalten.
+                              {application.unlocked_at && ` Am ${format(new Date(application.unlocked_at), "dd.MM.yyyy", { locale: de })}`}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {application.status === "interview_scheduled" && (
+                      <div className="mt-4 p-3 bg-purple-50 border border-purple-200 rounded-lg">
+                        <div className="flex items-start gap-2">
+                          <Calendar className="h-5 w-5 text-purple-600 flex-shrink-0 mt-0.5" />
+                          <div className="flex-1">
+                            <p className="text-sm font-medium text-purple-900">
+                              Sie wurden zu einem Gespräch eingeladen
+                            </p>
+                            <p className="text-xs text-purple-700 mt-1">
+                              Das Unternehmen möchte Sie zu einem Gespräch einladen. Bitte überprüfen Sie Ihre E-Mails für weitere Details.
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {application.status === "accepted" && (
+                      <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg">
+                        <div className="flex items-start gap-2">
+                          <CheckCircle className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" />
+                          <div className="flex-1">
+                            <p className="text-sm font-medium text-green-900">
+                              Glückwunsch! Sie haben eine Zusage erhalten
+                            </p>
+                            <p className="text-xs text-green-700 mt-1">
+                              Das Unternehmen hat Ihre Bewerbung akzeptiert. Weitere Informationen folgen per E-Mail.
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {application.status === "rejected" && application.reason_short && (
+                      <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                        <div className="flex items-start gap-2">
+                          <AlertCircle className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" />
+                          <div className="flex-1">
+                            <p className="text-sm font-medium text-red-900">Ablehnungsgrund</p>
+                            <p className="text-xs text-red-700 mt-1">{application.reason_short}</p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               </Card>
