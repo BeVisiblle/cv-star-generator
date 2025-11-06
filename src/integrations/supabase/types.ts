@@ -8635,6 +8635,28 @@ export type Database = {
           skills: string[]
         }[]
       }
+      get_candidates_for_job: {
+        Args: { p_filters?: Json; p_job_id: string }
+        Returns: {
+          application_id: string
+          bio_short: string
+          candidate_id: string
+          city: string
+          created_at: string
+          cv_url: string
+          email: string
+          experience_years: number
+          languages: string[]
+          match_score: number
+          name: string
+          phone: string
+          preference: string
+          skills: string[]
+          stage: string
+          unlocked: boolean
+          unlocked_at: string
+        }[]
+      }
       get_community_feed: {
         Args: { p_limit?: number; p_offset?: number; p_user_id: string }
         Returns: {
@@ -8965,6 +8987,14 @@ export type Database = {
       missing_required_documents: {
         Args: { p_job: string; p_user: string }
         Returns: string[]
+      }
+      move_application_stage: {
+        Args: {
+          p_application_id: string
+          p_archived_reason?: string
+          p_new_stage: string
+        }
+        Returns: undefined
       }
       must_set_password: { Args: never; Returns: boolean }
       notify_expiring_jobs: { Args: never; Returns: undefined }
@@ -9798,6 +9828,10 @@ export type Database = {
       unfollow_company: {
         Args: { p_company_id: string; p_profile_id: string }
         Returns: undefined
+      }
+      unlock_candidate: {
+        Args: { p_candidate_id: string; p_company_id: string; p_job_id: string }
+        Returns: Json
       }
       unlock_candidate_profile:
         | {
