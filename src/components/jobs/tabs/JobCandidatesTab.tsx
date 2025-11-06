@@ -73,7 +73,8 @@ export function JobCandidatesTab({ jobId }: JobCandidatesTabProps) {
   }, [jobId]);
 
   const { data: applications, isLoading } = useQuery({
-    queryKey: ["job-applications-detailed", jobId],
+    queryKey: ["job-applications-detailed", jobId, company?.id],
+    enabled: !!company?.id, // Only run query when company is loaded
     refetchOnMount: true, // Always refetch when component mounts
     refetchOnWindowFocus: false,
     queryFn: async () => {
