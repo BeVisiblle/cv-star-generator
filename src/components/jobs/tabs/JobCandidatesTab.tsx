@@ -129,9 +129,30 @@ export function JobCandidatesTab({ jobId }: JobCandidatesTabProps) {
           console.error("Error loading candidates:", candidatesError);
         }
 
-        // Map candidates to applications
+        // Also load profiles for job_search_preferences
+        const userIds = candidatesData?.map(c => c.user_id).filter(Boolean) || [];
+        let profilesMap = new Map();
+        
+        if (userIds.length > 0) {
+          const { data: profilesData } = await supabase
+            .from('profiles')
+            .select('id, job_search_preferences')
+            .in('id', userIds);
+          
+          profilesMap = new Map(
+            (profilesData || []).map(p => [p.id, p])
+          );
+        }
+
+        // Map candidates to applications with job_search_preferences
         const candidateMap = new Map(
-          (candidatesData || []).map(c => [c.id, c])
+          (candidatesData || []).map(c => {
+            const profile = profilesMap.get(c.user_id);
+            return [c.id, {
+              ...c,
+              job_search_preferences: profile?.job_search_preferences || []
+            }];
+          })
         );
 
         appData.forEach(app => {
@@ -259,8 +280,29 @@ export function JobCandidatesTab({ jobId }: JobCandidatesTabProps) {
           `)
           .in('user_id', linkedCandidateIds);
         
+        // Also load profiles for job_search_preferences
+        const userIds = candidateDetails?.map(c => c.user_id).filter(Boolean) || [];
+        let profilesMap = new Map();
+        
+        if (userIds.length > 0) {
+          const { data: profilesData } = await supabase
+            .from('profiles')
+            .select('id, job_search_preferences')
+            .in('id', userIds);
+          
+          profilesMap = new Map(
+            (profilesData || []).map(p => [p.id, p])
+          );
+        }
+        
         const candidateMap = new Map(
-          (candidateDetails || []).map(c => [c.user_id, c])
+          (candidateDetails || []).map(c => {
+            const profile = profilesMap.get(c.user_id);
+            return [c.user_id, {
+              ...c,
+              job_search_preferences: profile?.job_search_preferences || []
+            }];
+          })
         );
         
         linkedCandidatesWithDetails = linkedCandidates.map(cc => ({
@@ -525,9 +567,12 @@ export function JobCandidatesTab({ jobId }: JobCandidatesTabProps) {
                       }
                       
                       // Determine variant based on stage and tab
-                      let variant: "preview" | "unlocked" | "unlocked-actions" = "preview";
+                      let variant: "preview" | "unlocked" | "unlocked-actions" | "applicant" = "preview";
                       
-                      if (isUnlocked) {
+                      if (key === "bewerber" && !isUnlocked) {
+                        // In "Bewerber" tab: show simplified applicant variant
+                        variant = "applicant";
+                      } else if (isUnlocked) {
                         // In "Freigeschaltet" tab: always show actions (Interview/Absagen)
                         if (key === "freigeschaltet") {
                           variant = "unlocked-actions";
@@ -551,6 +596,7 @@ export function JobCandidatesTab({ jobId }: JobCandidatesTabProps) {
                           hasLicense={false}
                           seeking={candidate?.bio_short}
                           skills={Array.isArray(candidate?.skills) ? candidate.skills : []}
+                          jobSearchPreferences={candidate?.job_search_preferences}
                           email={isUnlocked ? candidate?.email : undefined}
                           phone={isUnlocked ? candidate?.phone : undefined}
                           variant={variant}
