@@ -11,14 +11,33 @@ export function useQuickApply(jobId: string) {
     queryKey: ["application-status", jobId, user?.id],
     enabled: !!user?.id && !!jobId,
     queryFn: async () => {
-      const { data, error } = await supabase
+      // First get the job's company_id
+      const { data: job } = await supabase
+        .from("job_posts")
+        .select("company_id")
+        .eq("id", jobId)
+        .single();
+
+      if (!job) return false;
+
+      // Then check if candidate entry exists for this company
+      const { data: candidate } = await supabase
+        .from("candidates")
+        .select("id")
+        .eq("user_id", user!.id)
+        .eq("company_id", job.company_id)
+        .maybeSingle();
+
+      if (!candidate) return false;
+
+      // Finally check if application exists
+      const { data } = await supabase
         .from("applications")
         .select("id")
-        .eq("candidate_id", user!.id)
+        .eq("candidate_id", candidate.id)
         .eq("job_id", jobId)
         .maybeSingle();
 
-      if (error) throw error;
       return !!data;
     },
   });
