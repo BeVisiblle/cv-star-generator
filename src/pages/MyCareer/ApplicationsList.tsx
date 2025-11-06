@@ -229,7 +229,7 @@ export function ApplicationsList({ searchQuery }: ApplicationsListProps) {
                             <Eye className="h-4 w-4 mr-2" />
                             Job ansehen
                           </DropdownMenuItem>
-                          {application.status === "interview_scheduled" && !application.contacted_confirmed && (
+                          {application.status === "interview_scheduled" && (
                             <DropdownMenuItem
                               onClick={(e) => {
                                 e.stopPropagation();
@@ -266,28 +266,7 @@ export function ApplicationsList({ searchQuery }: ApplicationsListProps) {
                       <span className="text-sm text-muted-foreground">
                         vor {formatDistanceToNow(new Date(application.created_at), { locale: de })}
                       </span>
-                      {!application.viewed_by_company && application.status === "pending" && (
-                        <Badge variant="outline" className="text-xs">
-                          Noch nicht gesehen
-                        </Badge>
-                      )}
                     </div>
-
-                    {/* Interview Note Display */}
-                    {application.status === "interview_scheduled" && application.interview_note && (
-                      <div className="mt-4 p-3 bg-muted rounded-lg">
-                        <p className="text-sm font-medium mb-1">Interview-Notiz:</p>
-                        <p className="text-sm text-muted-foreground">{application.interview_note}</p>
-                      </div>
-                    )}
-
-                    {/* Contact Confirmation Status */}
-                    {application.status === "interview_scheduled" && application.contacted_confirmed && (
-                      <div className="mt-4 flex items-center gap-2 text-sm text-green-600">
-                        <CheckCircle className="h-4 w-4" />
-                        <span>Kontakt bestätigt am {format(new Date(application.contacted_confirmed_at!), "dd.MM.yyyy", { locale: de })}</span>
-                      </div>
-                    )}
                   </div>
                 </div>
               </Card>

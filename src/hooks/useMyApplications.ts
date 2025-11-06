@@ -10,12 +10,7 @@ export type MyApplication = {
   job_id: string;
   status: ApplicationStatus;
   created_at: string;
-  viewed_by_company: boolean;
   unlocked_at?: string;
-  company_response_at?: string;
-  interview_note?: string;
-  contacted_confirmed?: boolean;
-  contacted_confirmed_at?: string;
   job: {
     id: string;
     title: string;
@@ -36,6 +31,18 @@ export function useMyApplications() {
     queryKey: ["my-applications", user?.id],
     enabled: !!user?.id,
     queryFn: async () => {
+      // First get candidate entries for this user
+      const { data: candidates } = await supabase
+        .from("candidates")
+        .select("id, company_id")
+        .eq("user_id", user!.id);
+
+      if (!candidates || candidates.length === 0) {
+        return [];
+      }
+
+      const candidateIds = candidates.map(c => c.id);
+
       const { data, error } = await supabase
         .from("applications")
         .select(`
@@ -43,12 +50,7 @@ export function useMyApplications() {
           job_id,
           status,
           created_at,
-          viewed_by_company,
           unlocked_at,
-          company_response_at,
-          interview_note,
-          contacted_confirmed,
-          contacted_confirmed_at,
           job:job_posts!job_id (
             id,
             title,
@@ -61,7 +63,7 @@ export function useMyApplications() {
             )
           )
         `)
-        .eq("user_id", user!.id)
+        .in("candidate_id", candidateIds)
         .order("created_at", { ascending: false });
 
       if (error) throw error;

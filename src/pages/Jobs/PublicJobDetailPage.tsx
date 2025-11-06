@@ -246,7 +246,17 @@ export default function PublicJobDetailPage() {
 
             {/* Apply Buttons */}
             <div className="space-y-3">
-              {!hasApplied ? (
+              {hasApplied ? (
+                <Button 
+                  className="w-full" 
+                  size="lg"
+                  variant="outline"
+                  disabled
+                >
+                  <CheckCircle className="h-5 w-5 mr-2" />
+                  Bereits beworben
+                </Button>
+              ) : (
                 <>
                   <Button 
                     className="w-full bg-blue-600 hover:bg-blue-700 text-white" 
@@ -313,21 +323,8 @@ export default function PublicJobDetailPage() {
                     </div>
                   )}
                 </>
-              ) : (
-                <div className="space-y-2">
-                  <Button 
-                    className="w-full bg-green-600 hover:bg-green-700 text-white" 
-                    size="lg"
-                    disabled
-                  >
-                    <CheckCircle className="h-4 w-4 mr-2" />
-                    Bereits beworben
-                  </Button>
-                  <p className="text-xs text-center text-muted-foreground">
-                    Du kannst den Status deiner Bewerbung unter "Meine Karriere" einsehen
-                  </p>
-                </div>
               )}
+              
               
               <Button 
                 className={`w-full ${isSaved ? 'bg-orange-600 hover:bg-orange-700' : 'bg-orange-500 hover:bg-orange-600'} text-white`}
