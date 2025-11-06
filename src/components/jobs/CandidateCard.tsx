@@ -1,7 +1,7 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Heart, MapPin, Car, Briefcase, Mail, Phone, Download, Eye, User, Unlock, Search } from "lucide-react";
+import { Heart, MapPin, Car, Briefcase, Mail, Phone, Download, Eye, User, Unlock, Search, Linkedin } from "lucide-react";
 import { useState, useMemo } from "react";
 
 type CandidateCardProps = {
@@ -15,6 +15,7 @@ type CandidateCardProps = {
   skills: string[];
   email?: string;
   phone?: string;
+  linkedinUrl?: string;
   variant?: "preview" | "unlocked" | "unlocked-actions" | "applicant";
   linkedJobTitles?: Array<{ id: string; title: string }>;
   unlockReason?: string;
@@ -297,7 +298,7 @@ export function CandidateCard(p: CandidateCardProps) {
               {p.email ?? "—"}
             </a>
           </div>
-          <div className="flex items-center gap-1 text-xs">
+          <div className="flex items-center gap-1 text-xs mb-1">
             <Phone className="h-3 w-3 text-green-600" />
             <a 
               href={`tel:${p.phone}`} 
@@ -307,6 +308,20 @@ export function CandidateCard(p: CandidateCardProps) {
               {p.phone ?? "—"}
             </a>
           </div>
+          {p.linkedinUrl && (
+            <div className="flex items-center gap-1 text-xs">
+              <Linkedin className="h-3 w-3 text-blue-700" />
+              <a 
+                href={p.linkedinUrl} 
+                target="_blank"
+                rel="noopener noreferrer"
+                className="truncate text-blue-700 hover:underline"
+                onClick={(e) => e.stopPropagation()}
+              >
+                LinkedIn Profil
+              </a>
+            </div>
+          )}
         </div>
       )}
     </article>

@@ -121,7 +121,8 @@ export function JobCandidatesTab({ jobId }: JobCandidatesTabProps) {
             cv_url,
             languages,
             experience_years,
-            availability_status
+            availability_status,
+            linkedin_url
           `)
           .in('id', candidateIds);
 
@@ -276,7 +277,8 @@ export function JobCandidatesTab({ jobId }: JobCandidatesTabProps) {
             cv_url,
             languages,
             experience_years,
-            availability_status
+            availability_status,
+            linkedin_url
           `)
           .in('user_id', linkedCandidateIds);
         
@@ -566,15 +568,16 @@ export function JobCandidatesTab({ jobId }: JobCandidatesTabProps) {
                         }
                       }
                       
-                      // Determine variant based on stage and tab
+                      // Determine variant based on unlock status and tab
                       let variant: "preview" | "unlocked" | "unlocked-actions" | "applicant" = "preview";
                       
-                      if (key === "bewerber" && !isUnlocked) {
-                        // In "Bewerber" tab: show simplified applicant variant
-                        variant = "applicant";
-                      } else if (isUnlocked) {
-                        // In "Freigeschaltet" tab: always show actions (Interview/Absagen)
-                        if (key === "freigeschaltet") {
+                      // If globally unlocked, always show full info with actions
+                      if (isUnlocked) {
+                        if (key === "bewerber") {
+                          // In "Bewerber" tab: show actions (Interview/Absagen) for unlocked candidates
+                          variant = "unlocked-actions";
+                        } else if (key === "freigeschaltet") {
+                          // In "Freigeschaltet" tab: always show actions (Interview/Absagen)
                           variant = "unlocked-actions";
                         } else if (key === "interview" || key === "angebot") {
                           // In later stages: read-only view
@@ -583,6 +586,9 @@ export function JobCandidatesTab({ jobId }: JobCandidatesTabProps) {
                           // Default: unlocked with actions if new stage
                           variant = isNewStage ? "unlocked-actions" : "unlocked";
                         }
+                      } else if (key === "bewerber") {
+                        // Not unlocked and in "Bewerber" tab: show simplified applicant variant
+                        variant = "applicant";
                       }
 
                       return (
@@ -599,6 +605,7 @@ export function JobCandidatesTab({ jobId }: JobCandidatesTabProps) {
                           jobSearchPreferences={candidate?.job_search_preferences}
                           email={isUnlocked ? candidate?.email : undefined}
                           phone={isUnlocked ? candidate?.phone : undefined}
+                          linkedinUrl={isUnlocked ? candidate?.linkedin_url : undefined}
                           variant={variant}
                           linkedJobTitles={app.linkedJobTitles}
                           unlockReason={unlockReason}
