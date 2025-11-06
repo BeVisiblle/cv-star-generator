@@ -14,8 +14,8 @@ export function useQuickApply(jobId: string) {
       const { data, error } = await supabase
         .from("applications")
         .select("id")
-        .eq("user_id", user!.id)
-        .eq("job_post_id", jobId)
+        .eq("candidate_id", user!.id)
+        .eq("job_id", jobId)
         .maybeSingle();
 
       if (error) throw error;
