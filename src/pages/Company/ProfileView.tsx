@@ -41,14 +41,57 @@ export default function ProfileView() {
 
   const loadProfile = async () => {
     try {
-      const { data, error } = await supabase
+      console.log("🔍 Loading profile for ID:", id);
+      
+      // First, try to load from profiles table directly (user_id)
+      let { data: profileData, error: profileError } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', id)
-        .single();
+        .maybeSingle();
 
-      if (error) throw error;
-      setProfile(data);
+      // If not found in profiles, check if it's a candidate_id
+      if (!profileData) {
+        console.log("❌ Not found in profiles, checking candidates table...");
+        
+        const { data: candidateData, error: candidateError } = await supabase
+          .from('candidates')
+          .select('user_id, full_name, vorname, nachname, email, phone, city, profile_image, title, bio_short, skills, cv_url')
+          .eq('id', id)
+          .maybeSingle();
+
+        if (candidateError) {
+          console.error("Error loading from candidates:", candidateError);
+        }
+
+        if (candidateData) {
+          console.log("✅ Found in candidates table, loading profile for user_id:", candidateData.user_id);
+          
+          // Now load the full profile using the user_id
+          const { data: userProfile, error: userProfileError } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', candidateData.user_id)
+            .maybeSingle();
+
+          if (userProfileError) {
+            console.error("Error loading user profile:", userProfileError);
+          }
+
+          // Use the full user profile if it exists, otherwise profileData remains null
+          // and we'll show the "Profil nicht gefunden" message
+          if (userProfile) {
+            profileData = userProfile;
+          }
+        }
+      }
+
+      if (!profileData) {
+        throw new Error('Profil nicht gefunden');
+      }
+
+      console.log("✅ Profile loaded:", profileData);
+      setProfile(profileData);
     } catch (error: any) {
       console.error('Error loading profile:', error);
       toast.error('Fehler beim Laden des Profils');
