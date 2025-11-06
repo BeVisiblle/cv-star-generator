@@ -8695,6 +8695,33 @@ export type Database = {
           share_id: string
         }[]
       }
+      get_applications_by_status: {
+        Args: {
+          _company_id: string
+          _job_id?: string
+          _limit?: number
+          _offset?: number
+          _status: Database["public"]["Enums"]["application_status"]
+        }
+        Returns: {
+          application_id: string
+          candidate_email: string
+          candidate_full_name: string
+          candidate_id: string
+          candidate_phone: string
+          candidate_profile_image: string
+          created_at: string
+          is_new: boolean
+          job_id: string
+          match_score: number
+          reason_custom: string
+          reason_short: string
+          source: Database["public"]["Enums"]["application_source"]
+          status: Database["public"]["Enums"]["application_status"]
+          unlocked_at: string
+          updated_at: string
+        }[]
+      }
       get_authorized_applications: {
         Args: { p_company_id: string; p_requester_id: string }
         Returns: {
@@ -9173,6 +9200,35 @@ export type Database = {
         Args: { actor: string; job_uuid: string }
         Returns: undefined
       }
+      search_candidates: {
+        Args: {
+          _company_id: string
+          _job_id?: string
+          _limit?: number
+          _offset?: number
+          _search_text?: string
+        }
+        Returns: {
+          application_id: string
+          application_status: Database["public"]["Enums"]["application_status"]
+          bio_short: string
+          city: string
+          country: string
+          created_at: string
+          email: string
+          experience_years: number
+          full_name: string
+          id: string
+          is_unlocked: boolean
+          languages: string[]
+          phone: string
+          profile_image: string
+          salary_expectation_max: number
+          salary_expectation_min: number
+          skills: string[]
+          user_id: string
+        }[]
+      }
       search_candidates_within_radius: {
         Args: { lat_input: number; lon_input: number; radius_km: number }
         Returns: {
@@ -9200,6 +9256,15 @@ export type Database = {
           name: string
           postal_code: string
         }[]
+      }
+      set_application_status: {
+        Args: {
+          _application_id: string
+          _new_status: Database["public"]["Enums"]["application_status"]
+          _reason_custom?: string
+          _reason_short?: string
+        }
+        Returns: Json
       }
       set_community_preferences: {
         Args: {
@@ -9918,7 +9983,7 @@ export type Database = {
         Returns: undefined
       }
       unlock_candidate: {
-        Args: { p_candidate_id: string; p_company_id: string; p_job_id: string }
+        Args: { _candidate_id: string; _company_id: string; _job_id?: string }
         Returns: Json
       }
       unlock_candidate_profile:
