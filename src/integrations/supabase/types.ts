@@ -8639,7 +8639,7 @@ export type Database = {
         Args: { p_filters?: Json; p_job_id: string }
         Returns: {
           application_id: string
-          availability_status: string
+          availability: string
           avatar_url: string
           bio_short: string
           candidate_id: string
@@ -8652,13 +8652,12 @@ export type Database = {
           headline: string
           industry: string
           job_search_preferences: string[]
-          languages: string[]
+          languages: Json
           license: boolean
           linked_job_titles: Json
           match_score: number
           nachname: string
           phone: string
-          plz: string
           skills: string[]
           stage: string
           status: string
