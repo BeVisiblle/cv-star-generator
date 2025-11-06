@@ -8639,6 +8639,8 @@ export type Database = {
         Args: { p_filters?: Json; p_job_id: string }
         Returns: {
           application_id: string
+          availability_status: string
+          avatar_url: string
           bio_short: string
           candidate_id: string
           city: string
@@ -8646,15 +8648,22 @@ export type Database = {
           cv_url: string
           email: string
           experience_years: number
+          full_name: string
+          headline: string
+          industry: string
+          job_search_preferences: string[]
           languages: string[]
+          license: boolean
+          linked_job_titles: Json
           match_score: number
-          name: string
+          nachname: string
           phone: string
-          preference: string
+          plz: string
           skills: string[]
           stage: string
-          unlocked: boolean
+          status: string
           unlocked_at: string
+          vorname: string
         }[]
       }
       get_community_feed: {
