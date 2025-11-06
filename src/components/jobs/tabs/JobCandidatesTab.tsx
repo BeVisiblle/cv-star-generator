@@ -424,16 +424,25 @@ export function JobCandidatesTab({ jobId }: JobCandidatesTabProps) {
   };
 
   const handleViewProfile = (application: any) => {
+    console.log("🔍 handleViewProfile called:", {
+      unlocked_at: application.unlocked_at,
+      global_unlocked_at: application.global_unlocked_at,
+      status: application.status,
+      candidate: application.candidates
+    });
+    
     setSelectedApplication(application);
 
     const isGloballyUnlocked = application.global_unlocked_at;
     const isUnlocked = application.unlocked_at || isGloballyUnlocked;
 
+    console.log("🔓 Unlock status:", { isUnlocked, isGloballyUnlocked });
+
     if (!isUnlocked) {
-      // Open preview modal for locked profiles
+      console.log("❌ Opening preview modal (not unlocked)");
       setPreviewModalOpen(true);
     } else {
-      // Open full profile modal for unlocked profiles with actions
+      console.log("✅ Opening full profile modal (unlocked)");
       setModalMode("full-actions");
       setIsProfileModalOpen(true);
     }
