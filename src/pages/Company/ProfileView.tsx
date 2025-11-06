@@ -352,6 +352,7 @@ export default function ProfileView() {
             onOpenChange={setUnlockModalOpen}
             candidate={{
               id: profile.id,
+              user_id: profile.user_id,
               full_name: profile.full_name,
               vorname: profile.vorname,
               nachname: profile.nachname,

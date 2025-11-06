@@ -684,6 +684,7 @@ export function JobCandidatesTab({ jobId }: JobCandidatesTabProps) {
           onOpenChange={setUnlockModalOpen}
           candidate={{
             id: selectedApplication.candidate_id,
+            user_id: selectedApplication.candidates?.user_id,
             full_name: selectedApplication.candidates?.full_name,
             vorname: selectedApplication.candidates?.vorname,
             nachname: selectedApplication.candidates?.nachname,

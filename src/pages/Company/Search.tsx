@@ -41,6 +41,7 @@ import {
 
 interface Profile {
   id: string;
+  user_id?: string;
   vorname: string;
   nachname: string;
   status: string;
@@ -633,6 +634,7 @@ export default function CompanySearch() {
           onOpenChange={(open) => setUnlockModalData({ open, profile: null })}
           candidate={{
             id: unlockModalData.profile.id,
+            user_id: unlockModalData.profile.user_id || unlockModalData.profile.id,
             full_name: `${unlockModalData.profile.vorname} ${unlockModalData.profile.nachname}`,
             vorname: unlockModalData.profile.vorname,
             nachname: unlockModalData.profile.nachname,
