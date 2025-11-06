@@ -42,7 +42,16 @@ export default function JobDetail() {
     <div className="min-h-screen bg-background">
       <JobDetailHeader job={job} company={company} />
       <div className="max-w-[1600px] mx-auto px-6 py-8">
-        <JobApplicationTabs jobId={job.id} companyId={company.id} />
+        <JobApplicationTabs 
+          jobId={job.id} 
+          companyId={company.id}
+          job={{
+            title: job.title,
+            city: job.city,
+            employment_type: job.employment_type,
+            industry: job.industry,
+          }}
+        />
       </div>
     </div>
   );
