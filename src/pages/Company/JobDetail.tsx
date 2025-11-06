@@ -2,7 +2,7 @@ import { useParams } from "react-router-dom";
 import { useJob } from "@/hooks/useJobs";
 import { useCompany } from "@/hooks/useCompany";
 import { JobDetailHeader } from "@/components/jobs/JobDetailHeader";
-import { JobDetailTabs } from "@/components/jobs/JobDetailTabs";
+import { JobApplicationTabs } from "@/components/jobs/JobApplicationTabs";
 
 export default function JobDetail() {
   const { id } = useParams<{ id: string }>();
@@ -41,7 +41,9 @@ export default function JobDetail() {
   return (
     <div className="min-h-screen bg-background">
       <JobDetailHeader job={job} company={company} />
-      <JobDetailTabs job={job} company={company} />
+      <div className="max-w-[1600px] mx-auto px-6 py-8">
+        <JobApplicationTabs jobId={job.id} companyId={company.id} />
+      </div>
     </div>
   );
 }

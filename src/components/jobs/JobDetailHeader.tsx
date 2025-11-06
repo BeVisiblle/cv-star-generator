@@ -27,35 +27,28 @@ export function JobDetailHeader({
   const [previewOpen, setPreviewOpen] = useState(false);
 
   // Fetch applications count
-  const {
-    data: applicationsCount = 0
-  } = useQuery({
+  const { data: applicationsCount = 0 } = useQuery<number>({
     queryKey: ["applications-count", job.id],
-    queryFn: async () => {
-      const {
-        count
-      } = await supabase.from("applications").select("*", {
-        count: "exact",
-        head: true
-      }).eq("job_post_id", job.id);
+    queryFn: async (): Promise<number> => {
+      const { count } = await supabase
+        .from("applications")
+        .select("*", { count: "exact", head: true })
+        .eq("job_id", job.id);
       return count || 0;
-    }
+    },
   });
 
   // Fetch unlocked profiles count
-  const {
-    data: unlockedCount = 0
-  } = useQuery({
+  const { data: unlockedCount = 0 } = useQuery<number>({
     queryKey: ["unlocked-count", job.id],
-    queryFn: async () => {
-      const {
-        count
-      } = await supabase.from("applications").select("*", {
-        count: "exact",
-        head: true
-      }).eq("job_post_id", job.id).eq("viewed_by_company", true);
+    queryFn: async (): Promise<number> => {
+      const { count } = await supabase
+        .from("applications")
+        .select("*", { count: "exact", head: true })
+        .eq("job_id", job.id)
+        .eq("status", "unlocked");
       return count || 0;
-    }
+    },
   });
   const getEmploymentTypeLabel = (type: string) => {
     const labels: Record<string, string> = {
