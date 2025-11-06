@@ -78,6 +78,7 @@ export function JobCandidatesTab({ jobId }: JobCandidatesTabProps) {
     refetchOnWindowFocus: false,
     queryFn: async () => {
       console.log("🔄 Fetching applications for job:", jobId);
+      console.log("🏢 Company ID:", company?.id);
       
       // Step 1: Load applications WITHOUT join first
       const { data: appData, error: appError } = await supabase
@@ -234,7 +235,7 @@ export function JobCandidatesTab({ jobId }: JobCandidatesTabProps) {
       console.log("New status (should show in Bewerber):", appData?.filter(a => a.status === 'new' && !a.unlocked_at).length || 0);
       console.log("Data:", appData);
 
-      // Step 2: Load linked candidates - FIX: Don't select phone/email from profiles (they don't exist)
+      // Step 2: Load linked candidates - use JSONB contains operator
       const { data: linkedCandidates, error: linkedError } = await supabase
         .from("company_candidates")
         .select(`
@@ -246,18 +247,22 @@ export function JobCandidatesTab({ jobId }: JobCandidatesTabProps) {
           created_at,
           linked_job_ids
         `)
-        .contains("linked_job_ids", [jobId])
+        .eq('company_id', company?.id)
         .not("unlocked_at", "is", null);
 
-      if (linkedError) {
-        console.warn("Could not load linked candidates:", linkedError);
-        // Continue with just the regular applications
-      }
+      console.log("📋 Linked candidates raw:", linkedCandidates, "Error:", linkedError);
+
+      // Filter in JavaScript since JSONB contains can be tricky
+      const filteredLinkedCandidates = linkedCandidates?.filter(cc => {
+        if (!cc.linked_job_ids) return false;
+        const jobIds = Array.isArray(cc.linked_job_ids) ? cc.linked_job_ids : [];
+        return jobIds.includes(jobId);
+      });
       
       // Now get candidate details separately for linked candidates
       let linkedCandidatesWithDetails = [];
-      if (linkedCandidates && linkedCandidates.length > 0) {
-        const linkedCandidateIds = linkedCandidates.map(cc => cc.candidate_id);
+      if (filteredLinkedCandidates && filteredLinkedCandidates.length > 0) {
+        const linkedCandidateIds = filteredLinkedCandidates.map(cc => cc.candidate_id);
         
         const { data: candidateDetails } = await supabase
           .from('candidates')
@@ -307,11 +312,13 @@ export function JobCandidatesTab({ jobId }: JobCandidatesTabProps) {
           })
         );
         
-        linkedCandidatesWithDetails = linkedCandidates.map(cc => ({
+        linkedCandidatesWithDetails = filteredLinkedCandidates.map(cc => ({
           ...cc,
           candidates: candidateMap.get(cc.candidate_id)
         }));
       }
+
+      console.log("🔗 Filtered linked candidates with details:", linkedCandidatesWithDetails);
 
       // Step 3: Create virtual applications for linked candidates
       const virtualApplications = linkedCandidatesWithDetails
