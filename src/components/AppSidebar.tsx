@@ -33,7 +33,7 @@ const navigationItems = [{
 const communityItems = [
   { title: "Community", url: "/marketplace", icon: Users },
   { title: "Freunde", url: "/community/contacts", icon: UserPlus },
-  { title: "Nachrichten", url: "/messages", icon: Mail },
+  { title: "Nachrichten", url: "/community/messages", icon: Mail },
   { title: "Gruppen", url: "/groups", icon: UsersRound }
 ];
 
