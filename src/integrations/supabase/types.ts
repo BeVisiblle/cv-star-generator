@@ -8649,7 +8649,7 @@ export type Database = {
           match_score: number
           phone: string
           profile_id: string
-          skills: Json
+          skills: string[]
           stage: string
           unlocked_at: string
         }[]
