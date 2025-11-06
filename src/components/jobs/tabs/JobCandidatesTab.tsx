@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { CandidateCard } from "../CandidateCard";
+import { ProfileCard } from "@/components/profile/ProfileCard";
 import { FullProfileModal } from "@/components/Company/FullProfileModal";
 import { UnlockProfileModal } from "@/components/Company/UnlockProfileModal";
 import CandidateUnlockModal from "@/components/unlock/CandidateUnlockModal";
@@ -562,63 +562,51 @@ export function JobCandidatesTab({ jobId }: JobCandidatesTabProps) {
                         }
                       }
                       
-                      // Determine variant based on stage and tab
-                      let variant: "preview" | "unlocked" | "unlocked-actions" = "preview";
-                      
-                      if (isUnlocked) {
-                        // In "Freigeschaltet" tab: always show actions (Interview/Absagen)
-                        if (key === "freigeschaltet") {
-                          variant = "unlocked-actions";
-                        } else if (key === "interview" || key === "finale" || key === "angebot") {
-                          // In later stages: read-only view
-                          variant = "unlocked";
-                        } else {
-                          // Default: unlocked with actions if new stage
-                          variant = isNewStage ? "unlocked-actions" : "unlocked";
-                        }
-                      }
+                      // Determine variant - unlocked profiles in "freigeschaltet" tab get interview/reject buttons
+                      const showInterviewActions = isUnlocked && key === "freigeschaltet";
+                      const variant = isUnlocked ? "unlocked" : "search";
 
                       return (
-                        <CandidateCard
+                        <ProfileCard
                           key={app.id}
-                          name={candidate?.full_name || `${candidate?.vorname} ${candidate?.nachname}`.trim() || "Unbekannt"}
-                          matchPercent={app.match_score || 0}
-                          avatarUrl={candidate?.profile_image}
-                          role={candidate?.title}
-                          city={candidate?.city}
-                          hasLicense={false}
-                          seeking={candidate?.bio_short}
-                          skills={Array.isArray(candidate?.skills) ? candidate.skills : []}
-                          email={isUnlocked ? candidate?.email : undefined}
-                          phone={isUnlocked ? candidate?.phone : undefined}
+                          profile={{
+                            id: candidate?.id || app.candidate_id,
+                            name: candidate?.full_name || `${candidate?.vorname} ${candidate?.nachname}`.trim() || "Unbekannt",
+                            avatar_url: candidate?.profile_image,
+                            role: candidate?.title,
+                            city: candidate?.city,
+                            fs: false,
+                            seeking: candidate?.bio_short,
+                            skills: Array.isArray(candidate?.skills) ? candidate.skills : [],
+                            email: isUnlocked ? candidate?.email : undefined,
+                            phone: isUnlocked ? candidate?.phone : undefined,
+                            match: app.match_score || 0,
+                          }}
                           variant={variant}
-                          linkedJobTitles={app.linkedJobTitles}
                           unlockReason={unlockReason}
-                          unlockSource={app.companyCandidate?.source}
                           unlockNotes={app.companyCandidate?.notes}
-                          onViewProfile={() => handleViewProfile(app)}
-                          onDownloadCV={() => {
+                          onView={() => handleViewProfile(app)}
+                          onDownload={() => {
                             if (candidate?.cv_url) {
                               window.open(candidate.cv_url, '_blank');
                             } else {
                               toast.error("Kein CV verfügbar");
                             }
                           }}
-                          onUnlock={() => {
-                            setSelectedApplication(app);
-                            setUnlockModalOpen(true);
+                          onToggleFavorite={() => {
+                            // TODO: Implement favorite toggle
                           }}
-                          onAcceptInterview={() => {
+                          onAcceptInterview={showInterviewActions ? () => {
                             setSelectedApplication(app);
                             handleStageChange("interview");
-                          }}
-                          onReject={() => {
+                          } : undefined}
+                          onReject={showInterviewActions ? () => {
                             const reason = window.prompt("Bitte geben Sie einen Grund für die Absage ein (optional):");
                             if (reason !== null) {
                               setSelectedApplication(app);
                               handleMarkUnsuitableApplication(app, reason);
                             }
-                          }}
+                          } : undefined}
                         />
                       );
                     })}

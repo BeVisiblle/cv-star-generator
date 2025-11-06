@@ -27,6 +27,8 @@ type Props = {
   onView?: () => void;
   onDownload?: () => void;
   onToggleFavorite?: () => void;
+  onAcceptInterview?: () => void;
+  onReject?: () => void;
 };
 
 export function ProfileCard({
@@ -38,6 +40,8 @@ export function ProfileCard({
   onView,
   onDownload,
   onToggleFavorite,
+  onAcceptInterview,
+  onReject,
 }: Props) {
   const match = Math.round(p.match ?? 0);
 
@@ -163,10 +167,29 @@ export function ProfileCard({
 
       <div className="flex-1" />
 
-      {/* 5) Actions - Same for dashboard and search variants now */}
-      <div className="mt-2 flex h-[44px] items-center gap-2">
-        {variant === "unlocked" && (
-          <>
+      {/* 5) Actions - Conditional based on props */}
+      {variant === "unlocked" && (
+        <>
+          {/* Show Interview/Absagen buttons if handlers are provided */}
+          {(onAcceptInterview || onReject) && (
+            <div className="mt-2 flex h-[44px] items-center gap-2">
+              <button 
+                onClick={onReject}
+                className="inline-flex h-9 flex-1 items-center justify-center gap-1 rounded-lg border border-red-200 bg-red-50 px-3 text-xs text-red-700 hover:bg-red-100"
+              >
+                ❌ Absagen
+              </button>
+              <button 
+                onClick={onAcceptInterview}
+                className="inline-flex h-9 flex-1 items-center justify-center gap-1 rounded-lg border border-green-200 bg-green-50 px-3 text-xs text-green-700 hover:bg-green-100"
+              >
+                ✅ Interview planen
+              </button>
+            </div>
+          )}
+          
+          {/* Always show View/Download buttons for unlocked */}
+          <div className="mt-2 flex h-[44px] items-center gap-2">
             <button 
               onClick={onView} 
               className="inline-flex h-9 flex-1 items-center justify-center gap-1 rounded-lg border px-3 text-xs hover:bg-gray-50"
@@ -181,17 +204,20 @@ export function ProfileCard({
               <Download className="h-4 w-4" />
               <span>CV Download</span>
             </button>
-          </>
-        )}
-        {(variant === "search" || variant === "dashboard") && (
+          </div>
+        </>
+      )}
+      
+      {(variant === "search" || variant === "dashboard") && (
+        <div className="mt-2 flex h-[44px] items-center gap-2">
           <button 
             onClick={onView} 
             className="w-full rounded-lg bg-blue-600 px-3 py-2 text-center text-xs text-white hover:bg-blue-700"
           >
             Profil ansehen
           </button>
-        )}
-      </div>
+        </div>
+      )}
     </article>
   );
 }
